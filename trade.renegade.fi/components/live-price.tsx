@@ -1,9 +1,10 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons"
 import { Box, Flex, Text } from "@chakra-ui/react"
-import { Exchange, PriceReport } from "@renegade-fi/renegade-js"
+import { Exchange } from "@renegade-fi/renegade-js"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { useExchange } from "@/contexts/Exchange/exchange-context"
+import { PriceReport } from "@/contexts/Exchange/types"
 import { TICKER_TO_DEFAULT_DECIMALS } from "@/lib/tokens"
 
 import { BannerSeparator } from "./banner-separator"
@@ -31,10 +32,8 @@ export const LivePrices = ({
   shouldRotate,
   withCommas,
 }: LivePricesProps) => {
-  const [previousPriceReport, setPreviousPriceReport] = useState<PriceReport>(
-    {}
-  )
-  const [currentPriceReport, setCurrentPriceReport] = useState<PriceReport>({})
+  const [previousPriceReport, setPreviousPriceReport] = useState<PriceReport>()
+  const [currentPriceReport, setCurrentPriceReport] = useState<PriceReport>()
 
   const { getPriceData, onRegisterPriceListener } = useExchange()
   const priceReport = getPriceData(exchange, baseTicker, quoteTicker)
@@ -85,21 +84,21 @@ export const LivePrices = ({
   // price and red/green fade class
   let priceStrClass = ""
   if (
-    previousPriceReport.midpointPrice &&
-    currentPriceReport.midpointPrice &&
-    currentPriceReport.midpointPrice > previousPriceReport.midpointPrice
+    previousPriceReport?.price &&
+    currentPriceReport?.price &&
+    currentPriceReport.price > previousPriceReport.price
   ) {
     priceStrClass = "fade-green-to-white"
   } else if (
-    previousPriceReport.midpointPrice &&
-    currentPriceReport.midpointPrice &&
-    currentPriceReport.midpointPrice < previousPriceReport.midpointPrice
+    previousPriceReport?.price &&
+    currentPriceReport?.price &&
+    currentPriceReport.price < previousPriceReport.price
   ) {
     priceStrClass = "fade-red-to-white"
   }
 
-  let price = currentPriceReport.midpointPrice
-    ? currentPriceReport.midpointPrice
+  let price = currentPriceReport?.price
+    ? currentPriceReport.price
     : baseTicker === "USDC"
     ? 1
     : priceProp
@@ -114,7 +113,7 @@ export const LivePrices = ({
   // Format the price as a string
   let priceStr = price.toFixed(trailingDecimals)
   if (
-    (!Object.keys(currentPriceReport).length || scaleBy === 0) &&
+    (!Object.keys(currentPriceReport || {}).length || scaleBy === 0) &&
     baseDefaultDecimals > 0 &&
     baseTicker !== "USDC"
   ) {
@@ -136,9 +135,11 @@ export const LivePrices = ({
     return <Text opacity={priceOpacity}>${priceStr}</Text>
   }
 
-  const key = [baseTicker, quoteTicker, currentPriceReport.localTimestamp].join(
-    "_"
-  )
+  const key = [
+    baseTicker,
+    quoteTicker,
+    currentPriceReport?.localTimestamp,
+  ].join("_")
 
   // Create the icon to display next to the price
   let priceIcon

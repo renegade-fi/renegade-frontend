@@ -1,4 +1,4 @@
-import { CallbackId, Exchange, PriceReport } from "@renegade-fi/renegade-js"
+import { CallbackId, Exchange } from "@renegade-fi/renegade-js"
 import {
   PropsWithChildren,
   createContext,
@@ -12,7 +12,7 @@ import {
 import { renegade } from "@/app/providers"
 import { getToken } from "@/lib/utils"
 
-import { ExchangeContextValue } from "./types"
+import { ExchangeContextValue, PriceReport } from "./types"
 
 const UPDATE_THRESHOLD_MS = 1000
 
@@ -26,6 +26,7 @@ function ExchangeProvider({ children }: PropsWithChildren) {
     [key: string]: PriceReport
   }>({})
 
+  console.log("🚀 ~ ExchangeProvider ~ priceReport:", priceReport)
   const handlePriceListener = useCallback(
     async (
       exchange: Exchange,
@@ -40,9 +41,22 @@ function ExchangeProvider({ children }: PropsWithChildren) {
 
       let lastUpdate = 0
 
+      //   {
+      //     "type": "PriceReport",
+      //     "baseToken": {
+      //         "addr": "0xbeb41fc8fe10b648472cb4b98ed86cb454bf3f3b"
+      //     },
+      //     "quoteToken": {
+      //         "addr": "0x4517bab8ec4976f632569b09193405c322e0ccd0"
+      //     },
+      //     "price": 3501.5,
+      //     "localTimestamp": 1711571700
+      // }
+
       const callbackId = await renegade
         .registerPriceReportCallback(
           (message: string) => {
+            // console.log("🚀 ~ ExchangeProvider ~ message:", message)
             const priceReport = JSON.parse(message) as PriceReport
             const now = Date.now()
             if (now - lastUpdate <= UPDATE_THRESHOLD_MS) {
@@ -54,8 +68,8 @@ function ExchangeProvider({ children }: PropsWithChildren) {
             setPriceReport((prev) => {
               if (
                 !prev[key] ||
-                prev[key].midpointPrice?.toFixed(decimals || 2) !==
-                  priceReport.midpointPrice?.toFixed(decimals || 2)
+                prev[key].price?.toFixed(decimals || 2) !==
+                  priceReport.price?.toFixed(decimals || 2)
               ) {
                 return {
                   ...prev,
