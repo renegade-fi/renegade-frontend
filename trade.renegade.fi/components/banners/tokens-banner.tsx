@@ -8,11 +8,7 @@ import Marquee from "@/components/banners/marquee"
 import { LivePrices } from "@/components/live-price"
 import { DISPLAYED_TICKERS } from "@/lib/tokens"
 
-export function TokensBanner({
-  prices,
-}: {
-  prices: (PriceReport | undefined)[]
-}) {
+export function TokensBanner({ prices }: { prices: number[] }) {
   return (
     <Marquee
       autoFill
@@ -39,7 +35,7 @@ export function TokensBanner({
                 baseTicker={baseTicker}
                 quoteTicker={quoteTicker}
                 exchange={Exchange.Median}
-                price={prices[i]?.midpointPrice}
+                price={prices[i]}
               />
             </Stack>
           </Link>
