@@ -48,29 +48,28 @@ export const LivePrices = ({
     return ["USDC", "USDT"].includes(baseTicker)
   }, [baseTicker])
   const [price, setPrice] = useState(isStablecoin ? 1 : initialPrice)
+  if (baseTicker === "CRV") console.log(price)
   const prevPrice = usePrevious(price)
 
   const { priceReporter } = usePrice()
   useEffect(() => {
     if (!priceReporter || isStablecoin) return
-    if (["WETH", "WBTC"].includes(baseTicker)) {
-      priceReporter.subscribeToTokenPair(
-        exchange,
-        new Token({ ticker: baseTicker }),
-        new Token({ ticker: quoteTicker }),
-        (newPrice) => {
-          setPrice((prev) => {
-            if (
-              prev.toFixed(trailingDecimals) !==
-              Number(newPrice).toFixed(trailingDecimals)
-            ) {
-              return Number(newPrice)
-            }
-            return prev
-          })
-        }
-      )
-    }
+    priceReporter.subscribeToTokenPair(
+      exchange,
+      new Token({ ticker: baseTicker }),
+      new Token({ ticker: quoteTicker }),
+      (newPrice) => {
+        setPrice((prev) => {
+          if (
+            prev.toFixed(trailingDecimals) !==
+            Number(newPrice).toFixed(trailingDecimals)
+          ) {
+            return Number(newPrice)
+          }
+          return prev
+        })
+      }
+    )
   }, [
     baseTicker,
     quoteTicker,
