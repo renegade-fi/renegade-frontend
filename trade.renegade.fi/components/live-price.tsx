@@ -43,10 +43,10 @@ export const LivePrices = ({
       return Math.abs(baseDefaultDecimals) + 2
     }
   }, [baseDefaultDecimals, baseTicker, quoteTicker])
-  const isStablecoin = useMemo(() => {
-    return ["USDC", "USDT"].includes(baseTicker)
+  const invalidPair = useMemo(() => {
+    return ["USDC", "USDT", "BUSD", "CBETH", "RNG"].includes(baseTicker)
   }, [baseTicker])
-  const [price, setPrice] = useState(isStablecoin ? 1 : initialPrice)
+  const [price, setPrice] = useState(invalidPair ? 1 : initialPrice)
   const [prevPrice, setPrevPrice] = useState(price)
 
   const { handleSubscribe, handleGetPrice } = usePrice()
@@ -59,8 +59,16 @@ export const LivePrices = ({
     })
   }, [priceReport])
   useEffect(() => {
+    if (invalidPair) return
     handleSubscribe(exchange, baseTicker, quoteTicker, trailingDecimals)
-  }, [baseTicker, quoteTicker, trailingDecimals, exchange, handleSubscribe])
+  }, [
+    baseTicker,
+    quoteTicker,
+    trailingDecimals,
+    exchange,
+    handleSubscribe,
+    invalidPair,
+  ])
 
   // Given the previous and current price reports, determine the displayed
   // price and red/green fade class
