@@ -1,36 +1,25 @@
-import { Exchange, PriceReport } from "@renegade-fi/renegade-js"
-import { useEffect, useMemo, useRef, useState } from "react"
-
-import { useExchange } from "@/contexts/Exchange/exchange-context"
+import { usePrice } from "@/contexts/PriceContext/price-context"
+import { Exchange } from "@renegade-fi/renegade-js"
+import { useEffect, useMemo, useState } from "react"
 
 export const useUSDPrice = (base: string, amount: number) => {
-  const [currentPriceReport, setCurrentPriceReport] = useState<PriceReport>({})
+  const [price, setPrice] = useState(0)
 
-  const { getPriceData, onRegisterPriceListener } = useExchange()
-  const priceReport = getPriceData(Exchange.Median, base, "USDC")
-
+  const { handleSubscribe, handleGetPrice } = usePrice()
+  const priceReport = handleGetPrice(Exchange.Binance, base, "USDC")
   useEffect(() => {
     if (!priceReport) return
-    setCurrentPriceReport(priceReport)
+    setPrice(priceReport)
   }, [priceReport])
-
-  const callbackIdRef = useRef(false)
   useEffect(() => {
-    if (callbackIdRef.current) return
-    onRegisterPriceListener(Exchange.Median, base, "USDC", 2).then(
-      (callbackId) => {
-        if (callbackId) {
-          callbackIdRef.current = true
-        }
-      }
-    )
-  }, [base, onRegisterPriceListener])
+    handleSubscribe(Exchange.Binance, base, "USDC", 2)
+  }, [base, handleSubscribe])
 
   const formattedPrice = useMemo(() => {
     let basePrice
 
-    if (currentPriceReport.midpointPrice) {
-      basePrice = currentPriceReport.midpointPrice
+    if (price) {
+      basePrice = price
     } else if (base === "USDC") {
       basePrice = 1
     } else {
@@ -46,7 +35,7 @@ export const useUSDPrice = (base: string, amount: number) => {
     priceStrParts[0] = priceStrParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
     return priceStrParts.join(".")
-  }, [amount, base, currentPriceReport.midpointPrice])
+  }, [amount, base, price])
 
   return formattedPrice
 }

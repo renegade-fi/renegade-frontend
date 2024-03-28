@@ -17,14 +17,29 @@ export function safeLocalStorageSetItem(key: string, value: string): void {
 }
 
 export async function getTokenBannerData(renegade: Renegade) {
-  return await Promise.all(
-    DISPLAYED_TICKERS.map(([baseTicker, quoteTicker]) =>
-      renegade.queryExchangeHealthStates(
-        getToken({ ticker: baseTicker }),
-        getToken({ ticker: quoteTicker })
+  try {
+    const priceReports = await Promise.all(
+      DISPLAYED_TICKERS.map(([baseTicker, quoteTicker]) =>
+        renegade.queryPriceReporter(
+          getToken({ ticker: baseTicker }),
+          getToken({ ticker: quoteTicker })
+        )
       )
-    )
-  ).then((res) => res.map((e) => e.Median))
+    );
+
+    const formattedPrices = priceReports.map(report => {
+      if (report.price_report?.Nominal) {
+        return report.price_report.Nominal.price as number;
+      } else {
+        return 0;
+      }
+    });
+
+    return formattedPrices;
+  } catch (error) {
+    console.error('Error fetching token banner data:', error);
+    return [];
+  }
 }
 
 export function findBalanceByTicker(

@@ -32,10 +32,10 @@ export default async function Page({
 }: {
   params: { base: string; quote: string }
 }) {
-  const report = await renegade.queryExchangeHealthStates(
-    new Token({ ticker: base === "USDC" ? "WETH" : base }),
-    new Token({ ticker: "USDC" })
-  )
+  // const report = await renegade.queryExchangeHealthStates(
+  //   new Token({ ticker: base === "USDC" ? "WETH" : base }),
+  //   new Token({ ticker: "USDC" })
+  // )
   return (
     <div
       style={{
@@ -52,11 +52,11 @@ export default async function Page({
         src={backgroundPattern}
         style={{ objectFit: "cover", objectPosition: "center", zIndex: -1 }}
       />
-      <MedianBanner
+      {/* <MedianBanner
         report={report}
         activeBaseTicker={base}
         activeQuoteTicker={quote}
-      />
+      /> */}
       <div style={{ flexGrow: 1, display: "flex" }}>
         <WalletsPanel />
         <div
