@@ -1,10 +1,9 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons"
 import { Box, Flex, Text } from "@chakra-ui/react"
-import { Exchange, Token } from "@renegade-fi/renegade-js"
+import { Exchange } from "@renegade-fi/renegade-js"
 import { useEffect, useMemo, useState } from "react"
 
 import { usePrice } from "@/contexts/PriceContext/price-context"
-import { usePrevious } from "@/hooks/use-previous"
 import { TICKER_TO_DEFAULT_DECIMALS } from "@/lib/tokens"
 
 import { BannerSeparator } from "./banner-separator"
@@ -48,36 +47,20 @@ export const LivePrices = ({
     return ["USDC", "USDT"].includes(baseTicker)
   }, [baseTicker])
   const [price, setPrice] = useState(isStablecoin ? 1 : initialPrice)
-  if (baseTicker === "CRV") console.log(price)
-  const prevPrice = usePrevious(price)
+  const [prevPrice, setPrevPrice] = useState(price)
 
-  const { priceReporter } = usePrice()
+  const { handleSubscribe, handleGetPrice } = usePrice()
+  const priceReport = handleGetPrice(exchange, baseTicker, quoteTicker)
   useEffect(() => {
-    if (!priceReporter || isStablecoin) return
-    priceReporter.subscribeToTokenPair(
-      exchange,
-      new Token({ ticker: baseTicker }),
-      new Token({ ticker: quoteTicker }),
-      (newPrice) => {
-        setPrice((prev) => {
-          if (
-            prev.toFixed(trailingDecimals) !==
-            Number(newPrice).toFixed(trailingDecimals)
-          ) {
-            return Number(newPrice)
-          }
-          return prev
-        })
-      }
-    )
-  }, [
-    baseTicker,
-    quoteTicker,
-    priceReporter,
-    trailingDecimals,
-    exchange,
-    isStablecoin,
-  ])
+    if (!priceReport) return
+    setPrice((prev) => {
+      setPrevPrice(prev)
+      return priceReport
+    })
+  }, [priceReport])
+  useEffect(() => {
+    handleSubscribe(exchange, baseTicker, quoteTicker, trailingDecimals)
+  }, [baseTicker, quoteTicker, trailingDecimals, exchange, handleSubscribe])
 
   // Given the previous and current price reports, determine the displayed
   // price and red/green fade class

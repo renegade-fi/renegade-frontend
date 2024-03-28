@@ -1,32 +1,19 @@
 import { usePrice } from "@/contexts/PriceContext/price-context"
-import { Token } from "@renegade-fi/renegade-js"
+import { Exchange } from "@renegade-fi/renegade-js"
 import { useEffect, useMemo, useState } from "react"
-
 
 export const useUSDPrice = (base: string, amount: number) => {
   const [price, setPrice] = useState(0)
 
-  const { priceReporter } = usePrice()
+  const { handleSubscribe, handleGetPrice } = usePrice()
+  const priceReport = handleGetPrice(Exchange.Binance, base, "USDC")
   useEffect(() => {
-    if (!priceReporter) return
-    priceReporter.subscribeToTokenPair(
-      "binance",
-      new Token({ ticker: base }),
-      new Token({ ticker: "USDC" }),
-      (newPrice) => {
-        setPrice((prev) => {
-          if (
-            prev.toFixed(2) !==
-            Number(newPrice).toFixed(2)
-          ) {
-            return Number(newPrice)
-          }
-          return prev
-        })
-      }
-    )
-  }, [base, priceReporter])
-
+    if (!priceReport) return
+    setPrice(priceReport)
+  }, [priceReport])
+  useEffect(() => {
+    handleSubscribe(Exchange.Binance, base, "USDC", 2)
+  }, [base, handleSubscribe])
 
   const formattedPrice = useMemo(() => {
     let basePrice
