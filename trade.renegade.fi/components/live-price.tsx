@@ -1,10 +1,12 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons"
 import { Box, Flex, Text } from "@chakra-ui/react"
-import { Exchange } from "@renegade-fi/renegade-js"
+import { Exchange, PriceReporterWs, Token } from "@renegade-fi/renegade-js"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { useExchange } from "@/contexts/Exchange/exchange-context"
 import { PriceReport } from "@/contexts/Exchange/types"
+import { usePrice } from "@/contexts/PriceContext/price-context"
+import { usePrevious } from "@/hooks/use-previous"
 import { TICKER_TO_DEFAULT_DECIMALS } from "@/lib/tokens"
 
 import { BannerSeparator } from "./banner-separator"
@@ -15,7 +17,7 @@ interface LivePricesProps {
   quoteTicker: string
   isMobile?: boolean
   onlyShowPrice?: boolean
-  price?: number
+  initialPrice?: number
   scaleBy?: number
   shouldRotate?: boolean
   withCommas?: boolean
@@ -27,24 +29,44 @@ export const LivePrices = ({
   quoteTicker,
   isMobile,
   onlyShowPrice,
-  price: priceProp,
+  initialPrice: priceProp,
   scaleBy,
   shouldRotate,
   withCommas,
 }: LivePricesProps) => {
-  const [previousPriceReport, setPreviousPriceReport] = useState<PriceReport>()
-  const [currentPriceReport, setCurrentPriceReport] = useState<PriceReport>()
+  // const [previousPriceReport, setPreviousPriceReport] = useState<PriceReport>()
+  // const [currentPriceReport, setCurrentPriceReport] = useState<PriceReport>()
 
-  const { getPriceData, onRegisterPriceListener } = useExchange()
-  const priceReport = getPriceData(exchange, baseTicker, quoteTicker)
+  // const { getPriceData, onRegisterPriceListener } = useExchange()
+  // const priceReport = getPriceData(exchange, baseTicker, quoteTicker)
 
-  useEffect(() => {
-    if (!priceReport) return
-    setCurrentPriceReport((prev) => {
-      setPreviousPriceReport(prev)
-      return priceReport
-    })
-  }, [priceReport])
+  // useEffect(() => {
+  //   if (!priceReport) return
+  //   setCurrentPriceReport((prev) => {
+  //     setPreviousPriceReport(prev)
+  //     return priceReport
+  //   })
+  // }, [priceReport])
+
+  const [price, setPrice] = useState(0)
+  console.log("🚀 ~ price:", price)
+  const prevPrice = usePrevious(price)
+  // useEffect(() => {
+  //   const priceReporter = new PriceReporterWs()
+  //   // Subscribe to a token pair
+  //   priceReporter.subscribeToTokenPair(
+  //     "okx",
+  //     new Token({ ticker: baseTicker }),
+  //     new Token({ ticker: quoteTicker }),
+  //     (newPrice) => {
+  //       setPrice(Number(newPrice))
+  //     }
+  //   )
+
+  //   return () => {
+  //     priceReporter.teardown()
+  //   }
+  // }, [baseTicker, quoteTicker])
 
   const baseDefaultDecimals = TICKER_TO_DEFAULT_DECIMALS[baseTicker] || 0
   const trailingDecimals = useMemo(() => {
@@ -59,62 +81,92 @@ export const LivePrices = ({
     }
   }, [baseDefaultDecimals, baseTicker, quoteTicker])
 
-  const callbackIdRef = useRef(false)
+  const { priceReporter } = usePrice()
   useEffect(() => {
-    if (callbackIdRef.current) return
-    onRegisterPriceListener(
-      exchange,
-      baseTicker,
-      quoteTicker,
-      trailingDecimals
-    ).then((callbackId) => {
-      if (callbackId) {
-        callbackIdRef.current = true
-      }
-    })
-  }, [
-    baseTicker,
-    quoteTicker,
-    onRegisterPriceListener,
-    exchange,
-    trailingDecimals,
-  ])
+    if (!priceReporter) return
+    if (["WETH", "WBTC"].includes(baseTicker)) {
+      priceReporter.subscribeToTokenPair(
+        exchange,
+        new Token({ ticker: baseTicker }),
+        new Token({ ticker: quoteTicker }),
+        (newPrice) => {
+          console.log("🚀 ~ useEffect ~ newPrice:", newPrice)
+          setPrice((prev) => {
+            if (
+              prev.toFixed(trailingDecimals) !==
+              Number(newPrice).toFixed(trailingDecimals)
+            ) {
+              return Number(newPrice)
+            }
+            return prev
+          })
+        }
+      )
+    }
+  }, [baseTicker, quoteTicker, priceReporter, trailingDecimals, exchange])
+
+  // const callbackIdRef = useRef(false)
+  // useEffect(() => {
+  //   if (callbackIdRef.current) return
+  //   onRegisterPriceListener(
+  //     exchange,
+  //     baseTicker,
+  //     quoteTicker,
+  //     trailingDecimals
+  //   ).then((callbackId) => {
+  //     if (callbackId) {
+  //       callbackIdRef.current = true
+  //     }
+  //   })
+  // }, [
+  //   baseTicker,
+  //   quoteTicker,
+  //   onRegisterPriceListener,
+  //   exchange,
+  //   trailingDecimals,
+  // ])
 
   // Given the previous and current price reports, determine the displayed
   // price and red/green fade class
   let priceStrClass = ""
   if (
-    previousPriceReport?.price &&
-    currentPriceReport?.price &&
-    currentPriceReport.price > previousPriceReport.price
+    // previousPriceReport?.price &&
+    // currentPriceReport?.price &&
+    // currentPriceReport.price > previousPriceReport.price
+    prevPrice &&
+    price > prevPrice
   ) {
     priceStrClass = "fade-green-to-white"
   } else if (
-    previousPriceReport?.price &&
-    currentPriceReport?.price &&
-    currentPriceReport.price < previousPriceReport.price
+    // previousPriceReport?.price &&
+    // currentPriceReport?.price &&
+    // currentPriceReport.price < previousPriceReport.price
+    prevPrice &&
+    price < prevPrice
   ) {
     priceStrClass = "fade-red-to-white"
   }
 
-  let price = currentPriceReport?.price
-    ? currentPriceReport.price
-    : baseTicker === "USDC"
-    ? 1
-    : priceProp
-    ? priceProp
-    : 0
+  // let price = currentPriceReport?.price
+  //   ? currentPriceReport.price
+  //   : baseTicker === "USDC"
+  //   ? 1
+  //   : priceProp
+  //   ? priceProp
+  //   : 0
 
+  let scaledPrice = price
   // If the caller supplied a scaleBy prop, scale the price appropriately
   if (scaleBy !== undefined) {
-    price *= scaleBy
+    scaledPrice *= scaleBy
   }
 
   // Format the price as a string
   let priceStr = price.toFixed(trailingDecimals)
   if (
-    (!Object.keys(currentPriceReport || {}).length || scaleBy === 0) &&
-    baseDefaultDecimals > 0 &&
+    // (!scaledPrice || scaleBy === 0) &&
+    // baseDefaultDecimals > 0 &&
+    !price &&
     baseTicker !== "USDC"
   ) {
     const leadingDecimals = priceStr.split(".")[0].length
@@ -135,11 +187,7 @@ export const LivePrices = ({
     return <Text opacity={priceOpacity}>${priceStr}</Text>
   }
 
-  const key = [
-    baseTicker,
-    quoteTicker,
-    currentPriceReport?.localTimestamp,
-  ].join("_")
+  const key = [baseTicker, quoteTicker, price].join("_")
 
   // Create the icon to display next to the price
   let priceIcon

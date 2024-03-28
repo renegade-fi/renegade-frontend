@@ -26,7 +26,6 @@ function ExchangeProvider({ children }: PropsWithChildren) {
     [key: string]: PriceReport
   }>({})
 
-  console.log("🚀 ~ ExchangeProvider ~ priceReport:", priceReport)
   const handlePriceListener = useCallback(
     async (
       exchange: Exchange,

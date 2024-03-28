@@ -1,7 +1,7 @@
 "use client"
 
 import { Stack, Text } from "@chakra-ui/react"
-import { Exchange, PriceReport } from "@renegade-fi/renegade-js"
+import { Exchange } from "@renegade-fi/renegade-js"
 import Link from "next/link"
 
 import Marquee from "@/components/banners/marquee"
@@ -34,8 +34,9 @@ export function TokensBanner({ prices }: { prices: number[] }) {
               <LivePrices
                 baseTicker={baseTicker}
                 quoteTicker={quoteTicker}
-                exchange={Exchange.Median}
-                price={prices[i]}
+                exchange={Exchange.Binance}
+                // TODO: Fetch price snapshot for cache
+                // price={prices[i]}
               />
             </Stack>
           </Link>
