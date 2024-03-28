@@ -2,7 +2,6 @@
 
 import { ChevronDownIcon } from "@chakra-ui/icons"
 import { Flex, HStack, Input, Text, useDisclosure } from "@chakra-ui/react"
-import { PriceReporterWs, Token } from "@renegade-fi/renegade-js"
 import React, { createRef, useEffect, useRef, useState } from "react"
 
 import { BlurredOverlay } from "@/components/modals/blurred-overlay"

@@ -1,10 +1,8 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons"
 import { Box, Flex, Text } from "@chakra-ui/react"
-import { Exchange, PriceReporterWs, Token } from "@renegade-fi/renegade-js"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { Exchange, Token } from "@renegade-fi/renegade-js"
+import { useEffect, useMemo, useState } from "react"
 
-import { useExchange } from "@/contexts/Exchange/exchange-context"
-import { PriceReport } from "@/contexts/Exchange/types"
 import { usePrice } from "@/contexts/PriceContext/price-context"
 import { usePrevious } from "@/hooks/use-previous"
 import { TICKER_TO_DEFAULT_DECIMALS } from "@/lib/tokens"
@@ -29,45 +27,11 @@ export const LivePrices = ({
   quoteTicker,
   isMobile,
   onlyShowPrice,
-  initialPrice: priceProp,
+  initialPrice = 0,
   scaleBy,
   shouldRotate,
   withCommas,
 }: LivePricesProps) => {
-  // const [previousPriceReport, setPreviousPriceReport] = useState<PriceReport>()
-  // const [currentPriceReport, setCurrentPriceReport] = useState<PriceReport>()
-
-  // const { getPriceData, onRegisterPriceListener } = useExchange()
-  // const priceReport = getPriceData(exchange, baseTicker, quoteTicker)
-
-  // useEffect(() => {
-  //   if (!priceReport) return
-  //   setCurrentPriceReport((prev) => {
-  //     setPreviousPriceReport(prev)
-  //     return priceReport
-  //   })
-  // }, [priceReport])
-
-  const [price, setPrice] = useState(0)
-  console.log("🚀 ~ price:", price)
-  const prevPrice = usePrevious(price)
-  // useEffect(() => {
-  //   const priceReporter = new PriceReporterWs()
-  //   // Subscribe to a token pair
-  //   priceReporter.subscribeToTokenPair(
-  //     "okx",
-  //     new Token({ ticker: baseTicker }),
-  //     new Token({ ticker: quoteTicker }),
-  //     (newPrice) => {
-  //       setPrice(Number(newPrice))
-  //     }
-  //   )
-
-  //   return () => {
-  //     priceReporter.teardown()
-  //   }
-  // }, [baseTicker, quoteTicker])
-
   const baseDefaultDecimals = TICKER_TO_DEFAULT_DECIMALS[baseTicker] || 0
   const trailingDecimals = useMemo(() => {
     if (["USDC", "WETH", "WBTC"].includes(baseTicker)) {
@@ -80,17 +44,21 @@ export const LivePrices = ({
       return Math.abs(baseDefaultDecimals) + 2
     }
   }, [baseDefaultDecimals, baseTicker, quoteTicker])
+  const isStablecoin = useMemo(() => {
+    return ["USDC", "USDT"].includes(baseTicker)
+  }, [baseTicker])
+  const [price, setPrice] = useState(isStablecoin ? 1 : initialPrice)
+  const prevPrice = usePrevious(price)
 
   const { priceReporter } = usePrice()
   useEffect(() => {
-    if (!priceReporter) return
+    if (!priceReporter || isStablecoin) return
     if (["WETH", "WBTC"].includes(baseTicker)) {
       priceReporter.subscribeToTokenPair(
         exchange,
         new Token({ ticker: baseTicker }),
         new Token({ ticker: quoteTicker }),
         (newPrice) => {
-          console.log("🚀 ~ useEffect ~ newPrice:", newPrice)
           setPrice((prev) => {
             if (
               prev.toFixed(trailingDecimals) !==
@@ -103,57 +71,23 @@ export const LivePrices = ({
         }
       )
     }
-  }, [baseTicker, quoteTicker, priceReporter, trailingDecimals, exchange])
-
-  // const callbackIdRef = useRef(false)
-  // useEffect(() => {
-  //   if (callbackIdRef.current) return
-  //   onRegisterPriceListener(
-  //     exchange,
-  //     baseTicker,
-  //     quoteTicker,
-  //     trailingDecimals
-  //   ).then((callbackId) => {
-  //     if (callbackId) {
-  //       callbackIdRef.current = true
-  //     }
-  //   })
-  // }, [
-  //   baseTicker,
-  //   quoteTicker,
-  //   onRegisterPriceListener,
-  //   exchange,
-  //   trailingDecimals,
-  // ])
+  }, [
+    baseTicker,
+    quoteTicker,
+    priceReporter,
+    trailingDecimals,
+    exchange,
+    isStablecoin,
+  ])
 
   // Given the previous and current price reports, determine the displayed
   // price and red/green fade class
   let priceStrClass = ""
-  if (
-    // previousPriceReport?.price &&
-    // currentPriceReport?.price &&
-    // currentPriceReport.price > previousPriceReport.price
-    prevPrice &&
-    price > prevPrice
-  ) {
+  if (prevPrice && price > prevPrice) {
     priceStrClass = "fade-green-to-white"
-  } else if (
-    // previousPriceReport?.price &&
-    // currentPriceReport?.price &&
-    // currentPriceReport.price < previousPriceReport.price
-    prevPrice &&
-    price < prevPrice
-  ) {
+  } else if (prevPrice && price < prevPrice) {
     priceStrClass = "fade-red-to-white"
   }
-
-  // let price = currentPriceReport?.price
-  //   ? currentPriceReport.price
-  //   : baseTicker === "USDC"
-  //   ? 1
-  //   : priceProp
-  //   ? priceProp
-  //   : 0
 
   let scaledPrice = price
   // If the caller supplied a scaleBy prop, scale the price appropriately
