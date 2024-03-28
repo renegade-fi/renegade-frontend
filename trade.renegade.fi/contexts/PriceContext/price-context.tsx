@@ -22,13 +22,7 @@ const PriceContext = createContext<{
   ) => number | undefined
 } | null>(null)
 
-export const usePrice = () => {
-  const context = useContext(PriceContext)
-  if (!context) {
-    throw new Error("usePrice must be used within a PriceProvider")
-  }
-  return context
-}
+const UPDATE_THRESHOLD_MS = 1000
 
 export const PriceProvider = ({ children }: { children: React.ReactNode }) => {
   const [priceReporter, setPriceReporter] = useState<PriceReporterWs | null>(
@@ -47,8 +41,17 @@ export const PriceProvider = ({ children }: { children: React.ReactNode }) => {
   const handleSubscribe = useCallback(
     (exchange: Exchange, base: string, quote: string, decimals: number) => {
       if (!priceReporter) return
+
       const topic = getTopic(exchange, base, quote)
       if (attempted[topic]) return
+
+      let lastUpdate = 0
+      const now = Date.now()
+      if (now - lastUpdate <= UPDATE_THRESHOLD_MS) {
+        return
+      }
+      lastUpdate = now
+
       priceReporter.subscribeToTokenPair(
         exchange,
         new Token({ ticker: base }),
@@ -82,6 +85,14 @@ export const PriceProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </PriceContext.Provider>
   )
+}
+
+export const usePrice = () => {
+  const context = useContext(PriceContext)
+  if (!context) {
+    throw new Error("usePrice must be used within a PriceProvider")
+  }
+  return context
 }
 
 function getTopic(exchange: Exchange, base: string, quote: string) {
