@@ -5,28 +5,38 @@ import { OrderTable } from '@/app/(trade)/order-table'
 import { TokensBanner } from '@/app/(trade)/tokens-banner'
 import { Footer } from '@/app/footer'
 import { Header } from '@/app/header'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
 
 export default function Page() {
   return (
     <div className="flex h-screen flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <div className="min-w-96">
-          <NewOrderPanel />
-        </div>
-        <main className="flex flex-1 flex-col">
-          <div className="flex items-center justify-between p-4">
-            <BBOBanner />
-          </div>
-          <div className="flex-1">
-            <div className="h-full w-full">
-              <LineChart />
-            </div>
-          </div>
-          <div className="p-4">
-            <OrderTable />
-          </div>
-        </main>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={15}>
+            <NewOrderPanel />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>
+            <main className="flex flex-1 flex-col">
+              <div className="flex items-center justify-between p-4">
+                <BBOBanner />
+              </div>
+              <div className="flex-1">
+                <div className="grid min-h-[500px] w-full place-items-center border-y border-input">
+                  <span>Chart</span>
+                </div>
+              </div>
+              <div className="p-4">
+                <OrderTable />
+              </div>
+            </main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
       <TokensBanner />
       <Footer />
