@@ -23,11 +23,11 @@ export default function Page() {
           <ResizableHandle />
           <ResizablePanel>
             <main className="flex flex-1 flex-col">
-              <div className="flex items-center justify-between p-4">
+              <div className="flex items-center justify-between">
                 <BBOBanner />
               </div>
               <div className="flex-1">
-                <div className="grid min-h-[500px] w-full place-items-center border-y border-input">
+                <div className="grid min-h-[500px] w-full place-items-center">
                   <span>Chart</span>
                 </div>
               </div>
