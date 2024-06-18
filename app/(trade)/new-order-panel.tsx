@@ -7,14 +7,14 @@ export function NewOrderPanel() {
         <div className="flex items-center justify-between">
           <Button
             variant="outline"
-            className="flex-1 font-serif text-3xl font-bold"
+            className="flex-1 border-l-0 font-serif text-3xl font-bold"
             size="xl"
           >
             BUY
           </Button>
           <Button
             variant="outline"
-            className="flex-1 font-serif text-3xl font-bold"
+            className="flex-1 border-x-0 font-serif text-3xl font-bold"
             size="xl"
           >
             WETH

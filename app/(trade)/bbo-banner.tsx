@@ -1,37 +1,23 @@
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/ui/table'
-import { ResponsiveLine } from '@nivo/line'
-import { Header } from '@/app/header'
-import { Footer } from '@/app/footer'
-
 export function BBOBanner() {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex h-12 w-full items-center justify-evenly border-y border-input font-extended">
       <span>BBO Feeds</span>
-      <span>•</span>
+      <span className="text-xs">•</span>
       <span>Binance</span>
       <span>$3,756.89</span>
-      <Badge variant="default">LIVE</Badge>
-      <span>•</span>
+      <span className="text-green-price font-extended">LIVE</span>
+      <span className="text-xs">•</span>
       <span>Coinbase</span>
       <span>$3,756.89</span>
-      <Badge variant="default">LIVE</Badge>
-      <span>•</span>
+      <span className="text-green-price font-extended">LIVE</span>
+      <span className="text-xs">•</span>
       <span>Kraken</span>
       <span>$3,756.89</span>
-      <Badge variant="default">LIVE</Badge>
-      <span>•</span>
+      <span className="text-green-price font-extended">LIVE</span>
+      <span className="text-xs">•</span>
       <span>Okx</span>
       <span>$3,756.89</span>
-      <Badge variant="default">LIVE</Badge>
+      <span className="text-green-price font-extended">LIVE</span>
     </div>
   )
 }
