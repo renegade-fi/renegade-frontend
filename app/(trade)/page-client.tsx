@@ -43,10 +43,12 @@ export function PageClient({
           <div className="flex items-center justify-between overflow-hidden">
             <BBOMarquee />
           </div>
-          <div className="grid min-h-[500px] w-full place-items-center">
-            Chart
+          <div className="overflow-auto">
+            <div className="grid min-h-[500px] w-full place-items-center">
+              Chart
+            </div>
+            <OrderTable />
           </div>
-          <OrderTable />
         </main>
       </ResizablePanel>
     </ResizablePanelGroup>
