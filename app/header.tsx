@@ -15,22 +15,24 @@ export function Header() {
           priority
         />
       </div>
-      <nav className="flex space-x-4 justify-self-center font-extended">
+      <nav className="flex space-x-5 justify-self-center font-extended">
         <a href="#" className="hover:underline">
           Trade
         </a>
-        <a href="#" className="hover:underline">
+        <a href="#" className="text-muted-foreground hover:underline">
           Assets
         </a>
-        <a href="#" className="hover:underline">
+        <a href="#" className="text-muted-foreground hover:underline">
           Orders
         </a>
-        <a href="#" className="hover:underline">
+        <a href="#" className="text-muted-foreground hover:underline">
           Stats
         </a>
       </nav>
       <div className="flex items-center space-x-4 justify-self-end pr-4">
-        <Button variant="outline">Deposit</Button>
+        <Button className="font-extended" variant="outline">
+          Deposit
+        </Button>
         <Button variant="shimmer" className="font-extended text-base">
           Connect Wallet
         </Button>
