@@ -1,4 +1,4 @@
-export function BBOBanner() {
+export function BBOMarquee() {
   return (
     <div className="h-marquee flex w-full items-center justify-evenly border-y border-input font-extended">
       <span>BBO Feeds</span>

@@ -11,7 +11,7 @@ import {
 import { ResponsiveLine } from '@nivo/line'
 import { Header } from '@/app/header'
 import { Footer } from '@/app/footer'
-import { BBOBanner } from '@/app/(trade)/bbo-banner'
+import { BBOBanner } from '@/app/(trade)/bbo-marquee'
 import { NewOrderPanel } from '@/app/(trade)/new-order-panel'
 
 export function OrderTable() {
