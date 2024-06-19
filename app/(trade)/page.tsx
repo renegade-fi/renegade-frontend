@@ -15,7 +15,10 @@ export default function Page() {
     <div className="flex h-screen flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <ResizablePanelGroup direction="horizontal">
+        <ResizablePanelGroup
+          autoSaveId="renegade.trade-layout"
+          direction="horizontal"
+        >
           <ResizablePanel defaultSize={15}>
             <NewOrderPanel />
           </ResizablePanel>
