@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import {
   DiscordLogoIcon,
   GitHubLogoIcon,
@@ -9,7 +10,8 @@ import { Book } from 'lucide-react'
 
 export function Footer() {
   return (
-    <footer className="p-4">
+    <footer className="flex items-center p-4">
+      <Image src="/logo_dark.svg" alt="logo" width="192" height="30" priority />
       <div className="flex justify-between">
         <div className="flex space-x-4">
           <TwitterLogoIcon className="h-6 w-6" />
