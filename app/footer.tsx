@@ -10,7 +10,7 @@ import Image from 'next/image'
 
 export function Footer() {
   return (
-    <footer className="grid h-20 grid-cols-2 items-center">
+    <footer className="grid min-h-20 grid-cols-2 items-center">
       <div className="pl-6">
         <Image
           src="/logo_dark.svg"

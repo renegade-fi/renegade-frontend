@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 export function Header() {
   return (
-    <header className="grid h-20 grid-cols-3 items-center">
+    <header className="grid min-h-20 grid-cols-3 items-center">
       <div className="pl-6">
         <Image
           src="/glyph_dark.svg"
