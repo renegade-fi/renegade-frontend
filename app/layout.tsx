@@ -1,12 +1,13 @@
 import { TailwindIndicator } from '@/app/tailwind-indicator'
-import { ConnectKitProvider } from '@/components/connectkit-provider'
-import { QueryProvider } from '@/components/query-provider'
 import { ThemeProvider } from '@/components/theme-provider'
-import { WagmiProvider } from '@/components/wagmi-provider'
+import { config } from '@/components/wagmi-provider/config'
+import { WagmiProvider } from '@/components/wagmi-provider/wagmi-provider'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
+import { headers } from 'next/headers'
+import { cookieToInitialState } from 'wagmi'
 import './globals.css'
 
 dayjs.extend(relativeTime)
@@ -67,6 +68,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const initialState = cookieToInitialState(config, headers().get('cookie'))
+  console.log('🚀 ~ initialState:', initialState)
   return (
     <html lang="en">
       <body
@@ -78,13 +81,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <WagmiProvider>
-            <QueryProvider>
-              <ConnectKitProvider>
-                <TailwindIndicator />
-                <div className="flex min-h-screen flex-col">{children}</div>
-              </ConnectKitProvider>
-            </QueryProvider>
+          <WagmiProvider initialState={initialState}>
+            <TailwindIndicator />
+            <div className="flex min-h-screen flex-col">{children}</div>
           </WagmiProvider>
         </ThemeProvider>
       </body>

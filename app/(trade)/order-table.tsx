@@ -1,18 +1,11 @@
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
-  TableHeader,
-  TableRow,
-  TableHead,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table'
-import { ResponsiveLine } from '@nivo/line'
-import { Header } from '@/app/header'
-import { Footer } from '@/app/footer'
-import { BBOBanner } from '@/app/(trade)/bbo-marquee'
-import { NewOrderPanel } from '@/app/(trade)/new-order-panel'
 
 export function OrderTable() {
   return (

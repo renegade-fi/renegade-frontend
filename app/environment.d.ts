@@ -9,6 +9,7 @@ declare global {
       NEXT_PUBLIC_PRICE_REPORTER_URL: string
       NEXT_PUBLIC_RENEGADE_RELAYER_HOSTNAME: string
       NEXT_PUBLIC_TOKEN_MAPPING: string
+      NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: string
     }
   }
 }

@@ -23,7 +23,7 @@ export default function Page() {
             <NewOrderPanel />
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel>
+          <ResizablePanel defaultSize={85}>
             <main className="flex flex-1 flex-col">
               <div className="flex items-center justify-between">
                 <BBOMarquee />
