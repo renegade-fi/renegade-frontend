@@ -6,8 +6,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { formatNumber } from '@/lib/format'
+import { Token, useOrderHistory } from '@renegade-fi/react'
 
 export function OrderTable() {
+  const { data, status } = useOrderHistory()
+  const orderHistory = Array.from(data?.values() || []).sort(
+    (a, b) => Number(b.created) - Number(a.created),
+  )
+
   return (
     <Table>
       <TableHeader>
@@ -18,61 +25,41 @@ export function OrderTable() {
           <TableHead>Size</TableHead>
           <TableHead>Filled Size</TableHead>
           <TableHead>Order Value</TableHead>
-          <TableHead>ID</TableHead>
           <TableHead>Created At</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow>
-          <TableCell>Open</TableCell>
-          <TableCell>Buy</TableCell>
-          <TableCell>WETH</TableCell>
-          <TableCell>0.5</TableCell>
-          <TableCell>0.1</TableCell>
-          <TableCell>$12,345</TableCell>
-          <TableCell>95322f18-2cea</TableCell>
-          <TableCell>Jun 14, 09:17 AM</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Open</TableCell>
-          <TableCell>Buy</TableCell>
-          <TableCell>WETH</TableCell>
-          <TableCell>0.5</TableCell>
-          <TableCell>0.1</TableCell>
-          <TableCell>$12,345</TableCell>
-          <TableCell>95322f18-2cea</TableCell>
-          <TableCell>Jun 14, 09:17 AM</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Filled</TableCell>
-          <TableCell>Sell</TableCell>
-          <TableCell>WBTC</TableCell>
-          <TableCell>0.5</TableCell>
-          <TableCell>0.1</TableCell>
-          <TableCell>$12,345</TableCell>
-          <TableCell>95322f18-2cea</TableCell>
-          <TableCell>Jun 14, 09:17 AM</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Filled</TableCell>
-          <TableCell>Sell</TableCell>
-          <TableCell>WBTC</TableCell>
-          <TableCell>0.5</TableCell>
-          <TableCell>0.1</TableCell>
-          <TableCell>$12,345</TableCell>
-          <TableCell>95322f18-2cea</TableCell>
-          <TableCell>Jun 14, 09:17 AM</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Cancelled</TableCell>
-          <TableCell>Buy</TableCell>
-          <TableCell>ARB</TableCell>
-          <TableCell>200</TableCell>
-          <TableCell>123</TableCell>
-          <TableCell>$12,345</TableCell>
-          <TableCell>95322f18-2cea</TableCell>
-          <TableCell>Jun 14, 09:17 AM</TableCell>
-        </TableRow>
+        {orderHistory.map((order, index) => (
+          <TableRow key={index}>
+            <TableCell>{order.state}</TableCell>
+            <TableCell>{order.data.side}</TableCell>
+            <TableCell>
+              {Token.findByAddress(order.data.base_mint).ticker}
+            </TableCell>
+            <TableCell>
+              {formatNumber(
+                order.data.amount,
+                Token.findByAddress(order.data.base_mint).decimals,
+              )}
+            </TableCell>
+            <TableCell>
+              {formatNumber(
+                order.data.amount,
+                Token.findByAddress(order.data.base_mint).decimals,
+              )}
+            </TableCell>
+            <TableCell>{'$12,345'}</TableCell>
+            <TableCell>
+              {new Date(Number(order.created)).toLocaleString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+              })}
+            </TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
   )

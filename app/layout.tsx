@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { config } from '@/components/wagmi-provider/config'
 import { WagmiProvider } from '@/components/wagmi-provider/wagmi-provider'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { Metadata } from 'next'
@@ -86,8 +87,9 @@ export default async function RootLayout({
           <RenegadeProvider>
             <WagmiProvider initialState={initialState}>
               <TailwindIndicator />
-              <div className="flex min-h-screen flex-col">{children}</div>
+              <div className="">{children}</div>
               <Toaster />
+              <ReactQueryDevtools initialIsOpen={false} />
             </WagmiProvider>
           </RenegadeProvider>
         </ThemeProvider>
