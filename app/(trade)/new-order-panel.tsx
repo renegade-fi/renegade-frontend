@@ -1,3 +1,4 @@
+import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { Button } from '@/components/ui/button'
 
 export function NewOrderPanel() {
@@ -12,13 +13,15 @@ export function NewOrderPanel() {
           >
             BUY
           </Button>
-          <Button
-            variant="outline"
-            className="flex-1 border-x-0 font-serif text-3xl font-bold"
-            size="xl"
-          >
-            WETH
-          </Button>
+          <TokenSelectDialog>
+            <Button
+              variant="outline"
+              className="flex-1 border-x-0 font-serif text-3xl font-bold"
+              size="xl"
+            >
+              WETH
+            </Button>
+          </TokenSelectDialog>
         </div>
         <div className="px-6 py-6 text-right font-mono text-4xl">
           4000&nbsp;<span className="font-serif font-bold">USDC</span>
