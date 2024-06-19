@@ -25,6 +25,9 @@ const config = {
         'shimmer-button':
           'linear-gradient(135deg, #000000 0%, #3d3d3d 14%, #3d3d3d 14%, #111111 21%, #3d3d3d 39%, #010101 50%, #3d3d3d 61%, #161616 67%, #3d3d3d 80%, #212121 85%, #1b1b1b 100%)',
       },
+      height: {
+        marquee: '38px',
+      },
       fontFamily: {
         extended: ['var(--font-sans-extended)'],
         serif: ['var(--font-serif)'],

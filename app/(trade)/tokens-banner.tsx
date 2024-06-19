@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 export function TokensBanner() {
   const arr = Array.from({ length: 10 })
   return (
-    <div className="flex h-12 items-center justify-between border-y border-input">
+    <div className="h-marquee flex items-center justify-between border-y border-input">
       {arr.map((_, index) => (
         <Fragment key={index}>
           <div className="space-x-2">

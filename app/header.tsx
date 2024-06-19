@@ -1,31 +1,39 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import Image from 'next/image'
+
 export function Header() {
   return (
-    <header className="flex items-center justify-between bg-black p-4 text-white">
-      <div className="flex items-center space-x-4">
-        <nav className="flex space-x-4">
-          <a href="#" className="hover:underline">
-            Trade
-          </a>
-          <a href="#" className="hover:underline">
-            Assets
-          </a>
-          <a href="#" className="hover:underline">
-            Orders
-          </a>
-          <a href="#" className="hover:underline">
-            Stats
-          </a>
-        </nav>
+    <header className="grid h-20 grid-cols-3 items-center">
+      <div className="pl-6">
+        <Image
+          src="/glyph_dark.svg"
+          alt="logo"
+          width="31"
+          height="38"
+          priority
+        />
       </div>
-      <div className="flex space-x-4">
+      <nav className="flex space-x-4 justify-self-center font-extended">
         <a href="#" className="hover:underline">
-          Deposit
+          Trade
         </a>
         <a href="#" className="hover:underline">
+          Assets
+        </a>
+        <a href="#" className="hover:underline">
+          Orders
+        </a>
+        <a href="#" className="hover:underline">
+          Stats
+        </a>
+      </nav>
+      <div className="flex items-center space-x-4 justify-self-end pr-4">
+        <Button variant="outline">Deposit</Button>
+        <Button variant="shimmer" className="font-extended text-base">
           Connect Wallet
-        </a>
+        </Button>
       </div>
     </header>
   )
