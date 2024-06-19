@@ -13,13 +13,15 @@ export default function Page() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <Header />
-      <div className="flex-1">
-        <PageClient defaultLayout={defaultLayout} />
+    <div className="grid min-h-screen grid-rows-[auto_1fr_auto_auto]">
+      <div className="min-h-20">
+        <Header />
       </div>
+      <PageClient defaultLayout={defaultLayout} />
       <TokensMarquee />
-      <Footer />
+      <div className="min-h-20">
+        <Footer />
+      </div>
     </div>
   )
 }

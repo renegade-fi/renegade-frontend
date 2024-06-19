@@ -1,5 +1,6 @@
 'use client'
-import { Config, getSkRoot } from '@renegade-fi/react'
+import { Config } from '@renegade-fi/react'
+import { getSkRoot } from '@renegade-fi/react/actions'
 
 export type UseSkRootParameters = {
   config: Config
