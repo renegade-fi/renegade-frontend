@@ -1,6 +1,8 @@
 import { TailwindIndicator } from '@/app/tailwind-indicator'
+import { ConnectKitProvider } from '@/components/connectkit-provider'
+import { QueryProvider } from '@/components/query-provider'
 import { ThemeProvider } from '@/components/theme-provider'
-import { Token, tokenMapping } from '@renegade-fi/react'
+import { WagmiProvider } from '@/components/wagmi-provider'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { Metadata } from 'next'
@@ -76,8 +78,14 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TailwindIndicator />
-          <div className="flex min-h-screen flex-col">{children}</div>
+          <WagmiProvider>
+            <QueryProvider>
+              <ConnectKitProvider>
+                <TailwindIndicator />
+                <div className="flex min-h-screen flex-col">{children}</div>
+              </ConnectKitProvider>
+            </QueryProvider>
+          </WagmiProvider>
         </ThemeProvider>
       </body>
     </html>

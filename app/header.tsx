@@ -1,5 +1,6 @@
 'use client'
 
+import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
@@ -33,9 +34,7 @@ export function Header() {
         <Button className="font-extended" variant="outline">
           Deposit
         </Button>
-        <Button variant="shimmer" className="font-extended text-base">
-          Connect Wallet
-        </Button>
+        <ConnectWalletButton />
       </div>
     </header>
   )
