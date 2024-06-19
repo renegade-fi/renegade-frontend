@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 
-export function TokensBanner() {
+export function TokensMarquee() {
   const arr = Array.from({ length: 10 })
   return (
     <div className="h-marquee flex items-center justify-between border-y border-input">
