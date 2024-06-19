@@ -1,5 +1,7 @@
 import { TailwindIndicator } from '@/app/tailwind-indicator'
+import { RenegadeProvider } from '@/components/renegade-provider'
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 import { config } from '@/components/wagmi-provider/config'
 import { WagmiProvider } from '@/components/wagmi-provider/wagmi-provider'
 import dayjs from 'dayjs'
@@ -8,6 +10,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { headers } from 'next/headers'
 import { cookieToInitialState } from 'wagmi'
+
 import './globals.css'
 
 dayjs.extend(relativeTime)
@@ -80,10 +83,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <WagmiProvider initialState={initialState}>
-            <TailwindIndicator />
-            <div className="flex min-h-screen flex-col">{children}</div>
-          </WagmiProvider>
+          <RenegadeProvider>
+            <WagmiProvider initialState={initialState}>
+              <TailwindIndicator />
+              <div className="flex min-h-screen flex-col">{children}</div>
+              <Toaster />
+            </WagmiProvider>
+          </RenegadeProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,4 +1,3 @@
-import { getDefaultConfig } from 'connectkit'
 import { cookieStorage, createConfig, createStorage, http } from 'wagmi'
 import { arbitrumSepolia } from 'wagmi/chains'
 
