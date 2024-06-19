@@ -36,7 +36,11 @@ const config = {
         sansLight: ['var(--font-sans-light)'],
       },
       colors: {
-        border: 'hsl(var(--border))',
+        // border: 'hsl(var(--border))',
+        border: {
+          DEFAULT: 'hsl(var(--border))',
+          brand: 'hsl(var(--border-brand))',
+        },
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
