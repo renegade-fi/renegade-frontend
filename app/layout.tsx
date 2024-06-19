@@ -69,7 +69,6 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const initialState = cookieToInitialState(config, headers().get('cookie'))
-  console.log('🚀 ~ initialState:', initialState)
   return (
     <html lang="en">
       <body
