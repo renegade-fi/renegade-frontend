@@ -8,39 +8,45 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { useMounted } from '@/hooks/use-mounted'
+
+const DEFAULT_LAYOUT = [33, 67]
 
 export function PageClient({
-  defaultLayout = [33, 67],
+  defaultLayout = DEFAULT_LAYOUT,
 }: {
   defaultLayout?: number[]
 }) {
   const onLayout = (sizes: number[]) => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`
   }
+  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isMounted = useMounted()
 
   return (
-    <ResizablePanelGroup
-      autoSaveId="renegade.trade-layout"
-      direction="horizontal"
-      onLayout={onLayout}
-    >
-      <ResizablePanel defaultSize={defaultLayout[0]}>
-        <NewOrderPanel />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel defaultSize={defaultLayout[1]}>
-        <main className="flex flex-1 flex-col">
-          <div className="flex items-center justify-between">
+    <ResizablePanelGroup direction="horizontal" onLayout={onLayout}>
+      {(!isMounted || (isMounted && isDesktop)) && (
+        <>
+          <ResizablePanel
+            defaultSize={defaultLayout[0]}
+            minSize={DEFAULT_LAYOUT[0]}
+            order={1}
+          >
+            <NewOrderPanel />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+        </>
+      )}
+      <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
+        <main className="overflow-auto">
+          <div className="flex items-center justify-between overflow-hidden">
             <BBOMarquee />
           </div>
-          <div className="flex-1">
-            <div className="grid min-h-[500px] w-full place-items-center">
-              <span>Chart</span>
-            </div>
+          <div className="grid min-h-[500px] w-full place-items-center">
+            Chart
           </div>
-          <div className="p-4">
-            <OrderTable />
-          </div>
+          <OrderTable />
         </main>
       </ResizablePanel>
     </ResizablePanelGroup>
