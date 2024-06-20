@@ -50,10 +50,8 @@ export function PageClient({
         </>
       )}
       <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
-        <main className="overflow-auto">
-          <div className="flex items-center justify-between overflow-hidden">
-            <BBOMarquee />
-          </div>
+        <main>
+          <BBOMarquee />
           <div className="overflow-auto">
             <div className="grid min-h-[500px] w-full place-items-center">
               Chart
