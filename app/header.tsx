@@ -1,6 +1,7 @@
 'use client'
 
 import { ConnectWalletButton } from '@/components/connect-wallet-button'
+import { DepositDialog } from '@/components/dialogs/deposit-dialog'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
@@ -32,9 +33,11 @@ export function Header() {
           </a>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end pr-4">
-          <Button className="font-extended" variant="outline">
-            Deposit
-          </Button>
+          <DepositDialog>
+            <Button className="font-extended" variant="outline">
+              Deposit
+            </Button>
+          </DepositDialog>
           <ConnectWalletButton />
         </div>
       </div>

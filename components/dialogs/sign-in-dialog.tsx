@@ -61,7 +61,7 @@ export function SignInDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[80vh] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Unlock your Wallet</DialogTitle>
           <DialogDescription>
