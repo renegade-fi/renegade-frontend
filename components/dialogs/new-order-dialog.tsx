@@ -60,14 +60,11 @@ export function NewOrderDialog({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open onOpenChange={setOpen}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle className="font-extended">Review Order</DrawerTitle>
-          <DrawerDescription>
-            <Input placeholder="Search name" />
-          </DrawerDescription>
         </DrawerHeader>
         <ScrollArea className="max-h-[60vh] overflow-auto">
           <NewOrderForm className="p-6" />
