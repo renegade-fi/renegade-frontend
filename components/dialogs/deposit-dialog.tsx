@@ -3,8 +3,10 @@ import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -34,12 +36,35 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
     return (
       <Dialog open={open} onOpenChange={setOpen} modal>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="max-h-[80vh] p-6 sm:max-w-[425px]">
-          <DialogHeader className="space-y-4">
-            <DialogTitle className="font-extended">Deposit</DialogTitle>
-            <DialogDescription></DialogDescription>
+        <DialogContent className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="flex flex-row border-b border-border">
+              <Button
+                variant="outline"
+                className="flex-1 border-0 font-extended text-lg font-bold"
+                size="xl"
+              >
+                Deposit
+              </Button>
+              <Button
+                variant="outline"
+                className="border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold"
+                size="xl"
+              >
+                Withdraw
+              </Button>
+            </div>
           </DialogHeader>
-          <TransferForm />
+          <TransferForm className="p-6" />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+            >
+              Deposit
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     )
@@ -50,11 +75,26 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
       <DrawerTrigger asChild>
         <Button variant="outline">Deposit</Button>
       </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Deposit</DrawerTitle>
+      <DrawerContent hideHandle>
+        <DrawerHeader className="p-0">
+          <div className="flex flex-row border-b border-border">
+            <Button
+              variant="outline"
+              className="flex-1 border-0 font-extended text-lg font-bold"
+              size="xl"
+            >
+              Deposit
+            </Button>
+            <Button
+              variant="outline"
+              className="border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold"
+              size="xl"
+            >
+              Withdraw
+            </Button>
+          </div>
         </DrawerHeader>
-        <TransferForm className="px-4" />
+        <TransferForm className="p-6" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -68,11 +108,11 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
 function TransferForm({ className }: React.ComponentProps<'form'>) {
   return (
     <div className={cn('space-y-8', className)}>
-      <div className="grid w-full max-w-sm items-center gap-3">
+      <div className="grid w-full items-center gap-3">
         <Label htmlFor="email">Token</Label>
         <TokenSelect />
       </div>
-      <div className="grid w-full max-w-sm items-center gap-3">
+      <div className="grid w-full items-center gap-3">
         <Label htmlFor="email">Amount</Label>
         <Input
           type="email"
