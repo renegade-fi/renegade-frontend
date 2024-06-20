@@ -10,14 +10,18 @@ import {
 } from '@/components/ui/resizable'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { useMounted } from '@/hooks/use-mounted'
+import { STORAGE_LAYOUT } from '@/lib/constants/storage'
 
 const DEFAULT_LAYOUT = [22, 78]
+const DEFAULT_SIDE = 'buy'
 
 export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
+  side = DEFAULT_SIDE,
   base,
 }: {
   defaultLayout?: number[]
+  side?: string
   base: string
 }) {
   const onLayout = (sizes: number[]) => {
@@ -28,7 +32,7 @@ export function PageClient({
 
   return (
     <ResizablePanelGroup
-      autoSaveId="trade-layout"
+      autoSaveId={STORAGE_LAYOUT}
       direction="horizontal"
       onLayout={onLayout}
     >
@@ -40,7 +44,7 @@ export function PageClient({
             maxSize={50}
             order={1}
           >
-            <NewOrderPanel base={base} />
+            <NewOrderPanel base={base} side={side} />
           </ResizablePanel>
           <ResizableHandle withHandle />
         </>
