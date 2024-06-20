@@ -28,9 +28,17 @@ import { Label } from '@radix-ui/react-label'
 import { tokenMapping } from '@renegade-fi/react/constants'
 import { TokenSelect } from '@/components/dialogs/token-select'
 
-export function DepositDialog({ children }: { children: React.ReactNode }) {
+enum ExternalTransferDirection {
+  Deposit,
+  Withdraw,
+}
+
+export function TransferDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
+  const [direction, setDirection] = React.useState<ExternalTransferDirection>(
+    ExternalTransferDirection.Deposit,
+  )
 
   if (isDesktop) {
     return (
@@ -41,28 +49,42 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
             <div className="flex flex-row border-b border-border">
               <Button
                 variant="outline"
-                className="flex-1 border-0 font-extended text-lg font-bold"
+                className={cn(
+                  'flex-1 border-0 font-extended text-lg font-bold',
+                  direction === ExternalTransferDirection.Deposit
+                    ? 'text-primary'
+                    : 'text-muted-foreground',
+                )}
                 size="xl"
+                onClick={() => setDirection(ExternalTransferDirection.Deposit)}
               >
                 Deposit
               </Button>
               <Button
                 variant="outline"
-                className="border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold"
+                className={cn(
+                  'border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold',
+                  direction === ExternalTransferDirection.Withdraw
+                    ? 'text-primary'
+                    : 'text-muted-foreground',
+                )}
                 size="xl"
+                onClick={() => setDirection(ExternalTransferDirection.Withdraw)}
               >
                 Withdraw
               </Button>
             </div>
           </DialogHeader>
-          <TransferForm className="p-6" />
+          <TransferForm className="p-6" direction={direction} />
           <DialogFooter>
             <Button
               variant="outline"
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
               size="xl"
             >
-              Deposit
+              {direction === ExternalTransferDirection.Deposit
+                ? 'Deposit'
+                : 'Withdraw'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -82,6 +104,7 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
               variant="outline"
               className="flex-1 border-0 font-extended text-lg font-bold"
               size="xl"
+              onClick={() => setDirection(ExternalTransferDirection.Deposit)}
             >
               Deposit
             </Button>
@@ -89,13 +112,19 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
               variant="outline"
               className="border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold"
               size="xl"
+              onClick={() => setDirection(ExternalTransferDirection.Withdraw)}
             >
               Withdraw
             </Button>
           </div>
         </DrawerHeader>
-        <TransferForm className="p-6" />
+        <TransferForm className="p-6" direction={direction} />
         <DrawerFooter className="pt-2">
+          <Button>
+            {direction === ExternalTransferDirection.Deposit
+              ? 'Deposit'
+              : 'Withdraw'}
+          </Button>
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
           </DrawerClose>
@@ -105,7 +134,10 @@ export function DepositDialog({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TransferForm({ className }: React.ComponentProps<'form'>) {
+function TransferForm({
+  className,
+  direction,
+}: React.ComponentProps<'form'> & { direction: ExternalTransferDirection }) {
   return (
     <div className={cn('space-y-8', className)}>
       <div className="grid w-full items-center gap-3">
@@ -118,10 +150,15 @@ function TransferForm({ className }: React.ComponentProps<'form'>) {
           type="email"
           id="email"
           placeholder="0.0"
-          className="font-mono"
+          className="rounded-none font-mono"
         />
         <div className="flex justify-between">
-          <div className="text-sm text-muted-foreground">Arbitrum Balance</div>
+          <div className="text-sm text-muted-foreground">
+            {direction === ExternalTransferDirection.Deposit
+              ? 'Arbitrum'
+              : 'Renegade'}
+            &nbsp;Balance
+          </div>
           <div className="font-mono text-sm">23 WETH</div>
         </div>
       </div>
