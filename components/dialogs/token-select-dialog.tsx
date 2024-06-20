@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { tokenMapping } from '@renegade-fi/react/constants'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import Link from 'next/link'
 
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
@@ -76,22 +77,21 @@ function TokenList({ className }: React.ComponentProps<'form'>) {
   return (
     <div className={cn('grid items-start', className)}>
       {tokenMapping.tokens.map(token => (
-        <div
-          key={token.address}
-          className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <Image
-            src={`/tokens/${token.ticker.toLowerCase()}.png`}
-            alt={token.ticker}
-            width={32}
-            height={32}
-          />
-          <div>
-            <p className="text-md font-medium">{token.name}</p>
-            <p className="text-xs text-muted-foreground">{token.ticker}</p>
+        <Link href={`/trade/${token.ticker}`} key={token.address}>
+          <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
+            <Image
+              src={`/tokens/${token.ticker.toLowerCase()}.png`}
+              alt={token.ticker}
+              width={32}
+              height={32}
+            />
+            <div>
+              <p className="text-md font-medium">{token.name}</p>
+              <p className="text-xs text-muted-foreground">{token.ticker}</p>
+            </div>
+            <div className="justify-self-end font-mono">17123.56</div>
           </div>
-          <div className="justify-self-end font-mono">17123.56</div>
-        </div>
+        </Link>
       ))}
     </div>
   )

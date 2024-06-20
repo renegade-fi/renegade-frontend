@@ -1,8 +1,8 @@
 'use client'
 
-import { BBOMarquee } from '@/app/(trade)/bbo-marquee'
-import { NewOrderPanel } from '@/app/(trade)/new-order-panel'
-import { OrderTable } from '@/app/(trade)/order-table'
+import { BBOMarquee } from '@/app/trade/[base]/bbo-marquee'
+import { NewOrderPanel } from '@/app/trade/[base]/new-order-panel'
+import { OrderTable } from '@/app/trade/[base]/order-table'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -15,8 +15,10 @@ const DEFAULT_LAYOUT = [33, 67]
 
 export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
+  base,
 }: {
   defaultLayout?: number[]
+  base: string
 }) {
   const onLayout = (sizes: number[]) => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`
@@ -31,9 +33,10 @@ export function PageClient({
           <ResizablePanel
             defaultSize={defaultLayout[0]}
             minSize={DEFAULT_LAYOUT[0]}
+            maxSize={50}
             order={1}
           >
-            <NewOrderPanel />
+            <NewOrderPanel base={base} />
           </ResizablePanel>
           <ResizableHandle withHandle />
         </>
@@ -47,7 +50,7 @@ export function PageClient({
             <div className="grid min-h-[500px] w-full place-items-center">
               Chart
             </div>
-            <OrderTable />
+            <OrderTable base={base} />
           </div>
         </main>
       </ResizablePanel>
