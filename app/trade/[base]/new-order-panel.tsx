@@ -1,20 +1,17 @@
 import { AssetsSection } from '@/app/trade/[base]/assets-section'
+import { SideButton } from '@/app/trade/[base]/side-button'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
-export function NewOrderPanel({ base }: { base: string }) {
+export function NewOrderPanel({ base, side }: { base: string; side: string }) {
   return (
     <aside className="flex min-h-full flex-col justify-between">
       <div className="flex flex-col">
         <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            className="flex-1 border-l-0 font-serif text-3xl font-bold"
-            size="xl"
-          >
-            BUY
-          </Button>
+          <SideButton side={side} />
           <TokenSelectDialog>
             <Button
               variant="outline"
@@ -25,8 +22,15 @@ export function NewOrderPanel({ base }: { base: string }) {
             </Button>
           </TokenSelectDialog>
         </div>
-        <div className="px-6 py-6 text-right font-mono text-4xl">
-          4000&nbsp;<span className="font-serif font-bold">USDC</span>
+        <div className="relative flex items-center p-6 text-4xl">
+          <Label className="absolute left-6 top-3 font-sans text-muted-foreground">
+            Amount
+          </Label>
+          <Input
+            placeholder="0.00"
+            className="rounded-none border-none px-0 text-right font-mono text-4xl placeholder:text-right focus-visible:ring-0"
+          />
+          &nbsp;<span className="font-serif font-bold">USDC</span>
         </div>
         <div className="flex border-b border-input px-6 pb-6">
           <Button variant="outline" className="flex-1">
