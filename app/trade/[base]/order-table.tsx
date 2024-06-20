@@ -9,11 +9,11 @@ import {
 import { formatNumber } from '@/lib/format'
 import { Token, useOrderHistory } from '@renegade-fi/react'
 
-export function OrderTable() {
+export function OrderTable({ base }: { base: string }) {
   const { data, status } = useOrderHistory()
-  const orderHistory = Array.from(data?.values() || []).sort(
-    (a, b) => Number(b.created) - Number(a.created),
-  )
+  const orderHistory = Array.from(data?.values() || [])
+    // .filter(order => order.data.base_mint === Token.findByTicker(base).address)
+    .sort((a, b) => Number(b.created) - Number(a.created))
 
   return (
     <Table>

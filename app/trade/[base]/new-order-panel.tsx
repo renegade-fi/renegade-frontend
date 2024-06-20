@@ -1,7 +1,7 @@
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { Button } from '@/components/ui/button'
 
-export function NewOrderPanel() {
+export function NewOrderPanel({ base }: { base: string }) {
   return (
     <aside className="flex min-h-full flex-col justify-between">
       <div className="flex flex-col">
@@ -19,7 +19,7 @@ export function NewOrderPanel() {
               className="flex-1 border-x-0 font-serif text-3xl font-bold"
               size="xl"
             >
-              WETH
+              {base}
             </Button>
           </TokenSelectDialog>
         </div>
@@ -57,7 +57,7 @@ export function NewOrderPanel() {
             className="w-full font-extended text-3xl"
             size="xl"
           >
-            Sell WBTC
+            Sell {base}
           </Button>
           <div className="space-y-0.5">
             <p className="text-xs text-gray-500">
@@ -69,7 +69,7 @@ export function NewOrderPanel() {
       </div>
       <div className="space-y-2 border-t border-input p-6">
         <div className="flex justify-between">
-          <span>WETH</span>
+          <span>{base}</span>
           <span>1,785</span>
         </div>
         <div className="flex justify-between">
