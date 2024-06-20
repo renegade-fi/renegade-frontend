@@ -11,7 +11,7 @@ import {
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { useMounted } from '@/hooks/use-mounted'
 
-const DEFAULT_LAYOUT = [33, 67]
+const DEFAULT_LAYOUT = [22, 78]
 
 export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
@@ -27,7 +27,11 @@ export function PageClient({
   const isMounted = useMounted()
 
   return (
-    <ResizablePanelGroup direction="horizontal" onLayout={onLayout}>
+    <ResizablePanelGroup
+      autoSaveId="trade-layout"
+      direction="horizontal"
+      onLayout={onLayout}
+    >
       {(!isMounted || (isMounted && isDesktop)) && (
         <>
           <ResizablePanel
