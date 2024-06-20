@@ -1,8 +1,6 @@
 import * as React from 'react'
 
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
-import { useMediaQuery } from '@/hooks/use-media-query'
+import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -23,8 +21,10 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
-import { tokenMapping } from '@renegade-fi/react/constants'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { cn } from '@/lib/utils'
+import { tokenMapping } from '@renegade-fi/react/constants'
 import Link from 'next/link'
 
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
@@ -79,12 +79,7 @@ function TokenList({ className }: React.ComponentProps<'form'>) {
       {tokenMapping.tokens.map(token => (
         <Link href={`/trade/${token.ticker}`} key={token.address}>
           <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
-            <Image
-              src={`/tokens/${token.ticker.toLowerCase()}.png`}
-              alt={token.ticker}
-              width={32}
-              height={32}
-            />
+            <TokenIcon ticker={token.ticker} />
             <div>
               <p className="text-md font-medium">{token.name}</p>
               <p className="text-xs text-muted-foreground">{token.ticker}</p>

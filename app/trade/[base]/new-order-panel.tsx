@@ -1,3 +1,4 @@
+import { AssetsSection } from '@/app/trade/[base]/assets-section'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
@@ -68,15 +69,8 @@ export function NewOrderPanel({ base }: { base: string }) {
           </p>
         </div>
       </div>
-      <div className="space-y-2 border-t border-input p-6">
-        <div className="flex justify-between">
-          <span>{base}</span>
-          <span>1,785</span>
-        </div>
-        <div className="flex justify-between">
-          <span>USDC</span>
-          <span>176,911.00</span>
-        </div>
+      <div className="border-brand border-t">
+        <AssetsSection base={base} />
       </div>
     </aside>
   )
