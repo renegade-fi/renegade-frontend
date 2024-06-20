@@ -1,4 +1,5 @@
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
+import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 
 export function NewOrderPanel({ base }: { base: string }) {
@@ -46,9 +47,9 @@ export function NewOrderPanel({ base }: { base: string }) {
             <span>Est. cost to trade on Binance</span>
             <span>$12.98</span>
           </div>
-          <div className="flex justify-between text-green-500">
+          <div className="flex justify-between font-bold">
             <span>Total savings vs. Binance</span>
-            <span>$10.87</span>
+            <GlowText className="bg-green-price" text="$10.87" />
           </div>
         </div>
         <div className="space-y-2 px-6">
@@ -59,12 +60,12 @@ export function NewOrderPanel({ base }: { base: string }) {
           >
             Sell {base}
           </Button>
-          <div className="space-y-0.5">
-            <p className="text-xs text-gray-500">
-              All orders are pre-trade and post-trade private.
-            </p>
-            <p className="text-xs text-gray-500">Learn more</p>
-          </div>
+          <p className="text-center text-xs text-muted">
+            All orders are pre-trade and post-trade private.&nbsp;
+            <span className="cursor-pointer text-xs text-muted transition-colors hover:text-primary">
+              Learn more
+            </span>
+          </p>
         </div>
       </div>
       <div className="space-y-2 border-t border-input p-6">
