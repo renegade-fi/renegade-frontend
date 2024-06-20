@@ -1,5 +1,6 @@
 import { AssetsSection } from '@/app/trade/[base]/assets-section'
 import { SideButton } from '@/app/trade/[base]/side-button'
+import { NewOrderDialog } from '@/components/dialogs/new-order-dialog'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
@@ -58,13 +59,15 @@ export function NewOrderPanel({ base, side }: { base: string; side: string }) {
           </div>
         </div>
         <div className="space-y-2 px-6">
-          <Button
-            variant="outline"
-            className="w-full font-extended text-3xl"
-            size="xl"
-          >
-            Sell {base}
-          </Button>
+          <NewOrderDialog>
+            <Button
+              variant="outline"
+              className="w-full font-extended text-3xl"
+              size="xl"
+            >
+              Sell {base}
+            </Button>
+          </NewOrderDialog>
           <p className="text-center text-xs text-muted">
             All orders are pre-trade and post-trade private.&nbsp;
             <span className="cursor-pointer text-xs text-muted transition-colors hover:text-primary">
