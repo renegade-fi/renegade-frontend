@@ -1,6 +1,6 @@
 export function BBOMarquee() {
   return (
-    <div className="min-h-marquee flex w-full items-center justify-evenly whitespace-nowrap border-y border-input font-extended text-sm">
+    <div className="flex min-h-marquee w-full items-center justify-evenly whitespace-nowrap border-y border-input font-extended text-sm">
       <span>BBO Feeds</span>
       <span className="text-xs">•</span>
       <div className="space-x-6">

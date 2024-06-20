@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 export function TokensMarquee() {
   const arr = Array.from({ length: 10 })
   return (
-    <div className="min-h-marquee flex items-center justify-evenly overflow-x-hidden whitespace-nowrap border-y border-input font-extended text-sm">
+    <div className="flex min-h-marquee items-center justify-evenly overflow-x-hidden whitespace-nowrap border-y border-input font-extended text-sm">
       {arr.map((_, index) => (
         <Fragment key={index}>
           <div className="space-x-2">
