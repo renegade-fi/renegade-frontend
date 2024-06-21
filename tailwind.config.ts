@@ -21,6 +21,7 @@ const config = {
       'shimmer-button': '400% 400%',
     },
     extend: {
+      animationPlayState: ['hover'],
       backgroundImage: {
         'shimmer-button':
           'linear-gradient(135deg, #000000 0%, #3d3d3d 14%, #3d3d3d 14%, #111111 21%, #3d3d3d 39%, #010101 50%, #3d3d3d 61%, #161616 67%, #3d3d3d 80%, #212121 85%, #1b1b1b 100%)',
@@ -107,6 +108,14 @@ const config = {
           '50%': { backgroundPosition: '100% 50%' },
           '100%': { backgroundPosition: '0% 50%' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+        marquee2: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -114,6 +123,8 @@ const config = {
         'price-green': 'price-green 1s ease-in-out',
         'price-red': 'price-red 1s ease-in-out',
         'shimmer-button': 'shimmer-button 45s ease infinite',
+        marquee: 'marquee 45s linear infinite',
+        marquee2: 'marquee2 45s linear infinite',
       },
     },
   },
