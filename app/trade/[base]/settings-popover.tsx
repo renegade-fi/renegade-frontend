@@ -37,6 +37,10 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
               <Label htmlFor="animate">Remember me</Label>
               <Checkbox className="justify-self-end" defaultChecked />
             </div>
+            <div className="grid grid-cols-2 items-center gap-4">
+              <Label htmlFor="animate">Dark mode</Label>
+              <Checkbox className="justify-self-end" defaultChecked />
+            </div>
           </div>
           <Separator />
           <div className="grid gap-2">
