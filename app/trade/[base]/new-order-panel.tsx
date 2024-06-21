@@ -6,8 +6,19 @@ import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ArrowRightLeft, ChevronDown, Lock } from 'lucide-react'
+import { useState } from 'react'
 
-export function NewOrderPanel({ base, side }: { base: string; side: string }) {
+export function NewOrderPanel<T extends string>({
+  base,
+  side,
+}: {
+  base: T
+  side: string
+}) {
+  type UnitType = 'USDC' | T
+  const [amount, setAmount] = useState(0)
+  const [unit, setUnit] = useState<UnitType>('USDC')
   return (
     <aside className="flex min-h-full flex-col justify-between">
       <div className="flex flex-col">
@@ -16,35 +27,44 @@ export function NewOrderPanel({ base, side }: { base: string; side: string }) {
           <TokenSelectDialog>
             <Button
               variant="outline"
-              className="flex-1 border-x-0 font-serif text-3xl font-bold"
+              className="flex-1 border-x-0 font-serif text-2xl font-bold"
               size="xl"
             >
               {base}
+              <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </TokenSelectDialog>
         </div>
-        <div className="relative flex items-center p-6 text-4xl">
-          <Label className="absolute left-6 top-3 font-sans text-muted-foreground">
-            Amount
-          </Label>
-          <Input
-            placeholder="0.00"
-            className="rounded-none border-none px-0 text-right font-mono text-4xl placeholder:text-right focus-visible:ring-0"
-          />
-          &nbsp;<span className="font-serif font-bold">USDC</span>
+        <div className="relative p-6">
+          <Label className="font-sans text-muted-foreground">Amount</Label>
+          <div className="flex items-baseline">
+            <Input
+              placeholder="0.00"
+              className="rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
+            />
+            &nbsp;
+            <Button
+              variant="ghost"
+              className="h-12 flex-1 rounded-none p-0 px-2 font-serif text-2xl font-bold"
+              onClick={() => setUnit(unit === 'USDC' ? base : 'USDC')}
+            >
+              {unit}
+              <ArrowRightLeft className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
         </div>
         <div className="flex border-b border-input px-6 pb-6">
-          <Button variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1 border-r-0">
             25%
           </Button>
           <Button variant="outline" className="flex-1">
             50%
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1 border-l-0">
             MAX
           </Button>
         </div>
-        <div className="space-y-6 p-6">
+        <div className="space-y-3 p-6">
           <div className="flex justify-between">
             <span>Est. fees for your order</span>
             <span>$2.11</span>
@@ -58,7 +78,7 @@ export function NewOrderPanel({ base, side }: { base: string; side: string }) {
             <GlowText className="bg-green-price" text="$10.87" />
           </div>
         </div>
-        <div className="space-y-2 px-6">
+        <div className="group mx-6 space-y-2">
           <NewOrderDialog>
             <Button
               variant="outline"
@@ -68,12 +88,13 @@ export function NewOrderPanel({ base, side }: { base: string; side: string }) {
               Sell {base}
             </Button>
           </NewOrderDialog>
-          <p className="text-center text-xs text-muted">
-            All orders are pre-trade and post-trade private.&nbsp;
-            <span className="cursor-pointer text-xs text-muted transition-colors hover:text-primary">
-              Learn more
+          <div className="space-x-1 text-center text-xs text-muted transition-colors group-hover:text-primary">
+            <span className="flex items-center gap-1">
+              <Lock className="h-3 w-3" />
+              All orders are pre-trade and post-trade private.
             </span>
-          </p>
+            <p className="cursor-pointer">Learn more</p>
+          </div>
         </div>
       </div>
       <div className="border-brand border-t">
