@@ -1,5 +1,5 @@
 import { TailwindIndicator } from '@/app/tailwind-indicator'
-import { RenegadeProvider } from '@/components/renegade-provider'
+import { RenegadeProvider } from '@/components/renegade-provider/renegade-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { config } from '@/components/wagmi-provider/config'
@@ -11,6 +11,8 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { headers } from 'next/headers'
 import { cookieToInitialState } from 'wagmi'
+import { cookieToInitialState as renegadeCookieToInitialState } from '@renegade-fi/react'
+import { config as renegadeConfig } from '@/components/renegade-provider/config'
 
 import './globals.css'
 
@@ -73,6 +75,10 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const initialState = cookieToInitialState(config, headers().get('cookie'))
+  const renegadeInitialState = renegadeCookieToInitialState(
+    renegadeConfig,
+    headers().get('cookie'),
+  )
   return (
     <html lang="en">
       <body
@@ -84,7 +90,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RenegadeProvider>
+          <RenegadeProvider initialState={renegadeInitialState}>
             <WagmiProvider initialState={initialState}>
               <TailwindIndicator />
               <div className="">{children}</div>
