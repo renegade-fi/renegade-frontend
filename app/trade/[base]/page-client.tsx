@@ -46,7 +46,7 @@ export function PageClient({
           >
             <NewOrderPanel base={base} side={side} />
           </ResizablePanel>
-          <ResizableHandle withHandle />
+          <ResizableHandle />
         </>
       )}
       <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
