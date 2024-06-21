@@ -1,27 +1,56 @@
+import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
 import { Button } from '@/components/ui/button'
+import { useConfig, useInitialized, useStatus } from '@renegade-fi/react'
+import { disconnect as disconnectRenegade } from '@renegade-fi/react/actions'
 import { useModal } from 'connectkit'
+import { useState } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 
 export function ConnectWalletButton() {
-  const { status, address } = useAccount()
-  const { setOpen } = useModal()
+  const { address } = useAccount()
+  const config = useConfig()
   const { disconnect } = useDisconnect()
+  const { setOpen } = useModal()
+  const [openSignIn, setOpenSignIn] = useState(false)
+
+  const onOpenChangeSignIn = () => setOpenSignIn(!openSignIn)
+
+  const renegadeStatus = useStatus()
 
   const handleClick = () => {
-    if (status === 'connected' || status === 'reconnecting') {
-      disconnect()
+    if (address) {
+      if (renegadeStatus === 'in relayer') {
+        disconnectRenegade(config)
+        disconnect()
+      } else {
+        setOpenSignIn(true)
+      }
     } else {
       setOpen(true)
     }
   }
 
+  let content = ''
+  if (address) {
+    if (renegadeStatus === 'in relayer') {
+      content = `Disconnect ${address?.slice(0, 6)}`
+    } else {
+      content = `Sign in with ${address?.slice(0, 6)}`
+    }
+  } else {
+    content = 'Connect Wallet'
+  }
+
   return (
-    <Button
-      onClick={handleClick}
-      variant="shimmer"
-      className="font-extended text-base"
-    >
-      {address ? `Disconnect ${address?.slice(0, 6)}` : 'Connect Wallet'}
-    </Button>
+    <>
+      <Button
+        onClick={handleClick}
+        variant="shimmer"
+        className="font-extended text-base"
+      >
+        {content}
+      </Button>
+      <SignInDialog open={openSignIn} onOpenChange={onOpenChangeSignIn} />
+    </>
   )
 }
