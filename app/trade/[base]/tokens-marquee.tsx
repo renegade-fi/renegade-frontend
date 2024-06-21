@@ -5,7 +5,7 @@ import { Fragment } from 'react'
 export function TokensMarquee() {
   const arr = Array.from({ length: 10 })
   return (
-    <div className="group relative ml-8 flex min-h-marquee items-center overflow-hidden border-y font-extended text-sm">
+    <div className="group fixed bottom-20 flex min-h-marquee items-center border-y bg-background font-extended text-sm">
       <div className="animate-marquee space-x-8 whitespace-nowrap group-hover:paused">
         {DISPLAY_TOKENS().map((token, index) => (
           <Fragment key={index}>

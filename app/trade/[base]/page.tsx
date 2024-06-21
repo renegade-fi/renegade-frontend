@@ -29,7 +29,9 @@ export default function Page({ params }: { params: { base: string } }) {
         base={params.base}
         side={defaultSide}
       />
-      <TokensMarquee />
+      <div className="min-h-marquee overflow-hidden">
+        <TokensMarquee />
+      </div>
       <div className="min-h-20">
         <Footer />
       </div>
