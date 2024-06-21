@@ -88,7 +88,7 @@ export function NewOrderPanel<T extends string>({
               Sell {base}
             </Button>
           </NewOrderDialog>
-          <div className="space-x-1 text-center text-xs text-muted transition-colors group-hover:text-primary">
+          <div className="grid place-items-center space-x-1 text-xs text-muted transition-colors group-hover:text-muted-foreground">
             <span className="flex items-center gap-1">
               <Lock className="h-3 w-3" />
               All orders are pre-trade and post-trade private.
