@@ -19,7 +19,7 @@ export function TokensMarquee() {
           </Fragment>
         ))}
       </div>
-      <div className="animate-marquee2 absolute ml-8 space-x-8 whitespace-nowrap group-hover:paused">
+      <div className="absolute ml-8 animate-marquee2 space-x-8 whitespace-nowrap group-hover:paused">
         {DISPLAY_TOKENS().map((token, index) => (
           <Fragment key={index}>
             <Link href={`/trade/${token.ticker}`}>

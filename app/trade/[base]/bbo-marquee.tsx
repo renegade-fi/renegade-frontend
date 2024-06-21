@@ -3,7 +3,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 export function BBOMarquee() {
   return (
     <ScrollArea className="w-screen whitespace-nowrap border-y border-border">
-      <div className="min-h-marquee ml-4 flex items-center space-x-8 font-extended text-sm">
+      <div className="ml-4 flex min-h-marquee items-center space-x-8 font-extended text-sm">
         <span>BBO Feeds</span>
         <span className="text-xs">•</span>
         <div className="space-x-6">
