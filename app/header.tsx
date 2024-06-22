@@ -5,6 +5,7 @@ import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export function Header() {
@@ -22,7 +23,7 @@ export function Header() {
           />
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
-          <a
+          <Link
             href="/trade/WETH"
             className={cn(
               'hover:underline',
@@ -30,8 +31,8 @@ export function Header() {
             )}
           >
             Trade
-          </a>
-          <a
+          </Link>
+          <Link
             href="/assets"
             className={cn(
               'hover:underline',
@@ -39,8 +40,8 @@ export function Header() {
             )}
           >
             Assets
-          </a>
-          <a
+          </Link>
+          <Link
             href="/orders"
             className={cn(
               'text-muted-foreground hover:underline',
@@ -48,8 +49,8 @@ export function Header() {
             )}
           >
             Orders
-          </a>
-          <a
+          </Link>
+          <Link
             href="#"
             className={cn(
               'hover:underline',
@@ -57,7 +58,7 @@ export function Header() {
             )}
           >
             Stats
-          </a>
+          </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end pr-4">
           <TransferDialog>
