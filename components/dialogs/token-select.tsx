@@ -19,15 +19,27 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { DISPLAY_TOKENS } from '@/lib/token'
+import { useReadErc20BalanceOf } from '@/lib/generated'
+import { useAccount } from 'wagmi'
+import { formatNumber } from '@/lib/format'
+import { Token, useBalances } from '@renegade-fi/react'
+import { ExternalTransferDirection } from '@/components/dialogs/transfer-dialog'
 
 const tokens = DISPLAY_TOKENS().map(token => ({
   value: token.address,
   label: token.ticker,
 }))
 
-export function TokenSelect() {
+export function TokenSelect({
+  direction,
+  value,
+  onChange,
+}: {
+  direction: ExternalTransferDirection
+  value: string
+  onChange: (value: string) => void
+}) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState('')
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal>
@@ -36,7 +48,7 @@ export function TokenSelect() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between"
+          className={cn('justify-between', !value && 'text-muted-foreground')}
         >
           {value
             ? tokens.find(framework => framework.value === value)?.label
@@ -55,12 +67,18 @@ export function TokenSelect() {
                   key={t.value}
                   value={t.value}
                   onSelect={currentValue => {
-                    setValue(currentValue === value ? '' : currentValue)
+                    onChange(currentValue === value ? '' : currentValue)
                     setOpen(false)
                   }}
                 >
                   <span className="flex-1">{t.label}</span>
-                  <span className="flex-1 pr-2 text-right">3</span>
+                  <span className="flex-1 pr-2 text-right">
+                    {direction === ExternalTransferDirection.Deposit ? (
+                      <L2Balance base={t.value} />
+                    ) : (
+                      <RenegadeBalance base={t.value} />
+                    )}
+                  </span>
                   <CheckIcon
                     className={cn(
                       'ml-auto h-4 w-4',
@@ -75,4 +93,29 @@ export function TokenSelect() {
       </PopoverContent>
     </Popover>
   )
+}
+
+function L2Balance({ base }: { base: `0x${string}` }) {
+  const { address } = useAccount()
+  const { data: l2Balance } = useReadErc20BalanceOf({
+    address: base,
+    args: [address ?? '0x'],
+    query: {
+      enabled: !!base && !!address,
+    },
+  })
+  const formattedL2Balance = formatNumber(
+    l2Balance ?? BigInt(0),
+    Token.findByAddress(base).decimals,
+  )
+  return <>{formattedL2Balance}</>
+}
+
+function RenegadeBalance({ base }: { base: `0x${string}` }) {
+  const balances = useBalances()
+  const formattedRenegadeBalance = formatNumber(
+    balances.get(base)?.amount ?? BigInt(0),
+    Token.findByAddress(base).decimals,
+  )
+  return <>{formattedRenegadeBalance}</>
 }
