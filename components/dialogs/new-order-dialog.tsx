@@ -1,5 +1,9 @@
 import * as React from 'react'
 
+import { useCreateOrder } from '@/hooks/use-create-order'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { cn } from '@/lib/utils'
+
 import { GlowText } from '@/components/glow-text'
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
@@ -22,9 +26,6 @@ import {
 } from '@/components/ui/drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { useCreateOrder } from '@/hooks/use-create-order'
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { cn } from '@/lib/utils'
 
 export function NewOrderDialog({
   base,

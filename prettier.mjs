@@ -6,8 +6,23 @@ const config = {
   embeddedLanguageFormatting: 'auto',
   endOfLine: 'lf',
   htmlWhitespaceSensitivity: 'css',
+  importOrder: [
+    '^react(/.*)?$',
+    '^next(/.*)?$',
+    '<THIRD_PARTY_MODULES>',
+    '^@/app(/.*)?$',
+    '^@/components(/.*)?$',
+    '^@/(/.*)?$',
+    '.*\\.css$',
+    '^[./]',
+  ],
+  importOrderSeparation: true,
   insertPragma: false,
   jsxSingleQuote: false,
+  plugins: [
+    'prettier-plugin-tailwindcss',
+    '@trivago/prettier-plugin-sort-imports',
+  ],
   printWidth: 80,
   proseWrap: 'always',
   quoteProps: 'as-needed',
@@ -16,11 +31,10 @@ const config = {
   singleAttributePerLine: false,
   singleQuote: true,
   tabWidth: 2,
-  trailingComma: 'all',
-  useTabs: false,
-  plugins: ['prettier-plugin-tailwindcss'],
   tailwindAttributes: ['class', 'className', 'ngClass', '.*[cC]lassName'],
   tailwindFunctions: ['clsx', 'cn'],
+  trailingComma: 'all',
+  useTabs: false,
 }
 
 export default config

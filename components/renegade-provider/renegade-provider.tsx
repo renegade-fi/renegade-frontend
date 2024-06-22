@@ -1,7 +1,8 @@
 'use client'
 
-import { config } from '@/components/renegade-provider/config'
 import { RenegadeProvider as Provider } from '@renegade-fi/react'
+
+import { config } from '@/components/renegade-provider/config'
 
 export function RenegadeProvider({
   children,

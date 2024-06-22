@@ -1,18 +1,21 @@
 'use client'
 
-import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
-import { QueryProvider } from '@/components/query-provider'
-import { ConnectKitProvider } from 'connectkit'
 import { useEffect, useState } from 'react'
+
+import { useConfig } from '@renegade-fi/react'
+import { disconnect } from '@renegade-fi/react/actions'
+import { ConnectKitProvider } from 'connectkit'
 import {
   WagmiProvider as Provider,
   State,
   useAccount,
   useAccountEffect,
 } from 'wagmi'
+
+import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
+import { QueryProvider } from '@/components/query-provider'
+
 import { config } from './config'
-import { useConfig } from '@renegade-fi/react'
-import { disconnect } from '@renegade-fi/react/actions'
 
 export function WagmiProvider({
   initialState,

@@ -1,11 +1,3 @@
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {
   CREATE_WALLET_ERROR,
   CREATE_WALLET_START,
@@ -20,6 +12,15 @@ import { connect } from '@renegade-fi/react/actions'
 import { ROOT_KEY_MESSAGE_PREFIX } from '@renegade-fi/react/constants'
 import { toast } from 'sonner'
 import { useSignMessage } from 'wagmi'
+
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 export function SignInDialog({
   open,

@@ -1,6 +1,8 @@
-import { setSide } from '@/app/trade/[base]/actions'
-import { Button } from '@/components/ui/button'
 import { ArrowRightLeft } from 'lucide-react'
+
+import { setSide } from '@/app/trade/[base]/actions'
+
+import { Button } from '@/components/ui/button'
 
 export function SideButton({ side }: { side: string }) {
   return (

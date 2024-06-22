@@ -1,5 +1,11 @@
 'use client'
 
+import { formatNumber } from '@/lib/format'
+import { useReadErc20BalanceOf } from '@/lib/generated'
+import { DISPLAY_TOKENS } from '@/lib/token'
+import { useBalances } from '@renegade-fi/react'
+import { useAccount } from 'wagmi'
+
 import { TokenIcon } from '@/components/token-icon'
 import {
   Table,
@@ -9,11 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
-import { DISPLAY_TOKENS } from '@/lib/token'
-import { useBalances } from '@renegade-fi/react'
-import { useAccount } from 'wagmi'
 
 export function AssetsTable() {
   return (

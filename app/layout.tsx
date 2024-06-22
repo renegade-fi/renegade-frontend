@@ -1,20 +1,23 @@
+import type { Metadata } from 'next'
+import localFont from 'next/font/local'
+import { headers } from 'next/headers'
+
+import { cookieToInitialState as renegadeCookieToInitialState } from '@renegade-fi/react'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { cookieToInitialState } from 'wagmi'
+
 import { OrderToaster } from '@/app/order-toaster'
 import { TailwindIndicator } from '@/app/tailwind-indicator'
 import { TaskToaster } from '@/app/task-toaster'
+
 import { config as renegadeConfig } from '@/components/renegade-provider/config'
 import { RenegadeProvider } from '@/components/renegade-provider/renegade-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { config } from '@/components/wagmi-provider/config'
 import { WagmiProvider } from '@/components/wagmi-provider/wagmi-provider'
-import { cookieToInitialState as renegadeCookieToInitialState } from '@renegade-fi/react'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import type { Metadata } from 'next'
-import localFont from 'next/font/local'
-import { headers } from 'next/headers'
-import { cookieToInitialState } from 'wagmi'
 
 import './globals.css'
 

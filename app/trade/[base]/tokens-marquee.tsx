@@ -1,6 +1,8 @@
-import { DISPLAY_TOKENS } from '@/lib/token'
-import Link from 'next/link'
 import { Fragment } from 'react'
+
+import Link from 'next/link'
+
+import { DISPLAY_TOKENS } from '@/lib/token'
 
 export function TokensMarquee() {
   const arr = Array.from({ length: 10 })

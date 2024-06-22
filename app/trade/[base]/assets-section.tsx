@@ -1,8 +1,9 @@
-import { TokenIcon } from '@/components/token-icon'
 import { formatNumber } from '@/lib/format'
 import { useReadErc20BalanceOf } from '@/lib/generated'
 import { Token } from '@renegade-fi/react'
 import { useAccount } from 'wagmi'
+
+import { TokenIcon } from '@/components/token-icon'
 
 export function AssetsSection({
   base,

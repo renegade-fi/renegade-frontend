@@ -1,12 +1,14 @@
 'use client'
 
-import { ConnectWalletButton } from '@/components/connect-wallet-button'
-import { TransferDialog } from '@/components/dialogs/transfer-dialog'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
+import { cn } from '@/lib/utils'
+
+import { ConnectWalletButton } from '@/components/connect-wallet-button'
+import { TransferDialog } from '@/components/dialogs/transfer-dialog'
+import { Button } from '@/components/ui/button'
 
 export function Header() {
   const pathname = usePathname()
