@@ -10,7 +10,7 @@ export function AssetsSection({
   quote = 'USDC',
 }: {
   base: string
-  quote: string
+  quote?: string
 }) {
   const { address } = useAccount()
   const { data: baseL2Balance } = useReadErc20BalanceOf({
