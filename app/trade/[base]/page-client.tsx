@@ -53,7 +53,7 @@ export function PageClient({
         <main>
           <BBOMarquee />
           <div className="overflow-auto">
-            <div className="grid min-h-[500px] w-full place-items-center">
+            <div className="grid min-h-[500px] w-full place-items-center border-b border-border">
               Chart
             </div>
             <OrderTable base={base} />
