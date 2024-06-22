@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation'
 export function Header() {
   const pathname = usePathname()
   return (
-    <header className="fixed top-0 z-10 min-w-full bg-background">
+    <header className="fixed top-0 z-10 min-w-full border-b bg-background">
       <div className="grid min-h-20 grid-cols-3 items-center">
         <div className="pl-6">
           <Image
