@@ -26,7 +26,7 @@ export function Header() {
             href="/trade/WETH"
             className={cn(
               'hover:underline',
-              pathname === '/trade/WETH' ? 'text-primary' : '',
+              pathname.includes('/trade') ? 'text-primary' : '',
             )}
           >
             Trade
@@ -35,7 +35,7 @@ export function Header() {
             href="/assets"
             className={cn(
               'hover:underline',
-              pathname === '/assets' ? 'text-primary' : '',
+              pathname.includes('/assets') ? 'text-primary' : '',
             )}
           >
             Assets
@@ -44,7 +44,7 @@ export function Header() {
             href="/orders"
             className={cn(
               'text-muted-foreground hover:underline',
-              pathname === '/orders' ? 'text-primary' : '',
+              pathname.includes('/orders') ? 'text-primary' : '',
             )}
           >
             Orders
