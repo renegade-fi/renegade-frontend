@@ -3,9 +3,12 @@
 import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
 export function Header() {
+  const pathname = usePathname()
   return (
     <header className="fixed top-0 z-10 min-w-full bg-background">
       <div className="grid min-h-20 grid-cols-3 items-center">
@@ -18,17 +21,41 @@ export function Header() {
             priority
           />
         </div>
-        <nav className="flex space-x-5 justify-self-center font-extended">
-          <a href="/trade/WETH" className="hover:underline">
+        <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
+          <a
+            href="/trade/WETH"
+            className={cn(
+              'hover:underline',
+              pathname === '/trade/WETH' ? 'text-primary' : '',
+            )}
+          >
             Trade
           </a>
-          <a href="/assets" className="text-muted-foreground hover:underline">
+          <a
+            href="/assets"
+            className={cn(
+              'hover:underline',
+              pathname === '/assets' ? 'text-primary' : '',
+            )}
+          >
             Assets
           </a>
-          <a href="#" className="text-muted-foreground hover:underline">
+          <a
+            href="#"
+            className={cn(
+              'text-muted-foreground hover:underline',
+              pathname === '/orders' ? 'text-primary' : '',
+            )}
+          >
             Orders
           </a>
-          <a href="#" className="text-muted-foreground hover:underline">
+          <a
+            href="#"
+            className={cn(
+              'hover:underline',
+              pathname === '/stats' ? 'text-primary' : '',
+            )}
+          >
             Stats
           </a>
         </nav>
