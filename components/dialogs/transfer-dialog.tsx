@@ -73,18 +73,6 @@ export function TransferDialog({ children }: { children: React.ReactNode }) {
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]">
           <DialogHeader>
-            <VisuallyHidden>
-              <DialogTitle>
-                {direction === ExternalTransferDirection.Deposit
-                  ? 'Deposit'
-                  : 'Withdraw'}
-              </DialogTitle>
-              <DialogDescription>
-                {direction === ExternalTransferDirection.Deposit
-                  ? 'Deposit tokens into Renegade'
-                  : 'Withdraw tokens from Renegade'}
-              </DialogDescription>
-            </VisuallyHidden>
             <div className="flex flex-row border-b border-border">
               <Button
                 variant="outline"
@@ -113,6 +101,18 @@ export function TransferDialog({ children }: { children: React.ReactNode }) {
                 Withdraw
               </Button>
             </div>
+            <VisuallyHidden>
+              <DialogTitle>
+                {direction === ExternalTransferDirection.Deposit
+                  ? 'Deposit'
+                  : 'Withdraw'}
+              </DialogTitle>
+              <DialogDescription>
+                {direction === ExternalTransferDirection.Deposit
+                  ? 'Deposit tokens into Renegade'
+                  : 'Withdraw tokens from Renegade'}
+              </DialogDescription>
+            </VisuallyHidden>
           </DialogHeader>
           <TransferForm
             className="p-6"

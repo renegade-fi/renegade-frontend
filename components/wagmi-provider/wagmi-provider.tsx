@@ -42,7 +42,6 @@ export function WagmiProvider({
 function SyncRenegadeWagmiState() {
   const config = useConfig()
   const { address, connector, status } = useAccount()
-  console.log('wagmi status: ', status)
 
   // Disconnect on wallet change
   useEffect(() => {

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -26,6 +27,7 @@ import {
 } from '@/components/ui/drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 export function NewOrderDialog({
   base,
@@ -58,6 +60,11 @@ export function NewOrderDialog({
         <DialogContent className="max-h-[80vh] p-0 sm:max-w-[425px]">
           <DialogHeader className="space-y-4 px-6 pt-6">
             <DialogTitle className="font-extended">Review Order</DialogTitle>
+            <VisuallyHidden>
+              <DialogDescription>
+                Review your order before placing it.
+              </DialogDescription>
+            </VisuallyHidden>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
             <NewOrderForm
