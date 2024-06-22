@@ -17,7 +17,7 @@ export function NewOrderPanel<T extends string>({
   side: string
 }) {
   type UnitType = 'USDC' | T
-  const [amount, setAmount] = useState(0)
+  const [amount, setAmount] = useState('')
   const [unit, setUnit] = useState<UnitType>('USDC')
   return (
     <aside className="flex min-h-full flex-col justify-between">
@@ -41,6 +41,8 @@ export function NewOrderPanel<T extends string>({
             <Input
               placeholder="0.00"
               className="rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
             />
             &nbsp;
             <Button
@@ -79,7 +81,12 @@ export function NewOrderPanel<T extends string>({
           </div>
         </div>
         <div className="group mx-6 space-y-2">
-          <NewOrderDialog>
+          <NewOrderDialog
+            base={base}
+            side={side}
+            amount={amount}
+            clearAmount={() => setAmount('')}
+          >
             <Button
               variant="outline"
               className="w-full font-extended text-3xl"

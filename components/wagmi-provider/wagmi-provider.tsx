@@ -76,11 +76,10 @@ function SyncRenegadeWagmiState() {
   })
 
   useEffect(() => {
-    console.log('🚀 ~ useEffect ~ address:', address)
     if (!address) {
       console.log('disconnecting because address is undefined')
       disconnect(config)
     }
   }, [address, config])
-  return <></>
+  return null
 }

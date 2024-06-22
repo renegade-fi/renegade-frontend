@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -16,23 +15,40 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { useCreateOrder } from '@/hooks/use-create-order'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
-import { tokenMapping } from '@renegade-fi/react/constants'
-import Link from 'next/link'
-import { Separator } from '@/components/ui/separator'
 
-export function NewOrderDialog({ children }: { children: React.ReactNode }) {
+export function NewOrderDialog({
+  base,
+  side,
+  amount,
+  clearAmount,
+  children,
+}: {
+  base: string
+  side: string
+  amount: string
+  clearAmount: () => void
+  children: React.ReactNode
+}) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
+
+  const handleCreateOrer = useCreateOrder({
+    base,
+    side,
+    amount,
+    setOpen,
+    clearAmount,
+  })
 
   if (isDesktop) {
     return (
@@ -43,15 +59,21 @@ export function NewOrderDialog({ children }: { children: React.ReactNode }) {
             <DialogTitle className="font-extended">Review Order</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
-            <NewOrderForm className="p-6" />
+            <NewOrderForm
+              base={base}
+              side={side}
+              amount={amount}
+              className="p-6"
+            />
           </ScrollArea>
           <DialogFooter>
             <Button
+              onClick={handleCreateOrer}
               variant="outline"
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
               size="xl"
             >
-              Buy WETH
+              {side === 'buy' ? 'Buy' : 'Sell'} {base}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -67,7 +89,12 @@ export function NewOrderDialog({ children }: { children: React.ReactNode }) {
           <DrawerTitle className="font-extended">Review Order</DrawerTitle>
         </DrawerHeader>
         <ScrollArea className="max-h-[60vh] overflow-auto">
-          <NewOrderForm className="p-6" />
+          <NewOrderForm
+            base={base}
+            side={side}
+            amount={amount}
+            className="p-6"
+          />
         </ScrollArea>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
@@ -79,20 +106,35 @@ export function NewOrderDialog({ children }: { children: React.ReactNode }) {
   )
 }
 
-function NewOrderForm({ className }: React.ComponentProps<'form'>) {
+function NewOrderForm({
+  base,
+  side,
+  amount,
+  className,
+}: React.ComponentProps<'form'> & {
+  base: string
+  side: string
+  amount: string
+}) {
   return (
     <div className={cn('space-y-6', className)}>
       <div className="space-y-3">
-        <div className="text-muted-foreground">Buy</div>
+        <div className="text-muted-foreground">
+          {side === 'buy' ? 'Buy' : 'Sell'}
+        </div>
         <div className="flex items-center justify-between">
-          <div className="font-serif text-3xl font-bold">1.2 WETH</div>
+          <div className="font-serif text-3xl font-bold">
+            {amount} {base}
+          </div>
           <TokenIcon ticker="WETH" />
         </div>
       </div>
       <div className="space-y-3">
-        <div className="text-muted-foreground">with</div>
+        <div className="text-muted-foreground">
+          {side === 'buy' ? 'With' : 'For'}
+        </div>
         <div className="flex items-center justify-between">
-          <div className="font-serif text-3xl font-bold">1000 USDC</div>
+          <div className="font-serif text-3xl font-bold">USDC</div>
           <TokenIcon ticker="USDC" />
         </div>
       </div>
