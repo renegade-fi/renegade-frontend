@@ -41,7 +41,7 @@ export function Header() {
             Assets
           </a>
           <a
-            href="#"
+            href="/orders"
             className={cn(
               'text-muted-foreground hover:underline',
               pathname === '/orders' ? 'text-primary' : '',
