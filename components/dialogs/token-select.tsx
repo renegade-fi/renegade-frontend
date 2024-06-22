@@ -1,9 +1,16 @@
 'use client'
 
 import * as React from 'react'
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 
+import { formatNumber } from '@/lib/format'
+import { useReadErc20BalanceOf } from '@/lib/generated'
+import { DISPLAY_TOKENS } from '@/lib/token'
 import { cn } from '@/lib/utils'
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
+import { Token, useBalances } from '@renegade-fi/react'
+import { useAccount } from 'wagmi'
+
+import { ExternalTransferDirection } from '@/components/dialogs/transfer-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -18,12 +25,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { DISPLAY_TOKENS } from '@/lib/token'
-import { useReadErc20BalanceOf } from '@/lib/generated'
-import { useAccount } from 'wagmi'
-import { formatNumber } from '@/lib/format'
-import { Token, useBalances } from '@renegade-fi/react'
-import { ExternalTransferDirection } from '@/components/dialogs/transfer-dialog'
 
 const tokens = DISPLAY_TOKENS().map(token => ({
   value: token.address,

@@ -3,7 +3,6 @@ import {
   createWriteContract,
   createSimulateContract,
 } from 'wagmi/codegen'
-
 import {
   createUseReadContract,
   createUseWriteContract,

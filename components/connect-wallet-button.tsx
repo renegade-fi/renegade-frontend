@@ -1,10 +1,12 @@
-import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+
 import { useConfig, useInitialized, useStatus } from '@renegade-fi/react'
 import { disconnect as disconnectRenegade } from '@renegade-fi/react/actions'
 import { useModal } from 'connectkit'
-import { useState } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
+
+import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
+import { Button } from '@/components/ui/button'
 
 export function ConnectWalletButton() {
   const { address } = useAccount()

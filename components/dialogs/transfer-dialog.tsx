@@ -1,5 +1,16 @@
 import * as React from 'react'
 
+import { useDeposit } from '@/hooks/use-deposit'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { useWithdraw } from '@/hooks/use-withdraw'
+import { formatNumber } from '@/lib/format'
+import { useReadErc20BalanceOf } from '@/lib/generated'
+import { cn } from '@/lib/utils'
+import { Label } from '@radix-ui/react-label'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { Token, useBalances } from '@renegade-fi/react'
+import { useAccount } from 'wagmi'
+
 import { TokenSelect } from '@/components/dialogs/token-select'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,16 +31,6 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
-import { useDeposit } from '@/hooks/use-deposit'
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { useWithdraw } from '@/hooks/use-withdraw'
-import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
-import { cn } from '@/lib/utils'
-import { Label } from '@radix-ui/react-label'
-import { Token, useBalances } from '@renegade-fi/react'
-import { useAccount } from 'wagmi'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 export enum ExternalTransferDirection {
   Deposit,

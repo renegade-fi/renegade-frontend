@@ -1,13 +1,16 @@
+import { useState } from 'react'
+
+import { ArrowRightLeft, ChevronDown, Lock } from 'lucide-react'
+
 import { AssetsSection } from '@/app/trade/[base]/assets-section'
 import { SideButton } from '@/app/trade/[base]/side-button'
+
 import { NewOrderDialog } from '@/components/dialogs/new-order-dialog'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowRightLeft, ChevronDown, Lock } from 'lucide-react'
-import { useState } from 'react'
 
 export function NewOrderPanel<T extends string>({
   base,

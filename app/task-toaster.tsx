@@ -1,12 +1,13 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
+
 import {
   generateCompletionToastMessage,
   generateFailedToastMessage,
   generateStartToastMessage,
 } from '@/lib/constants/task'
 import { Task, TaskType, useTaskHistoryWebSocket } from '@renegade-fi/react'
-import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 export function TaskToaster() {

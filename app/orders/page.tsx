@@ -1,6 +1,6 @@
-import { PageClient } from '@/app/orders/page-client'
 import { Footer } from '@/app/footer'
 import { Header } from '@/app/header'
+import { PageClient } from '@/app/orders/page-client'
 
 export default function Page() {
   return (

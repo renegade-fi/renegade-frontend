@@ -5,6 +5,7 @@ import {
   createConfig,
   createStorage,
 } from '@renegade-fi/react'
+
 export const config = createConfig({
   darkPoolAddress: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
   priceReporterUrl: process.env.NEXT_PUBLIC_PRICE_REPORTER_URL,

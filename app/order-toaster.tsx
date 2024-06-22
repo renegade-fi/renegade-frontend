@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
+
 import { formatNumber } from '@/lib/format'
 import {
   OrderMetadata,
@@ -7,7 +9,6 @@ import {
   Token,
   useOrderHistoryWebSocket,
 } from '@renegade-fi/react'
-import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 export function OrderToaster() {

@@ -1,4 +1,8 @@
 'use client'
+
+import { formatNumber } from '@/lib/format'
+import { Token, useOrderHistory } from '@renegade-fi/react'
+
 import {
   Table,
   TableBody,
@@ -7,8 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatNumber } from '@/lib/format'
-import { Token, useOrderHistory } from '@renegade-fi/react'
 
 export function OrderTable({ base }: { base?: string }) {
   const { data, status } = useOrderHistory()

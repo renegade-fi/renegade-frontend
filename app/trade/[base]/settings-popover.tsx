@@ -1,5 +1,7 @@
 'use client'
 
+import { useWalletId } from '@renegade-fi/react'
+
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -9,7 +11,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { useWalletId } from '@renegade-fi/react'
 
 export function SettingsPopover({ children }: { children: React.ReactNode }) {
   const walletId = useWalletId()
