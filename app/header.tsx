@@ -19,10 +19,10 @@ export function Header() {
           />
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended">
-          <a href="#" className="hover:underline">
+          <a href="/trade/WETH" className="hover:underline">
             Trade
           </a>
-          <a href="#" className="text-muted-foreground hover:underline">
+          <a href="/assets" className="text-muted-foreground hover:underline">
             Assets
           </a>
           <a href="#" className="text-muted-foreground hover:underline">

@@ -38,7 +38,8 @@ export function WagmiProvider({
 
 function SyncRenegadeWagmiState() {
   const config = useConfig()
-  const { address, connector } = useAccount()
+  const { address, connector, status } = useAccount()
+  console.log('wagmi status: ', status)
 
   // Disconnect on wallet change
   useEffect(() => {
@@ -51,6 +52,7 @@ function SyncRenegadeWagmiState() {
       },
     ) => {
       if (data.accounts) {
+        console.log('disconnecting because connector update')
         disconnect(config)
       }
     }
@@ -68,12 +70,15 @@ function SyncRenegadeWagmiState() {
 
   useAccountEffect({
     onDisconnect() {
+      console.log('disconnecting because onDisconnect')
       disconnect(config)
     },
   })
 
   useEffect(() => {
+    console.log('🚀 ~ useEffect ~ address:', address)
     if (!address) {
+      console.log('disconnecting because address is undefined')
       disconnect(config)
     }
   }, [address, config])
