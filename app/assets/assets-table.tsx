@@ -16,8 +16,6 @@ import { useBalances } from '@renegade-fi/react'
 import { useAccount } from 'wagmi'
 
 export function AssetsTable() {
-  const balances = useBalances()
-
   return (
     <Table>
       <TableHeader>
