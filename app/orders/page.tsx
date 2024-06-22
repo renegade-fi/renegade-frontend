@@ -1,4 +1,4 @@
-import { PageClient } from '@/app/assets/page-client'
+import { PageClient } from '@/app/orders/page-client'
 import { Footer } from '@/app/footer'
 import { Header } from '@/app/header'
 

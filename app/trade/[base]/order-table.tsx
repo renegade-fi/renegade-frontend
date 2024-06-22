@@ -1,3 +1,4 @@
+'use client'
 import {
   Table,
   TableBody,
@@ -9,7 +10,7 @@ import {
 import { formatNumber } from '@/lib/format'
 import { Token, useOrderHistory } from '@renegade-fi/react'
 
-export function OrderTable({ base }: { base: string }) {
+export function OrderTable({ base }: { base?: string }) {
   const { data, status } = useOrderHistory()
   const orderHistory = Array.from(data?.values() || [])
     // .filter(order => order.data.base_mint === Token.findByTicker(base).address)
