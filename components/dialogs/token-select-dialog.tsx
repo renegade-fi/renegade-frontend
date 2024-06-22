@@ -37,14 +37,14 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="max-h-[80vh] p-0 sm:max-w-[425px]">
+        <DialogContent className="max-h-[70vh] p-0 sm:max-w-[425px]">
           <DialogHeader className="space-y-4 px-6 pt-6">
             <DialogTitle className="font-extended">Select Token</DialogTitle>
             <DialogDescription>
               <Input placeholder="Search name" />
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh]">
+          <ScrollArea className="max-h-[50vh]">
             <TokenList />
           </ScrollArea>
         </DialogContent>
@@ -62,7 +62,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
             <Input placeholder="Search name" />
           </DrawerDescription>
         </DrawerHeader>
-        <ScrollArea className="max-h-[60vh] overflow-auto">
+        <ScrollArea className="max-h-[50vh] overflow-auto">
           <TokenList />
         </ScrollArea>
         <DrawerFooter className="pt-2">
