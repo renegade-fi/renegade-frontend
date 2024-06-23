@@ -77,7 +77,10 @@ export function TransferDialog({
     return (
       <Dialog open={open} onOpenChange={setOpen} modal>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]">
+        <DialogContent
+          hideCloseButton
+          className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
+        >
           <DialogHeader>
             <div className="flex flex-row border-b border-border">
               <Button
@@ -206,7 +209,6 @@ function TransferForm({
   direction: ExternalTransferDirection
   onChangeBase: (mint: string) => void
 }) {
-  console.log('🚀 ~ mint:', mint)
   const baseToken = mint
     ? // TODO: Will panic if mint is not a valid address
       Token.findByAddress(mint as `0x${string}`)
