@@ -1,7 +1,5 @@
 import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
-import { Token } from '@renegade-fi/react'
-import { useAccount } from 'wagmi'
+import { Token, useBalances } from '@renegade-fi/react'
 
 import { TokenIcon } from '@/components/token-icon'
 
@@ -12,25 +10,21 @@ export function AssetsSection({
   base: string
   quote?: string
 }) {
-  const { address } = useAccount()
-  const { data: baseL2Balance } = useReadErc20BalanceOf({
-    address: Token.findByTicker(base).address,
-    args: [address ?? '0x'],
-  })
-  const formattedBaseL2Balance = formatNumber(
-    baseL2Balance ?? BigInt(0),
-    Token.findByTicker(base).decimals,
-  )
+  const baseToken = Token.findByTicker(base)
+  const quoteToken = Token.findByTicker(quote)
 
-  const { data: quoteL2Balance } = useReadErc20BalanceOf({
-    address: Token.findByTicker(quote).address,
-    args: [address ?? '0x'],
-  })
-  const formattedQuoteL2Balance = formatNumber(
-    quoteL2Balance ?? BigInt(0),
-    Token.findByTicker(quote).decimals,
-  )
+  const balances = useBalances()
+  const baseBalance = balances.get(baseToken.address)?.amount
+  const quoteBalance = balances.get(quoteToken.address)?.amount
 
+  const formattedBaseBalance = formatNumber(
+    baseBalance ?? BigInt(0),
+    baseToken.decimals,
+  )
+  const formattedQuoteBalance = formatNumber(
+    quoteBalance ?? BigInt(0),
+    quoteToken.decimals,
+  )
   return (
     <div className="p-6">
       <h2 className="mb-4">Your Assets</h2>
@@ -40,14 +34,14 @@ export function AssetsSection({
             <TokenIcon ticker={base} size={20} />
             <span>{base}</span>
           </div>
-          <span>{formattedBaseL2Balance}</span>
+          <span>{formattedBaseBalance}</span>
         </div>
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">
             <TokenIcon ticker={quote} size={20} />
             <span>{quote}</span>
           </div>
-          <span>{formattedQuoteL2Balance}</span>
+          <span>{formattedQuoteBalance}</span>
         </div>
       </div>
     </div>
