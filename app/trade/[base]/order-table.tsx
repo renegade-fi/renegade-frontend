@@ -23,7 +23,7 @@ export function OrderTable({ base }: { base?: string }) {
     .sort((a, b) => Number(b.created) - Number(a.created))
 
   return (
-    <Table>
+    <Table className="whitespace-nowrap">
       <TableHeader>
         <TableRow>
           <TableHead>Status</TableHead>
