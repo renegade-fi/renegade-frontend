@@ -33,6 +33,7 @@ export function TransferHistoryTable() {
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Status</TableHead>
           <TableHead>Asset</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Size</TableHead>
@@ -51,7 +52,7 @@ export function TransferHistoryTable() {
 }
 
 function Row({ task }: { task: Task }) {
-  const { task_info, created_at, id } = task
+  const { task_info, state, created_at, id } = task
   invariant(task_info.task_type === TaskType.UpdateWallet, 'Invalid task type')
   const { task_type, update_type } = task_info
   invariant(
@@ -69,8 +70,15 @@ function Row({ task }: { task: Task }) {
     minute: '2-digit',
     hour12: true,
   })
+  const status =
+    state === 'Completed'
+      ? 'Completed'
+      : state === 'Failed'
+        ? 'Failed'
+        : 'Processing'
   return (
     <TableRow className="border-0">
+      <TableCell>{status}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
           <TokenIcon size={20} ticker={token.ticker} />
