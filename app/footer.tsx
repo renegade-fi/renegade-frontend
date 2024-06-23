@@ -11,7 +11,7 @@ import { Book } from 'lucide-react'
 
 export function Footer() {
   return (
-    <footer className="fixed bottom-0 z-10 min-w-full bg-background">
+    <footer className="fixed bottom-0 z-10 min-w-full border-t bg-background">
       <div className="grid min-h-20 grid-cols-2 items-center">
         <div className="pl-6">
           <Image
