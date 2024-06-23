@@ -3,8 +3,8 @@ import * as React from 'react'
 import Link from 'next/link'
 
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { DISPLAY_TOKENS } from '@/lib/token'
 import { cn } from '@/lib/utils'
-import { tokenMapping } from '@renegade-fi/react/constants'
 
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
@@ -78,7 +78,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
 function TokenList({ className }: React.ComponentProps<'form'>) {
   return (
     <div className={cn('grid items-start', className)}>
-      {tokenMapping.tokens.map(token => (
+      {DISPLAY_TOKENS().map(token => (
         <Link href={`/trade/${token.ticker}`} key={token.address}>
           <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
             <TokenIcon ticker={token.ticker} />

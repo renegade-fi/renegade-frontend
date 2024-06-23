@@ -1,7 +1,5 @@
 import Next from 'next'
 
-import { tokenMapping } from '@renegade-fi/react'
-
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
