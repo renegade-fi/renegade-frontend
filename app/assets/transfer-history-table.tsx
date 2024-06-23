@@ -8,6 +8,7 @@ import {
   UpdateType,
   useTaskHistory,
 } from '@renegade-fi/react'
+import invariant from 'tiny-invariant'
 
 import { TokenIcon } from '@/components/token-icon'
 import {
@@ -18,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import invariant from 'tiny-invariant'
 
 export function TransferHistoryTable() {
   const { data } = useTaskHistory()

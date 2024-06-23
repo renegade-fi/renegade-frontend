@@ -1,8 +1,12 @@
 'use client'
 
 import { formatNumber } from '@/lib/format'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { Token, useOrderHistory } from '@renegade-fi/react'
+import { Ellipsis } from 'lucide-react'
 
+import { GlowText } from '@/components/glow-text'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -11,10 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { GlowText } from '@/components/glow-text'
-import { Button } from '@/components/ui/button'
-import { Ellipsis } from 'lucide-react'
-import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 
 export function OrderTable({ base }: { base?: string }) {
   const { data, status } = useOrderHistory()
