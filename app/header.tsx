@@ -64,7 +64,7 @@ export function Header() {
         </nav>
         <div className="flex items-center space-x-4 justify-self-end pr-4">
           <TransferDialog>
-            <Button className="font-extended" variant="outline">
+            <Button className="font-extended" variant="outline" size="sm">
               Deposit
             </Button>
           </TransferDialog>
