@@ -48,7 +48,8 @@ export function ConnectWalletButton() {
       <Button
         onClick={handleClick}
         variant="shimmer"
-        className="font-extended text-base"
+        className="font-extended text-base border  border-[#333333] hover:border-[#999999]"
+        size="shimmer"
       >
         {content}
       </Button>
