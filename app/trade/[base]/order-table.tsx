@@ -33,7 +33,7 @@ export function OrderTable({ base }: { base?: string }) {
       </TableHeader>
       <TableBody>
         {orderHistory.map((order, index) => (
-          <TableRow key={index}>
+          <TableRow className="border-0" key={index}>
             <TableCell>{order.state}</TableCell>
             <TableCell>{order.data.side}</TableCell>
             <TableCell>
