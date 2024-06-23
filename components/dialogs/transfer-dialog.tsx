@@ -37,13 +37,19 @@ export enum ExternalTransferDirection {
   Withdraw,
 }
 
-export function TransferDialog({ children }: { children: React.ReactNode }) {
+export function TransferDialog({
+  base,
+  children,
+}: {
+  base?: `0x${string}`
+  children: React.ReactNode
+}) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [direction, setDirection] = React.useState<ExternalTransferDirection>(
     ExternalTransferDirection.Deposit,
   )
-  const [mint, setMint] = React.useState('')
+  const [mint, setMint] = React.useState(base ?? '')
   const [amount, setAmount] = React.useState('')
 
   // TODO: Add allowance check + approve function
@@ -141,9 +147,7 @@ export function TransferDialog({ children }: { children: React.ReactNode }) {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Deposit</Button>
-      </DrawerTrigger>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent hideHandle>
         <DrawerHeader className="p-0">
           <div className="flex flex-row border-b border-border">
@@ -202,6 +206,7 @@ function TransferForm({
   direction: ExternalTransferDirection
   onChangeBase: (mint: string) => void
 }) {
+  console.log('🚀 ~ mint:', mint)
   const baseToken = mint
     ? // TODO: Will panic if mint is not a valid address
       Token.findByAddress(mint as `0x${string}`)

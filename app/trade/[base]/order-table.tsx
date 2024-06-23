@@ -11,6 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { GlowText } from '@/components/glow-text'
+import { Button } from '@/components/ui/button'
+import { Ellipsis } from 'lucide-react'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 
 export function OrderTable({ base }: { base?: string }) {
   const { data, status } = useOrderHistory()
@@ -28,7 +32,10 @@ export function OrderTable({ base }: { base?: string }) {
           <TableHead>Size</TableHead>
           <TableHead>Filled Size</TableHead>
           <TableHead>Order Value</TableHead>
+          <TableHead>Est. Saved</TableHead>
           <TableHead>Created At</TableHead>
+          <TableHead>Time to Fill</TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -53,6 +60,9 @@ export function OrderTable({ base }: { base?: string }) {
             </TableCell>
             <TableCell>{'$12,345'}</TableCell>
             <TableCell>
+              <GlowText className="bg-green-price" text="$10.87" />
+            </TableCell>
+            <TableCell>
               {new Date(Number(order.created)).toLocaleString('en-US', {
                 month: 'short',
                 day: '2-digit',
@@ -60,6 +70,16 @@ export function OrderTable({ base }: { base?: string }) {
                 minute: '2-digit',
                 hour12: true,
               })}
+            </TableCell>
+            <TableCell>{'<1min'}</TableCell>
+            <TableCell>
+              <Button
+                variant="ghost"
+                className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
+              >
+                <DotsHorizontalIcon className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
             </TableCell>
           </TableRow>
         ))}

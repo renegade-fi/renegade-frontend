@@ -15,6 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { ArrowRightLeftIcon } from 'lucide-react'
+import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 
 export function AssetsTable() {
   return (
@@ -23,6 +26,7 @@ export function AssetsTable() {
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Balance on Arbitrum</TableHead>
+          <TableHead>Transfer</TableHead>
           <TableHead>Balance on Renegade</TableHead>
         </TableRow>
       </TableHeader>
@@ -64,6 +68,17 @@ function Row({
         </div>
       </TableCell>
       <TableCell>{formattedL2Balance}</TableCell>
+      <TableCell>
+        <TransferDialog base={token.address}>
+          <Button
+            variant="ghost"
+            className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
+          >
+            <ArrowRightLeftIcon className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </TransferDialog>
+      </TableCell>
       <TableCell>
         {formatNumber(
           balances.get(token.address)?.amount ?? BigInt(0),
