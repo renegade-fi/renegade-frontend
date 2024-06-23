@@ -3,6 +3,7 @@ import * as React from 'react'
 import { useCreateOrder } from '@/hooks/use-create-order'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 import { GlowText } from '@/components/glow-text'
 import { TokenIcon } from '@/components/token-icon'
@@ -27,7 +28,6 @@ import {
 } from '@/components/ui/drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 export function NewOrderDialog({
   base,

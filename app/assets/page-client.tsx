@@ -1,5 +1,6 @@
 import { AssetsTable } from '@/app/assets/assets-table'
 import { TransferHistoryTable } from '@/app/assets/transfer-history-table'
+
 import { Separator } from '@/components/ui/separator'
 
 export function PageClient() {

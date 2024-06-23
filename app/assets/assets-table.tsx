@@ -4,9 +4,12 @@ import { formatNumber } from '@/lib/format'
 import { useReadErc20BalanceOf } from '@/lib/generated'
 import { DISPLAY_TOKENS } from '@/lib/token'
 import { useBalances } from '@renegade-fi/react'
+import { ArrowRightLeftIcon } from 'lucide-react'
 import { useAccount } from 'wagmi'
 
+import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { TokenIcon } from '@/components/token-icon'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -15,9 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { ArrowRightLeftIcon } from 'lucide-react'
-import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 
 export function AssetsTable() {
   return (
