@@ -19,6 +19,7 @@ export function NewOrderPanel<T extends string>({
   base: T
   side: string
 }) {
+  console.log('🚀 ~ side:', side)
   type UnitType = 'USDC' | T
   const [amount, setAmount] = useState('')
   const [unit, setUnit] = useState<UnitType>('USDC')
@@ -95,7 +96,7 @@ export function NewOrderPanel<T extends string>({
               className="w-full font-extended text-3xl"
               size="xl"
             >
-              Sell {base}
+              {side === 'buy' ? 'Buy' : 'Sell'} {base}
             </Button>
           </NewOrderDialog>
           <div className="grid place-items-center space-x-1 text-xs text-muted transition-colors group-hover:text-muted-foreground">
