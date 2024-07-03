@@ -56,6 +56,9 @@ importers:
       '@renegade-fi/react':
         specifier: ^0.0.47
         version: 0.0.47(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(zod@3.23.8))(ws@8.13.0(bufferutil@4.0.8))
+      '@renegade-fi/tradingview-charts':
+        specifier: 0.27.6
+        version: 0.27.6
       '@tanstack/react-query':
         specifier: ^5.45.1
         version: 5.45.1(react@18.3.1)
@@ -2261,6 +2264,9 @@ packages:
     peerDependencies:
       '@tanstack/react-query': '>=5.0.0'
       react: '>=18'
+
+  '@renegade-fi/tradingview-charts@0.27.6':
+    resolution: {integrity: sha512-G4hsbxxTDubarQsgp2j6oumKEi4vwk7YKf7+PulCBB2SBLMhinnbJ1OKzAlEx5BA1yc66CKtad/1kN07/8ESaQ==, tarball: https://npm.pkg.github.com/download/@renegade-fi/tradingview-charts/0.27.6/0d39f464ce268bec6cf2c0b1ff9303a51f4db26d}
 
   '@rnx-kit/chromium-edge-launcher@1.0.0':
     resolution: {integrity: sha512-lzD84av1ZQhYUS+jsGqJiCMaJO2dn9u+RTT9n9q6D3SaKVwWqv+7AoRKqBu19bkwyE+iFRl1ymr40QS90jVFYg==}
@@ -9046,6 +9052,8 @@ snapshots:
       - react-dom
       - viem
       - ws
+
+  '@renegade-fi/tradingview-charts@0.27.6': {}
 
   '@rnx-kit/chromium-edge-launcher@1.0.0':
     dependencies:
