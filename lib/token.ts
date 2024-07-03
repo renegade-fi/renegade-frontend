@@ -23,3 +23,14 @@ export const DISPLAY_TOKENS = (
   }
   return tokens
 }
+
+export const remapToken = (token: string) => {
+  switch (token) {
+    case 'WETH':
+      return 'eth'
+    case 'WBTC':
+      return 'btc'
+    default:
+      return token.toLowerCase()
+  }
+}

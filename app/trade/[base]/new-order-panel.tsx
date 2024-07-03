@@ -19,7 +19,6 @@ export function NewOrderPanel<T extends string>({
   base: T
   side: string
 }) {
-  console.log('🚀 ~ side:', side)
   type UnitType = 'USDC' | T
   const [amount, setAmount] = useState('')
   const [unit, setUnit] = useState<UnitType>('USDC')
