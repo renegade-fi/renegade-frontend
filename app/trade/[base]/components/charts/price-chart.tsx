@@ -9,28 +9,16 @@ import {
   ResolutionString,
 } from '@renegade-fi/tradingview-charts'
 
-const TVChartContainer = dynamic(
-  () =>
-    import('@/components/TVChartContainer').then(mod => mod.TVChartContainer),
-  { ssr: false },
-)
+import { config } from './tradingview/config'
 
-export function Chart({ base }: { base: string }) {
+const TradingViewChart = dynamic(() => import('./tradingview'), { ssr: false })
+
+export function PriceChart({ base }: { base: string }) {
   const [isScriptReady, setIsScriptReady] = useState(false)
 
   const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
     symbol: `${remapToken(base)}_usdt`,
-    interval: '1D' as ResolutionString,
-    library_path: '/static/charting_library/',
-    locale: 'en',
-    charts_storage_url: 'https://saveload.tradingview.com',
-    charts_storage_api_version: '1.1',
-    client_id: 'tradingview.com',
-    user_id: 'public_user_id',
-    fullscreen: false,
-    autosize: true,
-    debug: true,
-    custom_css_url: './theme.css',
+    ...config,
   }
   return (
     <>
@@ -41,7 +29,7 @@ export function Chart({ base }: { base: string }) {
           setIsScriptReady(true)
         }}
       />
-      {isScriptReady && <TVChartContainer {...defaultWidgetProps} />}
+      {isScriptReady && <TradingViewChart {...defaultWidgetProps} />}
     </>
   )
 }

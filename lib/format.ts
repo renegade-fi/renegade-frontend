@@ -71,3 +71,32 @@ export const getFormat = (price: number, long: boolean = false) => {
 
   return format + (long ? '0000' : '0')
 }
+
+export const formatCurrency = (n: number) => {
+  return Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(n)
+}
+
+export const formatTimestamp = (
+  timestamp: number,
+  locale: string = 'en-US',
+) => {
+  return new Date(timestamp).toLocaleString(locale, {
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  })
+}
+
+export const formatPercentage = (
+  numerator: number,
+  denominator: number,
+): string => {
+  if (denominator === 0) return '0%'
+  const percentage = (numerator / denominator) * 100
+  return `${Math.round(percentage * 100) / 100}%`
+}

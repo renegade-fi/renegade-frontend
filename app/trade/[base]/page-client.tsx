@@ -5,7 +5,7 @@ import { useMounted } from '@/hooks/use-mounted'
 import { STORAGE_LAYOUT } from '@/lib/constants/storage'
 
 import { BBOMarquee } from '@/app/trade/[base]/bbo-marquee'
-import { Chart } from '@/app/trade/[base]/chart'
+import { PriceChart } from '@/app/trade/[base]/components/charts/price-chart'
 import { NewOrderPanel } from '@/app/trade/[base]/new-order-panel'
 import { OrderTable } from '@/app/trade/[base]/order-table'
 
@@ -58,7 +58,7 @@ export function PageClient({
           <main>
             <BBOMarquee />
             <div className="overflow-auto">
-              <Chart base={base} />
+              <PriceChart base={base} />
               <Separator />
               <OrderTable base={base} />
             </div>
