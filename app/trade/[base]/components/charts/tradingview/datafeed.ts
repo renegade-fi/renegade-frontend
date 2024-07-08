@@ -1,28 +1,23 @@
+import { oneDayMs, oneMonthMs, twelveMonthsMs } from '@/lib/constants/time'
 import {
   Bar,
   IBasicDataFeed,
   LibrarySymbolInfo,
 } from '@renegade-fi/tradingview-charts'
 
-import { config } from '@/components/TVChartContainer/config'
-
+import { datafeedConfig } from './config'
 import {
-  BASE_URL,
   fetchBarsForPeriod,
+  fetchSymbolReferenceInfo,
   getAllBinanceSymbols,
-  makeAmberApiRequest,
 } from './helpers'
-
-const oneDayInSeconds = 24 * 60 * 60
-const oneMonthInSeconds = 30 * oneDayInSeconds
-const twelveMonthsInSeconds = 12 * oneMonthInSeconds
 
 const lastBarsCache = new Map()
 
-export default {
+export const datafeed = {
   onReady: (callback: any) => {
     console.log('[onReady]: Method call')
-    setTimeout(() => callback(config))
+    setTimeout(() => callback(datafeedConfig))
   },
   searchSymbols: async (
     userInput,
@@ -47,25 +42,12 @@ export default {
     extension,
   ) => {
     console.log('[resolveSymbol]: Method call', symbolName)
-
-    // Fills
-    if (symbolName.endsWith('_fills')) {
-      const symbolNameWithoutFills = symbolName.replace('_fills', '')
-      const url = new URL(
-        `${BASE_URL}/market/spot/exchanges/reference?exchange=binance&pair=${symbolNameWithoutFills}`,
-      )
-      const res = await makeAmberApiRequest(url)
-      console.log('🚀 ~ res:', res)
-      if (res.status !== 200 || res.payload.data.binance?.length === 0) {
-        console.log('[resolveSymbol]: Cannot resolve symbol', symbolName)
-        onResolveErrorCallback('cannot resolve symbol')
-        return
-      }
-      const symbolItem = res.payload.data?.binance[symbolNameWithoutFills]
+    try {
+      const symbolItem = await fetchSymbolReferenceInfo(symbolName)
       const symbolInfo = {
         data_status: 'streaming',
         description: `${symbolItem.nativePair}`,
-        exchange: 'RENEGADE',
+        exchange: datafeedConfig.exchanges[0].name,
         format: 'price',
         has_intraday: true,
         intraday_multipliers: ['1', '60'],
@@ -74,10 +56,10 @@ export default {
         has_weekly_and_monthly: false,
         listed_exchange: '',
         minmov: 1,
-        name: `${symbolItem.nativePair} fills on Renegade`,
+        name: `${symbolItem.nativePair}`,
         pricescale: 100,
         session: '24x7',
-        supported_resolutions: config.supported_resolutions,
+        supported_resolutions: datafeedConfig.supported_resolutions,
         ticker: `${symbolName}`,
         timezone: 'Etc/UTC',
         type: 'crypto',
@@ -86,42 +68,10 @@ export default {
 
       console.log('[resolveSymbol]: Symbol resolved', symbolName)
       onSymbolResolvedCallback(symbolInfo)
-    }
-
-    const url = new URL(
-      `${BASE_URL}/market/spot/exchanges/reference?exchange=binance&pair=${symbolName}`,
-    )
-    const res = await makeAmberApiRequest(url)
-    if (res.status !== 200 || res.payload.data.binance?.length === 0) {
-      console.log('[resolveSymbol]: Cannot resolve symbol', symbolName)
+    } catch (error) {
+      console.log('[resolveSymbol]: Error', error)
       onResolveErrorCallback('cannot resolve symbol')
-      return
     }
-    const symbolItem = res.payload.data?.binance[symbolName]
-    const symbolInfo = {
-      data_status: 'streaming',
-      description: `${symbolItem.nativePair}`,
-      exchange: 'BINANCE',
-      format: 'price',
-      has_intraday: true,
-      intraday_multipliers: ['1', '60'],
-      has_daily: true,
-      daily_multipliers: ['1'],
-      has_weekly_and_monthly: false,
-      listed_exchange: '',
-      minmov: 1,
-      name: `${symbolItem.nativePair}`,
-      pricescale: 100,
-      session: '24x7',
-      supported_resolutions: config.supported_resolutions,
-      ticker: `${symbolName}`,
-      timezone: 'Etc/UTC',
-      type: 'crypto',
-      volume_precision: 2,
-    } satisfies LibrarySymbolInfo
-
-    console.log('[resolveSymbol]: Symbol resolved', symbolName)
-    onSymbolResolvedCallback(symbolInfo)
   },
   async getBars(
     symbolInfo,
@@ -141,32 +91,28 @@ export default {
     )
 
     try {
-      const url = new URL(
-        `${BASE_URL}/market/spot/ohlcv/${symbolInfo.ticker}/historical`,
-      )
-      url.searchParams.set('exchange', 'binance')
-
-      // Define a mapping from resolution to period and duration
       const resolutionSettings: {
         [key: string]: { period: string; duration: number }
       } = {
-        '1': { period: 'minutes', duration: oneDayInSeconds },
-        '60': { period: 'hours', duration: oneMonthInSeconds },
-        '1D': { period: 'days', duration: twelveMonthsInSeconds },
+        '1': { period: 'minutes', duration: oneDayMs },
+        '60': { period: 'hours', duration: oneMonthMs },
+        '1D': { period: 'days', duration: twelveMonthsMs },
       }
 
       let bars: Bar[] = []
       const settings = resolutionSettings[resolution]
-      if (settings) {
+      if (settings && symbolInfo.ticker) {
         bars = await fetchBarsForPeriod(
-          url,
-          from,
-          to,
+          symbolInfo.ticker,
+          from * 1000,
+          to * 1000,
           settings.period,
           settings.duration,
         )
       } else {
-        throw new Error(`Unsupported resolution: ${resolution}`)
+        throw new Error(
+          `Missing ticker (${symbolInfo.ticker}) or resolution (${resolution})`,
+        )
       }
 
       // Caching
@@ -202,6 +148,7 @@ export default {
       '[subscribeBars]: Method call with subscriberUID:',
       subscriberUID,
     )
+    // TODO: implement subscribeBars
     // subscribeOnStream(
     //   symbolInfo,
     //   resolution,
@@ -217,6 +164,7 @@ export default {
       '[unsubscribeBars]: Method call with subscriberUID:',
       subscriberUID,
     )
+    // TODO: implement unsubscribeBars
     // unsubscribeFromStream(subscriberUID);
   },
 } satisfies IBasicDataFeed

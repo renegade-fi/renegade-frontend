@@ -5,6 +5,8 @@ import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { Token, useOrderHistory } from '@renegade-fi/react'
 import { Ellipsis } from 'lucide-react'
 
+import { OrderDetailsSheet } from '@/app/trade/[base]/order-details-sheet'
+
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,48 +42,50 @@ export function OrderTable({ base }: { base?: string }) {
       </TableHeader>
       <TableBody>
         {orderHistory.map((order, index) => (
-          <TableRow className="border-0" key={index}>
-            <TableCell>{order.state}</TableCell>
-            <TableCell>{order.data.side}</TableCell>
-            <TableCell>
-              {Token.findByAddress(order.data.base_mint).ticker}
-            </TableCell>
-            <TableCell>
-              {formatNumber(
-                order.data.amount,
-                Token.findByAddress(order.data.base_mint).decimals,
-              )}
-            </TableCell>
-            <TableCell>
-              {formatNumber(
-                order.data.amount,
-                Token.findByAddress(order.data.base_mint).decimals,
-              )}
-            </TableCell>
-            <TableCell>{'$12,345'}</TableCell>
-            <TableCell>
-              <GlowText className="bg-green-price" text="$10.87" />
-            </TableCell>
-            <TableCell>
-              {new Date(Number(order.created)).toLocaleString('en-US', {
-                month: 'short',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-              })}
-            </TableCell>
-            <TableCell>{'<1min'}</TableCell>
-            <TableCell>
-              <Button
-                variant="ghost"
-                className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
-              >
-                <DotsHorizontalIcon className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </TableCell>
-          </TableRow>
+          <OrderDetailsSheet key={order.id} orderId={order.id}>
+            <TableRow className="border-0" key={index}>
+              <TableCell>{order.state}</TableCell>
+              <TableCell>{order.data.side}</TableCell>
+              <TableCell>
+                {Token.findByAddress(order.data.base_mint).ticker}
+              </TableCell>
+              <TableCell>
+                {formatNumber(
+                  order.data.amount,
+                  Token.findByAddress(order.data.base_mint).decimals,
+                )}
+              </TableCell>
+              <TableCell>
+                {formatNumber(
+                  order.data.amount,
+                  Token.findByAddress(order.data.base_mint).decimals,
+                )}
+              </TableCell>
+              <TableCell>{'$12,345'}</TableCell>
+              <TableCell>
+                <GlowText className="bg-green-price" text="$10.87" />
+              </TableCell>
+              <TableCell>
+                {new Date(Number(order.created)).toLocaleString('en-US', {
+                  month: 'short',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+              </TableCell>
+              <TableCell>{'<1min'}</TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
+                >
+                  <DotsHorizontalIcon className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </TableCell>
+            </TableRow>
+          </OrderDetailsSheet>
         ))}
       </TableBody>
     </Table>
