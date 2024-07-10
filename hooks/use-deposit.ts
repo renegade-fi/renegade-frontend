@@ -25,7 +25,8 @@ export function useDeposit({
   const isQueue = Array.from(taskHistory?.values() || []).find(
     task => task.state !== 'Completed' && task.state !== 'Failed',
   )
-  async function handleDeposit() {
+
+  async function handleDeposit({ onSuccess }: { onSuccess?: () => void }) {
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = parseAmount(amount, token)
@@ -51,16 +52,18 @@ export function useDeposit({
       permitNonce: nonce,
       permitDeadline: deadline,
       permit: signature,
-    }).catch(e => {
-      toast.error(
-        FAILED_DEPOSIT_MSG(
-          token,
-          parsedAmount,
-          e.shortMessage ?? e.response?.data ?? e.message,
-        ),
-      )
-      console.error(`Error depositing: ${e.response?.data ?? e.message}`)
     })
+      .then(onSuccess)
+      .catch(e => {
+        toast.error(
+          FAILED_DEPOSIT_MSG(
+            token,
+            parsedAmount,
+            e.shortMessage ?? e.response?.data ?? e.message,
+          ),
+        )
+        console.error(`Error depositing: ${e.response?.data ?? e.message}`)
+      })
   }
   return { handleDeposit }
 }
