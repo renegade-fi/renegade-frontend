@@ -76,6 +76,15 @@ export function TransferDialog({
         <DialogContent
           hideCloseButton
           className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
+          onPointerDownOutside={e => {
+            // Prevent closing the dialog when clicking inside toast
+            if (
+              e.target instanceof Element &&
+              e.target.closest('[data-sonner-toast]')
+            ) {
+              e.preventDefault()
+            }
+          }}
         >
           <DialogHeader>
             <div className="flex flex-row border-b border-border">
