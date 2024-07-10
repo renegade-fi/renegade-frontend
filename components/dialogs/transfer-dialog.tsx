@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { useApprove } from '@/hooks/use-approve'
 import { useDeposit } from '@/hooks/use-deposit'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { useWithdraw } from '@/hooks/use-withdraw'
@@ -52,7 +53,6 @@ export function TransferDialog({
   const [mint, setMint] = React.useState(base ?? '')
   const [amount, setAmount] = React.useState('')
 
-  // TODO: Add allowance check + approve function
   const { handleDeposit } = useDeposit({
     amount,
     mint,
@@ -63,19 +63,15 @@ export function TransferDialog({
     mint,
   })
 
-  const handleClick = () => {
-    if (direction === ExternalTransferDirection.Deposit) {
-      handleDeposit()
-    } else {
-      handleWithdraw()
-    }
-    setOpen(false)
-    setAmount('')
-  }
+  const { needsApproval, handleApprove } = useApprove({
+    amount,
+    mint,
+    enabled: direction === ExternalTransferDirection.Deposit,
+  })
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen} modal>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent
           hideCloseButton
@@ -132,16 +128,52 @@ export function TransferDialog({
             onChangeBase={setMint}
           />
           <DialogFooter>
-            <Button
-              variant="outline"
-              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-              size="xl"
-              onClick={handleClick}
-            >
-              {direction === ExternalTransferDirection.Deposit
-                ? 'Deposit'
-                : 'Withdraw'}
-            </Button>
+            {direction === ExternalTransferDirection.Deposit ? (
+              <Button
+                variant="outline"
+                className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+                size="xl"
+                onClick={() => {
+                  if (needsApproval) {
+                    handleApprove({
+                      onSuccess: () => {
+                        handleDeposit({
+                          onSuccess: () => {
+                            setOpen(false)
+                            setAmount('')
+                          },
+                        })
+                      },
+                    })
+                  } else {
+                    handleDeposit({
+                      onSuccess: () => {
+                        setOpen(false)
+                        setAmount('')
+                      },
+                    })
+                  }
+                }}
+              >
+                {needsApproval ? 'Approve & Deposit' : 'Deposit'}
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+                size="xl"
+                onClick={() => {
+                  handleWithdraw({
+                    onSuccess: () => {
+                      setOpen(false)
+                      setAmount('')
+                    },
+                  })
+                }}
+              >
+                Withdraw
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -29,7 +29,7 @@ export function useWithdraw({
     task => task.state !== 'Completed' && task.state !== 'Failed',
   )
 
-  const handleWithdraw = async () => {
+  const handleWithdraw = async ({ onSuccess }: { onSuccess?: () => void }) => {
     if (!address || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = parseAmount(amount, token)
@@ -46,10 +46,12 @@ export function useWithdraw({
       mint: token.address,
       amount: parsedAmount,
       destinationAddr: address,
-    }).catch(e => {
-      toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount))
-      console.error(`Error withdrawing: ${e.response?.data ?? e.message}`)
     })
+      .then(onSuccess)
+      .catch(e => {
+        toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount))
+        console.error(`Error withdrawing: ${e.response?.data ?? e.message}`)
+      })
   }
 
   return { handleWithdraw }
