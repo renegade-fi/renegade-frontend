@@ -99,7 +99,10 @@ export default async function RootLayout({
             <WagmiProvider initialState={initialState}>
               <TailwindIndicator />
               <div className="">{children}</div>
-              <Toaster toastOptions={{ duration: 10000 }} />
+              <Toaster
+                className="pointer-events-auto"
+                toastOptions={{ duration: 10000 }}
+              />
               <OrderToaster />
               <TaskToaster />
               <ReactQueryDevtools initialIsOpen={false} />
