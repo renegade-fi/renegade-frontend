@@ -5,6 +5,7 @@ import { ArrowRightLeft, ChevronDown, Lock } from 'lucide-react'
 import { setUseUSDC } from '@/app/trade/[base]/actions'
 import { AssetsSection } from '@/app/trade/[base]/assets-section'
 import { AmountShortcutButton } from '@/app/trade/[base]/components/new-order/amount-shortcut-button'
+import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
 import { SideButton } from '@/app/trade/[base]/components/new-order/side-button'
 
 import { NewOrderDialog } from '@/components/dialogs/new-order-dialog'
@@ -84,18 +85,7 @@ export function NewOrderPanel<T extends string>({
           />
         </div>
         <div className="space-y-3 p-6">
-          <div className="flex justify-between">
-            <span>Est. fees for your order</span>
-            <span>$2.11</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Est. cost to trade on Binance</span>
-            <span>$12.98</span>
-          </div>
-          <div className="flex justify-between font-bold">
-            <span>Total savings vs. Binance</span>
-            <GlowText className="bg-green-price" text="$10.87" />
-          </div>
+          <FeesSection amount={amount} base={useUSDC ? 'USDC' : base} />
         </div>
         <div className="group mx-6 space-y-2">
           <NewOrderDialog
