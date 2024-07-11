@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { cn } from '@/lib/utils'
+import { Bell } from 'lucide-react'
+
+import { TaskHistorySheet } from '@/app/components/task-history-sheet'
 
 import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { TransferDialog } from '@/components/dialogs/transfer-dialog'
@@ -63,6 +66,15 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end pr-4">
+          <TaskHistorySheet>
+            <Button
+              variant="ghost"
+              className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </TaskHistorySheet>
           <TransferDialog>
             <Button className="font-extended" variant="outline" size="sm">
               Deposit
