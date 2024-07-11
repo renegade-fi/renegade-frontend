@@ -10,7 +10,6 @@ import { SideButton } from '@/app/trade/[base]/components/new-order/side-button'
 
 import { NewOrderDialog } from '@/components/dialogs/new-order-dialog'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
-import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,11 +17,11 @@ import { Label } from '@/components/ui/label'
 export function NewOrderPanel<T extends string>({
   base,
   side,
-  useUSDC,
+  isUSDCDenominated,
 }: {
   base: T
   side: string
-  useUSDC?: boolean
+  isUSDCDenominated?: boolean
 }) {
   const [amount, setAmount] = useState('')
   return (
@@ -54,9 +53,9 @@ export function NewOrderPanel<T extends string>({
             <Button
               variant="ghost"
               className="h-12 flex-1 rounded-none p-0 px-2 font-serif text-2xl font-bold"
-              onClick={() => setUseUSDC(!useUSDC)}
+              onClick={() => setUseUSDC(!isUSDCDenominated)}
             >
-              {useUSDC ? 'USDC' : base}
+              {isUSDCDenominated ? 'USDC' : base}
               <ArrowRightLeft className="ml-2 h-5 w-5" />
             </Button>
           </div>
@@ -64,28 +63,31 @@ export function NewOrderPanel<T extends string>({
         <div className="flex border-b border-input px-6 pb-6">
           <AmountShortcutButton
             amount={amount}
-            base={useUSDC ? 'USDC' : base}
+            base={isUSDCDenominated ? 'USDC' : base}
             className="flex-1 border-r-0"
             percentage={0.25}
             onSetAmount={amount => setAmount(amount)}
           />
           <AmountShortcutButton
             amount={amount}
-            base={useUSDC ? 'USDC' : base}
+            base={isUSDCDenominated ? 'USDC' : base}
             className="flex-1"
             percentage={0.5}
             onSetAmount={amount => setAmount(amount)}
           />
           <AmountShortcutButton
             amount={amount}
-            base={useUSDC ? 'USDC' : base}
+            base={isUSDCDenominated ? 'USDC' : base}
             className="flex-1 border-l-0"
             percentage={1}
             onSetAmount={amount => setAmount(amount)}
           />
         </div>
         <div className="space-y-3 p-6">
-          <FeesSection amount={amount} base={useUSDC ? 'USDC' : base} />
+          <FeesSection
+            amount={amount}
+            base={isUSDCDenominated ? 'USDC' : base}
+          />
         </div>
         <div className="group mx-6 space-y-2">
           <NewOrderDialog
@@ -93,6 +95,7 @@ export function NewOrderPanel<T extends string>({
             side={side}
             amount={amount}
             clearAmount={() => setAmount('')}
+            isUSDCDenominated={isUSDCDenominated}
           >
             <Button
               variant="outline"

@@ -28,12 +28,12 @@ export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
   side = DEFAULT_SIDE,
   base,
-  useUSDC,
+  isUSDCDenominated,
 }: {
   defaultLayout?: number[]
   side?: string
   base: string
-  useUSDC?: boolean
+  isUSDCDenominated?: boolean
 }) {
   const onLayout = (sizes: number[]) => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`
@@ -56,7 +56,11 @@ export function PageClient({
               maxSize={50}
               order={1}
             >
-              <NewOrderPanel base={base} side={side} useUSDC={useUSDC} />
+              <NewOrderPanel
+                base={base}
+                side={side}
+                isUSDCDenominated={isUSDCDenominated}
+              />
             </ResizablePanel>
             <ResizableHandle />
           </>

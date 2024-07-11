@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 
-import { STORAGE_SIDE, STORAGE_USE_USDC } from '@/lib/constants/storage'
+import { STORAGE_SIDE, STORAGE_USDC_DENOMINATED } from '@/lib/constants/storage'
 import { Ellipsis, Settings, Settings2 } from 'lucide-react'
 
 import { Footer } from '@/app/footer'
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 export default function Page({ params }: { params: { base: string } }) {
   const layout = cookies().get('react-resizable-panels:layout')
   const side = cookies().get(STORAGE_SIDE)
-  const useUSDC = cookies().get(STORAGE_USE_USDC)
+  const isUSDCDenominated = cookies().get(STORAGE_USDC_DENOMINATED)
 
   let defaultLayout
   if (layout) {
@@ -27,8 +27,8 @@ export default function Page({ params }: { params: { base: string } }) {
   }
 
   let defaultUseUSDC = false
-  if (useUSDC) {
-    defaultUseUSDC = useUSDC.value === 'true'
+  if (isUSDCDenominated) {
+    defaultUseUSDC = isUSDCDenominated.value === 'true'
   }
 
   return (
@@ -40,7 +40,7 @@ export default function Page({ params }: { params: { base: string } }) {
         defaultLayout={defaultLayout}
         base={params.base}
         side={defaultSide}
-        useUSDC={defaultUseUSDC}
+        isUSDCDenominated={defaultUseUSDC}
       />
       <div className="relative min-h-marquee overflow-hidden">
         <TokensMarquee />
