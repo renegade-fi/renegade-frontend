@@ -27,7 +27,7 @@ export function FeesSection({
       res.relayerFee = Number(amount) * RELAYER_FEE
       res.protocolFee = Number(amount) * PROTOCOL_FEE
     } else {
-      // Calculate price of base in USDC
+      // TODO: [PRICE] Calculate the price of base in USDC
     }
     return res
   }, [amount, base])

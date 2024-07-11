@@ -163,7 +163,7 @@ function NewOrderForm({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Receive at least</div>
-          <div className="">$123.45</div>
+          <div className="">--</div>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Type</div>
@@ -171,7 +171,7 @@ function NewOrderForm({
         </div>
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Est. time to fill</div>
-          <div className="">&lt;1min</div>
+          <div className="">--</div>
         </div>
       </div>
       <Separator />
