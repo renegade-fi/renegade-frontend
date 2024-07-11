@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { useMounted } from '@/hooks/use-mounted'
 import { STORAGE_LAYOUT } from '@/lib/constants/storage'
@@ -18,6 +20,9 @@ import { Separator } from '@/components/ui/separator'
 
 const DEFAULT_LAYOUT = [22, 78]
 const DEFAULT_SIDE = 'buy'
+
+// Prevents re-render when side changes
+const PriceChartMemo = React.memo(PriceChart)
 
 export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
@@ -58,7 +63,7 @@ export function PageClient({
           <main>
             <BBOMarquee />
             <div className="overflow-auto">
-              <PriceChart base={base} />
+              <PriceChartMemo base={base} />
               <Separator />
               <OrderTable base={base} />
             </div>
