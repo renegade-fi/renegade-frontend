@@ -5,6 +5,8 @@ import { useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
+import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
+
 import { GlowText } from '@/components/glow-text'
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
@@ -35,20 +37,31 @@ export function NewOrderDialog({
   amount,
   clearAmount,
   children,
+  isUSDCDenominated,
 }: {
   base: string
   side: string
   amount: string
   clearAmount: () => void
   children: React.ReactNode
+  isUSDCDenominated?: boolean
 }) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
+  function calculateBaseAmount(amount: string) {
+    // TODO: [CORRECTNESS] calculate base price * amount
+    return amount
+  }
+
+  const normalizedAmount = isUSDCDenominated
+    ? calculateBaseAmount(amount)
+    : amount
+
   const handleCreateOrer = useCreateOrder({
     base,
     side,
-    amount,
+    amount: normalizedAmount,
     setOpen,
     clearAmount,
   })
@@ -70,7 +83,7 @@ export function NewOrderDialog({
             <NewOrderForm
               base={base}
               side={side}
-              amount={amount}
+              amount={normalizedAmount}
               className="p-6"
             />
           </ScrollArea>
@@ -100,7 +113,7 @@ export function NewOrderDialog({
           <NewOrderForm
             base={base}
             side={side}
-            amount={amount}
+            amount={normalizedAmount}
             className="p-6"
           />
         </ScrollArea>
@@ -163,18 +176,7 @@ function NewOrderForm({
       </div>
       <Separator />
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="">Est. fees</div>
-          <div className="">$12.45</div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="">Est. cost to trade on Binance</div>
-          <div className="">$23.45</div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="">Est. $ savings vs. Binance</div>
-          <GlowText className="bg-green-price" text="$10.87" />
-        </div>
+        <FeesSection amount={amount} base={base} />
       </div>
     </div>
   )
