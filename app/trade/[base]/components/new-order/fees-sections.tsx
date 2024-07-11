@@ -33,25 +33,34 @@ export function FeesSection({
   }, [amount, base])
 
   const totalFees = feesCalculation.relayerFee + feesCalculation.protocolFee
-  const feeLabel = totalFees > 0 ? formatCurrency(totalFees) : '--'
+  const feeLabel = totalFees ? formatCurrency(totalFees) : '--'
 
   const binanceFee = 0
-  const binanceFeeLabel = binanceFee > 0 ? formatCurrency(binanceFee) : '--'
+  const binanceFeeLabel = binanceFee ? formatCurrency(binanceFee) : '--'
 
   const feeDiff = binanceFee - totalFees
   const feeDiffLabel = totalFees && binanceFee ? formatCurrency(feeDiff) : '--'
   return (
     <>
-      <div className="flex justify-between">
+      <div
+        className={cn('flex transition-colors justify-between', {
+          'text-muted': !totalFees,
+        })}
+      >
         <span>Est. fees for your order</span>
         <span>{feeLabel}</span>
       </div>
-      <div className="flex justify-between">
+      <div
+        className={cn('flex transition-colors justify-between ', {
+          'text-muted': !binanceFee,
+        })}
+      >
         <span>Est. cost to trade on Binance</span>
         <span>{binanceFeeLabel}</span>
       </div>
       <div
-        className={cn('flex justify-between ', {
+        className={cn('flex transition-colors justify-between ', {
+          'text-muted': !totalFees || !binanceFee,
           'font-bold': !!totalFees && !!binanceFee,
         })}
       >
