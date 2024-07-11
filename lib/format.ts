@@ -1,5 +1,13 @@
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import numeral from 'numeral'
 import { formatUnits } from 'viem'
+
+dayjs.extend(relativeTime)
+
+export const formatRelativeTimestamp = (timestamp: number) => {
+  return dayjs(timestamp).fromNow()
+}
 
 export const formatNumber = (
   balance: bigint,
