@@ -284,6 +284,8 @@ function TransferForm({
       ? formattedL2Balance
       : formattedRenegadeBalance
 
+  const hideMaxButton = !mint || balance === '0' || amount === balance
+
   return (
     <div className={cn('space-y-8', className)}>
       <div className="grid w-full items-center gap-3">
@@ -296,14 +298,32 @@ function TransferForm({
       </div>
       <div className="grid w-full items-center gap-3">
         <Label htmlFor="amount">Amount</Label>
-        <Input
-          type="text"
-          id="amount"
-          placeholder="0.0"
-          className="rounded-none font-mono"
-          value={amount}
-          onChange={e => onChangeAmount(e.target.value)}
-        />
+        <div className="relative w-full ">
+          <Input
+            type="text"
+            id="amount"
+            placeholder="0.0"
+            className={cn(
+              'rounded-none font-mono w-full pr-12',
+              hideMaxButton ? 'pr-12' : '',
+            )}
+            value={amount}
+            onChange={e => onChangeAmount(e.target.value)}
+          />
+          {!hideMaxButton && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 text-muted-foreground"
+              onClick={() => {
+                onChangeAmount(balance)
+              }}
+            >
+              <span>MAX</span>
+            </Button>
+          )}
+        </div>
         <div className="flex justify-between">
           <div className="text-sm text-muted-foreground">
             {direction === ExternalTransferDirection.Deposit
@@ -311,9 +331,17 @@ function TransferForm({
               : 'Renegade'}
             &nbsp;Balance
           </div>
-          <div className="font-mono text-sm">
-            {baseToken ? `${balance} ${baseToken.ticker}` : '--'}
-          </div>
+          <Button
+            variant="link"
+            className="h-5 p-0"
+            onClick={() => {
+              onChangeAmount(balance)
+            }}
+          >
+            <div className="font-mono text-sm">
+              {baseToken ? `${balance} ${baseToken.ticker}` : '--'}
+            </div>
+          </Button>
         </div>
       </div>
     </div>
