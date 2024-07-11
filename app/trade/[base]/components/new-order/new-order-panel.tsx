@@ -2,8 +2,10 @@ import { useState } from 'react'
 
 import { ArrowRightLeft, ChevronDown, Lock } from 'lucide-react'
 
+import { setUseUSDC } from '@/app/trade/[base]/actions'
 import { AssetsSection } from '@/app/trade/[base]/assets-section'
-import { SideButton } from '@/app/trade/[base]/side-button'
+import { AmountShortcutButton } from '@/app/trade/[base]/components/new-order/amount-shortcut-button'
+import { SideButton } from '@/app/trade/[base]/components/new-order/side-button'
 
 import { NewOrderDialog } from '@/components/dialogs/new-order-dialog'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
@@ -15,13 +17,13 @@ import { Label } from '@/components/ui/label'
 export function NewOrderPanel<T extends string>({
   base,
   side,
+  useUSDC,
 }: {
   base: T
   side: string
+  useUSDC?: boolean
 }) {
-  type UnitType = 'USDC' | T
   const [amount, setAmount] = useState('')
-  const [unit, setUnit] = useState<UnitType>('USDC')
   return (
     <aside className="flex min-h-full flex-col justify-between">
       <div className="flex flex-col">
@@ -51,23 +53,35 @@ export function NewOrderPanel<T extends string>({
             <Button
               variant="ghost"
               className="h-12 flex-1 rounded-none p-0 px-2 font-serif text-2xl font-bold"
-              onClick={() => setUnit(unit === 'USDC' ? base : 'USDC')}
+              onClick={() => setUseUSDC(!useUSDC)}
             >
-              {unit}
+              {useUSDC ? 'USDC' : base}
               <ArrowRightLeft className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
         <div className="flex border-b border-input px-6 pb-6">
-          <Button variant="outline" className="flex-1 border-r-0">
-            25%
-          </Button>
-          <Button variant="outline" className="flex-1">
-            50%
-          </Button>
-          <Button variant="outline" className="flex-1 border-l-0">
-            MAX
-          </Button>
+          <AmountShortcutButton
+            amount={amount}
+            base={useUSDC ? 'USDC' : base}
+            className="flex-1 border-r-0"
+            percentage={0.25}
+            onSetAmount={amount => setAmount(amount)}
+          />
+          <AmountShortcutButton
+            amount={amount}
+            base={useUSDC ? 'USDC' : base}
+            className="flex-1"
+            percentage={0.5}
+            onSetAmount={amount => setAmount(amount)}
+          />
+          <AmountShortcutButton
+            amount={amount}
+            base={useUSDC ? 'USDC' : base}
+            className="flex-1 border-l-0"
+            percentage={1}
+            onSetAmount={amount => setAmount(amount)}
+          />
         </div>
         <div className="space-y-3 p-6">
           <div className="flex justify-between">
