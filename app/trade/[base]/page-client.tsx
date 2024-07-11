@@ -8,7 +8,7 @@ import { STORAGE_LAYOUT } from '@/lib/constants/storage'
 
 import { BBOMarquee } from '@/app/trade/[base]/bbo-marquee'
 import { PriceChart } from '@/app/trade/[base]/components/charts/price-chart'
-import { NewOrderPanel } from '@/app/trade/[base]/new-order-panel'
+import { NewOrderPanel } from '@/app/trade/[base]/components/new-order/new-order-panel'
 import { OrderTable } from '@/app/trade/[base]/order-table'
 
 import {
@@ -28,10 +28,12 @@ export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
   side = DEFAULT_SIDE,
   base,
+  useUSDC,
 }: {
   defaultLayout?: number[]
   side?: string
   base: string
+  useUSDC?: boolean
 }) {
   const onLayout = (sizes: number[]) => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`
@@ -54,7 +56,7 @@ export function PageClient({
               maxSize={50}
               order={1}
             >
-              <NewOrderPanel base={base} side={side} />
+              <NewOrderPanel base={base} side={side} useUSDC={useUSDC} />
             </ResizablePanel>
             <ResizableHandle />
           </>
