@@ -93,21 +93,21 @@ export function DefaultStep({
   }
 
   return (
-    <DrawerContent>
+    <>
       <DrawerHeader className="text-left">
         <DrawerTitle className="font-extended">Review Order</DrawerTitle>
       </DrawerHeader>
       <ScrollArea className="max-h-[60vh] overflow-auto">
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-4">
           <NewOrderForm base={base} side={side} amount={normalizedAmount} />
         </div>
       </ScrollArea>
       <DrawerFooter className="pt-2">
-        <DrawerClose asChild>
-          <Button variant="outline">Cancel</Button>
-        </DrawerClose>
+        <Button variant="outline" onClick={onNext}>
+          {side === 'buy' ? 'Buy' : 'Sell'} {base}
+        </Button>
       </DrawerFooter>
-    </DrawerContent>
+    </>
   )
 }
 

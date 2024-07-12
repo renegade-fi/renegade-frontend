@@ -92,12 +92,12 @@ export function SuccessStep({
   }
 
   return (
-    <DrawerContent>
+    <>
       <DrawerHeader className="text-left">
         <DrawerTitle className="font-extended">Review Order</DrawerTitle>
       </DrawerHeader>
       <ScrollArea className="max-h-[60vh] overflow-auto">
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-4">
           <NewOrderForm
             base={base}
             side={side}
@@ -111,7 +111,7 @@ export function SuccessStep({
           <Button variant="outline">Close</Button>
         </DrawerClose>
       </DrawerFooter>
-    </DrawerContent>
+    </>
   )
 }
 
