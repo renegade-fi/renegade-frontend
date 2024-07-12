@@ -1,6 +1,5 @@
 'use client'
 
-import { formatCurrency, formatNumber, formatTimestamp } from '@/lib/format'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { Token, useOrderHistory } from '@renegade-fi/react'
 import invariant from 'tiny-invariant'
@@ -20,6 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+
+import { formatCurrency, formatNumber, formatTimestamp } from '@/lib/format'
 
 export function FillTable({ orderId }: { orderId: string }) {
   const { data } = useOrderHistory()

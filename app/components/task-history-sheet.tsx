@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 import { usePathname, useRouter } from 'next/navigation'
 
-import { formatNumber, formatRelativeTimestamp } from '@/lib/format'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import {
   Task,
@@ -22,6 +21,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+
+import { formatNumber, formatRelativeTimestamp } from '@/lib/format'
 
 export function TaskHistorySheet({ children }: { children: React.ReactNode }) {
   const router = useRouter()

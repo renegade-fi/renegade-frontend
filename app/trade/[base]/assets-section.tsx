@@ -1,7 +1,8 @@
-import { formatNumber } from '@/lib/format'
 import { Token, useBalances } from '@renegade-fi/react'
 
 import { TokenIcon } from '@/components/token-icon'
+
+import { formatNumber } from '@/lib/format'
 
 export function AssetsSection({
   base,

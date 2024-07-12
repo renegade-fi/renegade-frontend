@@ -1,9 +1,10 @@
-import { oneDayMs } from '@/lib/constants/time'
-import { remapToken } from '@/lib/token'
 import { Bar } from '@renegade-fi/tradingview-charts'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 
 import { fetchBarsForPeriod } from '@/app/trade/[base]/components/charts/tradingview/helpers'
+
+import { oneDayMs } from '@/lib/constants/time'
+import { remapToken } from '@/lib/token'
 
 export function useOHLC(
   pair: string,

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-import { formatNumber } from '@/lib/format'
 import {
   OrderMetadata,
   OrderState,
@@ -10,6 +9,8 @@ import {
   useOrderHistoryWebSocket,
 } from '@renegade-fi/react'
 import { toast } from 'sonner'
+
+import { formatNumber } from '@/lib/format'
 
 export function OrderToaster() {
   const [incomingOrder, setIncomingOrder] = useState<OrderMetadata>()

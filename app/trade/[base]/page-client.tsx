@@ -2,10 +2,6 @@
 
 import React from 'react'
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { useMounted } from '@/hooks/use-mounted'
-import { STORAGE_LAYOUT } from '@/lib/constants/storage'
-
 import { BBOMarquee } from '@/app/trade/[base]/bbo-marquee'
 import { PriceChart } from '@/app/trade/[base]/components/charts/price-chart'
 import { NewOrderPanel } from '@/app/trade/[base]/components/new-order/new-order-panel'
@@ -17,6 +13,10 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Separator } from '@/components/ui/separator'
+
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { useMounted } from '@/hooks/use-mounted'
+import { STORAGE_LAYOUT } from '@/lib/constants/storage'
 
 const DEFAULT_LAYOUT = [22, 78]
 const DEFAULT_SIDE = 'buy'

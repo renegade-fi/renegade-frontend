@@ -1,9 +1,10 @@
-import { oneDayMs, oneMonthMs, twelveMonthsMs } from '@/lib/constants/time'
 import {
   Bar,
   IBasicDataFeed,
   LibrarySymbolInfo,
 } from '@renegade-fi/tradingview-charts'
+
+import { oneDayMs, oneMonthMs, twelveMonthsMs } from '@/lib/constants/time'
 
 import { datafeedConfig } from './config'
 import {

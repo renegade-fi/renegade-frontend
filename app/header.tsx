@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { cn } from '@/lib/utils'
 import { Bell } from 'lucide-react'
 
 import { TaskHistorySheet } from '@/app/components/task-history-sheet'
@@ -12,6 +11,8 @@ import { TaskHistorySheet } from '@/app/components/task-history-sheet'
 import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { Button } from '@/components/ui/button'
+
+import { cn } from '@/lib/utils'
 
 export function Header() {
   const pathname = usePathname()

@@ -2,10 +2,6 @@ import * as React from 'react'
 
 import Link from 'next/link'
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { DISPLAY_TOKENS } from '@/lib/token'
-import { cn } from '@/lib/utils'
-
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,6 +24,10 @@ import {
 } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { DISPLAY_TOKENS } from '@/lib/token'
+import { cn } from '@/lib/utils'
 
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)

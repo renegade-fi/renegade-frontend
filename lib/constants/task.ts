@@ -1,4 +1,3 @@
-import { formatNumber } from '@/lib/format'
 import {
   OrderState,
   Task,
@@ -6,6 +5,8 @@ import {
   Token,
   UpdateType,
 } from '@renegade-fi/react'
+
+import { formatNumber } from '@/lib/format'
 
 export const START_DEPOSIT_MSG = (mint: Token, amount: bigint) =>
   `Depositing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`

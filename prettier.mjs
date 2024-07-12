@@ -12,7 +12,7 @@ const config = {
     '<THIRD_PARTY_MODULES>',
     '^@/app(/.*)?$',
     '^@/components(/.*)?$',
-    '^@/(/.*)?$',
+    '^@(/.*)?$',
     '.*\\.css$',
     '^[./]',
   ],

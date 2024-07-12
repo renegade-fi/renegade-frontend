@@ -1,8 +1,4 @@
 import {
-  FAILED_PLACE_ORDER_MSG,
-  QUEUED_PLACE_ORDER_MSG,
-} from '@/lib/constants/task'
-import {
   Token,
   parseAmount,
   useConfig,
@@ -12,6 +8,11 @@ import { createOrder } from '@renegade-fi/react/actions'
 import { toast } from 'sonner'
 import invariant from 'tiny-invariant'
 import { v4 as uuidv4 } from 'uuid'
+
+import {
+  FAILED_PLACE_ORDER_MSG,
+  QUEUED_PLACE_ORDER_MSG,
+} from '@/lib/constants/task'
 
 export function useCreateOrder({
   base,

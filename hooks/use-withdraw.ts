@@ -1,8 +1,4 @@
 import {
-  FAILED_WITHDRAWAL_MSG,
-  QUEUED_WITHDRAWAL_MSG,
-} from '@/lib/constants/task'
-import {
   Token,
   parseAmount,
   useConfig,
@@ -13,6 +9,11 @@ import { payFees, withdraw } from '@renegade-fi/react/actions'
 import { toast } from 'sonner'
 import { isAddress } from 'viem'
 import { useAccount } from 'wagmi'
+
+import {
+  FAILED_WITHDRAWAL_MSG,
+  QUEUED_WITHDRAWAL_MSG,
+} from '@/lib/constants/task'
 
 export function useWithdraw({
   mint,

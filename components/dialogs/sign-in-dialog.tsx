@@ -1,12 +1,3 @@
-import {
-  CREATE_WALLET_ERROR,
-  CREATE_WALLET_START,
-  CREATE_WALLET_SUCCESS,
-  LOOKUP_WALLET_ERROR,
-  LOOKUP_WALLET_START,
-  LOOKUP_WALLET_SUCCESS,
-} from '@/lib/constants/toast'
-import { chain } from '@/lib/viem'
 import { useConfig } from '@renegade-fi/react'
 import { connect } from '@renegade-fi/react/actions'
 import { ROOT_KEY_MESSAGE_PREFIX } from '@renegade-fi/react/constants'
@@ -21,6 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+
+import {
+  CREATE_WALLET_ERROR,
+  CREATE_WALLET_START,
+  CREATE_WALLET_SUCCESS,
+  LOOKUP_WALLET_ERROR,
+  LOOKUP_WALLET_START,
+  LOOKUP_WALLET_SUCCESS,
+} from '@/lib/constants/toast'
+import { chain } from '@/lib/viem'
 
 export function SignInDialog({
   open,

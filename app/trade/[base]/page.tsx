@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers'
 
-import { STORAGE_SIDE, STORAGE_USDC_DENOMINATED } from '@/lib/constants/storage'
 import { Ellipsis, Settings, Settings2 } from 'lucide-react'
 
 import { Footer } from '@/app/footer'
@@ -10,6 +9,8 @@ import { SettingsPopover } from '@/app/trade/[base]/settings-popover'
 import { TokensMarquee } from '@/app/trade/[base]/tokens-marquee'
 
 import { Button } from '@/components/ui/button'
+
+import { STORAGE_SIDE, STORAGE_USDC_DENOMINATED } from '@/lib/constants/storage'
 
 export default function Page({ params }: { params: { base: string } }) {
   const layout = cookies().get('react-resizable-panels:layout')

@@ -1,9 +1,10 @@
-import { MIN_FILL_SIZE } from '@/lib/constants/protocol'
-import { formatNumber } from '@/lib/format'
-import { cn } from '@/lib/utils'
 import { Token, parseAmount, useBalances } from '@renegade-fi/react'
 
 import { Button } from '@/components/ui/button'
+
+import { MIN_FILL_SIZE } from '@/lib/constants/protocol'
+import { formatNumber } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 // Percentage should be <= 1
 export function AmountShortcutButton({
