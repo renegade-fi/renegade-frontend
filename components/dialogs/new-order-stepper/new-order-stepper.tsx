@@ -1,10 +1,34 @@
 'use client'
 
+import * as React from 'react'
 import { createContext, useContext, useState } from 'react'
 
-export function NewOrderStepperInner() {
-  const { step, onClose } = useStepper()
-  return <div>NewOrderStepper</div>
+import { DefaultStep } from '@/components/dialogs/new-order-stepper/steps/default'
+import { SuccessStep } from '@/components/dialogs/new-order-stepper/steps/success'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+
+interface Props {
+  base: string
+  side: string
+  amount: string
+  clearAmount: () => void
+  isUSDCDenominated?: boolean
+}
+
+export function NewOrderStepperInner({
+  children,
+  ...props
+}: React.PropsWithChildren<Props>) {
+  const { step, open, setOpen } = useStepper()
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="p-0 sm:max-w-[425px]">
+        {step === Step.DEFAULT && <DefaultStep {...props} />}
+        {step === Step.SUCCESS && <SuccessStep {...props} />}
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 export enum Step {
@@ -14,28 +38,25 @@ export enum Step {
 
 const StepperContext = createContext<{
   onBack: () => void
-  onClose: () => void
   onNext: () => void
   setStep: (step: Step) => void
   step: Step
+  open: boolean
+  setOpen: (open: boolean) => void
 }>({
   onBack: () => {},
-  onClose: () => {},
   onNext: () => {},
   setStep: () => {},
   step: Step.DEFAULT,
+  open: false,
+  setOpen: () => {},
 })
 
 export const useStepper = () => useContext(StepperContext)
 
-const StepperProvider = ({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode
-  onClose: () => void
-}) => {
+const StepperProvider = ({ children }: { children: React.ReactNode }) => {
   const [step, setStep] = useState(Step.DEFAULT)
+  const [open, setOpen] = React.useState(false)
 
   const handleNext = () => {
     setStep(step + 1)
@@ -49,10 +70,16 @@ const StepperProvider = ({
     <StepperContext.Provider
       value={{
         onBack: handleBack,
-        onClose,
         onNext: handleNext,
         setStep,
         step,
+        open,
+        setOpen: (open: boolean) => {
+          if (open) {
+            setStep(Step.DEFAULT)
+          }
+          setOpen(open)
+        },
       }}
     >
       {children}
@@ -60,10 +87,15 @@ const StepperProvider = ({
   )
 }
 
-export function NewOrderStepper({ onClose }: { onClose: () => void }) {
+interface Props {}
+
+export function NewOrderStepper({
+  children,
+  ...props
+}: React.PropsWithChildren<Props>) {
   return (
-    <StepperProvider onClose={onClose}>
-      <NewOrderStepperInner />
+    <StepperProvider>
+      <NewOrderStepperInner {...props}>{children}</NewOrderStepperInner>
     </StepperProvider>
   )
 }
