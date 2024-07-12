@@ -8,16 +8,7 @@ import { useMediaQuery } from '@/hooks/use-media-query'
 import { DefaultStep } from '@/components/dialogs/new-order-stepper/steps/default'
 import { SuccessStep } from '@/components/dialogs/new-order-stepper/steps/success'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
 
 interface Props {
   base: string
@@ -38,7 +29,12 @@ export function NewOrderStepperInner({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="p-0 sm:max-w-[425px]">
+        <DialogContent
+          className="p-0 sm:max-w-[425px]"
+          onOpenAutoFocus={e => {
+            e.preventDefault()
+          }}
+        >
           {step === Step.DEFAULT && <DefaultStep {...props} />}
           {step === Step.SUCCESS && <SuccessStep {...props} />}
         </DialogContent>
@@ -47,7 +43,7 @@ export function NewOrderStepperInner({
   }
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger>{children}</DrawerTrigger>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         {step === Step.DEFAULT && <DefaultStep {...props} />}
         {step === Step.SUCCESS && <SuccessStep {...props} />}

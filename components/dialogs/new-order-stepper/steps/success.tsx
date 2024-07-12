@@ -9,20 +9,16 @@ import { useStepper } from '@/components/dialogs/new-order-stepper/new-order-ste
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 import {
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
-  Drawer,
   DrawerClose,
-  DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from '@/components/ui/drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -79,6 +75,7 @@ export function SuccessStep({
         </div>
         <DialogFooter>
           <Button
+            autoFocus
             onClick={() => setOpen(false)}
             variant="outline"
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
@@ -108,7 +105,9 @@ export function SuccessStep({
       </ScrollArea>
       <DrawerFooter className="pt-2">
         <DrawerClose asChild>
-          <Button variant="outline">Close</Button>
+          <Button autoFocus variant="outline">
+            Close
+          </Button>
         </DrawerClose>
       </DrawerFooter>
     </>

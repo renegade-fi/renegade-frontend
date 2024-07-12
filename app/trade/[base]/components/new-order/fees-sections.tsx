@@ -1,10 +1,21 @@
 import { useMemo } from 'react'
 
 import { PROTOCOL_FEE, RELAYER_FEE } from '@/lib/constants/protocol'
+import {
+  FEES_SECTION_BINANCE_FEES,
+  FEES_SECTION_FEES,
+  FEES_SECTION_TOTAL_SAVINGS,
+} from '@/lib/constants/tooltips'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 import { GlowText } from '@/components/glow-text'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export function FeesSection({
   amount,
@@ -42,35 +53,49 @@ export function FeesSection({
   const feeDiffLabel = totalFees && binanceFee ? formatCurrency(feeDiff) : '--'
   return (
     <>
-      <div
-        className={cn('flex transition-colors justify-between', {
-          'text-muted': !totalFees,
-        })}
-      >
-        <span>Est. fees for your order</span>
-        <span>{feeLabel}</span>
-      </div>
-      <div
-        className={cn('flex transition-colors justify-between ', {
-          'text-muted': !binanceFee,
-        })}
-      >
-        <span>Est. cost to trade on Binance</span>
-        <span>{binanceFeeLabel}</span>
-      </div>
-      <div
-        className={cn('flex transition-colors justify-between ', {
-          'text-muted': !totalFees || !binanceFee,
-          'font-bold': !!totalFees && !!binanceFee,
-        })}
-      >
-        <span>Total savings vs. Binance</span>
-        <GlowText
-          enabled={!!totalFees && !!binanceFee}
-          className="bg-green-price"
-          text={feeDiffLabel}
-        />
-      </div>
+      <TooltipProvider>
+        <div className={cn('flex transition-colors justify-between')}>
+          <Tooltip>
+            <TooltipTrigger>
+              <span>Fees</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{FEES_SECTION_FEES}</p>
+            </TooltipContent>
+          </Tooltip>
+          <span>{feeLabel}</span>
+        </div>
+        <div className={cn('flex transition-colors justify-between ')}>
+          <Tooltip>
+            <TooltipTrigger>
+              <span>Estimated Binance fees</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{FEES_SECTION_BINANCE_FEES}</p>
+            </TooltipContent>
+          </Tooltip>
+          <span>{binanceFeeLabel}</span>
+        </div>
+        <div
+          className={cn('flex transition-colors justify-between ', {
+            'font-bold': !!totalFees && !!binanceFee,
+          })}
+        >
+          <Tooltip>
+            <TooltipTrigger>
+              <span>Total savings vs. Binance</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{FEES_SECTION_TOTAL_SAVINGS}</p>
+            </TooltipContent>
+          </Tooltip>
+          <GlowText
+            enabled={!!totalFees && !!binanceFee}
+            className="bg-green-price"
+            text={feeDiffLabel}
+          />
+        </div>
+      </TooltipProvider>
     </>
   )
 }
