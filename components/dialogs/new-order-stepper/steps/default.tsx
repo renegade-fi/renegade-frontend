@@ -80,6 +80,7 @@ export function DefaultStep({
         </ScrollArea>
         <DialogFooter>
           <Button
+            autoFocus
             onClick={onNext}
             variant="outline"
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
@@ -103,7 +104,7 @@ export function DefaultStep({
         </div>
       </ScrollArea>
       <DrawerFooter className="pt-2">
-        <Button variant="outline" onClick={onNext}>
+        <Button autoFocus variant="outline" onClick={onNext}>
           {side === 'buy' ? 'Buy' : 'Sell'} {base}
         </Button>
       </DrawerFooter>

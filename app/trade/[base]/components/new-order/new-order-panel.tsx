@@ -83,7 +83,7 @@ export function NewOrderPanel<T extends string>({
             onSetAmount={amount => setAmount(amount)}
           />
         </div>
-        <div className="space-y-3 p-6">
+        <div className="space-y-3 p-6 text-sm text-muted-foreground">
           <FeesSection
             amount={amount}
             base={isUSDCDenominated ? 'USDC' : base}
