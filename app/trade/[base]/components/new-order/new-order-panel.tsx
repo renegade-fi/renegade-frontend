@@ -8,7 +8,7 @@ import { AmountShortcutButton } from '@/app/trade/[base]/components/new-order/am
 import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
 import { SideButton } from '@/app/trade/[base]/components/new-order/side-button'
 
-import { NewOrderDialog } from '@/components/dialogs/new-order-dialog'
+import { NewOrderStepper } from '@/components/dialogs/new-order-stepper/new-order-stepper'
 import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -89,8 +89,8 @@ export function NewOrderPanel<T extends string>({
             base={isUSDCDenominated ? 'USDC' : base}
           />
         </div>
-        <div className="group mx-6 space-y-2">
-          <NewOrderDialog
+        <div className="mx-6 space-y-2">
+          <NewOrderStepper
             base={base}
             side={side}
             amount={amount}
@@ -104,8 +104,8 @@ export function NewOrderPanel<T extends string>({
             >
               {side === 'buy' ? 'Buy' : 'Sell'} {base}
             </Button>
-          </NewOrderDialog>
-          <div className="grid place-items-center space-x-1 text-xs text-muted transition-colors group-hover:text-muted-foreground">
+          </NewOrderStepper>
+          <div className="grid place-items-center space-x-1 text-xs text-muted transition-colors hover:text-muted-foreground">
             <span className="flex items-center gap-1">
               <Lock className="h-3 w-3" />
               All orders are pre-trade and post-trade private.
