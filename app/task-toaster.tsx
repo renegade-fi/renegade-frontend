@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+import { Task, TaskType, useTaskHistoryWebSocket } from '@renegade-fi/react'
+import { toast } from 'sonner'
+
 import {
   generateCompletionToastMessage,
   generateFailedToastMessage,
   generateStartToastMessage,
 } from '@/lib/constants/task'
-import { Task, TaskType, useTaskHistoryWebSocket } from '@renegade-fi/react'
-import { toast } from 'sonner'
 
 export function TaskToaster() {
   const [incomingTask, setIncomingTask] = useState<Task>()

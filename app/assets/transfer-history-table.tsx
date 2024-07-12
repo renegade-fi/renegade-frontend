@@ -1,6 +1,5 @@
 'use client'
 
-import { formatNumber } from '@/lib/format'
 import {
   Task,
   TaskType,
@@ -19,6 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+
+import { formatNumber } from '@/lib/format'
 
 export function TransferHistoryTable() {
   const { data } = useTaskHistory()

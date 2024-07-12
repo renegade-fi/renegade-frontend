@@ -1,4 +1,3 @@
-import { formatCurrency, formatNumber, formatPercentage } from '@/lib/format'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { OrderState, Token, useOrderHistory } from '@renegade-fi/react'
 import { AlertTriangle, Info } from 'lucide-react'
@@ -19,6 +18,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
+
+import { formatCurrency, formatNumber, formatPercentage } from '@/lib/format'
 
 export function OrderDetailsSheet({
   children,

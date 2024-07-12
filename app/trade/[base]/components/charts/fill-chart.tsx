@@ -2,8 +2,6 @@
 
 import { useMemo } from 'react'
 
-import { useOHLC } from '@/hooks/use-ohlc'
-import { formatCurrency, formatNumber } from '@/lib/format'
 import { PartialOrderFill, Token } from '@renegade-fi/react'
 import { TrendingUp } from 'lucide-react'
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
@@ -24,6 +22,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
+
+import { useOHLC } from '@/hooks/use-ohlc'
+import { formatCurrency, formatNumber } from '@/lib/format'
 
 const chartConfig = {
   renegade: {

@@ -1,11 +1,11 @@
-import { cn } from '@/lib/utils'
-
 import {
   TooltipProvider,
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip'
+
+import { cn } from '@/lib/utils'
 
 export function CopyToClipboard({
   text,

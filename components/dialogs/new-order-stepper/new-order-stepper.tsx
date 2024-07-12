@@ -3,12 +3,12 @@
 import * as React from 'react'
 import { createContext, useContext, useState } from 'react'
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-
 import { DefaultStep } from '@/components/dialogs/new-order-stepper/steps/default'
 import { SuccessStep } from '@/components/dialogs/new-order-stepper/steps/success'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
+
+import { useMediaQuery } from '@/hooks/use-media-query'
 
 interface Props {
   base: string

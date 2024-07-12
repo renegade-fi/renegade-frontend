@@ -1,8 +1,5 @@
 'use client'
 
-import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
-import { DISPLAY_TOKENS } from '@/lib/token'
 import { useBalances } from '@renegade-fi/react'
 import { ArrowRightLeftIcon } from 'lucide-react'
 import { useAccount } from 'wagmi'
@@ -18,6 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+
+import { formatNumber } from '@/lib/format'
+import { useReadErc20BalanceOf } from '@/lib/generated'
+import { DISPLAY_TOKENS } from '@/lib/token'
 
 export function AssetsTable() {
   return (

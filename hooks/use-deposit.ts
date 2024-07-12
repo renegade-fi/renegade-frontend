@@ -1,6 +1,3 @@
-import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from '@/lib/constants/task'
-import { signPermit2 } from '@/lib/permit2'
-import { chain } from '@/lib/viem'
 import {
   Token,
   parseAmount,
@@ -11,6 +8,10 @@ import { deposit, getPkRootScalars } from '@renegade-fi/react/actions'
 import { toast } from 'sonner'
 import { isAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
+
+import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from '@/lib/constants/task'
+import { signPermit2 } from '@/lib/permit2'
+import { chain } from '@/lib/viem'
 
 export function useDeposit({
   mint,

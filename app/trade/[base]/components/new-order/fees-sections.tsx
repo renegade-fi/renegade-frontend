@@ -1,5 +1,13 @@
 import { useMemo } from 'react'
 
+import { GlowText } from '@/components/glow-text'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
 import { PROTOCOL_FEE, RELAYER_FEE } from '@/lib/constants/protocol'
 import {
   FEES_SECTION_BINANCE_FEES,
@@ -8,14 +16,6 @@ import {
 } from '@/lib/constants/tooltips'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
-
-import { GlowText } from '@/components/glow-text'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 
 export function FeesSection({
   amount,

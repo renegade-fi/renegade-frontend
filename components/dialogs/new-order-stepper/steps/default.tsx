@@ -1,7 +1,5 @@
 import * as React from 'react'
 
-import { useCreateOrder } from '@/hooks/use-create-order'
-import { useMediaQuery } from '@/hooks/use-media-query'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
@@ -27,6 +25,9 @@ import {
 } from '@/components/ui/drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+
+import { useCreateOrder } from '@/hooks/use-create-order'
+import { useMediaQuery } from '@/hooks/use-media-query'
 
 export function DefaultStep({
   base,

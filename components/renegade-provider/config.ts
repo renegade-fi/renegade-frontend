@@ -1,10 +1,11 @@
-import { viemClient } from '@/lib/viem'
 import {
   RenegadeProvider as Provider,
   cookieStorage,
   createConfig,
   createStorage,
 } from '@renegade-fi/react'
+
+import { viemClient } from '@/lib/viem'
 
 export const config = createConfig({
   darkPoolAddress: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
