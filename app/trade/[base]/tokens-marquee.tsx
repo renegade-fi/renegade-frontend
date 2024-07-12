@@ -8,7 +8,7 @@ export function TokensMarquee() {
   return (
     <Marquee
       pauseOnHover
-      className="[--duration:80s] font-extended text-sm [--gap:32px] border-y "
+      className="[--duration:80s] font-extended text-sm fixed bottom-20 bg-background [--gap:32px] border-y"
     >
       {DISPLAY_TOKENS().map((token, index) => (
         <div className="flex items-center gap-8" key={index}>
