@@ -3,9 +3,21 @@
 import * as React from 'react'
 import { createContext, useContext, useState } from 'react'
 
+import { useMediaQuery } from '@/hooks/use-media-query'
+
 import { DefaultStep } from '@/components/dialogs/new-order-stepper/steps/default'
 import { SuccessStep } from '@/components/dialogs/new-order-stepper/steps/success'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 
 interface Props {
   base: string
@@ -20,14 +32,27 @@ export function NewOrderStepperInner({
   ...props
 }: React.PropsWithChildren<Props>) {
   const { step, open, setOpen } = useStepper()
+  const isDesktop = useMediaQuery('(min-width: 768px)')
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogContent className="p-0 sm:max-w-[425px]">
+          {step === Step.DEFAULT && <DefaultStep {...props} />}
+          {step === Step.SUCCESS && <SuccessStep {...props} />}
+        </DialogContent>
+      </Dialog>
+    )
+  }
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="p-0 sm:max-w-[425px]">
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger>{children}</DrawerTrigger>
+      <DrawerContent>
         {step === Step.DEFAULT && <DefaultStep {...props} />}
         {step === Step.SUCCESS && <SuccessStep {...props} />}
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   )
 }
 
