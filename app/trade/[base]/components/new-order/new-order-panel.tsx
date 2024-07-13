@@ -13,6 +13,7 @@ import { TokenSelectDialog } from '@/components/dialogs/token-select-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 
 export function NewOrderPanel({
   base,
@@ -25,7 +26,7 @@ export function NewOrderPanel({
 }) {
   const [amount, setAmount] = React.useState('')
   return (
-    <aside className="flex min-h-full flex-col justify-between">
+    <aside>
       <div className="flex flex-col">
         <div className="flex items-center justify-between">
           <SideButton side={side} />
@@ -56,7 +57,7 @@ export function NewOrderPanel({
             />
           </div>
         </div>
-        <div className="flex border-b border-input px-6 pb-6">
+        <div className="flex px-6 pb-6">
           <AmountShortcutButton
             amount={amount}
             base={isUSDCDenominated ? 'USDC' : base}
@@ -79,41 +80,44 @@ export function NewOrderPanel({
             onSetAmount={amount => setAmount(amount)}
           />
         </div>
-        <div className="space-y-3 p-6 text-sm text-muted-foreground">
+        <Separator />
+        <div className="space-y-3 p-6 text-sm text-muted-foreground whitespace-nowrap">
           <FeesSection
             amount={amount}
             base={base}
             isUSDCDenominated={isUSDCDenominated}
           />
         </div>
-        <div className="mx-6 space-y-2">
-          <NewOrderStepper
-            base={base}
-            side={side}
-            amount={amount}
-            clearAmount={() => setAmount('')}
-            isUSDCDenominated={isUSDCDenominated}
+        <NewOrderStepper
+          base={base}
+          side={side}
+          amount={amount}
+          clearAmount={() => setAmount('')}
+          isUSDCDenominated={isUSDCDenominated}
+        >
+          <Button
+            variant="outline"
+            className="px-6 mx-auto font-extended text-3xl"
+            size="xl"
           >
-            <Button
-              variant="outline"
-              className="w-full font-extended text-3xl"
-              size="xl"
-            >
-              {side === 'buy' ? 'Buy' : 'Sell'} {base}
-            </Button>
-          </NewOrderStepper>
-          <div className="grid place-items-center space-x-1 text-xs text-muted transition-colors hover:text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Lock className="h-3 w-3" />
-              All orders are pre-trade and post-trade private.
-            </span>
-            <p className="cursor-pointer">Learn more</p>
-          </div>
+            {side === 'buy' ? 'Buy' : 'Sell'} {base}
+          </Button>
+        </NewOrderStepper>
+        <div className="p-6 ">
+          <Button
+            variant="link"
+            className="p-0 text-muted-foreground"
+            size="sm"
+          >
+            <Lock className="mr-2 h-3 w-3" />
+            All orders are pre-trade and post-trade private.
+          </Button>
         </div>
+        {}
       </div>
-      <div className="border-brand border-t">
-        <AssetsSection base={base} />
-      </div>
+      <Separator />
+      <AssetsSection base={base} />
+      <Separator />
     </aside>
   )
 }
