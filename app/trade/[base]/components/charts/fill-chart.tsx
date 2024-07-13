@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 
-import { PartialOrderFill, Token } from '@renegade-fi/react'
+import { OrderMetadata, PartialOrderFill, Token } from '@renegade-fi/react'
 import { TrendingUp } from 'lucide-react'
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 
@@ -75,16 +75,10 @@ interface ChartData {
   volume?: number
 }
 
-export function FillChart({
-  baseMint,
-  fills,
-}: {
-  baseMint: `0x${string}`
-  fills: PartialOrderFill[]
-}) {
-  const token = Token.findByAddress(baseMint)
+export function FillChart({ order }: { order: OrderMetadata }) {
+  const token = Token.findByAddress(order.data.base_mint)
 
-  const formattedFills = fills
+  const formattedFills = order.fills
     .map(fill => ({
       timestamp: Number(fill.timestamp),
       amount: Number(formatNumber(fill.amount, token.decimals)),
@@ -120,7 +114,7 @@ export function FillChart({
     const resolutionFactor = Math.ceil(ohlc.length / targetElements)
 
     const temp: Array<ChartData> = ohlc.map(ohlc => ({
-      binance: ohlc.close,
+      binance: order.data.side === 'Sell' ? ohlc.low : ohlc.high,
       timestamp: ohlc.time,
       vwap: undefined,
     }))
@@ -131,13 +125,14 @@ export function FillChart({
     let cumPriceVolume = 0
 
     // Map fills to closest candle
+    // Closest candle should not be in the future relative to the fill
     formattedFills.forEach(fill => {
-      const closest = temp.reduce((prev, curr) =>
-        Math.abs(curr.timestamp - fill.timestamp) <
-        Math.abs(prev.timestamp - fill.timestamp)
+      const closest = temp.reduce((prev, curr) => {
+        return curr.timestamp <= fill.timestamp &&
+          curr.timestamp > prev.timestamp
           ? curr
-          : prev,
-      )
+          : prev
+      }, temp[0])
 
       if (closest) {
         closest.renegade = Number(fill.price.toFixed(2))
@@ -166,7 +161,13 @@ export function FillChart({
     })
 
     return sampledTemp
-  }, [firstFillTimestamp, formattedFills, lastFillTimestamp, ohlc])
+  }, [
+    firstFillTimestamp,
+    formattedFills,
+    lastFillTimestamp,
+    ohlc,
+    order.data.side,
+  ])
 
   function formatTimestamp(value: number): string {
     const date = new Date(value)

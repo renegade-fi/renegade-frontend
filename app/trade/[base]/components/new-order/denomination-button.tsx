@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button'
 export function DenominationButton({
   base,
   isUSDCDenominated: initialState,
+  onClearAmount,
 }: {
   base: string
   isUSDCDenominated?: boolean
+  onClearAmount: () => void
 }) {
   const [isUSDCDenominated, setIsUSDCDenominated] =
     React.useState(!!initialState)
@@ -22,7 +24,10 @@ export function DenominationButton({
     <Button
       variant="ghost"
       className="h-12 flex-1 rounded-none p-0 px-2 font-serif text-2xl font-bold"
-      onClick={() => setIsUSDCDenominated(!isUSDCDenominated)}
+      onClick={() => {
+        setIsUSDCDenominated(!isUSDCDenominated)
+        onClearAmount()
+      }}
     >
       {isUSDCDenominated ? 'USDC' : base}
       <ArrowRightLeft className="ml-2 h-5 w-5" />
