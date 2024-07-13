@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import * as React from 'react'
 
 import { ChevronDown, Lock } from 'lucide-react'
 
@@ -14,16 +14,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-export function NewOrderPanel<T extends string>({
+export function NewOrderPanel({
   base,
   side,
   isUSDCDenominated,
 }: {
-  base: T
+  base: string
   side: string
   isUSDCDenominated?: boolean
 }) {
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = React.useState('')
   return (
     <aside className="flex min-h-full flex-col justify-between">
       <div className="flex flex-col">
@@ -82,7 +82,8 @@ export function NewOrderPanel<T extends string>({
         <div className="space-y-3 p-6 text-sm text-muted-foreground">
           <FeesSection
             amount={amount}
-            base={isUSDCDenominated ? 'USDC' : base}
+            base={base}
+            isUSDCDenominated={isUSDCDenominated}
           />
         </div>
         <div className="mx-6 space-y-2">

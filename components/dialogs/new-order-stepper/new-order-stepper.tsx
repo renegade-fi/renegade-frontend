@@ -3,12 +3,15 @@
 import * as React from 'react'
 import { createContext, useContext, useState } from 'react'
 
+import { Token } from '@renegade-fi/react'
+
 import { DefaultStep } from '@/components/dialogs/new-order-stepper/steps/default'
 import { SuccessStep } from '@/components/dialogs/new-order-stepper/steps/success'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
 
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { usePrice } from '@/stores/price-store'
 
 interface Props {
   base: string
@@ -25,6 +28,16 @@ export function NewOrderStepperInner({
   const { step, open, setOpen } = useStepper()
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
+  const { amount, isUSDCDenominated, base } = props
+  const price = usePrice({
+    baseAddress: Token.findByTicker(base).address,
+  })
+  let baseAmount = amount
+  if (isUSDCDenominated) {
+    // TODO: [SAFETY]: Check if amount is a number
+    baseAmount = (Number(amount) / price).toString()
+  }
+
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -35,8 +48,12 @@ export function NewOrderStepperInner({
             e.preventDefault()
           }}
         >
-          {step === Step.DEFAULT && <DefaultStep {...props} />}
-          {step === Step.SUCCESS && <SuccessStep {...props} />}
+          {step === Step.DEFAULT && (
+            <DefaultStep {...props} amount={baseAmount} />
+          )}
+          {step === Step.SUCCESS && (
+            <SuccessStep {...props} amount={baseAmount} />
+          )}
         </DialogContent>
       </Dialog>
     )
@@ -45,8 +62,12 @@ export function NewOrderStepperInner({
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
-        {step === Step.DEFAULT && <DefaultStep {...props} />}
-        {step === Step.SUCCESS && <SuccessStep {...props} />}
+        {step === Step.DEFAULT && (
+          <DefaultStep {...props} amount={baseAmount} />
+        )}
+        {step === Step.SUCCESS && (
+          <SuccessStep {...props} amount={baseAmount} />
+        )}
       </DrawerContent>
     </Drawer>
   )

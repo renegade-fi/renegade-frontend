@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 
+import { Token } from '@renegade-fi/react'
+
 import { GlowText } from '@/components/glow-text'
 import {
   Tooltip,
@@ -16,32 +18,37 @@ import {
 } from '@/lib/constants/tooltips'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { usePrice } from '@/stores/price-store'
 
 export function FeesSection({
   amount,
   base,
+  isUSDCDenominated,
 }: {
   amount: string
   base: string
+  isUSDCDenominated?: boolean
 }) {
+  const price = usePrice({
+    baseAddress: Token.findByTicker(base).address,
+  })
+  // TODO: [SAFETY] Check if amount is a number
+  const usdPrice = price * Number(amount)
   const feesCalculation = useMemo(() => {
-    if (!amount)
-      return {
-        relayerFee: 0,
-        protocolFee: 0,
-      }
     let res = {
       relayerFee: 0,
       protocolFee: 0,
     }
-    if (base === 'USDC') {
+    if (!amount) return res
+    if (isUSDCDenominated) {
       res.relayerFee = Number(amount) * RELAYER_FEE
       res.protocolFee = Number(amount) * PROTOCOL_FEE
     } else {
-      // TODO: [PRICE] Calculate the price of base in USDC
+      res.relayerFee = usdPrice * RELAYER_FEE
+      res.protocolFee = usdPrice * PROTOCOL_FEE
     }
     return res
-  }, [amount, base])
+  }, [amount, isUSDCDenominated, usdPrice])
 
   const totalFees = feesCalculation.relayerFee + feesCalculation.protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : '--'
