@@ -1,35 +1,32 @@
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Fragment } from 'react'
 
-export function BBOMarquee() {
+import { Exchange } from '@renegade-fi/react'
+
+import { AnimatedPrice } from '@/components/animated-price'
+
+const exchanges: Exchange[] = ['binance', 'coinbase', 'kraken', 'okx']
+const names: Record<Exchange, string> = {
+  binance: 'Binance',
+  coinbase: 'Coinbase',
+  kraken: 'Kraken',
+  okx: 'Okx',
+}
+
+export function BBOMarquee({ base }: { base: string }) {
   return (
-    <ScrollArea className="w-screen whitespace-nowrap border-y border-border">
-      <div className="ml-4 flex min-h-marquee items-center space-x-8 font-extended text-sm">
-        <span>BBO Feeds</span>
-        <span className="text-xs">•</span>
-        <div className="space-x-6">
-          <span>Binance</span>
-          <span>$3,756.89</span>
-          <span className="font-extended text-green-price">LIVE</span>
-        </div>
-        <span className="text-xs">•</span>
-        <div className="space-x-6">
-          <span>Coinbase</span>
-          <span>$3,756.89</span>
-          <span className="font-extended text-green-price">LIVE</span>
-        </div>
-        <span className="text-xs">•</span>
-        <div className="space-x-6">
-          <span>Kraken</span>
-          <span>$3,756.89</span>
-          <span className="font-extended text-green-price">LIVE</span>
-        </div>
-        <span className="text-xs">•</span>
-        <div className="space-x-6">
-          <span>Okx</span>
-          <span>$3,756.89</span>
-          <span className="font-extended text-green-price">LIVE</span>
-        </div>
-      </div>
-    </ScrollArea>
+    <div className="min-h-marquee whitespace-nowrap font-extended text-sm grid grid-cols-[auto_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center border-y border-border">
+      <span className="px-4">BBO Feeds</span>
+      {/* <span className="text-xs">•</span> */}
+      {exchanges.map((exchange, i) => (
+        <Fragment key={exchange}>
+          <span className="text-xs">•</span>
+          <div className="flex gap-4 justify-center">
+            <span>{names[exchange]}</span>
+            <AnimatedPrice exchange={exchange} base={base} />
+            <span className="font-extended text-green-price">LIVE</span>
+          </div>
+        </Fragment>
+      ))}
+    </div>
   )
 }

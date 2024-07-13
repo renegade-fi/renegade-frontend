@@ -67,7 +67,7 @@ export function PageClient({
         )}
         <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
           <main>
-            <BBOMarquee />
+            <BBOMarquee base={base} />
             <div className="overflow-auto">
               <PriceChartMemo base={base} />
               <Separator />
