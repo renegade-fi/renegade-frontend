@@ -16,8 +16,7 @@ export function BBOMarquee({ base }: { base: string }) {
   return (
     <div className="min-h-marquee whitespace-nowrap font-extended text-sm grid grid-cols-[auto_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center border-y border-border">
       <span className="px-4">BBO Feeds</span>
-      {/* <span className="text-xs">•</span> */}
-      {exchanges.map((exchange, i) => (
+      {exchanges.map(exchange => (
         <Fragment key={exchange}>
           <span className="text-xs">•</span>
           <div className="flex gap-4 justify-center">
