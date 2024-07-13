@@ -18,15 +18,19 @@ export function TaskToaster() {
       setIncomingTask(task)
     },
   })
-  const taskRef = useRef<Map<string, Task>>(new Map())
+  const taskIdToStateMap = useRef<Map<string, Task>>(new Map())
+  const taskIdToToastIdMap = useRef<Map<string, string | number>>(new Map())
 
   useEffect(() => {
     if (incomingTask) {
       // Ignore duplicate events
-      if (taskRef.current.get(incomingTask.id)?.state === incomingTask.state) {
+      if (
+        taskIdToStateMap.current.get(incomingTask.id)?.state ===
+        incomingTask.state
+      ) {
         return
       }
-      taskRef.current.set(incomingTask.id, incomingTask)
+      taskIdToStateMap.current.set(incomingTask.id, incomingTask)
 
       // Order toaster handles SettleMatch task completion
       if (incomingTask.task_info.task_type === TaskType.SettleMatch) {
@@ -35,17 +39,25 @@ export function TaskToaster() {
 
       if (incomingTask.state === 'Completed') {
         const message = generateCompletionToastMessage(incomingTask)
-        toast.success(message)
+        const toastId = taskIdToToastIdMap.current.get(incomingTask.id)
+        toast.success(message, {
+          id: toastId,
+        })
         return
       } else if (incomingTask.state === 'Failed') {
         const message = generateFailedToastMessage(incomingTask)
-        toast.error(message)
+        const toastId = taskIdToToastIdMap.current.get(incomingTask.id)
+        toast.error(message, {
+          id: toastId,
+        })
       } else if (incomingTask.state === 'Proving') {
         const message = generateStartToastMessage(incomingTask)
-        toast.message(message)
+        const id = toast.loading(message)
+        taskIdToToastIdMap.current.set(incomingTask.id, id)
       } else if (incomingTask.state === 'Proving Payment') {
         const message = generateStartToastMessage(incomingTask)
-        toast.message(message)
+        const id = toast.loading(message)
+        taskIdToToastIdMap.current.set(incomingTask.id, id)
       }
     }
   }, [incomingTask])
