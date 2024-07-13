@@ -32,7 +32,7 @@ const chartConfig = {
     color: 'hsl(var(--chart-blue))',
   },
   binance: {
-    label: 'Binance Close',
+    label: 'Binance Price',
     color: 'hsl(var(--chart-yellow))',
   },
   vwap: {
@@ -207,7 +207,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       <CardHeader>
         <CardTitle>Fill Chart</CardTitle>
         <CardDescription>
-          Showing fills compared to Binance close price
+          Showing fills compared to Binance price
         </CardDescription>
       </CardHeader>
       <CardContent>
