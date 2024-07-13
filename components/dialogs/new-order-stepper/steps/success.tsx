@@ -3,10 +3,11 @@ import * as React from 'react'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { Repeat } from 'lucide-react'
 
-import { useStepper } from '@/components/dialogs/new-order-stepper/new-order-stepper'
+import { NewOrderProps } from '@/components/dialogs/new-order-stepper/new-order-stepper'
 import { GlowText } from '@/components/glow-text'
 import { Button } from '@/components/ui/button'
 import {
+  DialogClose,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -24,26 +25,13 @@ import { Separator } from '@/components/ui/separator'
 import { useCreateOrder } from '@/hooks/use-create-order'
 import { useMediaQuery } from '@/hooks/use-media-query'
 
-export function SuccessStep({
-  base,
-  side,
-  amount,
-  clearAmount,
-}: {
-  base: string
-  side: string
-  amount: string
-  clearAmount: () => void
-}) {
-  const { setOpen } = useStepper()
+export function SuccessStep({ base, side, amount, onSuccess }: NewOrderProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
   const handleCreateOrer = useCreateOrder({
     base,
     side,
     amount,
-    setOpen,
-    clearAmount,
   })
 
   if (isDesktop) {
@@ -64,15 +52,16 @@ export function SuccessStep({
           />
         </div>
         <DialogFooter>
-          <Button
-            autoFocus
-            onClick={() => setOpen(false)}
-            variant="outline"
-            className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-            size="xl"
-          >
-            Close
-          </Button>
+          <DialogClose asChild>
+            <Button
+              autoFocus
+              variant="outline"
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+            >
+              Close
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </>
     )

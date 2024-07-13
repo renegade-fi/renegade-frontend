@@ -19,15 +19,11 @@ export function useCreateOrder({
   quote = 'USDC',
   side,
   amount,
-  setOpen,
-  clearAmount,
 }: {
   base: string
   quote?: string
   side: string
   amount: string
-  setOpen: (open: boolean) => void
-  clearAmount: () => void
 }) {
   invariant(side === 'buy' || side === 'sell', 'Invalid side')
   const config = useConfig()
@@ -36,7 +32,7 @@ export function useCreateOrder({
   const isQueue = Array.from(taskHistory?.values() || []).find(
     task => task.state !== 'Completed' && task.state !== 'Failed',
   )
-  return async () => {
+  async function handleCreateOrder({ onSuccess }: { onSuccess?: () => void }) {
     const baseToken = Token.findByTicker(base)
     const quoteToken = Token.findByTicker(quote)
     const id = uuidv4()
@@ -44,24 +40,25 @@ export function useCreateOrder({
     if (isQueue) {
       toast.message(QUEUED_PLACE_ORDER_MSG(baseToken, parsedAmount, side))
     }
-    await createOrder(config, {
+    return createOrder(config, {
       id,
       base: baseToken.address,
       quote: quoteToken.address,
       side: side === 'buy' ? 'buy' : 'sell',
       amount: parsedAmount,
-    }).catch(e => {
-      toast.error(
-        FAILED_PLACE_ORDER_MSG(
-          baseToken,
-          parsedAmount,
-          side,
-          e.shortMessage ?? e.response.data,
-        ),
-      )
-      console.error(`Error placing order: ${e.response?.data ?? e.message}`)
     })
-    setOpen(false)
-    clearAmount()
+      .then(onSuccess)
+      .catch(e => {
+        toast.error(
+          FAILED_PLACE_ORDER_MSG(
+            baseToken,
+            parsedAmount,
+            side,
+            e.shortMessage ?? e.response.data,
+          ),
+        )
+        console.error(`Error placing order: ${e.response?.data ?? e.message}`)
+      })
   }
+  return { handleCreateOrder }
 }

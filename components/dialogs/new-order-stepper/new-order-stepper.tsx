@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { createContext, useContext, useState } from 'react'
 
 import { Token } from '@renegade-fi/react'
 
@@ -13,18 +12,18 @@ import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { usePrice } from '@/stores/price-store'
 
-interface Props {
+export interface NewOrderProps {
   base: string
   side: string
   amount: string
-  clearAmount: () => void
+  onSuccess?: () => void
   isUSDCDenominated?: boolean
 }
 
 export function NewOrderStepperInner({
   children,
   ...props
-}: React.PropsWithChildren<Props>) {
+}: React.PropsWithChildren<NewOrderProps>) {
   const { step, open, setOpen } = useStepper()
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
@@ -78,7 +77,7 @@ export enum Step {
   SUCCESS,
 }
 
-const StepperContext = createContext<{
+const StepperContext = React.createContext<{
   onBack: () => void
   onNext: () => void
   setStep: (step: Step) => void
@@ -94,10 +93,10 @@ const StepperContext = createContext<{
   setOpen: () => {},
 })
 
-export const useStepper = () => useContext(StepperContext)
+export const useStepper = () => React.useContext(StepperContext)
 
 const StepperProvider = ({ children }: { children: React.ReactNode }) => {
-  const [step, setStep] = useState(Step.DEFAULT)
+  const [step, setStep] = React.useState(Step.DEFAULT)
   const [open, setOpen] = React.useState(false)
 
   const handleNext = () => {
@@ -129,12 +128,10 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-interface Props {}
-
 export function NewOrderStepper({
   children,
   ...props
-}: React.PropsWithChildren<Props>) {
+}: React.PropsWithChildren<NewOrderProps>) {
   return (
     <StepperProvider>
       <NewOrderStepperInner {...props}>{children}</NewOrderStepperInner>

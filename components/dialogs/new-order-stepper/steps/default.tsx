@@ -6,7 +6,10 @@ import { parseUnits } from 'viem'
 
 import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
 
-import { useStepper } from '@/components/dialogs/new-order-stepper/new-order-stepper'
+import {
+  NewOrderProps,
+  useStepper,
+} from '@/components/dialogs/new-order-stepper/new-order-stepper'
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,26 +26,14 @@ import { useCreateOrder } from '@/hooks/use-create-order'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { formatNumber } from '@/lib/format'
 
-export function DefaultStep({
-  base,
-  side,
-  amount,
-  clearAmount,
-}: {
-  base: string
-  side: string
-  amount: string
-  clearAmount: () => void
-}) {
-  const { onNext, setOpen } = useStepper()
+export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
+  const { onNext } = useStepper()
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
-  const handleCreateOrer = useCreateOrder({
+  const { handleCreateOrder } = useCreateOrder({
     base,
     side,
     amount,
-    setOpen,
-    clearAmount,
   })
 
   if (isDesktop) {
@@ -64,7 +55,14 @@ export function DefaultStep({
         <DialogFooter>
           <Button
             autoFocus
-            onClick={onNext}
+            onClick={() =>
+              handleCreateOrder({
+                onSuccess: () => {
+                  onSuccess?.()
+                  onNext()
+                },
+              })
+            }
             variant="outline"
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"

@@ -62,21 +62,21 @@ export function NewOrderPanel({
           <AmountShortcutButton
             amount={amount}
             base={isUSDCDenominated ? 'USDC' : base}
-            className="flex-1 border-r-0"
+            className="flex-1"
             percentage={0.25}
             onSetAmount={amount => setAmount(amount)}
           />
           <AmountShortcutButton
             amount={amount}
             base={isUSDCDenominated ? 'USDC' : base}
-            className="flex-1"
+            className="flex-1 border-x-0"
             percentage={0.5}
             onSetAmount={amount => setAmount(amount)}
           />
           <AmountShortcutButton
             amount={amount}
             base={isUSDCDenominated ? 'USDC' : base}
-            className="flex-1 border-l-0"
+            className="flex-1"
             percentage={1}
             onSetAmount={amount => setAmount(amount)}
           />
@@ -93,7 +93,7 @@ export function NewOrderPanel({
           base={base}
           side={side}
           amount={amount}
-          clearAmount={() => setAmount('')}
+          onSuccess={() => setAmount('')}
           isUSDCDenominated={isUSDCDenominated}
         >
           <Button
