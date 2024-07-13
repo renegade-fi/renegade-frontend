@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-import { ArrowRightLeft, ChevronDown, Lock } from 'lucide-react'
+import { ChevronDown, Lock } from 'lucide-react'
 
-import { setUseUSDC } from '@/app/trade/[base]/actions'
 import { AssetsSection } from '@/app/trade/[base]/assets-section'
 import { AmountShortcutButton } from '@/app/trade/[base]/components/new-order/amount-shortcut-button'
+import { DenominationButton } from '@/app/trade/[base]/components/new-order/denomination-button'
 import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
 import { SideButton } from '@/app/trade/[base]/components/new-order/side-button'
 
@@ -50,14 +50,10 @@ export function NewOrderPanel<T extends string>({
               onChange={e => setAmount(e.target.value)}
             />
             &nbsp;
-            <Button
-              variant="ghost"
-              className="h-12 flex-1 rounded-none p-0 px-2 font-serif text-2xl font-bold"
-              onClick={() => setUseUSDC(!isUSDCDenominated)}
-            >
-              {isUSDCDenominated ? 'USDC' : base}
-              <ArrowRightLeft className="ml-2 h-5 w-5" />
-            </Button>
+            <DenominationButton
+              base={base}
+              isUSDCDenominated={isUSDCDenominated}
+            />
           </div>
         </div>
         <div className="flex border-b border-input px-6 pb-6">

@@ -1,10 +1,20 @@
+'use client'
+
+import React from 'react'
+
 import { ArrowRightLeft } from 'lucide-react'
 
-import { setSide } from '@/app/trade/[base]/actions'
+import { setSide as setSideCookies } from '@/app/trade/[base]/actions'
 
 import { Button } from '@/components/ui/button'
 
-export function SideButton({ side }: { side: string }) {
+export function SideButton({ side: initialSide }: { side: string }) {
+  const [side, setSide] = React.useState(initialSide)
+
+  React.useEffect(() => {
+    setSideCookies(side as 'buy' | 'sell')
+  }, [side])
+
   return (
     <Button
       variant="outline"
