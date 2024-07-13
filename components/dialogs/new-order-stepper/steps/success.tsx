@@ -29,30 +29,19 @@ export function SuccessStep({
   side,
   amount,
   clearAmount,
-  isUSDCDenominated,
 }: {
   base: string
   side: string
   amount: string
   clearAmount: () => void
-  isUSDCDenominated?: boolean
 }) {
-  const { open, setOpen } = useStepper()
+  const { setOpen } = useStepper()
   const isDesktop = useMediaQuery('(min-width: 768px)')
-
-  function calculateBaseAmount(amount: string) {
-    // TODO: [CORRECTNESS] calculate base price * amount
-    return amount
-  }
-
-  const normalizedAmount = isUSDCDenominated
-    ? calculateBaseAmount(amount)
-    : amount
 
   const handleCreateOrer = useCreateOrder({
     base,
     side,
-    amount: normalizedAmount,
+    amount,
     setOpen,
     clearAmount,
   })
@@ -70,7 +59,7 @@ export function SuccessStep({
           <NewOrderForm
             base={base}
             side={side}
-            amount={normalizedAmount}
+            amount={amount}
             className="p-6"
           />
         </div>
@@ -99,7 +88,7 @@ export function SuccessStep({
           <NewOrderForm
             base={base}
             side={side}
-            amount={normalizedAmount}
+            amount={amount}
             className="p-6"
           />
         </div>

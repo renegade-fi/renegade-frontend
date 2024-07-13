@@ -1,6 +1,8 @@
 import * as React from 'react'
 
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { Token } from '@renegade-fi/react'
+import { parseUnits } from 'viem'
 
 import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
 
@@ -8,57 +10,37 @@ import { useStepper } from '@/components/dialogs/new-order-stepper/new-order-ste
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
 import {
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
+import { DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 
 import { useCreateOrder } from '@/hooks/use-create-order'
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { formatNumber } from '@/lib/format'
 
 export function DefaultStep({
   base,
   side,
   amount,
   clearAmount,
-  isUSDCDenominated,
 }: {
   base: string
   side: string
   amount: string
   clearAmount: () => void
-  isUSDCDenominated?: boolean
 }) {
-  const { onNext } = useStepper()
-  const [open, setOpen] = React.useState(false)
+  const { onNext, setOpen } = useStepper()
   const isDesktop = useMediaQuery('(min-width: 768px)')
-
-  function calculateBaseAmount(amount: string) {
-    // TODO: [CORRECTNESS] calculate base price * amount
-    return amount
-  }
-
-  const normalizedAmount = isUSDCDenominated
-    ? calculateBaseAmount(amount)
-    : amount
 
   const handleCreateOrer = useCreateOrder({
     base,
     side,
-    amount: normalizedAmount,
+    amount,
     setOpen,
     clearAmount,
   })
@@ -76,7 +58,7 @@ export function DefaultStep({
         </DialogHeader>
         <ScrollArea className="max-h-[70vh]">
           <div className="space-y-6 p-6">
-            <NewOrderForm base={base} side={side} amount={normalizedAmount} />
+            <NewOrderForm base={base} side={side} amount={amount} />
           </div>
         </ScrollArea>
         <DialogFooter>
@@ -101,7 +83,7 @@ export function DefaultStep({
       </DrawerHeader>
       <ScrollArea className="max-h-[60vh] overflow-auto">
         <div className="space-y-6 p-4">
-          <NewOrderForm base={base} side={side} amount={normalizedAmount} />
+          <NewOrderForm base={base} side={side} amount={amount} />
         </div>
       </ScrollArea>
       <DrawerFooter className="pt-2">
@@ -122,6 +104,12 @@ function NewOrderForm({
   side: string
   amount: string
 }) {
+  const { decimals } = Token.findByTicker(base)
+  const formattedAmount = formatNumber(
+    parseUnits(amount, decimals),
+    decimals,
+    true,
+  )
   return (
     <>
       <div className="space-y-3">
@@ -130,7 +118,7 @@ function NewOrderForm({
         </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">
-            {amount} {base}
+            {formattedAmount} {base}
           </div>
           <TokenIcon ticker="WETH" />
         </div>
