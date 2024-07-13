@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
-import { DISPLAY_TOKENS } from '@/lib/token'
-
 import Marquee from '@/components/ui/marquee'
+
+import { DISPLAY_TOKENS } from '@/lib/token'
 
 export function TokensMarquee() {
   return (

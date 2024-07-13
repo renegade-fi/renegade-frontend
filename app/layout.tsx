@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { cookieToInitialState } from 'wagmi'
 
+import { getInitialPrices } from '@/app/actions'
 import { OrderToaster } from '@/app/order-toaster'
 import { TailwindIndicator } from '@/app/tailwind-indicator'
 import { TaskToaster } from '@/app/task-toaster'
@@ -18,6 +19,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { config } from '@/components/wagmi-provider/config'
 import { WagmiProvider } from '@/components/wagmi-provider/wagmi-provider'
+
+import { PriceStoreProvider } from '@/stores/price-store'
 
 import './globals.css'
 
@@ -84,6 +87,7 @@ export default async function RootLayout({
     renegadeConfig,
     headers().get('cookie'),
   )
+  const prices = await getInitialPrices()
   return (
     <html lang="en">
       <body
@@ -97,15 +101,17 @@ export default async function RootLayout({
         >
           <RenegadeProvider initialState={renegadeInitialState}>
             <WagmiProvider initialState={initialState}>
-              <TailwindIndicator />
-              <div className="">{children}</div>
-              <Toaster
-                className="pointer-events-auto"
-                toastOptions={{ duration: 10000 }}
-              />
-              <OrderToaster />
-              <TaskToaster />
-              <ReactQueryDevtools initialIsOpen={false} />
+              <PriceStoreProvider initialPrices={prices}>
+                <TailwindIndicator />
+                <div className="">{children}</div>
+                <Toaster
+                  className="pointer-events-auto"
+                  toastOptions={{ duration: 10000 }}
+                />
+                <OrderToaster />
+                <TaskToaster />
+                <ReactQueryDevtools initialIsOpen={false} />
+              </PriceStoreProvider>
             </WagmiProvider>
           </RenegadeProvider>
         </ThemeProvider>
