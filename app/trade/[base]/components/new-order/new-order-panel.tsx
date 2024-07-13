@@ -81,7 +81,7 @@ export function NewOrderPanel({
           />
         </div>
         <Separator />
-        <div className="space-y-3 p-6 text-sm text-muted-foreground whitespace-nowrap">
+        <div className="space-y-3 whitespace-nowrap p-6 text-sm text-muted-foreground">
           <FeesSection
             amount={amount}
             base={base}
@@ -97,13 +97,13 @@ export function NewOrderPanel({
         >
           <Button
             variant="outline"
-            className="px-6 mx-auto font-extended text-3xl"
+            className="mx-auto px-6 font-extended text-3xl"
             size="xl"
           >
             {side === 'buy' ? 'Buy' : 'Sell'} {base}
           </Button>
         </NewOrderStepper>
-        <div className="p-6 ">
+        <div className="p-6">
           <Button
             variant="link"
             className="p-0 text-muted-foreground"

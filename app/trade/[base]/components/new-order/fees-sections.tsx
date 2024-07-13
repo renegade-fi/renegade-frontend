@@ -61,7 +61,7 @@ export function FeesSection({
   return (
     <>
       <TooltipProvider>
-        <div className={cn('flex transition-colors justify-between')}>
+        <div className={cn('flex justify-between transition-colors')}>
           <Tooltip>
             <TooltipTrigger>
               <span>Fees</span>
@@ -72,7 +72,7 @@ export function FeesSection({
           </Tooltip>
           <span>{feeLabel}</span>
         </div>
-        <div className={cn('flex transition-colors justify-between ')}>
+        <div className={cn('flex justify-between transition-colors')}>
           <Tooltip>
             <TooltipTrigger>
               <span>Estimated Binance fees</span>
@@ -84,7 +84,7 @@ export function FeesSection({
           <span>{binanceFeeLabel}</span>
         </div>
         <div
-          className={cn('flex transition-colors justify-between ', {
+          className={cn('flex justify-between transition-colors', {
             'font-bold': !!totalFees && !!binanceFee,
           })}
         >

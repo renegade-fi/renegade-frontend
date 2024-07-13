@@ -115,16 +115,16 @@ function NewOrderForm({
 }) {
   return (
     <>
-      <div className="space-y-4 text-center flex flex-col items-center text-pretty">
+      <div className="flex flex-col items-center space-y-4 text-pretty text-center">
         <div>You&apos;re estimated to save</div>
         <GlowText
-          className="bg-green-price text-4xl text-center"
+          className="bg-green-price text-center text-4xl"
           text={'$10.87'}
         />
         <div>when your order fills at the realtime Binance midpoint price.</div>
       </div>
       <Separator />
-      <div className=" text-muted-foreground">
+      <div className="text-muted-foreground">
         <div className="flex items-center justify-between">
           Did you know?
           <Button size="icon" variant="ghost">

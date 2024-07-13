@@ -69,7 +69,7 @@ export function OrderDetailsSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="sm:w-[576px] sm:max-w-[576px] p-0">
+      <SheetContent className="p-0 sm:w-[576px] sm:max-w-[576px]">
         <SheetHeader>
           <VisuallyHidden>
             <SheetTitle>Order Details</SheetTitle>
@@ -77,7 +77,7 @@ export function OrderDetailsSheet({
           </VisuallyHidden>
         </SheetHeader>
         <div className="">
-          <div className="flex p-6 justify-between">
+          <div className="flex justify-between p-6">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
               <div className="flex-1 border-0 text-sm font-bold">
@@ -102,7 +102,7 @@ export function OrderDetailsSheet({
             </div>
           </div>
           <Separator />
-          <div className="flex h-24 items-center ">
+          <div className="flex h-24 items-center">
             <div className="flex-1 px-6">
               <div className="text-sm">Order</div>
               <div className="text-sm">{title}</div>
@@ -122,12 +122,12 @@ export function OrderDetailsSheet({
           {order.fills.length ? (
             <FillChart baseMint={order.data.base_mint} fills={order.fills} />
           ) : (
-            <Skeleton className="h-[500px] w-full " />
+            <Skeleton className="h-[500px] w-full" />
           )}
           <Separator />
           <FillTable orderId={orderId} />
           <Separator />
-          <div className="text-xs text-muted cursor-pointer transition-colors hover:text-muted-foreground p-6 flex items-center gap-2">
+          <div className="flex cursor-pointer items-center gap-2 p-6 text-xs text-muted transition-colors hover:text-muted-foreground">
             <Info className="h-4 w-4" /> How are savings calculated?
           </div>
         </div>

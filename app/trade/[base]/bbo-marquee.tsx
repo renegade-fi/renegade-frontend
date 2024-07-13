@@ -14,12 +14,12 @@ const names: Record<Exchange, string> = {
 
 export function BBOMarquee({ base }: { base: string }) {
   return (
-    <div className="min-h-marquee whitespace-nowrap font-extended text-sm grid grid-cols-[auto_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center border-y border-border">
+    <div className="grid min-h-marquee grid-cols-[auto_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center whitespace-nowrap border-y border-border font-extended text-sm">
       <span className="px-4">BBO Feeds</span>
       {exchanges.map(exchange => (
         <Fragment key={exchange}>
           <span className="text-xs">•</span>
-          <div className="flex gap-4 justify-center">
+          <div className="flex justify-center gap-4">
             <span>{names[exchange]}</span>
             <AnimatedPrice exchange={exchange} base={base} />
             <span className="font-extended text-green-price">LIVE</span>

@@ -33,7 +33,7 @@ export function TaskHistorySheet({ children }: { children: React.ReactNode }) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="sm:w-[404px] sm:max-w-[404px] p-0">
+      <SheetContent className="p-0 sm:w-[404px] sm:max-w-[404px]">
         <SheetHeader>
           <VisuallyHidden>
             <SheetTitle>Task History</SheetTitle>
@@ -79,13 +79,13 @@ function TaskItem({
   status: string
 }) {
   return (
-    <div className="p-4 border border-border  rounded-md shadow-md text-sm flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 rounded-md border border-border p-4 text-sm shadow-md">
       <div className="flex w-full justify-between">
         <div className="flex flex-col gap-[2px]">
-          <div className="font-medium leading-6 text-inherit flex justify-between">
+          <div className="flex justify-between font-medium leading-6 text-inherit">
             {title}
           </div>
-          <div className="font-normal leading-5 text-inherit flex justify-between">
+          <div className="flex justify-between font-normal leading-5 text-inherit">
             {description}
           </div>
         </div>

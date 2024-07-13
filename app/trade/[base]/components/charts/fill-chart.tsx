@@ -252,7 +252,7 @@ export function FillChart({
                   hideLabel
                   formatter={(value, name, item, index, payload) => {
                     return (
-                      <div className="flex flex-1 justify-between leading-none items-center">
+                      <div className="flex flex-1 items-center justify-between leading-none">
                         <div className="grid gap-1.5">
                           <span className="text-muted-foreground">
                             {

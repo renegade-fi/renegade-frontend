@@ -20,8 +20,8 @@ const config = {
   insertPragma: false,
   jsxSingleQuote: false,
   plugins: [
-    'prettier-plugin-tailwindcss',
     '@trivago/prettier-plugin-sort-imports',
+    'prettier-plugin-tailwindcss',
   ],
   printWidth: 80,
   proseWrap: 'always',
