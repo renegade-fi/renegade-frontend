@@ -120,7 +120,7 @@ export function OrderDetailsSheet({
           </div>
           <Separator />
           {order.fills.length ? (
-            <FillChart baseMint={order.data.base_mint} fills={order.fills} />
+            <FillChart order={order} />
           ) : (
             <Skeleton className="h-[500px] w-full " />
           )}

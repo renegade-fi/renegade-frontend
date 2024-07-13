@@ -53,6 +53,7 @@ export function NewOrderPanel({
             <DenominationButton
               base={base}
               isUSDCDenominated={isUSDCDenominated}
+              onClearAmount={() => setAmount('')}
             />
           </div>
         </div>
