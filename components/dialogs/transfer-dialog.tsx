@@ -299,13 +299,13 @@ function TransferForm({
       </div>
       <div className="grid w-full items-center gap-3">
         <Label htmlFor="amount">Amount</Label>
-        <div className="relative w-full ">
+        <div className="relative w-full">
           <Input
             type="text"
             id="amount"
             placeholder="0.0"
             className={cn(
-              'rounded-none font-mono w-full pr-12',
+              'w-full rounded-none pr-12 font-mono',
               hideMaxButton ? 'pr-12' : '',
             )}
             value={amount}
@@ -316,7 +316,7 @@ function TransferForm({
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 text-muted-foreground"
+              className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
               onClick={() => {
                 onChangeAmount(balance)
               }}

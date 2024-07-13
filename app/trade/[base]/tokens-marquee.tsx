@@ -9,7 +9,7 @@ export function TokensMarquee() {
   return (
     <Marquee
       pauseOnHover
-      className="[--duration:80s] font-extended text-sm fixed bottom-20 bg-background [--gap:32px] border-y"
+      className="fixed bottom-20 border-y bg-background font-extended text-sm [--duration:80s] [--gap:32px]"
     >
       {DISPLAY_TOKENS({ hideStables: true, hideHidden: true }).map(
         (token, index) => (

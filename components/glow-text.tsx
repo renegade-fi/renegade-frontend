@@ -13,7 +13,7 @@ export function GlowText({ className, enabled = true, text }: GlowTextProps) {
     <div>
       <span
         className={cn(
-          'absolute mx-auto box-content flex w-fit select-none border  bg-clip-text font-extrabold text-transparent blur-sm',
+          'absolute mx-auto box-content flex w-fit select-none border bg-clip-text font-extrabold text-transparent blur-sm',
           className,
           enabled ? 'blur-sm' : 'blur-0',
           {
@@ -25,7 +25,7 @@ export function GlowText({ className, enabled = true, text }: GlowTextProps) {
       </span>
       <span
         className={cn(
-          'absolute mx-auto box-content flex w-fit select-none border  bg-clip-text font-extrabold text-transparent blur-md',
+          'absolute mx-auto box-content flex w-fit select-none border bg-clip-text font-extrabold text-transparent blur-md',
           className,
           enabled ? 'blur-md' : 'blur-0',
           {
@@ -40,7 +40,7 @@ export function GlowText({ className, enabled = true, text }: GlowTextProps) {
       </span> */}
       <h1
         className={cn(
-          'relative top-0 flex h-auto w-fit select-auto items-center justify-center  bg-clip-text  text-transparent',
+          'relative top-0 flex h-auto w-fit select-auto items-center justify-center bg-clip-text text-transparent',
           enabled ? className : '',
           {
             'text-inherit': !enabled,
