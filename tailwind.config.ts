@@ -115,8 +115,8 @@ const config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'price-green': 'price-green 1s ease-in-out',
-        'price-red': 'price-red 1s ease-in-out',
+        'price-green': 'price-green 0.5s ease-in-out',
+        'price-red': 'price-red 0.5s ease-in-out',
         'shimmer-button': 'shimmer-button 45s ease infinite',
         marquee: 'marquee var(--duration) linear infinite',
       },
