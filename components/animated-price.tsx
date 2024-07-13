@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 
 import { Exchange, Token } from '@renegade-fi/react'
@@ -10,7 +12,7 @@ export function AnimatedPrice({
   exchange = 'binance',
   base,
 }: {
-  exchange: Exchange
+  exchange?: Exchange
   base: string
 }) {
   const price = usePrice({
