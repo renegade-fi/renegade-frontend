@@ -54,11 +54,11 @@ const disabled_features: Partial<ChartingLibraryFeatureset>[] = [
   'show_chart_property_page',
   'header_screenshot',
   'create_volume_indicator_by_default',
+  'save_chart_properties_to_local_storage',
 ]
 
 if (process.env.NODE_ENV === 'development') {
   disabled_features.push('use_localstorage_for_settings')
-  disabled_features.push('save_chart_properties_to_local_storage')
 }
 
 const enabled_features = [
@@ -227,7 +227,7 @@ function constructConfig(
 
 export const config = constructConfig({
   autosize: true,
-  custom_css_url: '../theme.css',
+  custom_css_url: '/static/theme.css',
   debug: process.env.NODE_ENV === 'development',
   disabled_features,
   enabled_features,
