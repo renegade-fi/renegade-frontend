@@ -2,19 +2,10 @@
 
 import { OrderMetadata, Token } from '@renegade-fi/react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 import { formatNumber, formatTimestamp } from '@/lib/format'
 
@@ -86,7 +77,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             Size
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            {column.getIsSorted() === 'asc' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            )}
           </Button>
         </div>
       )
@@ -112,7 +107,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             Filled Size
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            {column.getIsSorted() === 'asc' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            )}
           </Button>
         </div>
       )
@@ -138,7 +137,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             Est. Saved
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            {column.getIsSorted() === 'asc' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            )}
           </Button>
         </div>
       )
@@ -159,7 +162,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             Created at
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            {column.getIsSorted() === 'asc' ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            )}
           </Button>
         </div>
       )
@@ -184,31 +191,31 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       return <div>{'2 min'}</div>
     },
   },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const id = row.original.id
+  // {
+  //   id: 'actions',
+  //   cell: ({ row }) => {
+  //     const id = row.original.id
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Cancel Order</DropdownMenuItem>
-            <DropdownMenuItem>Modify Order</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(id)}>
-              Copy Order ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View order details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
+  //     return (
+  //       <DropdownMenu>
+  //         <DropdownMenuTrigger asChild>
+  //           <Button variant="ghost" className="h-8 w-8 p-0">
+  //             <span className="sr-only">Open menu</span>
+  //             <MoreHorizontal className="h-4 w-4" />
+  //           </Button>
+  //         </DropdownMenuTrigger>
+  //         <DropdownMenuContent align="end">
+  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+  //           <DropdownMenuItem>Cancel Order</DropdownMenuItem>
+  //           <DropdownMenuItem>Modify Order</DropdownMenuItem>
+  //           <DropdownMenuItem onClick={() => navigator.clipboard.writeText(id)}>
+  //             Copy Order ID
+  //           </DropdownMenuItem>
+  //           <DropdownMenuSeparator />
+  //           <DropdownMenuItem>View order details</DropdownMenuItem>
+  //         </DropdownMenuContent>
+  //       </DropdownMenu>
+  //     )
+  //   },
+  // },
 ]
