@@ -106,36 +106,40 @@ export function DataTable<TData, TValue>({
   }, [mint, table])
 
   return (
-    <div>
-      <div className="flex items-center gap-2 py-4">
+    <>
+      <div className="flex items-center gap-2 pb-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <StatusSelect value={status} onChange={setStatus} />
         <SideSelect value={side} onChange={setSide} />
         <TokenSelect value={mint} onChange={setMint} />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="ml-auto">
-              <Settings2 className="h-5 w-5 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {table
-              .getAllColumns()
-              .filter(column => column.getCanHide())
-              .map(column => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={value => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {isTradePage ? null : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="ml-auto">
+                <Settings2 className="h-5 w-5 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {table
+                .getAllColumns()
+                .filter(column => column.getCanHide())
+                .map(column => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={value =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  )
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
       <div className="border">
         <Table>
@@ -222,6 +226,6 @@ export function DataTable<TData, TValue>({
           </div>
         )
       ) : null}
-    </div>
+    </>
   )
 }

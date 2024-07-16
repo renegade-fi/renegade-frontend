@@ -7,7 +7,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
@@ -49,9 +48,8 @@ export function TokenSelect({
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className="max-w-28 p-0">
         <Command>
-          <CommandInput placeholder="Search for token..." className="h-9" />
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>
             <CommandGroup>
