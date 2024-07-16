@@ -4,7 +4,6 @@ import * as React from 'react'
 
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 import { Token, useBalances } from '@renegade-fi/react'
-import { useAccount } from 'wagmi'
 
 import { ExternalTransferDirection } from '@/components/dialogs/transfer-dialog'
 import { Button } from '@/components/ui/button'
@@ -23,9 +22,10 @@ import {
 } from '@/components/ui/popover'
 
 import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
 import { DISPLAY_TOKENS } from '@/lib/token'
 import { cn } from '@/lib/utils'
+
+import { L2Balance } from '../l2-balance'
 
 const tokens = DISPLAY_TOKENS().map(token => ({
   value: token.address,
@@ -95,22 +95,6 @@ export function TokenSelect({
       </PopoverContent>
     </Popover>
   )
-}
-
-function L2Balance({ base }: { base: `0x${string}` }) {
-  const { address } = useAccount()
-  const { data: l2Balance } = useReadErc20BalanceOf({
-    address: base,
-    args: [address ?? '0x'],
-    query: {
-      enabled: !!base && !!address,
-    },
-  })
-  const formattedL2Balance = formatNumber(
-    l2Balance ?? BigInt(0),
-    Token.findByAddress(base).decimals,
-  )
-  return <>{formattedL2Balance}</>
 }
 
 function RenegadeBalance({ base }: { base: `0x${string}` }) {
