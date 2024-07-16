@@ -2,10 +2,13 @@
 
 import React from 'react'
 
+import { Token, useOrderHistory } from '@renegade-fi/react'
+
+import { columns } from '@/app/orders/columns'
+import { DataTable } from '@/app/orders/data-table'
 import { BBOMarquee } from '@/app/trade/[base]/bbo-marquee'
 import { PriceChart } from '@/app/trade/[base]/components/charts/price-chart'
 import { NewOrderPanel } from '@/app/trade/[base]/components/new-order/new-order-panel'
-import { OrderTable } from '@/app/trade/[base]/order-table'
 
 import {
   ResizableHandle,
@@ -41,6 +44,12 @@ export function PageClient({
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const isMounted = useMounted()
 
+  const { data } = useOrderHistory({
+    query: {
+      select: data => Array.from(data?.values() || []),
+    },
+  })
+
   return (
     <>
       <ResizablePanelGroup
@@ -71,7 +80,18 @@ export function PageClient({
             <div className="overflow-auto">
               <PriceChartMemo base={base} />
               <Separator />
-              <OrderTable base={base} />
+              <div className="px-4">
+                <DataTable
+                  initialMint={Token.findByTicker(base).address}
+                  data={data || []}
+                  columns={columns}
+                  initialVisibleColumns={{
+                    'time to fill': false,
+                    actions: false,
+                  }}
+                  isTradePage
+                />
+              </div>
             </div>
           </main>
         </ResizablePanel>

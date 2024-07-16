@@ -45,7 +45,7 @@ export function TokenSelect({
         >
           {value
             ? tokens.find(framework => framework.value === value)?.label
-            : 'Filter by Asset'}
+            : 'Asset'}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
