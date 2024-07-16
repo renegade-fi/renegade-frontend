@@ -96,18 +96,16 @@ export function PageClient() {
       <div className="container space-y-12">
         <div className="space-y-2">
           <h1 className="mt-6 font-serif text-3xl font-bold">Assets</h1>
-          <div className="pt-4">
-            <DataTable
-              columns={columns}
-              data={balances ?? []}
-              isLongFormat={isLongFormat}
-              setIsLongFormat={setIsLongFormat}
-              setShowZeroL2Balance={setShowZeroL2Balance}
-              setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
-              showZeroL2Balance={showZeroL2Balance}
-              showZeroRenegadeBalance={showZeroRenegadeBalance}
-            />
-          </div>
+          <DataTable
+            columns={columns}
+            data={balances ?? []}
+            isLongFormat={isLongFormat}
+            setIsLongFormat={setIsLongFormat}
+            setShowZeroL2Balance={setShowZeroL2Balance}
+            setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
+            showZeroL2Balance={showZeroL2Balance}
+            showZeroRenegadeBalance={showZeroRenegadeBalance}
+          />
         </div>
         <Separator />
         <div className="space-y-2">
