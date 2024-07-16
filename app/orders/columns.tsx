@@ -2,7 +2,7 @@
 
 import { OrderMetadata, Token } from '@renegade-fi/react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
 
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
@@ -87,11 +87,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
           >
             Size
             {column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4" />
+              <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4" />
+              <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              <ChevronsUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -102,7 +102,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       const mint = row.getValue<`0x${string}`>('asset')
       const decimals = Token.findByAddress(mint).decimals
       const formatted = formatNumber(amount, decimals)
-      return <div className="px-4 text-right">{formatted}</div>
+      return <div className="pr-4 text-right">{formatted}</div>
     },
   },
   {
@@ -128,11 +128,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
           >
             Filled Size
             {column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4" />
+              <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4" />
+              <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              <ChevronsUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -143,7 +143,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       const mint = row.getValue<`0x${string}`>('asset')
       const decimals = Token.findByAddress(mint).decimals
       const formatted = formatNumber(size, decimals)
-      return <div className="px-4 text-right">{formatted}</div>
+      return <div className="pr-4 text-right">{formatted}</div>
     },
   },
   {
@@ -169,11 +169,11 @@ export const columns: ColumnDef<OrderMetadata>[] = [
           >
             Est. Saved
             {column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4" />
+              <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4" />
+              <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              <ChevronsUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -181,7 +181,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
     },
     // TODO: Add logic to calculate saved amount
     cell: ({ row }) => {
-      return <div className="px-4 text-right">{'$10.87'}</div>
+      return <div className="pr-4 text-right">{'$10.87'}</div>
     },
   },
   {
@@ -203,13 +203,13 @@ export const columns: ColumnDef<OrderMetadata>[] = [
               }
             }}
           >
-            Created at
+            Time
             {column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4" />
+              <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4" />
+              <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
-              <ArrowUpDown className="ml-2 h-4 w-4" />
+              <ChevronsUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -219,7 +219,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       const timestamp = row.getValue<bigint>('created at')
       const formatted = formatTimestamp(Number(timestamp))
 
-      return <div className="px-4 text-right font-medium">{formatted}</div>
+      return <div className="pr-4 text-right font-medium">{formatted}</div>
     },
   },
   {
