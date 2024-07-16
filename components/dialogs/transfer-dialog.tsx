@@ -75,8 +75,11 @@ export function TransferDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent
-          hideCloseButton
           className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
+          hideCloseButton
+          onOpenAutoFocus={e => {
+            e.preventDefault()
+          }}
           onPointerDownOutside={e => {
             // Prevent closing the dialog when clicking inside toast
             if (

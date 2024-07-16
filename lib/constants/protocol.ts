@@ -5,3 +5,5 @@ export const MIN_FILL_SIZE = BigInt(1000000000000000000)
 export const RELAYER_FEE = 0.0008
 // Protocol fee
 export const PROTOCOL_FEE = 0.0002
+// Default mint
+export const DEFAULT_MINT = '0x0000000000000000000000000000000000000000'
