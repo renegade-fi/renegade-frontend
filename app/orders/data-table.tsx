@@ -29,6 +29,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -115,11 +116,17 @@ export function DataTable<TData, TValue>({
         {isTradePage ? null : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="ml-auto">
-                <Settings2 className="h-5 w-5 text-muted-foreground" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto text-muted-foreground"
+              >
+                <Settings2 className="mr-2 h-4 w-4 text-muted-foreground" />
+                View
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
               {table
                 .getAllColumns()
                 .filter(column => column.getCanHide())

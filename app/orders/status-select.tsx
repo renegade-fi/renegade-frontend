@@ -1,14 +1,14 @@
 import * as React from 'react'
 
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
+import { CheckIcon } from '@radix-ui/react-icons'
 import { OrderState } from '@renegade-fi/react'
+import { CirclePlus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
@@ -42,11 +42,12 @@ export function StatusSelect({
           role="combobox"
           aria-expanded={open}
           className={cn('justify-between', !value && 'text-muted-foreground')}
+          size="sm"
         >
+          <CirclePlus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           {value
             ? statuses.find(status => status.value === value)?.label
             : 'Status'}
-          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-28 p-0">
