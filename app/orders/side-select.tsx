@@ -20,12 +20,12 @@ import {
 
 import { cn } from '@/lib/utils'
 
-const statuses = Object.values(OrderState).map(status => ({
-  value: status,
-  label: status,
-}))
+const sides = [
+  { value: 'buy', label: 'Buy' },
+  { value: 'sell', label: 'Sell' },
+]
 
-export function StatusSelect({
+export function SideSelect({
   value,
   onChange,
 }: {
@@ -43,9 +43,7 @@ export function StatusSelect({
           aria-expanded={open}
           className={cn('justify-between', !value && 'text-muted-foreground')}
         >
-          {value
-            ? statuses.find(status => status.value === value)?.label
-            : 'Status'}
+          {value ? sides.find(side => side.value === value)?.label : 'Side'}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -54,7 +52,7 @@ export function StatusSelect({
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>
             <CommandGroup>
-              {statuses.map(s => (
+              {sides.map(s => (
                 <CommandItem
                   key={s.value}
                   value={s.value}
