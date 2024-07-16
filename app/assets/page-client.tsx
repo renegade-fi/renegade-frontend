@@ -2,13 +2,18 @@
 
 import React from 'react'
 
-import { Token, useWallet } from '@renegade-fi/react'
+import {
+  TaskType,
+  Token,
+  UpdateType,
+  useTaskHistory,
+  useWallet,
+} from '@renegade-fi/react'
 import { useAccount, useBlockNumber } from 'wagmi'
 
-import { DataTable } from '@/app/assets/assets-table/data-table'
-import { TransferHistoryTable } from '@/app/assets/transfer-history-table'
+import { DataTable as AssetTable } from '@/app/assets/assets-table/data-table'
+import { DataTable as TransferHistoryTable } from '@/app/assets/history-table/data-table'
 
-import { Separator } from '@/components/ui/separator'
 import { config } from '@/components/wagmi-provider/config'
 
 import { DEFAULT_MINT } from '@/lib/constants/protocol'
@@ -16,12 +21,21 @@ import { formatNumber } from '@/lib/format'
 import { readErc20BalanceOf } from '@/lib/generated'
 import { DISPLAY_TOKENS } from '@/lib/token'
 
-import { columns } from './assets-table/columns'
+import { columns as assetColumns } from './assets-table/columns'
+import { columns as historyColumns } from './history-table/columns'
 
 export type BalanceData = {
   mint: `0x${string}`
   renegadeBalance: string
   l2Balance: string
+}
+
+export type HistoryData = {
+  status: string
+  mint: `0x${string}`
+  amount: string
+  timestamp: number
+  isWithdrawal: boolean
 }
 
 export function PageClient() {
@@ -45,6 +59,7 @@ export function PageClient() {
   >(new Map())
   const { address } = useAccount()
   const { data: blockNumber } = useBlockNumber({ watch: true })
+  // TODO: Integrate QueryClient
   React.useEffect(() => {
     const fetchBalances = async () => {
       if (!address) {
@@ -91,14 +106,48 @@ export function PageClient() {
       !showZeroRenegadeBalance ? balance.renegadeBalance !== '0' : true,
     )
 
+  // Transfer History Table Data
+  const { data: transferHistory } = useTaskHistory({
+    query: {
+      select: data => Array.from(data.values()),
+    },
+  })
+
+  const [historyIsLongFormat, setHistoryIsLongFormat] = React.useState(false)
+  const historyData = (transferHistory ?? []).reduce<HistoryData[]>(
+    (acc, task) => {
+      if (
+        task.task_info.task_type === TaskType.UpdateWallet &&
+        (task.task_info.update_type === UpdateType.Deposit ||
+          task.task_info.update_type === UpdateType.Withdraw)
+      ) {
+        const token = Token.findByAddress(task.task_info.mint)
+        const formattedAmount = formatNumber(
+          task.task_info.amount,
+          token.decimals,
+          historyIsLongFormat,
+        )
+        acc.push({
+          status: task.state,
+          mint: task.task_info.mint,
+          amount: formattedAmount,
+          timestamp: Number(task.created_at),
+          isWithdrawal: task.task_info.update_type === UpdateType.Withdraw,
+        })
+      }
+      return acc
+    },
+    [],
+  )
+
   return (
     <main>
       <div className="container space-y-12">
-        <div className="space-y-2">
+        <div className="space-y-4">
           <h1 className="mt-6 font-serif text-3xl font-bold">Assets</h1>
-          <DataTable
-            columns={columns}
-            data={balances ?? []}
+          <AssetTable
+            columns={assetColumns}
+            data={balances}
             isLongFormat={isLongFormat}
             setIsLongFormat={setIsLongFormat}
             setShowZeroL2Balance={setShowZeroL2Balance}
@@ -107,12 +156,16 @@ export function PageClient() {
             showZeroRenegadeBalance={showZeroRenegadeBalance}
           />
         </div>
-        <Separator />
-        <div className="space-y-2">
+        <div className="space-y-4">
           <h1 className="mt-6 font-serif text-3xl font-bold">
             Transfer History
           </h1>
-          <TransferHistoryTable />
+          <TransferHistoryTable
+            columns={historyColumns}
+            data={historyData}
+            isLongFormat={historyIsLongFormat}
+            setIsLongFormat={setHistoryIsLongFormat}
+          />
         </div>
       </div>
     </main>
