@@ -2,6 +2,7 @@ import * as React from 'react'
 
 import Link from 'next/link'
 
+import { RenegadeBalance } from '@/components/renegade-balance'
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
 import {
@@ -86,7 +87,9 @@ function TokenList({ className }: React.ComponentProps<'form'>) {
               <p className="text-md font-medium">{token.name}</p>
               <p className="text-xs text-muted-foreground">{token.ticker}</p>
             </div>
-            <div className="justify-self-end font-mono">17123.56</div>
+            <div className="justify-self-end font-mono">
+              <RenegadeBalance base={token.address} />
+            </div>
           </div>
         </Link>
       ))}

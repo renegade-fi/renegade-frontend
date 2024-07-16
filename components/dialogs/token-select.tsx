@@ -3,10 +3,11 @@
 import * as React from 'react'
 
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
-import { Token, useBalances } from '@renegade-fi/react'
+import { Token } from '@renegade-fi/react'
 import { useAccount } from 'wagmi'
 
 import { ExternalTransferDirection } from '@/components/dialogs/transfer-dialog'
+import { RenegadeBalance } from '@/components/renegade-balance'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -111,13 +112,4 @@ function L2Balance({ base }: { base: `0x${string}` }) {
     Token.findByAddress(base).decimals,
   )
   return <>{formattedL2Balance}</>
-}
-
-function RenegadeBalance({ base }: { base: `0x${string}` }) {
-  const balances = useBalances()
-  const formattedRenegadeBalance = formatNumber(
-    balances.get(base)?.amount ?? BigInt(0),
-    Token.findByAddress(base).decimals,
-  )
-  return <>{formattedRenegadeBalance}</>
 }
