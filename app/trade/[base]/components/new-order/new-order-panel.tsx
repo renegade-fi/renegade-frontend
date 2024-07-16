@@ -117,7 +117,9 @@ export function NewOrderPanel({
         {}
       </div>
       <Separator />
-      <AssetsSection base={base} />
+      <div className="p-6">
+        <AssetsSection base={base} />
+      </div>
       <Separator />
     </aside>
   )

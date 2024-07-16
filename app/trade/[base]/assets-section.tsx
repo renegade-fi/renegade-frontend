@@ -1,6 +1,8 @@
 import { Token, useBalances } from '@renegade-fi/react'
 
+import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { TokenIcon } from '@/components/token-icon'
+import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
@@ -21,30 +23,28 @@ export function AssetsSection({
   const balances = useBalances()
 
   const baseToken = Token.findByTicker(base)
-  const baseBalance = balances.get(baseToken.address)?.amount
-  const formattedBaseBalance = formatNumber(
-    baseBalance ?? BigInt(0),
-    baseToken.decimals,
-  )
+  const baseBalance = balances.get(baseToken.address)?.amount || BigInt(0)
+  const formattedBaseBalance = formatNumber(baseBalance, baseToken.decimals)
   const baseUsdPrice = useUSDPrice(baseToken, baseBalance)
 
   const quoteToken = Token.findByTicker(quote)
-  const quoteBalance = balances.get(quoteToken.address)?.amount
-  const formattedQuoteBalance = formatNumber(
-    quoteBalance ?? BigInt(0),
-    quoteToken.decimals,
-  )
+  const quoteBalance = balances.get(quoteToken.address)?.amount || BigInt(0)
+  const formattedQuoteBalance = formatNumber(quoteBalance, quoteToken.decimals)
   const quoteUsdPrice = useUSDPrice(quoteToken, quoteBalance)
 
   return (
     <TooltipProvider>
-      <div className="p-6">
+      <>
         <h2 className="mb-4">Your Assets</h2>
         <div className="space-y-2">
           <div className="flex justify-between">
             <div className="flex items-center space-x-2">
               <TokenIcon ticker={base} size={20} />
-              <span>{base}</span>
+              <TransferDialog base={baseToken.address}>
+                <Button variant="link" className="text-md p-0">
+                  {base}
+                </Button>
+              </TransferDialog>
             </div>
             <Tooltip>
               <TooltipTrigger>
@@ -58,7 +58,11 @@ export function AssetsSection({
           <div className="flex justify-between">
             <div className="flex items-center space-x-2">
               <TokenIcon ticker={quote} size={20} />
-              <span>{quote}</span>
+              <TransferDialog base={quoteToken.address}>
+                <Button variant="link" className="text-md p-0">
+                  {quote}
+                </Button>
+              </TransferDialog>
             </div>
             <Tooltip>
               <TooltipTrigger>
@@ -70,7 +74,7 @@ export function AssetsSection({
             </Tooltip>
           </div>
         </div>
-      </div>
+      </>
     </TooltipProvider>
   )
 }
