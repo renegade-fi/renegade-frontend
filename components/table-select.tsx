@@ -19,17 +19,16 @@ import {
 
 import { cn } from '@/lib/utils'
 
-const sides = [
-  { value: 'buy', label: 'Buy' },
-  { value: 'sell', label: 'Sell' },
-]
-
-export function SideSelect({
+export function TableSelect({
   value,
+  values,
   onChange,
+  placeholder,
 }: {
   value: string
   onChange: (value: string) => void
+  values: { value: string; label: string }[]
+  placeholder: string
 }) {
   const [open, setOpen] = React.useState(false)
 
@@ -44,7 +43,7 @@ export function SideSelect({
           size="sm"
         >
           <CirclePlus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-          {value ? sides.find(side => side.value === value)?.label : 'Side'}
+          {value ? values.find(v => v.value === value)?.label : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-28 p-0">
@@ -52,20 +51,20 @@ export function SideSelect({
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>
             <CommandGroup>
-              {sides.map(s => (
+              {values.map(v => (
                 <CommandItem
-                  key={s.value}
-                  value={s.value}
+                  key={v.value}
+                  value={v.value}
                   onSelect={currentValue => {
                     onChange(currentValue === value ? '' : currentValue)
                     setOpen(false)
                   }}
                 >
-                  <span className="flex-1">{s.label}</span>
+                  <span className="flex-1">{v.label}</span>
                   <CheckIcon
                     className={cn(
                       'ml-auto h-4 w-4',
-                      value === s.value ? 'opacity-100' : 'opacity-0',
+                      value === v.value ? 'opacity-100' : 'opacity-0',
                     )}
                   />
                 </CommandItem>

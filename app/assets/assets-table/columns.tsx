@@ -2,7 +2,7 @@
 
 import { Token } from '@renegade-fi/react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
 
 import { BalanceData } from '@/app/assets/page-client'
 
@@ -43,11 +43,11 @@ export const columns: ColumnDef<BalanceData>[] = [
         >
           Arbitrum Balance
           {column.getIsSorted() === 'asc' ? (
-            <ArrowUp className="ml-2 h-4 w-4" />
+            <ChevronUp className="ml-2 h-4 w-4" />
           ) : column.getIsSorted() === 'desc' ? (
-            <ArrowDown className="ml-2 h-4 w-4" />
+            <ChevronDown className="ml-2 h-4 w-4" />
           ) : (
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            <ChevronsUpDown className="ml-2 h-4 w-4" />
           )}
         </Button>
       </div>
@@ -76,11 +76,11 @@ export const columns: ColumnDef<BalanceData>[] = [
         >
           Renegade Balance
           {column.getIsSorted() === 'asc' ? (
-            <ArrowUp className="ml-2 h-4 w-4" />
+            <ChevronUp className="ml-2 h-4 w-4" />
           ) : column.getIsSorted() === 'desc' ? (
-            <ArrowDown className="ml-2 h-4 w-4" />
+            <ChevronDown className="ml-2 h-4 w-4" />
           ) : (
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            <ChevronsUpDown className="ml-2 h-4 w-4" />
           )}
         </Button>
       </div>

@@ -4,7 +4,7 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { OrderMetadata } from '@renegade-fi/react'
+import { OrderMetadata, OrderState } from '@renegade-fi/react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,11 +19,9 @@ import {
 } from '@tanstack/react-table'
 import { Settings2 } from 'lucide-react'
 
-import { SideSelect } from '@/app/orders/side-select'
-import { StatusSelect } from '@/app/orders/status-select'
-import { TokenSelect } from '@/app/orders/token-select'
 import { OrderDetailsSheet } from '@/app/trade/[base]/order-details-sheet'
 
+import { TableSelect } from '@/components/table-select'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -41,9 +39,31 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { DISPLAY_TOKENS } from '@/lib/token'
+
+const statuses = Object.values(OrderState).map(status => ({
+  value: status,
+  label: status,
+}))
+
+const sides = [
+  { value: 'buy', label: 'Buy' },
+  { value: 'sell', label: 'Sell' },
+]
+
+const tokens = DISPLAY_TOKENS().map(token => ({
+  value: token.address,
+  label: token.ticker,
+}))
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  initialStatus?: string
+  initialSide?: string
+  initialMint?: string
+  initialVisibleColumns?: VisibilityState
+  isTradePage?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -54,13 +74,7 @@ export function DataTable<TData, TValue>({
   initialMint,
   initialVisibleColumns,
   isTradePage = false,
-}: DataTableProps<TData, TValue> & {
-  initialStatus?: string
-  initialSide?: string
-  initialMint?: string
-  initialVisibleColumns?: VisibilityState
-  isTradePage?: boolean
-}) {
+}: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   )
@@ -110,9 +124,38 @@ export function DataTable<TData, TValue>({
     <>
       <div className="flex items-center gap-2 pb-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
-        <StatusSelect value={status} onChange={setStatus} />
-        <SideSelect value={side} onChange={setSide} />
-        <TokenSelect value={mint} onChange={setMint} />
+        <TableSelect
+          values={statuses}
+          placeholder="Status"
+          value={status}
+          onChange={setStatus}
+        />
+        <TableSelect
+          values={sides}
+          placeholder="Side"
+          value={side}
+          onChange={setSide}
+        />
+        <TableSelect
+          values={tokens}
+          placeholder="Token"
+          value={mint}
+          onChange={setMint}
+        />
+        {status || side || mint ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-muted-foreground"
+            onClick={() => {
+              setStatus('')
+              setSide('')
+              setMint('')
+            }}
+          >
+            Clear
+          </Button>
+        ) : null}
         {isTradePage ? null : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
