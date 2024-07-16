@@ -16,7 +16,9 @@ export function PageClient() {
     <main>
       <div className="container space-y-2">
         <h1 className="mt-6 font-serif text-3xl font-bold">Orders</h1>
-        <DataTable columns={columns} data={data || []} />
+        <div className="pt-4">
+          <DataTable columns={columns} data={data || []} />
+        </div>
       </div>
     </main>
   )

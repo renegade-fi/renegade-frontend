@@ -80,7 +80,7 @@ export function PageClient({
             <div className="overflow-auto">
               <PriceChartMemo base={base} />
               <Separator />
-              <div className="px-4">
+              <div className="p-4">
                 <DataTable
                   initialMint={Token.findByTicker(base).address}
                   data={data || []}

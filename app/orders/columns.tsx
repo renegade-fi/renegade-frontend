@@ -2,7 +2,7 @@
 
 import { OrderMetadata, Token } from '@renegade-fi/react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
@@ -74,13 +74,24 @@ export const columns: ColumnDef<OrderMetadata>[] = [
         <div className="flex flex-row-reverse">
           <Button
             variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            onClick={() => {
+              const isSorted = column.getIsSorted()
+              if (isSorted === 'desc') {
+                column.toggleSorting(false)
+              } else if (isSorted === 'asc') {
+                column.clearSorting()
+              } else {
+                column.toggleSorting(true)
+              }
+            }}
           >
             Size
             {column.getIsSorted() === 'asc' ? (
               <ArrowUp className="ml-2 h-4 w-4" />
-            ) : (
+            ) : column.getIsSorted() === 'desc' ? (
               <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -104,13 +115,24 @@ export const columns: ColumnDef<OrderMetadata>[] = [
         <div className="flex flex-row-reverse">
           <Button
             variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            onClick={() => {
+              const isSorted = column.getIsSorted()
+              if (isSorted === 'desc') {
+                column.toggleSorting(false)
+              } else if (isSorted === 'asc') {
+                column.clearSorting()
+              } else {
+                column.toggleSorting(true)
+              }
+            }}
           >
             Filled Size
             {column.getIsSorted() === 'asc' ? (
               <ArrowUp className="ml-2 h-4 w-4" />
-            ) : (
+            ) : column.getIsSorted() === 'desc' ? (
               <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -134,13 +156,24 @@ export const columns: ColumnDef<OrderMetadata>[] = [
         <div className="flex flex-row-reverse">
           <Button
             variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            onClick={() => {
+              const isSorted = column.getIsSorted()
+              if (isSorted === 'desc') {
+                column.toggleSorting(false)
+              } else if (isSorted === 'asc') {
+                column.clearSorting()
+              } else {
+                column.toggleSorting(true)
+              }
+            }}
           >
             Est. Saved
             {column.getIsSorted() === 'asc' ? (
               <ArrowUp className="ml-2 h-4 w-4" />
-            ) : (
+            ) : column.getIsSorted() === 'desc' ? (
               <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
@@ -159,13 +192,24 @@ export const columns: ColumnDef<OrderMetadata>[] = [
         <div className="flex flex-row-reverse">
           <Button
             variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            onClick={() => {
+              const isSorted = column.getIsSorted()
+              if (isSorted === 'desc') {
+                column.toggleSorting(false)
+              } else if (isSorted === 'asc') {
+                column.clearSorting()
+              } else {
+                column.toggleSorting(true)
+              }
+            }}
           >
             Created at
             {column.getIsSorted() === 'asc' ? (
               <ArrowUp className="ml-2 h-4 w-4" />
-            ) : (
+            ) : column.getIsSorted() === 'desc' ? (
               <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
