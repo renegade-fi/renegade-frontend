@@ -1,25 +1,13 @@
 'use client'
 
-import React from 'react'
-
 import { Token } from '@renegade-fi/react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 
 import { BalanceData } from '@/app/assets/page-client'
 
-import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { TokenIcon } from '@/components/token-icon'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-
-import { formatNumber } from '@/lib/format'
 
 export const columns: ColumnDef<BalanceData>[] = [
   {

@@ -5,7 +5,7 @@ import React from 'react'
 import { Token, useWallet } from '@renegade-fi/react'
 import { useAccount, useBlockNumber } from 'wagmi'
 
-import { DataTable } from '@/app/assets/data-table'
+import { DataTable } from '@/app/assets/assets-table/data-table'
 import { TransferHistoryTable } from '@/app/assets/transfer-history-table'
 
 import { Separator } from '@/components/ui/separator'
@@ -16,7 +16,7 @@ import { formatNumber } from '@/lib/format'
 import { readErc20BalanceOf } from '@/lib/generated'
 import { DISPLAY_TOKENS } from '@/lib/token'
 
-import { columns } from './columns'
+import { columns } from './assets-table/columns'
 
 export type BalanceData = {
   mint: `0x${string}`
