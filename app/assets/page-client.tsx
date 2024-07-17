@@ -142,7 +142,7 @@ export function PageClient() {
 
   return (
     <main>
-      <div className="container space-y-12">
+      <div className="container mx-auto space-y-12 sm:max-w-screen-md">
         <div className="space-y-4">
           <h1 className="mt-6 font-serif text-3xl font-bold">Assets</h1>
           <AssetTable
