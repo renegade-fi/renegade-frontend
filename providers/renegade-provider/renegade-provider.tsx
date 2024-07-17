@@ -2,7 +2,7 @@
 
 import { RenegadeProvider as Provider } from '@renegade-fi/react'
 
-import { config } from '@/components/renegade-provider/config'
+import { config } from '@/providers/renegade-provider/config'
 
 export function RenegadeProvider({
   children,

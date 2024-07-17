@@ -2,11 +2,11 @@ import { cookies } from 'next/headers'
 
 import { Ellipsis, Settings, Settings2 } from 'lucide-react'
 
-import { Footer } from '@/app/footer'
-import { Header } from '@/app/header'
+import { Footer } from '@/app/components/footer'
+import { Header } from '@/app/components/header'
+import { SettingsPopover } from '@/app/trade/[base]/components/settings-popover'
+import { TokensMarquee } from '@/app/trade/[base]/components/tokens-marquee'
 import { PageClient } from '@/app/trade/[base]/page-client'
-import { SettingsPopover } from '@/app/trade/[base]/settings-popover'
-import { TokensMarquee } from '@/app/trade/[base]/tokens-marquee'
 
 import { Button } from '@/components/ui/button'
 

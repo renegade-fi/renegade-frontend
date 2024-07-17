@@ -2,8 +2,8 @@ import * as React from 'react'
 
 import { ChevronDown, Lock } from 'lucide-react'
 
-import { AssetsSection } from '@/app/trade/[base]/assets-section'
 import { AmountShortcutButton } from '@/app/trade/[base]/components/new-order/amount-shortcut-button'
+import { AssetsSection } from '@/app/trade/[base]/components/new-order/assets-section'
 import { DenominationButton } from '@/app/trade/[base]/components/new-order/denomination-button'
 import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
 import { SideButton } from '@/app/trade/[base]/components/new-order/side-button'
