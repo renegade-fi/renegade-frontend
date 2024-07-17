@@ -4,7 +4,7 @@ import { AlertTriangle, Info } from 'lucide-react'
 import invariant from 'tiny-invariant'
 
 import { FillChart } from '@/app/trade/[base]/components/charts/fill-chart'
-import { FillTable } from '@/app/trade/[base]/fill-table'
+import { FillTable } from '@/app/trade/[base]/components/fill-table'
 
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'

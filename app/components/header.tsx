@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation'
 
 import { Bell } from 'lucide-react'
 
+import { ConnectWalletButton } from '@/app/components/connect-wallet-button'
 import { TaskHistorySheet } from '@/app/components/task-history-sheet'
 
-import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { TransferDialog } from '@/components/dialogs/transfer-dialog'
 import { Button } from '@/components/ui/button'
 

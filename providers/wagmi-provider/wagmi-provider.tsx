@@ -13,7 +13,8 @@ import {
 } from 'wagmi'
 
 import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
-import { QueryProvider } from '@/components/query-provider'
+
+import { QueryProvider } from '@/providers/query-provider'
 
 import { config } from './config'
 

@@ -14,12 +14,11 @@ import { useAccount, useBlockNumber } from 'wagmi'
 import { DataTable as AssetTable } from '@/app/assets/assets-table/data-table'
 import { DataTable as TransferHistoryTable } from '@/app/assets/history-table/data-table'
 
-import { config } from '@/components/wagmi-provider/config'
-
 import { DEFAULT_MINT } from '@/lib/constants/protocol'
 import { formatNumber } from '@/lib/format'
 import { readErc20BalanceOf } from '@/lib/generated'
 import { DISPLAY_TOKENS } from '@/lib/token'
+import { config } from '@/providers/wagmi-provider/config'
 
 import { columns as assetColumns } from './assets-table/columns'
 import { columns as historyColumns } from './history-table/columns'

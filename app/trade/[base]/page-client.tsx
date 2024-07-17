@@ -6,7 +6,7 @@ import { Token, useOrderHistory } from '@renegade-fi/react'
 
 import { columns } from '@/app/orders/columns'
 import { DataTable } from '@/app/orders/data-table'
-import { BBOMarquee } from '@/app/trade/[base]/bbo-marquee'
+import { BBOMarquee } from '@/app/trade/[base]/components/bbo-marquee'
 import { PriceChart } from '@/app/trade/[base]/components/charts/price-chart'
 import { NewOrderPanel } from '@/app/trade/[base]/components/new-order/new-order-panel'
 
