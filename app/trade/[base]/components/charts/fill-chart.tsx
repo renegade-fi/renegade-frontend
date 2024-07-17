@@ -80,9 +80,9 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
   const formattedFills = order.fills
     .map(fill => ({
-      timestamp: Number(fill.timestamp),
+      timestamp: Number(fill.price.timestamp),
       amount: Number(formatNumber(fill.amount, token.decimals)),
-      price: Number(fill.price),
+      price: Number(fill.price.price),
     }))
     .sort((a, b) => a.timestamp - b.timestamp)
 

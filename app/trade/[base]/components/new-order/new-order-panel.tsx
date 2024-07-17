@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { ChevronDown, Lock } from "lucide-react"
+import { useDebounceValue } from "usehooks-ts"
 
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { AssetsSection } from "@/app/trade/[base]/components/new-order/assets-section"
@@ -25,6 +26,7 @@ export function NewOrderPanel({
   isUSDCDenominated?: boolean
 }) {
   const [amount, setAmount] = React.useState("")
+  const [debouncedValue] = useDebounceValue(amount, 500)
   return (
     <aside>
       <div className="flex flex-col">
@@ -84,9 +86,10 @@ export function NewOrderPanel({
         <Separator />
         <div className="space-y-3 whitespace-nowrap p-6 text-sm text-muted-foreground">
           <FeesSection
-            amount={amount}
+            amount={debouncedValue}
             base={base}
             isUSDCDenominated={isUSDCDenominated}
+            side={side}
           />
         </div>
         <NewOrderStepper

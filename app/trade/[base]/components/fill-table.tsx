@@ -30,7 +30,7 @@ export function FillTable({ orderId }: { orderId: string }) {
   const formattedFills = order.fills.map(fill => ({
     amount: formatNumber(fill.amount, token.decimals),
     price: Number(fill.price),
-    timestamp: formatTimestamp(Number(fill.timestamp)),
+    timestamp: formatTimestamp(Number(fill.price.timestamp)),
   }))
 
   return (

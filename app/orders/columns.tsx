@@ -7,6 +7,11 @@ import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 
+import { useSavingsPerFill } from "@/hooks/use-predicted-savings"
+import {
+  RENEGADE_PROTOCOL_FEE_RATE,
+  RENEGADE_RELAYER_FEE_RATE,
+} from "@/lib/constants/protocol"
 import { formatNumber, formatTimestamp } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
@@ -184,7 +189,13 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       )
     },
     // TODO: Add logic to calculate saved amount
-    cell: ({ row }) => {
+    cell: function Cell({ row }) {
+      // const totalSavings = useSavingsPerFill(
+      //   row.original,
+      //   RENEGADE_PROTOCOL_FEE_RATE + RENEGADE_RELAYER_FEE_RATE,
+      // ).reduce((acc, curr) => acc + curr, 0)
+      // console.log('🚀 ~ Cell ~ totalSavings:', totalSavings)
+      // return <div className="pr-4 text-right">{totalSavings}</div>
       return <div className="pr-4 text-right">{"$10.87"}</div>
     },
   },

@@ -147,7 +147,7 @@ function NewOrderForm({
       </div>
       <Separator />
       <div className="space-y-3">
-        <FeesSection amount={amount} base={base} />
+        <FeesSection amount={amount} base={base} side={side} />
       </div>
     </>
   )
