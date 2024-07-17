@@ -113,7 +113,7 @@ function NewOrderForm({
         <div>when your order fills at the realtime Binance midpoint price.</div>
       </div>
       <Separator />
-      <div className="text-muted-foreground">
+      <div className="text-sm text-muted-foreground">
         <div className="flex items-center justify-between">
           Did you know?
           <Button size="icon" variant="ghost">
