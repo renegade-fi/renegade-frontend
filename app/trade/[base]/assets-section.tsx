@@ -34,47 +34,45 @@ export function AssetsSection({
 
   return (
     <TooltipProvider>
-      <>
-        <h2 className="mb-4">Your Assets</h2>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <div className="flex items-center space-x-2">
-              <TokenIcon ticker={base} size={20} />
-              <TransferDialog base={baseToken.address}>
-                <Button variant="link" className="text-md p-0">
-                  {base}
-                </Button>
-              </TransferDialog>
-            </div>
-            <Tooltip>
-              <TooltipTrigger>
-                <span>{formatCurrency(baseUsdPrice)}</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{`${formattedBaseBalance} ${base}`}</p>
-              </TooltipContent>
-            </Tooltip>
+      <h2 className="mb-4">Your Assets</h2>
+      <div className="">
+        <div className="flex justify-between">
+          <div className="flex items-center space-x-2">
+            <TokenIcon ticker={base} size={20} />
+            <TransferDialog base={baseToken.address}>
+              <Button variant="link" className="text-md p-0">
+                {base}
+              </Button>
+            </TransferDialog>
           </div>
-          <div className="flex justify-between">
-            <div className="flex items-center space-x-2">
-              <TokenIcon ticker={quote} size={20} />
-              <TransferDialog base={quoteToken.address}>
-                <Button variant="link" className="text-md p-0">
-                  {quote}
-                </Button>
-              </TransferDialog>
-            </div>
-            <Tooltip>
-              <TooltipTrigger>
-                <span>{formatCurrency(quoteUsdPrice)}</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{`${formattedQuoteBalance} ${quote}`}</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <span>{formatCurrency(baseUsdPrice)}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{`${formattedBaseBalance} ${base}`}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
-      </>
+        <div className="flex justify-between">
+          <div className="flex items-center space-x-2">
+            <TokenIcon ticker={quote} size={20} />
+            <TransferDialog base={quoteToken.address}>
+              <Button variant="link" className="text-md p-0">
+                {quote}
+              </Button>
+            </TransferDialog>
+          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <span>{formatCurrency(quoteUsdPrice)}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{`${formattedQuoteBalance} ${quote}`}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
     </TooltipProvider>
   )
 }
