@@ -88,6 +88,7 @@ export function PageClient({
                   initialVisibleColumns={{
                     "time to fill": false,
                     actions: false,
+                    saved: false,
                   }}
                   isTradePage
                 />

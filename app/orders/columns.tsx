@@ -8,6 +8,7 @@ import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 
 import { formatNumber, formatTimestamp } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
 export const columns: ColumnDef<OrderMetadata>[] = [
   // {
@@ -36,6 +37,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
     id: "status",
     accessorKey: "state",
     header: () => <div>Status</div>,
+    cell: ({ row }) => {
+      return <div>{row.getValue("status")}</div>
+    },
   },
   {
     id: "side",
