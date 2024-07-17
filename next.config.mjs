@@ -47,6 +47,16 @@ const nextConfig = {
       },
     ],
   },
+  rewrites: async () => [
+    {
+      source: "/",
+      destination: "/trade/WETH",
+    },
+    {
+      source: "/trade",
+      destination: "/trade/WETH",
+    },
+  ],
 }
 
 export default nextConfig
