@@ -1,18 +1,18 @@
-'use client'
+"use client"
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
-import { Bell } from 'lucide-react'
+import { Bell } from "lucide-react"
 
-import { ConnectWalletButton } from '@/app/components/connect-wallet-button'
-import { TaskHistorySheet } from '@/app/components/task-history-sheet'
+import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
+import { TaskHistorySheet } from "@/app/components/task-history-sheet"
 
-import { TransferDialog } from '@/components/dialogs/transfer-dialog'
-import { Button } from '@/components/ui/button'
+import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { Button } from "@/components/ui/button"
 
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
 export function Header() {
   const pathname = usePathname()
@@ -32,8 +32,8 @@ export function Header() {
           <Link
             href="/trade/WETH"
             className={cn(
-              'hover:underline',
-              pathname.includes('/trade') ? 'text-primary' : '',
+              "hover:underline",
+              pathname.includes("/trade") ? "text-primary" : "",
             )}
           >
             Trade
@@ -41,8 +41,8 @@ export function Header() {
           <Link
             href="/assets"
             className={cn(
-              'hover:underline',
-              pathname.includes('/assets') ? 'text-primary' : '',
+              "hover:underline",
+              pathname.includes("/assets") ? "text-primary" : "",
             )}
           >
             Assets
@@ -50,8 +50,8 @@ export function Header() {
           <Link
             href="/orders"
             className={cn(
-              'text-muted-foreground hover:underline',
-              pathname.includes('/orders') ? 'text-primary' : '',
+              "text-muted-foreground hover:underline",
+              pathname.includes("/orders") ? "text-primary" : "",
             )}
           >
             Orders
@@ -59,8 +59,8 @@ export function Header() {
           <Link
             href="#"
             className={cn(
-              'hover:underline',
-              pathname === '/stats' ? 'text-primary' : '',
+              "hover:underline",
+              pathname === "/stats" ? "text-primary" : "",
             )}
           >
             Stats

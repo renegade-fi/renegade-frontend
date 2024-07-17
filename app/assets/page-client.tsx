@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import React from 'react'
+import React from "react"
 
 import {
   TaskType,
@@ -8,20 +8,20 @@ import {
   UpdateType,
   useTaskHistory,
   useWallet,
-} from '@renegade-fi/react'
-import { useAccount, useBlockNumber } from 'wagmi'
+} from "@renegade-fi/react"
+import { useAccount, useBlockNumber } from "wagmi"
 
-import { DataTable as AssetTable } from '@/app/assets/assets-table/data-table'
-import { DataTable as TransferHistoryTable } from '@/app/assets/history-table/data-table'
+import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
+import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
-import { DEFAULT_MINT } from '@/lib/constants/protocol'
-import { formatNumber } from '@/lib/format'
-import { readErc20BalanceOf } from '@/lib/generated'
-import { DISPLAY_TOKENS } from '@/lib/token'
-import { config } from '@/providers/wagmi-provider/config'
+import { DEFAULT_MINT } from "@/lib/constants/protocol"
+import { formatNumber } from "@/lib/format"
+import { readErc20BalanceOf } from "@/lib/generated"
+import { DISPLAY_TOKENS } from "@/lib/token"
+import { config } from "@/providers/wagmi-provider/config"
 
-import { columns as assetColumns } from './assets-table/columns'
-import { columns as historyColumns } from './history-table/columns'
+import { columns as assetColumns } from "./assets-table/columns"
+import { columns as historyColumns } from "./history-table/columns"
 
 export type BalanceData = {
   mint: `0x${string}`
@@ -67,7 +67,7 @@ export function PageClient() {
       const balancePromises = DISPLAY_TOKENS().map(async token => {
         const balance = await readErc20BalanceOf(config, {
           address: token.address as `0x${string}`,
-          args: [address ?? '0x'],
+          args: [address ?? "0x"],
         })
         return { address: token.address as `0x${string}`, balance }
       })
@@ -100,9 +100,9 @@ export function PageClient() {
         ),
       }
     })
-    .filter(balance => (!showZeroL2Balance ? balance.l2Balance !== '0' : true))
+    .filter(balance => (!showZeroL2Balance ? balance.l2Balance !== "0" : true))
     .filter(balance =>
-      !showZeroRenegadeBalance ? balance.renegadeBalance !== '0' : true,
+      !showZeroRenegadeBalance ? balance.renegadeBalance !== "0" : true,
     )
 
   // Transfer History Table Data

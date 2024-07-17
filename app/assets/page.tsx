@@ -1,6 +1,6 @@
-import { PageClient } from '@/app/assets/page-client'
-import { Footer } from '@/app/components/footer'
-import { Header } from '@/app/components/header'
+import { PageClient } from "@/app/assets/page-client"
+import { Footer } from "@/app/components/footer"
+import { Header } from "@/app/components/header"
 
 export default function Page() {
   return (

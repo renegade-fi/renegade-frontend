@@ -1,32 +1,32 @@
-import * as React from 'react'
+import * as React from "react"
 
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { Repeat } from 'lucide-react'
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Repeat } from "lucide-react"
 
-import { NewOrderProps } from '@/components/dialogs/new-order-stepper/new-order-stepper'
-import { GlowText } from '@/components/glow-text'
-import { Button } from '@/components/ui/button'
+import { NewOrderProps } from "@/components/dialogs/new-order-stepper/new-order-stepper"
+import { GlowText } from "@/components/glow-text"
+import { Button } from "@/components/ui/button"
 import {
   DialogClose,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 import {
   DrawerClose,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from '@/components/ui/drawer'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/drawer"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
-import { useCreateOrder } from '@/hooks/use-create-order'
-import { useMediaQuery } from '@/hooks/use-media-query'
+import { useCreateOrder } from "@/hooks/use-create-order"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 export function SuccessStep({ base, side, amount, onSuccess }: NewOrderProps) {
-  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const handleCreateOrer = useCreateOrder({
     base,
@@ -97,7 +97,7 @@ function NewOrderForm({
   base,
   side,
   amount,
-}: React.ComponentProps<'form'> & {
+}: React.ComponentProps<"form"> & {
   base: string
   side: string
   amount: string
@@ -108,7 +108,7 @@ function NewOrderForm({
         <div>You&apos;re estimated to save</div>
         <GlowText
           className="bg-green-price text-center text-4xl"
-          text={'$10.87'}
+          text={"$10.87"}
         />
         <div>when your order fills at the realtime Binance midpoint price.</div>
       </div>

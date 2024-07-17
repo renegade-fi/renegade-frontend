@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import {
   PropsWithChildren,
@@ -6,13 +6,13 @@ import {
   useContext,
   useEffect,
   useState,
-} from 'react'
+} from "react"
 
-import { Exchange, Token } from '@renegade-fi/react'
-import useWebSocket, { ReadyState } from 'react-use-websocket'
-import { StoreApi, createStore, useStore } from 'zustand'
+import { Exchange, Token } from "@renegade-fi/react"
+import useWebSocket, { ReadyState } from "react-use-websocket"
+import { StoreApi, createStore, useStore } from "zustand"
 
-import { DISPLAY_TOKENS } from '@/lib/token'
+import { DISPLAY_TOKENS } from "@/lib/token"
 
 interface PricesState {
   prices: Map<string, number>
@@ -97,7 +97,7 @@ export const PriceStoreProvider: React.FC<
       for (const token of DISPLAY_TOKENS({ hideStables: true })) {
         const topic = `binance-${token.address}-${DEFAULT_QUOTE.binance}`
         sendJsonMessage({
-          method: 'subscribe',
+          method: "subscribe",
           topic,
         })
       }
@@ -105,7 +105,7 @@ export const PriceStoreProvider: React.FC<
   }, [readyState, sendJsonMessage])
 
   const handleSubscribe = ({
-    exchange = 'binance',
+    exchange = "binance",
     baseAddress,
   }: {
     exchange: Exchange
@@ -114,7 +114,7 @@ export const PriceStoreProvider: React.FC<
     const topic = `${exchange}-${baseAddress}-${DEFAULT_QUOTE[exchange]}`
     if (!store.getState().subscriptions.has(topic)) {
       sendJsonMessage({
-        method: 'subscribe',
+        method: "subscribe",
         topic,
       })
     }
@@ -128,7 +128,7 @@ export const PriceStoreProvider: React.FC<
 }
 
 export const usePrice = ({
-  exchange = 'binance',
+  exchange = "binance",
   baseAddress,
 }: {
   exchange?: Exchange
@@ -136,7 +136,7 @@ export const usePrice = ({
 }) => {
   const context = useContext(PriceStoreContext)
   if (!context) {
-    throw new Error('usePrice must be used within a PriceStoreProvider')
+    throw new Error("usePrice must be used within a PriceStoreProvider")
   }
 
   const { store, handleSubscribe } = context
@@ -152,7 +152,7 @@ export const usePrice = ({
 }
 
 export const useLastUpdated = ({
-  exchange = 'binance',
+  exchange = "binance",
   baseAddress,
 }: {
   exchange?: Exchange
@@ -160,7 +160,7 @@ export const useLastUpdated = ({
 }) => {
   const context = useContext(PriceStoreContext)
   if (!context) {
-    throw new Error('useLastUpdated must be used within a PriceStoreProvider')
+    throw new Error("useLastUpdated must be used within a PriceStoreProvider")
   }
   const { store } = context
   const topic = `${exchange}-${baseAddress}-${DEFAULT_QUOTE[exchange]}`
@@ -168,8 +168,8 @@ export const useLastUpdated = ({
 }
 
 export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
-  binance: Token.findByTicker('USDT').address,
-  coinbase: Token.findByTicker('USDC').address,
-  kraken: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-  okx: Token.findByTicker('USDT').address,
+  binance: Token.findByTicker("USDT").address,
+  coinbase: Token.findByTicker("USDC").address,
+  kraken: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+  okx: Token.findByTicker("USDT").address,
 }

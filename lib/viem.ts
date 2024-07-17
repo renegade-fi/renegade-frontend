@@ -1,14 +1,14 @@
-import { createPublicClient, defineChain, http } from 'viem'
-import { arbitrumSepolia } from 'viem/chains'
+import { createPublicClient, defineChain, http } from "viem"
+import { arbitrumSepolia } from "viem/chains"
 
 const renegadeDevnet = defineChain({
   id: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
-  name: 'Renegade Devnet',
+  name: "Renegade Devnet",
   testnet: true,
   nativeCurrency: {
     decimals: 18,
-    name: 'Ether',
-    symbol: 'ETH',
+    name: "Ether",
+    symbol: "ETH",
   },
   rpcUrls: {
     default: {
@@ -18,7 +18,7 @@ const renegadeDevnet = defineChain({
 })
 
 export const chain =
-  process.env.NEXT_PUBLIC_CHAIN_ID === '421614'
+  process.env.NEXT_PUBLIC_CHAIN_ID === "421614"
     ? arbitrumSepolia
     : renegadeDevnet
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react"
 
 import {
   ColumnDef,
@@ -10,18 +10,18 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
-import { Settings2 } from 'lucide-react'
+} from "@tanstack/react-table"
+import { Settings2 } from "lucide-react"
 
-import { TransferDialog } from '@/components/dialogs/transfer-dialog'
-import { Button } from '@/components/ui/button'
+import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -29,7 +29,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -60,7 +60,7 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
     {
-      id: 'renegadeBalance',
+      id: "renegadeBalance",
       desc: true,
     },
   ])
@@ -147,10 +147,10 @@ export function DataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => {
                 return (
-                  <TransferDialog key={row.id} base={row.getValue('mint')}>
+                  <TransferDialog key={row.id} base={row.getValue("mint")}>
                     <TableRow
                       key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
+                      data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map(cell => (
                         <TableCell key={cell.id}>

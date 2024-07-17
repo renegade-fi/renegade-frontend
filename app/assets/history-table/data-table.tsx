@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react"
 
 import {
   ColumnDef,
@@ -11,18 +11,18 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
-import { Settings2 } from 'lucide-react'
+} from "@tanstack/react-table"
+import { Settings2 } from "lucide-react"
 
-import { TableSelect } from '@/components/table-select'
-import { Button } from '@/components/ui/button'
+import { TableSelect } from "@/components/table-select"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -30,9 +30,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
-import { DISPLAY_TOKENS } from '@/lib/token'
+import { DISPLAY_TOKENS } from "@/lib/token"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -45,9 +45,9 @@ interface DataTableProps<TData, TValue> {
 }
 
 const taskStates: { value: string; label: string }[] = [
-  { value: 'Queued', label: 'Queued' },
-  { value: 'Completed', label: 'Completed' },
-  { value: 'Failed', label: 'Failed' },
+  { value: "Queued", label: "Queued" },
+  { value: "Completed", label: "Completed" },
+  { value: "Failed", label: "Failed" },
 ]
 
 const tokens = DISPLAY_TOKENS().map(token => ({
@@ -56,8 +56,8 @@ const tokens = DISPLAY_TOKENS().map(token => ({
 }))
 
 const types = [
-  { value: 'deposit', label: 'Deposit' },
-  { value: 'withdraw', label: 'Withdraw' },
+  { value: "deposit", label: "Deposit" },
+  { value: "withdraw", label: "Withdraw" },
 ]
 
 export function DataTable<TData, TValue>({
@@ -77,16 +77,16 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
     {
-      id: 'createdAt',
+      id: "createdAt",
       desc: true,
     },
   ])
 
   const [isWithdrawal, setIsWithdrawal] = React.useState(
-    initialIsWithdrawal ?? '',
+    initialIsWithdrawal ?? "",
   )
-  const [status, setStatus] = React.useState(initialStatus ?? '')
-  const [mint, setMint] = React.useState(initialMint ?? '')
+  const [status, setStatus] = React.useState(initialStatus ?? "")
+  const [mint, setMint] = React.useState(initialMint ?? "")
 
   const table = useReactTable({
     columns,
@@ -108,17 +108,17 @@ export function DataTable<TData, TValue>({
   })
 
   React.useEffect(() => {
-    table.getColumn('status')?.setFilterValue(status)
+    table.getColumn("status")?.setFilterValue(status)
   }, [status, table])
 
   React.useEffect(() => {
-    table.getColumn('mint')?.setFilterValue(mint)
+    table.getColumn("mint")?.setFilterValue(mint)
   }, [mint, table])
 
   React.useEffect(() => {
     table
-      .getColumn('isWithdrawal')
-      ?.setFilterValue(isWithdrawal === 'withdraw' ? true : false)
+      .getColumn("isWithdrawal")
+      ?.setFilterValue(isWithdrawal === "withdraw" ? true : false)
   }, [isWithdrawal, table])
 
   return (
@@ -149,9 +149,9 @@ export function DataTable<TData, TValue>({
             size="sm"
             className="text-muted-foreground"
             onClick={() => {
-              setStatus('')
-              setMint('')
-              setIsWithdrawal('')
+              setStatus("")
+              setMint("")
+              setIsWithdrawal("")
             }}
           >
             Clear
@@ -205,7 +205,7 @@ export function DataTable<TData, TValue>({
                 return (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map(cell => (
                       <TableCell key={cell.id}>

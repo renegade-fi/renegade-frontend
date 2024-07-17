@@ -1,7 +1,7 @@
-import { tokenMapping } from '@renegade-fi/react/constants'
+import { tokenMapping } from "@renegade-fi/react/constants"
 
-export const HIDDEN_TICKERS = ['USDT', 'REN']
-export const STABLECOINS = ['USDC', 'USDT']
+export const HIDDEN_TICKERS = ["USDT", "REN"]
+export const STABLECOINS = ["USDC", "USDT"]
 
 export const DISPLAY_TOKENS = (
   options: {
@@ -26,10 +26,10 @@ export const DISPLAY_TOKENS = (
 
 export const remapToken = (token: string) => {
   switch (token) {
-    case 'WETH':
-      return 'eth'
-    case 'WBTC':
-      return 'btc'
+    case "WETH":
+      return "eth"
+    case "WBTC":
+      return "btc"
     default:
       return token.toLowerCase()
   }

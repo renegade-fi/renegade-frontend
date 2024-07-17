@@ -1,18 +1,18 @@
-import { useState } from 'react'
+import { useState } from "react"
 
-import dynamic from 'next/dynamic'
-import Script from 'next/script'
+import dynamic from "next/dynamic"
+import Script from "next/script"
 
 import {
   ChartingLibraryWidgetOptions,
   ResolutionString,
-} from '@renegade-fi/tradingview-charts'
+} from "@renegade-fi/tradingview-charts"
 
-import { remapToken } from '@/lib/token'
+import { remapToken } from "@/lib/token"
 
-import { config } from './tradingview/config'
+import { config } from "./tradingview/config"
 
-const TradingViewChart = dynamic(() => import('./tradingview'), { ssr: false })
+const TradingViewChart = dynamic(() => import("./tradingview"), { ssr: false })
 
 export function PriceChart({ base }: { base: string }) {
   const [isScriptReady, setIsScriptReady] = useState(false)

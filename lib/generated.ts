@@ -2,12 +2,12 @@ import {
   createReadContract,
   createWriteContract,
   createSimulateContract,
-} from 'wagmi/codegen'
+} from "wagmi/codegen"
 import {
   createUseReadContract,
   createUseWriteContract,
   createUseSimulateContract,
-} from 'wagmi/codegen'
+} from "wagmi/codegen"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // erc20
@@ -15,31 +15,31 @@ import {
 
 export const erc20Abi = [
   {
-    type: 'function',
-    inputs: [{ name: 'owner', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ type: 'uint256' }],
-    stateMutability: 'view',
+    type: "function",
+    inputs: [{ name: "owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
   },
   {
-    type: 'function',
+    type: "function",
     inputs: [
-      { name: 'spender', type: 'address' },
-      { name: 'amount', type: 'uint256' },
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" },
     ],
-    name: 'approve',
-    outputs: [{ type: 'bool' }],
-    stateMutability: 'nonpayable',
+    name: "approve",
+    outputs: [{ type: "bool" }],
+    stateMutability: "nonpayable",
   },
   {
-    type: 'function',
+    type: "function",
     inputs: [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" },
     ],
-    name: 'allowance',
-    outputs: [{ type: 'uint256' }],
-    stateMutability: 'view',
+    name: "allowance",
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
   },
 ] as const
 
@@ -57,7 +57,7 @@ export const readErc20 = /*#__PURE__*/ createReadContract({ abi: erc20Abi })
  */
 export const readErc20BalanceOf = /*#__PURE__*/ createReadContract({
   abi: erc20Abi,
-  functionName: 'balanceOf',
+  functionName: "balanceOf",
 })
 
 /**
@@ -65,7 +65,7 @@ export const readErc20BalanceOf = /*#__PURE__*/ createReadContract({
  */
 export const readErc20Allowance = /*#__PURE__*/ createReadContract({
   abi: erc20Abi,
-  functionName: 'allowance',
+  functionName: "allowance",
 })
 
 /**
@@ -78,7 +78,7 @@ export const writeErc20 = /*#__PURE__*/ createWriteContract({ abi: erc20Abi })
  */
 export const writeErc20Approve = /*#__PURE__*/ createWriteContract({
   abi: erc20Abi,
-  functionName: 'approve',
+  functionName: "approve",
 })
 
 /**
@@ -93,7 +93,7 @@ export const simulateErc20 = /*#__PURE__*/ createSimulateContract({
  */
 export const simulateErc20Approve = /*#__PURE__*/ createSimulateContract({
   abi: erc20Abi,
-  functionName: 'approve',
+  functionName: "approve",
 })
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ export const useReadErc20 = /*#__PURE__*/ createUseReadContract({
  */
 export const useReadErc20BalanceOf = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
-  functionName: 'balanceOf',
+  functionName: "balanceOf",
 })
 
 /**
@@ -120,7 +120,7 @@ export const useReadErc20BalanceOf = /*#__PURE__*/ createUseReadContract({
  */
 export const useReadErc20Allowance = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
-  functionName: 'allowance',
+  functionName: "allowance",
 })
 
 /**
@@ -135,7 +135,7 @@ export const useWriteErc20 = /*#__PURE__*/ createUseWriteContract({
  */
 export const useWriteErc20Approve = /*#__PURE__*/ createUseWriteContract({
   abi: erc20Abi,
-  functionName: 'approve',
+  functionName: "approve",
 })
 
 /**
@@ -150,5 +150,5 @@ export const useSimulateErc20 = /*#__PURE__*/ createUseSimulateContract({
  */
 export const useSimulateErc20Approve = /*#__PURE__*/ createUseSimulateContract({
   abi: erc20Abi,
-  functionName: 'approve',
+  functionName: "approve",
 })

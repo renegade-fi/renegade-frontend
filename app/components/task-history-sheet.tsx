@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState } from "react"
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from "next/navigation"
 
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import {
   Task,
   TaskState,
@@ -10,9 +10,9 @@ import {
   Token,
   UpdateType,
   useTaskHistory,
-} from '@renegade-fi/react'
+} from "@renegade-fi/react"
 
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Sheet,
   SheetContent,
@@ -20,9 +20,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from "@/components/ui/sheet"
 
-import { formatNumber, formatRelativeTimestamp } from '@/lib/format'
+import { formatNumber, formatRelativeTimestamp } from "@/lib/format"
 
 export function TaskHistorySheet({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -46,7 +46,7 @@ export function TaskHistorySheet({ children }: { children: React.ReactNode }) {
               return (
                 <div
                   key={index}
-                  className={c.href ? 'cursor-pointer hover:bg-muted/50' : ''}
+                  className={c.href ? "cursor-pointer hover:bg-muted/50" : ""}
                   onClick={() => {
                     if (pathname === c.href) {
                       setIsOpen(false)
@@ -104,23 +104,23 @@ function TaskItem({
 }
 
 const remapUpdateType = {
-  [UpdateType.Deposit]: 'Deposit',
-  [UpdateType.Withdraw]: 'Withdraw',
-  [UpdateType.PlaceOrder]: 'Place Order',
-  [UpdateType.CancelOrder]: 'Cancel Order',
+  [UpdateType.Deposit]: "Deposit",
+  [UpdateType.Withdraw]: "Withdraw",
+  [UpdateType.PlaceOrder]: "Place Order",
+  [UpdateType.CancelOrder]: "Cancel Order",
 }
 
 const remapStates: Record<TaskState, string> = {
-  ['Queued']: 'Queued',
-  ['Running']: 'In Progress',
-  ['Proving']: 'Proving',
-  ['Proving Payment']: 'Proving',
-  ['Submitting Tx']: 'Submitting Tx',
-  ['Submitting Payment']: 'Submitting Tx',
-  ['Finding Opening']: 'Indexing',
-  ['Updating Validity Proofs']: 'Updating',
-  ['Completed']: 'Completed',
-  ['Failed']: 'Failed',
+  ["Queued"]: "Queued",
+  ["Running"]: "In Progress",
+  ["Proving"]: "Proving",
+  ["Proving Payment"]: "Proving",
+  ["Submitting Tx"]: "Submitting Tx",
+  ["Submitting Payment"]: "Submitting Tx",
+  ["Finding Opening"]: "Indexing",
+  ["Updating Validity Proofs"]: "Updating",
+  ["Completed"]: "Completed",
+  ["Failed"]: "Failed",
 }
 
 function deriveContent(task: Task): {
@@ -132,16 +132,16 @@ function deriveContent(task: Task): {
   href?: string
 } {
   let content = {
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     timestamp: Number(task.created_at),
     status: remapStates[task.state],
   }
   switch (task.task_info.task_type) {
     case TaskType.NewWallet:
-      return { ...content, title: 'New Wallet' }
+      return { ...content, title: "New Wallet" }
     case TaskType.PayOfflineFee:
-      return { ...content, title: 'Pay Fee' }
+      return { ...content, title: "Pay Fee" }
     case TaskType.UpdateWallet:
       switch (task.task_info.update_type) {
         case UpdateType.Deposit:
@@ -154,7 +154,7 @@ function deriveContent(task: Task): {
               task.task_info.amount,
               token.decimals,
             )} ${token.ticker}`,
-            tooltip: 'View in Assets',
+            tooltip: "View in Assets",
             href: `/assets`,
           }
         case UpdateType.PlaceOrder:
@@ -167,7 +167,7 @@ function deriveContent(task: Task): {
               task.task_info.amount,
               base.decimals,
             )} ${base.ticker}`,
-            tooltip: 'View in Orders',
+            tooltip: "View in Orders",
           }
         default:
           return content
@@ -176,12 +176,12 @@ function deriveContent(task: Task): {
       const base = Token.findByAddress(task.task_info.base)
       return {
         ...content,
-        title: 'Settle Match',
-        description: `${task.task_info.is_sell ? 'Sell' : 'Buy'} ${formatNumber(
+        title: "Settle Match",
+        description: `${task.task_info.is_sell ? "Sell" : "Buy"} ${formatNumber(
           task.task_info.volume,
           base.decimals,
         )} ${base.ticker}`,
-        tooltip: 'View Fill',
+        tooltip: "View Fill",
       }
     default:
       return content

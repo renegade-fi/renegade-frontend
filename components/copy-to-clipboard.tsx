@@ -3,9 +3,9 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip"
 
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
 export function CopyToClipboard({
   text,
@@ -18,10 +18,10 @@ export function CopyToClipboard({
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        console.log('Text copied to clipboard')
+        console.log("Text copied to clipboard")
       })
       .catch(err => {
-        console.error('Failed to copy text: ', err)
+        console.error("Failed to copy text: ", err)
       })
   }
   return (
@@ -30,7 +30,7 @@ export function CopyToClipboard({
         <TooltipTrigger asChild>
           <p
             onClick={() => copyToClipboard(text)}
-            className={cn('cursor-pointer', className)}
+            className={cn("cursor-pointer", className)}
           >
             {text}
           </p>

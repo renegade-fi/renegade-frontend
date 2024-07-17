@@ -1,4 +1,4 @@
-import Next from 'next'
+import Next from "next"
 
 declare global {
   namespace NodeJS {

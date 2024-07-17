@@ -2,22 +2,22 @@ import {
   Bar,
   IBasicDataFeed,
   LibrarySymbolInfo,
-} from '@renegade-fi/tradingview-charts'
+} from "@renegade-fi/tradingview-charts"
 
-import { oneDayMs, oneMonthMs, twelveMonthsMs } from '@/lib/constants/time'
+import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
 
-import { datafeedConfig } from './config'
+import { datafeedConfig } from "./config"
 import {
   fetchBarsForPeriod,
   fetchSymbolReferenceInfo,
   getAllBinanceSymbols,
-} from './helpers'
+} from "./helpers"
 
 const lastBarsCache = new Map()
 
 export const datafeed = {
   onReady: (callback: any) => {
-    console.log('[onReady]: Method call')
+    console.log("[onReady]: Method call")
     setTimeout(() => callback(datafeedConfig))
   },
   searchSymbols: async (
@@ -26,10 +26,10 @@ export const datafeed = {
     symbolType,
     onResultReadyCallback,
   ) => {
-    console.log('[searchSymbols]: Method call')
+    console.log("[searchSymbols]: Method call")
     const symbols = await getAllBinanceSymbols()
     const newSymbols = symbols.filter(symbol => {
-      const isExchangeValid = exchange === '' || symbol.exchange === exchange
+      const isExchangeValid = exchange === "" || symbol.exchange === exchange
       const isFullSymbolContainsInput =
         symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1
       return isExchangeValid && isFullSymbolContainsInput
@@ -42,36 +42,36 @@ export const datafeed = {
     onResolveErrorCallback,
     extension,
   ) => {
-    console.log('[resolveSymbol]: Method call', symbolName)
+    console.log("[resolveSymbol]: Method call", symbolName)
     try {
       const symbolItem = await fetchSymbolReferenceInfo(symbolName)
       const symbolInfo = {
-        data_status: 'streaming',
+        data_status: "streaming",
         description: `${symbolItem.nativePair}`,
         exchange: datafeedConfig.exchanges[0].name,
-        format: 'price',
+        format: "price",
         has_intraday: true,
-        intraday_multipliers: ['1', '60'],
+        intraday_multipliers: ["1", "60"],
         has_daily: true,
-        daily_multipliers: ['1'],
+        daily_multipliers: ["1"],
         has_weekly_and_monthly: false,
-        listed_exchange: '',
+        listed_exchange: "",
         minmov: 1,
         name: `${symbolItem.nativePair}`,
         pricescale: 100,
-        session: '24x7',
+        session: "24x7",
         supported_resolutions: datafeedConfig.supported_resolutions,
         ticker: `${symbolName}`,
-        timezone: 'Etc/UTC',
-        type: 'crypto',
+        timezone: "Etc/UTC",
+        type: "crypto",
         volume_precision: 2,
       } satisfies LibrarySymbolInfo
 
-      console.log('[resolveSymbol]: Symbol resolved', symbolName)
+      console.log("[resolveSymbol]: Symbol resolved", symbolName)
       onSymbolResolvedCallback(symbolInfo)
     } catch (error) {
-      console.log('[resolveSymbol]: Error', error)
-      onResolveErrorCallback('cannot resolve symbol')
+      console.log("[resolveSymbol]: Error", error)
+      onResolveErrorCallback("cannot resolve symbol")
     }
   },
   async getBars(
@@ -83,7 +83,7 @@ export const datafeed = {
   ) {
     const { from, to, firstDataRequest } = periodParams
     console.log(
-      '[getBars]: Method call',
+      "[getBars]: Method call",
       symbolInfo,
       resolution,
       from,
@@ -95,9 +95,9 @@ export const datafeed = {
       const resolutionSettings: {
         [key: string]: { period: string; duration: number }
       } = {
-        '1': { period: 'minutes', duration: oneDayMs },
-        '60': { period: 'hours', duration: oneMonthMs },
-        '1D': { period: 'days', duration: twelveMonthsMs },
+        "1": { period: "minutes", duration: oneDayMs },
+        "60": { period: "hours", duration: oneMonthMs },
+        "1D": { period: "days", duration: twelveMonthsMs },
       }
 
       let bars: Bar[] = []
@@ -128,8 +128,8 @@ export const datafeed = {
         noData: false,
       })
     } catch (error) {
-      console.log('[getBars]: Get error', error)
-      if (error === 'NoData') {
+      console.log("[getBars]: Get error", error)
+      if (error === "NoData") {
         onHistoryCallback([], {
           noData: true,
         })
@@ -146,7 +146,7 @@ export const datafeed = {
     onResetCacheNeededCallback,
   ) => {
     console.log(
-      '[subscribeBars]: Method call with subscriberUID:',
+      "[subscribeBars]: Method call with subscriberUID:",
       subscriberUID,
     )
     // TODO: implement subscribeBars
@@ -162,7 +162,7 @@ export const datafeed = {
 
   unsubscribeBars: subscriberUID => {
     console.log(
-      '[unsubscribeBars]: Method call with subscriberUID:',
+      "[unsubscribeBars]: Method call with subscriberUID:",
       subscriberUID,
     )
     // TODO: implement unsubscribeBars

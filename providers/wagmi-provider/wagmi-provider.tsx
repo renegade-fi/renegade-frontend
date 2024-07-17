@@ -1,22 +1,22 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 
-import { useConfig } from '@renegade-fi/react'
-import { disconnect } from '@renegade-fi/react/actions'
-import { ConnectKitProvider } from 'connectkit'
+import { useConfig } from "@renegade-fi/react"
+import { disconnect } from "@renegade-fi/react/actions"
+import { ConnectKitProvider } from "connectkit"
 import {
   WagmiProvider as Provider,
   State,
   useAccount,
   useAccountEffect,
-} from 'wagmi'
+} from "wagmi"
 
-import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
+import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
 
-import { QueryProvider } from '@/providers/query-provider'
+import { QueryProvider } from "@/providers/query-provider"
 
-import { config } from './config'
+import { config } from "./config"
 
 export function WagmiProvider({
   initialState,
@@ -55,32 +55,32 @@ function SyncRenegadeWagmiState() {
       },
     ) => {
       if (data.accounts) {
-        console.log('disconnecting because connector update')
+        console.log("disconnecting because connector update")
         disconnect(config)
       }
     }
 
     if (connector?.emitter) {
-      connector.emitter.on('change', handleConnectorUpdate)
+      connector.emitter.on("change", handleConnectorUpdate)
     }
 
     return () => {
       if (connector?.emitter) {
-        connector?.emitter.off('change', handleConnectorUpdate)
+        connector?.emitter.off("change", handleConnectorUpdate)
       }
     }
   }, [config, connector])
 
   useAccountEffect({
     onDisconnect() {
-      console.log('disconnecting because onDisconnect')
+      console.log("disconnecting because onDisconnect")
       disconnect(config)
     },
   })
 
   useEffect(() => {
     if (!address) {
-      console.log('disconnecting because address is undefined')
+      console.log("disconnecting because address is undefined")
       disconnect(config)
     }
   }, [address, config])

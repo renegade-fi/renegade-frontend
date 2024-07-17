@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { Config } from '@renegade-fi/react'
-import { getSkRoot } from '@renegade-fi/react/actions'
+import { Config } from "@renegade-fi/react"
+import { getSkRoot } from "@renegade-fi/react/actions"
 
 export type UseSkRootParameters = {
   config: Config
@@ -14,6 +14,6 @@ export function useSkRoot(
 ): UseSkRootReturnType {
   const { config } = parameters
   const skRoot = getSkRoot(config)
-  console.log('🚀 ~ skRoot:', skRoot)
+  console.log("🚀 ~ skRoot:", skRoot)
   return skRoot
 }

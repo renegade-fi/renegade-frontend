@@ -1,14 +1,14 @@
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { OrderState, Token, useOrderHistory } from '@renegade-fi/react'
-import { AlertTriangle, Info } from 'lucide-react'
-import invariant from 'tiny-invariant'
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { OrderState, Token, useOrderHistory } from "@renegade-fi/react"
+import { AlertTriangle, Info } from "lucide-react"
+import invariant from "tiny-invariant"
 
-import { FillChart } from '@/app/trade/[base]/components/charts/fill-chart'
-import { FillTable } from '@/app/trade/[base]/components/fill-table'
+import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
+import { FillTable } from "@/app/trade/[base]/components/fill-table"
 
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetContent,
@@ -16,10 +16,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { Skeleton } from '@/components/ui/skeleton'
+} from "@/components/ui/sheet"
+import { Skeleton } from "@/components/ui/skeleton"
 
-import { formatCurrency, formatNumber, formatPercentage } from '@/lib/format'
+import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 
 export function OrderDetailsSheet({
   children,
@@ -30,7 +30,7 @@ export function OrderDetailsSheet({
 }) {
   const { data } = useOrderHistory()
   const order = data?.get(orderId)
-  invariant(order, 'Order not found')
+  invariant(order, "Order not found")
   const token = Token.findByAddress(order.data.base_mint)
 
   const filledAmount = order.fills.reduce(
@@ -46,8 +46,8 @@ export function OrderDetailsSheet({
     Number(order.data.amount),
   )
 
-  const title = `${order.data.side === 'Buy' ? 'Buy' : 'Sell'} ${formattedTotalAmount} ${token.ticker} ${
-    order.data.side === 'Buy' ? 'with' : 'for'
+  const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${token.ticker} ${
+    order.data.side === "Buy" ? "with" : "for"
   } USDC`
 
   const isCancellable = [OrderState.Created, OrderState.Matching].includes(

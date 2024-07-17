@@ -1,23 +1,23 @@
-import * as React from 'react'
+import * as React from "react"
 
-import { CheckIcon } from '@radix-ui/react-icons'
-import { CirclePlus } from 'lucide-react'
+import { CheckIcon } from "@radix-ui/react-icons"
+import { CirclePlus } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from "@/components/ui/popover"
 
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
 export function TableSelect({
   value,
@@ -39,7 +39,7 @@ export function TableSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn('justify-between', !value && 'text-muted-foreground')}
+          className={cn("justify-between", !value && "text-muted-foreground")}
           size="sm"
         >
           <CirclePlus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -56,15 +56,15 @@ export function TableSelect({
                   key={v.value}
                   value={v.value}
                   onSelect={currentValue => {
-                    onChange(currentValue === value ? '' : currentValue)
+                    onChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
                   }}
                 >
                   <span className="flex-1">{v.label}</span>
                   <CheckIcon
                     className={cn(
-                      'ml-auto h-4 w-4',
-                      value === v.value ? 'opacity-100' : 'opacity-0',
+                      "ml-auto h-4 w-4",
+                      value === v.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

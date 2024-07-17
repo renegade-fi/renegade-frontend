@@ -1,30 +1,30 @@
-import { Token } from '@renegade-fi/react'
+import { Token } from "@renegade-fi/react"
 import {
   TypedDataDomain,
   WalletClient,
   hashTypedData,
   verifyTypedData,
-} from 'viem'
-import { publicKeyToAddress, recoverPublicKey } from 'viem/utils'
+} from "viem"
+import { publicKeyToAddress, recoverPublicKey } from "viem/utils"
 
 export function millisecondsToSeconds(milliseconds: number): number {
   return Math.floor(milliseconds / 1000)
 }
 
 const TOKEN_PERMISSIONS = [
-  { name: 'token', type: 'address' },
-  { name: 'amount', type: 'uint256' },
+  { name: "token", type: "address" },
+  { name: "amount", type: "uint256" },
 ]
 
-const DEPOSIT_WITNESS = [{ name: 'pkRoot', type: 'uint256[4]' }]
+const DEPOSIT_WITNESS = [{ name: "pkRoot", type: "uint256[4]" }]
 
 const PERMIT_WITNESS_TRANSFER_FROM_TYPES = {
   PermitWitnessTransferFrom: [
-    { name: 'permitted', type: 'TokenPermissions' },
-    { name: 'spender', type: 'address' },
-    { name: 'nonce', type: 'uint256' },
-    { name: 'deadline', type: 'uint256' },
-    { name: 'witness', type: 'DepositWitness' },
+    { name: "permitted", type: "TokenPermissions" },
+    { name: "spender", type: "address" },
+    { name: "nonce", type: "uint256" },
+    { name: "deadline", type: "uint256" },
+    { name: "witness", type: "DepositWitness" },
   ],
   TokenPermissions: TOKEN_PERMISSIONS,
   DepositWitness: DEPOSIT_WITNESS,
@@ -63,11 +63,11 @@ export async function signPermit2({
   pkRoot: bigint[]
 }) {
   if (!walletClient.account)
-    throw new Error('`0x${string}` not found on wallet client')
+    throw new Error("`0x${string}` not found on wallet client")
 
   // Construct Domain
   const domain: TypedDataDomain = {
-    name: 'Permit2',
+    name: "Permit2",
     chainId,
     verifyingContract: permit2Address as `0x${string}`,
   }
@@ -89,7 +89,7 @@ export async function signPermit2({
     account: walletClient.account.address,
     domain,
     types: PERMIT_WITNESS_TRANSFER_FROM_TYPES,
-    primaryType: 'PermitWitnessTransferFrom',
+    primaryType: "PermitWitnessTransferFrom",
     message,
   })
 
@@ -98,17 +98,17 @@ export async function signPermit2({
     address: walletClient.account.address,
     domain,
     types: PERMIT_WITNESS_TRANSFER_FROM_TYPES,
-    primaryType: 'PermitWitnessTransferFrom',
+    primaryType: "PermitWitnessTransferFrom",
     message,
     signature,
   })
-  if (!valid) throw new Error('Invalid signature')
+  if (!valid) throw new Error("Invalid signature")
 
   // Ensure correct public key is recovered
   const hash = hashTypedData({
     domain,
     types: PERMIT_WITNESS_TRANSFER_FROM_TYPES,
-    primaryType: 'PermitWitnessTransferFrom',
+    primaryType: "PermitWitnessTransferFrom",
     message,
   })
   const recoveredPubKey = publicKeyToAddress(
@@ -118,7 +118,7 @@ export async function signPermit2({
     }),
   )
   if (recoveredPubKey !== walletClient.account.address)
-    throw new Error('Recovered public key does not match wallet public key')
+    throw new Error("Recovered public key does not match wallet public key")
 
   return { signature, nonce: message.nonce, deadline: message.deadline }
 }

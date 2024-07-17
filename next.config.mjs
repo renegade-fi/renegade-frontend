@@ -34,16 +34,16 @@ const nextConfig = {
       fs: false,
     }
     // Temporary WalletConnect outdated modules fix
-    config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    config.externals.push("pino-pretty", "lokijs", "encoding")
     return config
   },
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'assets-cdn.trustwallet.com',
-        port: '',
-        pathname: '/blockchains/ethereum/assets/**',
+        protocol: "https",
+        hostname: "assets-cdn.trustwallet.com",
+        port: "",
+        pathname: "/blockchains/ethereum/assets/**",
       },
     ],
   },

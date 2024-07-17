@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { Token, useOrderHistory } from '@renegade-fi/react'
-import invariant from 'tiny-invariant'
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Token, useOrderHistory } from "@renegade-fi/react"
+import invariant from "tiny-invariant"
 
 import {
   Card,
@@ -10,7 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -18,14 +18,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
-import { formatCurrency, formatNumber, formatTimestamp } from '@/lib/format'
+import { formatCurrency, formatNumber, formatTimestamp } from "@/lib/format"
 
 export function FillTable({ orderId }: { orderId: string }) {
   const { data } = useOrderHistory()
   const order = data?.get(orderId)
-  invariant(order, 'Order not found')
+  invariant(order, "Order not found")
   const token = Token.findByAddress(order.data.base_mint)
   const formattedFills = order.fills.map(fill => ({
     amount: formatNumber(fill.amount, token.decimals),
@@ -39,7 +39,7 @@ export function FillTable({ orderId }: { orderId: string }) {
         <CardTitle>Fills</CardTitle>
         <VisuallyHidden>
           <CardDescription>
-            Fill details for {order.data.side} {order.data.amount}{' '}
+            Fill details for {order.data.side} {order.data.amount}{" "}
             {Token.findByAddress(order.data.base_mint).ticker}
           </CardDescription>
         </VisuallyHidden>

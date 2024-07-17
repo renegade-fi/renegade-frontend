@@ -1,12 +1,12 @@
-'use client'
+"use client"
 
-import * as React from 'react'
+import * as React from "react"
 
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
-import { Token, useBalances } from '@renegade-fi/react'
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
+import { Token, useBalances } from "@renegade-fi/react"
 
-import { ExternalTransferDirection } from '@/components/dialogs/transfer-dialog'
-import { Button } from '@/components/ui/button'
+import { ExternalTransferDirection } from "@/components/dialogs/transfer-dialog"
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -14,18 +14,18 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from "@/components/ui/popover"
 
-import { formatNumber } from '@/lib/format'
-import { DISPLAY_TOKENS } from '@/lib/token'
-import { cn } from '@/lib/utils'
+import { formatNumber } from "@/lib/format"
+import { DISPLAY_TOKENS } from "@/lib/token"
+import { cn } from "@/lib/utils"
 
-import { L2Balance } from '../l2-balance'
+import { L2Balance } from "../l2-balance"
 
 const tokens = DISPLAY_TOKENS().map(token => ({
   value: token.address,
@@ -50,11 +50,11 @@ export function TokenSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn('justify-between', !value && 'text-muted-foreground')}
+          className={cn("justify-between", !value && "text-muted-foreground")}
         >
           {value
             ? tokens.find(framework => framework.value === value)?.label
-            : 'Select token'}
+            : "Select token"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -69,7 +69,7 @@ export function TokenSelect({
                   key={t.value}
                   value={t.value}
                   onSelect={currentValue => {
-                    onChange(currentValue === value ? '' : currentValue)
+                    onChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
                   }}
                 >
@@ -83,8 +83,8 @@ export function TokenSelect({
                   </span>
                   <CheckIcon
                     className={cn(
-                      'ml-auto h-4 w-4',
-                      value === t.value ? 'opacity-100' : 'opacity-0',
+                      "ml-auto h-4 w-4",
+                      value === t.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

@@ -1,19 +1,19 @@
-import { cookies } from 'next/headers'
+import { cookies } from "next/headers"
 
-import { Ellipsis, Settings, Settings2 } from 'lucide-react'
+import { Ellipsis, Settings, Settings2 } from "lucide-react"
 
-import { Footer } from '@/app/components/footer'
-import { Header } from '@/app/components/header'
-import { SettingsPopover } from '@/app/trade/[base]/components/settings-popover'
-import { TokensMarquee } from '@/app/trade/[base]/components/tokens-marquee'
-import { PageClient } from '@/app/trade/[base]/page-client'
+import { Footer } from "@/app/components/footer"
+import { Header } from "@/app/components/header"
+import { SettingsPopover } from "@/app/trade/[base]/components/settings-popover"
+import { TokensMarquee } from "@/app/trade/[base]/components/tokens-marquee"
+import { PageClient } from "@/app/trade/[base]/page-client"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 
-import { STORAGE_SIDE, STORAGE_USDC_DENOMINATED } from '@/lib/constants/storage'
+import { STORAGE_SIDE, STORAGE_USDC_DENOMINATED } from "@/lib/constants/storage"
 
 export default function Page({ params }: { params: { base: string } }) {
-  const layout = cookies().get('react-resizable-panels:layout')
+  const layout = cookies().get("react-resizable-panels:layout")
   const side = cookies().get(STORAGE_SIDE)
   const isUSDCDenominated = cookies().get(STORAGE_USDC_DENOMINATED)
 
@@ -29,7 +29,7 @@ export default function Page({ params }: { params: { base: string } }) {
 
   let defaultUseUSDC = false
   if (isUSDCDenominated) {
-    defaultUseUSDC = isUSDCDenominated.value === 'true'
+    defaultUseUSDC = isUSDCDenominated.value === "true"
   }
 
   return (

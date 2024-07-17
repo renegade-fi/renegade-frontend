@@ -1,28 +1,28 @@
-'use client'
+"use client"
 
-import React from 'react'
+import React from "react"
 
-import { Token, useOrderHistory } from '@renegade-fi/react'
+import { Token, useOrderHistory } from "@renegade-fi/react"
 
-import { columns } from '@/app/orders/columns'
-import { DataTable } from '@/app/orders/data-table'
-import { BBOMarquee } from '@/app/trade/[base]/components/bbo-marquee'
-import { PriceChart } from '@/app/trade/[base]/components/charts/price-chart'
-import { NewOrderPanel } from '@/app/trade/[base]/components/new-order/new-order-panel'
+import { columns } from "@/app/orders/columns"
+import { DataTable } from "@/app/orders/data-table"
+import { BBOMarquee } from "@/app/trade/[base]/components/bbo-marquee"
+import { PriceChart } from "@/app/trade/[base]/components/charts/price-chart"
+import { NewOrderPanel } from "@/app/trade/[base]/components/new-order/new-order-panel"
 
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '@/components/ui/resizable'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/resizable"
+import { Separator } from "@/components/ui/separator"
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { useMounted } from '@/hooks/use-mounted'
-import { STORAGE_LAYOUT } from '@/lib/constants/storage'
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { useMounted } from "@/hooks/use-mounted"
+import { STORAGE_LAYOUT } from "@/lib/constants/storage"
 
 const DEFAULT_LAYOUT = [22, 78]
-const DEFAULT_SIDE = 'buy'
+const DEFAULT_SIDE = "buy"
 
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart)
@@ -41,7 +41,7 @@ export function PageClient({
   const onLayout = (sizes: number[]) => {
     document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`
   }
-  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isDesktop = useMediaQuery("(min-width: 768px)")
   const isMounted = useMounted()
 
   const { data } = useOrderHistory({
@@ -86,7 +86,7 @@ export function PageClient({
                   data={data || []}
                   columns={columns}
                   initialVisibleColumns={{
-                    'time to fill': false,
+                    "time to fill": false,
                     actions: false,
                   }}
                   isTradePage

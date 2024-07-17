@@ -1,16 +1,16 @@
-'use client'
+"use client"
 
-import * as React from 'react'
+import * as React from "react"
 
-import { Token } from '@renegade-fi/react'
+import { Token } from "@renegade-fi/react"
 
-import { DefaultStep } from '@/components/dialogs/new-order-stepper/steps/default'
-import { SuccessStep } from '@/components/dialogs/new-order-stepper/steps/success'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
+import { DefaultStep } from "@/components/dialogs/new-order-stepper/steps/default"
+import { SuccessStep } from "@/components/dialogs/new-order-stepper/steps/success"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { usePrice } from '@/stores/price-store'
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { usePrice } from "@/stores/price-store"
 
 export interface NewOrderProps {
   base: string
@@ -25,7 +25,7 @@ export function NewOrderStepperInner({
   ...props
 }: React.PropsWithChildren<NewOrderProps>) {
   const { step, open, setOpen } = useStepper()
-  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const { amount, isUSDCDenominated, base } = props
   const price = usePrice({

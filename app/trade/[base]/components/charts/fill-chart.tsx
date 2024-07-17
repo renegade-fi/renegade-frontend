@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useMemo } from 'react'
+import { useMemo } from "react"
 
-import { OrderMetadata, PartialOrderFill, Token } from '@renegade-fi/react'
-import { TrendingUp } from 'lucide-react'
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
+import { OrderMetadata, PartialOrderFill, Token } from "@renegade-fi/react"
+import { TrendingUp } from "lucide-react"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -13,7 +13,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
@@ -21,26 +21,26 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart'
+} from "@/components/ui/chart"
 
-import { useOHLC } from '@/hooks/use-ohlc'
-import { formatCurrency, formatNumber } from '@/lib/format'
+import { useOHLC } from "@/hooks/use-ohlc"
+import { formatCurrency, formatNumber } from "@/lib/format"
 
 const chartConfig = {
   renegade: {
-    label: 'Renegade Fill',
-    color: 'hsl(var(--chart-blue))',
+    label: "Renegade Fill",
+    color: "hsl(var(--chart-blue))",
   },
   binance: {
-    label: 'Binance Price',
-    color: 'hsl(var(--chart-yellow))',
+    label: "Binance Price",
+    color: "hsl(var(--chart-yellow))",
   },
   vwap: {
-    label: 'VWAP',
-    color: 'hsl(var(--chart-blue))',
+    label: "VWAP",
+    color: "hsl(var(--chart-blue))",
   },
   timestamp: {
-    label: 'Date',
+    label: "Date",
   },
 } satisfies ChartConfig
 
@@ -106,7 +106,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     to = formattedFills[formattedFills.length - 1].timestamp + padding
   }
 
-  const { data: ohlc } = useOHLC(token.ticker, from, to, 'minutes')
+  const { data: ohlc } = useOHLC(token.ticker, from, to, "minutes")
 
   const chartData = useMemo(() => {
     if (!ohlc) return []
@@ -114,7 +114,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     const resolutionFactor = Math.ceil(ohlc.length / targetElements)
 
     const temp: Array<ChartData> = ohlc.map(ohlc => ({
-      binance: order.data.side === 'Sell' ? ohlc.low : ohlc.high,
+      binance: order.data.side === "Sell" ? ohlc.low : ohlc.high,
       timestamp: ohlc.time,
       vwap: undefined,
     }))
@@ -171,9 +171,9 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
   function formatTimestamp(value: number): string {
     const date = new Date(value)
-    return date.toLocaleString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
+    return date.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
     })
   }
 
@@ -235,11 +235,11 @@ export function FillChart({ order }: { order: OrderMetadata }) {
               tickCount={5}
               domain={calculateYAxisDomain(minValue, maxValue)}
               tickFormatter={(value: number) =>
-                `${value.toLocaleString('en-US', {
+                `${value.toLocaleString("en-US", {
                   minimumFractionDigits: value > 10_000 ? 0 : 2,
                   maximumFractionDigits: value > 10_000 ? 0 : 2,
-                  currency: 'USD',
-                  style: 'currency',
+                  currency: "USD",
+                  style: "currency",
                 })}`
               }
             />

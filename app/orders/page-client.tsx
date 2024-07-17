@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useOrderHistory } from '@renegade-fi/react'
+import { useOrderHistory } from "@renegade-fi/react"
 
-import { DataTable } from '@/app/orders/data-table'
+import { DataTable } from "@/app/orders/data-table"
 
-import { columns } from './columns'
+import { columns } from "./columns"
 
 export function PageClient() {
   const { data } = useOrderHistory({
