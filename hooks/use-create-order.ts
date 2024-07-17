@@ -3,20 +3,20 @@ import {
   parseAmount,
   useConfig,
   useTaskHistory,
-} from '@renegade-fi/react'
-import { createOrder } from '@renegade-fi/react/actions'
-import { toast } from 'sonner'
-import invariant from 'tiny-invariant'
-import { v4 as uuidv4 } from 'uuid'
+} from "@renegade-fi/react"
+import { createOrder } from "@renegade-fi/react/actions"
+import { toast } from "sonner"
+import invariant from "tiny-invariant"
+import { v4 as uuidv4 } from "uuid"
 
 import {
   FAILED_PLACE_ORDER_MSG,
   QUEUED_PLACE_ORDER_MSG,
-} from '@/lib/constants/task'
+} from "@/lib/constants/task"
 
 export function useCreateOrder({
   base,
-  quote = 'USDC',
+  quote = "USDC",
   side,
   amount,
 }: {
@@ -25,12 +25,12 @@ export function useCreateOrder({
   side: string
   amount: string
 }) {
-  invariant(side === 'buy' || side === 'sell', 'Invalid side')
+  invariant(side === "buy" || side === "sell", "Invalid side")
   const config = useConfig()
 
   const { data: taskHistory } = useTaskHistory()
   const isQueue = Array.from(taskHistory?.values() || []).find(
-    task => task.state !== 'Completed' && task.state !== 'Failed',
+    task => task.state !== "Completed" && task.state !== "Failed",
   )
   async function handleCreateOrder({ onSuccess }: { onSuccess?: () => void }) {
     const baseToken = Token.findByTicker(base)
@@ -44,7 +44,7 @@ export function useCreateOrder({
       id,
       base: baseToken.address,
       quote: quoteToken.address,
-      side: side === 'buy' ? 'buy' : 'sell',
+      side: side === "buy" ? "buy" : "sell",
       amount: parsedAmount,
     })
       .then(onSuccess)

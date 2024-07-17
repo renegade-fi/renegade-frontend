@@ -1,15 +1,15 @@
-import { Fragment } from 'react'
+import { Fragment } from "react"
 
-import { Exchange } from '@renegade-fi/react'
+import { Exchange } from "@renegade-fi/react"
 
-import { AnimatedPrice } from '@/components/animated-price'
+import { AnimatedPrice } from "@/components/animated-price"
 
-const exchanges: Exchange[] = ['binance', 'coinbase', 'kraken', 'okx']
+const exchanges: Exchange[] = ["binance", "coinbase", "kraken", "okx"]
 const names: Record<Exchange, string> = {
-  binance: 'Binance',
-  coinbase: 'Coinbase',
-  kraken: 'Kraken',
-  okx: 'Okx',
+  binance: "Binance",
+  coinbase: "Coinbase",
+  kraken: "Kraken",
+  okx: "Okx",
 }
 
 export function BBOMarquee({ base }: { base: string }) {

@@ -1,9 +1,9 @@
-import Link from 'next/link'
+import Link from "next/link"
 
-import { AnimatedPrice } from '@/components/animated-price'
-import Marquee from '@/components/ui/marquee'
+import { AnimatedPrice } from "@/components/animated-price"
+import Marquee from "@/components/ui/marquee"
 
-import { DISPLAY_TOKENS } from '@/lib/token'
+import { DISPLAY_TOKENS } from "@/lib/token"
 
 export function TokensMarquee() {
   return (

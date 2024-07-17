@@ -1,24 +1,24 @@
-import { useMemo } from 'react'
+import { useMemo } from "react"
 
-import { Token } from '@renegade-fi/react'
+import { Token } from "@renegade-fi/react"
 
-import { GlowText } from '@/components/glow-text'
+import { GlowText } from "@/components/glow-text"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip"
 
-import { PROTOCOL_FEE, RELAYER_FEE } from '@/lib/constants/protocol'
+import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 import {
   FEES_SECTION_BINANCE_FEES,
   FEES_SECTION_FEES,
   FEES_SECTION_TOTAL_SAVINGS,
-} from '@/lib/constants/tooltips'
-import { formatCurrency } from '@/lib/format'
-import { cn } from '@/lib/utils'
-import { usePrice } from '@/stores/price-store'
+} from "@/lib/constants/tooltips"
+import { formatCurrency } from "@/lib/format"
+import { cn } from "@/lib/utils"
+import { usePrice } from "@/stores/price-store"
 
 export function FeesSection({
   amount,
@@ -51,17 +51,17 @@ export function FeesSection({
   }, [amount, isUSDCDenominated, usdPrice])
 
   const totalFees = feesCalculation.relayerFee + feesCalculation.protocolFee
-  const feeLabel = totalFees ? formatCurrency(totalFees) : '--'
+  const feeLabel = totalFees ? formatCurrency(totalFees) : "--"
 
   const binanceFee = 0
-  const binanceFeeLabel = binanceFee ? formatCurrency(binanceFee) : '--'
+  const binanceFeeLabel = binanceFee ? formatCurrency(binanceFee) : "--"
 
   const feeDiff = binanceFee - totalFees
-  const feeDiffLabel = totalFees && binanceFee ? formatCurrency(feeDiff) : '--'
+  const feeDiffLabel = totalFees && binanceFee ? formatCurrency(feeDiff) : "--"
   return (
     <>
       <TooltipProvider>
-        <div className={cn('flex justify-between transition-colors')}>
+        <div className={cn("flex justify-between transition-colors")}>
           <Tooltip>
             <TooltipTrigger>
               <span>Fees</span>
@@ -72,7 +72,7 @@ export function FeesSection({
           </Tooltip>
           <span>{feeLabel}</span>
         </div>
-        <div className={cn('flex justify-between transition-colors')}>
+        <div className={cn("flex justify-between transition-colors")}>
           <Tooltip>
             <TooltipTrigger>
               <span>Estimated Binance fees</span>
@@ -84,8 +84,8 @@ export function FeesSection({
           <span>{binanceFeeLabel}</span>
         </div>
         <div
-          className={cn('flex justify-between transition-colors', {
-            'font-bold': !!totalFees && !!binanceFee,
+          className={cn("flex justify-between transition-colors", {
+            "font-bold": !!totalFees && !!binanceFee,
           })}
         >
           <Tooltip>

@@ -1,17 +1,17 @@
-import { useConfig } from '@renegade-fi/react'
-import { connect } from '@renegade-fi/react/actions'
-import { ROOT_KEY_MESSAGE_PREFIX } from '@renegade-fi/react/constants'
-import { toast } from 'sonner'
-import { useSignMessage } from 'wagmi'
+import { useConfig } from "@renegade-fi/react"
+import { connect } from "@renegade-fi/react/actions"
+import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { toast } from "sonner"
+import { useSignMessage } from "wagmi"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 
 import {
   CREATE_WALLET_ERROR,
@@ -20,8 +20,8 @@ import {
   LOOKUP_WALLET_ERROR,
   LOOKUP_WALLET_START,
   LOOKUP_WALLET_SUCCESS,
-} from '@/lib/constants/toast'
-import { chain } from '@/lib/viem'
+} from "@/lib/constants/toast"
+import { chain } from "@/lib/viem"
 
 export function SignInDialog({
   open,
@@ -40,7 +40,7 @@ export function SignInDialog({
       },
       {
         async onSuccess(data) {
-          console.log('signed message: ', data)
+          console.log("signed message: ", data)
           config.setState(x => ({ ...x, seed: data }))
           const res = await connect(config)
           if (res?.job) {

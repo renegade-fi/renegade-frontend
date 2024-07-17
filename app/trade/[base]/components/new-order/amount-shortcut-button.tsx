@@ -1,10 +1,10 @@
-import { Token, parseAmount, useBalances } from '@renegade-fi/react'
+import { Token, parseAmount, useBalances } from "@renegade-fi/react"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 
-import { MIN_FILL_SIZE } from '@/lib/constants/protocol'
-import { formatNumber } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
+import { formatNumber } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
 // Percentage should be <= 1
 export function AmountShortcutButton({
@@ -39,7 +39,7 @@ export function AmountShortcutButton({
       onClick={() => onSetAmount(shortcut.toString())}
       disabled={isDisabled}
     >
-      {percentage === 1 ? 'MAX' : `${percentage * 100}%`}
+      {percentage === 1 ? "MAX" : `${percentage * 100}%`}
     </Button>
   )
 }

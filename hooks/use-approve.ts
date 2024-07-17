@@ -1,16 +1,16 @@
-import { useEffect } from 'react'
+import { useEffect } from "react"
 
-import { Token, parseAmount } from '@renegade-fi/react'
-import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { isAddress } from 'viem'
-import { useAccount, useBlockNumber } from 'wagmi'
+import { Token, parseAmount } from "@renegade-fi/react"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { isAddress } from "viem"
+import { useAccount, useBlockNumber } from "wagmi"
 
-import { useReadErc20Allowance, useWriteErc20Approve } from '@/lib/generated'
-import { viemClient } from '@/lib/viem'
+import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
+import { viemClient } from "@/lib/viem"
 
 const MAX_INT = BigInt(
-  '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+  "115792089237316195423570985008687907853269984665640564039457584007913129639935",
 )
 
 export function useApprove({
@@ -25,7 +25,7 @@ export function useApprove({
   const { address } = useAccount()
   const { data, isSuccess, queryKey } = useReadErc20Allowance({
     address: mint as `0x${string}`,
-    args: [address ?? '0x', process.env.NEXT_PUBLIC_PERMIT2_CONTRACT],
+    args: [address ?? "0x", process.env.NEXT_PUBLIC_PERMIT2_CONTRACT],
     query: {
       enabled:
         enabled &&
@@ -55,11 +55,11 @@ export function useApprove({
       onSuccess(data, variables, context) {
         toast(`Approved ${Token.findByAddress(variables.address).ticker}`, {
           action: {
-            label: 'Explorer',
+            label: "Explorer",
             onClick: () => {
               window.open(
                 `${viemClient.chain.blockExplorers?.default.url}/tx/${data}`,
-                '_blank',
+                "_blank",
               )
             },
           },

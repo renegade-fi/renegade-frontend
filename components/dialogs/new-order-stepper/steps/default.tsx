@@ -1,34 +1,34 @@
-import * as React from 'react'
+import * as React from "react"
 
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { Token } from '@renegade-fi/react'
-import { parseUnits } from 'viem'
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Token } from "@renegade-fi/react"
+import { parseUnits } from "viem"
 
-import { FeesSection } from '@/app/trade/[base]/components/new-order/fees-sections'
+import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 
 import {
   NewOrderProps,
   useStepper,
-} from '@/components/dialogs/new-order-stepper/new-order-stepper'
-import { TokenIcon } from '@/components/token-icon'
-import { Button } from '@/components/ui/button'
+} from "@/components/dialogs/new-order-stepper/new-order-stepper"
+import { TokenIcon } from "@/components/token-icon"
+import { Button } from "@/components/ui/button"
 import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/dialog"
+import { DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
-import { useCreateOrder } from '@/hooks/use-create-order'
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { formatNumber } from '@/lib/format'
+import { useCreateOrder } from "@/hooks/use-create-order"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { formatNumber } from "@/lib/format"
 
 export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
   const { onNext } = useStepper()
-  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const { handleCreateOrder } = useCreateOrder({
     base,
@@ -67,7 +67,7 @@ export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"
           >
-            {side === 'buy' ? 'Buy' : 'Sell'} {base}
+            {side === "buy" ? "Buy" : "Sell"} {base}
           </Button>
         </DialogFooter>
       </>
@@ -86,7 +86,7 @@ export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
       </ScrollArea>
       <DrawerFooter className="pt-2">
         <Button autoFocus variant="outline" onClick={onNext}>
-          {side === 'buy' ? 'Buy' : 'Sell'} {base}
+          {side === "buy" ? "Buy" : "Sell"} {base}
         </Button>
       </DrawerFooter>
     </>
@@ -97,7 +97,7 @@ function NewOrderForm({
   base,
   side,
   amount,
-}: React.ComponentProps<'form'> & {
+}: React.ComponentProps<"form"> & {
   base: string
   side: string
   amount: string
@@ -112,7 +112,7 @@ function NewOrderForm({
     <>
       <div className="space-y-3">
         <div className="text-muted-foreground">
-          {side === 'buy' ? 'Buy' : 'Sell'}
+          {side === "buy" ? "Buy" : "Sell"}
         </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">
@@ -123,7 +123,7 @@ function NewOrderForm({
       </div>
       <div className="space-y-3">
         <div className="text-muted-foreground">
-          {side === 'buy' ? 'With' : 'For'}
+          {side === "buy" ? "With" : "For"}
         </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">USDC</div>

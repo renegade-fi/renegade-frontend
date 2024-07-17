@@ -1,10 +1,10 @@
-import React from 'react'
+import React from "react"
 
-import { ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft } from "lucide-react"
 
-import { setUseUSDC } from '@/app/trade/[base]/actions'
+import { setUseUSDC } from "@/app/trade/[base]/actions"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 
 export function DenominationButton({
   base,
@@ -29,7 +29,7 @@ export function DenominationButton({
         onClearAmount()
       }}
     >
-      {isUSDCDenominated ? 'USDC' : base}
+      {isUSDCDenominated ? "USDC" : base}
       <ArrowRightLeft className="ml-2 h-5 w-5" />
     </Button>
   )

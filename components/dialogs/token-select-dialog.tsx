@@ -1,9 +1,9 @@
-import * as React from 'react'
+import * as React from "react"
 
-import Link from 'next/link'
+import Link from "next/link"
 
-import { TokenIcon } from '@/components/token-icon'
-import { Button } from '@/components/ui/button'
+import { TokenIcon } from "@/components/token-icon"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerClose,
@@ -21,17 +21,17 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@/components/ui/drawer"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { DISPLAY_TOKENS } from '@/lib/token'
-import { cn } from '@/lib/utils'
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { DISPLAY_TOKENS } from "@/lib/token"
+import { cn } from "@/lib/utils"
 
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
-  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isDesktop = useMediaQuery("(min-width: 768px)")
 
   if (isDesktop) {
     return (
@@ -75,9 +75,9 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TokenList({ className }: React.ComponentProps<'form'>) {
+function TokenList({ className }: React.ComponentProps<"form">) {
   return (
-    <div className={cn('grid items-start', className)}>
+    <div className={cn("grid items-start", className)}>
       {DISPLAY_TOKENS().map(token => (
         <Link href={`/trade/${token.ticker}`} key={token.address}>
           <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">

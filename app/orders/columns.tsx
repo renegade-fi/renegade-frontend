@@ -1,13 +1,13 @@
-'use client'
+"use client"
 
-import { OrderMetadata, Token } from '@renegade-fi/react'
-import { ColumnDef } from '@tanstack/react-table'
-import { ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
+import { OrderMetadata, Token } from "@renegade-fi/react"
+import { ColumnDef } from "@tanstack/react-table"
+import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 
-import { TokenIcon } from '@/components/token-icon'
-import { Button } from '@/components/ui/button'
+import { TokenIcon } from "@/components/token-icon"
+import { Button } from "@/components/ui/button"
 
-import { formatNumber, formatTimestamp } from '@/lib/format'
+import { formatNumber, formatTimestamp } from "@/lib/format"
 
 export const columns: ColumnDef<OrderMetadata>[] = [
   // {
@@ -33,28 +33,28 @@ export const columns: ColumnDef<OrderMetadata>[] = [
   //   enableHiding: false,
   // },
   {
-    id: 'status',
-    accessorKey: 'state',
+    id: "status",
+    accessorKey: "state",
     header: () => <div>Status</div>,
   },
   {
-    id: 'side',
+    id: "side",
     accessorFn: row => {
       return row.data.side
     },
     header: () => <div>Side</div>,
     cell: ({ row }) => {
-      return <div>{row.getValue('side')}</div>
+      return <div>{row.getValue("side")}</div>
     },
   },
   {
-    id: 'asset',
+    id: "asset",
     accessorFn: row => {
       return row.data.base_mint
     },
     header: () => <div>Asset</div>,
     cell: ({ row }) => {
-      const mint = row.getValue<`0x${string}`>('asset')
+      const mint = row.getValue<`0x${string}`>("asset")
       const token = Token.findByAddress(mint)
       return (
         <div className="flex items-center gap-2 font-medium">
@@ -65,7 +65,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
     },
   },
   {
-    id: 'size',
+    id: "size",
     accessorFn: row => {
       return row.data.amount
     },
@@ -76,9 +76,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             variant="ghost"
             onClick={() => {
               const isSorted = column.getIsSorted()
-              if (isSorted === 'desc') {
+              if (isSorted === "desc") {
                 column.toggleSorting(false)
-              } else if (isSorted === 'asc') {
+              } else if (isSorted === "asc") {
                 column.clearSorting()
               } else {
                 column.toggleSorting(true)
@@ -86,9 +86,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             }}
           >
             Size
-            {column.getIsSorted() === 'asc' ? (
+            {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
+            ) : column.getIsSorted() === "desc" ? (
               <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
               <ChevronsUpDown className="ml-2 h-4 w-4" />
@@ -98,15 +98,15 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       )
     },
     cell: ({ row }) => {
-      const amount = row.getValue<bigint>('size')
-      const mint = row.getValue<`0x${string}`>('asset')
+      const amount = row.getValue<bigint>("size")
+      const mint = row.getValue<`0x${string}`>("asset")
       const decimals = Token.findByAddress(mint).decimals
       const formatted = formatNumber(amount, decimals)
       return <div className="pr-4 text-right">{formatted}</div>
     },
   },
   {
-    id: 'filled size',
+    id: "filled size",
     accessorFn: row => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
@@ -117,9 +117,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             variant="ghost"
             onClick={() => {
               const isSorted = column.getIsSorted()
-              if (isSorted === 'desc') {
+              if (isSorted === "desc") {
                 column.toggleSorting(false)
-              } else if (isSorted === 'asc') {
+              } else if (isSorted === "asc") {
                 column.clearSorting()
               } else {
                 column.toggleSorting(true)
@@ -127,9 +127,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             }}
           >
             Filled Size
-            {column.getIsSorted() === 'asc' ? (
+            {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
+            ) : column.getIsSorted() === "desc" ? (
               <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
               <ChevronsUpDown className="ml-2 h-4 w-4" />
@@ -139,15 +139,15 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       )
     },
     cell: ({ row }) => {
-      const size = row.getValue<bigint>('filled size')
-      const mint = row.getValue<`0x${string}`>('asset')
+      const size = row.getValue<bigint>("filled size")
+      const mint = row.getValue<`0x${string}`>("asset")
       const decimals = Token.findByAddress(mint).decimals
       const formatted = formatNumber(size, decimals)
       return <div className="pr-4 text-right">{formatted}</div>
     },
   },
   {
-    id: 'saved',
+    id: "saved",
     accessorFn: row => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
@@ -158,9 +158,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             variant="ghost"
             onClick={() => {
               const isSorted = column.getIsSorted()
-              if (isSorted === 'desc') {
+              if (isSorted === "desc") {
                 column.toggleSorting(false)
-              } else if (isSorted === 'asc') {
+              } else if (isSorted === "asc") {
                 column.clearSorting()
               } else {
                 column.toggleSorting(true)
@@ -168,9 +168,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             }}
           >
             Est. Saved
-            {column.getIsSorted() === 'asc' ? (
+            {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
+            ) : column.getIsSorted() === "desc" ? (
               <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
               <ChevronsUpDown className="ml-2 h-4 w-4" />
@@ -181,12 +181,12 @@ export const columns: ColumnDef<OrderMetadata>[] = [
     },
     // TODO: Add logic to calculate saved amount
     cell: ({ row }) => {
-      return <div className="pr-4 text-right">{'$10.87'}</div>
+      return <div className="pr-4 text-right">{"$10.87"}</div>
     },
   },
   {
-    id: 'created at',
-    accessorKey: 'created',
+    id: "created at",
+    accessorKey: "created",
     header: ({ column }) => {
       return (
         <div className="flex flex-row-reverse">
@@ -194,9 +194,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             variant="ghost"
             onClick={() => {
               const isSorted = column.getIsSorted()
-              if (isSorted === 'desc') {
+              if (isSorted === "desc") {
                 column.toggleSorting(false)
-              } else if (isSorted === 'asc') {
+              } else if (isSorted === "asc") {
                 column.clearSorting()
               } else {
                 column.toggleSorting(true)
@@ -204,9 +204,9 @@ export const columns: ColumnDef<OrderMetadata>[] = [
             }}
           >
             Time
-            {column.getIsSorted() === 'asc' ? (
+            {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
+            ) : column.getIsSorted() === "desc" ? (
               <ChevronDown className="ml-2 h-4 w-4" />
             ) : (
               <ChevronsUpDown className="ml-2 h-4 w-4" />
@@ -216,14 +216,14 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       )
     },
     cell: ({ row }) => {
-      const timestamp = row.getValue<bigint>('created at')
+      const timestamp = row.getValue<bigint>("created at")
       const formatted = formatTimestamp(Number(timestamp))
 
       return <div className="pr-4 text-right font-medium">{formatted}</div>
     },
   },
   {
-    id: 'time to fill',
+    id: "time to fill",
     accessorFn: row => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
@@ -232,7 +232,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
     },
     // TODO: Add logic to calculate time to fill
     cell: () => {
-      return <div>{'2 min'}</div>
+      return <div>{"2 min"}</div>
     },
   },
   // {

@@ -1,21 +1,21 @@
-import { Token, useBalances } from '@renegade-fi/react'
+import { Token, useBalances } from "@renegade-fi/react"
 
-import { TransferDialog } from '@/components/dialogs/transfer-dialog'
-import { TokenIcon } from '@/components/token-icon'
-import { Button } from '@/components/ui/button'
+import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { TokenIcon } from "@/components/token-icon"
+import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip"
 
-import { useUSDPrice } from '@/hooks/use-usd-price'
-import { formatCurrency, formatNumber } from '@/lib/format'
+import { useUSDPrice } from "@/hooks/use-usd-price"
+import { formatCurrency, formatNumber } from "@/lib/format"
 
 export function AssetsSection({
   base,
-  quote = 'USDC',
+  quote = "USDC",
 }: {
   base: string
   quote?: string

@@ -1,12 +1,12 @@
-import * as React from 'react'
+import * as React from "react"
 
-import { Label } from '@radix-ui/react-label'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { Token, useBalances } from '@renegade-fi/react'
-import { useAccount } from 'wagmi'
+import { Label } from "@radix-ui/react-label"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Token, useBalances } from "@renegade-fi/react"
+import { useAccount } from "wagmi"
 
-import { TokenSelect } from '@/components/dialogs/token-select'
-import { Button } from '@/components/ui/button'
+import { TokenSelect } from "@/components/dialogs/token-select"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerClose,
@@ -23,16 +23,16 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTrigger,
-} from '@/components/ui/drawer'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/drawer"
+import { Input } from "@/components/ui/input"
 
-import { useApprove } from '@/hooks/use-approve'
-import { useDeposit } from '@/hooks/use-deposit'
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { useWithdraw } from '@/hooks/use-withdraw'
-import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
-import { cn } from '@/lib/utils'
+import { useApprove } from "@/hooks/use-approve"
+import { useDeposit } from "@/hooks/use-deposit"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { useWithdraw } from "@/hooks/use-withdraw"
+import { formatNumber } from "@/lib/format"
+import { useReadErc20BalanceOf } from "@/lib/generated"
+import { cn } from "@/lib/utils"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -47,12 +47,12 @@ export function TransferDialog({
   children: React.ReactNode
 }) {
   const [open, setOpen] = React.useState(false)
-  const isDesktop = useMediaQuery('(min-width: 768px)')
+  const isDesktop = useMediaQuery("(min-width: 768px)")
   const [direction, setDirection] = React.useState<ExternalTransferDirection>(
     ExternalTransferDirection.Deposit,
   )
-  const [mint, setMint] = React.useState(base ?? '')
-  const [amount, setAmount] = React.useState('')
+  const [mint, setMint] = React.useState(base ?? "")
+  const [amount, setAmount] = React.useState("")
 
   const { handleDeposit } = useDeposit({
     amount,
@@ -84,7 +84,7 @@ export function TransferDialog({
             // Prevent closing the dialog when clicking inside toast
             if (
               e.target instanceof Element &&
-              e.target.closest('[data-sonner-toast]')
+              e.target.closest("[data-sonner-toast]")
             ) {
               e.preventDefault()
             }
@@ -95,10 +95,10 @@ export function TransferDialog({
               <Button
                 variant="outline"
                 className={cn(
-                  'flex-1 border-0 font-extended text-lg font-bold',
+                  "flex-1 border-0 font-extended text-lg font-bold",
                   direction === ExternalTransferDirection.Deposit
-                    ? 'text-primary'
-                    : 'text-muted-foreground',
+                    ? "text-primary"
+                    : "text-muted-foreground",
                 )}
                 size="xl"
                 onClick={() => setDirection(ExternalTransferDirection.Deposit)}
@@ -108,10 +108,10 @@ export function TransferDialog({
               <Button
                 variant="outline"
                 className={cn(
-                  'border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold',
+                  "border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold",
                   direction === ExternalTransferDirection.Withdraw
-                    ? 'text-primary'
-                    : 'text-muted-foreground',
+                    ? "text-primary"
+                    : "text-muted-foreground",
                 )}
                 size="xl"
                 onClick={() => setDirection(ExternalTransferDirection.Withdraw)}
@@ -122,13 +122,13 @@ export function TransferDialog({
             <VisuallyHidden>
               <DialogTitle>
                 {direction === ExternalTransferDirection.Deposit
-                  ? 'Deposit'
-                  : 'Withdraw'}
+                  ? "Deposit"
+                  : "Withdraw"}
               </DialogTitle>
               <DialogDescription>
                 {direction === ExternalTransferDirection.Deposit
-                  ? 'Deposit tokens into Renegade'
-                  : 'Withdraw tokens from Renegade'}
+                  ? "Deposit tokens into Renegade"
+                  : "Withdraw tokens from Renegade"}
               </DialogDescription>
             </VisuallyHidden>
           </DialogHeader>
@@ -153,7 +153,7 @@ export function TransferDialog({
                         handleDeposit({
                           onSuccess: () => {
                             setOpen(false)
-                            setAmount('')
+                            setAmount("")
                           },
                         })
                       },
@@ -162,13 +162,13 @@ export function TransferDialog({
                     handleDeposit({
                       onSuccess: () => {
                         setOpen(false)
-                        setAmount('')
+                        setAmount("")
                       },
                     })
                   }
                 }}
               >
-                {needsApproval ? 'Approve & Deposit' : 'Deposit'}
+                {needsApproval ? "Approve & Deposit" : "Deposit"}
               </Button>
             ) : (
               <Button
@@ -179,7 +179,7 @@ export function TransferDialog({
                   handleWithdraw({
                     onSuccess: () => {
                       setOpen(false)
-                      setAmount('')
+                      setAmount("")
                     },
                   })
                 }}
@@ -228,8 +228,8 @@ export function TransferDialog({
         <DrawerFooter className="pt-2">
           <Button>
             {direction === ExternalTransferDirection.Deposit
-              ? 'Deposit'
-              : 'Withdraw'}
+              ? "Deposit"
+              : "Withdraw"}
           </Button>
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -247,7 +247,7 @@ function TransferForm({
   mint,
   direction,
   onChangeBase,
-}: React.ComponentProps<'form'> & {
+}: React.ComponentProps<"form"> & {
   amount: string
   onChangeAmount: (amount: string) => void
   mint: string
@@ -267,11 +267,11 @@ function TransferForm({
 
   const formattedRenegadeBalance = baseToken
     ? formatNumber(renegadeBalance ?? BigInt(0), baseToken.decimals)
-    : ''
+    : ""
 
   const { data: l2Balance } = useReadErc20BalanceOf({
     address: baseToken?.address,
-    args: [address ?? '0x'],
+    args: [address ?? "0x"],
     query: {
       enabled:
         direction === ExternalTransferDirection.Deposit &&
@@ -281,17 +281,17 @@ function TransferForm({
   })
   const formattedL2Balance = baseToken
     ? formatNumber(l2Balance ?? BigInt(0), baseToken.decimals)
-    : ''
+    : ""
 
   const balance =
     direction === ExternalTransferDirection.Deposit
       ? formattedL2Balance
       : formattedRenegadeBalance
 
-  const hideMaxButton = !mint || balance === '0' || amount === balance
+  const hideMaxButton = !mint || balance === "0" || amount === balance
 
   return (
-    <div className={cn('space-y-8', className)}>
+    <div className={cn("space-y-8", className)}>
       <div className="grid w-full items-center gap-3">
         <Label htmlFor="token">Token</Label>
         <TokenSelect
@@ -308,8 +308,8 @@ function TransferForm({
             id="amount"
             placeholder="0.0"
             className={cn(
-              'w-full rounded-none pr-12 font-mono',
-              hideMaxButton ? 'pr-12' : '',
+              "w-full rounded-none pr-12 font-mono",
+              hideMaxButton ? "pr-12" : "",
             )}
             value={amount}
             onChange={e => onChangeAmount(e.target.value)}
@@ -331,8 +331,8 @@ function TransferForm({
         <div className="flex justify-between">
           <div className="text-sm text-muted-foreground">
             {direction === ExternalTransferDirection.Deposit
-              ? 'Arbitrum'
-              : 'Renegade'}
+              ? "Arbitrum"
+              : "Renegade"}
             &nbsp;Balance
           </div>
           <Button
@@ -343,7 +343,7 @@ function TransferForm({
             }}
           >
             <div className="font-mono text-sm">
-              {baseToken ? `${balance} ${baseToken.ticker}` : '--'}
+              {baseToken ? `${balance} ${baseToken.ticker}` : "--"}
             </div>
           </Button>
         </div>

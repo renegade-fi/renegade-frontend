@@ -3,15 +3,15 @@ import {
   parseAmount,
   useConfig,
   useTaskHistory,
-} from '@renegade-fi/react'
-import { deposit, getPkRootScalars } from '@renegade-fi/react/actions'
-import { toast } from 'sonner'
-import { isAddress } from 'viem'
-import { useWalletClient } from 'wagmi'
+} from "@renegade-fi/react"
+import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
+import { toast } from "sonner"
+import { isAddress } from "viem"
+import { useWalletClient } from "wagmi"
 
-import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from '@/lib/constants/task'
-import { signPermit2 } from '@/lib/permit2'
-import { chain } from '@/lib/viem'
+import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from "@/lib/constants/task"
+import { signPermit2 } from "@/lib/permit2"
+import { chain } from "@/lib/viem"
 
 export function useDeposit({
   mint,
@@ -24,7 +24,7 @@ export function useDeposit({
   const { data: walletClient } = useWalletClient()
   const { data: taskHistory } = useTaskHistory()
   const isQueue = Array.from(taskHistory?.values() || []).find(
-    task => task.state !== 'Completed' && task.state !== 'Failed',
+    task => task.state !== "Completed" && task.state !== "Failed",
   )
 
   async function handleDeposit({ onSuccess }: { onSuccess?: () => void }) {

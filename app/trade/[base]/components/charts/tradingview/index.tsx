@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react"
 
 import {
   ChartingLibraryWidgetOptions,
   LanguageCode,
   ResolutionString,
   widget,
-} from '@renegade-fi/tradingview-charts'
+} from "@renegade-fi/tradingview-charts"
 
-import { datafeed } from './datafeed'
+import { datafeed } from "./datafeed"
 
 export default function TradingViewChart(
   props: Partial<ChartingLibraryWidgetOptions>,

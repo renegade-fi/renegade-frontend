@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState } from "react"
 
-import { useConfig, useInitialized, useStatus } from '@renegade-fi/react'
-import { disconnect as disconnectRenegade } from '@renegade-fi/react/actions'
-import { useModal } from 'connectkit'
-import { useAccount, useDisconnect } from 'wagmi'
+import { useConfig, useInitialized, useStatus } from "@renegade-fi/react"
+import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
+import { useModal } from "connectkit"
+import { useAccount, useDisconnect } from "wagmi"
 
-import { SignInDialog } from '@/components/dialogs/sign-in-dialog'
-import { Button } from '@/components/ui/button'
+import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
+import { Button } from "@/components/ui/button"
 
 export function ConnectWalletButton() {
   const { address } = useAccount()
@@ -21,7 +21,7 @@ export function ConnectWalletButton() {
 
   const handleClick = () => {
     if (address) {
-      if (renegadeStatus === 'in relayer') {
+      if (renegadeStatus === "in relayer") {
         disconnectRenegade(config)
         disconnect()
       } else {
@@ -32,15 +32,15 @@ export function ConnectWalletButton() {
     }
   }
 
-  let content = ''
+  let content = ""
   if (address) {
-    if (renegadeStatus === 'in relayer') {
+    if (renegadeStatus === "in relayer") {
       content = `Disconnect ${address?.slice(0, 6)}`
     } else {
       content = `Sign in with ${address?.slice(0, 6)}`
     }
   } else {
-    content = 'Connect Wallet'
+    content = "Connect Wallet"
   }
 
   return (

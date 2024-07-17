@@ -1,15 +1,15 @@
-'use client'
+"use client"
 
-import * as React from 'react'
+import * as React from "react"
 
-import { Exchange, Token } from '@renegade-fi/react'
+import { Exchange, Token } from "@renegade-fi/react"
 
-import { formatCurrency } from '@/lib/format'
-import { cn } from '@/lib/utils'
-import { usePrice } from '@/stores/price-store'
+import { formatCurrency } from "@/lib/format"
+import { cn } from "@/lib/utils"
+import { usePrice } from "@/stores/price-store"
 
 export function AnimatedPrice({
-  exchange = 'binance',
+  exchange = "binance",
   base,
 }: {
   exchange?: Exchange
@@ -38,8 +38,8 @@ export function AnimatedPrice({
     <span
       key={animationKey}
       className={cn({
-        'animate-price-green': price > prev.current,
-        'animate-price-red': price < prev.current,
+        "animate-price-green": price > prev.current,
+        "animate-price-red": price < prev.current,
       })}
     >
       {formatCurrency(price)}

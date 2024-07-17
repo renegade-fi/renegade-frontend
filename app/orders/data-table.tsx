@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import React from 'react'
+import React from "react"
 
-import Link from 'next/link'
+import Link from "next/link"
 
-import { OrderMetadata, OrderState } from '@renegade-fi/react'
+import { OrderMetadata, OrderState } from "@renegade-fi/react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -16,20 +16,20 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
-import { Settings2 } from 'lucide-react'
+} from "@tanstack/react-table"
+import { Settings2 } from "lucide-react"
 
-import { OrderDetailsSheet } from '@/app/trade/[base]/components/order-details-sheet'
+import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details-sheet"
 
-import { TableSelect } from '@/components/table-select'
-import { Button } from '@/components/ui/button'
+import { TableSelect } from "@/components/table-select"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -37,9 +37,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
-import { DISPLAY_TOKENS } from '@/lib/token'
+import { DISPLAY_TOKENS } from "@/lib/token"
 
 const statuses = Object.values(OrderState).map(status => ({
   value: status,
@@ -47,8 +47,8 @@ const statuses = Object.values(OrderState).map(status => ({
 }))
 
 const sides = [
-  { value: 'buy', label: 'Buy' },
-  { value: 'sell', label: 'Sell' },
+  { value: "buy", label: "Buy" },
+  { value: "sell", label: "Sell" },
 ]
 
 const tokens = DISPLAY_TOKENS().map(token => ({
@@ -82,12 +82,12 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>(initialVisibleColumns ?? {})
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: 'created at', desc: true },
+    { id: "created at", desc: true },
   ])
 
-  const [status, setStatus] = React.useState(initialStatus ?? '')
-  const [side, setSide] = React.useState(initialSide ?? '')
-  const [mint, setMint] = React.useState(initialMint ?? '')
+  const [status, setStatus] = React.useState(initialStatus ?? "")
+  const [side, setSide] = React.useState(initialSide ?? "")
+  const [mint, setMint] = React.useState(initialMint ?? "")
 
   const table = useReactTable({
     columns,
@@ -109,15 +109,15 @@ export function DataTable<TData, TValue>({
   })
 
   React.useEffect(() => {
-    table.getColumn('status')?.setFilterValue(status)
+    table.getColumn("status")?.setFilterValue(status)
   }, [status, table])
 
   React.useEffect(() => {
-    table.getColumn('side')?.setFilterValue(side)
+    table.getColumn("side")?.setFilterValue(side)
   }, [side, table])
 
   React.useEffect(() => {
-    table.getColumn('asset')?.setFilterValue(mint)
+    table.getColumn("asset")?.setFilterValue(mint)
   }, [mint, table])
 
   return (
@@ -148,9 +148,9 @@ export function DataTable<TData, TValue>({
             size="sm"
             className="text-muted-foreground"
             onClick={() => {
-              setStatus('')
-              setSide('')
-              setMint('')
+              setStatus("")
+              setSide("")
+              setMint("")
             }}
           >
             Clear
@@ -221,7 +221,7 @@ export function DataTable<TData, TValue>({
                   >
                     <TableRow
                       key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
+                      data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map(cell => (
                         <TableCell key={cell.id}>

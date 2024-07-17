@@ -1,16 +1,16 @@
-'use client'
+"use client"
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from "react"
 
 import {
   OrderMetadata,
   OrderState,
   Token,
   useOrderHistoryWebSocket,
-} from '@renegade-fi/react'
-import { toast } from 'sonner'
+} from "@renegade-fi/react"
+import { toast } from "sonner"
 
-import { formatNumber } from '@/lib/format'
+import { formatNumber } from "@/lib/format"
 
 export function OrderToaster() {
   const [incomingOrder, setIncomingOrder] = useState<OrderMetadata>()
@@ -44,7 +44,7 @@ export function OrderToaster() {
       if (state === OrderState.Filled) {
         toast.success(
           `Order completely filled: ${
-            side === 'Buy' ? 'Bought' : 'Sold'
+            side === "Buy" ? "Bought" : "Sold"
           } ${formattedAmount} ${base.ticker}`,
         )
       } else if (fills.length > prevFills.length) {
@@ -55,7 +55,7 @@ export function OrderToaster() {
         const formattedCurrentFill = formatNumber(currentFill, base.decimals)
         toast.success(
           `Order partially filled: ${
-            side === 'Buy' ? 'Bought' : 'Sold'
+            side === "Buy" ? "Bought" : "Sold"
           } ${formattedCurrentFill} ${base.ticker}`,
         )
       }

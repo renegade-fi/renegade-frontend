@@ -1,18 +1,18 @@
-'use client'
+"use client"
 
-import * as React from 'react'
+import * as React from "react"
 
-import { Token } from '@renegade-fi/react'
-import { useAccount } from 'wagmi'
+import { Token } from "@renegade-fi/react"
+import { useAccount } from "wagmi"
 
-import { formatNumber } from '@/lib/format'
-import { useReadErc20BalanceOf } from '@/lib/generated'
+import { formatNumber } from "@/lib/format"
+import { useReadErc20BalanceOf } from "@/lib/generated"
 
 export function L2Balance({ base }: { base: `0x${string}` }) {
   const { address } = useAccount()
   const { data: l2Balance } = useReadErc20BalanceOf({
     address: base,
-    args: [address ?? '0x'],
+    args: [address ?? "0x"],
     query: {
       enabled: !!base && !!address,
     },

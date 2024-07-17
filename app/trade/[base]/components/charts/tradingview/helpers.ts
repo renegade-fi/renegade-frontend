@@ -1,7 +1,7 @@
-import { Bar } from '@renegade-fi/tradingview-charts'
+import { Bar } from "@renegade-fi/tradingview-charts"
 
 // Amberdata API URL
-const BASE_URL = 'https://api.amberdata.com'
+const BASE_URL = "https://api.amberdata.com"
 
 // TODO: Remove because search is disabled
 export async function getAllBinanceSymbols() {
@@ -19,8 +19,8 @@ export async function getAllBinanceSymbols() {
       symbol: pair.nativePair,
       full_name: key,
       description: `${base}/${quote}`,
-      exchange: 'binance',
-      type: 'crypto',
+      exchange: "binance",
+      type: "crypto",
     })
   }
   return allSymbols
@@ -28,10 +28,10 @@ export async function getAllBinanceSymbols() {
 
 export async function makeAmberApiRequest(url: URL) {
   const options = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      accept: 'application/json',
-      'x-api-key': process.env.NEXT_PUBLIC_AMBERDATA_API_KEY!,
+      accept: "application/json",
+      "x-api-key": process.env.NEXT_PUBLIC_AMBERDATA_API_KEY!,
     },
   }
   try {
@@ -58,7 +58,7 @@ export function formatBars(bars: any[]): Bar[] {
 export async function fetchSymbolReferenceInfo(pair: string) {
   try {
     const url = new URL(`${BASE_URL}/market/spot/exchanges/reference`)
-    url.searchParams.set('exchange', 'binance')
+    url.searchParams.set("exchange", "binance")
     const res = await makeAmberApiRequest(url)
     if (res.status !== 200) {
       throw new Error(res.statusText)
@@ -89,8 +89,8 @@ export async function fetchBarsForPeriod(
   chunkSizeInMs: number,
 ): Promise<Bar[]> {
   const url = new URL(`${BASE_URL}/market/spot/ohlcv/${ticker}/historical`)
-  url.searchParams.set('exchange', 'binance')
-  url.searchParams.set('timeInterval', timeInterval)
+  url.searchParams.set("exchange", "binance")
+  url.searchParams.set("timeInterval", timeInterval)
 
   // Split the time range into chunks to avoid exceeding the API limit
   const chunks = []
@@ -107,8 +107,8 @@ export async function fetchBarsForPeriod(
 
   const fetchPromises = chunks.map(chunk => {
     const chunkUrl = new URL(url.toString())
-    chunkUrl.searchParams.set('startDate', chunk.from.toString())
-    chunkUrl.searchParams.set('endDate', chunk.to.toString())
+    chunkUrl.searchParams.set("startDate", chunk.from.toString())
+    chunkUrl.searchParams.set("endDate", chunk.to.toString())
     return makeAmberApiRequest(chunkUrl)
   })
 
@@ -119,7 +119,7 @@ export async function fetchBarsForPeriod(
   })
 
   if (bars.length === 0) {
-    throw new Error('NoData')
+    throw new Error("NoData")
   }
 
   bars.sort((a, b) => a.time - b.time)

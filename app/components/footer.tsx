@@ -1,13 +1,13 @@
-'use client'
+"use client"
 
-import Image from 'next/image'
+import Image from "next/image"
 
 import {
   DiscordLogoIcon,
   GitHubLogoIcon,
   TwitterLogoIcon,
-} from '@radix-ui/react-icons'
-import { Book } from 'lucide-react'
+} from "@radix-ui/react-icons"
+import { Book } from "lucide-react"
 
 export function Footer() {
   return (
