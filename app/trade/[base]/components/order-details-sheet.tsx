@@ -59,12 +59,14 @@ export function OrderDetailsSheet({
 
   const formattedFills = order.fills.map(fill => ({
     amount: Number(formatNumber(fill.amount, token.decimals)),
-    price: Number(fill.price),
+    price: Number(fill.price.price),
   }))
   const vwap =
     formattedFills.reduce((acc, fill) => acc + fill.amount * fill.price, 0) /
     formattedFills.reduce((acc, fill) => acc + fill.amount, 0)
-  const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formatCurrency(vwap)}`
+
+  const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
+  const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
 
   return (
     <Sheet>
