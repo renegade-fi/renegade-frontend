@@ -71,12 +71,16 @@ export function useApprove({
     },
   })
 
-  function handleApprove({ onSuccess }: { onSuccess?: () => void }) {
-    if (!mint || !isAddress(mint)) return
+  async function handleApprove({ onSuccess }: { onSuccess?: () => void }) {
+    if (!mint || !isAddress(mint) || !address) return
+    const nonce = await viemClient.getTransactionCount({
+      address,
+    })
     writeContract(
       {
         address: mint,
         args: [process.env.NEXT_PUBLIC_PERMIT2_CONTRACT, MAX_INT],
+        nonce
       },
       {
         onSuccess,
