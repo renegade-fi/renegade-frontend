@@ -8,16 +8,14 @@ import { cn } from "@/lib/utils"
 
 // Percentage should be <= 1
 export function AmountShortcutButton({
-  amount,
   base,
   className,
   onSetAmount,
   percentage,
 }: {
-  amount: string
   base: string
   className?: string
-  onSetAmount: (amount: string) => void
+  onSetAmount: (amount: number) => void
   percentage: number
 }) {
   const data = useBalances()
@@ -36,7 +34,10 @@ export function AmountShortcutButton({
     <Button
       variant="outline"
       className={cn(className)}
-      onClick={() => onSetAmount(shortcut.toString())}
+      onClick={e => {
+        e.preventDefault()
+        onSetAmount(shortcut)
+      }}
       disabled={isDisabled}
     >
       {percentage === 1 ? "MAX" : `${percentage * 100}%`}

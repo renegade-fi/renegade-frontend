@@ -30,42 +30,46 @@ export function FeesSection({
   amount,
   base,
   isUSDCDenominated,
-  side,
+  isSell,
 }: {
-  amount: string
+  amount: number
   base: string
-  isUSDCDenominated?: boolean
-  side: string
+  isSell: boolean
+  isUSDCDenominated: boolean
 }) {
   const baseToken = Token.findByTicker(base)
   const quoteAddress = Token.findByTicker("USDC").address
   const price = usePrice({
     baseAddress: baseToken.address,
   })
-  let baseAmount = amount
-  if (isUSDCDenominated && Number(baseAmount)) {
-    // TODO: [SAFETY]: Check if amount is a number
-    baseAmount = (Number(amount) / price).toString()
+
+  let usdPrice = amount
+  if (!isUSDCDenominated) {
+    usdPrice = Number(amount) * price
   }
-  // TODO: [SAFETY] Check if amount is a number
-  const usdPrice = price * Number(baseAmount)
+
   const feesCalculation = useMemo(() => {
     let res = {
       relayerFee: 0,
       protocolFee: 0,
     }
-    if (!baseAmount) return res
-    res.protocolFee = Number(baseAmount) * PROTOCOL_FEE
-    res.relayerFee = Number(baseAmount) * RELAYER_FEE
+    if (!usdPrice) return res
+    res.protocolFee = Number(usdPrice) * PROTOCOL_FEE
+    res.relayerFee = Number(usdPrice) * RELAYER_FEE
     return res
-  }, [baseAmount])
+  }, [usdPrice])
+
+  let baseAmount = amount
+  if (isUSDCDenominated && Number(amount) && price) {
+    baseAmount = Number(amount) / price
+  }
 
   const predictedSavings = usePredictedSavings(
     {
       base: baseToken.address,
       quote: quoteAddress,
-      amount: parseAmount(baseAmount, baseToken),
-      side: side === "buy" ? Direction.BUY : Direction.SELL,
+      amount: parseAmount(baseAmount.toString(), baseToken),
+      side: isSell ? Direction.SELL : Direction.BUY,
     },
     RENEGADE_PROTOCOL_FEE_RATE + RENEGADE_RELAYER_FEE_RATE,
     usdPrice,
