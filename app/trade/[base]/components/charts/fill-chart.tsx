@@ -80,7 +80,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
   const formattedFills = order.fills
     .map(fill => ({
-      timestamp: Number(fill.price.timestamp),
+      timestamp: Number(fill.price.timestamp) * 1000,
       amount: Number(formatNumber(fill.amount, token.decimals)),
       price: Number(fill.price.price),
     }))
@@ -105,7 +105,10 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     from = formattedFills[0].timestamp - padding
     to = formattedFills[formattedFills.length - 1].timestamp + padding
   }
-
+  console.log("debug: ", {
+    from,
+    to,
+  })
   const { data: ohlc } = useOHLC(token.ticker, from, to, "minutes")
 
   const chartData = useMemo(() => {

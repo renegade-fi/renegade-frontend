@@ -29,8 +29,8 @@ export function FillTable({ orderId }: { orderId: string }) {
   const token = Token.findByAddress(order.data.base_mint)
   const formattedFills = order.fills.map(fill => ({
     amount: formatNumber(fill.amount, token.decimals),
-    price: Number(fill.price),
-    timestamp: formatTimestamp(Number(fill.price.timestamp)),
+    price: Number(fill.price.price),
+    timestamp: formatTimestamp(Number(fill.price.timestamp) * 1000),
   }))
 
   return (
