@@ -1,11 +1,14 @@
 import * as React from "react"
 
-import { Label } from "@radix-ui/react-label"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, useBalances } from "@renegade-fi/react"
+import { useForm, useFormState, useWatch } from "react-hook-form"
 import { useAccount } from "wagmi"
+import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
+import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -24,7 +27,14 @@ import {
   DrawerHeader,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { Input } from "@/components/ui/input"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 
 import { useApprove } from "@/hooks/use-approve"
 import { useDeposit } from "@/hooks/use-deposit"
@@ -33,6 +43,20 @@ import { useWithdraw } from "@/hooks/use-withdraw"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
 import { cn } from "@/lib/utils"
+
+const formSchema = z.object({
+  amount: z.coerce
+    .number({
+      required_error: "You must submit an amount.",
+      invalid_type_error: "Amount must be a number",
+    })
+    .gt(0, {
+      message: "Amount is required",
+    }),
+  mint: z.string().min(1, {
+    message: "Token is required",
+  }),
+})
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -51,24 +75,6 @@ export function TransferDialog({
   const [direction, setDirection] = React.useState<ExternalTransferDirection>(
     ExternalTransferDirection.Deposit,
   )
-  const [mint, setMint] = React.useState(base ?? "")
-  const [amount, setAmount] = React.useState("")
-
-  const { handleDeposit } = useDeposit({
-    amount,
-    mint,
-  })
-
-  const { handleWithdraw } = useWithdraw({
-    amount,
-    mint,
-  })
-
-  const { needsApproval, handleApprove } = useApprove({
-    amount,
-    mint,
-    enabled: direction === ExternalTransferDirection.Deposit,
-  })
 
   if (isDesktop) {
     return (
@@ -135,59 +141,9 @@ export function TransferDialog({
           <TransferForm
             className="p-6"
             direction={direction}
-            amount={amount}
-            onChangeAmount={setAmount}
-            mint={mint}
-            onChangeBase={setMint}
+            initialMint={base}
+            onSuccess={() => setOpen(false)}
           />
-          <DialogFooter>
-            {direction === ExternalTransferDirection.Deposit ? (
-              <Button
-                variant="outline"
-                className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-                size="xl"
-                onClick={() => {
-                  if (needsApproval) {
-                    handleApprove({
-                      onSuccess: () => {
-                        handleDeposit({
-                          onSuccess: () => {
-                            setOpen(false)
-                            setAmount("")
-                          },
-                        })
-                      },
-                    })
-                  } else {
-                    handleDeposit({
-                      onSuccess: () => {
-                        setOpen(false)
-                        setAmount("")
-                      },
-                    })
-                  }
-                }}
-              >
-                {needsApproval ? "Approve & Deposit" : "Deposit"}
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-                size="xl"
-                onClick={() => {
-                  handleWithdraw({
-                    onSuccess: () => {
-                      setOpen(false)
-                      setAmount("")
-                    },
-                  })
-                }}
-              >
-                Withdraw
-              </Button>
-            )}
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     )
@@ -218,23 +174,10 @@ export function TransferDialog({
           </div>
         </DrawerHeader>
         <TransferForm
-          className="p-6"
-          amount={amount}
-          onChangeAmount={setAmount}
           direction={direction}
-          mint={mint}
-          onChangeBase={setMint}
+          initialMint={base}
+          onSuccess={() => setOpen(false)}
         />
-        <DrawerFooter className="pt-2">
-          <Button>
-            {direction === ExternalTransferDirection.Deposit
-              ? "Deposit"
-              : "Withdraw"}
-          </Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   )
@@ -242,21 +185,31 @@ export function TransferDialog({
 
 function TransferForm({
   className,
-  amount,
-  onChangeAmount,
-  mint,
   direction,
-  onChangeBase,
+  initialMint,
+  onSuccess,
 }: React.ComponentProps<"form"> & {
-  amount: string
-  onChangeAmount: (amount: string) => void
-  mint: string
   direction: ExternalTransferDirection
-  onChangeBase: (mint: string) => void
+  initialMint?: string
+  onSuccess: () => void
 }) {
+  const isDesktop = useMediaQuery("(min-width: 768px)")
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      amount: 0,
+      mint: initialMint ?? "",
+    },
+  })
+  const { isValid } = useFormState({ control: form.control })
+
+  const mint = useWatch({
+    control: form.control,
+    name: "mint",
+  })
   const baseToken = mint
-    ? // TODO: Will panic if mint is not a valid address
-      Token.findByAddress(mint as `0x${string}`)
+    ? Token.findByAddress(mint as `0x${string}`)
     : undefined
   const { address } = useAccount()
 
@@ -288,66 +241,172 @@ function TransferForm({
       ? formattedL2Balance
       : formattedRenegadeBalance
 
-  const hideMaxButton = !mint || balance === "0" || amount === balance
+  const amount = useWatch({
+    control: form.control,
+    name: "amount",
+  })
+  const hideMaxButton =
+    !mint || balance === "0" || amount.toString() === balance
+
+  const { handleDeposit } = useDeposit({
+    amount: amount.toString(),
+    mint,
+  })
+
+  const { handleWithdraw } = useWithdraw({
+    amount: amount.toString(),
+    mint,
+  })
+
+  const { needsApproval, handleApprove } = useApprove({
+    amount: amount.toString(),
+    mint,
+    enabled: direction === ExternalTransferDirection.Deposit,
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values)
+    if (direction === ExternalTransferDirection.Deposit) {
+      if (needsApproval) {
+        handleApprove({
+          onSuccess: () => {
+            handleDeposit({
+              onSuccess: () => {
+                form.reset()
+                onSuccess?.()
+              },
+            })
+          },
+        })
+      } else {
+        handleDeposit({
+          onSuccess: () => {
+            form.reset()
+            onSuccess?.()
+          },
+        })
+      }
+    } else {
+      handleWithdraw({
+        onSuccess: () => {
+          form.reset()
+          onSuccess?.()
+        },
+      })
+    }
+  }
 
   return (
-    <div className={cn("space-y-8", className)}>
-      <div className="grid w-full items-center gap-3">
-        <Label htmlFor="token">Token</Label>
-        <TokenSelect
-          direction={direction}
-          value={mint}
-          onChange={onChangeBase}
-        />
-      </div>
-      <div className="grid w-full items-center gap-3">
-        <Label htmlFor="amount">Amount</Label>
-        <div className="relative w-full">
-          <Input
-            type="text"
-            id="amount"
-            placeholder="0.0"
-            className={cn(
-              "w-full rounded-none pr-12 font-mono",
-              hideMaxButton ? "pr-12" : "",
-            )}
-            value={amount}
-            onChange={e => onChangeAmount(e.target.value)}
-          />
-          {!hideMaxButton && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
-              onClick={() => {
-                onChangeAmount(balance)
-              }}
-            >
-              <span>MAX</span>
-            </Button>
-          )}
-        </div>
-        <div className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
-            {direction === ExternalTransferDirection.Deposit
-              ? "Arbitrum"
-              : "Renegade"}
-            &nbsp;Balance
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className={cn("space-y-8", className)}>
+          <div className="grid w-full items-center gap-3">
+            <FormField
+              control={form.control}
+              name="mint"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Token</FormLabel>
+                  <TokenSelect
+                    direction={direction}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <Button
-            variant="link"
-            className="h-5 p-0"
-            onClick={() => {
-              onChangeAmount(balance)
-            }}
-          >
-            <div className="font-mono text-sm">
-              {baseToken ? `${balance} ${baseToken.ticker}` : "--"}
+          <div className="grid w-full items-center gap-3">
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <NumberInput
+                        className={cn(
+                          "w-full rounded-none pr-12 font-mono",
+                          hideMaxButton ? "pr-12" : "",
+                        )}
+                        placeholder="0.00"
+                        {...field}
+                        value={field.value === 0 ? "" : field.value}
+                      />
+                      {!hideMaxButton && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
+                          onClick={() => {
+                            field.onChange(balance, { shouldValidate: true })
+                          }}
+                        >
+                          <span>MAX</span>
+                        </Button>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-between">
+              <div className="text-sm text-muted-foreground">
+                {direction === ExternalTransferDirection.Deposit
+                  ? "Arbitrum"
+                  : "Renegade"}
+                &nbsp;Balance
+              </div>
+              <Button
+                variant="link"
+                className="h-5 p-0"
+                onClick={e => {
+                  e.preventDefault()
+                  form.setValue("amount", Number(balance), {
+                    shouldValidate: true,
+                  })
+                }}
+              >
+                <div className="font-mono text-sm">
+                  {baseToken ? `${balance} ${baseToken.ticker}` : "--"}
+                </div>
+              </Button>
             </div>
-          </Button>
+          </div>
         </div>
-      </div>
-    </div>
+        {isDesktop ? (
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+              disabled={!form.formState.isValid}
+            >
+              {direction === ExternalTransferDirection.Withdraw
+                ? "Withdraw"
+                : needsApproval
+                  ? "Approve & Deposit"
+                  : "Deposit"}
+            </Button>
+          </DialogFooter>
+        ) : (
+          <DrawerFooter>
+            <Button variant="default" disabled={!form.formState.isValid}>
+              {direction === ExternalTransferDirection.Withdraw
+                ? "Withdraw"
+                : needsApproval
+                  ? "Approve & Deposit"
+                  : "Deposit"}
+            </Button>
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        )}
+      </form>
+    </Form>
   )
 }
