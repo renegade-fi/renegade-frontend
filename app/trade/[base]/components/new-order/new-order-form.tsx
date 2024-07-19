@@ -14,6 +14,7 @@ import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sectio
 
 import { NewOrderStepper } from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
+import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -135,13 +136,12 @@ export function NewOrderForm({
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <Input
-                      className="rounded-none border-none px-0 text-right font-mono text-2xl [appearance:textfield] placeholder:text-right focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    <NumberInput
+                      className="rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
                       placeholder="0.00"
                       {...field}
                       value={field.value === 0 ? "" : field.value}
                       type="number"
-                      onWheel={e => (e.target as HTMLElement).blur()}
                     />
                   </FormControl>
                   <FormMessage />
