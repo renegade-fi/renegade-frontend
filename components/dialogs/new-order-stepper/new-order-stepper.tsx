@@ -2,6 +2,8 @@ import * as React from "react"
 
 import { Token } from "@renegade-fi/react"
 
+import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
+
 import { DefaultStep } from "@/components/dialogs/new-order-stepper/steps/default"
 import { SuccessStep } from "@/components/dialogs/new-order-stepper/steps/success"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
@@ -10,12 +12,11 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrice } from "@/stores/price-store"
 
-export interface NewOrderProps {
-  amount: number
-  base: string
-  isSell: boolean
-  isUSDCDenominated: boolean
+export interface NewOrderProps extends NewOrderFormProps {
   onSuccess?: () => void
+  predictedSavings: number
+  relayerFee: number
+  protocolFee: number
 }
 
 export function NewOrderStepperInner({
