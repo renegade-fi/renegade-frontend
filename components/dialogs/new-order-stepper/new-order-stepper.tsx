@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 
 import { Token } from "@renegade-fi/react"
@@ -13,11 +11,11 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrice } from "@/stores/price-store"
 
 export interface NewOrderProps {
+  amount: number
   base: string
-  side: string
-  amount: string
+  isSell: boolean
+  isUSDCDenominated: boolean
   onSuccess?: () => void
-  isUSDCDenominated?: boolean
 }
 
 export function NewOrderStepperInner({
@@ -32,9 +30,9 @@ export function NewOrderStepperInner({
     baseAddress: Token.findByTicker(base).address,
   })
   let baseAmount = amount
-  if (isUSDCDenominated) {
+  if (isUSDCDenominated && price) {
     // TODO: [SAFETY]: Check if amount is a number
-    baseAmount = (Number(amount) / price).toString()
+    baseAmount = Number(amount) / price
   }
 
   if (isDesktop) {
@@ -95,9 +93,16 @@ const StepperContext = React.createContext<{
 
 export const useStepper = () => React.useContext(StepperContext)
 
-const StepperProvider = ({ children }: { children: React.ReactNode }) => {
+const StepperProvider = ({
+  children,
+  open,
+  setOpen,
+}: {
+  children: React.ReactNode
+  open: boolean
+  setOpen: (open: boolean) => void
+}) => {
   const [step, setStep] = React.useState(Step.DEFAULT)
-  const [open, setOpen] = React.useState(false)
 
   const handleNext = () => {
     setStep(step + 1)
@@ -107,6 +112,12 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
     setStep(step - 1)
   }
 
+  React.useEffect(() => {
+    if (open) {
+      setStep(Step.DEFAULT)
+    }
+  }, [open])
+
   return (
     <StepperContext.Provider
       value={{
@@ -115,12 +126,7 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
         setStep,
         step,
         open,
-        setOpen: (open: boolean) => {
-          if (open) {
-            setStep(Step.DEFAULT)
-          }
-          setOpen(open)
-        },
+        setOpen,
       }}
     >
       {children}
@@ -130,10 +136,14 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
 
 export function NewOrderStepper({
   children,
+  open,
+  setOpen,
   ...props
-}: React.PropsWithChildren<NewOrderProps>) {
+}: React.PropsWithChildren<
+  NewOrderProps & { open: boolean; setOpen: (open: boolean) => void }
+>) {
   return (
-    <StepperProvider>
+    <StepperProvider open={open} setOpen={setOpen}>
       <NewOrderStepperInner {...props}>{children}</NewOrderStepperInner>
     </StepperProvider>
   )

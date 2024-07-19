@@ -12,6 +12,7 @@ import {
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 
+import { NewOrderStepper } from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,7 +32,7 @@ const formSchema = z.object({
       required_error: "You must submit an amount.",
       invalid_type_error: "Amount must be a number",
     })
-    .positive({
+    .gt(0, {
       message: "You must submit an amount greater than 0.",
     }),
   base: z.string(),
@@ -71,9 +72,16 @@ export function NewOrderForm({
     return () => subscription.unsubscribe()
   }, [form])
 
+  const [open, setOpen] = React.useState(false)
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    form.trigger().then(isValid => {
+      if (isValid) {
+        setOpen(true)
+      }
+    })
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -187,23 +195,20 @@ export function NewOrderForm({
           <div className="space-y-3 whitespace-nowrap p-6 text-sm text-muted-foreground">
             <FeesSection {...form.watch()} />
           </div>
-          {/* <NewOrderStepper
-            base={base}
-            side={side}
-            amount={amount}
-            onSuccess={() => setAmount("")}
-            isUSDCDenominated={isUSDCDenominated}
-          > */}
           <Button
             variant="outline"
             className="mx-auto px-6 font-extended text-3xl"
             size="xl"
-            type="submit"
           >
             {form.getValues("isSell") ? "Sell" : "Buy"} {base}
           </Button>
-          {/* </NewOrderStepper> */}
         </div>
+        <NewOrderStepper
+          {...form.watch()}
+          onSuccess={() => form.reset()}
+          open={open}
+          setOpen={setOpen}
+        />
       </form>
     </Form>
   )

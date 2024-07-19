@@ -26,14 +26,19 @@ import { useCreateOrder } from "@/hooks/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
 
-export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
+export function DefaultStep({
+  base,
+  isSell,
+  amount,
+  onSuccess,
+}: NewOrderProps) {
   const { onNext } = useStepper()
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const { handleCreateOrder } = useCreateOrder({
     base,
-    side,
-    amount,
+    side: isSell ? "sell" : "buy",
+    amount: amount.toString(),
   })
 
   if (isDesktop) {
@@ -49,7 +54,11 @@ export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
         </DialogHeader>
         <ScrollArea className="max-h-[70vh]">
           <div className="space-y-6 p-6">
-            <NewOrderForm base={base} side={side} amount={amount} />
+            <NewOrderForm
+              base={base}
+              side={isSell ? "sell" : "buy"}
+              amount={amount.toString()}
+            />
           </div>
         </ScrollArea>
         <DialogFooter>
@@ -67,7 +76,7 @@ export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"
           >
-            {side === "buy" ? "Buy" : "Sell"} {base}
+            {isSell ? "Sell" : "Buy"} {base}
           </Button>
         </DialogFooter>
       </>
@@ -81,12 +90,16 @@ export function DefaultStep({ base, side, amount, onSuccess }: NewOrderProps) {
       </DrawerHeader>
       <ScrollArea className="max-h-[60vh] overflow-auto">
         <div className="space-y-6 p-4">
-          <NewOrderForm base={base} side={side} amount={amount} />
+          <NewOrderForm
+            base={base}
+            side={isSell ? "sell" : "buy"}
+            amount={amount.toString()}
+          />
         </div>
       </ScrollArea>
       <DrawerFooter className="pt-2">
         <Button autoFocus variant="outline" onClick={onNext}>
-          {side === "buy" ? "Buy" : "Sell"} {base}
+          {isSell ? "Sell" : "Buy"} {base}
         </Button>
       </DrawerFooter>
     </>
@@ -146,9 +159,9 @@ function NewOrderForm({
         </div>
       </div>
       <Separator />
-      <div className="space-y-3">
-        <FeesSection amount={amount} base={base} side={side} />
-      </div>
+      {/* <div className="space-y-3">
+        <FeesSection amount={Number(amount)} base={base} side={isSell ? "sell" : "buy"} />
+      </div> */}
     </>
   )
 }
