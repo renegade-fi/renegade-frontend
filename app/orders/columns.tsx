@@ -7,13 +7,8 @@ import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 
-import { useSavingsPerFill } from "@/hooks/use-predicted-savings"
-import {
-  RENEGADE_PROTOCOL_FEE_RATE,
-  RENEGADE_RELAYER_FEE_RATE,
-} from "@/lib/constants/protocol"
-import { formatNumber, formatTimestamp } from "@/lib/format"
-import { cn } from "@/lib/utils"
+import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
+import { formatCurrency, formatNumber, formatTimestamp } from "@/lib/format"
 
 export const columns: ColumnDef<OrderMetadata>[] = [
   // {
@@ -188,15 +183,14 @@ export const columns: ColumnDef<OrderMetadata>[] = [
         </div>
       )
     },
-    // TODO: Add logic to calculate saved amount
     cell: function Cell({ row }) {
-      // const totalSavings = useSavingsPerFill(
-      //   row.original,
-      //   RENEGADE_PROTOCOL_FEE_RATE + RENEGADE_RELAYER_FEE_RATE,
-      // ).reduce((acc, curr) => acc + curr, 0)
-      // console.log('🚀 ~ Cell ~ totalSavings:', totalSavings)
-      // return <div className="pr-4 text-right">{totalSavings}</div>
-      return <div className="pr-4 text-right">{"$10.87"}</div>
+      const { data } = useSavingsAcrossFillsQuery({
+        order: row.original,
+      })
+      const totalSaved = data?.reduce((acc, result) => acc + result, 0)
+      const formatted =
+        Math.max(0, totalSaved) >= 0.01 ? formatCurrency(totalSaved) : "--"
+      return <div className="pr-4 text-right">{formatted}</div>
     },
   },
   {
