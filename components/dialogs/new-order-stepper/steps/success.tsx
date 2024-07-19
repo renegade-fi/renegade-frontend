@@ -25,14 +25,13 @@ import { Separator } from "@/components/ui/separator"
 import { useCreateOrder } from "@/hooks/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
 
-export function SuccessStep({ base, side, amount, onSuccess }: NewOrderProps) {
+export function SuccessStep({
+  base,
+  isSell,
+  amount,
+  onSuccess,
+}: NewOrderProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
-
-  const handleCreateOrer = useCreateOrder({
-    base,
-    side,
-    amount,
-  })
 
   if (isDesktop) {
     return (
@@ -46,8 +45,8 @@ export function SuccessStep({ base, side, amount, onSuccess }: NewOrderProps) {
         <div className="space-y-6 p-6">
           <NewOrderForm
             base={base}
-            side={side}
-            amount={amount}
+            side={isSell ? "sell" : "buy"}
+            amount={amount.toString()}
             className="p-6"
           />
         </div>
@@ -76,8 +75,8 @@ export function SuccessStep({ base, side, amount, onSuccess }: NewOrderProps) {
         <div className="space-y-6 p-4">
           <NewOrderForm
             base={base}
-            side={side}
-            amount={amount}
+            side={isSell ? "sell" : "buy"}
+            amount={amount.toString()}
             className="p-6"
           />
         </div>
