@@ -26,6 +26,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 
+import { usePredictedFees } from "@/hooks/use-predicted-fees"
+
 const formSchema = z.object({
   amount: z.coerce
     .number({
@@ -39,6 +41,8 @@ const formSchema = z.object({
   isSell: z.boolean(),
   isUSDCDenominated: z.boolean(),
 })
+
+export type NewOrderFormProps = z.infer<typeof formSchema>
 
 export function NewOrderForm({
   base,
@@ -58,6 +62,8 @@ export function NewOrderForm({
       isUSDCDenominated: isUSDCDenominated ?? false,
     },
   })
+
+  const fees = usePredictedFees(form.watch())
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
@@ -193,7 +199,7 @@ export function NewOrderForm({
           </div>
           <Separator />
           <div className="space-y-3 whitespace-nowrap p-6 text-sm text-muted-foreground">
-            <FeesSection {...form.watch()} />
+            <FeesSection {...fees} />
           </div>
           <Button
             variant="outline"
@@ -205,6 +211,7 @@ export function NewOrderForm({
         </div>
         <NewOrderStepper
           {...form.watch()}
+          {...fees}
           onSuccess={() => form.reset()}
           open={open}
           setOpen={setOpen}
