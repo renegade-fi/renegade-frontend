@@ -1,4 +1,6 @@
-import { PriceLevel } from "@/lib/price-simulation"
+import { PriceLevel, TradeAmounts } from "@/lib/price-simulation"
+import { remapToken } from "@/lib/token"
+import { Direction } from "@/lib/types"
 
 // -------------
 // | CONSTANTS |
@@ -98,71 +100,45 @@ export type OrderbookResponseData = {
 }
 
 // -----------
-// | HANDLER |
-// -----------
-
-/**
- * The GET handler for this route, which fetches the current Binance orderbook
- * for the given pair, and returns it in the expected format.
- */
-export async function GET(request: Request): Promise<Response> {
-  try {
-    const instrument = getInstrumentFromRequest(request)
-    const timestamp = getTimestampFromRequest(request)
-
-    const orderbookRes = await constructBinanceOrderbook(instrument, timestamp)
-
-    return new Response(JSON.stringify(orderbookRes))
-  } catch (e: any) {
-    return new Response(e.message, { status: 500 })
-  }
-}
-
-// -----------
 // | HELPERS |
 // -----------
+export function calculateSavings(
+  binanceTradeAmounts: TradeAmounts,
+  quantity: number,
+  direction: Direction,
+  renegadePrice: number,
+  renegadeFeeRate: number,
+): number {
+  const {
+    effectiveBaseAmount: effectiveBinanceBase,
+    effectiveQuoteAmount: effectiveBinanceQuote,
+  } = binanceTradeAmounts
 
-/**
- * Parses the base and quote tickers from the request's query parameters,
- * and remaps them to corresponding instrument that Amberdata expects
- */
-function getInstrumentFromRequest(request: Request): string {
-  const requestUrl = new URL(request.url)
-  const baseTicker = requestUrl.searchParams.get("base_ticker")?.toLowerCase()
-  const quoteTicker = requestUrl.searchParams.get("quote_ticker")?.toLowerCase()
+  const renegadeQuote = quantity * renegadePrice
 
-  if (!baseTicker || !quoteTicker) {
-    throw new Error("Missing base_ticker or quote_ticker query parameter")
-  }
+  const effectiveRenegadeBase =
+    direction === Direction.BUY ? quantity * (1 - renegadeFeeRate) : quantity
 
-  const base = remapTickerName(baseTicker)
-  const quote = remapTickerName(quoteTicker)
+  const effectiveRenegadeQuote =
+    direction === Direction.SELL
+      ? renegadeQuote * (1 - renegadeFeeRate)
+      : renegadeQuote
 
-  return `${base}_${quote}`
-}
+  // Calculate the savings in base/quote amounts transacted between the Binance and Renegade trades.
+  // When buying, we save when we receive more base and send less quote than on Binance.
+  // When selling, we save when we receive more quote and send less base than on Binance.
+  const baseSavings =
+    direction === Direction.BUY
+      ? effectiveRenegadeBase - effectiveBinanceBase
+      : effectiveBinanceBase - effectiveRenegadeBase
 
-/** Remaps the given ticker name to the corresponding instrument fragment in Amberdata */
-function remapTickerName(ticker: string) {
-  if (ticker === "wbtc") {
-    return "btc"
-  } else if (ticker === "weth") {
-    return "eth"
-  } else if (ticker === "usdc") {
-    return "usdt"
-  }
-  return ticker
-}
+  const quoteSavings =
+    direction === Direction.SELL
+      ? effectiveRenegadeQuote - effectiveBinanceQuote
+      : effectiveBinanceQuote - effectiveRenegadeQuote
 
-/** Parses the timestamp from the request's query parameters */
-function getTimestampFromRequest(request: Request): number {
-  const requestUrl = new URL(request.url)
-  const timestamp = requestUrl.searchParams.get("timestamp")
-
-  if (!timestamp) {
-    throw new Error("Missing timestamp query parameter")
-  }
-
-  return parseInt(timestamp)
+  // Represent the total savings via Renegade, denominated in the quote asset, priced at the current midpoint
+  return baseSavings * renegadePrice + quoteSavings
 }
 
 /**
@@ -171,7 +147,7 @@ function getTimestampFromRequest(request: Request): number {
  * timestamp, then fetching all of the updates between the snapshot and the timestamp,
  * and applying them on top of the snapshot.
  */
-async function constructBinanceOrderbook(
+export async function constructBinanceOrderbook(
   instrument: string,
   timestamp: number,
 ): Promise<OrderbookResponseData> {

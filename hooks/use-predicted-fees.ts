@@ -1,17 +1,11 @@
 import React from "react"
 
-import { Token, parseAmount } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/react"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
-import { usePredictedSavings } from "@/hooks/use-predicted-savings"
-import {
-  PROTOCOL_FEE,
-  RELAYER_FEE,
-  RENEGADE_PROTOCOL_FEE_RATE,
-  RENEGADE_RELAYER_FEE_RATE,
-} from "@/lib/constants/protocol"
-import { Direction } from "@/lib/types"
+import { useSavings } from "@/hooks/use-savings-query"
+import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 import { usePrice } from "@/stores/price-store"
 
 export function usePredictedFees({
@@ -34,6 +28,7 @@ export function usePredictedFees({
     return amount * price
   }, [amount, isUSDCDenominated, price])
 
+  // TODO: [PERFORMANCE] baseAmount triggers render each time price changes, should debounce price s.t. it changes every 10s
   const baseAmount = React.useMemo(() => {
     if (!price) return 0
     if (isUSDCDenominated) {
@@ -53,19 +48,21 @@ export function usePredictedFees({
     return res
   }, [usdPrice])
 
-  const predictedSavings = usePredictedSavings(
-    {
-      base: baseToken.address,
-      quote: quoteAddress,
-      amount: parseAmount(baseAmount.toString(), baseToken),
-      side: isSell ? Direction.SELL : Direction.BUY,
-    },
-    RENEGADE_PROTOCOL_FEE_RATE + RENEGADE_RELAYER_FEE_RATE,
-    usdPrice,
-  )
+  const { data } = useSavings({
+    amount: baseAmount,
+    base,
+    isSell,
+    isUSDCDenominated,
+  })
+  const lastSavings = React.useRef(data?.savings ?? 0)
+  React.useEffect(() => {
+    if (data?.savings && lastSavings.current !== data.savings) {
+      lastSavings.current = data?.savings
+    }
+  }, [data?.savings])
 
   return {
     ...feesCalculation,
-    predictedSavings,
+    predictedSavings: lastSavings.current,
   }
 }
