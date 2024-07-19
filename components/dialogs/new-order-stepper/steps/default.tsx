@@ -26,19 +26,14 @@ import { useCreateOrder } from "@/hooks/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
 
-export function DefaultStep({
-  base,
-  isSell,
-  amount,
-  onSuccess,
-}: NewOrderProps) {
+export function DefaultStep(props: NewOrderProps) {
   const { onNext } = useStepper()
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const { handleCreateOrder } = useCreateOrder({
-    base,
-    side: isSell ? "sell" : "buy",
-    amount: amount.toString(),
+    base: props.base,
+    side: props.isSell ? "sell" : "buy",
+    amount: props.amount.toString(),
   })
 
   if (isDesktop) {
@@ -54,11 +49,7 @@ export function DefaultStep({
         </DialogHeader>
         <ScrollArea className="max-h-[70vh]">
           <div className="space-y-6 p-6">
-            <NewOrderForm
-              base={base}
-              side={isSell ? "sell" : "buy"}
-              amount={amount.toString()}
-            />
+            <NewOrderForm {...props} />
           </div>
         </ScrollArea>
         <DialogFooter>
@@ -67,7 +58,7 @@ export function DefaultStep({
             onClick={() =>
               handleCreateOrder({
                 onSuccess: () => {
-                  onSuccess?.()
+                  props.onSuccess?.()
                   onNext()
                 },
               })
@@ -76,7 +67,7 @@ export function DefaultStep({
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"
           >
-            {isSell ? "Sell" : "Buy"} {base}
+            {props.isSell ? "Sell" : "Buy"} {props.base}
           </Button>
         </DialogFooter>
       </>
@@ -90,16 +81,12 @@ export function DefaultStep({
       </DrawerHeader>
       <ScrollArea className="max-h-[60vh] overflow-auto">
         <div className="space-y-6 p-4">
-          <NewOrderForm
-            base={base}
-            side={isSell ? "sell" : "buy"}
-            amount={amount.toString()}
-          />
+          <NewOrderForm {...props} />
         </div>
       </ScrollArea>
       <DrawerFooter className="pt-2">
         <Button autoFocus variant="outline" onClick={onNext}>
-          {isSell ? "Sell" : "Buy"} {base}
+          {props.isSell ? "Sell" : "Buy"} {props.base}
         </Button>
       </DrawerFooter>
     </>
@@ -108,25 +95,21 @@ export function DefaultStep({
 
 function NewOrderForm({
   base,
-  side,
+  isSell,
   amount,
-}: React.ComponentProps<"form"> & {
-  base: string
-  side: string
-  amount: string
-}) {
+  onSuccess,
+  ...fees
+}: NewOrderProps) {
   const { decimals } = Token.findByTicker(base)
   const formattedAmount = formatNumber(
-    parseUnits(amount, decimals),
+    parseUnits(amount.toString(), decimals),
     decimals,
     true,
   )
   return (
     <>
       <div className="space-y-3">
-        <div className="text-muted-foreground">
-          {side === "buy" ? "Buy" : "Sell"}
-        </div>
+        <div className="text-muted-foreground">{isSell ? "Sell" : "Buy"}</div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">
             {formattedAmount} {base}
@@ -135,9 +118,7 @@ function NewOrderForm({
         </div>
       </div>
       <div className="space-y-3">
-        <div className="text-muted-foreground">
-          {side === "buy" ? "With" : "For"}
-        </div>
+        <div className="text-muted-foreground">{isSell ? "With" : "For"}</div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">USDC</div>
           <TokenIcon ticker="USDC" />
@@ -159,9 +140,9 @@ function NewOrderForm({
         </div>
       </div>
       <Separator />
-      {/* <div className="space-y-3">
-        <FeesSection amount={Number(amount)} base={base} side={isSell ? "sell" : "buy"} />
-      </div> */}
+      <div className="space-y-3">
+        <FeesSection {...fees} />
+      </div>
     </>
   )
 }
