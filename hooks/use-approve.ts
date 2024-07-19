@@ -80,7 +80,7 @@ export function useApprove({
       {
         address: mint,
         args: [process.env.NEXT_PUBLIC_PERMIT2_CONTRACT, MAX_INT],
-        nonce
+        nonce,
       },
       {
         onSuccess,

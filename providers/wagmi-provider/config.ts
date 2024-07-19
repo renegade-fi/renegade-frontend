@@ -1,5 +1,6 @@
-import { chain } from "@/lib/viem"
 import { cookieStorage, createConfig, createStorage, http } from "wagmi"
+
+import { chain } from "@/lib/viem"
 
 export const config = createConfig({
   chains: [chain],
