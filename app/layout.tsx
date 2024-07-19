@@ -107,7 +107,7 @@ export default async function RootLayout({
                 <Toaster
                   className="pointer-events-auto"
                   toastOptions={{ duration: 10000 }}
-                  position="top-left"
+                  position="bottom-center"
                   theme="light"
                 />
                 <OrderToaster />
