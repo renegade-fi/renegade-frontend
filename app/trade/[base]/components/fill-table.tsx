@@ -1,72 +1,28 @@
 "use client"
 
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, useOrderHistory } from "@renegade-fi/react"
-import invariant from "tiny-invariant"
+import { OrderMetadata, Token } from "@renegade-fi/react"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { FillTableData, columns } from "@/app/trade/[base]/components/columns"
+import { DataTable } from "@/app/trade/[base]/components/data-table"
 
-import { formatCurrency, formatNumber, formatTimestamp } from "@/lib/format"
+import { formatCurrency, formatNumber } from "@/lib/format"
+import { usePrice } from "@/stores/price-store"
 
-export function FillTable({ orderId }: { orderId: string }) {
-  const { data } = useOrderHistory()
-  const order = data?.get(orderId)
-  invariant(order, "Order not found")
+export function FillTable({ order }: { order: OrderMetadata }) {
   const token = Token.findByAddress(order.data.base_mint)
-  const formattedFills = order.fills.map(fill => ({
-    amount: formatNumber(fill.amount, token.decimals),
-    price: Number(fill.price.price),
-    timestamp: formatTimestamp(Number(fill.price.timestamp) * 1000),
-  }))
-
+  const price = usePrice({ baseAddress: order.data.base_mint })
+  const data: FillTableData[] = order.fills.map((fill, index) => {
+    const amount = formatNumber(fill.amount, token.decimals)
+    return {
+      index,
+      amount,
+      amountUSD: formatCurrency(price * Number(amount)),
+      timestamp: Number(fill.price.timestamp) * 1000,
+    }
+  })
   return (
-    <Card className="border-0">
-      <CardHeader>
-        <CardTitle>Fills</CardTitle>
-        <VisuallyHidden>
-          <CardDescription>
-            Fill details for {order.data.side} {order.data.amount}{" "}
-            {Token.findByAddress(order.data.base_mint).ticker}
-          </CardDescription>
-        </VisuallyHidden>
-      </CardHeader>
-
-      <CardContent>
-        <Table className="whitespace-nowrap">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Fill Amount</TableHead>
-              <TableHead>Fill Value</TableHead>
-              <TableHead>Timestamp</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {formattedFills.map((fill, index) => (
-              <TableRow className="border-0" key={fill.timestamp}>
-                <TableCell>{fill.amount}</TableCell>
-                <TableCell>
-                  {formatCurrency(Number(fill.amount) * fill.price)}
-                </TableCell>
-                <TableCell>{fill.timestamp}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div className="p-4">
+      <DataTable columns={columns} data={data} />
+    </div>
   )
 }

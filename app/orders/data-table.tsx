@@ -217,7 +217,7 @@ export function DataTable<TData, TValue>({
                 return (
                   <OrderDetailsSheet
                     key={row.id}
-                    orderId={(row.original as OrderMetadata).id}
+                    order={row.original as OrderMetadata}
                   >
                     <TableRow
                       key={row.id}
