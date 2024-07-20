@@ -67,7 +67,7 @@ export function PageClient() {
         new Map(
           data.map((balance, index) => [
             DISPLAY_TOKENS()[index].address,
-            balance.result,
+            balance.status === "success" ? balance.result : BigInt(0),
           ]),
         ),
     },

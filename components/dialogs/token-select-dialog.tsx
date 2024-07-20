@@ -2,8 +2,8 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useQueryClient } from "@tanstack/react-query"
-import { useAccount, useBlockNumber, useReadContracts } from "wagmi"
+import { useWallet } from "@renegade-fi/react"
+import { fromHex, hexToBool } from "viem/utils"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -30,39 +30,22 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
-import { erc20Abi } from "@/lib/generated"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
-
-  const { address } = useAccount()
-  const { data, queryKey } = useReadContracts({
-    contracts: DISPLAY_TOKENS().map(token => ({
-      address: token.address,
-      abi: erc20Abi,
-      functionName: "balanceOf",
-      args: [address],
-    })),
+  const { data } = useWallet({
     query: {
-      enabled: !!address && open,
       select: data =>
-        data.map((balance, index) => ({
-          balance: balance.result ?? BigInt(0),
-          token: DISPLAY_TOKENS()[index],
-        })),
+        new Map(
+          data.balances
+            .filter(balance => !!fromHex(balance.mint, "number"))
+            .map(balance => [balance.mint, balance.amount]),
+        ),
+      enabled: open,
     },
   })
-
-  const queryClient = useQueryClient()
-  const blockNumber = useBlockNumber({ watch: true })
-
-  React.useEffect(() => {
-    if (blockNumber) {
-      queryClient.invalidateQueries({ queryKey })
-    }
-  }, [blockNumber, queryClient, queryKey])
 
   if (isDesktop) {
     return (
@@ -76,7 +59,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
             </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[50vh]">
-            <TokenList tokens={data ?? []} />
+            <TokenList balances={data} />
           </ScrollArea>
         </DialogContent>
       </Dialog>
@@ -94,7 +77,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
           </DrawerDescription>
         </DrawerHeader>
         <ScrollArea className="max-h-[50vh] overflow-auto">
-          <TokenList tokens={data ?? []} />
+          <TokenList balances={data} />
         </ScrollArea>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
@@ -106,40 +89,35 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TokenList({
-  tokens,
-}: {
-  tokens: {
-    balance: bigint
-    token: {
-      name: string
-      ticker: string
-      address: `0x${string}`
-      decimals: number
-    }
-  }[]
-}) {
-  const sortedTokens = tokens.sort((a, b) => {
-    if (a.balance === BigInt(0) && b.balance !== BigInt(0)) return 1
-    if (a.balance !== BigInt(0) && b.balance === BigInt(0)) return -1
+function TokenList({ balances }: { balances?: Map<`0x${string}`, bigint> }) {
+  const sortedTokens = DISPLAY_TOKENS().sort((a, b) => {
+    const balanceA = balances?.get(a.address) ?? BigInt(0)
+    const balanceB = balances?.get(b.address) ?? BigInt(0)
+    if (balanceA === BigInt(0) && balanceB === BigInt(0)) return 0
+    if (balanceA === BigInt(0)) return 1
+    if (balanceB === BigInt(0)) return -1
     return 0
   })
+
   return (
     <div className="grid items-start">
-      {sortedTokens.map(({ balance, token }) => (
-        <Link href={`/trade/${token.ticker}`} key={token.address}>
-          <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
-            <TokenIcon ticker={token.ticker} />
-            <div>
-              <p className="text-md font-medium">{token.name}</p>
-              <p className="text-xs text-muted-foreground">{token.ticker}</p>
+      {sortedTokens.map((token, index) => {
+        const balance = balances?.get(token.address)
+        return (
+          <Link href={`/trade/${token.ticker}`} key={token.address}>
+            <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
+              <TokenIcon ticker={token.ticker} />
+              <div>
+                <p className="text-md font-medium">{token.name}</p>
+                <p className="text-xs text-muted-foreground">{token.ticker}</p>
+              </div>
+              <div className="justify-self-end font-mono">
+                {formatNumber(balance ?? BigInt(0), token.decimals, true)}
+              </div>
             </div>
-            <div className="justify-self-end font-mono">
-              {formatNumber(balance, token.decimals, true)}
-            </div>
-          </div>
-        </Link>
-      ))}
+          </Link>
+        )
+      })}
     </div>
   )
 }
