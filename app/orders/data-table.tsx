@@ -19,7 +19,7 @@ import {
 } from "@tanstack/react-table"
 import { Settings2 } from "lucide-react"
 
-import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details-sheet"
+import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details/order-details-sheet"
 
 import { TableSelect } from "@/components/table-select"
 import { Button } from "@/components/ui/button"

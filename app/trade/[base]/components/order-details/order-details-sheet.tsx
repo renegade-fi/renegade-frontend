@@ -1,9 +1,14 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
-import { AlertTriangle, Info } from "lucide-react"
+import { Info } from "lucide-react"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
-import { FillTable } from "@/app/trade/[base]/components/fill-table"
+import {
+  FillTableData,
+  columns,
+} from "@/app/trade/[base]/components/order-details/columns"
+import { DataTable } from "@/app/trade/[base]/components/order-details/data-table"
+import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
 
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -67,10 +72,26 @@ export function OrderDetailsSheet({
 
   const { handleCancel } = useCancelOrder({ order })
 
+  const data: FillTableData[] = order.fills.map((fill, index) => {
+    const amount = formatNumber(fill.amount, token.decimals)
+    return {
+      index,
+      amount,
+      amountUSD: formatCurrency(fill.price.price * Number(amount)),
+      timestamp: Number(fill.price.timestamp) * 1000,
+    }
+  })
+
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="p-0 sm:w-[576px] sm:max-w-[576px]">
+      <SheetContent
+        className="p-0 sm:w-[576px] sm:max-w-[576px]"
+        hideCloseButton
+        onOpenAutoFocus={e => {
+          e.preventDefault()
+        }}
+      >
         <SheetHeader>
           <VisuallyHidden>
             <SheetTitle>Order Details</SheetTitle>
@@ -78,14 +99,9 @@ export function OrderDetailsSheet({
           </VisuallyHidden>
         </SheetHeader>
         <div className="">
-          <div className="flex justify-between p-6">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              <div className="flex-1 border-0 text-sm font-bold">
-                Insufficient USDC Balance
-              </div>
-            </div>
-            <div className="flex">
+          <div className="flex p-6">
+            <InsufficientWarning order={order} />
+            <div className="ml-auto flex">
               <Button
                 variant="outline"
                 className="flex-1"
@@ -127,7 +143,12 @@ export function OrderDetailsSheet({
             <Skeleton className="h-[500px] w-full" />
           )}
           <Separator />
-          <FillTable order={order} />
+          <div className="p-6">
+            <h3 className="mb-4 font-semibold leading-none tracking-tight">
+              Fills
+            </h3>
+            <DataTable columns={columns} data={data} />
+          </div>
           <Separator />
           <div className="flex cursor-pointer items-center gap-2 p-6 text-xs text-muted transition-colors hover:text-muted-foreground">
             <Info className="h-4 w-4" /> How are savings calculated?
