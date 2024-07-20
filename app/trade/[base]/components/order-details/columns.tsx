@@ -30,7 +30,7 @@ export const columns: ColumnDef<FillTableData>[] = [
   },
   {
     accessorKey: "amountUSD",
-    header: () => <div className="text-right">Amount (USD)</div>,
+    header: () => <div className="text-right">Value (USD)</div>,
     cell: ({ row }) => {
       const amountUSD = row.getValue<number>("amountUSD")
       return <div className="text-right">{amountUSD}</div>
