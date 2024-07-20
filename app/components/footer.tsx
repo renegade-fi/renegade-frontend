@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 
 import {
   DiscordLogoIcon,
@@ -52,11 +53,43 @@ export function Footer() {
             Faucet
           </Button>
         </div>
-        <div className="flex space-x-4 justify-self-end pr-6">
-          <TwitterLogoIcon className="h-6 w-6" />
-          <DiscordLogoIcon className="h-6 w-6" />
-          <GitHubLogoIcon className="h-6 w-6" />
-          <Book className="h-6 w-6" />
+        <div className="ml-auto space-x-2 pr-20 text-xs">
+          <Button
+            className="p-0 text-muted-foreground hover:text-foreground"
+            variant="link"
+            asChild
+          >
+            <a href="https://x.com/renegade_fi" target="_blank">
+              Twitter
+            </a>
+          </Button>
+          <Button
+            className="p-0 text-muted-foreground hover:text-foreground"
+            variant="link"
+            asChild
+          >
+            <a href="https://discord.com/invite/renegade-fi" target="_blank">
+              Discord
+            </a>
+          </Button>
+          <Button
+            className="p-0 text-muted-foreground hover:text-foreground"
+            variant="link"
+            asChild
+          >
+            <a href="https://docs.renegade.fi/" target="_blank">
+              GitHub
+            </a>
+          </Button>
+          <Button
+            className="p-0 text-muted-foreground hover:text-foreground"
+            variant="link"
+            asChild
+          >
+            <a href="https://renegade.fi/whitepaper.pdf" target="_blank">
+              Docs
+            </a>
+          </Button>
         </div>
       </div>
     </footer>
