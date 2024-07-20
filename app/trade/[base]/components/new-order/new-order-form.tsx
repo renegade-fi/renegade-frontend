@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useStatus } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -12,6 +13,7 @@ import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sectio
 import { NewOrderStepper } from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
 import { NumberInput } from "@/components/number-input"
+import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -51,6 +53,7 @@ export function NewOrderForm({
   side: Side
   isUSDCDenominated?: boolean
 }) {
+  const status = useStatus()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -86,7 +89,7 @@ export function NewOrderForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="flex">
           <FormField
             control={form.control}
@@ -119,12 +122,13 @@ export function NewOrderForm({
               className="flex-1 border-x-0 font-serif text-2xl font-bold"
               size="xl"
             >
+              <TokenIcon ticker={base} size={22} className="mr-2" />
               {base}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </TokenSelectDialog>
         </div>
-        <div className="p-6">
+        <div className="px-6">
           <Label className="font-sans text-muted-foreground">Amount</Label>
           <div className="flex items-baseline">
             <FormField
@@ -171,7 +175,7 @@ export function NewOrderForm({
             />
           </div>
         </div>
-        <div className="flex px-6 pb-6">
+        <div className="flex px-6">
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1"
@@ -191,17 +195,22 @@ export function NewOrderForm({
             onSetAmount={amount => form.setValue("amount", amount)}
           />
         </div>
-        <Separator />
-        <div className="space-y-3 whitespace-nowrap p-6 text-sm text-muted-foreground">
+        {/* <Separator /> */}
+        {status === "in relayer" && (
+          <div className="px-6">
+            <Button
+              variant="outline"
+              className="flex w-full font-extended text-2xl"
+              size="xl"
+            >
+              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+            </Button>
+          </div>
+        )}
+        {/* <Separator /> */}
+        <div className="space-y-3 whitespace-nowrap px-6 text-sm text-muted-foreground">
           <FeesSection {...fees} />
         </div>
-        <Button
-          variant="outline"
-          className="mx-auto flex px-6 font-extended text-3xl"
-          size="xl"
-        >
-          {form.getValues("isSell") ? "Sell" : "Buy"} {base}
-        </Button>
         <NewOrderStepper
           {...form.watch()}
           {...fees}

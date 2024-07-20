@@ -18,20 +18,20 @@ export function NewOrderPanel({
   isUSDCDenominated?: boolean
 }) {
   return (
-    <aside>
+    <aside className="space-y-6">
       <NewOrderForm
         base={base}
         side={side}
         isUSDCDenominated={isUSDCDenominated}
       />
-      <div className="p-6">
+      <div className="px-6">
         <Button variant="link" className="p-0 text-muted-foreground" size="sm">
           <Lock className="mr-2 h-3 w-3" />
           All orders are pre-trade and post-trade private.
         </Button>
       </div>
       <Separator />
-      <div className="p-6">
+      <div className="mt-6 px-6">
         <AssetsSection base={base} />
       </div>
       <Separator />

@@ -55,7 +55,7 @@ export function useCreateOrder({
             baseToken,
             parsedAmount,
             side,
-            e.shortMessage ?? e.response.data,
+            e.shortMessage ?? e.response?.data ?? e.message,
           ),
         )
         console.error(`Error placing order: ${e.response?.data ?? e.message}`)

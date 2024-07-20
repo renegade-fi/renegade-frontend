@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
+import { useStatus } from "@renegade-fi/react"
 import { Bell } from "lucide-react"
 
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils"
 
 export function Header() {
   const pathname = usePathname()
+  const status = useStatus()
   return (
     <header className="fixed top-0 z-10 min-w-full border-b bg-background">
       <div className="grid min-h-20 grid-cols-3 items-center">
@@ -67,20 +69,24 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end pr-4">
-          <TaskHistorySheet>
-            <Button
-              variant="ghost"
-              className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
-            >
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </TaskHistorySheet>
-          <TransferDialog>
-            <Button className="font-extended" variant="outline" size="sm">
-              Deposit
-            </Button>
-          </TransferDialog>
+          {status === "in relayer" && (
+            <>
+              <TaskHistorySheet>
+                <Button
+                  variant="ghost"
+                  className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </TaskHistorySheet>
+              <TransferDialog>
+                <Button className="font-extended" variant="outline" size="sm">
+                  Deposit
+                </Button>
+              </TransferDialog>
+            </>
+          )}
           <ConnectWalletButton />
         </div>
       </div>

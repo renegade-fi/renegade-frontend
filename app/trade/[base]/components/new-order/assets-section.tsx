@@ -34,13 +34,15 @@ export function AssetsSection({
 
   return (
     <TooltipProvider>
-      <h2 className="mb-4">Your Assets</h2>
-      <div className="">
+      <div className="text-sm">
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">
-            <TokenIcon ticker={base} size={20} />
+            <TokenIcon ticker={base} size={16} />
             <TransferDialog base={baseToken.address}>
-              <Button variant="link" className="text-md p-0">
+              <Button
+                variant="link"
+                className="text-md h-fit p-0 text-muted-foreground"
+              >
                 {base}
               </Button>
             </TransferDialog>
@@ -56,9 +58,12 @@ export function AssetsSection({
         </div>
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">
-            <TokenIcon ticker={quote} size={20} />
+            <TokenIcon ticker={quote} size={16} />
             <TransferDialog base={quoteToken.address}>
-              <Button variant="link" className="text-md p-0">
+              <Button
+                variant="link"
+                className="text-md h-fit p-0 text-muted-foreground"
+              >
                 {quote}
               </Button>
             </TransferDialog>
