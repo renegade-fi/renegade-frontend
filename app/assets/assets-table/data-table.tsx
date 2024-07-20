@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center gap-2 pb-4">
+      <div className="flex items-center pb-4">
         <div className="text-sm font-medium text-muted-foreground">
           Your assets on-chain and in Renegade. Click on a row to transfer.
         </div>

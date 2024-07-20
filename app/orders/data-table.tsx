@@ -251,13 +251,13 @@ export function DataTable<TData, TValue>({
       </div>
       {table.getRowModel().rows.length > 0 ? (
         isTradePage ? (
-          <div className="flex flex-row-reverse py-4">
+          <div className="flex flex-row-reverse pt-4">
             <Button asChild size="sm" variant="outline">
               <Link href="/orders">View all</Link>
             </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex items-center justify-end space-x-2 pt-4">
             <Button
               variant="outline"
               size="sm"
