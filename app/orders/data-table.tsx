@@ -21,6 +21,7 @@ import { Settings2 } from "lucide-react"
 
 import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details/order-details-sheet"
 
+import { TableEmptyState } from "@/components/table-empty-state"
 import { TableSelect } from "@/components/table-select"
 import { Button } from "@/components/ui/button"
 import {
@@ -241,7 +242,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  <TableEmptyState type="orders" />
                 </TableCell>
               </TableRow>
             )}

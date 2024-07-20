@@ -1,5 +1,6 @@
 import React from "react"
 
+import { useStatus } from "@renegade-fi/react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,6 +15,7 @@ import {
 import { Settings2 } from "lucide-react"
 
 import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { TableEmptyState } from "@/components/table-empty-state"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -52,6 +54,7 @@ export function DataTable<TData, TValue>({
   showZeroL2Balance,
   showZeroRenegadeBalance,
 }: DataTableProps<TData, TValue>) {
+  const status = useStatus()
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   )
@@ -144,7 +147,16 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {status !== "in relayer" ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <TableEmptyState type="assets" />
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => {
                 return (
                   <TransferDialog key={row.id} mint={row.getValue("mint")}>
@@ -164,16 +176,7 @@ export function DataTable<TData, TValue>({
                   </TransferDialog>
                 )
               })
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
+            ) : null}
           </TableBody>
         </Table>
       </div>
