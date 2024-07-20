@@ -1,6 +1,6 @@
 import { Fragment } from "react"
 
-import { Exchange } from "@renegade-fi/react"
+import { Exchange, Token } from "@renegade-fi/react"
 
 import { AnimatedPrice } from "@/components/animated-price"
 
@@ -21,7 +21,10 @@ export function BBOMarquee({ base }: { base: string }) {
           <span className="text-xs">•</span>
           <div className="flex justify-center gap-4">
             <span>{names[exchange]}</span>
-            <AnimatedPrice exchange={exchange} base={base} />
+            <AnimatedPrice
+              exchange={exchange}
+              mint={Token.findByTicker(base).address}
+            />
             <span className="font-extended text-green-price">LIVE</span>
           </div>
         </Fragment>

@@ -38,7 +38,7 @@ export function AssetsSection({
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">
             <TokenIcon ticker={base} size={16} />
-            <TransferDialog base={baseToken.address}>
+            <TransferDialog mint={baseToken.address}>
               <Button
                 variant="link"
                 className="text-md h-fit p-0 text-muted-foreground"
@@ -59,7 +59,7 @@ export function AssetsSection({
         <div className="flex justify-between">
           <div className="flex items-center space-x-2">
             <TokenIcon ticker={quote} size={16} />
-            <TransferDialog base={quoteToken.address}>
+            <TransferDialog mint={quoteToken.address}>
               <Button
                 variant="link"
                 className="text-md h-fit p-0 text-muted-foreground"

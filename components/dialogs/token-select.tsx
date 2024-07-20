@@ -74,9 +74,9 @@ export function TokenSelect({
                   <span className="flex-1">{t.label}</span>
                   <span className="flex-1 pr-2 text-right">
                     {direction === ExternalTransferDirection.Deposit ? (
-                      <L2Balance base={t.value} />
+                      <L2Balance mint={t.value} />
                     ) : (
-                      <RenegadeBalance base={t.value} />
+                      <RenegadeBalance mint={t.value} />
                     )}
                   </span>
                   <CheckIcon
@@ -95,11 +95,11 @@ export function TokenSelect({
   )
 }
 
-function RenegadeBalance({ base }: { base: `0x${string}` }) {
+function RenegadeBalance({ mint }: { mint: `0x${string}` }) {
   const balances = useBalances()
   const formattedRenegadeBalance = formatNumber(
-    balances.get(base)?.amount ?? BigInt(0),
-    Token.findByAddress(base).decimals,
+    balances.get(mint)?.amount ?? BigInt(0),
+    Token.findByAddress(mint).decimals,
   )
   return <>{formattedRenegadeBalance}</>
 }

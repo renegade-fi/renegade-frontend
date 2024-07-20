@@ -17,7 +17,7 @@ export function TokensMarquee() {
             <Link href={`/trade/${token.ticker}`}>
               <span className="space-x-4">
                 <span>{token.ticker}</span>
-                <AnimatedPrice base={token.ticker} />
+                <AnimatedPrice mint={token.address} />
               </span>
             </Link>
             <span className="text-xs">•</span>

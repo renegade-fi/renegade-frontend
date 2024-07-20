@@ -10,14 +10,14 @@ import { usePrice } from "@/stores/price-store"
 
 export function AnimatedPrice({
   exchange = "binance",
-  base,
+  mint,
 }: {
   exchange?: Exchange
-  base: string
+  mint: `0x${string}`
 }) {
   const price = usePrice({
     exchange,
-    baseAddress: Token.findByTicker(base).address,
+    baseAddress: mint,
   })
   const prev = React.useRef(price)
   const [animationKey, setAnimationKey] = React.useState(0)
