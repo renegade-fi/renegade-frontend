@@ -9,16 +9,16 @@ import {
   useTaskHistory,
   useWallet,
 } from "@renegade-fi/react"
-import { useAccount, useBlockNumber } from "wagmi"
+import { useQueryClient } from "@tanstack/react-query"
+import { useAccount, useBlockNumber, useReadContracts } from "wagmi"
 
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
 import { DEFAULT_MINT } from "@/lib/constants/protocol"
 import { formatNumber } from "@/lib/format"
-import { readErc20BalanceOf } from "@/lib/generated"
+import { erc20Abi } from "@/lib/generated"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { config } from "@/providers/wagmi-provider/config"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -53,35 +53,34 @@ export function PageClient() {
   const [showZeroL2Balance, setShowZeroL2Balance] = React.useState(true)
   const [isLongFormat, setIsLongFormat] = React.useState(false)
 
-  const [l2Balances, setL2Balances] = React.useState<
-    Map<`0x${string}`, bigint>
-  >(new Map())
   const { address } = useAccount()
-  const { data: blockNumber } = useBlockNumber({ watch: true })
-  // TODO: Integrate QueryClient
+  const { data: l2Balances, queryKey } = useReadContracts({
+    contracts: DISPLAY_TOKENS().map(token => ({
+      address: token.address,
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [address],
+    })),
+    query: {
+      enabled: !!address,
+      select: data =>
+        new Map(
+          data.map((balance, index) => [
+            DISPLAY_TOKENS()[index].address,
+            balance.result,
+          ]),
+        ),
+    },
+  })
+
+  const queryClient = useQueryClient()
+  const blockNumber = useBlockNumber({ watch: true })
+
   React.useEffect(() => {
-    const fetchBalances = async () => {
-      if (!address) {
-        return
-      }
-      const balancePromises = DISPLAY_TOKENS().map(async token => {
-        const balance = await readErc20BalanceOf(config, {
-          address: token.address as `0x${string}`,
-          args: [address ?? "0x"],
-        })
-        return { address: token.address as `0x${string}`, balance }
-      })
-      const result = await Promise.all(balancePromises).then(balances => {
-        const map = new Map<`0x${string}`, bigint>()
-        balances.forEach(balance => {
-          map.set(balance.address, balance.balance)
-        })
-        return map
-      })
-      setL2Balances(result)
+    if (blockNumber) {
+      queryClient.invalidateQueries({ queryKey })
     }
-    fetchBalances()
-  }, [address, blockNumber])
+  }, [blockNumber, queryClient, queryKey])
 
   const balances: BalanceData[] = DISPLAY_TOKENS()
     .map(token => {
@@ -94,7 +93,7 @@ export function PageClient() {
           isLongFormat,
         ),
         l2Balance: formatNumber(
-          l2Balances.get(token.address) ?? BigInt(0),
+          l2Balances?.get(token.address) ?? BigInt(0),
           t.decimals,
           isLongFormat,
         ),
