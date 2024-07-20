@@ -1,7 +1,10 @@
 import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { Token, useBalances } from "@renegade-fi/react"
+import { Token, useWallet } from "@renegade-fi/react"
+import { useQueryClient } from "@tanstack/react-query"
+import { erc20Abi } from "viem"
+import { useAccount, useBlockNumber, useReadContracts } from "wagmi"
 
 import { ExternalTransferDirection } from "@/components/dialogs/transfer-dialog"
 import { Button } from "@/components/ui/button"
@@ -23,8 +26,6 @@ import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
-import { L2Balance } from "../l2-balance"
-
 const tokens = DISPLAY_TOKENS().map(token => ({
   value: token.address,
   label: token.ticker,
@@ -40,6 +41,48 @@ export function TokenSelect({
   onChange: (value: string) => void
 }) {
   const [open, setOpen] = React.useState(false)
+  const { address } = useAccount()
+  const { data: l2Balances, queryKey } = useReadContracts({
+    contracts: DISPLAY_TOKENS().map(token => ({
+      address: token.address,
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [address],
+    })),
+    query: {
+      enabled:
+        !!address && open && direction === ExternalTransferDirection.Deposit,
+      select: data =>
+        new Map(
+          data.map((balance, index) => [
+            DISPLAY_TOKENS()[index].address,
+            balance.status === "success" ? BigInt(balance.result) : BigInt(0),
+          ]),
+        ),
+    },
+  })
+
+  const queryClient = useQueryClient()
+  const blockNumber = useBlockNumber({ watch: true })
+
+  React.useEffect(() => {
+    if (blockNumber) {
+      queryClient.invalidateQueries({ queryKey })
+    }
+  }, [blockNumber, queryClient, queryKey])
+
+  const { data: renegadeBalances } = useWallet({
+    query: {
+      enabled: open && direction === ExternalTransferDirection.Withdraw,
+      select: data =>
+        new Map(data.balances.map(balance => [balance.mint, balance.amount])),
+    },
+  })
+
+  const displayBalances =
+    direction === ExternalTransferDirection.Deposit
+      ? l2Balances
+      : renegadeBalances
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal>
@@ -73,10 +116,9 @@ export function TokenSelect({
                 >
                   <span className="flex-1">{t.label}</span>
                   <span className="flex-1 pr-2 text-right">
-                    {direction === ExternalTransferDirection.Deposit ? (
-                      <L2Balance mint={t.value} />
-                    ) : (
-                      <RenegadeBalance mint={t.value} />
+                    {formatNumber(
+                      displayBalances?.get(t.value) ?? BigInt(0),
+                      Token.findByAddress(t.value).decimals,
                     )}
                   </span>
                   <CheckIcon
@@ -93,13 +135,4 @@ export function TokenSelect({
       </PopoverContent>
     </Popover>
   )
-}
-
-function RenegadeBalance({ mint }: { mint: `0x${string}` }) {
-  const balances = useBalances()
-  const formattedRenegadeBalance = formatNumber(
-    balances.get(mint)?.amount ?? BigInt(0),
-    Token.findByAddress(mint).decimals,
-  )
-  return <>{formattedRenegadeBalance}</>
 }
