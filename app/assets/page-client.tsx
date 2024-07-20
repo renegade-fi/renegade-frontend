@@ -141,8 +141,8 @@ export function PageClient() {
 
   return (
     <main>
-      <div className="container mx-auto space-y-12 sm:max-w-screen-md">
-        <div className="space-y-4">
+      <div className="container">
+        <div className="mt-12">
           <h1 className="mt-6 font-serif text-3xl font-bold">Assets</h1>
           <AssetTable
             columns={assetColumns}
@@ -155,8 +155,8 @@ export function PageClient() {
             showZeroRenegadeBalance={showZeroRenegadeBalance}
           />
         </div>
-        <div className="space-y-4">
-          <h1 className="mt-6 font-serif text-3xl font-bold">
+        <div className="mt-20">
+          <h1 className="my-6 font-serif text-3xl font-bold">
             Transfer History
           </h1>
           <TransferHistoryTable
