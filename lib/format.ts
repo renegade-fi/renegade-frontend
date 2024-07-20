@@ -1,3 +1,4 @@
+import { OrderState } from "@renegade-fi/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import numeral from "numeral"
@@ -107,4 +108,14 @@ export const formatPercentage = (
   if (denominator === 0) return "0%"
   const percentage = (numerator / denominator) * 100
   return `${Math.round(percentage * 100) / 100}%`
+}
+
+export const formatOrderState = (state: OrderState) => {
+  return {
+    [OrderState.Created]: "Open",
+    [OrderState.Matching]: "Open",
+    [OrderState.Cancelled]: "Cancelled",
+    [OrderState.Filled]: "Filled",
+    [OrderState.SettlingMatch]: "Open",
+  }[state]
 }

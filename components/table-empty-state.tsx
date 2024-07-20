@@ -10,7 +10,6 @@ export function TableEmptyState({ type }: { type: string }) {
   const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
   let message = <>No {type}s found.</>
   if (status !== "in relayer") {
-    // message = `Sign in to view your ${type}.`
     message = (
       <>
         <SignInDialog open={open} onOpenChange={onOpenChange} />
