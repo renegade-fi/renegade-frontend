@@ -10,12 +10,16 @@ import { PageClient } from "@/app/trade/[base]/page-client"
 
 import { Button } from "@/components/ui/button"
 
-import { STORAGE_SIDE, STORAGE_USDC_DENOMINATED } from "@/lib/constants/storage"
+import { Side } from "@/lib/constants/protocol"
+import {
+  STORAGE_SIDE,
+  STORAGE_IS_USDC_DENOMINATED,
+} from "@/lib/constants/storage"
 
 export default function Page({ params }: { params: { base: string } }) {
   const layout = cookies().get("react-resizable-panels:layout")
   const side = cookies().get(STORAGE_SIDE)
-  const isUSDCDenominated = cookies().get(STORAGE_USDC_DENOMINATED)
+  const isUSDCDenominated = cookies().get(STORAGE_IS_USDC_DENOMINATED)
 
   let defaultLayout
   if (layout) {
@@ -24,7 +28,7 @@ export default function Page({ params }: { params: { base: string } }) {
 
   let defaultSide
   if (side) {
-    defaultSide = side.value
+    defaultSide = side.value as Side
   }
 
   let defaultUseUSDC = false

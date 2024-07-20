@@ -19,10 +19,11 @@ import { Separator } from "@/components/ui/separator"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useMounted } from "@/hooks/use-mounted"
+import { Side } from "@/lib/constants/protocol"
 import { STORAGE_LAYOUT } from "@/lib/constants/storage"
 
 const DEFAULT_LAYOUT = [22, 78]
-const DEFAULT_SIDE = "buy"
+const DEFAULT_SIDE = Side.BUY
 
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart)
@@ -34,7 +35,7 @@ export function PageClient({
   isUSDCDenominated,
 }: {
   defaultLayout?: number[]
-  side?: string
+  side?: Side
   base: string
   isUSDCDenominated?: boolean
 }) {

@@ -20,6 +20,6 @@ export const BINANCE_BASE_FEE = 0.001
 
 // Side
 export enum Side {
-  BUY,
-  SELL,
+  BUY = "buy",
+  SELL = "sell",
 }

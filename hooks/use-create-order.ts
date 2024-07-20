@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Token,
   parseAmount,
@@ -6,9 +8,9 @@ import {
 } from "@renegade-fi/react"
 import { createOrder } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
-import invariant from "tiny-invariant"
 import { v4 as uuidv4 } from "uuid"
 
+import { Side } from "@/lib/constants/protocol"
 import {
   FAILED_PLACE_ORDER_MSG,
   QUEUED_PLACE_ORDER_MSG,
@@ -22,10 +24,9 @@ export function useCreateOrder({
 }: {
   base: string
   quote?: string
-  side: string
+  side: Side
   amount: string
 }) {
-  invariant(side === "buy" || side === "sell", "Invalid side")
   const config = useConfig()
 
   const { data: taskHistory } = useTaskHistory()
@@ -44,7 +45,7 @@ export function useCreateOrder({
       id,
       base: baseToken.address,
       quote: quoteToken.address,
-      side: side === "buy" ? "buy" : "sell",
+      side: side === Side.BUY ? Side.BUY : Side.SELL,
       amount: parsedAmount,
     })
       .then(onSuccess)

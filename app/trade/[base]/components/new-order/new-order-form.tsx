@@ -5,10 +5,7 @@ import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import {
-  setSide as setSideCookies,
-  setUseUSDC,
-} from "@/app/trade/[base]/actions"
+import { setIsUSDCDenominated, setSide } from "@/app/trade/[base]/actions"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 
@@ -23,11 +20,11 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
+import { Side } from "@/lib/constants/protocol"
 
 const formSchema = z.object({
   amount: z.coerce
@@ -51,7 +48,7 @@ export function NewOrderForm({
   isUSDCDenominated,
 }: {
   base: string
-  side: string
+  side: Side
   isUSDCDenominated?: boolean
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -59,7 +56,7 @@ export function NewOrderForm({
     defaultValues: {
       amount: 0,
       base,
-      isSell: side === "sell",
+      isSell: side === Side.SELL,
       isUSDCDenominated: isUSDCDenominated ?? false,
     },
   })
@@ -69,11 +66,11 @@ export function NewOrderForm({
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (name === "isUSDCDenominated") {
-        setUseUSDC(value.isUSDCDenominated ?? false)
+        setIsUSDCDenominated(value.isUSDCDenominated ?? false)
         form.resetField("amount", { defaultValue: 0 })
       }
       if (name === "isSell") {
-        setSideCookies(value.isSell ? "sell" : "buy")
+        setSide(value.isSell ? Side.SELL : Side.BUY)
       }
     })
     return () => subscription.unsubscribe()

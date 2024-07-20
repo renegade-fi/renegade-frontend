@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { useCreateOrder } from "@/hooks/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { Side } from "@/lib/constants/protocol"
 import { formatNumber } from "@/lib/format"
 
 export function DefaultStep(props: NewOrderProps) {
@@ -32,7 +33,7 @@ export function DefaultStep(props: NewOrderProps) {
 
   const { handleCreateOrder } = useCreateOrder({
     base: props.base,
-    side: props.isSell ? "sell" : "buy",
+    side: props.isSell ? Side.SELL : Side.BUY,
     amount: props.amount.toString(),
   })
 

@@ -22,8 +22,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
-import { useCreateOrder } from "@/hooks/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { Side } from "@/lib/constants/protocol"
 
 export function SuccessStep({
   base,
@@ -45,7 +45,7 @@ export function SuccessStep({
         <div className="space-y-6 p-6">
           <NewOrderForm
             base={base}
-            side={isSell ? "sell" : "buy"}
+            side={isSell ? Side.SELL : Side.BUY}
             amount={amount.toString()}
             className="p-6"
           />
@@ -75,7 +75,7 @@ export function SuccessStep({
         <div className="space-y-6 p-4">
           <NewOrderForm
             base={base}
-            side={isSell ? "sell" : "buy"}
+            side={isSell ? Side.SELL : Side.BUY}
             amount={amount.toString()}
             className="p-6"
           />
@@ -98,7 +98,7 @@ function NewOrderForm({
   amount,
 }: React.ComponentProps<"form"> & {
   base: string
-  side: string
+  side: Side
   amount: string
 }) {
   return (

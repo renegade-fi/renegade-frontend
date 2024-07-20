@@ -6,13 +6,15 @@ import { NewOrderForm } from "@/app/trade/[base]/components/new-order/new-order-
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
+import { Side } from "@/lib/constants/protocol"
+
 export function NewOrderPanel({
   base,
   side,
   isUSDCDenominated,
 }: {
   base: string
-  side: string
+  side: Side
   isUSDCDenominated?: boolean
 }) {
   return (
