@@ -79,6 +79,7 @@ const config = {
         red: {
           price: "#e04343",
         },
+        yellow: "hsl(var(--chart-yellow))",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -19,11 +19,13 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  isCancelled?: boolean
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isCancelled,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     columns,
@@ -78,7 +80,9 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {isCancelled
+                    ? "Order cancelled before any fills."
+                    : "No results."}
                 </TableCell>
               </TableRow>
             )}
