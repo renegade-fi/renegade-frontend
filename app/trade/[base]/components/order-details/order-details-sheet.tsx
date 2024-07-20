@@ -9,9 +9,11 @@ import {
 } from "@/app/trade/[base]/components/order-details/columns"
 import { DataTable } from "@/app/trade/[base]/components/order-details/data-table"
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
+import { OrderStatusIndicator } from "@/app/trade/[base]/components/order-details/order-status-indicator"
 
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
@@ -98,8 +100,9 @@ export function OrderDetailsSheet({
             <SheetDescription>View order details</SheetDescription>
           </VisuallyHidden>
         </SheetHeader>
-        <div className="">
+        <ScrollArea className="h-full">
           <div className="flex p-6">
+            <OrderStatusIndicator order={order} />
             <InsufficientWarning order={order} />
             <div className="ml-auto flex">
               <Button
@@ -137,23 +140,28 @@ export function OrderDetailsSheet({
             </div>
           </div>
           <Separator />
-          {order.fills.length ? (
-            <FillChart order={order} />
-          ) : (
-            <Skeleton className="h-[500px] w-full" />
+          {order.state === OrderState.Cancelled ? null : (
+            <>
+              {order.fills.length ? (
+                <FillChart order={order} />
+              ) : (
+                <Skeleton className="h-[500px] w-full rounded-none" />
+              )}
+              <Separator />
+            </>
           )}
-          <Separator />
-          <div className="p-6">
-            <h3 className="mb-4 font-semibold leading-none tracking-tight">
-              Fills
-            </h3>
-            <DataTable columns={columns} data={data} />
+          <div className="space-y-4 p-6">
+            <h3 className="font-semibold leading-none tracking-tight">Fills</h3>
+            <DataTable
+              columns={columns}
+              data={data}
+              isCancelled={order.state === OrderState.Cancelled}
+            />
+            <div className="flex cursor-pointer items-center gap-2 text-xs text-muted transition-colors hover:text-muted-foreground">
+              <Info className="h-4 w-4" /> How are savings calculated?
+            </div>
           </div>
-          <Separator />
-          <div className="flex cursor-pointer items-center gap-2 p-6 text-xs text-muted transition-colors hover:text-muted-foreground">
-            <Info className="h-4 w-4" /> How are savings calculated?
-          </div>
-        </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   )
