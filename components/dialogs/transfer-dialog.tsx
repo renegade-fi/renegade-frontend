@@ -64,10 +64,10 @@ export enum ExternalTransferDirection {
 }
 
 export function TransferDialog({
-  base,
+  mint,
   children,
 }: {
-  base?: `0x${string}`
+  mint?: `0x${string}`
   children: React.ReactNode
 }) {
   const [open, setOpen] = React.useState(false)
@@ -141,7 +141,7 @@ export function TransferDialog({
           <TransferForm
             className="p-6"
             direction={direction}
-            initialMint={base}
+            initialMint={mint}
             onSuccess={() => setOpen(false)}
           />
         </DialogContent>
@@ -175,7 +175,7 @@ export function TransferDialog({
         </DrawerHeader>
         <TransferForm
           direction={direction}
-          initialMint={base}
+          initialMint={mint}
           onSuccess={() => setOpen(false)}
         />
       </DrawerContent>

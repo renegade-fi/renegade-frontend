@@ -147,7 +147,7 @@ export function DataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => {
                 return (
-                  <TransferDialog key={row.id} base={row.getValue("mint")}>
+                  <TransferDialog key={row.id} mint={row.getValue("mint")}>
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}

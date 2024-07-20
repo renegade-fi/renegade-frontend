@@ -8,18 +8,18 @@ import { useAccount } from "wagmi"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
 
-export function L2Balance({ base }: { base: `0x${string}` }) {
+export function L2Balance({ mint }: { mint: `0x${string}` }) {
   const { address } = useAccount()
   const { data: l2Balance } = useReadErc20BalanceOf({
-    address: base,
+    address: mint,
     args: [address ?? "0x"],
     query: {
-      enabled: !!base && !!address,
+      enabled: !!mint && !!address,
     },
   })
   const formattedL2Balance = formatNumber(
     l2Balance ?? BigInt(0),
-    Token.findByAddress(base).decimals,
+    Token.findByAddress(mint).decimals,
   )
   return <>{formattedL2Balance}</>
 }
