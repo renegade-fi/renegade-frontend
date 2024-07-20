@@ -1,7 +1,6 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { OrderState, Token, useOrderHistory } from "@renegade-fi/react"
+import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
 import { AlertTriangle, Info } from "lucide-react"
-import invariant from "tiny-invariant"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
 import { FillTable } from "@/app/trade/[base]/components/fill-table"
@@ -19,18 +18,16 @@ import {
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { useCancelOrder } from "@/hooks/use-cancel-order"
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 
 export function OrderDetailsSheet({
   children,
-  orderId,
+  order,
 }: {
   children: React.ReactNode
-  orderId: string
+  order: OrderMetadata
 }) {
-  const { data } = useOrderHistory()
-  const order = data?.get(orderId)
-  invariant(order, "Order not found")
   const token = Token.findByAddress(order.data.base_mint)
 
   const filledAmount = order.fills.reduce(
@@ -68,6 +65,8 @@ export function OrderDetailsSheet({
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
   const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
 
+  const { handleCancel } = useCancelOrder({ order })
+
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -91,6 +90,7 @@ export function OrderDetailsSheet({
                 variant="outline"
                 className="flex-1"
                 disabled={!isCancellable}
+                onClick={() => handleCancel()}
               >
                 Cancel Order
               </Button>
@@ -112,7 +112,7 @@ export function OrderDetailsSheet({
             </div>
             <Separator orientation="vertical" className="h-full" />
             <div className="flex-1 px-6">
-              <div className="text-sm">Open</div>
+              <div className="text-sm">{order.state}</div>
               <div className="text-sm">{filledLabel}</div>
               <div className="flex items-center gap-2">
                 <Progress value={percentageFilled} />
@@ -127,7 +127,7 @@ export function OrderDetailsSheet({
             <Skeleton className="h-[500px] w-full" />
           )}
           <Separator />
-          <FillTable orderId={orderId} />
+          <FillTable order={order} />
           <Separator />
           <div className="flex cursor-pointer items-center gap-2 p-6 text-xs text-muted transition-colors hover:text-muted-foreground">
             <Info className="h-4 w-4" /> How are savings calculated?
