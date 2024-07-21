@@ -71,7 +71,7 @@ export function Header() {
         <div className="flex items-center space-x-4 justify-self-end pr-4">
           {status === "in relayer" && (
             <>
-              <TaskHistorySheet>
+              {/* <TaskHistorySheet>
                 <Button
                   variant="ghost"
                   className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
@@ -79,9 +79,9 @@ export function Header() {
                   <Bell className="h-4 w-4" />
                   <span className="sr-only">Open menu</span>
                 </Button>
-              </TaskHistorySheet>
+              </TaskHistorySheet> */}
               <TransferDialog>
-                <Button className="font-extended" variant="outline" size="sm">
+                <Button className="font-extended" variant="outline">
                   Deposit
                 </Button>
               </TransferDialog>

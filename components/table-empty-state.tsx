@@ -8,7 +8,7 @@ import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"
 export function TableEmptyState({ type }: { type: string }) {
   const status = useStatus()
   const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
-  let message = <>No {type}s found.</>
+  let message = <>No {type} found.</>
   if (status !== "in relayer") {
     message = (
       <>
