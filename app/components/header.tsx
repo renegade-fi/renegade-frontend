@@ -5,10 +5,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { useStatus } from "@renegade-fi/react"
-import { Bell } from "lucide-react"
 
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
-import { TaskHistorySheet } from "@/app/components/task-history-sheet"
 
 import { TransferDialog } from "@/components/dialogs/transfer-dialog"
 import { Button } from "@/components/ui/button"
@@ -32,38 +30,34 @@ export function Header() {
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
           <Link
-            href="/trade/WETH"
-            className={cn(
-              "hover:underline",
-              pathname.includes("/trade") ? "text-primary" : "",
-            )}
+            href="/trade"
+            className={cn("hover:underline", {
+              "text-primary": pathname === "/" || pathname.includes("/trade"),
+            })}
           >
             Trade
           </Link>
           <Link
             href="/assets"
-            className={cn(
-              "hover:underline",
-              pathname.includes("/assets") ? "text-primary" : "",
-            )}
+            className={cn("hover:underline", {
+              "text-primary": pathname.includes("/assets"),
+            })}
           >
             Assets
           </Link>
           <Link
             href="/orders"
-            className={cn(
-              "text-muted-foreground hover:underline",
-              pathname.includes("/orders") ? "text-primary" : "",
-            )}
+            className={cn("hover:underline", {
+              "text-primary": pathname.includes("/orders"),
+            })}
           >
             Orders
           </Link>
           <Link
             href="#"
-            className={cn(
-              "hover:underline",
-              pathname === "/stats" ? "text-primary" : "",
-            )}
+            className={cn("hover:underline", {
+              "text-primary": pathname === "/stats",
+            })}
           >
             Stats
           </Link>

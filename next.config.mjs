@@ -1,25 +1,3 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {}
-
-// export default nextConfig
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   webpack: function (config, options) {
-//     config.experiments = {
-//       asyncWebAssembly: true,
-//       //   buildHttp: true,
-//       layers: true,
-//       lazyCompilation: true,
-//       //   outputModule: true,
-//       syncWebAssembly: true,
-//       topLevelAwait: true,
-//     }
-//     return config
-//   },
-// }
-
-// export default nextConfig
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -47,16 +25,6 @@ const nextConfig = {
       },
     ],
   },
-  rewrites: async () => [
-    {
-      source: "/",
-      destination: "/trade/WETH",
-    },
-    {
-      source: "/trade",
-      destination: "/trade/WETH",
-    },
-  ],
 }
 
 export default nextConfig
