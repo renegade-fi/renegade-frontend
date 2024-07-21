@@ -1,12 +1,11 @@
 import React from "react"
 
-import { Token, parseAmount, useBalances } from "@renegade-fi/react"
+import { Token, useWallet } from "@renegade-fi/react"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { Button } from "@/components/ui/button"
 
-import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { formatNumber } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import { usePrice } from "@/stores/price-store"
@@ -26,18 +25,29 @@ export function AmountShortcutButton({
   isSell,
   isUSDCDenominated,
 }: AmountShortcutButtonProps) {
-  const data = useBalances()
-  const token = Token.findByTicker(base)
+  const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker("USDC")
+  const { data } = useWallet({
+    query: {
+      select: data => ({
+        [baseToken.address]: data.balances.find(
+          balance => balance.mint === baseToken.address,
+        )?.amount,
+        [quoteToken.address]: data.balances.find(
+          balance => balance.mint === quoteToken.address,
+        )?.amount,
+      }),
+    },
+  })
   const price = usePrice({
-    baseAddress: token.address,
+    baseAddress: baseToken.address,
   })
 
   const maxBalance = React.useMemo(() => {
-    const baseBalance = data.get(token.address)?.amount ?? BigInt(0)
-    const quoteBalance = data.get(quoteToken.address)?.amount ?? BigInt(0)
+    const baseBalance = data?.[baseToken.address] ?? BigInt(0)
+    const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
     const formattedBaseBalance = Number(
-      formatNumber(baseBalance, token.decimals),
+      formatNumber(baseBalance, baseToken.decimals),
     )
     const formattedQuoteBalance = Number(
       formatNumber(quoteBalance, quoteToken.decimals),
@@ -54,14 +64,14 @@ export function AmountShortcutButton({
     }
     return formattedQuoteBalance / price
   }, [
+    baseToken.address,
+    baseToken.decimals,
     data,
     isSell,
     isUSDCDenominated,
     price,
     quoteToken.address,
     quoteToken.decimals,
-    token.address,
-    token.decimals,
   ])
 
   const shortcut = maxBalance * percentage

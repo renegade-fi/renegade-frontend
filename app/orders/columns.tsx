@@ -1,5 +1,3 @@
-"use client"
-
 import { OrderMetadata, Token } from "@renegade-fi/react"
 import { ColumnDef } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
