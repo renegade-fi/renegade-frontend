@@ -1,12 +1,16 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useStatus } from "@renegade-fi/react"
+import { Token, useStatus } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { setIsUSDCDenominated, setSide } from "@/app/trade/[base]/actions"
+import {
+  setBase,
+  setIsUSDCDenominated,
+  setSide,
+} from "@/app/trade/[base]/actions"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 
@@ -77,6 +81,12 @@ export function NewOrderForm({
       }
     })
     return () => subscription.unsubscribe()
+  }, [form])
+
+  React.useEffect(() => {
+    if (form.getValues("base")) {
+      setBase(form.getValues("base"))
+    }
   }, [form])
 
   function onSubmit(values: z.infer<typeof formSchema>) {
