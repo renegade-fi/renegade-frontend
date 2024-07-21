@@ -70,7 +70,7 @@ export function Footer() {
             variant="link"
             asChild
           >
-            <a href="https://docs.renegade.fi/" target="_blank">
+            <a href="https://github.com/renegade-fi/" target="_blank">
               GitHub
             </a>
           </Button>
@@ -79,7 +79,7 @@ export function Footer() {
             variant="link"
             asChild
           >
-            <a href="https://renegade.fi/whitepaper.pdf" target="_blank">
+            <a href="https://docs.renegade.fi/" target="_blank">
               Docs
             </a>
           </Button>
