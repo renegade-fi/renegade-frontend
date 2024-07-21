@@ -1,4 +1,4 @@
-import { Token, useBalances } from "@renegade-fi/react"
+import { Token, useWallet } from "@renegade-fi/react"
 
 import { TransferDialog } from "@/components/dialogs/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
@@ -20,15 +20,27 @@ export function AssetsSection({
   base: string
   quote?: string
 }) {
-  const balances = useBalances()
-
   const baseToken = Token.findByTicker(base)
-  const baseBalance = balances.get(baseToken.address)?.amount || BigInt(0)
+  const quoteToken = Token.findByTicker(quote)
+
+  const { data } = useWallet({
+    query: {
+      select: data => ({
+        [baseToken.address]: data.balances.find(
+          balance => balance.mint === baseToken.address,
+        )?.amount,
+        [quoteToken.address]: data.balances.find(
+          balance => balance.mint === quoteToken.address,
+        )?.amount,
+      }),
+    },
+  })
+
+  const baseBalance = data?.[baseToken.address] ?? BigInt(0)
   const formattedBaseBalance = formatNumber(baseBalance, baseToken.decimals)
   const baseUsdPrice = useUSDPrice(baseToken, baseBalance)
 
-  const quoteToken = Token.findByTicker(quote)
-  const quoteBalance = balances.get(quoteToken.address)?.amount || BigInt(0)
+  const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
   const formattedQuoteBalance = formatNumber(quoteBalance, quoteToken.decimals)
   const quoteUsdPrice = useUSDPrice(quoteToken, quoteBalance)
 

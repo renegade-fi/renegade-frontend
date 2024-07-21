@@ -1,8 +1,6 @@
-"use client"
+import React from "react"
 
-import { useMemo } from "react"
-
-import { OrderMetadata, PartialOrderFill, Token } from "@renegade-fi/react"
+import { OrderMetadata, Token } from "@renegade-fi/react"
 import { TrendingUp } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
@@ -111,7 +109,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
   })
   const { data: ohlc } = useOHLC(token.ticker, from, to, "minutes")
 
-  const chartData = useMemo(() => {
+  const chartData = React.useMemo(() => {
     if (!ohlc) return []
     const targetElements = 150
     const resolutionFactor = Math.ceil(ohlc.length / targetElements)
@@ -180,7 +178,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     })
   }
 
-  const minValue = useMemo(
+  const minValue = React.useMemo(
     () =>
       Math.min(
         ...chartData.map(item =>
@@ -192,7 +190,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       ),
     [chartData],
   )
-  const maxValue = useMemo(
+  const maxValue = React.useMemo(
     () =>
       Math.max(
         ...chartData.map(item =>

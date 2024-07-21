@@ -1,14 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 
-import {
-  DiscordLogoIcon,
-  GitHubLogoIcon,
-  TwitterLogoIcon,
-} from "@radix-ui/react-icons"
-import { Book } from "lucide-react"
 import { toast } from "sonner"
 import { useAccount } from "wagmi"
 

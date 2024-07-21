@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import React from "react"
 
 import {
   ChartingLibraryWidgetOptions,
@@ -13,9 +13,9 @@ export default function TradingViewChart(
   props: Partial<ChartingLibraryWidgetOptions>,
 ) {
   const chartContainerRef =
-    useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>
+    React.useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>
 
-  useEffect(() => {
+  React.useEffect(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       container: chartContainerRef.current,
       datafeed,
