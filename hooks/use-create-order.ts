@@ -33,7 +33,11 @@ export function useCreateOrder({
   const isQueue = Array.from(taskHistory?.values() || []).find(
     task => task.state !== "Completed" && task.state !== "Failed",
   )
-  async function handleCreateOrder({ onSuccess }: { onSuccess?: () => void }) {
+  async function handleCreateOrder({
+    onSuccess,
+  }: {
+    onSuccess?: ({ taskId }: { taskId: string }) => void
+  }) {
     const baseToken = Token.findByTicker(base)
     const quoteToken = Token.findByTicker(quote)
     const id = uuidv4()
