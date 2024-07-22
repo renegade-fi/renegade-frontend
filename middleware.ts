@@ -4,7 +4,6 @@ import { NextResponse } from "next/server"
 import { STORAGE_BASE } from "@/lib/constants/storage"
 
 export function middleware(request: NextRequest) {
-  console.log("running middleware on path: ", request.nextUrl.pathname)
   if (
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname === "/trade"
