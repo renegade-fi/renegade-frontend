@@ -1,4 +1,4 @@
-import { OrderMetadata, Token } from "@renegade-fi/react"
+import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
 import { ColumnDef } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 
@@ -6,7 +6,12 @@ import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
-import { formatCurrency, formatNumber, formatTimestamp } from "@/lib/format"
+import {
+  formatCurrency,
+  formatNumber,
+  formatOrderStateForTable,
+  formatTimestamp,
+} from "@/lib/format"
 
 export const columns: ColumnDef<OrderMetadata>[] = [
   // {
@@ -36,7 +41,21 @@ export const columns: ColumnDef<OrderMetadata>[] = [
     accessorKey: "state",
     header: () => <div>Status</div>,
     cell: ({ row }) => {
-      return <div>{row.getValue("status")}</div>
+      return <div>{formatOrderStateForTable(row.getValue("status"))}</div>
+    },
+    filterFn: (row, _, filterValue) => {
+      if (filterValue === "open") {
+        return [
+          OrderState.Created,
+          OrderState.Matching,
+          OrderState.SettlingMatch,
+        ].includes(row.getValue("status"))
+      } else if (filterValue === "filled") {
+        return row.getValue("status") === OrderState.Filled
+      } else if (filterValue === "cancelled") {
+        return row.getValue("status") === OrderState.Cancelled
+      }
+      return false
     },
   },
   {
@@ -229,19 +248,19 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       return <div className="pr-4 text-right font-medium">{formatted}</div>
     },
   },
-  {
-    id: "time to fill",
-    accessorFn: row => {
-      return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
-    },
-    header: () => {
-      return <div>Time to fill</div>
-    },
-    // TODO: Add logic to calculate time to fill
-    cell: () => {
-      return <div>{"2 min"}</div>
-    },
-  },
+  // {
+  // id: "time to fill",
+  // accessorFn: row => {
+  //   return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
+  // },
+  // header: () => {
+  //   return <div>Time to fill</div>
+  // },
+  // // TODO: Add logic to calculate time to fill
+  // cell: () => {
+  //   return <div>{"2 min"}</div>
+  // },
+  // },
   // {
   //   id: 'actions',
   //   cell: ({ row }) => {
