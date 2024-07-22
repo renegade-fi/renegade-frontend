@@ -60,10 +60,12 @@ export function usePredictedFees({
     setPredictedSavings(prev => {
       if (isSuccess && prev !== data.savings) {
         return data.savings
+      } else if (!amount) {
+        return 0
       }
       return prev
     })
-  }, [data?.savings, isSuccess])
+  }, [amount, data?.savings, isSuccess])
 
   return {
     ...feesCalculation,
