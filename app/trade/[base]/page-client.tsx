@@ -83,9 +83,10 @@ export function PageClient({
               <Separator />
               <div className="p-4">
                 <DataTable
-                  initialMint={Token.findByTicker(base).address}
-                  data={data || []}
                   columns={columns}
+                  data={data || []}
+                  initialMint={Token.findByTicker(base).address}
+                  initialStatus="open"
                   initialVisibleColumns={{
                     "time to fill": false,
                     actions: false,
