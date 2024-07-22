@@ -205,7 +205,6 @@ export function NewOrderForm({
             onSetAmount={amount => form.setValue("amount", amount)}
           />
         </div>
-        {/* <Separator /> */}
         {status === "in relayer" && (
           <div className="px-6">
             <Button
@@ -217,9 +216,8 @@ export function NewOrderForm({
             </Button>
           </div>
         )}
-        {/* <Separator /> */}
-        <div className="space-y-3 whitespace-nowrap px-6 text-sm text-muted-foreground">
-          <FeesSection {...fees} />
+        <div className="space-y-3 whitespace-nowrap px-6 text-sm">
+          <FeesSection amount={form.watch("amount")} {...fees} />
         </div>
         <NewOrderStepper
           {...form.watch()}

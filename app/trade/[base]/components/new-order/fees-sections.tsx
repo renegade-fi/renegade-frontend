@@ -17,10 +17,12 @@ export function FeesSection({
   predictedSavings,
   relayerFee,
   protocolFee,
+  amount,
 }: {
   predictedSavings: number
   relayerFee: number
   protocolFee: number
+  amount: number
 }) {
   const totalFees = relayerFee + protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : "--"
@@ -29,10 +31,8 @@ export function FeesSection({
   const binanceFeeLabel = binanceFee ? formatCurrency(binanceFee) : "--"
 
   const feeDiff = binanceFee - totalFees
-  // const feeDiffLabel = totalFees && binanceFee ? formatCurrency(feeDiff) : '--'
-  const feeDiffLabel = predictedSavings
-    ? formatCurrency(predictedSavings)
-    : "--"
+  const savingsLabel =
+    predictedSavings && amount ? formatCurrency(predictedSavings) : "--"
   return (
     <>
       <TooltipProvider>
@@ -45,7 +45,7 @@ export function FeesSection({
               <p>{FEES_SECTION_FEES}</p>
             </TooltipContent>
           </Tooltip>
-          <span>{feeLabel}</span>
+          <span>{amount ? feeLabel : "--"}</span>
         </div>
         {/* <div className={cn('flex justify-between transition-colors')}>
           <Tooltip>
@@ -72,9 +72,9 @@ export function FeesSection({
             </TooltipContent>
           </Tooltip>
           <GlowText
-            enabled={!!predictedSavings && feeDiffLabel !== "$0.00"}
+            enabled={!!predictedSavings && !!amount && savingsLabel !== "$0.00"}
             className="bg-green-price"
-            text={feeDiffLabel}
+            text={savingsLabel}
           />
         </div>
       </TooltipProvider>
