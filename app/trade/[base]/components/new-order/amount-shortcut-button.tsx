@@ -46,19 +46,21 @@ export function AmountShortcutButton({
   const maxBalance = React.useMemo(() => {
     const baseBalance = data?.[baseToken.address] ?? BigInt(0)
     const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
-    const formattedBaseBalance = Number(
-      formatNumber(baseBalance, baseToken.decimals),
-    )
-    const formattedQuoteBalance = Number(
-      formatNumber(quoteBalance, quoteToken.decimals),
-    )
+
     if (!price) return 0
     if (isSell) {
+      const formattedBaseBalance = Number(
+        formatNumber(baseBalance, baseToken.decimals),
+      )
       if (isUSDCDenominated) {
         return formattedBaseBalance * price
       }
       return formattedBaseBalance
     }
+
+    const formattedQuoteBalance = Number(
+      formatNumber(quoteBalance, quoteToken.decimals),
+    )
     if (isUSDCDenominated) {
       return formattedQuoteBalance
     }

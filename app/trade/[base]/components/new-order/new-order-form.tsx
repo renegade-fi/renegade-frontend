@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token, useStatus } from "@renegade-fi/react"
+import { useStatus } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -27,10 +27,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 
+import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { Side } from "@/lib/constants/protocol"
+import { formatCurrency } from "@/lib/format"
 
 const formSchema = z.object({
   amount: z.coerce
@@ -69,6 +70,8 @@ export function NewOrderForm({
   })
   const fees = usePredictedFees(form.watch())
   const [open, setOpen] = React.useState(false)
+  const orderValue = useOrderValue(form.watch())
+  const formattedOrderValue = formatCurrency(orderValue)
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
@@ -217,6 +220,10 @@ export function NewOrderForm({
           </div>
         )}
         <div className="space-y-3 whitespace-nowrap px-6 text-sm">
+          <div className="flex items-center justify-between">
+            <div className="text-muted-foreground">Order Value</div>
+            <div>{formattedOrderValue}</div>
+          </div>
           <FeesSection amount={form.watch("amount")} {...fees} />
         </div>
         <NewOrderStepper

@@ -5,6 +5,7 @@ import { useDebounceValue } from "usehooks-ts"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
+import { useOrderValue } from "@/hooks/use-order-value"
 import { useSavings } from "@/hooks/use-savings-query"
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 import { usePrice } from "@/stores/price-store"
@@ -21,13 +22,12 @@ export function usePredictedFees({
     baseAddress: baseToken.address,
   })
 
-  const usdPrice = React.useMemo(() => {
-    if (!price) return 0
-    if (isUSDCDenominated) {
-      return debouncedAmount
-    }
-    return debouncedAmount * price
-  }, [debouncedAmount, isUSDCDenominated, price])
+  const orderValue = useOrderValue({
+    amount,
+    base,
+    isSell,
+    isUSDCDenominated,
+  })
 
   // TODO: [PERFORMANCE] baseAmount triggers render each time price changes, should debounce price s.t. it changes every 10s
   const baseAmount = React.useMemo(() => {
@@ -43,11 +43,11 @@ export function usePredictedFees({
       relayerFee: 0,
       protocolFee: 0,
     }
-    if (!usdPrice) return res
-    res.protocolFee = usdPrice * PROTOCOL_FEE
-    res.relayerFee = usdPrice * RELAYER_FEE
+    if (!orderValue) return res
+    res.protocolFee = orderValue * PROTOCOL_FEE
+    res.relayerFee = orderValue * RELAYER_FEE
     return res
-  }, [usdPrice])
+  }, [orderValue])
 
   const { data, isSuccess } = useSavings({
     amount: baseAmount,

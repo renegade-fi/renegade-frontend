@@ -1,56 +1,71 @@
-import { OrderMetadata, OrderState, Token, useWallet } from "@renegade-fi/react"
+import { Token, formatAmount, useWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useUSDPrice } from "@/hooks/use-usd-price"
+import { Side } from "@/lib/constants/protocol"
 import { INSUFFICIENT_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
+import { cn } from "@/lib/utils"
 
-export function InsufficientWarning({ order }: { order: OrderMetadata }) {
-  const remainingAmount =
-    order.data.amount -
-    order.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
-
-  const targetMint =
-    order.data.side === "Buy" ? order.data.quote_mint : order.data.base_mint
+export function InsufficientWarning({
+  amount,
+  baseMint,
+  quoteMint,
+  side,
+  className,
+}: {
+  amount: bigint
+  baseMint: `0x${string}`
+  quoteMint: `0x${string}`
+  side: Side
+  className?: string
+}) {
+  const token = Token.findByAddress(side === Side.BUY ? quoteMint : baseMint)
 
   const { data: balance } = useWallet({
     query: {
       select: data =>
-        data.balances.find(balance => balance.mint === targetMint)?.amount,
+        data.balances.find(balance => balance.mint === token.address)?.amount,
     },
   })
 
-  if (order.state === OrderState.Filled || order.state === OrderState.Cancelled)
-    return null
+  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount)
 
-  const isInsufficient = balance ? balance < remainingAmount : true
+  const formattedBalance = parseFloat(formatAmount(balance ?? BigInt(0), token))
+
+  // const isInsufficient = balance ? balance < amount : true
+  let isInsufficient = false
+  if (side === Side.BUY) {
+    isInsufficient = formattedBalance ? formattedBalance < usdPrice : true
+  } else {
+    isInsufficient = balance ? balance < amount : true
+  }
 
   if (!isInsufficient) return null
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-yellow" />
-            <div className="flex-1 border-0 text-sm font-bold">
-              Insufficient {Token.findByAddress(targetMint)?.ticker} Balance
-            </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>
-            {INSUFFICIENT_BALANCE_TOOLTIP({
-              ticker: Token.findByAddress(targetMint)?.ticker,
-            })}
-          </p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-yellow" />
+          <span className={cn(className)}>
+            Insufficient {token.ticker} Balance
+          </span>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          {INSUFFICIENT_BALANCE_TOOLTIP({
+            ticker: token.ticker,
+          })}
+          p
+        </p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
