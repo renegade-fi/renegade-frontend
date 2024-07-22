@@ -119,3 +119,13 @@ export const formatOrderState = (state: OrderState) => {
     [OrderState.SettlingMatch]: "Open",
   }[state]
 }
+
+export const formatOrderStateForTable = (state: OrderState) => {
+  return {
+    [OrderState.Created]: "Open",
+    [OrderState.Matching]: "Open",
+    [OrderState.Cancelled]: "Cancelled",
+    [OrderState.Filled]: "Filled",
+    [OrderState.SettlingMatch]: "Open",
+  }[state]
+}

@@ -2,7 +2,7 @@ import React from "react"
 
 import Link from "next/link"
 
-import { OrderMetadata, OrderState } from "@renegade-fi/react"
+import { OrderMetadata } from "@renegade-fi/react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -40,10 +40,11 @@ import {
 
 import { DISPLAY_TOKENS } from "@/lib/token"
 
-const statuses = Object.values(OrderState).map(status => ({
-  value: status,
-  label: status,
-}))
+const statuses = [
+  { value: "open", label: "Open" },
+  { value: "filled", label: "Filled" },
+  { value: "cancelled", label: "Cancelled" },
+]
 
 const sides = [
   { value: "buy", label: "Buy" },
