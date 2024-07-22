@@ -31,7 +31,7 @@ export function NewOrderPanel({
         </Button>
       </div>
       <Separator />
-      <div className="mt-6 px-6">
+      <div className="mt-6 px-6 text-sm">
         <AssetsSection base={base} />
       </div>
       <Separator />

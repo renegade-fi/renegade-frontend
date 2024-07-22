@@ -1,10 +1,9 @@
-import * as React from "react"
-
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token } from "@renegade-fi/react"
+import { Token, parseAmount } from "@renegade-fi/react"
 import { parseUnits } from "viem"
 
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
+import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
 
 import {
   NewOrderProps,
@@ -101,10 +100,10 @@ function NewOrderForm({
   onSuccess,
   ...fees
 }: NewOrderProps) {
-  const { decimals } = Token.findByTicker(base)
+  const token = Token.findByTicker(base)
   const formattedAmount = formatNumber(
-    parseUnits(amount.toString(), decimals),
-    decimals,
+    parseUnits(amount.toString(), token.decimals),
+    token.decimals,
     true,
   )
   return (
@@ -115,17 +114,17 @@ function NewOrderForm({
           <div className="font-serif text-3xl font-bold">
             {formattedAmount} {base}
           </div>
-          <TokenIcon ticker="WETH" />
+          <TokenIcon ticker={base} />
         </div>
       </div>
       <div className="space-y-3">
-        <div className="text-muted-foreground">{isSell ? "With" : "For"}</div>
+        <div className="text-muted-foreground">{isSell ? "For" : "With"}</div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">USDC</div>
           <TokenIcon ticker="USDC" />
         </div>
       </div>
-      <Separator />
+      {/* <Separator />
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Receive at least</div>
@@ -139,10 +138,24 @@ function NewOrderForm({
           <div className="text-muted-foreground">Est. time to fill</div>
           <div className="">--</div>
         </div>
-      </div>
+      </div> */}
       <Separator />
       <div className="space-y-3">
-        <FeesSection {...fees} />
+        <div className="flex items-center justify-between">
+          <div className="text-muted-foreground">Network costs</div>
+          <div>$0.00</div>
+        </div>
+        <FeesSection amount={amount} {...fees} />
+      </div>
+      <Separator />
+      <div>
+        <InsufficientWarning
+          className=""
+          amount={parseAmount(amount.toString(), token)}
+          baseMint={token.address}
+          quoteMint={Token.findByTicker("USDC").address}
+          side={isSell ? Side.SELL : Side.BUY}
+        />
       </div>
     </>
   )

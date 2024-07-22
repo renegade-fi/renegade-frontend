@@ -14,6 +14,7 @@ import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
 
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
@@ -103,7 +104,9 @@ export default async function RootLayout({
             <WagmiProvider initialState={initialState}>
               <PriceStoreProvider initialPrices={new Map()}>
                 <TailwindIndicator />
-                <div className="">{children}</div>
+                <TooltipProvider>
+                  <div className="">{children}</div>
+                </TooltipProvider>
                 <Toaster
                   className="pointer-events-auto"
                   toastOptions={{ duration: 10000 }}

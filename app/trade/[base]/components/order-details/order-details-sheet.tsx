@@ -26,6 +26,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { useCancelOrder } from "@/hooks/use-cancel-order"
+import { Side } from "@/lib/constants/protocol"
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 
 export function OrderDetailsSheet({
@@ -83,6 +84,8 @@ export function OrderDetailsSheet({
       timestamp: Number(fill.price.timestamp) * 1000,
     }
   })
+  const isOpen =
+    order.state !== OrderState.Filled && order.state !== OrderState.Cancelled
 
   return (
     <Sheet>
@@ -103,7 +106,15 @@ export function OrderDetailsSheet({
         <ScrollArea className="h-full">
           <div className="flex p-6">
             <OrderStatusIndicator order={order} />
-            <InsufficientWarning order={order} />
+            {isOpen && (
+              <InsufficientWarning
+                className="text-sm font-bold"
+                amount={order.data.amount}
+                baseMint={order.data.base_mint}
+                quoteMint={order.data.quote_mint}
+                side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
+              />
+            )}
             <div className="ml-auto flex">
               <Button
                 variant="outline"

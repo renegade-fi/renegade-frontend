@@ -1,12 +1,20 @@
 import * as React from "react"
 
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token } from "@renegade-fi/react"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { DefaultStep } from "@/components/dialogs/new-order-stepper/steps/default"
 import { SuccessStep } from "@/components/dialogs/new-order-stepper/steps/success"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -40,6 +48,14 @@ export function NewOrderStepperInner({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogHeader className="sr-only">
+          <VisuallyHidden>
+            <DialogTitle className="font-extended">Review Order</DialogTitle>
+            <DialogDescription>
+              Review your order before placing it.
+            </DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
         <DialogContent
           className="p-0 sm:max-w-[425px]"
           onOpenAutoFocus={e => {
