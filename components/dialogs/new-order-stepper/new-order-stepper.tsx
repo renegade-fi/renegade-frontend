@@ -20,7 +20,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrice } from "@/stores/price-store"
 
-export interface NewOrderProps extends NewOrderFormProps {
+export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void
   predictedSavings: number
   relayerFee: number
@@ -30,7 +30,7 @@ export interface NewOrderProps extends NewOrderFormProps {
 export function NewOrderStepperInner({
   children,
   ...props
-}: React.PropsWithChildren<NewOrderProps>) {
+}: React.PropsWithChildren<NewOrderConfirmationProps>) {
   const { step, open, setOpen } = useStepper()
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
@@ -99,6 +99,8 @@ const StepperContext = React.createContext<{
   step: Step
   open: boolean
   setOpen: (open: boolean) => void
+  taskId: string
+  setTaskId: (taskId: string) => void
 }>({
   onBack: () => {},
   onNext: () => {},
@@ -106,6 +108,8 @@ const StepperContext = React.createContext<{
   step: Step.DEFAULT,
   open: false,
   setOpen: () => {},
+  taskId: "",
+  setTaskId: () => {},
 })
 
 export const useStepper = () => React.useContext(StepperContext)
@@ -120,6 +124,7 @@ const StepperProvider = ({
   setOpen: (open: boolean) => void
 }) => {
   const [step, setStep] = React.useState(Step.DEFAULT)
+  const [taskId, setTaskId] = React.useState("")
 
   const handleNext = () => {
     setStep(step + 1)
@@ -132,6 +137,7 @@ const StepperProvider = ({
   React.useEffect(() => {
     if (open) {
       setStep(Step.DEFAULT)
+      setTaskId("")
     }
   }, [open])
 
@@ -144,6 +150,8 @@ const StepperProvider = ({
         step,
         open,
         setOpen,
+        taskId,
+        setTaskId,
       }}
     >
       {children}
@@ -157,7 +165,10 @@ export function NewOrderStepper({
   setOpen,
   ...props
 }: React.PropsWithChildren<
-  NewOrderProps & { open: boolean; setOpen: (open: boolean) => void }
+  NewOrderConfirmationProps & {
+    open: boolean
+    setOpen: (open: boolean) => void
+  }
 >) {
   return (
     <StepperProvider open={open} setOpen={setOpen}>

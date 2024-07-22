@@ -63,7 +63,6 @@ export function InsufficientWarning({
           {INSUFFICIENT_BALANCE_TOOLTIP({
             ticker: token.ticker,
           })}
-          p
         </p>
       </TooltipContent>
     </Tooltip>
