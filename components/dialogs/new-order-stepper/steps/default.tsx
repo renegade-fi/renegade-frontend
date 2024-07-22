@@ -6,7 +6,7 @@ import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sectio
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
 
 import {
-  NewOrderProps,
+  NewOrderConfirmationProps,
   useStepper,
 } from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { TokenIcon } from "@/components/token-icon"
@@ -26,8 +26,8 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { Side } from "@/lib/constants/protocol"
 import { formatNumber } from "@/lib/format"
 
-export function DefaultStep(props: NewOrderProps) {
-  const { onNext } = useStepper()
+export function DefaultStep(props: NewOrderConfirmationProps) {
+  const { onNext, setTaskId } = useStepper()
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const { handleCreateOrder } = useCreateOrder({
@@ -57,9 +57,10 @@ export function DefaultStep(props: NewOrderProps) {
             autoFocus
             onClick={() =>
               handleCreateOrder({
-                onSuccess: () => {
+                onSuccess: ({ taskId }) => {
                   props.onSuccess?.()
                   onNext()
+                  setTaskId(taskId)
                 },
               })
             }
@@ -99,7 +100,7 @@ function NewOrderForm({
   amount,
   onSuccess,
   ...fees
-}: NewOrderProps) {
+}: NewOrderConfirmationProps) {
   const token = Token.findByTicker(base)
   const formattedAmount = formatNumber(
     parseUnits(amount.toString(), token.decimals),

@@ -59,14 +59,15 @@ export function NewOrderForm({
   isUSDCDenominated?: boolean
 }) {
   const status = useStatus()
+  const defaultValues = {
+    amount: 0,
+    base,
+    isSell: side === Side.SELL,
+    isUSDCDenominated: isUSDCDenominated ?? false,
+  }
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      amount: 0,
-      base,
-      isSell: side === Side.SELL,
-      isUSDCDenominated: isUSDCDenominated ?? false,
-    },
+    defaultValues,
   })
   const fees = usePredictedFees(form.watch())
   const [open, setOpen] = React.useState(false)
@@ -92,9 +93,24 @@ export function NewOrderForm({
     }
   }, [form])
 
+  const [lockedFormValues, setLockedFormValues] = React.useState<
+    z.infer<typeof formSchema> & {
+      predictedSavings: number
+      relayerFee: number
+      protocolFee: number
+    }
+  >({
+    ...defaultValues,
+    ...fees,
+  })
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     form.trigger().then(isValid => {
       if (isValid) {
+        setLockedFormValues({
+          ...values,
+          ...fees,
+        })
         setOpen(true)
       }
     })
@@ -227,8 +243,9 @@ export function NewOrderForm({
           <FeesSection amount={form.watch("amount")} {...fees} />
         </div>
         <NewOrderStepper
-          {...form.watch()}
-          {...fees}
+          // {...form.watch()}
+          // {...fees}
+          {...lockedFormValues}
           onSuccess={() => form.reset()}
           open={open}
           setOpen={setOpen}
