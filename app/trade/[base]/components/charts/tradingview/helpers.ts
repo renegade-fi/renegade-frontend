@@ -59,6 +59,7 @@ export async function fetchSymbolReferenceInfo(pair: string) {
   try {
     const url = new URL(`${BASE_URL}/market/spot/exchanges/reference`)
     url.searchParams.set("exchange", "binance")
+    url.searchParams.set("pair", pair)
     const res = await makeAmberApiRequest(url)
     if (res.status !== 200) {
       throw new Error(res.statusText)
