@@ -30,8 +30,8 @@ export const remapToken = (token: string) => {
       return "eth"
     case "wbtc":
       return "btc"
-    case "usdc":
-      return "usdt"
+    // case "usdc":
+    //   return "usdt"
     default:
       return token.toLowerCase()
   }
