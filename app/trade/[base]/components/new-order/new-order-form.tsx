@@ -14,7 +14,10 @@ import {
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 
-import { NewOrderStepper } from "@/components/dialogs/new-order-stepper/new-order-stepper"
+import {
+  NewOrderConfirmationProps,
+  NewOrderStepper,
+} from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
 import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"
@@ -28,6 +31,7 @@ import {
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
+import { useFeesCheck } from "@/hooks/use-fees-check"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { Side } from "@/lib/constants/protocol"
@@ -93,16 +97,11 @@ export function NewOrderForm({
     }
   }, [form])
 
-  const [lockedFormValues, setLockedFormValues] = React.useState<
-    z.infer<typeof formSchema> & {
-      predictedSavings: number
-      relayerFee: number
-      protocolFee: number
-    }
-  >({
-    ...defaultValues,
-    ...fees,
-  })
+  const [lockedFormValues, setLockedFormValues] =
+    React.useState<NewOrderConfirmationProps>({
+      ...defaultValues,
+      ...fees,
+    })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     form.trigger().then(isValid => {
@@ -243,8 +242,6 @@ export function NewOrderForm({
           <FeesSection amount={form.watch("amount")} {...fees} />
         </div>
         <NewOrderStepper
-          // {...form.watch()}
-          // {...fees}
           {...lockedFormValues}
           onSuccess={() => form.reset()}
           open={open}
