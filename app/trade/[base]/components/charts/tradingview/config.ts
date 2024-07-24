@@ -233,7 +233,7 @@ export const config = constructConfig({
   enabled_features,
   favorites,
   fullscreen: false,
-  interval: "1D" as ResolutionString,
+  interval: "60" as ResolutionString,
   library_path: "/static/charting_library/",
   loading_screen,
   overrides,

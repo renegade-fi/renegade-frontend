@@ -88,7 +88,7 @@ export default async function RootLayout({
     renegadeConfig,
     headers().get("cookie"),
   )
-  // const prices = await getInitialPrices()
+  const prices = await getInitialPrices()
   return (
     <html lang="en">
       <body
@@ -102,7 +102,7 @@ export default async function RootLayout({
         >
           <RenegadeProvider initialState={renegadeInitialState}>
             <WagmiProvider initialState={initialState}>
-              <PriceStoreProvider initialPrices={new Map()}>
+              <PriceStoreProvider initialPrices={prices}>
                 <TailwindIndicator />
                 <TooltipProvider>
                   <div className="">{children}</div>
