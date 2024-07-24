@@ -1,3 +1,4 @@
+import { Exchange, Token } from "@renegade-fi/react"
 import { tokenMapping } from "@renegade-fi/react/constants"
 
 export const HIDDEN_TICKERS = ["USDT", "REN"]
@@ -35,4 +36,11 @@ export const remapToken = (token: string) => {
     default:
       return token.toLowerCase()
   }
+}
+
+export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
+  binance: Token.findByTicker("USDT").address,
+  coinbase: Token.findByTicker("USDC").address,
+  kraken: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+  okx: Token.findByTicker("USDT").address,
 }
