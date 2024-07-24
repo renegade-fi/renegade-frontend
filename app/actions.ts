@@ -1,5 +1,3 @@
-"use server"
-
 import { Token } from "@renegade-fi/react"
 
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
@@ -32,6 +30,7 @@ export async function getInitialPrices(): Promise<Map<string, number>> {
         headers: {
           "x-api-key": process.env.NEXT_PUBLIC_AMBERDATA_API_KEY,
         },
+        cache: "force-cache",
       },
     )
       .then(res => res.json())
