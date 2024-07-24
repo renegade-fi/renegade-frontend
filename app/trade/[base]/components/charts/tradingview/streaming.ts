@@ -9,75 +9,128 @@ interface SubscriptionItem {
   subscriberUID: string
   resolution: ResolutionString
   lastDailyBar: Bar
-  handlers: { id: string; callback: SubscribeBarsCallback }[]
+  handlers: { id: string; callback: SubscribeBarsCallback; lastBar: Bar }[]
 }
+
+let socket: WebSocket;
+let isConnected = false;
+const RECONNECT_INTERVAL = 5000; // 5 seconds
 
 const channelToSubscription = new Map<string, SubscriptionItem>()
 
-const socket = new WebSocket("ws://localhost:3000")
+function createWebSocket() {
+  socket = new WebSocket(process.env.NEXT_PUBLIC_AMBERDATA_PROXY_URL);
 
-socket.addEventListener("open", event => {
-  console.log("WebSocket is open now.")
-})
+  socket.addEventListener("open", event => {
+    console.log("WebSocket is open now.");
+    isConnected = true;
+    resubscribeAll();
+  });
 
-socket.addEventListener("message", event => {
-  console.log("Message from server ", event.data)
-})
+  socket.addEventListener("message", event => {
+    console.log("Message from server ", event.data);
+  });
 
-socket.addEventListener("close", event => {
-  console.log("WebSocket is closed now.")
-})
+  socket.addEventListener("close", event => {
+    console.log("WebSocket is closed now.");
+    isConnected = false;
+    setTimeout(() => {
+      console.log("Attempting to reconnect...");
+      createWebSocket();
+    }, RECONNECT_INTERVAL);
+  });
 
-socket.addEventListener("error", event => {
-  console.error("WebSocket error observed:", event)
-})
+  socket.addEventListener("error", event => {
+    console.error("WebSocket error observed:", event);
+  });
 
-socket.onmessage = event => {
-  const parsedMessage = JSON.parse(event.data)
-  const topic = parsedMessage.topic
-  const data = parsedMessage.data
+  socket.onmessage = event => {
+    const parsedMessage = JSON.parse(event.data)
+    const topic = parsedMessage.topic
+    const data = parsedMessage.data
 
-  const subscriptionItem = channelToSubscription.get(topic)
-  console.log("[websocket] subscriptionItem:", subscriptionItem)
-  if (subscriptionItem === undefined) {
-    return
-  }
-  const lastDailyBar = subscriptionItem.lastDailyBar
-  const nextDailyBarTime = getNextDailyBarTime(lastDailyBar.time)
-
-  let bar
-  if (data.timestamp >= nextDailyBarTime) {
-    bar = {
-      time: nextDailyBarTime,
-      open: lastDailyBar.close,
-      high: data.high,
-      low: data.low,
-      close: data.close,
-      volume: data.volume,
+    const subscriptionItem = channelToSubscription.get(topic)
+    console.log("[websocket] subscriptionItem:", subscriptionItem)
+    if (subscriptionItem === undefined) {
+      return
     }
-    console.log("[socket] Generate new bar", bar)
-  } else {
-    bar = {
-      ...lastDailyBar,
-      high: Math.max(lastDailyBar.high, data.high),
-      low: Math.min(lastDailyBar.low, data.low),
-      close: data.close,
-      volume: lastDailyBar.volume + data.volume,
+
+    for (const handler of subscriptionItem.handlers) {
+      const resolution = getResolutionFromUID(handler.id)
+      const lastBar = handler.lastBar
+      const nextBarTime = getNextBarTime(lastBar.time, resolution)
+
+      let bar
+      if (data.timestamp >= nextBarTime) {
+        bar = {
+          time: nextBarTime,
+          open: lastBar.close,
+          high: data.high,
+          low: data.low,
+          close: data.close,
+          volume: data.volume,
+        }
+        console.log("[socket] Generate new bar", bar)
+      } else {
+        bar = {
+          ...lastBar,
+          high: Math.max(lastBar.high, data.high),
+          low: Math.min(lastBar.low, data.low),
+          close: data.close,
+          volume: lastBar.volume + data.volume,
+        }
+        console.log("[socket] Update the latest bar ", bar)
+      }
+      handler.callback(bar)
+      handler.lastBar = bar
     }
-    console.log("[socket] Update the latest bar ", bar)
   }
-
-  subscriptionItem.lastDailyBar = bar
-
-  // Send data to every subscriber of that symbol
-  subscriptionItem.handlers.forEach(handler => handler.callback(bar))
 }
 
-function getNextDailyBarTime(barTime: number) {
-  const date = new Date(barTime)
-  date.setDate(date.getDate() + 1)
+function resubscribeAll() {
+  for (const [topic, subscriptionItem] of Array.from(channelToSubscription.entries())) {
+    console.log(`[resubscribe]: Resubscribing to ${topic}`);
+    socket.send(
+      JSON.stringify({
+        type: "subscribe",
+        topic,
+      })
+    );
+  }
+}
+
+function getResolutionFromUID(subscriberUID: string): ResolutionString {
+  return subscriberUID.split("_").slice(-1)[0] as ResolutionString
+}
+
+function getNextBarTime(
+  timestamp: number,
+  resolution: ResolutionString,
+): number {
+  const resolutionValue = parseInt(resolution.slice(0, -1))
+  const resolutionUnit = resolution.slice(-1)
+
+  const date = new Date(timestamp)
+
+  switch (resolutionUnit) {
+    case "M": // Months
+      date.setMonth(date.getMonth() + resolutionValue)
+      break
+    case "W": // Weeks
+      date.setDate(date.getDate() + resolutionValue * 7)
+      break
+    case "D": // Days
+      date.setDate(date.getDate() + resolutionValue)
+      break
+    default: // Minutes
+      date.setMinutes(date.getMinutes() + parseInt(resolution))
+      break
+  }
+
   return date.getTime()
 }
+
+createWebSocket();
 
 export function subscribeOnStream(
   symbolInfo: LibrarySymbolInfo,
@@ -91,6 +144,7 @@ export function subscribeOnStream(
   const handler = {
     id: subscriberUID,
     callback: onTick,
+    lastBar: lastDailyBar,
   }
   let subscriptionItem = channelToSubscription.get(topic)
   if (subscriptionItem) {
@@ -106,12 +160,16 @@ export function subscribeOnStream(
   }
   channelToSubscription.set(topic, subscriptionItem)
   console.log("[subscribeBars]: Subscribe to streaming. Channel:", topic)
-  socket.send(
-    JSON.stringify({
-      type: "subscribe",
-      topic,
-    }),
-  )
+  if (isConnected) {
+    socket.send(
+      JSON.stringify({
+        type: "subscribe",
+        topic,
+      })
+    );
+  } else {
+    console.log(`[subscribeBars]: WebSocket not connected. Will subscribe to ${topic} upon reconnection.`);
+  }
 }
 
 function constructTopicFromUID(subscriberUID: string) {
