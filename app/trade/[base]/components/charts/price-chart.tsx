@@ -3,10 +3,7 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import Script from "next/script"
 
-import {
-  ChartingLibraryWidgetOptions,
-  ResolutionString,
-} from "@renegade-fi/tradingview-charts"
+import { ChartingLibraryWidgetOptions } from "@renegade-fi/tradingview-charts"
 
 import { remapToken } from "@/lib/token"
 
