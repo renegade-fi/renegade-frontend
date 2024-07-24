@@ -4,6 +4,11 @@ import {
   LibrarySymbolInfo,
 } from "@renegade-fi/tradingview-charts"
 
+import {
+  subscribeOnStream,
+  unsubscribeFromStream,
+} from "@/app/trade/[base]/components/charts/tradingview/streaming"
+
 import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
 
 import { datafeedConfig } from "./config"
@@ -149,15 +154,14 @@ export const datafeed = {
       "[subscribeBars]: Method call with subscriberUID:",
       subscriberUID,
     )
-    // TODO: implement subscribeBars
-    // subscribeOnStream(
-    //   symbolInfo,
-    //   resolution,
-    //   onRealtimeCallback,
-    //   subscriberUID,
-    //   onResetCacheNeededCallback,
-    //   lastBarsCache.get(symbolInfo.full_name)
-    // );
+    subscribeOnStream(
+      symbolInfo,
+      resolution,
+      onRealtimeCallback,
+      subscriberUID,
+      onResetCacheNeededCallback,
+      lastBarsCache.get(symbolInfo.name),
+    )
   },
 
   unsubscribeBars: subscriberUID => {
@@ -165,7 +169,6 @@ export const datafeed = {
       "[unsubscribeBars]: Method call with subscriberUID:",
       subscriberUID,
     )
-    // TODO: implement unsubscribeBars
-    // unsubscribeFromStream(subscriberUID);
+    unsubscribeFromStream(subscriberUID)
   },
 } satisfies IBasicDataFeed
