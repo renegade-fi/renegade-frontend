@@ -66,7 +66,18 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     }))
     .sort((a, b) => a.timestamp - b.timestamp)
 
-  const resolutionMs = 7 * 1000
+  const resolutionMs = React.useMemo(() => {
+    if (formattedFills.length === 1) {
+      return 60000
+    }
+    const smallestTimeDiff = formattedFills.reduce((minDiff, fill, index) => {
+      if (index === 0) return minDiff
+      const timeDiff = fill.timestamp - formattedFills[index - 1].timestamp
+      return Math.min(minDiff, timeDiff)
+    }, Infinity)
+
+    return smallestTimeDiff
+  }, [formattedFills])
 
   const { newFromMs, newToMs } = React.useMemo(() => {
     const minFillTimestamp = formattedFills[0].timestamp
@@ -76,9 +87,8 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     let startTime,
       endTime = 0
 
-    // TODO: What is best value for this?
-    // Chart width / point spacing
-    const pointsCount = Math.floor(527 / 10)
+    // TODO: Dynamically calculate based on resolution
+    const pointsCount = 50
     const requiredTimeSpan = pointsCount * resolutionMs
 
     if (formattedFills.length === 1) {
@@ -89,6 +99,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       startTime = minFillTimestamp - halfTimeSpan
       endTime = maxFillTimestamp + halfTimeSpan
     }
+    // Round to nearest minute
     return {
       newFromMs: Math.floor(startTime / 60000) * 60000,
       newToMs: Math.ceil(endTime / 60000) * 60000,
@@ -101,8 +112,6 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     endDateMs: newToMs,
     timeInterval: "minutes",
   })
-
-  const threshold = 150
 
   const chartData = React.useMemo(() => {
     if (!ohlc) return []
@@ -151,13 +160,6 @@ export function FillChart({ order }: { order: OrderMetadata }) {
         timestamp: pricePoint.timestamp,
       }
     })
-
-    // // Step 4: Limit Points (Optional)
-    // if (result.length > threshold) {
-    //   const step = Math.ceil(result.length / threshold)
-    //   const limitedData = result.filter((_, index) => index % step === 0)
-    //   return limitedData
-    // }
 
     return result
   }, [formattedFills, newFromMs, ohlc, order.data.side, resolutionMs])
