@@ -1,5 +1,12 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, parseAmount } from "@renegade-fi/react"
+import {
+  Token,
+  UpdateType,
+  parseAmount,
+  useCreateOrder,
+  usePrepareCreateOrder,
+} from "@renegade-fi/react"
+import { toast } from "sonner"
 import { parseUnits } from "viem"
 
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
@@ -21,19 +28,38 @@ import { DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
-import { useCreateOrder } from "@/hooks/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Side } from "@/lib/constants/protocol"
+import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber } from "@/lib/format"
 
 export function DefaultStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
-  const { handleCreateOrder } = useCreateOrder({
-    base: props.base,
-    side: props.isSell ? Side.SELL : Side.BUY,
-    amount: props.amount.toString(),
+  const baseToken = Token.findByTicker(props.base)
+  const quoteToken = Token.findByTicker("USDC")
+  const parsedAmount = parseAmount(props.amount.toString(), baseToken)
+
+  const { request } = usePrepareCreateOrder({
+    base: baseToken.address,
+    quote: quoteToken.address,
+    side: props.isSell ? "sell" : "buy",
+    amount: parsedAmount,
+  })
+
+  const { createOrder } = useCreateOrder({
+    mutation: {
+      onSuccess(data) {
+        props.onSuccess?.()
+        onNext()
+        setTaskId(data.taskId)
+        const message = constructStartToastMessage(UpdateType.PlaceOrder)
+        toast.loading(message, {
+          id: data.taskId,
+        })
+      },
+    },
   })
 
   if (isDesktop) {
@@ -55,15 +81,7 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
         <DialogFooter>
           <Button
             autoFocus
-            onClick={() =>
-              handleCreateOrder({
-                onSuccess: ({ taskId }) => {
-                  props.onSuccess?.()
-                  onNext()
-                  setTaskId(taskId)
-                },
-              })
-            }
+            onClick={() => createOrder({ request })}
             variant="outline"
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"

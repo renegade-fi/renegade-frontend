@@ -2,8 +2,10 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, useBalances } from "@renegade-fi/react"
-import { useForm, useFormState, useWatch } from "react-hook-form"
+import { Token, UpdateType, useBalances } from "@renegade-fi/react"
+import { useForm, useWatch } from "react-hook-form"
+import { toast } from "sonner"
+import { formatUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
@@ -40,6 +42,7 @@ import { useApprove } from "@/hooks/use-approve"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useWithdraw } from "@/hooks/use-withdraw"
+import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
 import { cn } from "@/lib/utils"
@@ -202,7 +205,6 @@ function TransferForm({
       mint: initialMint ?? "",
     },
   })
-  const { isValid } = useFormState({ control: form.control })
 
   const mint = useWatch({
     control: form.control,
@@ -219,6 +221,9 @@ function TransferForm({
     : undefined
 
   const formattedRenegadeBalance = baseToken
+    ? formatUnits(renegadeBalance ?? BigInt(0), baseToken.decimals)
+    : ""
+  const renegadeBalanceLabel = baseToken
     ? formatNumber(renegadeBalance ?? BigInt(0), baseToken.decimals)
     : ""
 
@@ -233,6 +238,9 @@ function TransferForm({
     },
   })
   const formattedL2Balance = baseToken
+    ? formatUnits(l2Balance ?? BigInt(0), baseToken.decimals)
+    : ""
+  const l2BalanceLabel = baseToken
     ? formatNumber(l2Balance ?? BigInt(0), baseToken.decimals)
     : ""
 
@@ -240,6 +248,10 @@ function TransferForm({
     direction === ExternalTransferDirection.Deposit
       ? formattedL2Balance
       : formattedRenegadeBalance
+  const balanceLabel =
+    direction === ExternalTransferDirection.Deposit
+      ? l2BalanceLabel
+      : renegadeBalanceLabel
 
   const amount = useWatch({
     control: form.control,
@@ -265,32 +277,43 @@ function TransferForm({
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     if (direction === ExternalTransferDirection.Deposit) {
       if (needsApproval) {
         handleApprove({
           onSuccess: () => {
             handleDeposit({
-              onSuccess: () => {
+              onSuccess: data => {
                 form.reset()
                 onSuccess?.()
+                const message = constructStartToastMessage(UpdateType.Deposit)
+                toast.loading(message, {
+                  id: data.taskId,
+                })
               },
             })
           },
         })
       } else {
         handleDeposit({
-          onSuccess: () => {
+          onSuccess: data => {
             form.reset()
             onSuccess?.()
+            const message = constructStartToastMessage(UpdateType.Deposit)
+            toast.loading(message, {
+              id: data.taskId,
+            })
           },
         })
       }
     } else {
       handleWithdraw({
-        onSuccess: () => {
+        onSuccess: data => {
           form.reset()
           onSuccess?.()
+          const message = constructStartToastMessage(UpdateType.Withdraw)
+          toast.loading(message, {
+            id: data.taskId,
+          })
         },
       })
     }
@@ -371,7 +394,7 @@ function TransferForm({
                 }}
               >
                 <div className="font-mono text-sm">
-                  {baseToken ? `${balance} ${baseToken.ticker}` : "--"}
+                  {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
                 </div>
               </Button>
             </div>

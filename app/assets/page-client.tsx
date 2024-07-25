@@ -34,7 +34,7 @@ export type HistoryData = {
   mint: `0x${string}`
   amount: string
   timestamp: number
-  isWithdrawal: boolean
+  isWithdrawal: UpdateType
 }
 
 export function PageClient() {
@@ -130,7 +130,7 @@ export function PageClient() {
           mint: task.task_info.mint,
           amount: formattedAmount,
           timestamp: Number(task.created_at),
-          isWithdrawal: task.task_info.update_type === UpdateType.Withdraw,
+          isWithdrawal: task.task_info.update_type,
         })
       }
       return acc

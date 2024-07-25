@@ -228,7 +228,8 @@ function constructConfig(
 export const config = constructConfig({
   autosize: true,
   custom_css_url: "/static/theme.css",
-  debug: process.env.NODE_ENV === "development",
+  // debug: process.env.NODE_ENV === "development",
+  debug: false,
   disabled_features,
   enabled_features,
   favorites,

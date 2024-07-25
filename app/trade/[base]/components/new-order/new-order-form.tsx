@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 
-import { useFeesCheck } from "@/hooks/use-fees-check"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { Side } from "@/lib/constants/protocol"

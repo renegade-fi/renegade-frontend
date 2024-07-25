@@ -19,7 +19,6 @@ export function TaskToaster() {
     },
   })
   const taskIdToStateMap = useRef<Map<string, Task>>(new Map())
-  const taskIdToToastIdMap = useRef<Map<string, string | number>>(new Map())
 
   useEffect(() => {
     if (incomingTask) {
@@ -39,25 +38,25 @@ export function TaskToaster() {
 
       if (incomingTask.state === "Completed") {
         const message = generateCompletionToastMessage(incomingTask)
-        const toastId = taskIdToToastIdMap.current.get(incomingTask.id)
         toast.success(message, {
-          id: toastId,
+          id: incomingTask.id,
         })
         return
       } else if (incomingTask.state === "Failed") {
         const message = generateFailedToastMessage(incomingTask)
-        const toastId = taskIdToToastIdMap.current.get(incomingTask.id)
         toast.error(message, {
-          id: toastId,
+          id: incomingTask.id,
         })
       } else if (incomingTask.state === "Proving") {
         const message = generateStartToastMessage(incomingTask)
-        const id = toast.loading(message)
-        taskIdToToastIdMap.current.set(incomingTask.id, id)
+        toast.loading(message, {
+          id: incomingTask.id,
+        })
       } else if (incomingTask.state === "Proving Payment") {
         const message = generateStartToastMessage(incomingTask)
-        const id = toast.loading(message)
-        taskIdToToastIdMap.current.set(incomingTask.id, id)
+        toast.loading(message, {
+          id: incomingTask.id,
+        })
       }
     }
   }, [incomingTask])

@@ -69,13 +69,11 @@ export const FAILED_DEPOSIT_MSG = (
   amount: bigint,
   reason?: string,
 ) =>
-  `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${
-    reason ?? "Please try again"
+  `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${reason ?? "Please try again"
   }.`
 
 export const FAILED_WITHDRAWAL_MSG = (mint: Token, amount: bigint) =>
-  `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${
-    mint.ticker
+  `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${mint.ticker
   }. Please try again.`
 
 export const FAILED_PLACE_ORDER_MSG = (
@@ -132,13 +130,11 @@ export function generateCompletionToastMessage(task: Task) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
           const mint = Token.findByAddress(taskInfo.mint)
-          message = `${
-            taskInfo.update_type === UpdateType.Deposit
-              ? "Deposit"
-              : "Withdrawal"
-          } of ${formatNumber(taskInfo.amount, mint.decimals)} ${
-            mint.ticker
-          } completed.`
+          message = `${taskInfo.update_type === UpdateType.Deposit
+            ? "Deposit"
+            : "Withdrawal"
+            } of ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker
+            } completed.`
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
@@ -146,11 +142,10 @@ export function generateCompletionToastMessage(task: Task) {
           message = `${taskInfo.side} order for ${formatNumber(
             taskInfo.amount,
             base.decimals,
-          )} ${base.ticker} ${
-            taskInfo.update_type === UpdateType.PlaceOrder
-              ? "placed"
-              : "cancelled"
-          } successfully.`
+          )} ${base.ticker} ${taskInfo.update_type === UpdateType.PlaceOrder
+            ? "placed"
+            : "cancelled"
+            } successfully.`
           break
       }
       break
@@ -183,25 +178,22 @@ export function generateStartToastMessage(task: Task) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
           const mint = Token.findByAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
-          message = `Initiating ${
-            taskInfo.update_type === UpdateType.Deposit
-              ? "deposit"
-              : "withdrawal"
-          } of ${formatNumber(taskInfo.amount, mint.decimals)} ${
-            mint.ticker
-          }...`
+          message = `Initiating ${taskInfo.update_type === UpdateType.Deposit
+            ? "deposit"
+            : "withdrawal"
+            } of ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker
+            }...`
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
           const base = Token.findByAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
-          message = `${
-            taskInfo.update_type === UpdateType.PlaceOrder
-              ? "Placing"
-              : "Cancelling"
-          } ${taskInfo.side.toLowerCase()} order for ${formatNumber(
-            taskInfo.amount,
-            base.decimals,
-          )} ${base.ticker}...`
+          message = `${taskInfo.update_type === UpdateType.PlaceOrder
+            ? "Placing"
+            : "Cancelling"
+            } ${taskInfo.side.toLowerCase()} order for ${formatNumber(
+              taskInfo.amount,
+              base.decimals,
+            )} ${base.ticker}...`
           break
       }
       break
@@ -262,6 +254,27 @@ export function generateFailedToastMessage(task: Task) {
         taskInfo.volume,
         token.decimals,
       )} ${token.ticker}. Please try again.`
+      break
+  }
+
+  return message
+}
+
+export function constructStartToastMessage(taskType: UpdateType) {
+  let message = ""
+
+  switch (taskType) {
+    case UpdateType.Deposit:
+      message = "Deposit initiated..."
+      break
+    case UpdateType.Withdraw:
+      message = "Withdrawal initiated..."
+      break
+    case UpdateType.PlaceOrder:
+      message = "Placing order..."
+      break
+    case UpdateType.CancelOrder:
+      message = "Cancelling order..."
       break
   }
 

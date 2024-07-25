@@ -38,7 +38,7 @@ export const columns: ColumnDef<HistoryData>[] = [
     header: () => <div>Type</div>,
     cell: ({ row }) => {
       const isWithdrawal = row.getValue<boolean>("isWithdrawal")
-      return <div>{isWithdrawal ? "Withdraw" : "Deposit"}</div>
+      return <div>{isWithdrawal}</div>
     },
   },
   {
