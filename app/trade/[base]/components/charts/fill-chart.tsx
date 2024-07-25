@@ -26,21 +26,14 @@ import { formatCurrency, formatNumber } from "@/lib/format"
 import { remapToken } from "@/lib/token"
 
 const chartConfig = {
-  fillPrice: {
-    label: "Renegade Fill",
-    color: "hsl(var(--chart-blue))",
-  },
   price: {
     label: "Binance Price",
     color: "hsl(var(--chart-yellow))",
   },
-  // vwap: {
-  //   label: "VWAP",
-  //   color: "hsl(var(--chart-blue))",
-  // },
-  // timestamp: {
-  //   label: "Date",
-  // },
+  fillPrice: {
+    label: "Renegade Fill",
+    color: "hsl(var(--chart-blue))",
+  },
 } satisfies ChartConfig
 
 function calculateYAxisDomain(
@@ -83,6 +76,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     let startTime,
       endTime = 0
 
+    // TODO: What is best value for this?
     // Chart width / point spacing
     const pointsCount = Math.floor(527 / 10)
     const requiredTimeSpan = pointsCount * resolutionMs
@@ -151,10 +145,10 @@ export function FillChart({ order }: { order: OrderMetadata }) {
         f => f.timestamp === pricePoint.timestamp,
       ) || { volume: 0, fillPrice: undefined }
       return {
-        timestamp: pricePoint.timestamp,
         price: pricePoint.price,
         fillPrice: fillPoint.fillPrice,
         volume: fillPoint.volume,
+        timestamp: pricePoint.timestamp,
       }
     })
 
@@ -241,29 +235,22 @@ export function FillChart({ order }: { order: OrderMetadata }) {
             />
             <ChartLegend content={<ChartLegendContent />} />
             <Line
+              dataKey="fillPrice"
+              stroke="var(--color-fillPrice)"
+              fill="var(--color-fillPrice)"
+              strokeWidth={0}
+              isAnimationActive={false}
+            />
+            <Line
               animationEasing="ease-out"
               animationDuration={750}
-              // isAnimationActive={false}
               dataKey="price"
               type="linear"
               fill="var(--color-price)"
               stroke="var(--color-price)"
               dot={false}
             />
-            <Line
-              isAnimationActive={false}
-              dataKey="fillPrice"
-              type="natural"
-              stroke="var(--color-fillPrice)"
-              fill="var(--color-fillPrice)"
-            />
-            {/* <Line
-              dataKey="vwap"
-              type="monotone"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-fillPrice)"
-              dot={false}
-            /> */}
+            {}
             <ChartTooltip
               content={
                 <ChartTooltipContent
