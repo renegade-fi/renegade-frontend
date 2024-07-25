@@ -161,7 +161,6 @@ export function OrderDetailsSheet({
               {order.fills.length ? (
                 <FillChart order={order} />
               ) : (
-                // <Component />
                 <Skeleton className="h-[500px] w-full rounded-none" />
               )}
               <Separator />
