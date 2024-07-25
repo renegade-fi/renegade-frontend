@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/chart"
 
 import { useOHLC } from "@/hooks/use-ohlc"
+import { Side } from "@/lib/constants/protocol"
 import { oneMinute } from "@/lib/constants/time"
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 import { remapToken } from "@/lib/token"
@@ -165,14 +166,6 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     return result
   }, [formattedFills, startMs, ohlc, order.data.side, resolutionMs])
 
-  function formatTimestamp(value: number): string {
-    const date = new Date(Number(value))
-    return date.toLocaleString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    })
-  }
-
   const [minValue, maxValue] = React.useMemo(
     () =>
       chartData.reduce(
@@ -281,22 +274,32 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                       <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
                         {formatCurrency(Number(value))}
                       </div>
-                      {index === 1 && (
-                        <div className="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground">
-                          Relative Fill
-                          <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
-                            {/* TODO: [CORRECTNESS] Use orderbook to calculate more accurate relative fill */}
-                            {formatPercentage(
-                              item.payload.fillPrice,
-                              item.payload.price,
-                              false,
-                            )}
-                            <span className="font-normal text-muted-foreground">
-                              %
-                            </span>
+                      {index === 1 &&
+                        isPositiveRelativeFill(
+                          item.payload.fillPrice,
+                          item.payload.price,
+                          order.data.side,
+                        ) && (
+                          <div className="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground">
+                            Relative Fill
+                            <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
+                              {/* TODO: [CORRECTNESS] Use orderbook to calculate more accurate relative fill */}
+                              {formatPercentage(
+                                order.data.side === "Buy"
+                                  ? item.payload.price
+                                  : item.payload.fillPrice,
+                                order.data.side === "Buy"
+                                  ? item.payload.fillPrice
+                                  : item.payload.price,
+                                2,
+                                false,
+                              )}
+                              <span className="font-normal text-muted-foreground">
+                                %
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </>
                   )}
                 />
@@ -318,4 +321,20 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       </CardFooter>
     </Card>
   )
+}
+
+function formatTimestamp(value: number): string {
+  const date = new Date(Number(value))
+  return date.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  })
+}
+
+function isPositiveRelativeFill(
+  fillPrice: number,
+  price: number,
+  side: "Buy" | "Sell",
+): boolean {
+  return side === "Buy" ? fillPrice < price : fillPrice > price
 }
