@@ -1,7 +1,6 @@
 import React from "react"
 
 import { OrderMetadata, Token } from "@renegade-fi/react"
-import { TrendingUp } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
@@ -22,7 +21,8 @@ import {
 } from "@/components/ui/chart"
 
 import { useOHLC } from "@/hooks/use-ohlc"
-import { formatCurrency, formatNumber } from "@/lib/format"
+import { oneMinute } from "@/lib/constants/time"
+import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 import { remapToken } from "@/lib/token"
 
 const chartConfig = {
@@ -68,24 +68,24 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
   const resolutionMs = React.useMemo(() => {
     if (formattedFills.length === 1) {
-      return 60000
+      return oneMinute
     }
-    const smallestTimeDiff = formattedFills.reduce((minDiff, fill, index) => {
+    const minTimeDiff = formattedFills.reduce((minDiff, fill, index) => {
       if (index === 0) return minDiff
       const timeDiff = fill.timestamp - formattedFills[index - 1].timestamp
       return Math.min(minDiff, timeDiff)
     }, Infinity)
 
-    return smallestTimeDiff
+    return minTimeDiff
   }, [formattedFills])
 
-  const { newFromMs, newToMs } = React.useMemo(() => {
+  const { startMs, endMs } = React.useMemo(() => {
     const minFillTimestamp = formattedFills[0].timestamp
     const maxFillTimestamp = formattedFills[formattedFills.length - 1].timestamp
     const fillTimeSpan = maxFillTimestamp - minFillTimestamp
 
-    let startTime,
-      endTime = 0
+    let startTime = 0
+    let endTime = 0
 
     // TODO: Dynamically calculate based on resolution
     const pointsCount = 50
@@ -101,15 +101,15 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     }
     // Round to nearest minute
     return {
-      newFromMs: Math.floor(startTime / 60000) * 60000,
-      newToMs: Math.ceil(endTime / 60000) * 60000,
+      startMs: Math.floor(startTime / 60000) * 60000,
+      endMs: Math.ceil(endTime / 60000) * 60000,
     }
   }, [formattedFills, resolutionMs])
 
   const { data: ohlc } = useOHLC({
     instrument: `${remapToken(token.ticker)}_usdt`,
-    startDateMs: newFromMs,
-    endDateMs: newToMs,
+    startDateMs: startMs,
+    endDateMs: endMs,
     timeInterval: "minutes",
   })
 
@@ -121,7 +121,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
     // Step 1: Convert price data to the desired resolution
     const adjustedPriceData: Partial<ChartData>[] = []
-    let startTimestamp = Math.floor(newFromMs / resolutionMs) * resolutionMs
+    let startTimestamp = Math.floor(startMs / resolutionMs) * resolutionMs
     for (let i = 0; i < ohlc.length; i++) {
       const bar = ohlc[i]
       const endTimestamp = bar.time + 60000 // Each bar is 1 minute
@@ -136,9 +136,10 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       }
     }
 
+    // Step 2: Align fill data to the desired resolution
+    // Aligned timestamp will never be greater than fill timestamp
+    // Can be up to resolutionMs off
     const adjustedFillData = formattedFills.map(fillPoint => {
-      // Aligned timestamp will never be greater than fill timestamp
-      // Can be up to resolutionMs off
       const alignedTimestamp =
         Math.floor(fillPoint.timestamp / resolutionMs) * resolutionMs
       return {
@@ -162,7 +163,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     })
 
     return result
-  }, [formattedFills, newFromMs, ohlc, order.data.side, resolutionMs])
+  }, [formattedFills, startMs, ohlc, order.data.side, resolutionMs])
 
   function formatTimestamp(value: number): string {
     const date = new Date(Number(value))
@@ -280,6 +281,22 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                       <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
                         {formatCurrency(Number(value))}
                       </div>
+                      {index === 1 && (
+                        <div className="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground">
+                          Relative Fill
+                          <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
+                            {/* TODO: [CORRECTNESS] Use orderbook to calculate more accurate relative fill */}
+                            {formatPercentage(
+                              item.payload.fillPrice,
+                              item.payload.price,
+                              false,
+                            )}
+                            <span className="font-normal text-muted-foreground">
+                              %
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 />
@@ -293,12 +310,8 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       <CardFooter>
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Saving 10% compared to Binance
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Source: Amberdata
+            <div className="flex items-center gap-2 text-xs leading-none text-muted-foreground">
+              Data by Ambderdata.
             </div>
           </div>
         </div>
