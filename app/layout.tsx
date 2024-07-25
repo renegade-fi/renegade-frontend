@@ -88,7 +88,8 @@ export default async function RootLayout({
     renegadeConfig,
     headers().get("cookie"),
   )
-  const prices = await getInitialPrices()
+  // const prices = await getInitialPrices()
+  const prices = new Map()
   return (
     <html lang="en">
       <body
