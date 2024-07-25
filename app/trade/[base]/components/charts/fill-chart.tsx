@@ -49,7 +49,7 @@ function calculateYAxisDomain(
 
 interface ChartData {
   price: number
-  timestamp: number
+  timestamp: string
   fillPrice?: number
   vwap?: number
   volume?: number
@@ -128,7 +128,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       while (startTimestamp < endTimestamp) {
         if (startTimestamp >= ohlcStartTime && startTimestamp < ohlcEndTime) {
           adjustedPriceData.push({
-            timestamp: startTimestamp,
+            timestamp: startTimestamp.toString(),
             price: order.data.side === "Sell" ? bar.low : bar.high,
           })
         }
@@ -151,8 +151,8 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     // Step 3: Merge adjusted price and fill data
     const result = adjustedPriceData.map(pricePoint => {
       const fillPoint = adjustedFillData.find(
-        f => f.timestamp === pricePoint.timestamp,
-      ) || { volume: 0, fillPrice: undefined }
+        f => f.timestamp.toString() === pricePoint.timestamp,
+      ) || { volume: undefined, fillPrice: undefined }
       return {
         price: pricePoint.price,
         fillPrice: fillPoint.fillPrice,
@@ -165,7 +165,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
   }, [formattedFills, newFromMs, ohlc, order.data.side, resolutionMs])
 
   function formatTimestamp(value: number): string {
-    const date = new Date(value)
+    const date = new Date(Number(value))
     return date.toLocaleString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -221,7 +221,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
               tickFormatter={formatTimestamp}
             />
             <YAxis
-              dataKey="fillPrice"
+              dataKey="price"
               axisLine={false}
               tickLine={false}
               tickCount={5}
@@ -252,12 +252,19 @@ export function FillChart({ order }: { order: OrderMetadata }) {
               stroke="var(--color-price)"
               dot={false}
             />
-            {}
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  hideLabel
                   className="w-[200px]"
+                  labelFormatter={value => {
+                    return new Date(Number(value)).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                      second: "numeric",
+                      month: "long",
+                    })
+                  }}
                   formatter={(value, name, item, index) => (
                     <>
                       <div
