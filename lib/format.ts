@@ -104,10 +104,11 @@ export const formatTimestamp = (
 export const formatPercentage = (
   numerator: number,
   denominator: number,
+  includeSymbol: boolean = true,
 ): string => {
   if (denominator === 0) return "0%"
   const percentage = (numerator / denominator) * 100
-  return `${Math.round(percentage * 100) / 100}%`
+  return `${Math.round(percentage * 100) / 100}${includeSymbol ? "%" : ""}`
 }
 
 export const formatOrderState = (state: OrderState) => {
