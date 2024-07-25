@@ -3,6 +3,7 @@ import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
+import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button"
 import {
   FillTableData,
   columns,
@@ -25,7 +26,6 @@ import {
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import { useCancelOrder } from "@/hooks/use-cancel-order"
 import { Side } from "@/lib/constants/protocol"
 import {
   formatCurrency,
@@ -78,8 +78,6 @@ export function OrderDetailsSheet({
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
   const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
 
-  const { handleCancel } = useCancelOrder({ order })
-
   const data: FillTableData[] = order.fills.map((fill, index) => {
     const amount = formatNumber(fill.amount, token.decimals)
     return {
@@ -121,14 +119,7 @@ export function OrderDetailsSheet({
               />
             )}
             <div className="ml-auto flex">
-              <Button
-                variant="outline"
-                className="flex-1"
-                disabled={!isCancellable}
-                onClick={() => handleCancel()}
-              >
-                Cancel Order
-              </Button>
+              <CancelButton id={order.id} isDisabled={!isCancellable} />
               <Button
                 variant="outline"
                 className="flex-1 border-l-0"

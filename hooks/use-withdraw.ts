@@ -30,7 +30,7 @@ export function useWithdraw({
     task => task.state !== "Completed" && task.state !== "Failed",
   )
 
-  const handleWithdraw = async ({ onSuccess }: { onSuccess?: () => void }) => {
+  const handleWithdraw = async ({ onSuccess }: { onSuccess?: ({ taskId }: { taskId: string }) => void }) => {
     if (!address || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = parseAmount(amount, token)
