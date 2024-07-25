@@ -57,8 +57,8 @@ const tokens = DISPLAY_TOKENS().map(token => ({
 }))
 
 const types = [
-  { value: "deposit", label: "Deposit" },
-  { value: "withdraw", label: "Withdraw" },
+  { value: "Deposit", label: "Deposit" },
+  { value: "Withdraw", label: "Withdraw" },
 ]
 
 export function DataTable<TData, TValue>({
@@ -117,9 +117,7 @@ export function DataTable<TData, TValue>({
   }, [mint, table])
 
   React.useEffect(() => {
-    table
-      .getColumn("isWithdrawal")
-      ?.setFilterValue(isWithdrawal === "withdraw" ? true : false)
+    table.getColumn("isWithdrawal")?.setFilterValue(isWithdrawal)
   }, [isWithdrawal, table])
 
   return (

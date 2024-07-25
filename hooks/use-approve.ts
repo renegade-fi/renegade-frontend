@@ -43,11 +43,12 @@ export function useApprove({
     queryClient.invalidateQueries({ queryKey })
   }, [queryClient, queryKey, blockNumber])
 
+  const needsApproval = isSuccess && !data
   // Flag is true if and only if allowance successfully fetched and allowance is less than amount
-  let needsApproval = false
-  if (isSuccess && amount && mint && isAddress(mint)) {
-    needsApproval = data < parseAmount(amount, Token.findByAddress(mint))
-  }
+  // let needsApproval = false
+  // if (isSuccess && amount && mint && isAddress(mint)) {
+  //   needsApproval = data < parseAmount(amount, Token.findByAddress(mint))
+  // }
 
   // TODO: Handle error case
   const { writeContract } = useWriteErc20Approve({
