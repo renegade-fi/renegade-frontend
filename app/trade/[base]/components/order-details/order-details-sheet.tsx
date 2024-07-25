@@ -27,7 +27,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { useCancelOrder } from "@/hooks/use-cancel-order"
 import { Side } from "@/lib/constants/protocol"
-import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
+import {
+  formatCurrency,
+  formatNumber,
+  formatOrderState,
+  formatPercentage,
+} from "@/lib/format"
 
 export function OrderDetailsSheet({
   children,
@@ -142,7 +147,7 @@ export function OrderDetailsSheet({
             </div>
             <Separator orientation="vertical" className="h-full" />
             <div className="flex-1 px-6">
-              <div className="text-sm">{order.state}</div>
+              <div className="text-sm">{formatOrderState(order.state)}</div>
               <div className="text-sm">{filledLabel}</div>
               <div className="flex items-center gap-2">
                 <Progress value={percentageFilled} />

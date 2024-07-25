@@ -1,30 +1,23 @@
 import { Bar } from "@renegade-fi/tradingview-charts"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
-import { fetchBarsForPeriod } from "@/app/trade/[base]/components/charts/tradingview/helpers"
+import { fetchBars } from "@/lib/amberdata"
 
-import { oneDayMs } from "@/lib/constants/time"
-import { remapToken } from "@/lib/token"
-
-export function useOHLC(
-  pair: string,
-  from: number,
-  to: number,
-  interval: string = "hours",
-): UseQueryResult<Bar[], unknown> {
+export function useOHLC(options: {
+  instrument: string
+  startDateMs: number
+  endDateMs: number
+  timeInterval: "minutes" | "hours" | "days"
+}): UseQueryResult<Bar[], unknown> {
   return useQuery({
-    queryKey: ["ohlc", pair, from, to],
-    queryFn: () => fetchOHLC(pair, from, to, interval),
+    queryKey: ["ohlc", options],
+    queryFn: () =>
+      fetchBars({
+        instrument: options.instrument,
+        startDateMs: options.startDateMs,
+        endDateMs: options.endDateMs,
+        timeInterval: options.timeInterval,
+      }),
     retry: false,
   })
-}
-
-function fetchOHLC(base: string, from: number, to: number, interval: string) {
-  return fetchBarsForPeriod(
-    `${remapToken(base)}_usdt`,
-    from,
-    to,
-    "minutes",
-    oneDayMs,
-  )
 }
