@@ -16,6 +16,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/trade/${defaultBase}`, request.url))
   }
 
+  if (request.nextUrl.pathname === "/trade/USDC") {
+    return NextResponse.redirect(new URL("/trade/WETH/", request.url))
+  }
+
   return NextResponse.next()
 }
 

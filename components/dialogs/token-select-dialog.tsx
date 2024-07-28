@@ -90,7 +90,10 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
 }
 
 function TokenList({ balances }: { balances?: Map<`0x${string}`, bigint> }) {
-  const sortedTokens = DISPLAY_TOKENS().sort((a, b) => {
+  const sortedTokens = DISPLAY_TOKENS({
+    hideHidden: true,
+    hideStables: true,
+  }).sort((a, b) => {
     const balanceA = balances?.get(a.address) ?? BigInt(0)
     const balanceB = balances?.get(b.address) ?? BigInt(0)
     if (balanceA === BigInt(0) && balanceB === BigInt(0)) return 0
