@@ -117,7 +117,7 @@ export function NewOrderForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex">
+        <div className="flex p-6">
           <FormField
             control={form.control}
             name="isSell"
@@ -126,7 +126,7 @@ export function NewOrderForm({
                 <FormControl>
                   <Button
                     variant="outline"
-                    className="w-full border-l-0 font-serif text-2xl font-bold"
+                    className="w-full font-serif text-2xl font-bold"
                     size="xl"
                     {...field}
                     value={""}
@@ -146,7 +146,7 @@ export function NewOrderForm({
           <TokenSelectDialog>
             <Button
               variant="outline"
-              className="flex-1 border-x-0 font-serif text-2xl font-bold"
+              className="flex-1 border-l-0 font-serif text-2xl font-bold"
               size="xl"
             >
               <TokenIcon ticker={base} size={22} className="mr-2" />
