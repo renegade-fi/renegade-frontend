@@ -106,7 +106,6 @@ export function SignInDialog({
           >
             {signStatus === "pending" ||
             connectStatus === "pending" ||
-            signSuccess ||
             connectSuccess
               ? "Confirm in wallet"
               : "Sign in to Renegade"}
