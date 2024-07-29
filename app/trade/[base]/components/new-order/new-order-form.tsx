@@ -135,7 +135,7 @@ export function NewOrderForm({
                       field.onChange(!field.value)
                     }}
                   >
-                    {field.value ? "SELL" : "BUY"}
+                    {field.value ? "Sell" : "Buy"}
                     <ArrowRightLeft className="ml-2 h-5 w-5" />
                   </Button>
                 </FormControl>
@@ -226,11 +226,10 @@ export function NewOrderForm({
           <div>
             <Button
               variant="outline"
-              className="flex w-full font-extended text-2xl"
+              className="flex w-full font-serif text-2xl font-bold"
               size="xl"
             >
-              {form.getValues("isSell") ? "Sell" : "Buy"} {base}{" "}
-              {form.getValues("isSell") ? "for" : "with"} USDC
+              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
             </Button>
           </div>
         )}
