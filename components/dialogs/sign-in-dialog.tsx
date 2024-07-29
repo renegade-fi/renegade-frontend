@@ -1,5 +1,4 @@
-import { useConfig } from "@renegade-fi/react"
-import { connect } from "@renegade-fi/react/actions"
+import { useConfig, useConnect } from "@renegade-fi/react"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { toast } from "sonner"
 import { useSignMessage } from "wagmi"
@@ -9,6 +8,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -30,8 +30,18 @@ export function SignInDialog({
   open: boolean
   onOpenChange: () => void
 }) {
-  const { signMessage } = useSignMessage()
+  const {
+    signMessage,
+    status: signStatus,
+    isSuccess: signSuccess,
+  } = useSignMessage()
   const config = useConfig()
+
+  const {
+    connect,
+    status: connectStatus,
+    isSuccess: connectSuccess,
+  } = useConnect()
 
   const handleClick = () =>
     signMessage(
@@ -42,38 +52,66 @@ export function SignInDialog({
         async onSuccess(data) {
           console.log("signed message: ", data)
           config.setState(x => ({ ...x, seed: data }))
-          const res = await connect(config)
-          if (res?.job) {
-            const { isLookup, job } = res
-            toast.promise(job, {
-              loading: isLookup ? LOOKUP_WALLET_START : CREATE_WALLET_START,
-              success: () => {
-                if (!isLookup) {
-                  return CREATE_WALLET_SUCCESS
+          connect(
+            {},
+            {
+              onSuccess(data, variables, context) {
+                if (data) {
+                  const { isLookup, job } = data
+                  toast.promise(job, {
+                    loading: isLookup
+                      ? LOOKUP_WALLET_START
+                      : CREATE_WALLET_START,
+                    success: () => {
+                      if (!isLookup) {
+                        return CREATE_WALLET_SUCCESS
+                      }
+                      return LOOKUP_WALLET_SUCCESS
+                    },
+                    error: isLookup ? LOOKUP_WALLET_ERROR : CREATE_WALLET_ERROR,
+                  })
                 }
-                return LOOKUP_WALLET_SUCCESS
+                onOpenChange()
               },
-              error: isLookup ? LOOKUP_WALLET_ERROR : CREATE_WALLET_ERROR,
-            })
-          }
-          onOpenChange()
+            },
+          )
         },
       },
     )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[80vh] sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Unlock your Wallet</DialogTitle>
+      <DialogContent className="gap-0 p-0 sm:max-w-[425px]">
+        <DialogHeader className="p-6">
+          <DialogTitle className="font-extended">
+            Unlock your Wallet
+          </DialogTitle>
           <DialogDescription>
-            To trade on Renegade, we require a one-time signature to unlock and
-            create your wallet.
+            To trade on Renegade, we require a one-time signature to create or
+            find your wallet on-chain.
           </DialogDescription>
         </DialogHeader>
-        <Button onClick={handleClick} variant="outline">
-          Sign in to Renegade
-        </Button>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+            size="xl"
+            onClick={handleClick}
+            disabled={
+              signStatus === "pending" ||
+              connectStatus === "pending" ||
+              signSuccess ||
+              connectSuccess
+            }
+          >
+            {signStatus === "pending" ||
+            connectStatus === "pending" ||
+            signSuccess ||
+            connectSuccess
+              ? "Confirm in wallet"
+              : "Sign in to Renegade"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
