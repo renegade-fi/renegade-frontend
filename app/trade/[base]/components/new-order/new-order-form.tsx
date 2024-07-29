@@ -207,19 +207,25 @@ export function NewOrderForm({
             {...form.watch()}
             className="flex-1"
             percentage={0.25}
-            onSetAmount={amount => form.setValue("amount", amount)}
+            onSetAmount={amount =>
+              form.setValue("amount", amount, { shouldValidate: true })
+            }
           />
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1 border-x-0"
             percentage={0.5}
-            onSetAmount={amount => form.setValue("amount", amount)}
+            onSetAmount={amount =>
+              form.setValue("amount", amount, { shouldValidate: true })
+            }
           />
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1"
             percentage={1}
-            onSetAmount={amount => form.setValue("amount", amount)}
+            onSetAmount={amount =>
+              form.setValue("amount", amount, { shouldValidate: true })
+            }
           />
         </div>
         {status === "in relayer" && (
