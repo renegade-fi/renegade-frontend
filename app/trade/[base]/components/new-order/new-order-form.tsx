@@ -75,7 +75,7 @@ export function NewOrderForm({
   const fees = usePredictedFees(form.watch())
   const [open, setOpen] = React.useState(false)
   const orderValue = useOrderValue(form.watch())
-  const formattedOrderValue = formatCurrency(orderValue)
+  const formattedOrderValue = orderValue ? formatCurrency(orderValue) : "--"
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
