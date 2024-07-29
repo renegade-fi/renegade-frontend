@@ -116,8 +116,8 @@ export function NewOrderForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex p-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
+        <div className="flex">
           <FormField
             control={form.control}
             name="isSell"
@@ -155,7 +155,7 @@ export function NewOrderForm({
             </Button>
           </TokenSelectDialog>
         </div>
-        <div className="px-6">
+        <div>
           <Label className="font-sans text-muted-foreground">Amount</Label>
           <div className="flex items-baseline">
             <FormField
@@ -202,7 +202,7 @@ export function NewOrderForm({
             />
           </div>
         </div>
-        <div className="flex px-6">
+        <div className="flex">
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1"
@@ -223,17 +223,18 @@ export function NewOrderForm({
           />
         </div>
         {status === "in relayer" && (
-          <div className="px-6">
+          <div>
             <Button
               variant="outline"
               className="flex w-full font-extended text-2xl"
               size="xl"
             >
-              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+              {form.getValues("isSell") ? "Sell" : "Buy"} {base}{" "}
+              {form.getValues("isSell") ? "for" : "with"} USDC
             </Button>
           </div>
         )}
-        <div className="space-y-3 whitespace-nowrap px-6 text-sm">
+        <div className="space-y-3 whitespace-nowrap text-sm">
           <div className="flex items-center justify-between">
             <div className="text-muted-foreground">Order Value</div>
             <div>{formattedOrderValue}</div>
