@@ -1,7 +1,8 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useStatus } from "@renegade-fi/react"
+import { useStatus, useWallet } from "@renegade-fi/react"
+import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -13,6 +14,7 @@ import {
 } from "@/app/trade/[base]/actions"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
+import { MaxOrdersWarning } from "@/app/trade/[base]/components/new-order/max-orders-warning"
 
 import {
   NewOrderConfirmationProps,
@@ -61,6 +63,11 @@ export function NewOrderForm({
   side: Side
   isUSDCDenominated?: boolean
 }) {
+  const { data: isMaxOrders } = useWallet({
+    query: {
+      select: data => data.orders.length === MAX_ORDERS,
+    },
+  })
   const status = useStatus()
   const defaultValues = {
     amount: 0,
@@ -228,13 +235,16 @@ export function NewOrderForm({
             }
           />
         </div>
+        <div>
+          <MaxOrdersWarning className="whitespace-nowrap text-sm" />
+        </div>
         {status === "in relayer" && (
           <div>
             <Button
               variant="outline"
               className="flex w-full font-serif text-2xl font-bold"
               size="xl"
-              disabled={!form.formState.isValid}
+              disabled={!form.formState.isValid || isMaxOrders}
             >
               {form.getValues("isSell") ? "Sell" : "Buy"} {base}
             </Button>
