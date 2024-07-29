@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dialog"
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
-import { useFeesCheck } from "@/hooks/use-fees-check"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrice } from "@/stores/price-store"
 
@@ -45,7 +44,6 @@ export function NewOrderStepperInner({
     // TODO: [SAFETY]: Check if amount is a number
     baseAmount = Number(amount) / price
   }
-  const { shouldDisplaySavings } = useFeesCheck({ params: props })
 
   if (isDesktop) {
     return (
@@ -68,12 +66,7 @@ export function NewOrderStepperInner({
           {step === Step.DEFAULT && (
             <DefaultStep {...props} amount={baseAmount} />
           )}
-          {step === Step.SUCCESS &&
-            (shouldDisplaySavings ? (
-              <SuccessStep {...props} amount={baseAmount} />
-            ) : (
-              <SuccessStepWithoutSavings />
-            ))}
+          {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
         </DialogContent>
       </Dialog>
     )
