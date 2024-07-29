@@ -4,6 +4,7 @@ import React from "react"
 
 import { Token, useOrderHistory } from "@renegade-fi/react"
 
+import { DepositBanner } from "@/app/components/deposit-banner"
 import { columns } from "@/app/orders/columns"
 import { DataTable } from "@/app/orders/data-table"
 import { BBOMarquee } from "@/app/trade/[base]/components/bbo-marquee"
@@ -52,7 +53,8 @@ export function PageClient({
   })
 
   return (
-    <>
+    <div>
+      <DepositBanner />
       <ResizablePanelGroup
         autoSaveId={STORAGE_LAYOUT}
         direction="horizontal"
@@ -99,6 +101,6 @@ export function PageClient({
           </main>
         </ResizablePanel>
       </ResizablePanelGroup>
-    </>
+    </div>
   )
 }
