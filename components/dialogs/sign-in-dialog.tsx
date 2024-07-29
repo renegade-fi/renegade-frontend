@@ -97,16 +97,9 @@ export function SignInDialog({
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"
             onClick={handleClick}
-            disabled={
-              signStatus === "pending" ||
-              connectStatus === "pending" ||
-              signSuccess ||
-              connectSuccess
-            }
+            disabled={signStatus === "pending" || connectStatus === "pending"}
           >
-            {signStatus === "pending" ||
-            connectStatus === "pending" ||
-            connectSuccess
+            {signStatus === "pending" || connectStatus === "pending"
               ? "Confirm in wallet"
               : "Sign in to Renegade"}
           </Button>
