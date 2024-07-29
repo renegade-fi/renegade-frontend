@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React from "react"
 
-import { useConfig } from "@renegade-fi/react"
+import { useConfig, useStatus } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider } from "connectkit"
 import {
@@ -25,7 +25,7 @@ export function WagmiProvider({
   initialState?: State
   children: React.ReactNode
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = React.useState(false)
   const onOpenChange = () => setOpen(!open)
   return (
     <Provider config={config} initialState={initialState}>
@@ -43,9 +43,10 @@ export function WagmiProvider({
 function SyncRenegadeWagmiState() {
   const config = useConfig()
   const { address, connector, status } = useAccount()
+  const renegadeStatus = useStatus()
 
   // Disconnect on wallet change
-  useEffect(() => {
+  React.useEffect(() => {
     const handleConnectorUpdate = (
       data: {
         accounts?: readonly `0x${string}`[] | undefined
@@ -55,7 +56,7 @@ function SyncRenegadeWagmiState() {
       },
     ) => {
       if (data.accounts) {
-        console.log("disconnecting because connector update")
+        console.log("disconnecting because connector update, status: ", status)
         disconnect(config)
       }
     }
@@ -69,7 +70,7 @@ function SyncRenegadeWagmiState() {
         connector?.emitter.off("change", handleConnectorUpdate)
       }
     }
-  }, [config, connector])
+  }, [config, connector, status])
 
   useAccountEffect({
     onDisconnect() {
@@ -78,11 +79,19 @@ function SyncRenegadeWagmiState() {
     },
   })
 
-  useEffect(() => {
-    if (!address) {
-      console.log("disconnecting because address is undefined")
-      disconnect(config)
-    }
-  }, [address, config])
+  // useEffect(() => {
+  //   if (!address) {
+  //     console.log("disconnecting because address is undefined")
+  //     disconnect(config)
+  //   }
+  // }, [address, config])
+
+  // React.useEffect(() => {
+  //   if (status !== "connected" && renegadeStatus === "in relayer") {
+  //     console.log("disconnecting due to status mismatch")
+  //     disconnect(config)
+  //   }
+  // }, [config, renegadeStatus, status])
+
   return null
 }
