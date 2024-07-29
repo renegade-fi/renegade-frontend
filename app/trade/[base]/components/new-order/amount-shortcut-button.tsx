@@ -91,6 +91,7 @@ export function AmountShortcutButton({
         onSetAmount(shortcut)
       }}
       disabled={isDisabled}
+      size="sm"
     >
       {percentage === 1 ? "MAX" : `${percentage * 100}%`}
     </Button>
