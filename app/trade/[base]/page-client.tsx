@@ -83,7 +83,7 @@ export function PageClient({
             <div className="overflow-auto">
               <PriceChartMemo base={base} />
               <Separator />
-              <div className="p-4">
+              <div className="p-6">
                 <DataTable
                   columns={columns}
                   data={data || []}
