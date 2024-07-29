@@ -1,6 +1,6 @@
 import { Lock } from "lucide-react"
 
-import { AssetsSection } from "@/app/trade/[base]/components/new-order/assets-section"
+import { AssetsSectionWithDepositButton } from "@/app/trade/[base]/components/new-order/assets-section"
 import { NewOrderForm } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { Button } from "@/components/ui/button"
@@ -32,7 +32,7 @@ export function NewOrderPanel({
       </div>
       <Separator />
       <div className="mt-6 px-6 text-sm">
-        <AssetsSection base={base} />
+        <AssetsSectionWithDepositButton base={base} />
       </div>
       <Separator />
     </aside>
