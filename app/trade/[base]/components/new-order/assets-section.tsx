@@ -13,6 +13,40 @@ import {
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { formatCurrency, formatNumber } from "@/lib/format"
 
+export function AssetsSectionWithDepositButton({
+  base,
+  quote = "USDC",
+}: {
+  base: string
+  quote?: string
+}) {
+  const baseToken = Token.findByTicker(base)
+  const quoteToken = Token.findByTicker(quote)
+  const { data } = useWallet({
+    query: {
+      select: data =>
+        !data.balances.find(balance => balance.mint === baseToken.address)
+          ?.amount &&
+        !data.balances.find(balance => balance.mint === quoteToken.address)
+          ?.amount,
+    },
+  })
+  return (
+    <div className="flex">
+      <div className="flex-1">
+        <AssetsSection base={base} quote={quote} />
+      </div>
+      {data && (
+        <TransferDialog mint={baseToken.address}>
+          <Button variant="outline" className="ml-6 h-full font-extended">
+            Deposit
+          </Button>
+        </TransferDialog>
+      )}
+    </div>
+  )
+}
+
 export function AssetsSection({
   base,
   quote = "USDC",
