@@ -16,6 +16,7 @@ import {
   NewOrderConfirmationProps,
   useStepper,
 } from "@/components/dialogs/new-order-stepper/new-order-stepper"
+import { GlowText } from "@/components/glow-text"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
@@ -166,10 +167,9 @@ function NewOrderForm({
         </div>
         <FeesSection amount={amount} {...fees} />
       </div>
-      <Separator />
       <div>
         <InsufficientWarning
-          className=""
+          className="text-sm"
           amount={parseAmount(amount.toString(), token)}
           baseMint={token.address}
           quoteMint={Token.findByTicker("USDC").address}
