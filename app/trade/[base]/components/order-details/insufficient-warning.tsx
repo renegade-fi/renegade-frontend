@@ -54,7 +54,7 @@ export function InsufficientWarning({
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-yellow" />
           <span className={cn(className)}>
-            Insufficient {token.ticker} Balance
+            Only part of the order will be filled
           </span>
         </div>
       </TooltipTrigger>
