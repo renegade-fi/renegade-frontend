@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { useTaskHistoryWebSocket } from "@renegade-fi/react"
-import { AlertCircle, Check, Repeat } from "lucide-react"
+import { AlertCircle, Check, Loader2, Repeat } from "lucide-react"
 
 import { useStepper } from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Spinner } from "@/components/ui/spinner"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 
@@ -45,10 +44,11 @@ export function SuccessStepWithoutSavings() {
   })
 
   const Icon = {
-    success: <Check className="h-8 w-8" />,
-    pending: <Spinner className="h-6 w-6" />,
+    success: <Check className="h-6 w-6" />,
+    pending: <Loader2 className="h-6 w-6 animate-spin" />,
     error: <AlertCircle className="h-6 w-6" />,
   }[status]
+
   const title = {
     success: "Order Placed",
     pending: "Placing Order",
@@ -119,7 +119,7 @@ function OrderSuccessSection() {
         </div>
         <div>All trades are pre-trade and post-trade private.</div>
       </div>
-      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+      {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Checkbox id="donot-show-again" />
         <label
           htmlFor="donot-show-again"
@@ -127,7 +127,7 @@ function OrderSuccessSection() {
         >
           Don&apos;t show again
         </label>
-      </div>
+      </div> */}
     </>
   )
 }
