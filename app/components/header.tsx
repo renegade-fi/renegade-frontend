@@ -19,14 +19,16 @@ export function Header() {
   return (
     <header className="fixed top-0 z-10 min-w-full border-b bg-background">
       <div className="grid min-h-20 grid-cols-3 items-center">
-        <div className="pl-6">
-          <Image
-            src="/glyph_dark.svg"
-            alt="logo"
-            width="31"
-            height="38"
-            priority
-          />
+        <div className="w-fit pl-6">
+          <Link href="/trade">
+            <Image
+              src="/glyph_dark.svg"
+              alt="logo"
+              width="31"
+              height="38"
+              priority
+            />
+          </Link>
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
           <Link
