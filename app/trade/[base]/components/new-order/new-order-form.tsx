@@ -116,7 +116,7 @@ export function NewOrderForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6">
         <div className="flex">
           <FormField
             control={form.control}

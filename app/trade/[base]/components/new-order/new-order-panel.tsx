@@ -19,6 +19,10 @@ export function NewOrderPanel({
 }) {
   return (
     <aside className="space-y-6">
+      <div className="mt-6 px-6 text-sm">
+        <AssetsSectionWithDepositButton base={base} />
+      </div>
+      <Separator />
       <NewOrderForm
         base={base}
         side={side}
@@ -29,10 +33,6 @@ export function NewOrderPanel({
           <Lock className="mr-2 h-3 w-3" />
           All orders are pre-trade and post-trade private.
         </Button>
-      </div>
-      <Separator />
-      <div className="mt-6 px-6 text-sm">
-        <AssetsSectionWithDepositButton base={base} />
       </div>
       <Separator />
     </aside>
