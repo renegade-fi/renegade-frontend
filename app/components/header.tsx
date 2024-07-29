@@ -55,14 +55,6 @@ export function Header() {
           >
             Orders
           </Link>
-          <Link
-            href="#"
-            className={cn("hover:underline", {
-              "text-primary": pathname === "/stats",
-            })}
-          >
-            Stats
-          </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end pr-4">
           {status === "in relayer" && (
