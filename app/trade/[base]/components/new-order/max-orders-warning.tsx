@@ -14,7 +14,8 @@ import { cn } from "@/lib/utils"
 export function MaxOrdersWarning({ className }: { className?: string }) {
   const { data: isMaxOrders } = useWallet({
     query: {
-      select: data => data.orders.length === MAX_ORDERS,
+      select: data =>
+        data.orders.filter(order => order.amount).length === MAX_ORDERS,
     },
   })
 
