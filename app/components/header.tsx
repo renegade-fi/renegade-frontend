@@ -10,6 +10,12 @@ import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 
 import { TransferDialog } from "@/components/dialogs/transfer-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
 
 import { cn } from "@/lib/utils"
 
@@ -20,15 +26,29 @@ export function Header() {
     <header className="fixed top-0 z-10 min-w-full border-b bg-background">
       <div className="grid min-h-20 grid-cols-3 items-center">
         <div className="w-fit pl-6">
-          <Link href="/trade">
-            <Image
-              src="/glyph_dark.svg"
-              alt="logo"
-              width="31"
-              height="38"
-              priority
-            />
-          </Link>
+          <ContextMenu>
+            <ContextMenuTrigger>
+              <Link href="/trade">
+                <Image
+                  src="/glyph_dark.svg"
+                  alt="logo"
+                  width="31"
+                  height="38"
+                  priority
+                />
+              </Link>
+            </ContextMenuTrigger>
+            <ContextMenuContent alignOffset={1000} className="rounded-none">
+              <ContextMenuItem
+                className="rounded-none font-extended"
+                onClick={() => {
+                  window.open("https://renegade.fi/logos.zip", "_blank")
+                }}
+              >
+                Download Logo Pack
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
           <Link

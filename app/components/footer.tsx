@@ -6,6 +6,12 @@ import { toast } from "sonner"
 import { useAccount } from "wagmi"
 
 import { Button } from "@/components/ui/button"
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
 
 import { fundList, fundWallet } from "@/lib/utils"
 
@@ -15,13 +21,28 @@ export function Footer() {
     <footer className="fixed bottom-0 z-10 min-w-full border-t bg-background">
       <div className="grid min-h-20 grid-cols-2 items-center">
         <div className="flex pl-6">
-          <Image
-            src="/logo_dark.svg"
-            alt="logo"
-            width="192"
-            height="30"
-            priority
-          />
+          <ContextMenu>
+            <ContextMenuTrigger>
+              <Image
+                src="/logo_dark.svg"
+                alt="logo"
+                width="192"
+                height="30"
+                priority
+              />
+            </ContextMenuTrigger>
+            <ContextMenuContent alignOffset={1000} className="rounded-none">
+              <ContextMenuItem
+                className="rounded-none font-extended"
+                onClick={() => {
+                  window.open("https://renegade.fi/logos.zip", "_blank")
+                }}
+              >
+                Download Logo Pack
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+
           <Button
             className="ml-4 font-extended"
             variant="outline"
