@@ -27,7 +27,11 @@ export function useDeposit({
     task => task.state !== "Completed" && task.state !== "Failed",
   )
 
-  async function handleDeposit({ onSuccess }: { onSuccess?: ({ taskId }: { taskId: string }) => void }) {
+  async function handleDeposit({
+    onSuccess,
+  }: {
+    onSuccess?: ({ taskId }: { taskId: string }) => void
+  }) {
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = parseAmount(amount, token)
