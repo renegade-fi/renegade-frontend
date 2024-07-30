@@ -213,7 +213,7 @@ export function NewOrderForm({
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1"
-            percentage={0.25}
+            percentage={25}
             onSetAmount={amount =>
               form.setValue("amount", amount, { shouldValidate: true })
             }
@@ -221,7 +221,7 @@ export function NewOrderForm({
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1 border-x-0"
-            percentage={0.5}
+            percentage={50}
             onSetAmount={amount =>
               form.setValue("amount", amount, { shouldValidate: true })
             }
@@ -229,7 +229,7 @@ export function NewOrderForm({
           <AmountShortcutButton
             {...form.watch()}
             className="flex-1"
-            percentage={1}
+            percentage={100}
             onSetAmount={amount =>
               form.setValue("amount", amount, { shouldValidate: true })
             }
