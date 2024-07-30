@@ -2,14 +2,16 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import { Task, TaskType, useTaskHistoryWebSocket } from "@renegade-fi/react"
+import { Task, useTaskHistoryWebSocket } from "@renegade-fi/react"
 import { toast } from "sonner"
 
 import {
+  WITHDRAW_TOAST_ID,
   generateCompletionToastMessage,
   generateFailedToastMessage,
   generateStartToastMessage,
 } from "@/lib/constants/task"
+import { isPayFeesTask, isSettleMatchTask, isWithdrawTask } from "@/lib/task"
 
 export function TaskToaster() {
   const [incomingTask, setIncomingTask] = useState<Task>()
@@ -32,15 +34,26 @@ export function TaskToaster() {
       taskIdToStateMap.current.set(incomingTask.id, incomingTask)
 
       // Order toaster handles SettleMatch task completion
-      if (incomingTask.task_info.task_type === TaskType.SettleMatch) {
+      // Ignore pay fees tasks
+      if (isSettleMatchTask(incomingTask) || isPayFeesTask(incomingTask)) {
         return
       }
 
       if (incomingTask.state === "Completed") {
         const message = generateCompletionToastMessage(incomingTask)
-        toast.success(message, {
-          id: incomingTask.id,
-        })
+        if (isWithdrawTask(incomingTask)) {
+          const id = WITHDRAW_TOAST_ID(
+            incomingTask.task_info.mint,
+            incomingTask.task_info.amount,
+          )
+          toast.success(message, {
+            id,
+          })
+        } else {
+          toast.success(message, {
+            id: incomingTask.id,
+          })
+        }
         return
       } else if (incomingTask.state === "Failed") {
         const message = generateFailedToastMessage(incomingTask)
@@ -48,11 +61,9 @@ export function TaskToaster() {
           id: incomingTask.id,
         })
       } else if (incomingTask.state === "Proving") {
-        const message = generateStartToastMessage(incomingTask)
-        toast.loading(message, {
-          id: incomingTask.id,
-        })
-      } else if (incomingTask.state === "Proving Payment") {
+        if (isWithdrawTask(incomingTask)) {
+          return
+        }
         const message = generateStartToastMessage(incomingTask)
         toast.loading(message, {
           id: incomingTask.id,

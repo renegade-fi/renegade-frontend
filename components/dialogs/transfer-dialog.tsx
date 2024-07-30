@@ -327,10 +327,6 @@ function TransferForm({
         onSuccess: data => {
           form.reset()
           onSuccess?.()
-          const message = constructStartToastMessage(UpdateType.Withdraw)
-          toast.loading(message, {
-            id: data.taskId,
-          })
         },
       })
     }
