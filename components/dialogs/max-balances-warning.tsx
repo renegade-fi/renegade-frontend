@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils"
 export function MaxBalancesWarning({ className }: { className?: string }) {
   const { data: isMaxBalances } = useWallet({
     query: {
-      // Select non-default balances
       select: data =>
         data.balances.filter(
           balance =>
