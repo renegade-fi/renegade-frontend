@@ -1,11 +1,10 @@
-import { useEffect } from "react"
 
-import { Token, parseAmount } from "@renegade-fi/react"
-import { useQueryClient } from "@tanstack/react-query"
+import { Token } from "@renegade-fi/react"
 import { toast } from "sonner"
 import { isAddress } from "viem"
-import { useAccount, useBlockNumber } from "wagmi"
+import { useAccount } from "wagmi"
 
+import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { viemClient } from "@/lib/viem"
 
@@ -36,12 +35,7 @@ export function useApprove({
     },
   })
 
-  // Update on new block
-  const { data: blockNumber } = useBlockNumber({ watch: true })
-  const queryClient = useQueryClient()
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey })
-  }, [queryClient, queryKey, blockNumber])
+  useRefreshOnBlock({ queryKey })
 
   const needsApproval = isSuccess && !data
   // Flag is true if and only if allowance successfully fetched and allowance is less than amount

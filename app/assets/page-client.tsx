@@ -9,13 +9,12 @@ import {
   useTaskHistory,
   useWallet,
 } from "@renegade-fi/react"
-import { useQueryClient } from "@tanstack/react-query"
-import { useAccount, useBlockNumber, useReadContracts } from "wagmi"
+import { useAccount, useReadContracts } from "wagmi"
 
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
-import { DEFAULT_MINT } from "@/lib/constants/protocol"
+import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
 import { erc20Abi } from "@/lib/generated"
 import { DISPLAY_TOKENS } from "@/lib/token"
@@ -38,14 +37,10 @@ export type HistoryData = {
 }
 
 export function PageClient() {
-  const { data } = useWallet({
+  const { data: renegadeBalances } = useWallet({
     query: {
       select: data =>
-        new Map(
-          data.balances
-            .filter(balance => balance.mint !== DEFAULT_MINT)
-            .map(balance => [balance.mint, balance.amount]),
-        ),
+        new Map(data.balances.map(balance => [balance.mint, balance.amount])),
     },
   })
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
@@ -63,46 +58,48 @@ export function PageClient() {
     })),
     query: {
       enabled: !!address,
-      select: data =>
-        new Map(
-          data.map((balance, index) => [
-            DISPLAY_TOKENS()[index].address,
-            balance.status === "success" ? balance.result : BigInt(0),
-          ]),
-        ),
     },
   })
 
-  const queryClient = useQueryClient()
-  const blockNumber = useBlockNumber({ watch: true })
+  useRefreshOnBlock({ queryKey })
 
-  React.useEffect(() => {
-    if (blockNumber) {
-      queryClient.invalidateQueries({ queryKey })
-    }
-  }, [blockNumber, queryClient, queryKey])
-
-  const balances: BalanceData[] = DISPLAY_TOKENS()
-    .map(token => {
-      const t = Token.findByAddress(token.address)
-      return {
-        mint: token.address,
-        renegadeBalance: formatNumber(
-          data?.get(token.address) ?? BigInt(0),
-          t.decimals,
-          isLongFormat,
-        ),
-        l2Balance: formatNumber(
-          l2Balances?.get(token.address) ?? BigInt(0),
-          t.decimals,
-          isLongFormat,
-        ),
-      }
-    })
-    .filter(balance => (!showZeroL2Balance ? balance.l2Balance !== "0" : true))
-    .filter(balance =>
-      !showZeroRenegadeBalance ? balance.renegadeBalance !== "0" : true,
+  const balances: BalanceData[] = React.useMemo(() => {
+    const l2BalancesMap = new Map(
+      l2Balances?.map((balance, index) => [
+        DISPLAY_TOKENS()[index].address,
+        balance.status === "success" ? balance.result : BigInt(0),
+      ]),
     )
+    return DISPLAY_TOKENS()
+      .map(token => {
+        const t = Token.findByAddress(token.address)
+        return {
+          mint: token.address,
+          renegadeBalance: formatNumber(
+            renegadeBalances?.get(token.address) ?? BigInt(0),
+            t.decimals,
+            isLongFormat,
+          ),
+          l2Balance: formatNumber(
+            l2BalancesMap.get(token.address) ?? BigInt(0),
+            t.decimals,
+            isLongFormat,
+          ),
+        }
+      })
+      .filter(balance =>
+        !showZeroL2Balance ? balance.l2Balance !== "0" : true,
+      )
+      .filter(balance =>
+        !showZeroRenegadeBalance ? balance.renegadeBalance !== "0" : true,
+      )
+  }, [
+    isLongFormat,
+    l2Balances,
+    renegadeBalances,
+    showZeroL2Balance,
+    showZeroRenegadeBalance,
+  ])
 
   // Transfer History Table Data
   const { data: transferHistory } = useTaskHistory({
