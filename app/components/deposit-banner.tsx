@@ -14,7 +14,7 @@ export function DepositBanner() {
   })
   if (data === 0) {
     return (
-      <div className="bg-blue w-full pl-4 text-sm text-secondary">
+      <div className="w-full bg-blue pl-4 text-sm text-secondary">
         Welcome to Renegade! Deposit your Arbitrum tokens to get started
         trading.
         <TransferDialog>
