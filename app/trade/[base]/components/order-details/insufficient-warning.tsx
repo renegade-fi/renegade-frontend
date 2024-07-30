@@ -1,4 +1,4 @@
-import { Token, formatAmount, useWallet } from "@renegade-fi/react"
+import { Token, useWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
 import {
@@ -34,14 +34,11 @@ export function InsufficientWarning({
     },
   })
 
-  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount)
+  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount, false)
 
-  const formattedBalance = parseFloat(formatAmount(balance ?? BigInt(0), token))
-
-  // const isInsufficient = balance ? balance < amount : true
   let isInsufficient = false
   if (side === Side.BUY) {
-    isInsufficient = formattedBalance ? formattedBalance < usdPrice : true
+    isInsufficient = balance ? balance < usdPrice : true
   } else {
     isInsufficient = balance ? balance < amount : true
   }
