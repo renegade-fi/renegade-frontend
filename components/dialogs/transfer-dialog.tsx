@@ -2,13 +2,15 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useBalances } from "@renegade-fi/react"
+import { Token, UpdateType, useBalances, useWallet } from "@renegade-fi/react"
+import { MAX_BALANCES } from "@renegade-fi/react/constants"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
+import { MaxBalancesWarning } from "@/components/dialogs/max-balances-warning"
 import { TokenSelect } from "@/components/dialogs/token-select"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
@@ -197,6 +199,11 @@ function TransferForm({
   onSuccess: () => void
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
+  const { data: isMaxBalances } = useWallet({
+    query: {
+      select: data => data.balances.length === MAX_BALANCES,
+    },
+  })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -398,6 +405,9 @@ function TransferForm({
                 </div>
               </Button>
             </div>
+            {direction === ExternalTransferDirection.Deposit && (
+              <MaxBalancesWarning className="whitespace-nowrap text-sm" />
+            )}
           </div>
         </div>
         {isDesktop ? (
@@ -406,7 +416,11 @@ function TransferForm({
               variant="outline"
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
               size="xl"
-              disabled={!form.formState.isValid}
+              disabled={
+                !form.formState.isValid ||
+                (direction === ExternalTransferDirection.Deposit &&
+                  isMaxBalances)
+              }
             >
               {direction === ExternalTransferDirection.Withdraw
                 ? "Withdraw"
@@ -417,7 +431,14 @@ function TransferForm({
           </DialogFooter>
         ) : (
           <DrawerFooter>
-            <Button variant="default" disabled={!form.formState.isValid}>
+            <Button
+              variant="default"
+              disabled={
+                !form.formState.isValid ||
+                (direction === ExternalTransferDirection.Deposit &&
+                  isMaxBalances)
+              }
+            >
               {direction === ExternalTransferDirection.Withdraw
                 ? "Withdraw"
                 : needsApproval
