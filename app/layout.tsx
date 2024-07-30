@@ -110,7 +110,7 @@ export default async function RootLayout({
                 </TooltipProvider>
                 <Toaster
                   className="pointer-events-auto"
-                  toastOptions={{ duration: 10000 }}
+                  toastOptions={{ duration: 5000 }}
                   position="bottom-center"
                   theme="light"
                 />
