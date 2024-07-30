@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
-import { formatCurrency, formatNumber } from "@/lib/format"
+import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 
 export function AssetsSectionWithDepositButton({
   base,
@@ -94,7 +93,7 @@ export function AssetsSection({
         </div>
         <Tooltip>
           <TooltipTrigger>
-            <span>{formatCurrency(baseUsdPrice)}</span>
+            <span>{formatCurrencyFromString(baseUsdPrice)}</span>
           </TooltipTrigger>
           <TooltipContent>
             <p>{`${formattedBaseBalance} ${base}`}</p>
@@ -115,7 +114,7 @@ export function AssetsSection({
         </div>
         <Tooltip>
           <TooltipTrigger>
-            <span>{formatCurrency(quoteUsdPrice)}</span>
+            <span>{formatCurrencyFromString(quoteUsdPrice)}</span>
           </TooltipTrigger>
           <TooltipContent>
             <p>{`${formattedQuoteBalance} ${quote}`}</p>

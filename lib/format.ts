@@ -88,6 +88,13 @@ export const formatCurrency = (n: number) => {
   }).format(n)
 }
 
+export const formatCurrencyFromString = (n: string) => {
+  return Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(Number(n))
+}
+
 export const formatTimestamp = (
   timestamp: number,
   locale: string = "en-US",
@@ -109,9 +116,8 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${
-    includeSymbol ? "%" : ""
-  }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
+    }`
 }
 
 export const formatOrderState = (state: OrderState) => {
