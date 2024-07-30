@@ -87,7 +87,6 @@ export function PageClient({
                 <DataTable
                   columns={columns}
                   data={data || []}
-                  initialMint={Token.findByTicker(base).address}
                   initialStatus="open"
                   initialVisibleColumns={{
                     "time to fill": false,

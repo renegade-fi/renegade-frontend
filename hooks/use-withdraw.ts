@@ -1,11 +1,12 @@
 import {
   Token,
+  UpdateType,
   parseAmount,
   useConfig,
-  useFees,
-  useTaskHistory,
+  usePayFees,
+  useTaskHistory
 } from "@renegade-fi/react"
-import { payFees, withdraw } from "@renegade-fi/react/actions"
+import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
@@ -13,6 +14,8 @@ import { useAccount } from "wagmi"
 import {
   FAILED_WITHDRAWAL_MSG,
   QUEUED_WITHDRAWAL_MSG,
+  WITHDRAW_TOAST_ID,
+  constructStartToastMessage,
 } from "@/lib/constants/task"
 
 export function useWithdraw({
@@ -24,11 +27,12 @@ export function useWithdraw({
 }) {
   const { address } = useAccount()
   const config = useConfig()
-  const fees = useFees()
-  const { data: taskHistory } = useTaskHistory()
-  const isQueue = Array.from(taskHistory?.values() || []).find(
-    task => task.state !== "Completed" && task.state !== "Failed",
-  )
+  const { data: isQueue } = useTaskHistory({
+    query: {
+      select: (data) => Array.from(data.values()).some(task => task.state !== "Completed" && task.state !== "Failed"),
+    }
+  })
+  const { payFeesAsync } = usePayFees()
 
   const handleWithdraw = async ({
     onSuccess,
@@ -38,13 +42,15 @@ export function useWithdraw({
     if (!address || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = parseAmount(amount, token)
-    if (isQueue) {
-      toast.message(QUEUED_WITHDRAWAL_MSG(token, parsedAmount))
-    }
 
-    if (fees.size > 0) {
-      await payFees(config)
-    }
+    const message = isQueue ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount) : constructStartToastMessage(UpdateType.Withdraw)
+    const id = WITHDRAW_TOAST_ID(mint, parsedAmount)
+
+    toast.loading(message, {
+      id
+    })
+
+    await payFeesAsync()
 
     // Withdraw
     await withdraw(config, {
@@ -54,7 +60,9 @@ export function useWithdraw({
     })
       .then(onSuccess)
       .catch(e => {
-        toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount))
+        toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount), {
+          id
+        })
         console.error(`Error withdrawing: ${e.response?.data ?? e.message}`)
       })
   }
