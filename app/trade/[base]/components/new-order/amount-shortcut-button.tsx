@@ -87,18 +87,10 @@ export function AmountShortcutButton({
     quoteToken.decimals,
   ])
 
-  console.log("max balance debug ", {
-    maxBalance,
-  })
-
   // const shortcut = maxBalance * percentage
   const shortcut = React.useMemo(() => {
     const basisPoints = BigInt(percentage)
     const shortcutBigInt = (maxBalance * basisPoints) / BigInt(100)
-    console.log("debug", {
-      basisPoints,
-      shortcutBigInt,
-    })
     return shortcutBigInt
   }, [maxBalance, percentage])
 
