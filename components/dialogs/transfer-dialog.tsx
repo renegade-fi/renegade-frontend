@@ -6,7 +6,7 @@ import { Token, UpdateType, useBalances, useWallet } from "@renegade-fi/react"
 import { MAX_BALANCES } from "@renegade-fi/react/constants"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits } from "viem"
+import { formatUnits, fromHex } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
@@ -43,6 +43,7 @@ import {
 import { useApprove } from "@/hooks/use-approve"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useWithdraw } from "@/hooks/use-withdraw"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber } from "@/lib/format"
@@ -201,7 +202,13 @@ function TransferForm({
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const { data: isMaxBalances } = useWallet({
     query: {
-      select: data => data.balances.length === MAX_BALANCES,
+      select: data =>
+        data.balances.filter(
+          balance =>
+            (!!fromHex(balance.mint, "number") && !!balance.amount) ||
+            !!balance.protocol_fee_balance ||
+            !!balance.relayer_fee_balance,
+        ).length === MAX_BALANCES,
     },
   })
 
@@ -234,7 +241,7 @@ function TransferForm({
     ? formatNumber(renegadeBalance ?? BigInt(0), baseToken.decimals)
     : ""
 
-  const { data: l2Balance } = useReadErc20BalanceOf({
+  const { data: l2Balance, queryKey } = useReadErc20BalanceOf({
     address: baseToken?.address,
     args: [address ?? "0x"],
     query: {
@@ -244,6 +251,9 @@ function TransferForm({
         !!address,
     },
   })
+
+  useRefreshOnBlock({ queryKey })
+
   const formattedL2Balance = baseToken
     ? formatUnits(l2Balance ?? BigInt(0), baseToken.decimals)
     : ""

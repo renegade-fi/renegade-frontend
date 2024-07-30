@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { useConfig, useStatus } from "@renegade-fi/react"
+import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider } from "connectkit"
 import {
@@ -43,7 +43,6 @@ export function WagmiProvider({
 function SyncRenegadeWagmiState() {
   const config = useConfig()
   const { address, connector, status } = useAccount()
-  const renegadeStatus = useStatus()
 
   // Disconnect on wallet change
   React.useEffect(() => {
@@ -56,7 +55,7 @@ function SyncRenegadeWagmiState() {
       },
     ) => {
       if (data.accounts) {
-        console.log("disconnecting because connector update, status: ", status)
+        console.log("disconnecting because connector update")
         disconnect(config)
       }
     }
@@ -70,7 +69,7 @@ function SyncRenegadeWagmiState() {
         connector?.emitter.off("change", handleConnectorUpdate)
       }
     }
-  }, [config, connector, status])
+  }, [config, connector])
 
   useAccountEffect({
     onDisconnect() {
@@ -79,19 +78,11 @@ function SyncRenegadeWagmiState() {
     },
   })
 
-  // useEffect(() => {
-  //   if (!address) {
-  //     console.log("disconnecting because address is undefined")
-  //     disconnect(config)
-  //   }
-  // }, [address, config])
-
-  // React.useEffect(() => {
-  //   if (status !== "connected" && renegadeStatus === "in relayer") {
-  //     console.log("disconnecting due to status mismatch")
-  //     disconnect(config)
-  //   }
-  // }, [config, renegadeStatus, status])
-
+  React.useEffect(() => {
+    if (!address) {
+      console.log("disconnecting because address is undefined")
+      disconnect(config)
+    }
+  }, [address, config])
   return null
 }

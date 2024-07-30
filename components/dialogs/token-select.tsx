@@ -2,9 +2,8 @@ import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { Token, useWallet } from "@renegade-fi/react"
-import { useQueryClient } from "@tanstack/react-query"
 import { erc20Abi } from "viem"
-import { useAccount, useBlockNumber, useReadContracts } from "wagmi"
+import { useAccount, useReadContracts } from "wagmi"
 
 import { ExternalTransferDirection } from "@/components/dialogs/transfer-dialog"
 import { Button } from "@/components/ui/button"
@@ -22,6 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
@@ -62,14 +62,7 @@ export function TokenSelect({
     },
   })
 
-  const queryClient = useQueryClient()
-  const blockNumber = useBlockNumber({ watch: true })
-
-  React.useEffect(() => {
-    if (blockNumber) {
-      queryClient.invalidateQueries({ queryKey })
-    }
-  }, [blockNumber, queryClient, queryKey])
+  useRefreshOnBlock({ queryKey })
 
   const { data: renegadeBalances } = useWallet({
     query: {
