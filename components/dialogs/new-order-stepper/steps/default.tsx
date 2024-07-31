@@ -4,7 +4,6 @@ import {
   UpdateType,
   parseAmount,
   useCreateOrder,
-  usePrepareCreateOrder,
 } from "@renegade-fi/react"
 import { toast } from "sonner"
 import { parseUnits } from "viem"
@@ -29,6 +28,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { usePrepareCreateOrder } from "@/hooks/usePrepareCreateOrder"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber } from "@/lib/format"
