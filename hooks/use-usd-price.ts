@@ -3,10 +3,9 @@ import React from "react"
 import { Token } from "@renegade-fi/react"
 import { formatUnits, parseUnits } from "viem/utils"
 
+import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { usePrice } from "@/stores/price-store"
-
-const PRICE_DECIMALS = 2
 
 type ReturnType<T extends boolean> = T extends true ? string : bigint
 
