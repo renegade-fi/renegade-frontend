@@ -2,16 +2,16 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useBalances, useWallet } from "@renegade-fi/react"
-import { MAX_BALANCES } from "@renegade-fi/react/constants"
+import { Token, UpdateType, useBalances } from "@renegade-fi/react"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits, fromHex } from "viem"
+import { formatUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
-import { MaxBalancesWarning } from "@/components/dialogs/max-balances-warning"
 import { TokenSelect } from "@/components/dialogs/token-select"
+import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
 import {
@@ -200,17 +200,6 @@ function TransferForm({
   onSuccess: () => void
 }) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
-  const { data: isMaxBalances } = useWallet({
-    query: {
-      select: data =>
-        data.balances.filter(
-          balance =>
-            (!!fromHex(balance.mint, "number") && !!balance.amount) ||
-            !!balance.protocol_fee_balance ||
-            !!balance.relayer_fee_balance,
-        ).length === MAX_BALANCES,
-    },
-  })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -228,6 +217,7 @@ function TransferForm({
     ? Token.findByAddress(mint as `0x${string}`)
     : undefined
   const { address } = useAccount()
+  const isMaxBalances = useIsMaxBalances(mint)
 
   const renegadeBalances = useBalances()
   const renegadeBalance = baseToken
@@ -412,7 +402,10 @@ function TransferForm({
               </Button>
             </div>
             {direction === ExternalTransferDirection.Deposit && (
-              <MaxBalancesWarning className="whitespace-nowrap text-sm" />
+              <MaxBalancesWarning
+                mint={mint}
+                className="whitespace-nowrap text-sm"
+              />
             )}
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { Token, useWallet } from "@renegade-fi/react"
 
-import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {

@@ -1,8 +1,7 @@
-import { useWallet } from "@renegade-fi/react"
 import { MAX_BALANCES } from "@renegade-fi/react/constants"
 import { AlertTriangle } from "lucide-react"
-import { fromHex } from "viem"
 
+import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import {
   Tooltip,
   TooltipContent,
@@ -12,18 +11,14 @@ import {
 import { MAX_BALANCES_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
 
-export function MaxBalancesWarning({ className }: { className?: string }) {
-  const { data: isMaxBalances } = useWallet({
-    query: {
-      select: data =>
-        data.balances.filter(
-          balance =>
-            (!!fromHex(balance.mint, "number") && !!balance.amount) ||
-            !!balance.protocol_fee_balance ||
-            !!balance.relayer_fee_balance,
-        ).length === MAX_BALANCES,
-    },
-  })
+export function MaxBalancesWarning({
+  className,
+  mint,
+}: {
+  className?: string
+  mint: string
+}) {
+  const isMaxBalances = useIsMaxBalances(mint)
 
   if (isMaxBalances) {
     return (
