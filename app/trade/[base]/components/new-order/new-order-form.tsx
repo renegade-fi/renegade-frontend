@@ -92,6 +92,7 @@ export function NewOrderForm({
       }
       if (name === "isSell") {
         setSide(value.isSell ? Side.SELL : Side.BUY)
+        form.resetField("amount")
       }
     })
     return () => subscription.unsubscribe()
