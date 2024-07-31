@@ -4,7 +4,7 @@ import {
   parseAmount,
   useConfig,
   usePayFees,
-  useTaskHistory
+  useTaskHistory,
 } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
@@ -29,8 +29,11 @@ export function useWithdraw({
   const config = useConfig()
   const { data: isQueue } = useTaskHistory({
     query: {
-      select: (data) => Array.from(data.values()).some(task => task.state !== "Completed" && task.state !== "Failed"),
-    }
+      select: data =>
+        Array.from(data.values()).some(
+          task => task.state !== "Completed" && task.state !== "Failed",
+        ),
+    },
   })
   const { payFeesAsync } = usePayFees()
 
@@ -43,11 +46,13 @@ export function useWithdraw({
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = parseAmount(amount, token)
 
-    const message = isQueue ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount) : constructStartToastMessage(UpdateType.Withdraw)
+    const message = isQueue
+      ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount)
+      : constructStartToastMessage(UpdateType.Withdraw)
     const id = WITHDRAW_TOAST_ID(mint, parsedAmount)
 
     toast.loading(message, {
-      id
+      id,
     })
 
     await payFeesAsync()
@@ -61,7 +66,7 @@ export function useWithdraw({
       .then(onSuccess)
       .catch(e => {
         toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount), {
-          id
+          id,
         })
         console.error(`Error withdrawing: ${e.response?.data ?? e.message}`)
       })
