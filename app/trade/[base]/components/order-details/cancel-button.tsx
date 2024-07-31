@@ -1,12 +1,9 @@
-import {
-  UpdateType,
-  useCancelOrder,
-  usePrepareCancelOrder,
-} from "@renegade-fi/react"
+import { UpdateType, useCancelOrder } from "@renegade-fi/react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 
+import { usePrepareCancelOrder } from "@/hooks/usePrepareCancelOrder"
 import { constructStartToastMessage } from "@/lib/constants/task"
 
 export function CancelButton({
