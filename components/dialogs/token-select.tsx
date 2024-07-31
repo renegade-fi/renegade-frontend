@@ -5,7 +5,7 @@ import { Token, useWallet } from "@renegade-fi/react"
 import { erc20Abi } from "viem"
 import { useAccount, useReadContracts } from "wagmi"
 
-import { ExternalTransferDirection } from "@/components/dialogs/transfer-dialog"
+import { ExternalTransferDirection } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Command,

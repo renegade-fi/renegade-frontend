@@ -8,7 +8,7 @@ import { useStatus } from "@renegade-fi/react"
 
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 
-import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 import {
   ContextMenu,

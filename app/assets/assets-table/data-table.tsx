@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table"
 import { Settings2 } from "lucide-react"
 
-import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TableEmptyState } from "@/components/table-empty-state"
 import { Button } from "@/components/ui/button"
 import {

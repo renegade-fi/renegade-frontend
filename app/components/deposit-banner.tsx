@@ -3,7 +3,7 @@
 import { useWallet } from "@renegade-fi/react"
 import { ArrowRight } from "lucide-react"
 
-import { TransferDialog } from "@/components/dialogs/transfer-dialog"
+import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 
 export function DepositBanner() {
