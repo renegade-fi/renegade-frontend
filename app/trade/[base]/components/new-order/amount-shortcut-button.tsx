@@ -7,6 +7,9 @@ import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-o
 
 import { Button } from "@/components/ui/button"
 
+import { useUSDPrice } from "@/hooks/use-usd-price"
+import { PRICE_DECIMALS } from "@/lib/constants/precision"
+import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { cn } from "@/lib/utils"
 import { usePrice } from "@/stores/price-store"
 
@@ -44,10 +47,10 @@ export function AmountShortcutButton({
   })
 
   const maxBalance = React.useMemo(() => {
+    if (!price) return BigInt(0)
     const baseBalance = data?.[baseToken.address] ?? BigInt(0)
     const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
-    const priceDecimals = 18
-    const priceBigInt = parseUnits(price.toString(), priceDecimals)
+    const priceBigInt = parseUnits(price.toString(), PRICE_DECIMALS)
 
     if (isSell) {
       if (isUSDCDenominated) {
@@ -55,7 +58,7 @@ export function AmountShortcutButton({
         const usdcValue =
           (baseBalance * priceBigInt) /
           BigInt(
-            10 ** (baseToken.decimals + priceDecimals - quoteToken.decimals),
+            10 ** (baseToken.decimals + PRICE_DECIMALS - quoteToken.decimals),
           )
         return usdcValue
       } else {
@@ -66,9 +69,10 @@ export function AmountShortcutButton({
       // Buying base token: calculate how much base can be bought with the quote balance
       const numerator =
         quoteBalance *
-        BigInt(10 ** (baseToken.decimals + priceDecimals - quoteToken.decimals))
+        BigInt(
+          10 ** (baseToken.decimals + PRICE_DECIMALS - quoteToken.decimals),
+        )
       const baseAmount = numerator / priceBigInt
-
       if (isUSDCDenominated) {
         // Convert base amount back to USDC
         return quoteBalance
@@ -87,24 +91,45 @@ export function AmountShortcutButton({
     quoteToken.decimals,
   ])
 
-  // const shortcut = maxBalance * percentage
   const shortcut = React.useMemo(() => {
     const basisPoints = BigInt(percentage)
     const shortcutBigInt = (maxBalance * basisPoints) / BigInt(100)
     return shortcutBigInt
   }, [maxBalance, percentage])
 
-  const isDisabled = !maxBalance
+  const usdPrice = useUSDPrice(baseToken, shortcut, false)
 
-  const formattedShortcut = parseFloat(
-    formatUnits(
-      shortcut,
-      isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
-    ),
-  )
+  const formattedShortcut = React.useMemo(() => {
+    if (isUSDCDenominated || !isSell) {
+      if (shortcut < MIN_FILL_SIZE) {
+        return 0
+      }
+    } else {
+      if (usdPrice < MIN_FILL_SIZE) {
+        return 0
+      }
+    }
+    const value = parseFloat(
+      formatUnits(
+        shortcut,
+        isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
+      ),
+    )
+    if (isUSDCDenominated || !isSell) {
+      return Number(value.toFixed(2))
+    } else {
+      return Number(value.toFixed(baseToken.decimals * 0.5))
+    }
+  }, [
+    baseToken.decimals,
+    isSell,
+    isUSDCDenominated,
+    quoteToken.decimals,
+    shortcut,
+    usdPrice,
+  ])
 
-  // TODO: [SAFETY] Calculate the minimum fill size of the quote asset and ensure it is greater than the minimum fill size
-  // parseAmount(shortcut.toString(), token) < MIN_FILL_SIZE
+  const isDisabled = !formattedShortcut
 
   return (
     <Button
@@ -112,7 +137,9 @@ export function AmountShortcutButton({
       className={cn(className)}
       onClick={e => {
         e.preventDefault()
-        onSetAmount(formattedShortcut)
+        if (formattedShortcut) {
+          onSetAmount(formattedShortcut)
+        }
       }}
       disabled={isDisabled}
       size="sm"
