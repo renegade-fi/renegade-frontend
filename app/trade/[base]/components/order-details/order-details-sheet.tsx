@@ -75,6 +75,7 @@ export function OrderDetailsSheet({
     formattedFills.reduce((acc, fill) => acc + fill.amount * fill.price, 0) /
     formattedFills.reduce((acc, fill) => acc + fill.amount, 0)
 
+  // TODO: Calculate in bigint units
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
   const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
 
