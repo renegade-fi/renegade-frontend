@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/form"
 
 import { useApprove } from "@/hooks/use-approve"
+import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
@@ -283,8 +284,11 @@ function TransferForm({
     enabled: direction === ExternalTransferDirection.Deposit,
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const { checkChain } = useCheckChain()
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (direction === ExternalTransferDirection.Deposit) {
+      await checkChain()
       if (needsApproval) {
         handleApprove({
           onSuccess: () => {
