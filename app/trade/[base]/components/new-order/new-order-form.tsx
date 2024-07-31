@@ -109,7 +109,15 @@ export function NewOrderForm({
       ...fees,
     })
 
+  // TODO: Does this need more precision?
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (orderValue < 1) {
+      form.setError("amount", {
+        message: "Order value must be at least 1 USDC",
+      })
+      return
+    }
+
     form.trigger().then(isValid => {
       if (isValid) {
         setLockedFormValues({
@@ -164,7 +172,7 @@ export function NewOrderForm({
         </div>
         <div>
           <Label className="font-sans text-muted-foreground">Amount</Label>
-          <div className="flex items-baseline">
+          <div className="flex">
             <FormField
               control={form.control}
               name="amount"
@@ -172,7 +180,7 @@ export function NewOrderForm({
                 <FormItem className="flex-1">
                   <FormControl>
                     <NumberInput
-                      className="rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
+                      className="h-12 rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
                       placeholder="0.00"
                       {...field}
                       value={field.value === 0 ? "" : field.value}
