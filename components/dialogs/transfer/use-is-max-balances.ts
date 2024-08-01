@@ -8,8 +8,8 @@ export function useIsMaxBalances(mint: string) {
         data.balances.filter(balance =>
           Boolean(
             balance.amount ||
-            balance.protocol_fee_balance ||
-            balance.relayer_fee_balance,
+              balance.protocol_fee_balance ||
+              balance.relayer_fee_balance,
           ),
         ),
     },
