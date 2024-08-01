@@ -1,8 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useStatus, useWallet } from "@renegade-fi/react"
-import { MAX_ORDERS } from "@renegade-fi/react/constants"
+import { useStatus } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -15,6 +14,7 @@ import {
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 import { MaxOrdersWarning } from "@/app/trade/[base]/components/new-order/max-orders-warning"
+import { useIsMaxOrders } from "@/app/trade/[base]/components/new-order/use-is-max-orders"
 
 import {
   NewOrderConfirmationProps,
@@ -63,11 +63,7 @@ export function NewOrderForm({
   side: Side
   isUSDCDenominated?: boolean
 }) {
-  const { data: isMaxOrders } = useWallet({
-    query: {
-      select: data => data.orders.length === MAX_ORDERS,
-    },
-  })
+  const isMaxOrders = useIsMaxOrders()
   const status = useStatus()
   const defaultValues = {
     amount: 0,

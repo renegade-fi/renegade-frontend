@@ -1,6 +1,7 @@
-import { useWallet } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { AlertTriangle } from "lucide-react"
+
+import { useIsMaxOrders } from "@/app/trade/[base]/components/new-order/use-is-max-orders"
 
 import {
   Tooltip,
@@ -12,12 +13,7 @@ import { MAX_ORDERS_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
 
 export function MaxOrdersWarning({ className }: { className?: string }) {
-  const { data: isMaxOrders } = useWallet({
-    query: {
-      select: data =>
-        data.orders.filter(order => order.amount).length === MAX_ORDERS,
-    },
-  })
+  const isMaxOrders = useIsMaxOrders()
 
   if (isMaxOrders) {
     return (
