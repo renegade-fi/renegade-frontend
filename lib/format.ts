@@ -85,6 +85,8 @@ export const formatCurrency = (n: number) => {
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    minimumFractionDigits: n > 10_000 ? 0 : n < 1 ? 4 : 2,
+    maximumFractionDigits: n > 10_000 ? 0 : n < 1 ? 4 : 2,
   }).format(n)
 }
 
@@ -116,9 +118,8 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${
-    includeSymbol ? "%" : ""
-  }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
+    }`
 }
 
 export const formatOrderState = (state: OrderState) => {
