@@ -121,13 +121,13 @@ export function OrderDetailsSheet({
             )}
             <div className="ml-auto flex">
               <CancelButton id={order.id} isDisabled={!isCancellable} />
-              <Button
+              {/* <Button
                 variant="outline"
                 className="flex-1 border-l-0"
                 disabled={!isModifiable}
               >
                 Modify Order
-              </Button>
+              </Button> */}
             </div>
           </div>
           <Separator />

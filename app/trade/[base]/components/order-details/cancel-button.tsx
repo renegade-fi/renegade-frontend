@@ -17,6 +17,7 @@ export function CancelButton({
   const { cancelOrder } = useCancelOrder()
   return (
     <Button
+      autoFocus
       variant="outline"
       className="flex-1"
       disabled={isDisabled}
