@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/chart"
 
 import { useOHLC } from "@/hooks/use-ohlc"
-import { Side } from "@/lib/constants/protocol"
 import { oneMinute } from "@/lib/constants/time"
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 import { remapToken } from "@/lib/token"
@@ -43,17 +42,12 @@ function calculateYAxisDomain(
   offset: number = 0.1,
 ): [number, number] {
   const padding = (maxValue - minValue) * offset
-  const lowerBound = Math.floor(minValue - padding)
-  const upperBound = Math.ceil(maxValue + padding)
-  return [lowerBound, upperBound]
-}
-
-interface ChartData {
-  price: number
-  timestamp: string
-  fillPrice?: number
-  vwap?: number
-  volume?: number
+  const lowerBound = minValue - padding
+  const upperBound = maxValue + padding
+  if (minValue < 1) {
+    return [lowerBound, upperBound]
+  }
+  return [Math.floor(lowerBound), Math.ceil(upperBound)]
 }
 
 export function FillChart({ order }: { order: OrderMetadata }) {
@@ -83,29 +77,25 @@ export function FillChart({ order }: { order: OrderMetadata }) {
   const { startMs, endMs } = React.useMemo(() => {
     const minFillTimestamp = formattedFills[0].timestamp
     const maxFillTimestamp = formattedFills[formattedFills.length - 1].timestamp
-    const fillTimeSpan = maxFillTimestamp - minFillTimestamp
+
+    const paddingMs = oneMinute * 30
 
     let startTime = 0
     let endTime = 0
 
-    // TODO: Dynamically calculate based on resolution
-    const pointsCount = 50
-    const requiredTimeSpan = pointsCount * resolutionMs
-
     if (formattedFills.length === 1) {
-      startTime = minFillTimestamp - requiredTimeSpan / 2
-      endTime = maxFillTimestamp + requiredTimeSpan / 2
+      startTime = minFillTimestamp - paddingMs
+      endTime = maxFillTimestamp + paddingMs
     } else {
-      const halfTimeSpan = (requiredTimeSpan - fillTimeSpan) / 2
-      startTime = minFillTimestamp - halfTimeSpan
-      endTime = maxFillTimestamp + halfTimeSpan
+      startTime = minFillTimestamp - paddingMs
+      endTime = maxFillTimestamp + paddingMs
     }
     // Round to nearest minute
     return {
       startMs: Math.floor(startTime / 60000) * 60000,
       endMs: Math.ceil(endTime / 60000) * 60000,
     }
-  }, [formattedFills, resolutionMs])
+  }, [formattedFills])
 
   const { data: ohlc } = useOHLC({
     instrument: `${remapToken(token.ticker)}_usdt`,
@@ -115,56 +105,62 @@ export function FillChart({ order }: { order: OrderMetadata }) {
   })
 
   const chartData = React.useMemo(() => {
-    if (!ohlc) return []
+    if (!ohlc || !ohlc.length) return []
 
-    const ohlcStartTime = ohlc[0].time
-    const ohlcEndTime = ohlc[ohlc.length - 1].time
-
-    // Step 1: Convert price data to the desired resolution
-    const adjustedPriceData: Partial<ChartData>[] = []
-    let startTimestamp = Math.floor(startMs / resolutionMs) * resolutionMs
-    for (let i = 0; i < ohlc.length; i++) {
-      const bar = ohlc[i]
-      const endTimestamp = bar.time + 60000 // Each bar is 1 minute
-      while (startTimestamp < endTimestamp) {
-        if (startTimestamp >= ohlcStartTime && startTimestamp < ohlcEndTime) {
-          adjustedPriceData.push({
-            timestamp: startTimestamp.toString(),
-            price: order.data.side === "Sell" ? bar.low : bar.high,
-          })
+    if (formattedFills.length === 1) {
+      const fills = formattedFills.map(fill => {
+        return {
+          timestamp: fill.timestamp.toString(),
+          fillPrice: fill.price,
+          price: undefined,
         }
-        startTimestamp += resolutionMs
-      }
+      })
+
+      const prices = ohlc.map(bar => {
+        return {
+          timestamp: bar.time.toString(),
+          price: bar.close,
+          fillPrice: undefined,
+        }
+      })
+
+      return [...fills, ...prices].sort(
+        (a, b) => Number(a.timestamp) - Number(b.timestamp),
+      )
     }
 
-    // Step 2: Align fill data to the desired resolution
-    // Aligned timestamp will never be greater than fill timestamp
-    // Can be up to resolutionMs off
-    const adjustedFillData = formattedFills.map(fillPoint => {
-      const alignedTimestamp =
-        Math.floor(fillPoint.timestamp / resolutionMs) * resolutionMs
+    const fills = formattedFills.map(fill => {
+      const adjustedTimestamp = Math.floor(fill.timestamp / 60000) * 60000
+      const bar = ohlc.find(bar => bar.time === adjustedTimestamp)
       return {
-        timestamp: alignedTimestamp,
-        fillPrice: fillPoint.price,
-        volume: fillPoint.amount,
+        timestamp: fill.timestamp.toString(),
+        fillPrice: fill.price,
+        price: order.data.side === "Sell" ? bar?.low : bar?.high,
       }
     })
 
-    // Step 3: Merge adjusted price and fill data
-    const result = adjustedPriceData.map(pricePoint => {
-      const fillPoint = adjustedFillData.find(
-        f => f.timestamp.toString() === pricePoint.timestamp,
-      ) || { volume: undefined, fillPrice: undefined }
+    const prices = ohlc.map(bar => {
       return {
-        price: pricePoint.price,
-        fillPrice: fillPoint.fillPrice,
-        volume: fillPoint.volume,
-        timestamp: pricePoint.timestamp,
+        timestamp: bar.time.toString(),
+        price: order.data.side === "Sell" ? bar.low : bar.high,
+        fillPrice: undefined,
       }
     })
 
-    return result
-  }, [formattedFills, startMs, ohlc, order.data.side, resolutionMs])
+    const result = [...fills, ...prices].sort(
+      (a, b) => Number(a.timestamp) - Number(b.timestamp),
+    )
+    const targetPoints = 150
+    const sampleRate = Math.floor(result.length / targetPoints)
+    if (sampleRate < 1) {
+      return result
+    }
+    const sampledResult = result.filter(
+      (v, index) => index % sampleRate === 0 || v.fillPrice,
+    )
+
+    return sampledResult
+  }, [formattedFills, ohlc, order.data.side])
 
   const [minValue, maxValue] = React.useMemo(
     () =>
@@ -220,14 +216,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
               tickLine={false}
               tickCount={5}
               domain={calculateYAxisDomain(minValue, maxValue)}
-              tickFormatter={(value: number) =>
-                `${value.toLocaleString("en-US", {
-                  minimumFractionDigits: value > 10_000 ? 0 : 2,
-                  maximumFractionDigits: value > 10_000 ? 0 : 2,
-                  currency: "USD",
-                  style: "currency",
-                })}`
-              }
+              tickFormatter={formatCurrency}
             />
             <ChartLegend content={<ChartLegendContent />} />
             <Line
