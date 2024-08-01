@@ -16,6 +16,7 @@ import { TaskToaster } from "@/app/components/task-toaster"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
+import { IntercomProvider } from "@/providers/intercom-provider"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
@@ -106,7 +107,9 @@ export default async function RootLayout({
               <PriceStoreProvider initialPrices={prices}>
                 <TailwindIndicator />
                 <TooltipProvider>
-                  <div className="">{children}</div>
+                  <IntercomProvider>
+                    <div className="">{children}</div>
+                  </IntercomProvider>
                 </TooltipProvider>
                 <Toaster
                   className="pointer-events-auto"
