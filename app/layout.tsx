@@ -9,6 +9,7 @@ import relativeTime from "dayjs/plugin/relativeTime"
 import { cookieToInitialState } from "wagmi"
 
 import { getInitialPrices } from "@/app/actions"
+import { Faucet } from "@/app/components/faucet"
 import { OrderToaster } from "@/app/components/order-toaster"
 import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
@@ -120,6 +121,7 @@ export default async function RootLayout({
                 <OrderToaster />
                 <TaskToaster />
                 <ReactQueryDevtools initialIsOpen={false} />
+                <Faucet />
               </PriceStoreProvider>
             </WagmiProvider>
           </RenegadeProvider>
