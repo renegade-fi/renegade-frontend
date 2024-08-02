@@ -12,37 +12,37 @@ interface SubscriptionItem {
   handlers: { id: string; callback: SubscribeBarsCallback; lastBar: Bar }[]
 }
 
-let socket: WebSocket;
-let isConnected = false;
-const RECONNECT_INTERVAL = 5000; // 5 seconds
+let socket: WebSocket
+let isConnected = false
+const RECONNECT_INTERVAL = 5000 // 5 seconds
 
 const channelToSubscription = new Map<string, SubscriptionItem>()
 
 function createWebSocket() {
-  socket = new WebSocket(process.env.NEXT_PUBLIC_AMBERDATA_PROXY_URL);
+  socket = new WebSocket(process.env.NEXT_PUBLIC_AMBERDATA_PROXY_URL)
 
   socket.addEventListener("open", event => {
-    console.log("WebSocket is open now.");
-    isConnected = true;
-    resubscribeAll();
-  });
+    console.log("WebSocket is open now.")
+    isConnected = true
+    resubscribeAll()
+  })
 
   socket.addEventListener("message", event => {
-    console.log("Message from server ", event.data);
-  });
+    console.log("Message from server ", event.data)
+  })
 
   socket.addEventListener("close", event => {
-    console.log("WebSocket is closed now.");
-    isConnected = false;
+    console.log("WebSocket is closed now.")
+    isConnected = false
     setTimeout(() => {
-      console.log("Attempting to reconnect...");
-      createWebSocket();
-    }, RECONNECT_INTERVAL);
-  });
+      console.log("Attempting to reconnect...")
+      createWebSocket()
+    }, RECONNECT_INTERVAL)
+  })
 
   socket.addEventListener("error", event => {
-    console.error("WebSocket error observed:", event);
-  });
+    console.error("WebSocket error observed:", event)
+  })
 
   socket.onmessage = event => {
     const parsedMessage = JSON.parse(event.data)
@@ -88,14 +88,16 @@ function createWebSocket() {
 }
 
 function resubscribeAll() {
-  for (const [topic, subscriptionItem] of Array.from(channelToSubscription.entries())) {
-    console.log(`[resubscribe]: Resubscribing to ${topic}`);
+  for (const [topic, subscriptionItem] of Array.from(
+    channelToSubscription.entries(),
+  )) {
+    console.log(`[resubscribe]: Resubscribing to ${topic}`)
     socket.send(
       JSON.stringify({
         type: "subscribe",
         topic,
-      })
-    );
+      }),
+    )
   }
 }
 
@@ -130,7 +132,7 @@ function getNextBarTime(
   return date.getTime()
 }
 
-createWebSocket();
+createWebSocket()
 
 export function subscribeOnStream(
   symbolInfo: LibrarySymbolInfo,
@@ -165,10 +167,12 @@ export function subscribeOnStream(
       JSON.stringify({
         type: "subscribe",
         topic,
-      })
-    );
+      }),
+    )
   } else {
-    console.log(`[subscribeBars]: WebSocket not connected. Will subscribe to ${topic} upon reconnection.`);
+    console.log(
+      `[subscribeBars]: WebSocket not connected. Will subscribe to ${topic} upon reconnection.`,
+    )
   }
 }
 
