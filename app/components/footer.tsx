@@ -42,11 +42,11 @@ export function Footer() {
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
-
+        </div>
+        <div className="ml-auto space-x-2 pr-20 text-xs">
           <Button
-            className="ml-4 font-extended"
-            variant="outline"
-            size="sm"
+            className="p-0 text-muted-foreground hover:text-foreground"
+            variant="link"
             onClick={() => {
               if (!address) {
                 toast.error("Please connect your wallet to fund your account.")
@@ -66,8 +66,6 @@ export function Footer() {
           >
             Faucet
           </Button>
-        </div>
-        <div className="ml-auto space-x-2 pr-20 text-xs">
           <Button
             className="p-0 text-muted-foreground hover:text-foreground"
             variant="link"
