@@ -1,4 +1,3 @@
-import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { AlertTriangle } from "lucide-react"
 
 import { useIsMaxOrders } from "@/app/trade/[base]/components/new-order/use-is-max-orders"
@@ -17,19 +16,19 @@ export function MaxOrdersWarning({ className }: { className?: string }) {
 
   if (isMaxOrders) {
     return (
-      <Tooltip>
-        <TooltipTrigger onClick={e => e.preventDefault()}>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-yellow" />
-            <span className={cn(className)}>
-              You have reached the maximum number of open orders ({MAX_ORDERS})
-            </span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{MAX_ORDERS_TOOLTIP}</p>
-        </TooltipContent>
-      </Tooltip>
+      <div className="rounded-md bg-[#2A1700] p-2 text-center">
+        <Tooltip>
+          <TooltipTrigger onClick={e => e.preventDefault()}>
+            <div className={cn("flex items-center gap-2", className)}>
+              <AlertTriangle className="h-4 w-4" />
+              <span>Maximum order limit reached.</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{MAX_ORDERS_TOOLTIP}</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
     )
   }
 

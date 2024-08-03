@@ -408,7 +408,7 @@ function TransferForm({
             {direction === ExternalTransferDirection.Deposit && (
               <MaxBalancesWarning
                 mint={mint}
-                className="whitespace-nowrap text-sm"
+                className="text-sm text-orange-400"
               />
             )}
           </div>

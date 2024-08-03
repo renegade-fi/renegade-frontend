@@ -166,15 +166,14 @@ function NewOrderForm({
         </div>
         <FeesSection amount={amount} {...fees} />
       </div>
-      <div className="rounded-md bg-[#2A1700] p-2 text-center">
-        <InsufficientWarning
-          className="text-sm text-orange-400"
-          amount={parseAmount(amount.toString(), token)}
-          baseMint={token.address}
-          quoteMint={Token.findByTicker("USDC").address}
-          side={isSell ? Side.SELL : Side.BUY}
-        />
-      </div>
+      <InsufficientWarning
+        amount={parseAmount(amount.toString(), token)}
+        baseMint={token.address}
+        className="text-sm text-orange-400"
+        quoteMint={Token.findByTicker("USDC").address}
+        richColors
+        side={isSell ? Side.SELL : Side.BUY}
+      />
     </>
   )
 }

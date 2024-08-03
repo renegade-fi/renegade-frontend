@@ -15,15 +15,17 @@ import { cn } from "@/lib/utils"
 export function InsufficientWarning({
   amount,
   baseMint,
-  quoteMint,
-  side,
   className,
+  quoteMint,
+  richColors = false,
+  side,
 }: {
   amount: bigint
   baseMint: `0x${string}`
-  quoteMint: `0x${string}`
-  side: Side
   className?: string
+  quoteMint: `0x${string}`
+  richColors?: boolean
+  side: Side
 }) {
   const token = Token.findByAddress(side === Side.BUY ? quoteMint : baseMint)
 
@@ -46,20 +48,27 @@ export function InsufficientWarning({
   if (!isInsufficient) return null
 
   return (
-    <Tooltip>
-      <TooltipTrigger>
-        <div className={cn("flex items-center gap-2", className)}>
-          <AlertTriangle className="h-4 w-4" />
-          <span>Only part of the order will be filled</span>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>
-          {INSUFFICIENT_BALANCE_TOOLTIP({
-            ticker: token.ticker,
-          })}
-        </p>
-      </TooltipContent>
-    </Tooltip>
+    <div
+      className={cn({
+        "rounded-md bg-[#2A1700] p-2 text-center": richColors,
+        "flex items-center": !richColors,
+      })}
+    >
+      <Tooltip>
+        <TooltipTrigger>
+          <div className={cn("flex items-center gap-2", className)}>
+            <AlertTriangle className="h-4 w-4" />
+            <span>Only part of the order will be filled</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>
+            {INSUFFICIENT_BALANCE_TOOLTIP({
+              ticker: token.ticker,
+            })}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
   )
 }

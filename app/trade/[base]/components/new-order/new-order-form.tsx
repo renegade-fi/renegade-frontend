@@ -240,9 +240,7 @@ export function NewOrderForm({
             }
           />
         </div>
-        <div>
-          <MaxOrdersWarning className="whitespace-nowrap text-sm" />
-        </div>
+        <MaxOrdersWarning className="text-sm text-orange-400" />
         {status === "in relayer" && (
           <div>
             <Button
