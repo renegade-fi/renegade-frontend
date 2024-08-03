@@ -83,7 +83,7 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
             autoFocus
             onClick={() => createOrder({ request })}
             variant="outline"
-            className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+            className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
             size="xl"
           >
             {props.isSell ? "Sell" : "Buy"} {props.base}
@@ -166,13 +166,15 @@ function NewOrderForm({
         </div>
         <FeesSection amount={amount} {...fees} />
       </div>
-      <InsufficientWarning
-        className="text-sm"
-        amount={parseAmount(amount.toString(), token)}
-        baseMint={token.address}
-        quoteMint={Token.findByTicker("USDC").address}
-        side={isSell ? Side.SELL : Side.BUY}
-      />
+      <div className="rounded-md bg-[#2A1700] p-2 text-center">
+        <InsufficientWarning
+          className="text-sm text-orange-400"
+          amount={parseAmount(amount.toString(), token)}
+          baseMint={token.address}
+          quoteMint={Token.findByTicker("USDC").address}
+          side={isSell ? Side.SELL : Side.BUY}
+        />
+      </div>
     </>
   )
 }

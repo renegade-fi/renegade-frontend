@@ -48,11 +48,9 @@ export function InsufficientWarning({
   return (
     <Tooltip>
       <TooltipTrigger>
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-yellow" />
-          <span className={cn(className)}>
-            Only part of the order will be filled
-          </span>
+        <div className={cn("flex items-center gap-2", className)}>
+          <AlertTriangle className="h-4 w-4" />
+          <span>Only part of the order will be filled</span>
         </div>
       </TooltipTrigger>
       <TooltipContent>
