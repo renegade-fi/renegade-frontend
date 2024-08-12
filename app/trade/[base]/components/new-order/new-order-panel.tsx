@@ -19,7 +19,7 @@ export function NewOrderPanel({
 }) {
   return (
     <aside className="space-y-6">
-      <div className="mt-6 px-6 text-sm">
+      <div className="px-6 pt-6 text-sm">
         <AssetsSectionWithDepositButton base={base} />
       </div>
       <Separator />

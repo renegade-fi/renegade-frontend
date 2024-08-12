@@ -244,7 +244,7 @@ export function NewOrderForm({
         {status === "in relayer" && (
           <div>
             <Button
-              variant="outline"
+              variant="default"
               className="flex w-full font-serif text-2xl font-bold"
               size="xl"
               disabled={!form.formState.isValid || isMaxOrders}
