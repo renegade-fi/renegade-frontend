@@ -2,7 +2,7 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useWallet } from "@renegade-fi/react"
+import { useStatus, useWallet } from "@renegade-fi/react"
 import { fromHex, hexToBool } from "viem/utils"
 
 import { TokenIcon } from "@/components/token-icon"
@@ -35,17 +35,6 @@ import { DISPLAY_TOKENS } from "@/lib/token"
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
-  const { data } = useWallet({
-    query: {
-      select: data =>
-        new Map(
-          data.balances
-            .filter(balance => !!fromHex(balance.mint, "number"))
-            .map(balance => [balance.mint, balance.amount]),
-        ),
-      enabled: open,
-    },
-  })
 
   if (isDesktop) {
     return (
@@ -59,7 +48,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
             </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[50vh]">
-            <TokenList balances={data} />
+            <TokenList enabled={open} />
           </ScrollArea>
         </DialogContent>
       </Dialog>
@@ -77,7 +66,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
           </DrawerDescription>
         </DrawerHeader>
         <ScrollArea className="max-h-[50vh] overflow-auto">
-          <TokenList balances={data} />
+          <TokenList enabled={open} />
         </ScrollArea>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
@@ -89,13 +78,25 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TokenList({ balances }: { balances?: Map<`0x${string}`, bigint> }) {
+function TokenList({ enabled }: { enabled: boolean }) {
+  const renegadeStatus = useStatus()
+  const { data, status } = useWallet({
+    query: {
+      select: data =>
+        new Map(
+          data.balances
+            .filter(balance => !!fromHex(balance.mint, "number"))
+            .map(balance => [balance.mint, balance.amount]),
+        ),
+      enabled,
+    },
+  })
   const sortedTokens = DISPLAY_TOKENS({
     hideHidden: true,
     hideStables: true,
   }).sort((a, b) => {
-    const balanceA = balances?.get(a.address) ?? BigInt(0)
-    const balanceB = balances?.get(b.address) ?? BigInt(0)
+    const balanceA = data?.get(a.address) ?? BigInt(0)
+    const balanceB = data?.get(b.address) ?? BigInt(0)
     if (balanceA === BigInt(0) && balanceB === BigInt(0)) return 0
     if (balanceA === BigInt(0)) return 1
     if (balanceB === BigInt(0)) return -1
@@ -105,7 +106,11 @@ function TokenList({ balances }: { balances?: Map<`0x${string}`, bigint> }) {
   return (
     <div className="grid items-start">
       {sortedTokens.map((token, index) => {
-        const balance = balances?.get(token.address)
+        const balance = data?.get(token.address)
+        const formattedBalance =
+          status === "pending" || renegadeStatus !== "in relayer"
+            ? "--"
+            : formatNumber(balance ?? BigInt(0), token.decimals, true)
         return (
           <Link href={`/trade/${token.ticker}`} key={token.address}>
             <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
@@ -115,7 +120,7 @@ function TokenList({ balances }: { balances?: Map<`0x${string}`, bigint> }) {
                 <p className="text-xs text-muted-foreground">{token.ticker}</p>
               </div>
               <div className="justify-self-end font-mono">
-                {formatNumber(balance ?? BigInt(0), token.decimals, true)}
+                {formattedBalance}
               </div>
             </div>
           </Link>
