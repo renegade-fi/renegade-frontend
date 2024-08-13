@@ -148,14 +148,7 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {status !== "in relayer" ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  <TableEmptyState type="assets" />
-                </TableCell>
-              </TableRow>
+              <TableEmptyState colSpan={columns.length} type="assets" />
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => {
                 return (
