@@ -1,4 +1,4 @@
-import { OrderState } from "@renegade-fi/react"
+import { OrderState, UseStatusReturnType } from "@renegade-fi/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import numeral from "numeral"
@@ -140,4 +140,19 @@ export const formatOrderStateForTable = (state: OrderState) => {
     [OrderState.Filled]: "Filled",
     [OrderState.SettlingMatch]: "Open",
   }[state]
+}
+
+export const formatStatus = (status: UseStatusReturnType) => {
+  switch (status) {
+    case "in relayer":
+      return "Connected"
+    case "connecting":
+      return "Connecting"
+    case "creating wallet":
+      return "Creating wallet"
+    case "disconnected":
+      return "Disconnected"
+    default:
+      return "Unknown"
+  }
 }

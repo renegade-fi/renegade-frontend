@@ -1,6 +1,6 @@
-import { useConfig } from "@renegade-fi/react"
+import { useConfig, useStatus } from "@renegade-fi/react"
 import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
-import { LogOut } from "lucide-react"
+import { Copy, LogOut } from "lucide-react"
 import { useAccount, useDisconnect } from "wagmi"
 
 import {
@@ -17,10 +17,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { formatStatus } from "@/lib/format"
+
 export function DropdownMenuDemo({ children }: { children: React.ReactNode }) {
   const { address } = useAccount()
   const config = useConfig()
   const { disconnect } = useDisconnect()
+  const status = useStatus()
   const truncatedAddress = `${address?.slice(0, 6)}...${address?.slice(-4)}`
 
   const handleDisconnect = () => {
@@ -28,19 +31,31 @@ export function DropdownMenuDemo({ children }: { children: React.ReactNode }) {
     disconnect()
   }
 
+  const handleCopyAddress = () => {
+    if (!address) return
+    navigator.clipboard.writeText(address)
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <Tooltip>
-          <TooltipTrigger>
-            <DropdownMenuLabel>{truncatedAddress}</DropdownMenuLabel>
-          </TooltipTrigger>
-          <TooltipContent>
-            <span>{address}</span>
-          </TooltipContent>
-        </Tooltip>
+        <DropdownMenuLabel>
+          <Tooltip>
+            <TooltipTrigger>{truncatedAddress}</TooltipTrigger>
+            <TooltipContent>
+              <span>{address}</span>
+            </TooltipContent>
+          </Tooltip>
+        </DropdownMenuLabel>
+        <DropdownMenuLabel>
+          <span>Status: {formatStatus(status)}</span>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleCopyAddress}>
+          <Copy className="mr-2 h-4 w-4" />
+          <span>Copy address</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDisconnect}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Disconnect</span>
