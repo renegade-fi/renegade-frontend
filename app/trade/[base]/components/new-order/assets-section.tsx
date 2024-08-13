@@ -1,4 +1,4 @@
-import { Token, useWallet } from "@renegade-fi/react"
+import { Token, useStatus, useWallet } from "@renegade-fi/react"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
@@ -56,7 +56,9 @@ export function AssetsSection({
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker(quote)
 
-  const { data } = useWallet({
+  const renegadeStatus = useStatus()
+
+  const { data, status } = useWallet({
     query: {
       select: data => ({
         [baseToken.address]: data.balances.find(
@@ -69,13 +71,25 @@ export function AssetsSection({
     },
   })
 
+  const isLoading = status === "pending" || renegadeStatus !== "in relayer"
+
   const baseBalance = data?.[baseToken.address] ?? BigInt(0)
-  const formattedBaseBalance = formatNumber(baseBalance, baseToken.decimals)
+  const formattedBaseBalance = isLoading
+    ? "--"
+    : formatNumber(baseBalance, baseToken.decimals)
   const baseUsdPrice = useUSDPrice(baseToken, baseBalance)
+  const formattedBaseUsdPrice = isLoading
+    ? "--"
+    : formatCurrencyFromString(baseUsdPrice)
 
   const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
-  const formattedQuoteBalance = formatNumber(quoteBalance, quoteToken.decimals)
+  const formattedQuoteBalance = isLoading
+    ? "--"
+    : formatNumber(quoteBalance, quoteToken.decimals)
   const quoteUsdPrice = useUSDPrice(quoteToken, quoteBalance)
+  const formattedQuoteUsdPrice = isLoading
+    ? "--"
+    : formatCurrencyFromString(quoteUsdPrice)
 
   return (
     <>
@@ -93,7 +107,7 @@ export function AssetsSection({
         </div>
         <Tooltip>
           <TooltipTrigger>
-            <span>{formatCurrencyFromString(baseUsdPrice)}</span>
+            <span>{formattedBaseUsdPrice}</span>
           </TooltipTrigger>
           <TooltipContent>
             <p>{`${formattedBaseBalance} ${base}`}</p>
@@ -114,7 +128,7 @@ export function AssetsSection({
         </div>
         <Tooltip>
           <TooltipTrigger>
-            <span>{formatCurrencyFromString(quoteUsdPrice)}</span>
+            <span>{formattedQuoteUsdPrice}</span>
           </TooltipTrigger>
           <TooltipContent>
             <p>{`${formattedQuoteBalance} ${quote}`}</p>
