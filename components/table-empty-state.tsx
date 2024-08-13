@@ -1,24 +1,37 @@
 import { useStatus } from "@renegade-fi/react"
 
 import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
-import { Button } from "@/components/ui/button"
+import { TableCell, TableRow } from "@/components/ui/table"
 
 import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"
 
-export function TableEmptyState({ type }: { type: string }) {
+export function TableEmptyState({
+  colSpan,
+  type,
+}: {
+  colSpan: number
+  type: string
+}) {
   const status = useStatus()
   const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
-  let message = <>No {type} found.</>
+  let message = `No ${type} found.`
   if (status !== "in relayer") {
-    message = (
-      <>
-        <SignInDialog open={open} onOpenChange={onOpenChange} />
-        <Button className="p-0" variant="link" onClick={handleClick}>
-          Sign in
-        </Button>
-        &nbsp;to view your {type}.
-      </>
-    )
+    message = `Sign in to view your ${type}.`
   }
-  return <>{message}</>
+  return (
+    <>
+      <TableRow
+        onClick={() => {
+          if (status !== "in relayer") {
+            handleClick()
+          }
+        }}
+      >
+        <TableCell colSpan={colSpan} className="h-24 text-center">
+          {message}
+        </TableCell>
+      </TableRow>
+      <SignInDialog open={open} onOpenChange={onOpenChange} />
+    </>
+  )
 }

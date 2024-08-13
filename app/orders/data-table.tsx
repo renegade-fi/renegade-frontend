@@ -236,15 +236,7 @@ export function DataTable<TData, TValue>({
                 )
               })
             ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  {/* TODO: [QoL]: If filters return no rows, show a message to clear filters. */}
-                  <TableEmptyState type="orders" />
-                </TableCell>
-              </TableRow>
+              <TableEmptyState colSpan={columns.length} type="orders" />
             )}
           </TableBody>
         </Table>

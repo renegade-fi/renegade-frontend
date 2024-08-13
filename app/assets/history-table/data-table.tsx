@@ -218,14 +218,10 @@ export function DataTable<TData, TValue>({
                 )
               })
             ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  <TableEmptyState type="transfer history" />
-                </TableCell>
-              </TableRow>
+              <TableEmptyState
+                colSpan={columns.length}
+                type="transfer history"
+              />
             )}
           </TableBody>
         </Table>
