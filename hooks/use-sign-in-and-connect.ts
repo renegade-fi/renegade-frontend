@@ -34,7 +34,7 @@ export function useSignInAndConnect() {
     if (renegadeStatus === "in relayer") {
       content = `Disconnect ${address?.slice(0, 6)}`
     } else {
-      content = `Sign in with ${address?.slice(0, 6)}`
+      content = `Sign in`
     }
   } else {
     content = "Connect Wallet"
