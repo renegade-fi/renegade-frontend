@@ -8,8 +8,8 @@ import {
   useConfig,
 } from "@renegade-fi/react"
 import { CreateOrderParameters } from "@renegade-fi/react/actions"
-import { toHex } from "viem"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
+import { toHex } from "viem"
 
 export type UsePrepareCreateOrderParameters = CreateOrderParameters
 
@@ -25,7 +25,8 @@ export function usePrepareCreateOrder(
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
     if (!isSuccess) return ""
-    if (wallet.orders.filter(order => order.amount).length >= MAX_ORDERS) return ""
+    if (wallet.orders.filter(order => order.amount).length >= MAX_ORDERS)
+      return ""
     return config.utils.new_order(
       stringifyForWasm(wallet),
       id,
