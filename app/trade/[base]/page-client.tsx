@@ -24,7 +24,7 @@ import { Side } from "@/lib/constants/protocol"
 import { STORAGE_LAYOUT } from "@/lib/constants/storage"
 
 const DEFAULT_LAYOUT = [22, 78]
-const DEFAULT_SIDE = Side.BUY
+const DEFAULT_SIDE = Math.random() < 0.5 ? Side.BUY : Side.SELL
 
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart)
