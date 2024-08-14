@@ -14,7 +14,7 @@ const names: Record<Exchange, string> = {
 
 export function BBOMarquee({ base }: { base: string }) {
   return (
-    <div className="grid min-h-marquee grid-cols-[auto_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center whitespace-nowrap border-y border-border font-extended text-sm">
+    <div className="grid min-h-marquee grid-cols-[auto_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center whitespace-nowrap border-b border-border font-extended text-sm">
       <span className="px-4">BBO Feeds</span>
       {exchanges.map(exchange => (
         <Fragment key={exchange}>
