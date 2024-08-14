@@ -17,7 +17,7 @@ export function DepositBanner() {
       select: data => data.balances.length,
     },
   })
-  if ((data === 0 && !isClosed) || true) {
+  if (data === 0 && !isClosed) {
     return (
       <div className="flex w-full items-center border-b border-border bg-[#00183e] pl-4 text-sm text-blue">
         <div>
