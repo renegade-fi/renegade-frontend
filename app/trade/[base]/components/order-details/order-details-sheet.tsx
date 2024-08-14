@@ -3,6 +3,7 @@ import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
+import { FillChartSkeleton } from "@/app/trade/[base]/components/charts/fill-chart-skeleton"
 import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button"
 import {
   FillTableData,
@@ -12,7 +13,6 @@ import { DataTable } from "@/app/trade/[base]/components/order-details/data-tabl
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
 import { OrderStatusIndicator } from "@/app/trade/[base]/components/order-details/order-status-indicator"
 
-import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
@@ -48,7 +48,11 @@ export function OrderDetailsSheet({
     BigInt(0),
   )
   const formattedFilledAmount = formatNumber(filledAmount, token.decimals)
-  const formattedTotalAmount = formatNumber(order.data.amount, token.decimals)
+  const formattedTotalAmount = formatNumber(
+    order.data.amount,
+    token.decimals,
+    true,
+  )
   const percentageFilled =
     (Number(filledAmount) / Number(order.data.amount)) * 100
   const percentageFilledLabel = formatPercentage(
@@ -153,11 +157,11 @@ export function OrderDetailsSheet({
               {order.fills.length ? (
                 <FillChart order={order} />
               ) : (
-                <Skeleton className="h-[500px] w-full rounded-none" />
+                <FillChartSkeleton />
               )}
-              <Separator />
             </>
           )}
+          <Separator />
           <div className="space-y-4 p-6">
             <h3 className="font-semibold leading-none tracking-tight">Fills</h3>
             <DataTable

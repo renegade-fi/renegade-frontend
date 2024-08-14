@@ -80,7 +80,7 @@ export function DataTable<TData, TValue>({
                 >
                   {isCancelled
                     ? "Order cancelled before any fills."
-                    : "No results."}
+                    : "Once your order is filled, you'll see the details here."}
                 </TableCell>
               </TableRow>
             )}
