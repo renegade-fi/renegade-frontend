@@ -43,73 +43,19 @@ export const columns: ColumnDef<HistoryData>[] = [
   },
   {
     accessorKey: "amount",
-    header: ({ column }) => {
-      return (
-        <div className="flex flex-row-reverse">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const isSorted = column.getIsSorted()
-              if (isSorted === "desc") {
-                column.toggleSorting(false)
-              } else if (isSorted === "asc") {
-                column.clearSorting()
-              } else {
-                column.toggleSorting(true)
-              }
-            }}
-          >
-            Amount
-            {column.getIsSorted() === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      )
-    },
+    header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
       const amount = row.getValue<bigint>("amount")
-      return <div className="pr-4 text-right">{amount}</div>
+      return <div className="text-right">{amount}</div>
     },
   },
   {
     accessorKey: "timestamp",
-    header: ({ column }) => {
-      return (
-        <div className="flex flex-row-reverse">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const isSorted = column.getIsSorted()
-              if (isSorted === "desc") {
-                column.toggleSorting(false)
-              } else if (isSorted === "asc") {
-                column.clearSorting()
-              } else {
-                column.toggleSorting(true)
-              }
-            }}
-          >
-            Time
-            {column.getIsSorted() === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      )
-    },
+    header: () => <div className="text-right">Time</div>,
     cell: ({ row }) => {
       const timestamp = row.getValue<number>("timestamp")
       const formatted = formatTimestamp(timestamp)
-      return <div className="pr-4 text-right">{formatted}</div>
+      return <div className="text-right">{formatted}</div>
     },
   },
 ]
