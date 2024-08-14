@@ -13,7 +13,13 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
+import { FAUCET_TOOLTIP } from "@/lib/constants/tooltips"
 import { fundList, fundWallet } from "@/lib/utils"
 
 export function Footer() {
@@ -43,28 +49,37 @@ export function Footer() {
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
-          <Button
-            className="ml-4 font-extended"
-            variant="outline"
-            onClick={() => {
-              if (!address) {
-                toast.error("Please connect your wallet to fund your account.")
-                return
-              }
+          <Tooltip>
+            <TooltipTrigger className="cursor-pointer">
+              <Button
+                className="ml-4 font-extended"
+                variant="outline"
+                onClick={() => {
+                  if (!address) {
+                    toast.error(
+                      "Please connect your wallet to fund your account.",
+                    )
+                    return
+                  }
 
-              toast.promise(fundWallet(fundList.slice(0, 2), address), {
-                loading: "Funding account...",
-                success: "Successfully funded account.",
-                error:
-                  "Funding failed: An unexpected error occurred. Please try again.",
-              })
+                  toast.promise(fundWallet(fundList.slice(0, 2), address), {
+                    loading: "Funding account...",
+                    success: "Successfully funded account.",
+                    error:
+                      "Funding failed: An unexpected error occurred. Please try again.",
+                  })
 
-              // Fund additional wallets in background
-              fundWallet(fundList.slice(2), address)
-            }}
-          >
-            Faucet
-          </Button>
+                  // Fund additional wallets in background
+                  fundWallet(fundList.slice(2), address)
+                }}
+              >
+                Faucet
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-sans">{FAUCET_TOOLTIP}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
         <div className="ml-auto pr-20 text-xs">
           <Button asChild variant="ghost" size="icon">
