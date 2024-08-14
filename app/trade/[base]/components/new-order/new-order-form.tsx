@@ -33,10 +33,16 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { Side } from "@/lib/constants/protocol"
+import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrency } from "@/lib/format"
 
 const formSchema = z.object({
@@ -258,6 +264,17 @@ export function NewOrderForm({
             <ConnectButton className="flex w-full font-serif text-2xl font-bold" />
           )}
           <div className="space-y-3 whitespace-nowrap text-sm">
+            <div className="flex items-center justify-between">
+              <Tooltip>
+                <TooltipTrigger onClick={e => e.preventDefault()}>
+                  <span className="text-muted-foreground">Type</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{MIDPOINT_TOOLTIP}</p>
+                </TooltipContent>
+              </Tooltip>
+              <div>Midpoint</div>
+            </div>
             <div className="flex items-center justify-between">
               <div className="text-muted-foreground">Order Value</div>
               <div>{formattedOrderValue}</div>

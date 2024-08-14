@@ -26,11 +26,17 @@ import {
 import { DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrepareCreateOrder } from "@/hooks/usePrepareCreateOrder"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber } from "@/lib/format"
 
 export function DefaultStep(props: NewOrderConfirmationProps) {
@@ -161,7 +167,14 @@ function NewOrderForm({
       <Separator />
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="text-muted-foreground">Network costs</div>
+          <Tooltip>
+            <TooltipTrigger onClick={e => e.preventDefault()}>
+              <span className="text-muted-foreground">Network costs</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{GAS_FEE_TOOLTIP}</p>
+            </TooltipContent>
+          </Tooltip>
           <div>$0.00</div>
         </div>
         <FeesSection amount={amount} {...fees} />
