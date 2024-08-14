@@ -107,7 +107,7 @@ export default async function RootLayout({
             <WagmiProvider initialState={initialState}>
               <PriceStoreProvider initialPrices={prices}>
                 <TailwindIndicator />
-                <TooltipProvider>
+                <TooltipProvider delayDuration={0} skipDelayDuration={0}>
                   <IntercomProvider>
                     <div className="">{children}</div>
                   </IntercomProvider>
