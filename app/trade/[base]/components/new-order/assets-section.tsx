@@ -76,7 +76,7 @@ export function AssetsSection({
   const baseBalance = data?.[baseToken.address] ?? BigInt(0)
   const formattedBaseBalance = isLoading
     ? "--"
-    : formatNumber(baseBalance, baseToken.decimals)
+    : formatNumber(baseBalance, baseToken.decimals, true)
   const baseUsdPrice = useUSDPrice(baseToken, baseBalance)
   const formattedBaseUsdPrice = isLoading
     ? "--"
@@ -85,7 +85,7 @@ export function AssetsSection({
   const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
   const formattedQuoteBalance = isLoading
     ? "--"
-    : formatNumber(quoteBalance, quoteToken.decimals)
+    : formatNumber(quoteBalance, quoteToken.decimals, true)
   const quoteUsdPrice = useUSDPrice(quoteToken, quoteBalance)
   const formattedQuoteUsdPrice = isLoading
     ? "--"
