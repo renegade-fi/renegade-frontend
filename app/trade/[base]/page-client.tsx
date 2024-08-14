@@ -55,6 +55,7 @@ export function PageClient({
   return (
     <div>
       <DepositBanner />
+      <BBOMarquee base={base} />
       <ResizablePanelGroup
         autoSaveId={STORAGE_LAYOUT}
         direction="horizontal"
@@ -79,7 +80,6 @@ export function PageClient({
         )}
         <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
           <main>
-            <BBOMarquee base={base} />
             <div className="overflow-auto">
               <PriceChartMemo base={base} />
               <Separator />
