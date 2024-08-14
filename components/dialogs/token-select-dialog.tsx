@@ -3,6 +3,7 @@ import * as React from "react"
 import Link from "next/link"
 
 import { useStatus, useWallet } from "@renegade-fi/react"
+import { useDebounceValue } from "usehooks-ts"
 import { fromHex, hexToBool } from "viem/utils"
 
 import { TokenIcon } from "@/components/token-icon"
@@ -34,6 +35,8 @@ import { DISPLAY_TOKENS } from "@/lib/token"
 
 export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [debouncedSearchTerm] = useDebounceValue(searchTerm, 300)
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   if (isDesktop) {
@@ -44,11 +47,15 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
           <DialogHeader className="space-y-4 px-6 pt-6">
             <DialogTitle className="font-extended">Select Token</DialogTitle>
             <DialogDescription>
-              <Input placeholder="Search name" />
+              <Input
+                placeholder="Search name"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[50vh]">
-            <TokenList enabled={open} />
+          <ScrollArea className="max-h-[50vh] min-h-[50vh]">
+            <TokenList enabled={open} searchTerm={debouncedSearchTerm} />
           </ScrollArea>
         </DialogContent>
       </Dialog>
@@ -66,7 +73,7 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
           </DrawerDescription>
         </DrawerHeader>
         <ScrollArea className="max-h-[50vh] overflow-auto">
-          <TokenList enabled={open} />
+          <TokenList enabled={open} searchTerm={debouncedSearchTerm} />
         </ScrollArea>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
@@ -78,7 +85,13 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TokenList({ enabled }: { enabled: boolean }) {
+function TokenList({
+  enabled,
+  searchTerm,
+}: {
+  enabled: boolean
+  searchTerm: string
+}) {
   const renegadeStatus = useStatus()
   const { data, status } = useWallet({
     query: {
@@ -103,29 +116,41 @@ function TokenList({ enabled }: { enabled: boolean }) {
     return 0
   })
 
+  const filteredTokens = sortedTokens.filter(
+    token =>
+      token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      token.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
+
   return (
     <div className="grid items-start">
-      {sortedTokens.map((token, index) => {
-        const balance = data?.get(token.address)
-        const formattedBalance =
-          status === "pending" || renegadeStatus !== "in relayer"
-            ? "--"
-            : formatNumber(balance ?? BigInt(0), token.decimals, true)
-        return (
-          <Link href={`/trade/${token.ticker}`} key={token.address}>
-            <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
-              <TokenIcon ticker={token.ticker} />
-              <div>
-                <p className="text-md font-medium">{token.name}</p>
-                <p className="text-xs text-muted-foreground">{token.ticker}</p>
+      {filteredTokens.length ? (
+        filteredTokens.map((token, index) => {
+          const balance = data?.get(token.address)
+          const formattedBalance =
+            status === "pending" || renegadeStatus !== "in relayer"
+              ? "--"
+              : formatNumber(balance ?? BigInt(0), token.decimals, true)
+          return (
+            <Link href={`/trade/${token.ticker}`} key={token.address}>
+              <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
+                <TokenIcon ticker={token.ticker} />
+                <div>
+                  <p className="text-md font-medium">{token.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {token.ticker}
+                  </p>
+                </div>
+                <div className="justify-self-end font-mono">
+                  {formattedBalance}
+                </div>
               </div>
-              <div className="justify-self-end font-mono">
-                {formattedBalance}
-              </div>
-            </div>
-          </Link>
-        )
-      })}
+            </Link>
+          )
+        })
+      ) : (
+        <div className="px-6 py-2 text-center">No results found.</div>
+      )}
     </div>
   )
 }
