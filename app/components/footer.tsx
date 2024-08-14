@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 
+import { Book } from "lucide-react"
 import { toast } from "sonner"
 import { useAccount } from "wagmi"
 
@@ -20,7 +21,7 @@ export function Footer() {
   return (
     <footer className="fixed bottom-0 z-10 min-w-full border-t bg-background">
       <div className="grid min-h-20 grid-cols-2 items-center">
-        <div className="flex pl-6">
+        <div className="flex items-center pl-6">
           <ContextMenu>
             <ContextMenuTrigger>
               <Image
@@ -42,11 +43,9 @@ export function Footer() {
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
-        </div>
-        <div className="ml-auto space-x-2 pr-20 text-xs">
           <Button
-            className="p-0 text-muted-foreground hover:text-foreground"
-            variant="link"
+            className="ml-4 font-extended"
+            variant="outline"
             onClick={() => {
               if (!address) {
                 toast.error("Please connect your wallet to fund your account.")
@@ -66,40 +65,41 @@ export function Footer() {
           >
             Faucet
           </Button>
-          <Button
-            className="p-0 text-muted-foreground hover:text-foreground"
-            variant="link"
-            asChild
-          >
+        </div>
+        <div className="ml-auto pr-20 text-xs">
+          <Button asChild variant="ghost" size="icon">
             <a href="https://x.com/renegade_fi" target="_blank">
-              Twitter
+              <Image
+                alt="x"
+                height="12"
+                width="12"
+                src="https://cdn.simpleicons.org/x/white?viewbox=auto"
+              />
             </a>
           </Button>
-          <Button
-            className="p-0 text-muted-foreground hover:text-foreground"
-            variant="link"
-            asChild
-          >
-            <a href="https://discord.com/invite/renegade-fi" target="_blank">
-              Discord
-            </a>
-          </Button>
-          <Button
-            className="p-0 text-muted-foreground hover:text-foreground"
-            variant="link"
-            asChild
-          >
+          <Button size="icon" variant="ghost" asChild>
             <a href="https://github.com/renegade-fi/" target="_blank">
-              GitHub
+              <Image
+                alt="x"
+                height="12"
+                width="12"
+                src="https://cdn.simpleicons.org/github/white?viewbox=auto"
+              />
             </a>
           </Button>
-          <Button
-            className="p-0 text-muted-foreground hover:text-foreground"
-            variant="link"
-            asChild
-          >
-            <a href="https://docs.renegade.fi/" target="_blank">
-              Docs
+          <Button variant="ghost" asChild size="icon">
+            <a href="https://discord.com/invite/renegade-fi" target="_blank">
+              <Image
+                alt="x"
+                height="12"
+                width="12"
+                src="https://cdn.simpleicons.org/discord/white?viewbox=auto"
+              />
+            </a>
+          </Button>
+          <Button size="icon" variant="ghost" asChild>
+            <a href="https://renegade.fi/docs" target="_blank">
+              <Book className="h-3 w-3" />
             </a>
           </Button>
         </div>
