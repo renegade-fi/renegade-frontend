@@ -100,6 +100,9 @@ export function AssetsSection({
             <Button
               variant="link"
               className="text-md h-fit p-0 text-muted-foreground"
+              onClick={e => {
+                if (renegadeStatus !== "in relayer") e.preventDefault()
+              }}
             >
               {base}
             </Button>
@@ -121,6 +124,9 @@ export function AssetsSection({
             <Button
               variant="link"
               className="text-md h-fit p-0 text-muted-foreground"
+              onClick={e => {
+                if (renegadeStatus !== "in relayer") e.preventDefault()
+              }}
             >
               {quote}
             </Button>
