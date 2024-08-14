@@ -3,7 +3,13 @@ import { Fragment } from "react"
 import { Exchange, Token } from "@renegade-fi/react"
 
 import { AnimatedPrice } from "@/components/animated-price"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
+import { BBO_TOOLTIP } from "@/lib/constants/tooltips"
 import { remapToken } from "@/lib/token"
 
 const exchanges: Exchange[] = ["binance", "coinbase", "kraken", "okx"]
@@ -17,7 +23,14 @@ const names: Record<Exchange, string> = {
 export function BBOMarquee({ base }: { base: string }) {
   return (
     <div className="grid min-h-marquee grid-cols-[0.5fr_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center whitespace-nowrap border-b border-border font-extended text-sm">
-      <span className="flex justify-center">BBO Feeds</span>
+      <Tooltip>
+        <TooltipTrigger>
+          <span className="flex justify-center">BBO Feeds</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-sans">{BBO_TOOLTIP}</p>
+        </TooltipContent>
+      </Tooltip>
       {exchanges.map(exchange => (
         <Fragment key={exchange}>
           <span className="text-xs">•</span>

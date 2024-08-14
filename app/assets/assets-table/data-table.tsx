@@ -90,7 +90,8 @@ export function DataTable<TData, TValue>({
     <>
       <div className="flex items-center pb-4">
         <div className="text-sm font-medium text-muted-foreground">
-          Your assets on-chain and in Renegade. Click on a row to transfer.
+          Your deposits inside of Renegade. Only you and your connected relayer
+          can see your balances.
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
