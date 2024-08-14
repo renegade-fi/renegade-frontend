@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import React from "react"
 
 import {
   OrderMetadata,
   OrderState,
   Token,
+  useOrderHistory,
   useOrderHistoryWebSocket,
 } from "@renegade-fi/react"
 import { toast } from "sonner"
@@ -13,15 +14,29 @@ import { toast } from "sonner"
 import { formatNumber } from "@/lib/format"
 
 export function OrderToaster() {
-  const [incomingOrder, setIncomingOrder] = useState<OrderMetadata>()
+  const [incomingOrder, setIncomingOrder] = React.useState<OrderMetadata>()
   useOrderHistoryWebSocket({
     onUpdate: order => {
       setIncomingOrder(order)
     },
   })
-  const orderMetadataRef = useRef<Map<string, OrderMetadata>>(new Map())
+  const orderMetadataRef = React.useRef<Map<string, OrderMetadata>>(new Map())
 
-  useEffect(() => {
+  const { data } = useOrderHistory({
+    query: {
+      enabled: orderMetadataRef.current.size === 0,
+    },
+  })
+
+  React.useEffect(() => {
+    if (data && orderMetadataRef.current.size === 0) {
+      data.forEach(order => {
+        orderMetadataRef.current.set(order.id, order)
+      })
+    }
+  }, [data])
+
+  React.useEffect(() => {
     if (incomingOrder) {
       const existingOrder = orderMetadataRef.current.get(incomingOrder.id)
 
