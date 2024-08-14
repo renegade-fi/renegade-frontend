@@ -122,10 +122,6 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="pb-4 text-sm font-medium text-muted-foreground">
-        Your private orders. Only you and your connected relayer can see these
-        values.
-      </div>
       <div className="flex items-center gap-2 pb-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <TableSelect
