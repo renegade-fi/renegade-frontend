@@ -39,6 +39,7 @@ export type HistoryData = {
   mint: `0x${string}`
   amount: number
   rawAmount: bigint
+  usdValue: string
   timestamp: number
   isWithdrawal: UpdateType
 }
@@ -130,7 +131,6 @@ export function PageClient() {
     },
   })
 
-  const [historyIsLongFormat, setHistoryIsLongFormat] = React.useState(false)
   const historyData = (transferHistory ?? []).reduce<HistoryData[]>(
     (acc, task) => {
       if (
@@ -139,11 +139,18 @@ export function PageClient() {
           task.task_info.update_type === UpdateType.Withdraw)
       ) {
         const token = Token.findByAddress(task.task_info.mint)
+        const priceTopic = constructPriceTopic({
+          baseAddress: task.task_info.mint,
+        })
+        const price = prices.get(priceTopic) || 0
+        const usdValueBigInt = amountTimesPrice(task.task_info.amount, price)
+        const usdValue = formatUnits(usdValueBigInt, token.decimals)
         acc.push({
           status: task.state,
           mint: task.task_info.mint,
           amount: Number(formatUnits(task.task_info.amount, token.decimals)),
           rawAmount: task.task_info.amount,
+          usdValue,
           timestamp: Number(task.created_at),
           isWithdrawal: task.task_info.update_type,
         })

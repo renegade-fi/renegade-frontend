@@ -5,7 +5,11 @@ import { HistoryData } from "@/app/assets/page-client"
 
 import { TokenIcon } from "@/components/token-icon"
 
-import { formatNumber, formatTimestamp } from "@/lib/format"
+import {
+  formatCurrencyFromString,
+  formatNumber,
+  formatTimestamp,
+} from "@/lib/format"
 
 export const columns: ColumnDef<HistoryData>[] = [
   {
@@ -40,6 +44,15 @@ export const columns: ColumnDef<HistoryData>[] = [
     cell: ({ row }) => {
       const isWithdrawal = row.getValue<boolean>("isWithdrawal")
       return <div>{isWithdrawal}</div>
+    },
+  },
+  {
+    id: "usdValue",
+    accessorFn: (row) => row.usdValue,
+    header: () => <div className="text-right">Amount ($)</div>,
+    cell: ({ row }) => {
+      const value = row.getValue<string>("usdValue")
+      return <div className="text-right">{formatCurrencyFromString(value)}</div>
     },
   },
   {
