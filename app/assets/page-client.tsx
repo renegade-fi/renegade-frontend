@@ -9,15 +9,18 @@ import {
   useTaskHistory,
   useWallet,
 } from "@renegade-fi/react"
+import { formatUnits } from "viem/utils"
 import { useAccount, useReadContracts } from "wagmi"
 
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
+import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { formatNumber } from "@/lib/format"
 import { erc20Abi } from "@/lib/generated"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { constructPriceTopic, usePrice, usePrices } from "@/stores/price-store"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -26,6 +29,8 @@ export type BalanceData = {
   mint: `0x${string}`
   renegadeBalance: string
   l2Balance: string
+  l2UsdValue: string
+  renegadeUsdValue: string
 }
 
 export type HistoryData = {
@@ -63,6 +68,11 @@ export function PageClient() {
 
   useRefreshOnBlock({ queryKey })
 
+  const prices = usePrices()
+  // Subscribe to USDC price
+  usePrice({
+    baseAddress: Token.findByTicker("USDC").address,
+  })
   const balances: BalanceData[] = React.useMemo(() => {
     const l2BalancesMap = new Map(
       l2Balances?.map((balance, index) => [
@@ -73,18 +83,31 @@ export function PageClient() {
     return DISPLAY_TOKENS()
       .map(token => {
         const t = Token.findByAddress(token.address)
+
+        const renegadeBalance =
+          renegadeBalances?.get(token.address) ?? BigInt(0)
+
+        const priceTopic = constructPriceTopic({
+          baseAddress: t.address,
+        })
+        const price = prices.get(priceTopic) || 0
+        const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price)
+        const renegadeUsdValue = formatUnits(renegadeUsdValueBigInt, t.decimals)
+
+        const l2Balance = l2BalancesMap.get(token.address) ?? BigInt(0)
+        const l2UsdValueBigInt = amountTimesPrice(l2Balance, price)
+        const l2UsdValue = formatUnits(l2UsdValueBigInt, t.decimals)
+
         return {
           mint: token.address,
           renegadeBalance: formatNumber(
-            renegadeBalances?.get(token.address) ?? BigInt(0),
+            renegadeBalance,
             t.decimals,
             isLongFormat,
           ),
-          l2Balance: formatNumber(
-            l2BalancesMap.get(token.address) ?? BigInt(0),
-            t.decimals,
-            isLongFormat,
-          ),
+          renegadeUsdValue,
+          l2Balance: formatNumber(l2Balance, t.decimals, isLongFormat),
+          l2UsdValue,
         }
       })
       .filter(balance =>
@@ -96,6 +119,7 @@ export function PageClient() {
   }, [
     isLongFormat,
     l2Balances,
+    prices,
     renegadeBalances,
     showZeroL2Balance,
     showZeroRenegadeBalance,

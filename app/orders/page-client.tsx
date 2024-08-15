@@ -6,7 +6,7 @@ import { formatUnits } from "viem/utils"
 import { DataTable } from "@/app/orders/data-table"
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { constructPriceTopic, usePrices } from "@/stores/price-store"
+import { constructPriceTopic, usePrice, usePrices } from "@/stores/price-store"
 
 import { columns } from "./columns"
 
@@ -21,6 +21,10 @@ export function PageClient() {
     },
   })
   const prices = usePrices()
+  // Subscribe to USDC price
+  usePrice({
+    baseAddress: Token.findByTicker("USDC").address,
+  })
   const orderData: OrderData[] =
     data?.map(order => {
       const priceTopic = constructPriceTopic({
