@@ -24,7 +24,10 @@ export const columns: ColumnDef<HistoryData>[] = [
       const token = Token.findByAddress(mint)
       return (
         <div className="flex items-center gap-2 font-medium">
-          <TokenIcon size={20} ticker={token.ticker} />
+          <TokenIcon
+            size={20}
+            ticker={token.ticker}
+          />
           {token.ticker}
         </div>
       )

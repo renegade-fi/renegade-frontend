@@ -75,7 +75,10 @@ export function PageClient({
             <ResizableHandle />
           </>
         )}
-        <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
+        <ResizablePanel
+          defaultSize={defaultLayout[1]}
+          order={2}
+        >
           <main>
             <div className="overflow-auto">
               <PriceChartMemo base={base} />

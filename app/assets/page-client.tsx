@@ -46,8 +46,8 @@ export type HistoryData = {
 export function PageClient() {
   const { data: renegadeBalances } = useWallet({
     query: {
-      select: data =>
-        new Map(data.balances.map(balance => [balance.mint, balance.amount])),
+      select: (data) =>
+        new Map(data.balances.map((balance) => [balance.mint, balance.amount])),
     },
   })
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
@@ -56,7 +56,7 @@ export function PageClient() {
 
   const { address } = useAccount()
   const { data: l2Balances, queryKey } = useReadContracts({
-    contracts: DISPLAY_TOKENS().map(token => ({
+    contracts: DISPLAY_TOKENS().map((token) => ({
       address: token.address,
       abi: erc20Abi,
       functionName: "balanceOf",
@@ -82,7 +82,7 @@ export function PageClient() {
       ]),
     )
     return DISPLAY_TOKENS()
-      .map(token => {
+      .map((token) => {
         const t = Token.findByAddress(token.address)
 
         const renegadeBalance =
@@ -109,8 +109,10 @@ export function PageClient() {
           l2UsdValue,
         }
       })
-      .filter(balance => (!showZeroL2Balance ? balance.l2Balance !== 0 : true))
-      .filter(balance =>
+      .filter((balance) =>
+        !showZeroL2Balance ? balance.l2Balance !== 0 : true,
+      )
+      .filter((balance) =>
         !showZeroRenegadeBalance ? balance.renegadeBalance !== 0 : true,
       )
   }, [
@@ -124,7 +126,7 @@ export function PageClient() {
   // Transfer History Table Data
   const { data: transferHistory } = useTaskHistory({
     query: {
-      select: data => Array.from(data.values()),
+      select: (data) => Array.from(data.values()),
     },
   })
 
@@ -169,7 +171,10 @@ export function PageClient() {
           <h1 className="my-6 font-serif text-3xl font-bold">
             Transfer History
           </h1>
-          <TransferHistoryTable columns={historyColumns} data={historyData} />
+          <TransferHistoryTable
+            columns={historyColumns}
+            data={historyData}
+          />
         </div>
       </div>
     </main>

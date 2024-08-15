@@ -23,7 +23,10 @@ export function PageClient() {
             Your private orders. Only you and your connected relayer can see
             these values.
           </div>
-          <DataTable columns={columns} data={data} />
+          <DataTable
+            columns={columns}
+            data={data}
+          />
         </div>
       </div>
     </main>
