@@ -46,7 +46,7 @@ export function formatBars(bars: any[]): Bar[] {
   if (!bars || bars.length === 0) {
     return []
   }
-  return bars.map(bar => ({
+  return bars.map((bar) => ({
     time: bar[0],
     low: bar[3],
     high: bar[2],
@@ -103,10 +103,10 @@ export async function fetchBarsForPeriod(
     currentFrom = currentTo
   }
   const validChunks = chunks.filter(
-    chunk => chunk.to - chunk.from <= chunkSizeInMs,
+    (chunk) => chunk.to - chunk.from <= chunkSizeInMs,
   )
 
-  const fetchPromises = chunks.map(chunk => {
+  const fetchPromises = chunks.map((chunk) => {
     const chunkUrl = new URL(url.toString())
     chunkUrl.searchParams.set("startDate", chunk.from.toString())
     chunkUrl.searchParams.set("endDate", chunk.to.toString())
@@ -115,7 +115,7 @@ export async function fetchBarsForPeriod(
 
   const responses = await Promise.all(fetchPromises)
   let bars: Bar[] = []
-  responses.forEach(res => {
+  responses.forEach((res) => {
     bars = bars.concat(formatBars(res.payload.data.binance))
   })
 

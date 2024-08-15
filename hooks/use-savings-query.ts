@@ -25,7 +25,7 @@ export function useSavings({ amount, base, isSell }: NewOrderFormProps) {
         fetch("/api/savings", {
           method: "POST",
           body: JSON.stringify(options),
-        }).then(res => res.json()),
+        }).then((res) => res.json()),
       enabled: !!amount,
     }),
     queryKey,

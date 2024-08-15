@@ -23,7 +23,7 @@ export function usePrepareCancelOrder(
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
     if (!isSuccess) return ""
-    if (wallet.orders.find(order => order.id === id)) {
+    if (wallet.orders.find((order) => order.id === id)) {
       return config.utils.cancel_order(stringifyForWasm(wallet), id)
     }
     return undefined

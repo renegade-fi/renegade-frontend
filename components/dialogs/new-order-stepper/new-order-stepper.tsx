@@ -47,7 +47,10 @@ export function NewOrderStepperInner({
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}
+      >
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogHeader className="sr-only">
           <VisuallyHidden>
@@ -59,12 +62,15 @@ export function NewOrderStepperInner({
         </DialogHeader>
         <DialogContent
           className="p-0 sm:max-w-[425px]"
-          onOpenAutoFocus={e => {
+          onOpenAutoFocus={(e) => {
             e.preventDefault()
           }}
         >
           {step === Step.DEFAULT && (
-            <DefaultStep {...props} amount={baseAmount} />
+            <DefaultStep
+              {...props}
+              amount={baseAmount}
+            />
           )}
           {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
         </DialogContent>
@@ -72,14 +78,23 @@ export function NewOrderStepperInner({
     )
   }
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+    >
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         {step === Step.DEFAULT && (
-          <DefaultStep {...props} amount={baseAmount} />
+          <DefaultStep
+            {...props}
+            amount={baseAmount}
+          />
         )}
         {step === Step.SUCCESS && (
-          <SuccessStep {...props} amount={baseAmount} />
+          <SuccessStep
+            {...props}
+            amount={baseAmount}
+          />
         )}
       </DrawerContent>
     </Drawer>
@@ -170,7 +185,10 @@ export function NewOrderStepper({
   }
 >) {
   return (
-    <StepperProvider open={open} setOpen={setOpen}>
+    <StepperProvider
+      open={open}
+      setOpen={setOpen}
+    >
       <NewOrderStepperInner {...props}>{children}</NewOrderStepperInner>
     </StepperProvider>
   )

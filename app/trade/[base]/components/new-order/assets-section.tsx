@@ -23,21 +23,27 @@ export function AssetsSectionWithDepositButton({
   const quoteToken = Token.findByTicker(quote)
   const { data } = useWallet({
     query: {
-      select: data =>
-        !data.balances.find(balance => balance.mint === baseToken.address)
+      select: (data) =>
+        !data.balances.find((balance) => balance.mint === baseToken.address)
           ?.amount &&
-        !data.balances.find(balance => balance.mint === quoteToken.address)
+        !data.balances.find((balance) => balance.mint === quoteToken.address)
           ?.amount,
     },
   })
   return (
     <div className="flex">
       <div className="flex-1">
-        <AssetsSection base={base} quote={quote} />
+        <AssetsSection
+          base={base}
+          quote={quote}
+        />
       </div>
       {data && (
         <TransferDialog mint={baseToken.address}>
-          <Button variant="outline" className="ml-6 h-full font-extended">
+          <Button
+            variant="outline"
+            className="ml-6 h-full font-extended"
+          >
             Deposit
           </Button>
         </TransferDialog>
@@ -60,12 +66,12 @@ export function AssetsSection({
 
   const { data, status } = useWallet({
     query: {
-      select: data => ({
+      select: (data) => ({
         [baseToken.address]: data.balances.find(
-          balance => balance.mint === baseToken.address,
+          (balance) => balance.mint === baseToken.address,
         )?.amount,
         [quoteToken.address]: data.balances.find(
-          balance => balance.mint === quoteToken.address,
+          (balance) => balance.mint === quoteToken.address,
         )?.amount,
       }),
     },
@@ -95,12 +101,15 @@ export function AssetsSection({
     <>
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
-          <TokenIcon ticker={base} size={16} />
+          <TokenIcon
+            ticker={base}
+            size={16}
+          />
           <TransferDialog mint={baseToken.address}>
             <Button
               variant="link"
               className="text-md h-fit p-0 text-muted-foreground"
-              onClick={e => {
+              onClick={(e) => {
                 if (renegadeStatus !== "in relayer") e.preventDefault()
               }}
             >
@@ -119,12 +128,15 @@ export function AssetsSection({
       </div>
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
-          <TokenIcon ticker={quote} size={16} />
+          <TokenIcon
+            ticker={quote}
+            size={16}
+          />
           <TransferDialog mint={quoteToken.address}>
             <Button
               variant="link"
               className="text-md h-fit p-0 text-muted-foreground"
-              onClick={e => {
+              onClick={(e) => {
                 if (renegadeStatus !== "in relayer") e.preventDefault()
               }}
             >

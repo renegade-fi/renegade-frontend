@@ -29,7 +29,11 @@ export function NewOrderPanel({
         isUSDCDenominated={isUSDCDenominated}
       />
       <div className="px-6">
-        <Button variant="link" className="p-0 text-muted-foreground" size="sm">
+        <Button
+          variant="link"
+          className="p-0 text-muted-foreground"
+          size="sm"
+        >
           <Lock className="mr-2 h-3 w-3" />
           All orders are pre-trade and post-trade private.
         </Button>

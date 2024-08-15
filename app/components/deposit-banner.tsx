@@ -14,7 +14,7 @@ export function DepositBanner() {
   const [isClosed, setIsClosed] = useLocalStorage(STORAGE_DEPOSIT_BANNER, false)
   const { data } = useWallet({
     query: {
-      select: data => data.balances.length,
+      select: (data) => data.balances.length,
     },
   })
   if (data === 0 && !isClosed) {
@@ -24,7 +24,10 @@ export function DepositBanner() {
           Welcome to Renegade! Deposit your Arbitrum tokens to get started.
         </div>
         <TransferDialog>
-          <Button className="text-blue" variant="link">
+          <Button
+            className="text-blue"
+            variant="link"
+          >
             Deposit now
             <ArrowRight className="ml-1 h-4 w-4" />
           </Button>

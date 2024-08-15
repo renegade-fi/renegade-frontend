@@ -25,7 +25,7 @@ export function usePrepareCreateOrder(
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
     if (!isSuccess) return ""
-    if (wallet.orders.filter(order => order.amount).length >= MAX_ORDERS)
+    if (wallet.orders.filter((order) => order.amount).length >= MAX_ORDERS)
       return ""
     return config.utils.new_order(
       stringifyForWasm(wallet),

@@ -51,7 +51,7 @@ export function SignInDialog({
       {
         async onSuccess(data) {
           console.log("signed message: ", data)
-          config.setState(x => ({ ...x, seed: data }))
+          config.setState((x) => ({ ...x, seed: data }))
           connect(
             {},
             {
@@ -80,7 +80,10 @@ export function SignInDialog({
     )
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="gap-0 p-0 sm:max-w-[425px]">
         <DialogHeader className="p-6">
           <DialogTitle className="font-extended">

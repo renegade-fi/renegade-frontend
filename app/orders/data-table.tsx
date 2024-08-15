@@ -51,7 +51,7 @@ const sides = [
   { value: "sell", label: "Sell" },
 ]
 
-const tokens = DISPLAY_TOKENS().map(token => ({
+const tokens = DISPLAY_TOKENS().map((token) => ({
   value: token.address,
   label: token.ticker,
 }))
@@ -172,14 +172,14 @@ export function DataTable<TData, TValue>({
               <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
               {table
                 .getAllColumns()
-                .filter(column => column.getCanHide())
-                .map(column => {
+                .filter((column) => column.getCanHide())
+                .map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
-                      onCheckedChange={value =>
+                      onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
                       }
                     >
@@ -194,9 +194,9 @@ export function DataTable<TData, TValue>({
       <div className="border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -213,7 +213,7 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => {
+              table.getRowModel().rows.map((row) => {
                 return (
                   <OrderDetailsSheet
                     key={row.id}
@@ -223,7 +223,7 @@ export function DataTable<TData, TValue>({
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                     >
-                      {row.getVisibleCells().map(cell => (
+                      {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -236,7 +236,10 @@ export function DataTable<TData, TValue>({
                 )
               })
             ) : (
-              <TableEmptyState colSpan={columns.length} type="orders" />
+              <TableEmptyState
+                colSpan={columns.length}
+                type="orders"
+              />
             )}
           </TableBody>
         </Table>
@@ -244,7 +247,11 @@ export function DataTable<TData, TValue>({
       {table.getRowModel().rows.length > 0 ? (
         isTradePage ? (
           <div className="flex flex-row-reverse pt-4">
-            <Button asChild size="sm" variant="outline">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+            >
               <Link href="/orders">View all</Link>
             </Button>
           </div>

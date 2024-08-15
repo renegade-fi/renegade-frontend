@@ -51,7 +51,7 @@ const taskStates: { value: string; label: string }[] = [
   { value: "Failed", label: "Failed" },
 ]
 
-const tokens = DISPLAY_TOKENS().map(token => ({
+const tokens = DISPLAY_TOKENS().map((token) => ({
   value: token.address,
   label: token.ticker,
 }))
@@ -171,7 +171,7 @@ export function DataTable<TData, TValue>({
             <DropdownMenuLabel>Display</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
               checked={isLongFormat}
-              onCheckedChange={value => setIsLongFormat(!!value)}
+              onCheckedChange={(value) => setIsLongFormat(!!value)}
             >
               Long format
             </DropdownMenuCheckboxItem>
@@ -181,9 +181,9 @@ export function DataTable<TData, TValue>({
       <div className="border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -200,13 +200,13 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => {
+              table.getRowModel().rows.map((row) => {
                 return (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                   >
-                    {row.getVisibleCells().map(cell => (
+                    {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,

@@ -56,7 +56,7 @@ export const PriceStoreProvider: React.FC<
     `wss://${process.env.NEXT_PUBLIC_PRICE_REPORTER_URL}:4000`,
     {
       filter: () => false,
-      onMessage: event => {
+      onMessage: (event) => {
         const data = JSON.parse(event.data)
 
         if (data.topic && data.price) {
@@ -73,7 +73,7 @@ export const PriceStoreProvider: React.FC<
             )
 
             if (currentTime - lastUpdatedTime > randomDelay) {
-              store.setState(state => ({
+              store.setState((state) => ({
                 ...state,
                 prices: new Map(state.prices).set(topic, price),
                 lastUpdated: new Map(state.lastUpdated).set(topic, currentTime),
@@ -82,7 +82,7 @@ export const PriceStoreProvider: React.FC<
           }
         }
         if (data.subscriptions) {
-          store.setState(state => ({
+          store.setState((state) => ({
             ...state,
             subscriptions: new Set(data.subscriptions),
           }))
@@ -142,7 +142,7 @@ export const usePrice = ({
   const { store, handleSubscribe } = context
   const quoteAddress = DEFAULT_QUOTE[exchange]
   const topic = constructPriceTopic({ exchange, baseAddress })
-  const price = useStore(store, state => state.prices.get(topic))
+  const price = useStore(store, (state) => state.prices.get(topic))
 
   useEffect(() => {
     handleSubscribe({ exchange, baseAddress })
@@ -172,7 +172,7 @@ export const usePrices = () => {
   }
 
   const { store } = context
-  return useStore(store, state => state.prices)
+  return useStore(store, (state) => state.prices)
 }
 
 export const useLastUpdated = ({
@@ -188,7 +188,7 @@ export const useLastUpdated = ({
   }
   const { store } = context
   const topic = `${exchange}-${baseAddress}-${DEFAULT_QUOTE[exchange]}`
-  return useStore(store, state => state.lastUpdated.get(topic)) ?? 0
+  return useStore(store, (state) => state.lastUpdated.get(topic)) ?? 0
 }
 
 export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {

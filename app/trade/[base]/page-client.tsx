@@ -48,7 +48,7 @@ export function PageClient({
 
   const { data } = useOrderHistory({
     query: {
-      select: data => Array.from(data?.values() || []),
+      select: (data) => Array.from(data?.values() || []),
     },
   })
 
@@ -78,7 +78,10 @@ export function PageClient({
             <ResizableHandle />
           </>
         )}
-        <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
+        <ResizablePanel
+          defaultSize={defaultLayout[1]}
+          order={2}
+        >
           <main>
             <div className="overflow-auto">
               <PriceChartMemo base={base} />

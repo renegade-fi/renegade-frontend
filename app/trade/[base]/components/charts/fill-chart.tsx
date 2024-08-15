@@ -54,7 +54,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
   const token = Token.findByAddress(order.data.base_mint)
 
   const formattedFills = order.fills
-    .map(fill => ({
+    .map((fill) => ({
       timestamp: Number(fill.price.timestamp) * 1000,
       amount: Number(formatNumber(fill.amount, token.decimals)),
       price: Number(fill.price.price),
@@ -108,7 +108,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     if (!ohlc || !ohlc.length) return []
 
     if (formattedFills.length === 1) {
-      const fills = formattedFills.map(fill => {
+      const fills = formattedFills.map((fill) => {
         return {
           timestamp: fill.timestamp.toString(),
           fillPrice: fill.price,
@@ -116,7 +116,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
         }
       })
 
-      const prices = ohlc.map(bar => {
+      const prices = ohlc.map((bar) => {
         return {
           timestamp: bar.time.toString(),
           price: bar.close,
@@ -129,9 +129,9 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       )
     }
 
-    const fills = formattedFills.map(fill => {
+    const fills = formattedFills.map((fill) => {
       const adjustedTimestamp = Math.floor(fill.timestamp / 60000) * 60000
-      const bar = ohlc.find(bar => bar.time === adjustedTimestamp)
+      const bar = ohlc.find((bar) => bar.time === adjustedTimestamp)
       return {
         timestamp: fill.timestamp.toString(),
         fillPrice: fill.price,
@@ -139,7 +139,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       }
     })
 
-    const prices = ohlc.map(bar => {
+    const prices = ohlc.map((bar) => {
       return {
         timestamp: bar.time.toString(),
         price: order.data.side === "Sell" ? bar.low : bar.high,
@@ -182,7 +182,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     [chartData],
   )
 
-  const firstFillIndex = chartData.findIndex(item => item.fillPrice)
+  const firstFillIndex = chartData.findIndex((item) => item.fillPrice)
 
   return (
     <Card className="border-0">
@@ -239,7 +239,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
               content={
                 <ChartTooltipContent
                   className="w-[200px]"
-                  labelFormatter={value => {
+                  labelFormatter={(value) => {
                     return new Date(Number(value)).toLocaleDateString("en-US", {
                       day: "numeric",
                       hour: "numeric",

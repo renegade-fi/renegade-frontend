@@ -32,12 +32,12 @@ export function AmountShortcutButton({
   const quoteToken = Token.findByTicker("USDC")
   const { data } = useWallet({
     query: {
-      select: data => ({
+      select: (data) => ({
         [baseToken.address]: data.balances.find(
-          balance => balance.mint === baseToken.address,
+          (balance) => balance.mint === baseToken.address,
         )?.amount,
         [quoteToken.address]: data.balances.find(
-          balance => balance.mint === quoteToken.address,
+          (balance) => balance.mint === quoteToken.address,
         )?.amount,
       }),
     },
@@ -135,7 +135,7 @@ export function AmountShortcutButton({
     <Button
       variant="outline"
       className={cn(className)}
-      onClick={e => {
+      onClick={(e) => {
         e.preventDefault()
         if (formattedShortcut) {
           onSetAmount(formattedShortcut)

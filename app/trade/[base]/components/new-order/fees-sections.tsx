@@ -28,7 +28,7 @@ export function FeesSection({
     <>
       <div className={cn("flex justify-between transition-colors")}>
         <Tooltip>
-          <TooltipTrigger onClick={e => e.preventDefault()}>
+          <TooltipTrigger onClick={(e) => e.preventDefault()}>
             <span className="text-muted-foreground">Fee</span>
           </TooltipTrigger>
           <TooltipContent>

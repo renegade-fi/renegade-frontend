@@ -24,7 +24,7 @@ export function useDeposit({
   const { data: walletClient } = useWalletClient()
   const { data: taskHistory } = useTaskHistory()
   const isQueue = Array.from(taskHistory?.values() || []).find(
-    task => task.state !== "Completed" && task.state !== "Failed",
+    (task) => task.state !== "Completed" && task.state !== "Failed",
   )
 
   async function handleDeposit({
@@ -59,7 +59,7 @@ export function useDeposit({
       permit: signature,
     })
       .then(onSuccess)
-      .catch(e => {
+      .catch((e) => {
         toast.error(
           FAILED_DEPOSIT_MSG(
             token,

@@ -1,6 +1,6 @@
 /** @type {import("prettier").Options} */
 const config = {
-  arrowParens: "avoid",
+  arrowParens: "always",
   bracketSameLine: false,
   bracketSpacing: true,
   embeddedLanguageFormatting: "auto",
@@ -28,7 +28,7 @@ const config = {
   quoteProps: "as-needed",
   requirePragma: false,
   semi: false,
-  singleAttributePerLine: false,
+  singleAttributePerLine: true,
   singleQuote: false,
   tabWidth: 2,
   tailwindAttributes: ["class", "className", "ngClass", ".*[cC]lassName"],

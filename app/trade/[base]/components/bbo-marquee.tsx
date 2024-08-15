@@ -31,10 +31,13 @@ export function BBOMarquee({ base }: { base: string }) {
           <p className="font-sans">{BBO_TOOLTIP}</p>
         </TooltipContent>
       </Tooltip>
-      {exchanges.map(exchange => (
+      {exchanges.map((exchange) => (
         <Fragment key={exchange}>
           <span className="text-xs">•</span>
-          <a href={constructExchangeUrl(exchange, base)} target="_blank">
+          <a
+            href={constructExchangeUrl(exchange, base)}
+            target="_blank"
+          >
             <div className="flex justify-center gap-4">
               <span>{names[exchange]}</span>
               <AnimatedPrice

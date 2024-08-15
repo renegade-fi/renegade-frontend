@@ -13,7 +13,10 @@ export function TokensMarquee() {
     >
       {DISPLAY_TOKENS({ hideStables: true, hideHidden: true }).map(
         (token, index) => (
-          <div className="flex items-center gap-8" key={index}>
+          <div
+            className="flex items-center gap-8"
+            key={index}
+          >
             <Link href={`/trade/${token.ticker}`}>
               <span className="space-x-4">
                 <span>{token.ticker}</span>

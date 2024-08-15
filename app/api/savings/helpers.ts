@@ -163,20 +163,20 @@ export async function constructBinanceOrderbook(
     bids: {},
     asks: {},
   }
-  snapshot.bid.forEach(level => {
+  snapshot.bid.forEach((level) => {
     orderbookMap.bids[level.price] = level.volume
   })
-  snapshot.ask.forEach(level => {
+  snapshot.ask.forEach((level) => {
     orderbookMap.asks[level.price] = level.volume
   })
 
   // Apply the updates to the map
   // (they are given in ascending order by time, i.e. most recent is last)
-  updates.forEach(update => {
-    update.bid.forEach(level => {
+  updates.forEach((update) => {
+    update.bid.forEach((level) => {
       orderbookMap.bids[level.price] = level.volume
     })
-    update.ask.forEach(level => {
+    update.ask.forEach((level) => {
       orderbookMap.asks[level.price] = level.volume
     })
   })

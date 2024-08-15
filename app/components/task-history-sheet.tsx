@@ -31,7 +31,10 @@ export function TaskHistorySheet({ children }: { children: React.ReactNode }) {
   const { data } = useTaskHistory()
   const content = Array.from(data?.values() || []).map(deriveContent)
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="p-0 sm:w-[404px] sm:max-w-[404px]">
         <SheetHeader>

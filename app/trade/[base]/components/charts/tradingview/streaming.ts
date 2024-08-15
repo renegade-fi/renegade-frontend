@@ -21,17 +21,17 @@ const channelToSubscription = new Map<string, SubscriptionItem>()
 function createWebSocket() {
   socket = new WebSocket(process.env.NEXT_PUBLIC_AMBERDATA_PROXY_URL)
 
-  socket.addEventListener("open", event => {
+  socket.addEventListener("open", (event) => {
     console.log("WebSocket is open now.")
     isConnected = true
     resubscribeAll()
   })
 
-  socket.addEventListener("message", event => {
+  socket.addEventListener("message", (event) => {
     console.log("Message from server ", event.data)
   })
 
-  socket.addEventListener("close", event => {
+  socket.addEventListener("close", (event) => {
     console.log("WebSocket is closed now.")
     isConnected = false
     setTimeout(() => {
@@ -40,11 +40,11 @@ function createWebSocket() {
     }, RECONNECT_INTERVAL)
   })
 
-  socket.addEventListener("error", event => {
+  socket.addEventListener("error", (event) => {
     console.error("WebSocket error observed:", event)
   })
 
-  socket.onmessage = event => {
+  socket.onmessage = (event) => {
     const parsedMessage = JSON.parse(event.data)
     const topic = parsedMessage.topic
     const data = parsedMessage.data
@@ -189,7 +189,7 @@ export function unsubscribeFromStream(subscriberUID: string) {
       continue
     }
     const handlerIndex = subscriptionItem.handlers.findIndex(
-      handler => handler.id === subscriberUID,
+      (handler) => handler.id === subscriberUID,
     )
 
     if (handlerIndex !== -1) {

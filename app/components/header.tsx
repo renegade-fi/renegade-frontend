@@ -42,7 +42,10 @@ export function Header() {
                 />
               </Link>
             </ContextMenuTrigger>
-            <ContextMenuContent alignOffset={1000} className="rounded-none">
+            <ContextMenuContent
+              alignOffset={1000}
+              className="rounded-none"
+            >
               <ContextMenuItem
                 className="rounded-none font-extended"
                 onClick={() => {
@@ -93,7 +96,10 @@ export function Header() {
                 </Button>
               </TaskHistorySheet> */}
               <TransferDialog>
-                <Button className="font-extended" variant="outline">
+                <Button
+                  className="font-extended"
+                  variant="outline"
+                >
                   Deposit
                 </Button>
               </TransferDialog>

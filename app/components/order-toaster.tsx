@@ -16,7 +16,7 @@ import { formatNumber } from "@/lib/format"
 export function OrderToaster() {
   const [incomingOrder, setIncomingOrder] = React.useState<OrderMetadata>()
   useOrderHistoryWebSocket({
-    onUpdate: order => {
+    onUpdate: (order) => {
       setIncomingOrder(order)
     },
   })
@@ -30,7 +30,7 @@ export function OrderToaster() {
 
   React.useEffect(() => {
     if (data && orderMetadataRef.current.size === 0) {
-      data.forEach(order => {
+      data.forEach((order) => {
         orderMetadataRef.current.set(order.id, order)
       })
     }

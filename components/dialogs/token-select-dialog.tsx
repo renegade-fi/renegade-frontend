@@ -41,7 +41,10 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}
+      >
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="max-h-[70vh] p-0 sm:max-w-[425px]">
           <DialogHeader className="space-y-4 px-6 pt-6">
@@ -50,12 +53,15 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
               <Input
                 placeholder="Search name"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[50vh] min-h-[50vh]">
-            <TokenList enabled={open} searchTerm={debouncedSearchTerm} />
+            <TokenList
+              enabled={open}
+              searchTerm={debouncedSearchTerm}
+            />
           </ScrollArea>
         </DialogContent>
       </Dialog>
@@ -63,7 +69,10 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+    >
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
@@ -73,7 +82,10 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
           </DrawerDescription>
         </DrawerHeader>
         <ScrollArea className="max-h-[50vh] overflow-auto">
-          <TokenList enabled={open} searchTerm={debouncedSearchTerm} />
+          <TokenList
+            enabled={open}
+            searchTerm={debouncedSearchTerm}
+          />
         </ScrollArea>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
@@ -95,11 +107,11 @@ function TokenList({
   const renegadeStatus = useStatus()
   const { data, status } = useWallet({
     query: {
-      select: data =>
+      select: (data) =>
         new Map(
           data.balances
-            .filter(balance => !!fromHex(balance.mint, "number"))
-            .map(balance => [balance.mint, balance.amount]),
+            .filter((balance) => !!fromHex(balance.mint, "number"))
+            .map((balance) => [balance.mint, balance.amount]),
         ),
       enabled,
     },
@@ -117,7 +129,7 @@ function TokenList({
   })
 
   const filteredTokens = sortedTokens.filter(
-    token =>
+    (token) =>
       token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       token.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
   )
@@ -132,7 +144,10 @@ function TokenList({
               ? "--"
               : formatNumber(balance ?? BigInt(0), token.decimals, true)
           return (
-            <Link href={`/trade/${token.ticker}`} key={token.address}>
+            <Link
+              href={`/trade/${token.ticker}`}
+              key={token.address}
+            >
               <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground">
                 <TokenIcon ticker={token.ticker} />
                 <div>

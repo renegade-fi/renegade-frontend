@@ -38,7 +38,10 @@ export function Footer() {
                 priority
               />
             </ContextMenuTrigger>
-            <ContextMenuContent alignOffset={1000} className="rounded-none">
+            <ContextMenuContent
+              alignOffset={1000}
+              className="rounded-none"
+            >
               <ContextMenuItem
                 className="rounded-none font-extended"
                 onClick={() => {
@@ -50,7 +53,10 @@ export function Footer() {
             </ContextMenuContent>
           </ContextMenu>
           <Tooltip>
-            <TooltipTrigger asChild className="cursor-pointer">
+            <TooltipTrigger
+              asChild
+              className="cursor-pointer"
+            >
               <Button
                 className="ml-4 font-extended"
                 variant="outline"
@@ -82,8 +88,15 @@ export function Footer() {
           </Tooltip>
         </div>
         <div className="ml-auto pr-20 text-xs">
-          <Button asChild variant="ghost" size="icon">
-            <a href="https://x.com/renegade_fi" target="_blank">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+          >
+            <a
+              href="https://x.com/renegade_fi"
+              target="_blank"
+            >
               <Image
                 alt="x"
                 height="12"
@@ -92,8 +105,15 @@ export function Footer() {
               />
             </a>
           </Button>
-          <Button size="icon" variant="ghost" asChild>
-            <a href="https://github.com/renegade-fi/" target="_blank">
+          <Button
+            size="icon"
+            variant="ghost"
+            asChild
+          >
+            <a
+              href="https://github.com/renegade-fi/"
+              target="_blank"
+            >
               <Image
                 alt="x"
                 height="12"
@@ -102,8 +122,15 @@ export function Footer() {
               />
             </a>
           </Button>
-          <Button variant="ghost" asChild size="icon">
-            <a href="https://discord.com/invite/renegade-fi" target="_blank">
+          <Button
+            variant="ghost"
+            asChild
+            size="icon"
+          >
+            <a
+              href="https://discord.com/invite/renegade-fi"
+              target="_blank"
+            >
               <Image
                 alt="x"
                 height="12"
@@ -112,8 +139,15 @@ export function Footer() {
               />
             </a>
           </Button>
-          <Button size="icon" variant="ghost" asChild>
-            <a href="https://renegade.fi/docs" target="_blank">
+          <Button
+            size="icon"
+            variant="ghost"
+            asChild
+          >
+            <a
+              href="https://renegade.fi/docs"
+              target="_blank"
+            >
               <Book className="h-3 w-3" />
             </a>
           </Button>

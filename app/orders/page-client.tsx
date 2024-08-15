@@ -17,7 +17,7 @@ export interface OrderData extends OrderMetadata {
 export function PageClient() {
   const { data } = useOrderHistory({
     query: {
-      select: data => Array.from(data?.values() || []),
+      select: (data) => Array.from(data?.values() || []),
     },
   })
   const prices = usePrices()
@@ -26,7 +26,7 @@ export function PageClient() {
     baseAddress: Token.findByTicker("USDC").address,
   })
   const orderData: OrderData[] =
-    data?.map(order => {
+    data?.map((order) => {
       const priceTopic = constructPriceTopic({
         baseAddress: order.data.base_mint,
       })
@@ -49,7 +49,10 @@ export function PageClient() {
             Your private orders. Only you and your connected relayer can see
             these values.
           </div>
-          <DataTable columns={columns} data={orderData} />
+          <DataTable
+            columns={columns}
+            data={orderData}
+          />
         </div>
       </div>
     </main>

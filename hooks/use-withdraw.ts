@@ -29,9 +29,9 @@ export function useWithdraw({
   const config = useConfig()
   const { data: isQueue } = useTaskHistory({
     query: {
-      select: data =>
+      select: (data) =>
         Array.from(data.values()).some(
-          task => task.state !== "Completed" && task.state !== "Failed",
+          (task) => task.state !== "Completed" && task.state !== "Failed",
         ),
     },
   })
@@ -64,7 +64,7 @@ export function useWithdraw({
       destinationAddr: address,
     })
       .then(onSuccess)
-      .catch(e => {
+      .catch((e) => {
         toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount), {
           id,
         })

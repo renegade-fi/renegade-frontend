@@ -24,7 +24,10 @@ export const columns: ColumnDef<BalanceData>[] = [
       const token = Token.findByAddress(mint)
       return (
         <div className="flex items-center gap-2">
-          <TokenIcon size={20} ticker={token.ticker} />
+          <TokenIcon
+            size={20}
+            ticker={token.ticker}
+          />
           {token.name}
         </div>
       )
@@ -32,7 +35,7 @@ export const columns: ColumnDef<BalanceData>[] = [
   },
   {
     id: "l2UsdValue",
-    accessorFn: row => row.l2UsdValue,
+    accessorFn: (row) => row.l2UsdValue,
     header: ({ column }) => (
       <div className="flex flex-row-reverse">
         <Button
@@ -110,7 +113,7 @@ export const columns: ColumnDef<BalanceData>[] = [
   },
   {
     id: "renegadeUsdValue",
-    accessorFn: row => row.renegadeUsdValue,
+    accessorFn: (row) => row.renegadeUsdValue,
     header: ({ column }) => (
       <div className="flex flex-row-reverse">
         <Button
