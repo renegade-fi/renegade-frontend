@@ -27,8 +27,10 @@ import { columns as historyColumns } from "./history-table/columns"
 
 export type BalanceData = {
   mint: `0x${string}`
-  renegadeBalance: string
-  l2Balance: string
+  rawRenegadeBalance: bigint
+  renegadeBalance: number
+  rawL2Balance: bigint
+  l2Balance: number
   l2UsdValue: string
   renegadeUsdValue: string
 }
@@ -51,7 +53,6 @@ export function PageClient() {
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
     React.useState(true)
   const [showZeroL2Balance, setShowZeroL2Balance] = React.useState(true)
-  const [isLongFormat, setIsLongFormat] = React.useState(false)
 
   const { address } = useAccount()
   const { data: l2Balances, queryKey } = useReadContracts({
@@ -100,24 +101,19 @@ export function PageClient() {
 
         return {
           mint: token.address,
-          renegadeBalance: formatNumber(
-            renegadeBalance,
-            t.decimals,
-            isLongFormat,
-          ),
+          rawRenegadeBalance: renegadeBalance,
+          renegadeBalance: Number(formatUnits(renegadeBalance, t.decimals)),
           renegadeUsdValue,
-          l2Balance: formatNumber(l2Balance, t.decimals, isLongFormat),
+          rawL2Balance: l2Balance,
+          l2Balance: Number(formatUnits(l2Balance, t.decimals)),
           l2UsdValue,
         }
       })
+      .filter(balance => (!showZeroL2Balance ? balance.l2Balance !== 0 : true))
       .filter(balance =>
-        !showZeroL2Balance ? balance.l2Balance !== "0" : true,
-      )
-      .filter(balance =>
-        !showZeroRenegadeBalance ? balance.renegadeBalance !== "0" : true,
+        !showZeroRenegadeBalance ? balance.renegadeBalance !== 0 : true,
       )
   }, [
-    isLongFormat,
     l2Balances,
     prices,
     renegadeBalances,
@@ -167,8 +163,6 @@ export function PageClient() {
           <AssetTable
             columns={assetColumns}
             data={balances}
-            isLongFormat={isLongFormat}
-            setIsLongFormat={setIsLongFormat}
             setShowZeroL2Balance={setShowZeroL2Balance}
             setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
             showZeroL2Balance={showZeroL2Balance}
