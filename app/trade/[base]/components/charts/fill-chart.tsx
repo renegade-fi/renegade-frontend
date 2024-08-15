@@ -55,7 +55,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
   const formattedFills = order.fills
     .map((fill) => ({
-      timestamp: Number(fill.price.timestamp) * 1000,
+      timestamp: Number(fill.price.timestamp),
       amount: Number(formatNumber(fill.amount, token.decimals)),
       price: Number(fill.price.price),
     }))

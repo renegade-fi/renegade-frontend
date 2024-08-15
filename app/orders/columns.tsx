@@ -6,6 +6,7 @@ import { OrderData } from "@/app/orders/page-client"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import {
@@ -13,6 +14,7 @@ import {
   formatCurrencyFromString,
   formatNumber,
   formatOrderStateForTable,
+  formatPercentage,
   formatTimestamp,
 } from "@/lib/format"
 
@@ -175,40 +177,32 @@ export const columns: ColumnDef<OrderData>[] = [
     accessorFn: (row) => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
-    header: ({ column }) => {
-      return (
-        <div className="flex flex-row-reverse">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const isSorted = column.getIsSorted()
-              if (isSorted === "desc") {
-                column.toggleSorting(false)
-              } else if (isSorted === "asc") {
-                column.clearSorting()
-              } else {
-                column.toggleSorting(true)
-              }
-            }}
-          >
-            Filled Size
-            {column.getIsSorted() === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      )
-    },
+    header: () => <div className="w-[100px]">Filled</div>,
     cell: ({ row }) => {
-      const size = row.getValue<bigint>("filled size")
-      const mint = row.getValue<`0x${string}`>("asset")
-      const decimals = Token.findByAddress(mint).decimals
-      const formatted = formatNumber(size, decimals)
-      return <div className="pr-4 text-right">{formatted}</div>
+      const filledAmount = row.getValue<bigint>("filled size")
+      const totalAmount = row.getValue<bigint>("size")
+      const percentageFilled =
+        totalAmount > BigInt(0)
+          ? (filledAmount * BigInt(100)) / totalAmount
+          : BigInt(0)
+
+      const percentageFilledNumber = Number(percentageFilled)
+      const percentageFilledLabel = formatPercentage(
+        Number(filledAmount),
+        Number(totalAmount),
+      )
+      return (
+        <>
+          {percentageFilledNumber ? (
+            <div className="flex items-center justify-between gap-2">
+              <Progress value={percentageFilledNumber} />
+              <div className="text-right text-sm">{percentageFilledLabel}</div>
+            </div>
+          ) : (
+            <div className="flex justify-end">--</div>
+          )}
+        </>
+      )
     },
   },
   {
