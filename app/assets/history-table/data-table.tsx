@@ -12,18 +12,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { Settings2 } from "lucide-react"
 
 import { TableEmptyState } from "@/components/table-empty-state"
 import { TableSelect } from "@/components/table-select"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -38,8 +32,6 @@ import { DISPLAY_TOKENS } from "@/lib/token"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  isLongFormat: boolean
-  setIsLongFormat: (value: boolean) => void
   initialIsWithdrawal?: string
   initialStatus?: string
   initialMint?: string
@@ -51,7 +43,7 @@ const taskStates: { value: string; label: string }[] = [
   { value: "Failed", label: "Failed" },
 ]
 
-const tokens = DISPLAY_TOKENS().map((token) => ({
+const tokens = DISPLAY_TOKENS().map(token => ({
   value: token.address,
   label: token.ticker,
 }))
@@ -64,8 +56,6 @@ const types = [
 export function DataTable<TData, TValue>({
   columns,
   data,
-  isLongFormat,
-  setIsLongFormat,
   initialIsWithdrawal,
   initialStatus,
   initialMint,
@@ -88,6 +78,7 @@ export function DataTable<TData, TValue>({
   )
   const [status, setStatus] = React.useState(initialStatus ?? "")
   const [mint, setMint] = React.useState(initialMint ?? "")
+  const [isLongFormat, setIsLongFormat] = React.useState(false)
 
   const table = useReactTable({
     columns,
@@ -105,6 +96,9 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       sorting,
+    },
+    meta: {
+      isLongFormat,
     },
   })
 
@@ -156,34 +150,20 @@ export function DataTable<TData, TValue>({
             Clear
           </Button>
         ) : null}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="ml-auto text-muted-foreground"
-            >
-              <Settings2 className="mr-2 h-4 w-4 text-muted-foreground" />
-              View
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Display</DropdownMenuLabel>
-            <DropdownMenuCheckboxItem
-              checked={isLongFormat}
-              onCheckedChange={(value) => setIsLongFormat(!!value)}
-            >
-              Long format
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="ml-auto flex items-center space-x-2">
+          <Switch
+            checked={isLongFormat}
+            onCheckedChange={value => setIsLongFormat(!!value)}
+          />
+          <Label htmlFor="long-format">Show decimals</Label>
+        </div>
       </div>
       <div className="border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -200,13 +180,13 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => {
+              table.getRowModel().rows.map(row => {
                 return (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                   >
-                    {row.getVisibleCells().map((cell) => (
+                    {row.getVisibleCells().map(cell => (
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,

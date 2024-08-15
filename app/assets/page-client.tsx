@@ -17,7 +17,6 @@ import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/da
 
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { formatNumber } from "@/lib/format"
 import { erc20Abi } from "@/lib/generated"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { constructPriceTopic, usePrice, usePrices } from "@/stores/price-store"
@@ -38,7 +37,8 @@ export type BalanceData = {
 export type HistoryData = {
   status: string
   mint: `0x${string}`
-  amount: string
+  amount: number
+  rawAmount: bigint
   timestamp: number
   isWithdrawal: UpdateType
 }
@@ -46,8 +46,8 @@ export type HistoryData = {
 export function PageClient() {
   const { data: renegadeBalances } = useWallet({
     query: {
-      select: (data) =>
-        new Map(data.balances.map((balance) => [balance.mint, balance.amount])),
+      select: data =>
+        new Map(data.balances.map(balance => [balance.mint, balance.amount])),
     },
   })
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
@@ -56,7 +56,7 @@ export function PageClient() {
 
   const { address } = useAccount()
   const { data: l2Balances, queryKey } = useReadContracts({
-    contracts: DISPLAY_TOKENS().map((token) => ({
+    contracts: DISPLAY_TOKENS().map(token => ({
       address: token.address,
       abi: erc20Abi,
       functionName: "balanceOf",
@@ -82,7 +82,7 @@ export function PageClient() {
       ]),
     )
     return DISPLAY_TOKENS()
-      .map((token) => {
+      .map(token => {
         const t = Token.findByAddress(token.address)
 
         const renegadeBalance =
@@ -109,10 +109,8 @@ export function PageClient() {
           l2UsdValue,
         }
       })
-      .filter((balance) =>
-        !showZeroL2Balance ? balance.l2Balance !== 0 : true,
-      )
-      .filter((balance) =>
+      .filter(balance => (!showZeroL2Balance ? balance.l2Balance !== 0 : true))
+      .filter(balance =>
         !showZeroRenegadeBalance ? balance.renegadeBalance !== 0 : true,
       )
   }, [
@@ -126,7 +124,7 @@ export function PageClient() {
   // Transfer History Table Data
   const { data: transferHistory } = useTaskHistory({
     query: {
-      select: (data) => Array.from(data.values()),
+      select: data => Array.from(data.values()),
     },
   })
 
@@ -139,15 +137,11 @@ export function PageClient() {
           task.task_info.update_type === UpdateType.Withdraw)
       ) {
         const token = Token.findByAddress(task.task_info.mint)
-        const formattedAmount = formatNumber(
-          task.task_info.amount,
-          token.decimals,
-          historyIsLongFormat,
-        )
         acc.push({
           status: task.state,
           mint: task.task_info.mint,
-          amount: formattedAmount,
+          amount: Number(formatUnits(task.task_info.amount, token.decimals)),
+          rawAmount: task.task_info.amount,
           timestamp: Number(task.created_at),
           isWithdrawal: task.task_info.update_type,
         })
@@ -175,12 +169,7 @@ export function PageClient() {
           <h1 className="my-6 font-serif text-3xl font-bold">
             Transfer History
           </h1>
-          <TransferHistoryTable
-            columns={historyColumns}
-            data={historyData}
-            isLongFormat={historyIsLongFormat}
-            setIsLongFormat={setHistoryIsLongFormat}
-          />
+          <TransferHistoryTable columns={historyColumns} data={historyData} />
         </div>
       </div>
     </main>
