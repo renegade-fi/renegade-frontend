@@ -16,17 +16,12 @@ const nextConfig = {
     return config
   },
   images: {
-    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "assets-cdn.trustwallet.com",
         port: "",
         pathname: "/blockchains/ethereum/assets/**",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.simpleicons.org",
       },
     ],
   },

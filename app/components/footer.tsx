@@ -101,7 +101,7 @@ export function Footer() {
                 alt="x"
                 height="12"
                 width="12"
-                src="https://cdn.simpleicons.org/x/white?viewbox=auto"
+                src="/x.svg"
               />
             </a>
           </Button>
@@ -115,10 +115,10 @@ export function Footer() {
               target="_blank"
             >
               <Image
-                alt="x"
+                alt="github"
                 height="12"
                 width="12"
-                src="https://cdn.simpleicons.org/github/white?viewbox=auto"
+                src="/github.svg"
               />
             </a>
           </Button>
@@ -132,10 +132,10 @@ export function Footer() {
               target="_blank"
             >
               <Image
-                alt="x"
+                alt="discord"
                 height="12"
                 width="12"
-                src="https://cdn.simpleicons.org/discord/white?viewbox=auto"
+                src="/discord.svg"
               />
             </a>
           </Button>
