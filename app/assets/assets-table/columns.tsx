@@ -1,5 +1,5 @@
 import { Token } from "@renegade-fi/react"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 
 import { BalanceData } from "@/app/assets/page-client"
@@ -7,7 +7,13 @@ import { BalanceData } from "@/app/assets/page-client"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 
-import { formatCurrencyFromString } from "@/lib/format"
+import { formatCurrencyFromString, formatNumber } from "@/lib/format"
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    isLongFormat: boolean
+  }
+}
 
 export const columns: ColumnDef<BalanceData>[] = [
   {
@@ -88,9 +94,18 @@ export const columns: ColumnDef<BalanceData>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => {
-      const balance = row.getValue<string>("l2Balance")
-      return <div className="pr-4 text-right">{balance}</div>
+    cell: ({ row, table }) => {
+      const balance = row.original.rawL2Balance
+      const token = Token.findByAddress(row.original.mint)
+      return (
+        <div className="pr-4 text-right">
+          {formatNumber(
+            balance,
+            token.decimals,
+            table.options.meta?.isLongFormat,
+          )}
+        </div>
+      )
     },
   },
   {
@@ -157,9 +172,18 @@ export const columns: ColumnDef<BalanceData>[] = [
         </Button>
       </div>
     ),
-    cell: ({ row }) => {
-      const balance = row.getValue<string>("renegadeBalance")
-      return <div className="pr-4 text-right">{balance}</div>
+    cell: ({ row, table }) => {
+      const balance = row.original.rawRenegadeBalance
+      const token = Token.findByAddress(row.original.mint)
+      return (
+        <div className="pr-4 text-right">
+          {formatNumber(
+            balance,
+            token.decimals,
+            table.options.meta?.isLongFormat,
+          )}
+        </div>
+      )
     },
   },
 ]

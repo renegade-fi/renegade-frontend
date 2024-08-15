@@ -24,6 +24,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -40,15 +42,11 @@ interface DataTableProps<TData, TValue> {
   showZeroL2Balance: boolean
   setShowZeroRenegadeBalance: (value: boolean) => void
   setShowZeroL2Balance: (value: boolean) => void
-  isLongFormat: boolean
-  setIsLongFormat: (value: boolean) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  isLongFormat,
-  setIsLongFormat,
   setShowZeroL2Balance,
   setShowZeroRenegadeBalance,
   showZeroL2Balance,
@@ -67,6 +65,7 @@ export function DataTable<TData, TValue>({
       desc: true,
     },
   ])
+  const [isLongFormat, setIsLongFormat] = React.useState(false)
 
   const table = useReactTable({
     columns,
@@ -83,6 +82,9 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       sorting,
+    },
+    meta: {
+      isLongFormat,
     },
   })
 
@@ -118,14 +120,15 @@ export function DataTable<TData, TValue>({
             >
               Show zero Arbitrum Balance
             </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={isLongFormat}
-              onCheckedChange={value => setIsLongFormat(!!value)}
-            >
-              Long format
-            </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <div className="ml-4 flex items-center space-x-2">
+          <Switch
+            checked={isLongFormat}
+            onCheckedChange={value => setIsLongFormat(!!value)}
+          />
+          <Label htmlFor="long-format">Show decimals</Label>
+        </div>
       </div>
       <div className="border">
         <Table>
