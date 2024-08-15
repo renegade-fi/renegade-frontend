@@ -1,10 +1,18 @@
 "use client"
 
-import { useOrderHistory } from "@renegade-fi/react"
+import { OrderMetadata, Token, useOrderHistory } from "@renegade-fi/react"
+import { formatUnits } from "viem/utils"
 
 import { DataTable } from "@/app/orders/data-table"
 
+import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { constructPriceTopic, usePrices } from "@/stores/price-store"
+
 import { columns } from "./columns"
+
+export interface OrderData extends OrderMetadata {
+  usdValue: string
+}
 
 export function PageClient() {
   const { data } = useOrderHistory({
@@ -12,6 +20,22 @@ export function PageClient() {
       select: data => Array.from(data?.values() || []),
     },
   })
+  const prices = usePrices()
+  const orderData: OrderData[] =
+    data?.map(order => {
+      const priceTopic = constructPriceTopic({
+        baseAddress: order.data.base_mint,
+      })
+      const price = prices.get(priceTopic) || 0
+      const usdValueBigInt = amountTimesPrice(order.data.amount, price)
+      const decimals = Token.findByAddress(order.data.base_mint).decimals
+      const usdValue = formatUnits(usdValueBigInt, decimals)
+
+      return {
+        ...order,
+        usdValue,
+      }
+    }) || []
   return (
     <main>
       <div className="container">
@@ -21,7 +45,7 @@ export function PageClient() {
             Your private orders. Only you and your connected relayer can see
             these values.
           </div>
-          <DataTable columns={columns} data={data || []} />
+          <DataTable columns={columns} data={orderData} />
         </div>
       </div>
     </main>

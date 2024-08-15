@@ -1,6 +1,8 @@
-import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
+import { OrderState, Token } from "@renegade-fi/react"
 import { ColumnDef } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
+
+import { OrderData } from "@/app/orders/page-client"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -8,12 +10,13 @@ import { Button } from "@/components/ui/button"
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import {
   formatCurrency,
+  formatCurrencyFromString,
   formatNumber,
   formatOrderStateForTable,
   formatTimestamp,
 } from "@/lib/format"
 
-export const columns: ColumnDef<OrderMetadata>[] = [
+export const columns: ColumnDef<OrderData>[] = [
   // {
   //   id: 'select',
   //   header: ({ table }) => (
@@ -82,6 +85,44 @@ export const columns: ColumnDef<OrderMetadata>[] = [
           <TokenIcon size={20} ticker={token.ticker} />
           {token.ticker}
         </div>
+      )
+    },
+  },
+  {
+    id: "value",
+    accessorFn: row => Number(row.usdValue),
+    header: ({ column }) => {
+      return (
+        <div className="flex flex-row-reverse">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              const isSorted = column.getIsSorted()
+              if (isSorted === "desc") {
+                column.toggleSorting(false)
+              } else if (isSorted === "asc") {
+                column.clearSorting()
+              } else {
+                column.toggleSorting(true)
+              }
+            }}
+          >
+            Order Value
+            {column.getIsSorted() === "asc" ? (
+              <ChevronUp className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ChevronDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ChevronsUpDown className="ml-2 h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      )
+    },
+    cell: ({ row }) => {
+      const value = row.getValue<string>("value")
+      return (
+        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
       )
     },
   },

@@ -16,9 +16,7 @@ export function useUSDPrice<T extends boolean = true>(
 ): ReturnType<T> {
   const price = usePrice({ baseAddress: token.address })
   return React.useMemo(() => {
-    const priceBigInt = parseUnits(price.toString(), PRICE_DECIMALS)
-
-    const result = (amount * priceBigInt) / BigInt(10 ** PRICE_DECIMALS)
+    const result = amountTimesPrice(amount, price)
 
     if (result < MIN_FILL_SIZE) {
       return (
@@ -30,4 +28,9 @@ export function useUSDPrice<T extends boolean = true>(
       formatted ? formatUnits(result, token.decimals) : result
     ) as ReturnType<T>
   }, [amount, price, token.decimals, formatted])
+}
+
+export function amountTimesPrice(amount: bigint, price: number) {
+  const priceBigInt = parseUnits(price.toString(), PRICE_DECIMALS)
+  return (amount * priceBigInt) / BigInt(10 ** PRICE_DECIMALS)
 }
