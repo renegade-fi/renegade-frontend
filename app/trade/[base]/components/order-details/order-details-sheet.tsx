@@ -89,7 +89,7 @@ export function OrderDetailsSheet({
       index,
       amount,
       amountUSD: formatCurrency(fill.price.price * Number(amount)),
-      timestamp: Number(fill.price.timestamp) * 1000,
+      timestamp: Number(fill.price.timestamp),
     }
   })
   const isOpen =
