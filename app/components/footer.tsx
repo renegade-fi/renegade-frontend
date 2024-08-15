@@ -50,7 +50,7 @@ export function Footer() {
             </ContextMenuContent>
           </ContextMenu>
           <Tooltip>
-            <TooltipTrigger className="cursor-pointer">
+            <TooltipTrigger asChild className="cursor-pointer">
               <Button
                 className="ml-4 font-extended"
                 variant="outline"

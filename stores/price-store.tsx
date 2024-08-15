@@ -141,7 +141,7 @@ export const usePrice = ({
 
   const { store, handleSubscribe } = context
   const quoteAddress = DEFAULT_QUOTE[exchange]
-  const topic = `${exchange}-${baseAddress}-${quoteAddress}`
+  const topic = constructPriceTopic({ exchange, baseAddress })
   const price = useStore(store, state => state.prices.get(topic))
 
   useEffect(() => {
@@ -149,6 +149,30 @@ export const usePrice = ({
   }, [baseAddress, exchange, handleSubscribe, quoteAddress])
 
   return price ? price : 0
+}
+
+export const usePricesSnapshot = () => {
+  const context = useContext(PriceStoreContext)
+  if (!context) {
+    throw new Error(
+      "usePricesSnapshot must be used within a PriceStoreProvider",
+    )
+  }
+
+  const { store } = context
+  return store.getState().prices
+}
+
+export const usePrices = () => {
+  const context = useContext(PriceStoreContext)
+  if (!context) {
+    throw new Error(
+      "usePricesSnapshot must be used within a PriceStoreProvider",
+    )
+  }
+
+  const { store } = context
+  return useStore(store, state => state.prices)
 }
 
 export const useLastUpdated = ({
@@ -172,4 +196,14 @@ export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
   coinbase: Token.findByTicker("USDC").address,
   kraken: "0x0000000000000000000000000000000000000000" as `0x${string}`,
   okx: Token.findByTicker("USDT").address,
+}
+
+export const constructPriceTopic = ({
+  exchange = "binance",
+  baseAddress,
+}: {
+  exchange?: Exchange
+  baseAddress: `0x${string}`
+}) => {
+  return `${exchange}-${baseAddress}-${DEFAULT_QUOTE[exchange]}`
 }
