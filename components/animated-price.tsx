@@ -26,7 +26,7 @@ export function AnimatedPrice({
     if (price !== prev.current) {
       // Use requestAnimationFrame to batch DOM updates
       requestAnimationFrame(() => {
-        setAnimationKey(prevKey => prevKey + 1)
+        setAnimationKey((prevKey) => prevKey + 1)
         requestAnimationFrame(() => {
           prev.current = price // Update ref after the browser has painted
         })

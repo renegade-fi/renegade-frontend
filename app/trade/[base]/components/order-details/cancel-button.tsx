@@ -28,7 +28,7 @@ export function CancelButton({
             request,
           },
           {
-            onSuccess: data => {
+            onSuccess: (data) => {
               const message = constructStartToastMessage(UpdateType.CancelOrder)
               toast.loading(message, {
                 id: data.taskId,

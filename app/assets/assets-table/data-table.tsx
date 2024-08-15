@@ -110,13 +110,13 @@ export function DataTable<TData, TValue>({
             <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
               checked={showZeroRenegadeBalance}
-              onCheckedChange={value => setShowZeroRenegadeBalance(!!value)}
+              onCheckedChange={(value) => setShowZeroRenegadeBalance(!!value)}
             >
               Show zero Renegade Balance
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={showZeroL2Balance}
-              onCheckedChange={value => setShowZeroL2Balance(!!value)}
+              onCheckedChange={(value) => setShowZeroL2Balance(!!value)}
             >
               Show zero Arbitrum Balance
             </DropdownMenuCheckboxItem>
@@ -125,7 +125,7 @@ export function DataTable<TData, TValue>({
         <div className="ml-4 flex items-center space-x-2">
           <Switch
             checked={isLongFormat}
-            onCheckedChange={value => setIsLongFormat(!!value)}
+            onCheckedChange={(value) => setIsLongFormat(!!value)}
           />
           <Label htmlFor="long-format">Show decimals</Label>
         </div>
@@ -133,9 +133,9 @@ export function DataTable<TData, TValue>({
       <div className="border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -152,16 +152,22 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {status !== "in relayer" ? (
-              <TableEmptyState colSpan={columns.length} type="assets" />
+              <TableEmptyState
+                colSpan={columns.length}
+                type="assets"
+              />
             ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => {
+              table.getRowModel().rows.map((row) => {
                 return (
-                  <TransferDialog key={row.id} mint={row.getValue("mint")}>
+                  <TransferDialog
+                    key={row.id}
+                    mint={row.getValue("mint")}
+                  >
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                     >
-                      {row.getVisibleCells().map(cell => (
+                      {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,

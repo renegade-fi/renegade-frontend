@@ -122,7 +122,7 @@ export function NewOrderForm({
       return
     }
 
-    form.trigger().then(isValid => {
+    form.trigger().then((isValid) => {
       if (isValid) {
         setLockedFormValues({
           ...values,
@@ -136,7 +136,10 @@ export function NewOrderForm({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 px-6"
+        >
           <div className="flex">
             <FormField
               control={form.control}
@@ -150,7 +153,7 @@ export function NewOrderForm({
                       size="xl"
                       {...field}
                       value={""}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.preventDefault()
                         field.onChange(!field.value)
                       }}
@@ -169,7 +172,11 @@ export function NewOrderForm({
                 className="flex-1 border-l-0 font-serif text-2xl font-bold"
                 size="xl"
               >
-                <TokenIcon ticker={base} size={22} className="mr-2" />
+                <TokenIcon
+                  ticker={base}
+                  size={22}
+                  className="mr-2"
+                />
                 {base}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
@@ -207,7 +214,7 @@ export function NewOrderForm({
                         className="h-12 flex-1 rounded-none px-2 py-0 font-serif text-2xl font-bold"
                         {...field}
                         value={""}
-                        onClick={e => {
+                        onClick={(e) => {
                           e.preventDefault()
                           field.onChange(!field.value)
                         }}
@@ -227,7 +234,7 @@ export function NewOrderForm({
               {...form.watch()}
               className="flex-1"
               percentage={25}
-              onSetAmount={amount =>
+              onSetAmount={(amount) =>
                 form.setValue("amount", amount, { shouldValidate: true })
               }
             />
@@ -235,7 +242,7 @@ export function NewOrderForm({
               {...form.watch()}
               className="flex-1 border-x-0"
               percentage={50}
-              onSetAmount={amount =>
+              onSetAmount={(amount) =>
                 form.setValue("amount", amount, { shouldValidate: true })
               }
             />
@@ -243,7 +250,7 @@ export function NewOrderForm({
               {...form.watch()}
               className="flex-1"
               percentage={100}
-              onSetAmount={amount =>
+              onSetAmount={(amount) =>
                 form.setValue("amount", amount, { shouldValidate: true })
               }
             />
@@ -266,7 +273,7 @@ export function NewOrderForm({
           <div className="space-y-3 whitespace-nowrap text-sm">
             <div className="flex items-center justify-between">
               <Tooltip>
-                <TooltipTrigger onClick={e => e.preventDefault()}>
+                <TooltipTrigger onClick={(e) => e.preventDefault()}>
                   <span className="text-muted-foreground">Type</span>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -279,7 +286,10 @@ export function NewOrderForm({
               <div className="text-muted-foreground">Order Value</div>
               <div>{formattedOrderValue}</div>
             </div>
-            <FeesSection amount={form.watch("amount")} {...fees} />
+            <FeesSection
+              amount={form.watch("amount")}
+              {...fees}
+            />
           </div>
           <NewOrderStepper
             {...lockedFormValues}

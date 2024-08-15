@@ -98,7 +98,10 @@ export function SuccessStepWithoutSavings() {
       </ScrollArea>
       <DrawerFooter className="pt-2">
         <DrawerClose asChild>
-          <Button autoFocus variant="outline">
+          <Button
+            autoFocus
+            variant="outline"
+          >
             Close
           </Button>
         </DrawerClose>
@@ -113,7 +116,11 @@ function OrderSuccessSection() {
       <div className="border p-4 text-sm text-muted-foreground">
         <div className="flex items-start justify-between">
           Did you know?
-          <Button size="icon" variant="ghost" className="rounded-none">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="rounded-none"
+          >
             <Repeat className="h-4 w-4" />
           </Button>
         </div>

@@ -71,7 +71,7 @@ export function OrderDetailsSheet({
     order.state,
   )
 
-  const formattedFills = order.fills.map(fill => ({
+  const formattedFills = order.fills.map((fill) => ({
     amount: Number(formatNumber(fill.amount, token.decimals)),
     price: Number(fill.price.price),
   }))
@@ -101,7 +101,7 @@ export function OrderDetailsSheet({
       <SheetContent
         className="p-0 sm:w-[576px] sm:max-w-[576px]"
         hideCloseButton
-        onOpenAutoFocus={e => {
+        onOpenAutoFocus={(e) => {
           e.preventDefault()
         }}
       >
@@ -124,7 +124,10 @@ export function OrderDetailsSheet({
               />
             )}
             <div className="ml-auto flex">
-              <CancelButton id={order.id} isDisabled={!isCancellable} />
+              <CancelButton
+                id={order.id}
+                isDisabled={!isCancellable}
+              />
               {/* <Button
                 variant="outline"
                 className="flex-1 border-l-0"
@@ -141,7 +144,10 @@ export function OrderDetailsSheet({
               <div className="text-sm">{title}</div>
               <div className="text-sm">Midpoint Peg</div>
             </div>
-            <Separator orientation="vertical" className="h-full" />
+            <Separator
+              orientation="vertical"
+              className="h-full"
+            />
             <div className="flex-1 px-6">
               <div className="text-sm">{formatOrderState(order.state)}</div>
               <div className="text-sm">{filledLabel}</div>

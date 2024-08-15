@@ -26,7 +26,7 @@ import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
-const tokens = DISPLAY_TOKENS().map(token => ({
+const tokens = DISPLAY_TOKENS().map((token) => ({
   value: token.address,
   label: token.ticker,
 }))
@@ -43,7 +43,7 @@ export function TokenSelect({
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
   const { data: l2Balances, queryKey } = useReadContracts({
-    contracts: DISPLAY_TOKENS().map(token => ({
+    contracts: DISPLAY_TOKENS().map((token) => ({
       address: token.address,
       abi: erc20Abi,
       functionName: "balanceOf",
@@ -52,7 +52,7 @@ export function TokenSelect({
     query: {
       enabled:
         !!address && open && direction === ExternalTransferDirection.Deposit,
-      select: data =>
+      select: (data) =>
         new Map(
           data.map((balance, index) => [
             DISPLAY_TOKENS()[index].address,
@@ -67,8 +67,8 @@ export function TokenSelect({
   const { data: renegadeBalances } = useWallet({
     query: {
       enabled: open && direction === ExternalTransferDirection.Withdraw,
-      select: data =>
-        new Map(data.balances.map(balance => [balance.mint, balance.amount])),
+      select: (data) =>
+        new Map(data.balances.map((balance) => [balance.mint, balance.amount])),
     },
   })
 
@@ -78,7 +78,11 @@ export function TokenSelect({
       : renegadeBalances
 
   return (
-    <Popover open={open} onOpenChange={setOpen} modal>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      modal
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -87,22 +91,25 @@ export function TokenSelect({
           className={cn("justify-between", !value && "text-muted-foreground")}
         >
           {value
-            ? tokens.find(framework => framework.value === value)?.label
+            ? tokens.find((framework) => framework.value === value)?.label
             : "Select token"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
         <Command>
-          <CommandInput placeholder="Search for token..." className="h-9" />
+          <CommandInput
+            placeholder="Search for token..."
+            className="h-9"
+          />
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>
             <CommandGroup>
-              {tokens.map(t => (
+              {tokens.map((t) => (
                 <CommandItem
                   key={t.value}
                   value={t.value}
-                  onSelect={currentValue => {
+                  onSelect={(currentValue) => {
                     onChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
                   }}

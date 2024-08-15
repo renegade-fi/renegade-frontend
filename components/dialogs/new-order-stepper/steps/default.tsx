@@ -110,7 +110,11 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
         </div>
       </ScrollArea>
       <DrawerFooter className="pt-2">
-        <Button autoFocus variant="outline" onClick={onNext}>
+        <Button
+          autoFocus
+          variant="outline"
+          onClick={onNext}
+        >
           {props.isSell ? "Sell" : "Buy"} {props.base}
         </Button>
       </DrawerFooter>
@@ -168,7 +172,7 @@ function NewOrderForm({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Tooltip>
-            <TooltipTrigger onClick={e => e.preventDefault()}>
+            <TooltipTrigger onClick={(e) => e.preventDefault()}>
               <span className="text-muted-foreground">Network costs</span>
             </TooltipTrigger>
             <TooltipContent>
@@ -177,7 +181,10 @@ function NewOrderForm({
           </Tooltip>
           <div>$0.00</div>
         </div>
-        <FeesSection amount={amount} {...fees} />
+        <FeesSection
+          amount={amount}
+          {...fees}
+        />
       </div>
       <InsufficientWarning
         amount={parseAmount(amount.toString(), token)}

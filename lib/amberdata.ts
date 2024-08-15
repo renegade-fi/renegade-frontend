@@ -52,7 +52,7 @@ export async function fetchBars({
     currentFrom = currentTo
   }
 
-  const fetchPromises = chunks.map(chunk => {
+  const fetchPromises = chunks.map((chunk) => {
     const chunkUrl = new URL(url.toString())
     chunkUrl.searchParams.set("startDate", chunk.from.toString())
     chunkUrl.searchParams.set("endDate", chunk.to.toString())

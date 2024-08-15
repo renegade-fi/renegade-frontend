@@ -12,7 +12,11 @@ export function RenegadeProvider({
   initialState: any
 }) {
   return (
-    <Provider config={config} initialState={initialState} reconnectOnMount>
+    <Provider
+      config={config}
+      initialState={initialState}
+      reconnectOnMount
+    >
       {children}
     </Provider>
   )

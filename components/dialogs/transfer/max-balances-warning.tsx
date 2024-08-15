@@ -23,7 +23,7 @@ export function MaxBalancesWarning({
     return (
       <div className="rounded-md bg-[#2A1700] p-2 text-center">
         <Tooltip>
-          <TooltipTrigger onClick={e => e.preventDefault()}>
+          <TooltipTrigger onClick={(e) => e.preventDefault()}>
             <div className={cn("flex items-center gap-2", className)}>
               <AlertTriangle className="h-4 w-4" />
               <span>Maximum balance limit reached.</span>

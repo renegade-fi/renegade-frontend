@@ -85,15 +85,18 @@ export function TransferDialog({
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}
+      >
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent
           className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
           hideCloseButton
-          onOpenAutoFocus={e => {
+          onOpenAutoFocus={(e) => {
             e.preventDefault()
           }}
-          onPointerDownOutside={e => {
+          onPointerDownOutside={(e) => {
             // Prevent closing the dialog when clicking inside toast
             if (
               e.target instanceof Element &&
@@ -157,7 +160,10 @@ export function TransferDialog({
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+    >
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent hideHandle>
         <DrawerHeader className="p-0">
@@ -293,7 +299,7 @@ function TransferForm({
         handleApprove({
           onSuccess: () => {
             handleDeposit({
-              onSuccess: data => {
+              onSuccess: (data) => {
                 form.reset()
                 onSuccess?.()
                 const message = constructStartToastMessage(UpdateType.Deposit)
@@ -306,7 +312,7 @@ function TransferForm({
         })
       } else {
         handleDeposit({
-          onSuccess: data => {
+          onSuccess: (data) => {
             form.reset()
             onSuccess?.()
             const message = constructStartToastMessage(UpdateType.Deposit)
@@ -318,7 +324,7 @@ function TransferForm({
       }
     } else {
       handleWithdraw({
-        onSuccess: data => {
+        onSuccess: (data) => {
           form.reset()
           onSuccess?.()
         },
@@ -393,7 +399,7 @@ function TransferForm({
               <Button
                 variant="link"
                 className="h-5 p-0"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault()
                   form.setValue("amount", Number(balance), {
                     shouldValidate: true,

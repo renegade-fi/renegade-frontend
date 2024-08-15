@@ -63,7 +63,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "side",
-    accessorFn: row => {
+    accessorFn: (row) => {
       return row.data.side
     },
     header: () => <div>Side</div>,
@@ -73,7 +73,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "asset",
-    accessorFn: row => {
+    accessorFn: (row) => {
       return row.data.base_mint
     },
     header: () => <div>Asset</div>,
@@ -82,7 +82,10 @@ export const columns: ColumnDef<OrderData>[] = [
       const token = Token.findByAddress(mint)
       return (
         <div className="flex items-center gap-2 font-medium">
-          <TokenIcon size={20} ticker={token.ticker} />
+          <TokenIcon
+            size={20}
+            ticker={token.ticker}
+          />
           {token.ticker}
         </div>
       )
@@ -90,7 +93,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "value",
-    accessorFn: row => Number(row.usdValue),
+    accessorFn: (row) => Number(row.usdValue),
     header: ({ column }) => {
       return (
         <div className="flex flex-row-reverse">
@@ -128,7 +131,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "size",
-    accessorFn: row => {
+    accessorFn: (row) => {
       return row.data.amount
     },
     header: ({ column }) => {
@@ -169,7 +172,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "filled size",
-    accessorFn: row => {
+    accessorFn: (row) => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
     header: ({ column }) => {
@@ -210,7 +213,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "saved",
-    accessorFn: row => {
+    accessorFn: (row) => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
     header: ({ column }) => {

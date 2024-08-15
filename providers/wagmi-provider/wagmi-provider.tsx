@@ -71,7 +71,10 @@ export function WagmiProvider({
   const [open, setOpen] = React.useState(false)
   const onOpenChange = () => setOpen(!open)
   return (
-    <Provider config={config} initialState={initialState}>
+    <Provider
+      config={config}
+      initialState={initialState}
+    >
       <QueryProvider>
         <ConnectKitProvider
           customTheme={connectKitTheme}
@@ -82,7 +85,10 @@ export function WagmiProvider({
           {children}
           <SyncRenegadeWagmiState />
         </ConnectKitProvider>
-        <SignInDialog open={open} onOpenChange={onOpenChange} />
+        <SignInDialog
+          open={open}
+          onOpenChange={onOpenChange}
+        />
       </QueryProvider>
     </Provider>
   )

@@ -33,7 +33,11 @@ export function TableSelect({
   const [open, setOpen] = React.useState(false)
 
   return (
-    <Popover open={open} onOpenChange={setOpen} modal>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      modal
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -43,7 +47,7 @@ export function TableSelect({
           size="sm"
         >
           <CirclePlus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-          {value ? values.find(v => v.value === value)?.label : placeholder}
+          {value ? values.find((v) => v.value === value)?.label : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="max-w-28 p-0">
@@ -51,11 +55,11 @@ export function TableSelect({
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>
             <CommandGroup>
-              {values.map(v => (
+              {values.map((v) => (
                 <CommandItem
                   key={v.value}
                   value={v.value}
-                  onSelect={currentValue => {
+                  onSelect={(currentValue) => {
                     onChange(currentValue === value ? "" : currentValue)
                     setOpen(false)
                   }}

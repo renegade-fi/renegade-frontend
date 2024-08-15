@@ -31,8 +31,8 @@ export function InsufficientWarning({
 
   const { data: balance } = useWallet({
     query: {
-      select: data =>
-        data.balances.find(balance => balance.mint === token.address)?.amount,
+      select: (data) =>
+        data.balances.find((balance) => balance.mint === token.address)?.amount,
     },
   })
 

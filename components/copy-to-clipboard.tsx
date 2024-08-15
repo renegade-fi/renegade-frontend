@@ -20,7 +20,7 @@ export function CopyToClipboard({
       .then(() => {
         console.log("Text copied to clipboard")
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to copy text: ", err)
       })
   }

@@ -30,5 +30,10 @@ export default function TradingViewChart(
     }
   }, [props])
 
-  return <div className="h-[500px]" ref={chartContainerRef} />
+  return (
+    <div
+      className="h-[500px]"
+      ref={chartContainerRef}
+    />
+  )
 }

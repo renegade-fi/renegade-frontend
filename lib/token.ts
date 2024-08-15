@@ -14,13 +14,13 @@ export const DISPLAY_TOKENS = (
   const { hideStables, hideHidden = true, hideTickers = [] } = options
   let tokens = tokenMapping.tokens
   if (hideStables) {
-    tokens = tokens.filter(token => !STABLECOINS.includes(token.ticker))
+    tokens = tokens.filter((token) => !STABLECOINS.includes(token.ticker))
   }
   if (hideHidden) {
-    tokens = tokens.filter(token => !HIDDEN_TICKERS.includes(token.ticker))
+    tokens = tokens.filter((token) => !HIDDEN_TICKERS.includes(token.ticker))
   }
   if (hideTickers.length > 0) {
-    tokens = tokens.filter(token => !hideTickers.includes(token.ticker))
+    tokens = tokens.filter((token) => !hideTickers.includes(token.ticker))
   }
   return tokens
 }

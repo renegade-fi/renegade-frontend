@@ -57,7 +57,7 @@ export function usePredictedFees({
   })
   const [predictedSavings, setPredictedSavings] = React.useState(0)
   React.useEffect(() => {
-    setPredictedSavings(prev => {
+    setPredictedSavings((prev) => {
       if (isSuccess && prev !== data.savings) {
         return data.savings
       } else if (!amount) {

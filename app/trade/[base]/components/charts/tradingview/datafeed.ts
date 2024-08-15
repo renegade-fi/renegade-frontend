@@ -33,7 +33,7 @@ export const datafeed = {
   ) => {
     console.log("[searchSymbols]: Method call")
     const symbols = await getAllBinanceSymbols()
-    const newSymbols = symbols.filter(symbol => {
+    const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === "" || symbol.exchange === exchange
       const isFullSymbolContainsInput =
         symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1
@@ -164,7 +164,7 @@ export const datafeed = {
     )
   },
 
-  unsubscribeBars: subscriberUID => {
+  unsubscribeBars: (subscriberUID) => {
     console.log(
       "[unsubscribeBars]: Method call with subscriberUID:",
       subscriberUID,

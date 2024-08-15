@@ -16,7 +16,10 @@ export function ConnectWalletButton() {
       >
         {content}
       </Button>
-      <SignInDialog open={open} onOpenChange={onOpenChange} />
+      <SignInDialog
+        open={open}
+        onOpenChange={onOpenChange}
+      />
     </>
   )
 }

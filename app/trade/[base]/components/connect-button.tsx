@@ -10,7 +10,7 @@ export function ConnectButton({ className }: { className?: string }) {
   return (
     <>
       <Button
-        onClick={e => {
+        onClick={(e) => {
           e.preventDefault()
           handleClick()
         }}
@@ -19,7 +19,10 @@ export function ConnectButton({ className }: { className?: string }) {
       >
         {content}
       </Button>
-      <SignInDialog open={open} onOpenChange={onOpenChange} />
+      <SignInDialog
+        open={open}
+        onOpenChange={onOpenChange}
+      />
     </>
   )
 }

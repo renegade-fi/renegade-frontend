@@ -14,7 +14,7 @@ export function useSavingsAcrossFillsQuery({
   const baseToken = Token.findByAddress(order.data.base_mint)
   const quoteTicker = Token.findByAddress(order.data.quote_mint).ticker
   const direction = order.data.side === "Buy" ? "buy" : "sell"
-  const options = order.fills.map(fill => ({
+  const options = order.fills.map((fill) => ({
     amount: formatAmount(fill.amount, baseToken),
     baseTicker: baseToken.ticker,
     quoteTicker,
@@ -28,13 +28,13 @@ export function useSavingsAcrossFillsQuery({
       queryKey,
       queryFn: async () => {
         return Promise.all(
-          options.map(async option => {
+          options.map(async (option) => {
             return fetch("/api/savings", {
               method: "POST",
               body: JSON.stringify(option),
             })
-              .then(res => res.json())
-              .then(data => data.savings ?? 0)
+              .then((res) => res.json())
+              .then((data) => data.savings ?? 0)
           }),
         )
       },

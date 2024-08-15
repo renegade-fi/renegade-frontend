@@ -27,11 +27,17 @@ export function TableEmptyState({
           }
         }}
       >
-        <TableCell colSpan={colSpan} className="h-24 text-center">
+        <TableCell
+          colSpan={colSpan}
+          className="h-24 text-center"
+        >
           {message}
         </TableCell>
       </TableRow>
-      <SignInDialog open={open} onOpenChange={onOpenChange} />
+      <SignInDialog
+        open={open}
+        onOpenChange={onOpenChange}
+      />
     </>
   )
 }

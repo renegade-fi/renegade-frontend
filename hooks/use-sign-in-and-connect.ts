@@ -12,7 +12,7 @@ export function useSignInAndConnect() {
   const { setOpen } = useModal()
   const [open, setOpenSignIn] = useState(false)
 
-  const onOpenChange = () => setOpenSignIn(open => !open)
+  const onOpenChange = () => setOpenSignIn((open) => !open)
 
   const renegadeStatus = useStatus()
 

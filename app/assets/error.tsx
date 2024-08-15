@@ -37,7 +37,12 @@ export default function Error({
           We&apos;re on it, but feel free to reach out by clicking the button in
           the bottom right.
         </p>
-        <Image src="/r.gif" alt="spinning-renegade" width={800} height={450} />
+        <Image
+          src="/r.gif"
+          alt="spinning-renegade"
+          width={800}
+          height={450}
+        />
         <div className="flex flex-col">
           <p>
             Press{" "}
