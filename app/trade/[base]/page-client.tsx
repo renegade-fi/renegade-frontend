@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useMounted } from "@/hooks/use-mounted"
+import { useOrderTableData } from "@/hooks/use-order-table-data"
 import { Side } from "@/lib/constants/protocol"
 import { STORAGE_LAYOUT } from "@/lib/constants/storage"
 
@@ -46,11 +47,7 @@ export function PageClient({
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const isMounted = useMounted()
 
-  const { data } = useOrderHistory({
-    query: {
-      select: (data) => Array.from(data?.values() || []),
-    },
-  })
+  const data = useOrderTableData()
 
   return (
     <div>
@@ -78,10 +75,7 @@ export function PageClient({
             <ResizableHandle />
           </>
         )}
-        <ResizablePanel
-          defaultSize={defaultLayout[1]}
-          order={2}
-        >
+        <ResizablePanel defaultSize={defaultLayout[1]} order={2}>
           <main>
             <div className="overflow-auto">
               <PriceChartMemo base={base} />
@@ -89,7 +83,7 @@ export function PageClient({
               <div className="p-6">
                 <DataTable
                   columns={columns}
-                  data={data || []}
+                  data={data}
                   initialStatus="open"
                   initialVisibleColumns={{
                     "time to fill": false,
