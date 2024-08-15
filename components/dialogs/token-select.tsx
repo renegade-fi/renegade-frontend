@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { Token, useWallet } from "@renegade-fi/react"
-import { erc20Abi } from "viem"
+import { erc20Abi, isAddress } from "viem"
 import { useAccount, useReadContracts } from "wagmi"
 
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/transfer-dialog"
@@ -97,7 +97,18 @@ export function TokenSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
-        <Command>
+        <Command
+          filter={(value, search) => {
+            if (!isAddress(value)) return 0
+            const token = Token.findByAddress(value)
+            if (
+              token.name.toLowerCase().includes(search.toLowerCase()) ||
+              token.ticker.toLowerCase().includes(search.toLowerCase())
+            )
+              return 1
+            return 0
+          }}
+        >
           <CommandInput
             placeholder="Search for token..."
             className="h-9"
