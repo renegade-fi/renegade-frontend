@@ -8,3 +8,4 @@ export const STORAGE_IS_USDC_DENOMINATED = `${STORAGE_PREFIX}.order.isUSDCDenomi
 export const STORAGE_BASE = `${STORAGE_PREFIX}.base`
 
 export const STORAGE_DEPOSIT_BANNER = `${STORAGE_PREFIX}.deposit-banner`
+export const STORAGE_FAVORITES = `${STORAGE_PREFIX}.favorites`
