@@ -1,7 +1,7 @@
 import React from "react"
 
 import { Token, useWallet } from "@renegade-fi/react"
-import { formatUnits, parseUnits } from "viem"
+import { formatUnits } from "viem"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
+import { safeParseUnits } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import { usePrice } from "@/stores/price-store"
 
@@ -50,7 +51,8 @@ export function AmountShortcutButton({
     if (!price) return BigInt(0)
     const baseBalance = data?.[baseToken.address] ?? BigInt(0)
     const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
-    const priceBigInt = parseUnits(price.toString(), PRICE_DECIMALS)
+    const priceBigInt = safeParseUnits(price, PRICE_DECIMALS)
+    if (priceBigInt instanceof Error) return BigInt(0)
 
     if (isSell) {
       if (isUSDCDenominated) {

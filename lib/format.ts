@@ -2,7 +2,7 @@ import { OrderState, UseStatusReturnType } from "@renegade-fi/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import numeral from "numeral"
-import { formatUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 
 dayjs.extend(relativeTime)
 
@@ -118,9 +118,8 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${
-    includeSymbol ? "%" : ""
-  }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
+    }`
 }
 
 export const formatOrderState = (state: OrderState) => {
@@ -155,5 +154,15 @@ export const formatStatus = (status: UseStatusReturnType) => {
       return "Disconnected"
     default:
       return "Unknown"
+  }
+}
+
+export const safeParseUnits = (value: number, decimals: number) => {
+  try {
+    const valueStr =
+      typeof value === "number" ? value.toFixed(decimals) : value
+    return parseUnits(valueStr, decimals)
+  } catch (error) {
+    return Error("Failed to parse units")
   }
 }

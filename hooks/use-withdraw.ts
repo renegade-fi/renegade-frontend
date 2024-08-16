@@ -1,10 +1,9 @@
 import {
   Token,
   UpdateType,
-  parseAmount,
   useConfig,
   usePayFees,
-  useTaskHistory,
+  useTaskHistory
 } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
@@ -17,6 +16,7 @@ import {
   WITHDRAW_TOAST_ID,
   constructStartToastMessage,
 } from "@/lib/constants/task"
+import { safeParseUnits } from "@/lib/format"
 
 export function useWithdraw({
   mint,
@@ -44,10 +44,11 @@ export function useWithdraw({
   }) => {
     if (!address || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
-    const amountString =
-      typeof amount === "number" ? amount.toFixed(token.decimals) : amount
-    const parsedAmount = parseAmount(amountString, token)
-
+    const parsedAmount = safeParseUnits(amount, token.decimals)
+    if (parsedAmount instanceof Error) {
+      toast.error("Withdrawal amount is invalid")
+      return
+    }
     const message = isQueue
       ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount)
       : constructStartToastMessage(UpdateType.Withdraw)
