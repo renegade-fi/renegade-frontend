@@ -177,11 +177,11 @@ export function OrderDetailsSheet({
             </div>
           </div>
           <Separator />
-          {order.state === OrderState.Cancelled ? null : (
+          {order.fills.length ? (
+            <FillChart order={order} />
+          ) : (
             <>
-              {order.fills.length ? (
-                <FillChart order={order} />
-              ) : (
+              {order.state === OrderState.Cancelled ? null : (
                 <FillChartSkeleton />
               )}
             </>
