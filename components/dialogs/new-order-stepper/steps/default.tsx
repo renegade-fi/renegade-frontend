@@ -1,10 +1,5 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import {
-  Token,
-  UpdateType,
-  parseAmount,
-  useCreateOrder,
-} from "@renegade-fi/react"
+import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
 import { toast } from "sonner"
 
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
@@ -32,7 +27,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { usePrepareCreateOrder } from "@/hooks/usePrepareCreateOrder"
+import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
@@ -44,14 +39,12 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
 
   const baseToken = Token.findByTicker(props.base)
   const quoteToken = Token.findByTicker("USDC")
-  // TODO: Parse amount in prepare hook with error handling
-  const parsedAmount = parseAmount(props.amount.toString(), baseToken)
 
   const { request } = usePrepareCreateOrder({
     base: baseToken.address,
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",
-    amount: parsedAmount,
+    amount: props.amount,
   })
 
   const { createOrder } = useCreateOrder({
@@ -87,7 +80,13 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
         <DialogFooter>
           <Button
             autoFocus
-            onClick={() => createOrder({ request })}
+            onClick={() => {
+              if (request instanceof Error) {
+                toast.error(request.message)
+                return
+              }
+              createOrder({ request })
+            }}
             variant="outline"
             className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
             size="xl"
@@ -136,10 +135,6 @@ function NewOrderForm({
     token.decimals,
     true,
   )
-  console.log("debug", {
-    parsedAmount,
-    formattedAmount,
-  })
   return (
     <>
       <div className="space-y-3">
