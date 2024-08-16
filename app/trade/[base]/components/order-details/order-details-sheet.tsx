@@ -1,6 +1,7 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
 import { Info } from "lucide-react"
+import { formatUnits } from "viem/utils"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
 import { FillChartSkeleton } from "@/app/trade/[base]/components/charts/fill-chart-skeleton"
@@ -24,11 +25,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
+import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
 import {
   formatCurrency,
+  formatCurrencyFromString,
   formatNumber,
   formatOrderState,
   formatPercentage,
@@ -48,6 +55,7 @@ export function OrderDetailsSheet({
     BigInt(0),
   )
   const formattedFilledAmount = formatNumber(filledAmount, token.decimals)
+  const formattedFilledAmountLong = formatUnits(filledAmount, token.decimals)
   const formattedTotalAmount = formatNumber(
     order.data.amount,
     token.decimals,
@@ -82,13 +90,17 @@ export function OrderDetailsSheet({
   // TODO: Calculate in bigint units
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
   const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
+  const filledLabelLong = `${formattedFilledAmountLong} ${token.ticker} @ ${formattedVWAP}`
 
   const data: FillTableData[] = order.fills.map((fill, index) => {
     const amount = formatNumber(fill.amount, token.decimals)
+    const value = amountTimesPrice(fill.amount, fill.price.price)
+    const formattedValue = formatUnits(value, token.decimals)
+    const formattedValueUSD = formatCurrencyFromString(formattedValue)
     return {
       index,
       amount,
-      amountUSD: formatCurrency(fill.price.price * Number(amount)),
+      amountUSD: formattedValueUSD,
       timestamp: Number(fill.price.timestamp),
     }
   })
@@ -150,7 +162,14 @@ export function OrderDetailsSheet({
             />
             <div className="flex-1 px-6">
               <div className="text-sm">{formatOrderState(order.state)}</div>
-              <div className="text-sm">{filledLabel}</div>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="flex justify-center">{filledLabel}</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-sans">{filledLabelLong}</p>
+                </TooltipContent>
+              </Tooltip>
               <div className="flex items-center gap-2">
                 <Progress value={percentageFilled} />
                 <div className="text-sm">{percentageFilledLabel}</div>
