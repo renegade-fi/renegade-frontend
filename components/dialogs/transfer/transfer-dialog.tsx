@@ -2,10 +2,10 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useBalances } from "@renegade-fi/react"
+import { Token, UpdateType, parseAmount, useBalances } from "@renegade-fi/react"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
@@ -275,12 +275,12 @@ function TransferForm({
     !mint || balance === "0" || amount.toString() === balance
 
   const { handleDeposit, status: depositStatus } = useDeposit({
-    amount: amount.toString(),
+    amount,
     mint,
   })
 
   const { handleWithdraw } = useWithdraw({
-    amount: amount.toString(),
+    amount,
     mint,
   })
 
@@ -316,6 +316,18 @@ function TransferForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (direction === ExternalTransferDirection.Deposit) {
       await checkChain()
+      const isBalanceSufficient = checkBalance({
+        amount: values.amount,
+        mint: values.mint,
+        balance: l2Balance,
+      })
+      if (!isBalanceSufficient) {
+        form.setError("amount", {
+          message: "Insufficient Arbitrum balance",
+        })
+        return
+      }
+
       if (needsApproval) {
         handleApprove({
           onSuccess: () => {
@@ -344,6 +356,19 @@ function TransferForm({
         })
       }
     } else {
+      // TODO: Check if balance is sufficient
+      const isBalanceSufficient = checkBalance({
+        amount: values.amount,
+        mint: values.mint,
+        balance: renegadeBalances.get(values.mint as `0x${string}`)?.amount,
+      })
+      if (!isBalanceSufficient) {
+        form.setError("amount", {
+          message: "Insufficient Renegade balance",
+        })
+        return
+      }
+
       handleWithdraw({
         onSuccess: (data) => {
           form.reset()
@@ -479,4 +504,21 @@ function TransferForm({
       </form>
     </Form>
   )
+}
+
+function checkBalance({
+  amount,
+  mint,
+  balance,
+}: z.infer<typeof formSchema> & { balance?: bigint }) {
+  if (!balance) {
+    return false
+  }
+  try {
+    const token = Token.findByAddress(mint as `0x${string}`)
+    const parsedAmount = parseAmount(amount.toFixed(token.decimals), token)
+    return parsedAmount <= balance
+  } catch (error) {
+    return false
+  }
 }

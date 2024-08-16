@@ -23,7 +23,7 @@ export function useWithdraw({
   amount,
 }: {
   mint?: string
-  amount: string
+  amount: number
 }) {
   const { address } = useAccount()
   const config = useConfig()
@@ -44,7 +44,9 @@ export function useWithdraw({
   }) => {
     if (!address || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
-    const parsedAmount = parseAmount(amount, token)
+    const amountString =
+      typeof amount === "number" ? amount.toFixed(token.decimals) : amount
+    const parsedAmount = parseAmount(amountString, token)
 
     const message = isQueue
       ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount)
