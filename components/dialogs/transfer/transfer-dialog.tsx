@@ -274,7 +274,7 @@ function TransferForm({
   const hideMaxButton =
     !mint || balance === "0" || amount.toString() === balance
 
-  const { handleDeposit } = useDeposit({
+  const { handleDeposit, status: depositStatus } = useDeposit({
     amount: amount.toString(),
     mint,
   })
@@ -284,13 +284,34 @@ function TransferForm({
     mint,
   })
 
-  const { needsApproval, handleApprove } = useApprove({
+  const {
+    needsApproval,
+    handleApprove,
+    status: approveStatus,
+  } = useApprove({
     amount: amount.toString(),
     mint,
     enabled: direction === ExternalTransferDirection.Deposit,
   })
 
   const { checkChain } = useCheckChain()
+
+  let buttonText = ""
+  if (direction === ExternalTransferDirection.Withdraw) {
+    buttonText = "Withdraw"
+  } else if (needsApproval) {
+    if (approveStatus === "pending") {
+      buttonText = "Confirm in wallet"
+    } else {
+      buttonText = "Approve & Deposit"
+    }
+  } else {
+    if (depositStatus === "pending") {
+      buttonText = "Confirm in wallet"
+    } else {
+      buttonText = "Deposit"
+    }
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (direction === ExternalTransferDirection.Deposit) {
@@ -428,14 +449,12 @@ function TransferForm({
               disabled={
                 !form.formState.isValid ||
                 (direction === ExternalTransferDirection.Deposit &&
-                  isMaxBalances)
+                  isMaxBalances) ||
+                approveStatus === "pending" ||
+                depositStatus === "pending"
               }
             >
-              {direction === ExternalTransferDirection.Withdraw
-                ? "Withdraw"
-                : needsApproval
-                  ? "Approve & Deposit"
-                  : "Deposit"}
+              {buttonText}
             </Button>
           </DialogFooter>
         ) : (
@@ -445,14 +464,12 @@ function TransferForm({
               disabled={
                 !form.formState.isValid ||
                 (direction === ExternalTransferDirection.Deposit &&
-                  isMaxBalances)
+                  isMaxBalances) ||
+                approveStatus === "pending" ||
+                depositStatus === "pending"
               }
             >
-              {direction === ExternalTransferDirection.Withdraw
-                ? "Withdraw"
-                : needsApproval
-                  ? "Approve & Deposit"
-                  : "Deposit"}
+              {buttonText}
             </Button>
             <DrawerClose asChild>
               <Button variant="outline">Cancel</Button>

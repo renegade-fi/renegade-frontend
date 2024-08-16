@@ -72,13 +72,11 @@ export const FAILED_DEPOSIT_MSG = (
   amount: bigint,
   reason?: string,
 ) =>
-  `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${
-    reason ?? "Please try again"
-  }.`
+  `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${reason ?? "Please try again"
+  }`
 
 export const FAILED_WITHDRAWAL_MSG = (mint: Token, amount: bigint) =>
-  `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${
-    mint.ticker
+  `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${mint.ticker
   }. Please try again.`
 
 export const FAILED_PLACE_ORDER_MSG = (
@@ -135,13 +133,11 @@ export function generateCompletionToastMessage(task: Task) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
           const mint = Token.findByAddress(taskInfo.mint)
-          message = `${
-            taskInfo.update_type === UpdateType.Deposit
+          message = `${taskInfo.update_type === UpdateType.Deposit
               ? "Deposit"
               : "Withdrawal"
-          } of ${formatNumber(taskInfo.amount, mint.decimals)} ${
-            mint.ticker
-          } completed.`
+            } of ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker
+            } completed.`
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
@@ -149,11 +145,10 @@ export function generateCompletionToastMessage(task: Task) {
           message = `${taskInfo.side} order for ${formatNumber(
             taskInfo.amount,
             base.decimals,
-          )} ${base.ticker} ${
-            taskInfo.update_type === UpdateType.PlaceOrder
+          )} ${base.ticker} ${taskInfo.update_type === UpdateType.PlaceOrder
               ? "placed"
               : "cancelled"
-          } successfully.`
+            } successfully.`
           break
       }
       break
@@ -186,25 +181,22 @@ export function generateStartToastMessage(task: Task) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
           const mint = Token.findByAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
-          message = `Initiating ${
-            taskInfo.update_type === UpdateType.Deposit
+          message = `Initiating ${taskInfo.update_type === UpdateType.Deposit
               ? "deposit"
               : "withdrawal"
-          } of ${formatNumber(taskInfo.amount, mint.decimals)} ${
-            mint.ticker
-          }...`
+            } of ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker
+            }...`
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
           const base = Token.findByAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
-          message = `${
-            taskInfo.update_type === UpdateType.PlaceOrder
+          message = `${taskInfo.update_type === UpdateType.PlaceOrder
               ? "Placing"
               : "Cancelling"
-          } ${taskInfo.side.toLowerCase()} order for ${formatNumber(
-            taskInfo.amount,
-            base.decimals,
-          )} ${base.ticker}...`
+            } ${taskInfo.side.toLowerCase()} order for ${formatNumber(
+              taskInfo.amount,
+              base.decimals,
+            )} ${base.ticker}...`
           break
       }
       break

@@ -1,3 +1,4 @@
+import React from "react"
 import { Token } from "@renegade-fi/react"
 import { toast } from "sonner"
 import { isAddress } from "viem"
@@ -6,6 +7,7 @@ import { useAccount } from "wagmi"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { viemClient } from "@/lib/viem"
+import { QueryStatus, useQueryClient } from "@tanstack/react-query"
 
 const MAX_INT = BigInt(
   "115792089237316195423570985008687907853269984665640564039457584007913129639935",
@@ -33,6 +35,7 @@ export function useApprove({
         !!process.env.NEXT_PUBLIC_PERMIT2_CONTRACT,
     },
   })
+  const [status, setStatus] = React.useState<QueryStatus>()
 
   useRefreshOnBlock({ queryKey })
 
@@ -65,8 +68,10 @@ export function useApprove({
     },
   })
 
+  const queryClient = useQueryClient()
   async function handleApprove({ onSuccess }: { onSuccess?: () => void }) {
     if (!mint || !isAddress(mint) || !address) return
+    setStatus("pending")
     const nonce = await viemClient.getTransactionCount({
       address,
     })
@@ -77,10 +82,18 @@ export function useApprove({
         nonce,
       },
       {
-        onSuccess,
+        onSuccess() {
+          setStatus("success")
+          onSuccess?.()
+          queryClient.invalidateQueries({ queryKey })
+        },
+        onError(error) {
+          setStatus("error")
+          toast.error(`Error approving. Reason: ${error.message}`)
+        },
       },
     )
   }
 
-  return { needsApproval, handleApprove }
+  return { needsApproval, handleApprove, status }
 }
