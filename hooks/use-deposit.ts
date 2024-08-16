@@ -20,7 +20,7 @@ export function useDeposit({
   amount,
 }: {
   mint?: string
-  amount: string
+  amount: number
 }) {
   const config = useConfig()
   const { data: walletClient } = useWalletClient()
@@ -37,7 +37,8 @@ export function useDeposit({
   }) {
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
-    const parsedAmount = parseAmount(amount, token)
+    const amountString = typeof amount === "number" ? amount.toFixed(token.decimals) : amount
+    const parsedAmount = parseAmount(amountString, token)
     // TODO: Make into hook
     const pkRoot = getPkRootScalars(config)
     setStatus("pending")
