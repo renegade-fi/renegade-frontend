@@ -1,4 +1,5 @@
 import React from "react"
+
 import {
   Token,
   parseAmount,
@@ -6,6 +7,7 @@ import {
   useTaskHistory,
 } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
+import { QueryStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useWalletClient } from "wagmi"
@@ -13,7 +15,6 @@ import { useWalletClient } from "wagmi"
 import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
-import { QueryStatus } from "@tanstack/react-query"
 
 export function useDeposit({
   mint,
@@ -37,7 +38,8 @@ export function useDeposit({
   }) {
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
-    const amountString = typeof amount === "number" ? amount.toFixed(token.decimals) : amount
+    const amountString =
+      typeof amount === "number" ? amount.toFixed(token.decimals) : amount
     const parsedAmount = parseAmount(amountString, token)
     // TODO: Make into hook
     const pkRoot = getPkRootScalars(config)
@@ -51,18 +53,17 @@ export function useDeposit({
       token,
       walletClient,
       pkRoot,
+    }).catch((e) => {
+      toast.error(
+        FAILED_DEPOSIT_MSG(
+          token,
+          parsedAmount,
+          e.shortMessage ?? e.response?.data ?? e.message,
+        ),
+      )
+      setStatus("error")
+      return e
     })
-      .catch((e) => {
-        toast.error(
-          FAILED_DEPOSIT_MSG(
-            token,
-            parsedAmount,
-            e.shortMessage ?? e.response?.data ?? e.message,
-          ),
-        )
-        setStatus("error")
-        return e
-      })
     if (isQueue) {
       toast.message(QUEUED_DEPOSIT_MSG(token, parsedAmount))
     }

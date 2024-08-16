@@ -1,5 +1,7 @@
 import React from "react"
+
 import { Token } from "@renegade-fi/react"
+import { QueryStatus, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
@@ -7,7 +9,6 @@ import { useAccount } from "wagmi"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { viemClient } from "@/lib/viem"
-import { QueryStatus, useQueryClient } from "@tanstack/react-query"
 
 const MAX_INT = BigInt(
   "115792089237316195423570985008687907853269984665640564039457584007913129639935",
