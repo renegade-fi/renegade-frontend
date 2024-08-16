@@ -6,7 +6,6 @@ import {
   useCreateOrder,
 } from "@renegade-fi/react"
 import { toast } from "sonner"
-import { parseUnits } from "viem"
 
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
@@ -37,7 +36,7 @@ import { usePrepareCreateOrder } from "@/hooks/usePrepareCreateOrder"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
-import { formatNumber } from "@/lib/format"
+import { formatNumber, safeParseUnits } from "@/lib/format"
 
 export function DefaultStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
@@ -45,6 +44,7 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
 
   const baseToken = Token.findByTicker(props.base)
   const quoteToken = Token.findByTicker("USDC")
+  // TODO: Parse amount in prepare hook with error handling
   const parsedAmount = parseAmount(props.amount.toString(), baseToken)
 
   const { request } = usePrepareCreateOrder({
@@ -130,11 +130,16 @@ function NewOrderForm({
   ...fees
 }: NewOrderConfirmationProps) {
   const token = Token.findByTicker(base)
+  const parsedAmount = safeParseUnits(amount, token.decimals)
   const formattedAmount = formatNumber(
-    parseUnits(amount.toString(), token.decimals),
+    parsedAmount instanceof Error ? BigInt(0) : parsedAmount,
     token.decimals,
     true,
   )
+  console.log("debug", {
+    parsedAmount,
+    formattedAmount,
+  })
   return (
     <>
       <div className="space-y-3">
@@ -187,7 +192,7 @@ function NewOrderForm({
         />
       </div>
       <InsufficientWarning
-        amount={parseAmount(amount.toString(), token)}
+        amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
         baseMint={token.address}
         className="text-sm text-orange-400"
         quoteMint={Token.findByTicker("USDC").address}

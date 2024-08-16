@@ -47,7 +47,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useWithdraw } from "@/hooks/use-withdraw"
 import { constructStartToastMessage } from "@/lib/constants/task"
-import { formatNumber } from "@/lib/format"
+import { formatNumber, safeParseUnits } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 
@@ -506,6 +506,8 @@ function TransferForm({
   )
 }
 
+// Returns true if the amount is less than or equal to the balance
+// Returns false if the amount is greater than the balance or if the amount is invalid
 function checkBalance({
   amount,
   mint,
@@ -516,7 +518,10 @@ function checkBalance({
   }
   try {
     const token = Token.findByAddress(mint as `0x${string}`)
-    const parsedAmount = parseAmount(amount.toFixed(token.decimals), token)
+    const parsedAmount = safeParseUnits(amount, token.decimals)
+    if (parsedAmount instanceof Error) {
+      return false
+    }
     return parsedAmount <= balance
   } catch (error) {
     return false
