@@ -1,3 +1,4 @@
+import React from "react"
 import {
   Token,
   parseAmount,
@@ -12,6 +13,7 @@ import { useWalletClient } from "wagmi"
 import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
+import { QueryStatus } from "@tanstack/react-query"
 
 export function useDeposit({
   mint,
@@ -26,6 +28,7 @@ export function useDeposit({
   const isQueue = Array.from(taskHistory?.values() || []).find(
     (task) => task.state !== "Completed" && task.state !== "Failed",
   )
+  const [status, setStatus] = React.useState<QueryStatus>()
 
   async function handleDeposit({
     onSuccess,
@@ -37,6 +40,7 @@ export function useDeposit({
     const parsedAmount = parseAmount(amount, token)
     // TODO: Make into hook
     const pkRoot = getPkRootScalars(config)
+    setStatus("pending")
     // Generate Permit2 Signature
     const { signature, nonce, deadline } = await signPermit2({
       amount: parsedAmount,
@@ -47,8 +51,23 @@ export function useDeposit({
       walletClient,
       pkRoot,
     })
+      .catch((e) => {
+        toast.error(
+          FAILED_DEPOSIT_MSG(
+            token,
+            parsedAmount,
+            e.shortMessage ?? e.response?.data ?? e.message,
+          ),
+        )
+        setStatus("error")
+        return e
+      })
     if (isQueue) {
       toast.message(QUEUED_DEPOSIT_MSG(token, parsedAmount))
+    }
+    if (!signature || !nonce || !deadline) {
+      setStatus("error")
+      return
     }
     await deposit(config, {
       fromAddr: walletClient.account.address,
@@ -58,8 +77,13 @@ export function useDeposit({
       permitDeadline: deadline,
       permit: signature,
     })
-      .then(onSuccess)
+      .then(({ taskId }) => {
+        setStatus("success")
+        onSuccess?.({ taskId })
+      })
       .catch((e) => {
+        console.log("in catch")
+        setStatus("error")
         toast.error(
           FAILED_DEPOSIT_MSG(
             token,
@@ -70,5 +94,5 @@ export function useDeposit({
         console.error(`Error depositing: ${e.response?.data ?? e.message}`)
       })
   }
-  return { handleDeposit }
+  return { handleDeposit, status }
 }
