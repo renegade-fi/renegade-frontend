@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useStatus } from "@renegade-fi/react"
+import { Token, useStatus } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -44,6 +44,7 @@ import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrency } from "@/lib/format"
+import { usePrice } from "@/stores/price-store"
 
 const formSchema = z.object({
   amount: z.coerce
@@ -87,11 +88,22 @@ export function NewOrderForm({
   const orderValue = useOrderValue(form.watch())
   const formattedOrderValue = orderValue ? formatCurrency(orderValue) : "--"
 
+  const price = usePrice({
+    baseAddress: Token.findByTicker(base).address,
+  })
+
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (name === "isUSDCDenominated") {
         setIsUSDCDenominated(value.isUSDCDenominated ?? false)
-        form.resetField("amount", { defaultValue: 0 })
+        if (value.isUSDCDenominated) {
+          form.setValue("amount", orderValue)
+        } else {
+          if (price !== 0) {
+            const amount = (orderValue / price).toFixed(2)
+            form.setValue("amount", Number(amount))
+          }
+        }
       }
       if (name === "isSell") {
         setSide(value.isSell ? Side.SELL : Side.BUY)
@@ -99,7 +111,7 @@ export function NewOrderForm({
       }
     })
     return () => subscription.unsubscribe()
-  }, [form])
+  }, [form, orderValue, price])
 
   React.useEffect(() => {
     if (form.getValues("base")) {
