@@ -1,19 +1,14 @@
 import { cookies } from "next/headers"
 
-import { Ellipsis, Settings, Settings2 } from "lucide-react"
-
 import { Footer } from "@/app/components/footer"
 import { Header } from "@/app/components/header"
-import { SettingsPopover } from "@/app/trade/[base]/components/settings-popover"
-import { TokensMarquee } from "@/app/trade/[base]/components/tokens-marquee"
+import { FavoritesBanner } from "@/app/trade/[base]/components/favorites-banner"
 import { PageClient } from "@/app/trade/[base]/page-client"
-
-import { Button } from "@/components/ui/button"
 
 import { Side } from "@/lib/constants/protocol"
 import {
-  STORAGE_SIDE,
   STORAGE_IS_USDC_DENOMINATED,
+  STORAGE_SIDE,
 } from "@/lib/constants/storage"
 
 export default function Page({ params }: { params: { base: string } }) {
@@ -47,17 +42,8 @@ export default function Page({ params }: { params: { base: string } }) {
         side={defaultSide}
         isUSDCDenominated={defaultUseUSDC}
       />
-      <div className="relative min-h-marquee overflow-hidden">
-        <TokensMarquee />
-        <SettingsPopover>
-          <Button
-            className="fixed bottom-20 right-0 min-h-marquee"
-            variant="outline"
-            size="icon"
-          >
-            <Ellipsis className="h-4 w-4 text-muted-foreground" />
-          </Button>
-        </SettingsPopover>
+      <div className="sticky bottom-20 min-h-marquee overflow-hidden">
+        <FavoritesBanner />
       </div>
       <div className="min-h-20">
         <Footer />

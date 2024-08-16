@@ -5,11 +5,12 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { useStatus } from "@renegade-fi/react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Ellipsis } from "lucide-react"
 import { useAccount } from "wagmi"
 
 import { DropdownMenuDemo } from "@/app/components/account-menu"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
+import { SettingsPopover } from "@/app/trade/[base]/components/settings-popover"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
@@ -105,10 +106,9 @@ export function Header() {
               </TransferDialog>
             </>
           )}
-
           {address ? (
             <DropdownMenuDemo>
-              <Button variant="link">
+              <Button variant="outline">
                 {`${address.slice(0, 6)}...${address.slice(-4)}`}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
@@ -116,6 +116,15 @@ export function Header() {
           ) : (
             <ConnectWalletButton />
           )}
+          <SettingsPopover>
+            <Button
+              className=""
+              variant="outline"
+              size="icon"
+            >
+              <Ellipsis className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </SettingsPopover>
         </div>
       </div>
     </header>
