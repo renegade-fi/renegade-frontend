@@ -29,6 +29,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -88,6 +90,7 @@ export function DataTable<TData, TValue>({
   const [status, setStatus] = React.useState(initialStatus ?? "")
   const [side, setSide] = React.useState(initialSide ?? "")
   const [mint, setMint] = React.useState(initialMint ?? "")
+  const [isLongFormat, setIsLongFormat] = React.useState(false)
 
   const table = useReactTable({
     columns,
@@ -105,6 +108,9 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       sorting,
+    },
+    meta: {
+      isLongFormat,
     },
   })
 
@@ -156,40 +162,13 @@ export function DataTable<TData, TValue>({
             Clear
           </Button>
         ) : null}
-        {isTradePage ? null : (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="ml-auto text-muted-foreground"
-              >
-                <Settings2 className="mr-2 h-4 w-4 text-muted-foreground" />
-                View
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <div className="ml-auto flex items-center space-x-2">
+          <Switch
+            checked={isLongFormat}
+            onCheckedChange={(value) => setIsLongFormat(!!value)}
+          />
+          <Label htmlFor="long-format">Show decimals</Label>
+        </div>
       </div>
       <div className="border">
         <Table>
