@@ -13,9 +13,9 @@ import { isAddress } from "viem"
 import { useWalletClient } from "wagmi"
 
 import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from "@/lib/constants/task"
+import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
-import { safeParseUnits } from "@/lib/format"
 
 export function useDeposit({
   mint,

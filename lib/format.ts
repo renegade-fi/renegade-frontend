@@ -1,9 +1,10 @@
-import { oneMinute, oneHour } from "@/lib/constants/time"
 import { OrderState, UseStatusReturnType } from "@renegade-fi/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import numeral from "numeral"
 import { formatUnits, parseUnits } from "viem"
+
+import { oneMinute, oneHour } from "@/lib/constants/time"
 
 dayjs.extend(relativeTime)
 
@@ -119,8 +120,9 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
-    }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${
+    includeSymbol ? "%" : ""
+  }`
 }
 
 export const formatOrderState = (state: OrderState) => {
@@ -160,8 +162,7 @@ export const formatStatus = (status: UseStatusReturnType) => {
 
 export const safeParseUnits = (value: number, decimals: number) => {
   try {
-    const valueStr =
-      typeof value === "number" ? value.toFixed(decimals) : value
+    const valueStr = typeof value === "number" ? value.toFixed(decimals) : value
     return parseUnits(valueStr, decimals)
   } catch (error) {
     return Error("Failed to parse units")

@@ -2,7 +2,6 @@
 
 import React from "react"
 
-import { safeParseUnits } from "@/lib/format"
 import {
   Token,
   stringifyForWasm,
@@ -12,14 +11,15 @@ import {
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { toHex } from "viem"
 
+import { safeParseUnits } from "@/lib/format"
+
 export type UsePrepareCreateOrderParameters = {
   id?: string
   base: `0x${string}`
   quote: `0x${string}`
-  side: 'buy' | 'sell'
+  side: "buy" | "sell"
   amount: number
 }
-
 
 export type UsePrepareCreateOrderReturnType = {
   request: string
@@ -36,7 +36,10 @@ export function usePrepareCreateOrder(
     if (!isSuccess) return Error("Failed to fetch wallet.")
     if (wallet.orders.filter((order) => order.amount).length >= MAX_ORDERS)
       return Error("Max orders reached.")
-    const parsedAmount = safeParseUnits(amount, Token.findByAddress(base).decimals)
+    const parsedAmount = safeParseUnits(
+      amount,
+      Token.findByAddress(base).decimals,
+    )
     if (parsedAmount instanceof Error) return Error("Failed to parse amount.")
     return config.utils.new_order(
       stringifyForWasm(wallet),
