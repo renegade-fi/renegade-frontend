@@ -56,11 +56,6 @@ export function OrderDetailsSheet({
   )
   const formattedFilledAmount = formatNumber(filledAmount, token.decimals)
   const formattedFilledAmountLong = formatUnits(filledAmount, token.decimals)
-  const formattedTotalAmount = formatNumber(
-    order.data.amount,
-    token.decimals,
-    true,
-  )
   const percentageFilled =
     (Number(filledAmount) / Number(order.data.amount)) * 100
   const percentageFilledLabel = formatPercentage(
@@ -68,7 +63,19 @@ export function OrderDetailsSheet({
     Number(order.data.amount),
   )
 
+  const formattedTotalAmount = formatNumber(
+    order.data.amount,
+    token.decimals,
+    true,
+  )
+  const formattedTotalAmountLong = formatUnits(
+    order.data.amount,
+    token.decimals,
+  )
   const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${token.ticker} ${
+    order.data.side === "Buy" ? "with" : "for"
+  } USDC`
+  const titleLong = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmountLong} ${token.ticker} ${
     order.data.side === "Buy" ? "with" : "for"
   } USDC`
 
@@ -94,14 +101,17 @@ export function OrderDetailsSheet({
 
   const data: FillTableData[] = order.fills.map((fill, index) => {
     const amount = formatNumber(fill.amount, token.decimals)
+    const amountLong = formatUnits(fill.amount, token.decimals)
     const value = amountTimesPrice(fill.amount, fill.price.price)
     const formattedValue = formatUnits(value, token.decimals)
     const formattedValueUSD = formatCurrencyFromString(formattedValue)
     return {
       index,
       amount,
+      amountLong,
       amountUSD: formattedValueUSD,
       timestamp: Number(fill.price.timestamp),
+      createdAt: Number(order.created),
     }
   })
   const isOpen =
@@ -153,7 +163,15 @@ export function OrderDetailsSheet({
           <div className="flex h-24 items-center">
             <div className="flex-1 px-6">
               <div className="text-sm">Order</div>
-              <div className="text-sm">{title}</div>
+
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="text-sm">{title}</div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-sans">{titleLong}</p>
+                </TooltipContent>
+              </Tooltip>
               <div className="text-sm">Midpoint Peg</div>
             </div>
             <Separator

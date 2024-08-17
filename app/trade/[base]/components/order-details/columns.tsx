@@ -1,12 +1,21 @@
 import { ColumnDef } from "@tanstack/react-table"
+import dayjs from "dayjs"
 
-import { formatTimestamp } from "@/lib/format"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+import { formatTimestampReadable, formatTimestamp } from "@/lib/format"
 
 export interface FillTableData {
   index: number
   amount: string
+  amountLong: string
   amountUSD: string
   timestamp: number
+  createdAt: number
 }
 
 export const columns: ColumnDef<FillTableData>[] = [
@@ -23,7 +32,16 @@ export const columns: ColumnDef<FillTableData>[] = [
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
       const amount = row.getValue<number>("amount")
-      return <div className="text-right">{amount}</div>
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="text-right">{amount}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-sans">{row.original.amountLong}</p>
+          </TooltipContent>
+        </Tooltip>
+      )
     },
   },
   {
@@ -37,11 +55,41 @@ export const columns: ColumnDef<FillTableData>[] = [
   {
     accessorKey: "timestamp",
     header: () => <div className="text-right">Time</div>,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const timestamp = row.getValue<bigint>("timestamp")
       const formatted = formatTimestamp(Number(timestamp))
 
-      return <div className="text-right font-medium">{formatted}</div>
+      const diffMs = dayjs(Number(timestamp)).diff(
+        dayjs(row.original.createdAt),
+      )
+      const formattedDiff = formatTimestampReadable(diffMs)
+      let diffLabel = `${formattedDiff} since creation`
+
+      // Get the previous row, if it exists
+      const currentRowIndex = row.index
+      const allRows = table.getRowModel().rows
+      const previousRow =
+        currentRowIndex > 0 ? allRows[currentRowIndex - 1] : null
+
+      if (previousRow) {
+        const previousTimestamp = previousRow.getValue<bigint>("timestamp")
+        const timeDiffMs = dayjs(Number(timestamp)).diff(
+          dayjs(Number(previousTimestamp)),
+        )
+        const formattedTimeDiff = formatTimestampReadable(timeDiffMs)
+        diffLabel += ` | ${formattedTimeDiff} since previous`
+      }
+
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="text-right font-medium">{formatted}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-sans">{diffLabel}</p>
+          </TooltipContent>
+        </Tooltip>
+      )
     },
   },
 ]
