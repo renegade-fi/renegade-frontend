@@ -112,6 +112,7 @@ export function AssetsSection({
               onClick={(e) => {
                 if (renegadeStatus !== "in relayer") e.preventDefault()
               }}
+              disabled={renegadeStatus !== "in relayer"}
             >
               {base}
             </Button>
@@ -139,6 +140,7 @@ export function AssetsSection({
               onClick={(e) => {
                 if (renegadeStatus !== "in relayer") e.preventDefault()
               }}
+              disabled={renegadeStatus !== "in relayer"}
             >
               {quote}
             </Button>
