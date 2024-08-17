@@ -101,7 +101,7 @@ export function OrderDetailsSheet({
 
   const data: FillTableData[] = order.fills.map((fill, index) => {
     const amount = formatNumber(fill.amount, token.decimals)
-    const amountLong = formatUnits(fill.amount, token.decimals)
+    const amountLong = formatNumber(fill.amount, token.decimals, true)
     const value = amountTimesPrice(fill.amount, fill.price.price)
     const formattedValue = formatUnits(value, token.decimals)
     const formattedValueUSD = formatCurrencyFromString(formattedValue)
