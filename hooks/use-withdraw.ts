@@ -3,7 +3,7 @@ import {
   UpdateType,
   useConfig,
   usePayFees,
-  useTaskHistory
+  useTaskHistory,
 } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
