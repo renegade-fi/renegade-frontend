@@ -1,11 +1,17 @@
 import { Token } from "@renegade-fi/react"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
+import { formatUnits } from "viem/utils"
 
 import { BalanceData } from "@/app/assets/page-client"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 
@@ -100,14 +106,25 @@ export const columns: ColumnDef<BalanceData>[] = [
     cell: ({ row, table }) => {
       const balance = row.original.rawL2Balance
       const token = Token.findByAddress(row.original.mint)
+      const formatted = formatNumber(
+        balance,
+        token.decimals,
+        table.options.meta?.isLongFormat,
+      )
+      const formattedLong = formatNumber(balance, token.decimals, true)
+      const unformatted = formatUnits(balance, token.decimals)
       return (
-        <div className="pr-4 text-right">
-          {formatNumber(
-            balance,
-            token.decimals,
-            table.options.meta?.isLongFormat,
-          )}
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="pr-4 text-right">{formatted}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-sans">
+              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
+              {token.ticker}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       )
     },
   },
@@ -178,14 +195,25 @@ export const columns: ColumnDef<BalanceData>[] = [
     cell: ({ row, table }) => {
       const balance = row.original.rawRenegadeBalance
       const token = Token.findByAddress(row.original.mint)
+      const formatted = formatNumber(
+        balance,
+        token.decimals,
+        table.options.meta?.isLongFormat,
+      )
+      const formattedLong = formatNumber(balance, token.decimals, true)
+      const unformatted = formatUnits(balance, token.decimals)
       return (
-        <div className="pr-4 text-right">
-          {formatNumber(
-            balance,
-            token.decimals,
-            table.options.meta?.isLongFormat,
-          )}
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="pr-4 text-right">{formatted}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-sans">
+              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
+              {token.ticker}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       )
     },
   },
