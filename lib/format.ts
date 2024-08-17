@@ -1,3 +1,4 @@
+import { oneMinute, oneHour } from "@/lib/constants/time"
 import { OrderState, UseStatusReturnType } from "@renegade-fi/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -165,4 +166,18 @@ export const safeParseUnits = (value: number, decimals: number) => {
   } catch (error) {
     return Error("Failed to parse units")
   }
+}
+
+// Format timestamp in a human readable format
+export function formatTimestampReadable(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  if (ms < oneMinute) return `${Math.floor(ms / 1000)}s`
+  if (ms < oneHour) {
+    const minutes = Math.floor(ms / oneMinute)
+    const seconds = Math.floor((ms % oneMinute) / 1000)
+    return `${minutes}m ${seconds}s`
+  }
+  const hours = Math.floor(ms / oneHour)
+  const minutes = Math.floor((ms % oneHour) / oneMinute)
+  return `${hours}h ${minutes}m`
 }
