@@ -15,20 +15,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { Settings2 } from "lucide-react"
 
 import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details/order-details-sheet"
 
 import { TableEmptyState } from "@/components/table-empty-state"
 import { TableSelect } from "@/components/table-select"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -128,7 +120,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center gap-2 pb-4">
+      <div className="flex items-center gap-4 pb-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <TableSelect
           values={statuses}

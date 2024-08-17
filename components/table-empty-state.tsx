@@ -21,7 +21,7 @@ export function TableEmptyState({
   return (
     <>
       <TableRow
-        className="cursor-pointer"
+        className={status !== "in relayer" ? "cursor-pointer" : ""}
         onClick={() => {
           if (status !== "in relayer") {
             handleClick()
