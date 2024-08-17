@@ -1,9 +1,15 @@
 import { Token } from "@renegade-fi/react"
 import { ColumnDef } from "@tanstack/react-table"
+import { formatUnits } from "viem/utils"
 
 import { HistoryData } from "@/app/assets/page-client"
 
 import { TokenIcon } from "@/components/token-icon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import {
   formatCurrencyFromString,
@@ -61,14 +67,25 @@ export const columns: ColumnDef<HistoryData>[] = [
     cell: ({ row, table }) => {
       const amount = row.original.rawAmount
       const token = Token.findByAddress(row.original.mint)
+      const formatted = formatNumber(
+        amount,
+        token.decimals,
+        table.options.meta?.isLongFormat,
+      )
+      const formattedLong = formatNumber(amount, token.decimals, true)
+      const unformatted = formatUnits(amount, token.decimals)
       return (
-        <div className="text-right">
-          {formatNumber(
-            amount,
-            token.decimals,
-            table.options.meta?.isLongFormat,
-          )}
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="text-right">{formatted}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-sans">
+              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
+              {token.ticker}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       )
     },
   },
