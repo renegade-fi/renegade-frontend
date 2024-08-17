@@ -1,6 +1,7 @@
 import { OrderState, Token } from "@renegade-fi/react"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
+import { formatUnits } from "viem/utils"
 
 import { OrderData } from "@/app/orders/page-client"
 
@@ -22,6 +23,12 @@ import {
   formatPercentage,
   formatTimestamp,
 } from "@/lib/format"
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    isLongFormat: boolean
+  }
+}
 
 export const columns: ColumnDef<OrderData>[] = [
   // {
@@ -79,13 +86,13 @@ export const columns: ColumnDef<OrderData>[] = [
     },
   },
   {
-    id: "asset",
+    id: "mint",
     accessorFn: (row) => {
       return row.data.base_mint
     },
     header: () => <div>Asset</div>,
     cell: ({ row }) => {
-      const mint = row.getValue<`0x${string}`>("asset")
+      const mint = row.getValue<`0x${string}`>("mint")
       const token = Token.findByAddress(mint)
       return (
         <div className="flex items-center gap-2 font-medium">
@@ -99,7 +106,7 @@ export const columns: ColumnDef<OrderData>[] = [
     },
   },
   {
-    id: "value",
+    id: "usdValue",
     accessorFn: (row) => Number(row.usdValue),
     header: ({ column }) => {
       return (
@@ -130,14 +137,16 @@ export const columns: ColumnDef<OrderData>[] = [
       )
     },
     cell: ({ row }) => {
-      const value = row.getValue<string>("value")
+      const usdValue = row.getValue<string>("usdValue")
       return (
-        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
+        <div className="pr-4 text-right">
+          {formatCurrencyFromString(usdValue)}
+        </div>
       )
     },
   },
   {
-    id: "size",
+    id: "amount",
     accessorFn: (row) => {
       return row.data.amount
     },
@@ -169,13 +178,17 @@ export const columns: ColumnDef<OrderData>[] = [
         </div>
       )
     },
-    cell: ({ row }) => {
-      const amount = row.getValue<bigint>("size")
-      const mint = row.getValue<`0x${string}`>("asset")
-      const decimals = Token.findByAddress(mint).decimals
-      const formatted = formatNumber(amount, decimals)
-      const formattedLong = formatNumber(amount, decimals, true)
-      const ticker = Token.findByAddress(mint).ticker
+    cell: ({ row, table }) => {
+      const amount = row.getValue<bigint>("amount")
+      const mint = row.getValue<`0x${string}`>("mint")
+      const token = Token.findByAddress(mint)
+      const formatted = formatNumber(
+        amount,
+        token.decimals,
+        table.options.meta?.isLongFormat,
+      )
+      const formattedLong = formatNumber(amount, token.decimals, true)
+      const unformatted = formatUnits(amount, token.decimals)
       return (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -183,7 +196,8 @@ export const columns: ColumnDef<OrderData>[] = [
           </TooltipTrigger>
           <TooltipContent>
             <p className="font-sans">
-              {formattedLong} {ticker}
+              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
+              {token.ticker}
             </p>
           </TooltipContent>
         </Tooltip>
@@ -191,14 +205,14 @@ export const columns: ColumnDef<OrderData>[] = [
     },
   },
   {
-    id: "filled size",
+    id: "filled",
     accessorFn: (row) => {
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
     header: () => <div className="w-[100px]">Filled</div>,
     cell: ({ row }) => {
-      const filledAmount = row.getValue<bigint>("filled size")
-      const totalAmount = row.getValue<bigint>("size")
+      const filledAmount = row.getValue<bigint>("filled")
+      const totalAmount = row.getValue<bigint>("amount")
       const percentageFilled =
         totalAmount > BigInt(0)
           ? (filledAmount * BigInt(100)) / totalAmount
@@ -267,7 +281,7 @@ export const columns: ColumnDef<OrderData>[] = [
     },
   },
   {
-    id: "created at",
+    id: "timestamp",
     accessorKey: "created",
     header: ({ column }) => {
       return (
@@ -298,7 +312,7 @@ export const columns: ColumnDef<OrderData>[] = [
       )
     },
     cell: ({ row }) => {
-      const timestamp = row.getValue<bigint>("created at")
+      const timestamp = row.getValue<bigint>("timestamp")
       const formatted = formatTimestamp(Number(timestamp))
 
       return <div className="pr-4 text-right font-medium">{formatted}</div>
