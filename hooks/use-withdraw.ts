@@ -53,6 +53,7 @@ export function useWithdraw({
       ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount)
       : constructStartToastMessage(UpdateType.Withdraw)
     const id = WITHDRAW_TOAST_ID(mint, parsedAmount)
+    console.log("starting withdraw toast with id: ", id)
 
     toast.loading(message, {
       id,
