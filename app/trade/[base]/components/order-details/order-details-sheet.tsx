@@ -112,6 +112,7 @@ export function OrderDetailsSheet({
       amountUSD: formattedValueUSD,
       timestamp: Number(fill.price.timestamp),
       createdAt: Number(order.created),
+      ticker: token.ticker,
     }
   })
   const isOpen =

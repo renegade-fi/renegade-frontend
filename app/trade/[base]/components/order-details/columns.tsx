@@ -16,6 +16,7 @@ export interface FillTableData {
   amountUSD: string
   timestamp: number
   createdAt: number
+  ticker: string
 }
 
 export const columns: ColumnDef<FillTableData>[] = [
@@ -38,7 +39,9 @@ export const columns: ColumnDef<FillTableData>[] = [
             <div className="text-right">{amount}</div>
           </TooltipTrigger>
           <TooltipContent>
-            <p className="font-sans">{row.original.amountLong}</p>
+            <p className="font-sans">
+              {row.original.amountLong} {row.original.ticker}
+            </p>
           </TooltipContent>
         </Tooltip>
       )
