@@ -7,6 +7,11 @@ import { OrderData } from "@/app/orders/page-client"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import {
@@ -169,7 +174,20 @@ export const columns: ColumnDef<OrderData>[] = [
       const mint = row.getValue<`0x${string}`>("asset")
       const decimals = Token.findByAddress(mint).decimals
       const formatted = formatNumber(amount, decimals)
-      return <div className="pr-4 text-right">{formatted}</div>
+      const formattedLong = formatNumber(amount, decimals, true)
+      const ticker = Token.findByAddress(mint).ticker
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="pr-4 text-right">{formatted}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-sans">
+              {formattedLong} {ticker}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      )
     },
   },
   {
