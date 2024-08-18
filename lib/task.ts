@@ -6,8 +6,10 @@ export function isDepositTask(task: Task): task is Task & {
     update_type: UpdateType.Deposit
   }
 } {
-  return task.task_info.task_type === TaskType.UpdateWallet &&
+  return (
+    task.task_info.task_type === TaskType.UpdateWallet &&
     task.task_info.update_type === UpdateType.Deposit
+  )
 }
 
 export function isWithdrawTask(task: Task): task is Task & {
