@@ -32,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { useCancelAllOrders } from "@/hooks/use-cancel-all-orders"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
 const statuses = [
@@ -76,13 +77,15 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>(initialVisibleColumns ?? {})
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "created at", desc: true },
+    { id: "timestamp", desc: true },
   ])
 
   const [status, setStatus] = React.useState(initialStatus ?? "")
   const [side, setSide] = React.useState(initialSide ?? "")
   const [mint, setMint] = React.useState(initialMint ?? "")
   const [isLongFormat, setIsLongFormat] = React.useState(false)
+
+  const { handleCancelAllOrders, isDisabled } = useCancelAllOrders()
 
   const table = useReactTable({
     columns,
@@ -115,7 +118,7 @@ export function DataTable<TData, TValue>({
   }, [side, table])
 
   React.useEffect(() => {
-    table.getColumn("asset")?.setFilterValue(mint)
+    table.getColumn("mint")?.setFilterValue(mint)
   }, [mint, table])
 
   return (
@@ -154,7 +157,16 @@ export function DataTable<TData, TValue>({
             Clear
           </Button>
         ) : null}
-        <div className="ml-auto flex items-center space-x-2">
+        <Button
+          variant="link"
+          size="sm"
+          className="ml-auto text-muted-foreground"
+          onClick={handleCancelAllOrders}
+          disabled={isDisabled}
+        >
+          Cancel all open orders
+        </Button>
+        <div className="flex items-center space-x-2">
           <Switch
             checked={isLongFormat}
             onCheckedChange={(value) => setIsLongFormat(!!value)}
