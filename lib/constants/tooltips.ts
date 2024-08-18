@@ -17,3 +17,5 @@ export const MIDPOINT_TOOLTIP =
   "This order will clear at the middle of the Binance bid-ask spread."
 export const GAS_FEE_TOOLTIP =
   "Gas fees for this transaction are paid for by your connected relayer."
+export const MAX_BALANCES_PLACE_ORDER_TOOLTIP = `This order will not fill because it would result in more than ${MAX_BALANCES} balances.`
+export const UNUSED_BALANCE_NEEDED_TOOLTIP = `You have an open order that needs an empty balance slot to be filled.`

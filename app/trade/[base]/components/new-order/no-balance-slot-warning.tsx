@@ -1,3 +1,4 @@
+import { Token } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
@@ -7,17 +8,22 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { MAX_BALANCES_TOOLTIP } from "@/lib/constants/tooltips"
+import { MAX_BALANCES_PLACE_ORDER_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
 
-export function MaxBalancesWarning({
+export function NoBalanceSlotWarning({
   className,
-  mint,
+  ticker,
+  isSell,
 }: {
   className?: string
-  mint: string
+  ticker: string
+  isSell?: boolean
 }) {
-  const isMaxBalances = useIsMaxBalances(mint)
+  const receiveMint = isSell
+    ? Token.findByTicker("USDC")?.address
+    : Token.findByTicker(ticker)?.address
+  const isMaxBalances = useIsMaxBalances(receiveMint)
 
   if (isMaxBalances) {
     return (
@@ -26,11 +32,11 @@ export function MaxBalancesWarning({
           <TooltipTrigger onClick={(e) => e.preventDefault()}>
             <div className={cn("flex items-center gap-2", className)}>
               <AlertTriangle className="h-4 w-4" />
-              <span>Maximum balance limit reached.</span>
+              <span>No balance slot available.</span>
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{MAX_BALANCES_TOOLTIP}</p>
+            <p>{MAX_BALANCES_PLACE_ORDER_TOOLTIP}</p>
           </TooltipContent>
         </Tooltip>
       </div>

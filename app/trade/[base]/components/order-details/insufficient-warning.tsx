@@ -46,11 +46,11 @@ export function InsufficientWarning({
   }
 
   if (!isInsufficient) return null
-
   return (
     <div
       className={cn({
-        "rounded-md bg-[#2A1700] p-2 text-center": richColors,
+        "flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center":
+          richColors,
         "flex items-center": !richColors,
       })}
     >
