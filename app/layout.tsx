@@ -3,6 +3,7 @@ import localFont from "next/font/local"
 import { headers } from "next/headers"
 
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
+import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -120,6 +121,7 @@ export default async function RootLayout({
                   toastOptions={{ duration: 5000 }}
                   position="bottom-center"
                   theme="light"
+                  visibleToasts={MAX_ORDERS}
                 />
                 <OrderToaster />
                 <TaskToaster />
