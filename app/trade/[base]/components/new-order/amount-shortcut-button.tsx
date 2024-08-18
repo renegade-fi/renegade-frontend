@@ -102,14 +102,11 @@ export function AmountShortcutButton({
   const usdPrice = useUSDPrice(baseToken, shortcut, false)
 
   const formattedShortcut = React.useMemo(() => {
-    if (isUSDCDenominated || !isSell) {
-      if (shortcut < MIN_FILL_SIZE) {
-        return 0
-      }
-    } else {
-      if (usdPrice < MIN_FILL_SIZE) {
-        return 0
-      }
+    if (isUSDCDenominated && shortcut < MIN_FILL_SIZE) {
+      return 0
+    }
+    if (!isUSDCDenominated && usdPrice < MIN_FILL_SIZE) {
+      return 0
     }
     const value = parseFloat(
       formatUnits(
@@ -117,14 +114,13 @@ export function AmountShortcutButton({
         isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
       ),
     )
-    if (isUSDCDenominated || !isSell) {
+    if (isUSDCDenominated) {
       return Number(value.toFixed(2))
     } else {
       return Number(value.toFixed(baseToken.decimals * 0.5))
     }
   }, [
     baseToken.decimals,
-    isSell,
     isUSDCDenominated,
     quoteToken.decimals,
     shortcut,
