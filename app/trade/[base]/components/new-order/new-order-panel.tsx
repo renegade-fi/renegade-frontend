@@ -38,7 +38,6 @@ export function NewOrderPanel({
           All orders are pre-trade and post-trade private.
         </Button>
       </div>
-      <Separator />
     </aside>
   )
 }

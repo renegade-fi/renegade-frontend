@@ -3,6 +3,7 @@ import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
 import { toast } from "sonner"
 
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
+import { NoBalanceSlotWarning } from "@/app/trade/[base]/components/new-order/no-balance-slot-warning"
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
 
 import {
@@ -186,6 +187,11 @@ function NewOrderForm({
           {...fees}
         />
       </div>
+      <NoBalanceSlotWarning
+        className="text-sm text-orange-400"
+        isSell={isSell}
+        ticker={base}
+      />
       <InsufficientWarning
         amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
         baseMint={token.address}

@@ -15,6 +15,7 @@ import { ConnectButton } from "@/app/trade/[base]/components/connect-button"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 import { MaxOrdersWarning } from "@/app/trade/[base]/components/new-order/max-orders-warning"
+import { NoBalanceSlotWarning } from "@/app/trade/[base]/components/new-order/no-balance-slot-warning"
 import { useIsMaxOrders } from "@/app/trade/[base]/components/new-order/use-is-max-orders"
 
 import {
@@ -268,6 +269,11 @@ export function NewOrderForm({
             />
           </div>
           <MaxOrdersWarning className="text-sm text-orange-400" />
+          <NoBalanceSlotWarning
+            className="text-sm text-orange-400"
+            isSell={form.getValues("isSell")}
+            ticker={base}
+          />
           {status === "in relayer" ? (
             <div>
               <Button

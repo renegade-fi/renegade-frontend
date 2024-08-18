@@ -16,7 +16,7 @@ export function MaxOrdersWarning({ className }: { className?: string }) {
 
   if (isMaxOrders) {
     return (
-      <div className="rounded-md bg-[#2A1700] p-2 text-center">
+      <div className="flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center">
         <Tooltip>
           <TooltipTrigger onClick={(e) => e.preventDefault()}>
             <div className={cn("flex items-center gap-2", className)}>
