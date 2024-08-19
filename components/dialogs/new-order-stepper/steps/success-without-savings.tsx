@@ -1,12 +1,11 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { useTaskHistoryWebSocket } from "@renegade-fi/react"
+import { TaskState, useTaskHistoryWebSocket } from "@renegade-fi/react"
 import { AlertCircle, Check, Loader2, Repeat } from "lucide-react"
 
 import { useStepper } from "@/components/dialogs/new-order-stepper/new-order-stepper"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DialogClose,
   DialogDescription,
@@ -23,12 +22,30 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { formatTaskState } from "@/lib/constants/task"
+import { cn } from "@/lib/utils"
+
+const states: TaskState[] = [
+  "Proving",
+  "Submitting Tx",
+  "Finding Opening",
+  "Updating Validity Proofs",
+  "Completed",
+]
 
 export function SuccessStepWithoutSavings() {
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const { taskId } = useStepper()
   const [status, setStatus] = React.useState<"pending" | "success" | "error">(
     "pending",
+  )
+  const [orderStatus, setOrderStatus] = React.useState<TaskState>("Proving")
+  const formattedOrderStatus = orderStatus
+    ? formatTaskState(orderStatus)
+    : undefined
+  console.log(
+    "🚀 ~ SuccessStepWithoutSavings ~ formattedOrderStatus:",
+    formattedOrderStatus,
   )
 
   useTaskHistoryWebSocket({
@@ -39,6 +56,7 @@ export function SuccessStepWithoutSavings() {
         } else if (task.state === "Failed") {
           setStatus("error")
         }
+        setOrderStatus(task.state)
       }
     },
   })
@@ -67,7 +85,23 @@ export function SuccessStepWithoutSavings() {
             <DialogDescription>Your order has been placed.</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
+        {/* {formattedOrderStatus && <div className="">{formattedOrderStatus}</div>} */}
         <div className="space-y-6 p-6">
+          {states.map((state, i) => (
+            <div
+              key={state}
+              className={cn("flex items-center gap-2", {
+                "animate-pulse":
+                  orderStatus === state && orderStatus !== "Completed",
+                "text-muted": orderStatus !== state,
+              })}
+            >
+              {formatTaskState(state)}{" "}
+              {i < states.indexOf(orderStatus) && "(DONE)"}
+              {i === states.indexOf(orderStatus) && Icon}
+            </div>
+          ))}
+
           <OrderSuccessSection />
         </div>
         <DialogFooter>
