@@ -231,7 +231,7 @@ export const columns: ColumnDef<OrderData>[] = [
               <div className="text-right text-sm">{percentageFilledLabel}</div>
             </div>
           ) : (
-            <div className="flex justify-end">--</div>
+            <div className="flex justify-center">--</div>
           )}
         </>
       )
