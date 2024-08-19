@@ -38,6 +38,8 @@ export function useSavingsAcrossFillsQuery({
           }),
         )
       },
+      staleTime: Infinity,
+      gcTime: Infinity,
     }),
     queryKey,
   }
