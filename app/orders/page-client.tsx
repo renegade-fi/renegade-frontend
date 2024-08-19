@@ -1,16 +1,10 @@
 "use client"
 
-import { OrderMetadata } from "@renegade-fi/react"
-
 import { DataTable } from "@/app/orders/data-table"
 
 import { useOrderTableData } from "@/hooks/use-order-table-data"
 
 import { columns } from "./columns"
-
-export interface OrderData extends OrderMetadata {
-  usdValue: string
-}
 
 export function PageClient() {
   const data = useOrderTableData()
