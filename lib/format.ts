@@ -120,8 +120,9 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
-    }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${
+    includeSymbol ? "%" : ""
+  }`
 }
 
 export const formatOrderState = (state: OrderState) => {
@@ -161,18 +162,21 @@ export const formatStatus = (status: UseStatusReturnType) => {
 
 export const safeParseUnits = (value: number | string, decimals: number) => {
   try {
-    let valueStr: string;
-    if (typeof value === 'number') {
-      valueStr = value.toString();
-      if (valueStr.includes('e')) {
-        valueStr = Number(value).toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: decimals });
+    let valueStr: string
+    if (typeof value === "number") {
+      valueStr = value.toString()
+      if (valueStr.includes("e")) {
+        valueStr = Number(value).toLocaleString("fullwide", {
+          useGrouping: false,
+          maximumFractionDigits: decimals,
+        })
       }
     } else {
-      valueStr = value;
+      valueStr = value
     }
     return parseUnits(valueStr, decimals)
   } catch (error) {
-    return Error("Failed to parse units");
+    return Error("Failed to parse units")
   }
 }
 

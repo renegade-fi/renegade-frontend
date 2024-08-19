@@ -1,6 +1,5 @@
 import { Token, useOrderHistory } from "@renegade-fi/react"
 
-
 import { usePrice } from "@/stores/price-store"
 
 export function useOrderTableData() {
