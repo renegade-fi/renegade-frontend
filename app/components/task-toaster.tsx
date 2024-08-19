@@ -15,8 +15,7 @@ import {
 import {
   isCancelOrderTask,
   isDepositTask,
-  isPayFeesTask,
-  isSettleMatchTask,
+  isPlaceOrderTask,
   isWithdrawTask,
 } from "@/lib/task"
 
@@ -30,7 +29,11 @@ export function TaskToaster() {
       seen.current.set(task.id, task)
       if (isWithdrawTask(task)) {
         processWithdrawTask(task)
-      } else {
+      } else if (
+        isDepositTask(task) ||
+        isPlaceOrderTask(task) ||
+        isCancelOrderTask(task)
+      ) {
         processTask(task)
       }
     },
@@ -40,16 +43,16 @@ export function TaskToaster() {
 }
 
 function processTask(incomingTask: Task) {
-  // Order toaster handles SettleMatch task completion
-  // Ignore pay fees tasks
-  // Handle withdraw tasks separately
-  if (
-    isSettleMatchTask(incomingTask) ||
-    isPayFeesTask(incomingTask) ||
-    isWithdrawTask(incomingTask)
-  ) {
-    return
-  }
+  // // Order toaster handles SettleMatch task completion
+  // // Ignore pay fees tasks
+  // // Handle withdraw tasks separately
+  // if (
+  //   isSettleMatchTask(incomingTask) ||
+  //   isPayFeesTask(incomingTask) ||
+  //   isWithdrawTask(incomingTask)
+  // ) {
+  //   return
+  // }
 
   const state = formatTaskState(incomingTask.state)
   if (isCancelOrderTask(incomingTask)) {
