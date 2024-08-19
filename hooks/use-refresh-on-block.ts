@@ -3,7 +3,7 @@ import React from "react"
 import { QueryKey, useQueryClient } from "@tanstack/react-query"
 import { useBlockNumber } from "wagmi"
 
-const N = BigInt(10)
+const N = BigInt(50)
 
 export function useRefreshOnBlock({ queryKey }: { queryKey: QueryKey }) {
   const queryClient = useQueryClient()
