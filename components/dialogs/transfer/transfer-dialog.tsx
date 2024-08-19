@@ -2,10 +2,10 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, parseAmount, useBalances } from "@renegade-fi/react"
+import { Token, UpdateType, useBalances, usePayFees } from "@renegade-fi/react"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits, parseUnits } from "viem"
+import { formatUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
@@ -43,6 +43,7 @@ import {
 import { useApprove } from "@/hooks/use-approve"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { useFeeOnZeroBalance } from "@/hooks/use-fee-on-zero-balance"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useWithdraw } from "@/hooks/use-withdraw"
@@ -82,6 +83,15 @@ export function TransferDialog({
   const [direction, setDirection] = React.useState<ExternalTransferDirection>(
     ExternalTransferDirection.Deposit,
   )
+
+  const { payFees } = usePayFees()
+  const feeOnZeroBalance = useFeeOnZeroBalance()
+
+  React.useEffect(() => {
+    if (open && feeOnZeroBalance) {
+      payFees()
+    }
+  }, [open, payFees, feeOnZeroBalance])
 
   if (isDesktop) {
     return (

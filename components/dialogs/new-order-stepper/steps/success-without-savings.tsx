@@ -43,10 +43,6 @@ export function SuccessStepWithoutSavings() {
   const formattedOrderStatus = orderStatus
     ? formatTaskState(orderStatus)
     : undefined
-  console.log(
-    "🚀 ~ SuccessStepWithoutSavings ~ formattedOrderStatus:",
-    formattedOrderStatus,
-  )
 
   useTaskHistoryWebSocket({
     onUpdate(task) {
