@@ -53,14 +53,16 @@ import { useReadErc20BalanceOf } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
-  amount: z.coerce
-    .number({
-      required_error: "You must submit an amount.",
-      invalid_type_error: "Amount must be a number",
-    })
-    .gt(0, {
-      message: "Amount is required",
-    }),
+  amount: z
+    .string()
+    .min(1, { message: "Amount is required" })
+    .refine(
+      (value) => {
+        const num = parseFloat(value)
+        return !isNaN(num) && num > 0
+      },
+      { message: "Amount must be greater than zero" },
+    ),
   mint: z.string().min(1, {
     message: "Token is required",
   }),
@@ -221,7 +223,7 @@ function TransferForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 0,
+      amount: "",
       mint: initialMint ?? "",
     },
   })
@@ -425,7 +427,8 @@ function TransferForm({
                         )}
                         placeholder="0.00"
                         {...field}
-                        value={field.value === 0 ? "" : field.value}
+                        // value={field.value === 0 ? "" : field.value}
+                        value={field.value}
                       />
                       {!hideMaxButton && (
                         <Button
@@ -457,7 +460,7 @@ function TransferForm({
                 className="h-5 p-0"
                 onClick={(e) => {
                   e.preventDefault()
-                  form.setValue("amount", Number(balance), {
+                  form.setValue("amount", balance, {
                     shouldValidate: true,
                   })
                 }}
