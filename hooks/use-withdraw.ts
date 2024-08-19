@@ -23,7 +23,7 @@ export function useWithdraw({
   amount,
 }: {
   mint?: string
-  amount: number
+  amount: string
 }) {
   const { address } = useAccount()
   const config = useConfig()

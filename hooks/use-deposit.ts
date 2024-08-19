@@ -22,7 +22,7 @@ export function useDeposit({
   amount,
 }: {
   mint?: string
-  amount: number
+  amount: string
 }) {
   const config = useConfig()
   const { data: walletClient } = useWalletClient()

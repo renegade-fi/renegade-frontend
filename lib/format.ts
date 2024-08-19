@@ -159,7 +159,7 @@ export const formatStatus = (status: UseStatusReturnType) => {
   }
 }
 
-export const safeParseUnits = (value: number, decimals: number) => {
+export const safeParseUnits = (value: number | string, decimals: number) => {
   try {
     let valueStr: string;
     if (typeof value === 'number') {
@@ -170,7 +170,7 @@ export const safeParseUnits = (value: number, decimals: number) => {
     } else {
       valueStr = value;
     }
-    return parseUnits(valueStr, decimals);
+    return parseUnits(valueStr, decimals)
   } catch (error) {
     return Error("Failed to parse units");
   }
