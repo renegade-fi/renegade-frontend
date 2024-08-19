@@ -11,6 +11,7 @@ import { cookieToInitialState } from "wagmi"
 
 import { getInitialPrices } from "@/app/actions"
 import { Faucet } from "@/app/components/faucet"
+import { InvalidateQueries } from "@/app/components/invalidate-queries"
 import { OrderToaster } from "@/app/components/order-toaster"
 import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
@@ -123,6 +124,7 @@ export default async function RootLayout({
                   theme="light"
                   visibleToasts={MAX_ORDERS}
                 />
+                <InvalidateQueries />
                 <OrderToaster />
                 <TaskToaster />
                 <ReactQueryDevtools initialIsOpen={false} />
