@@ -1,9 +1,7 @@
-import { OrderState, Token } from "@renegade-fi/react"
+import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
-
-import { OrderData } from "@/app/orders/page-client"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -15,6 +13,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
+import { amountTimesPrice } from "@/hooks/use-usd-price"
 import {
   formatCurrency,
   formatCurrencyFromString,
@@ -23,6 +22,7 @@ import {
   formatPercentage,
   formatTimestamp,
 } from "@/lib/format"
+import { usePrice } from "@/stores/price-store"
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -30,7 +30,7 @@ declare module "@tanstack/react-table" {
   }
 }
 
-export const columns: ColumnDef<OrderData>[] = [
+export const columns: ColumnDef<OrderMetadata>[] = [
   // {
   //   id: 'select',
   //   header: ({ table }) => (
@@ -107,7 +107,7 @@ export const columns: ColumnDef<OrderData>[] = [
   },
   {
     id: "usdValue",
-    accessorFn: (row) => Number(row.usdValue),
+    // accessorFn: (row) => Number(row.usdValue),
     header: ({ column }) => {
       return (
         <div className="flex flex-row-reverse">
@@ -136,8 +136,18 @@ export const columns: ColumnDef<OrderData>[] = [
         </div>
       )
     },
-    cell: ({ row }) => {
-      const usdValue = row.getValue<string>("usdValue")
+    cell: function Cell({ row }) {
+      const price = usePrice({
+        baseAddress: row.getValue<`0x${string}`>("mint"),
+      })
+      const usdValueBigInt = amountTimesPrice(
+        row.getValue<bigint>("amount"),
+        price,
+      )
+      const decimals = Token.findByAddress(
+        row.getValue<`0x${string}`>("mint"),
+      ).decimals
+      const usdValue = formatUnits(usdValueBigInt, decimals)
       return (
         <div className="pr-4 text-right">
           {formatCurrencyFromString(usdValue)}
