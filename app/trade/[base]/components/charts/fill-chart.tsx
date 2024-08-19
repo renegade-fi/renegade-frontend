@@ -44,7 +44,7 @@ function calculateYAxisDomain(
   const padding = (maxValue - minValue) * offset
   const lowerBound = minValue - padding
   const upperBound = maxValue + padding
-  if (minValue < 1) {
+  if (minValue < 10) {
     return [lowerBound, upperBound]
   }
   return [Math.floor(lowerBound), Math.ceil(upperBound)]
@@ -109,10 +109,12 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
     if (formattedFills.length === 1) {
       const fills = formattedFills.map((fill) => {
+        const adjustedTimestamp = Math.floor(fill.timestamp / 60000) * 60000
+        const bar = ohlc.find((bar) => bar.time === adjustedTimestamp)
         return {
           timestamp: fill.timestamp.toString(),
           fillPrice: fill.price,
-          price: undefined,
+          price: order.data.side === "Sell" ? bar?.low : bar?.high,
         }
       })
 
@@ -181,8 +183,6 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       ),
     [chartData],
   )
-
-  const firstFillIndex = chartData.findIndex((item) => item.fillPrice)
 
   return (
     <Card className="border-0">
@@ -294,7 +294,6 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                 />
               }
               cursor
-              defaultIndex={firstFillIndex}
             />
           </LineChart>
         </ChartContainer>
