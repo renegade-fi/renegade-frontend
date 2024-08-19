@@ -2,8 +2,6 @@
 
 import React from "react"
 
-import { Token, useOrderHistory } from "@renegade-fi/react"
-
 import { DepositBanner } from "@/app/components/deposit-banner"
 import { columns } from "@/app/orders/columns"
 import { DataTable } from "@/app/orders/data-table"
