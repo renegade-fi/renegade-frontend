@@ -110,7 +110,9 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     if (formattedFills.length === 1) {
       const fills = formattedFills.map((fill) => {
         const adjustedTimestamp = Math.floor(fill.timestamp / 60000) * 60000
-        const bar = ohlc.find((bar) => bar.time === adjustedTimestamp)
+        const currentBar = ohlc.find((bar) => bar.time === adjustedTimestamp)
+        const bar = currentBar ? currentBar : ohlc[ohlc.length - 1]
+
         return {
           timestamp: fill.timestamp.toString(),
           fillPrice: fill.price,
@@ -133,7 +135,8 @@ export function FillChart({ order }: { order: OrderMetadata }) {
 
     const fills = formattedFills.map((fill) => {
       const adjustedTimestamp = Math.floor(fill.timestamp / 60000) * 60000
-      const bar = ohlc.find((bar) => bar.time === adjustedTimestamp)
+      const currentBar = ohlc.find((bar) => bar.time === adjustedTimestamp)
+      const bar = currentBar ? currentBar : ohlc[ohlc.length - 1]
       return {
         timestamp: fill.timestamp.toString(),
         fillPrice: fill.price,
