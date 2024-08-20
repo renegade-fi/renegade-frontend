@@ -40,7 +40,7 @@ export function PageClient({
   isUSDCDenominated?: boolean
 }) {
   const onLayout = (sizes: number[]) => {
-    document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`
+    document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}; path=/; SameSite=Strict; Secure`
   }
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const isMounted = useMounted()
