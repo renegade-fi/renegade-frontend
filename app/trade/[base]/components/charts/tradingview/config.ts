@@ -1,4 +1,5 @@
 import {
+  ChartStyle,
   ChartTypeFavorites,
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
@@ -112,6 +113,10 @@ const time_frames = [
 ]
 
 const overrides = {
+  "mainSeriesProperties.style": 3,
+  // "mainSeriesProperties.areaStyle.color1": ""rgba(41, 98, 255, 0.28)"
+  // "mainSeriesProperties.areaStyle.color2": "rgba(173, 201, 255, 1)",
+  // "mainSeriesProperties.areaStyle.linecolor": "rgba(173, 201, 255, 1)",
   "paneProperties.backgroundType": "solid",
   "paneProperties.background": "#0B0A09",
   "paneProperties.vertGridProperties.color": "#292524",
