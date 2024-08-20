@@ -17,7 +17,7 @@ export function FeesSection({
   predictedSavings: number
   relayerFee: number
   protocolFee: number
-  amount: number
+  amount: string
 }) {
   const totalFees = relayerFee + protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : "--"

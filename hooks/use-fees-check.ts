@@ -10,9 +10,9 @@ export function useFeesCheck({
   params: NewOrderConfirmationProps
 }) {
   let shouldDisplaySavings = false
-  const orderValue = useOrderValue({ ...params })
+  const { priceInUsd } = useOrderValue({ ...params })
 
-  const threshold = orderValue * savingsThreshold
+  const threshold = parseFloat(priceInUsd) * savingsThreshold
 
   if (params.predictedSavings > threshold) {
     shouldDisplaySavings = true

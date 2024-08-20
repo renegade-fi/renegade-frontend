@@ -21,7 +21,7 @@ import { usePrice } from "@/stores/price-store"
 
 interface AmountShortcutButtonProps extends NewOrderFormProps {
   className?: string
-  onSetAmount: (amount: number) => void
+  onSetAmount: (amount: string) => void
   percentage: number
 }
 
@@ -113,17 +113,11 @@ export function AmountShortcutButton({
     if (!isUSDCDenominated && usdPrice < MIN_FILL_SIZE) {
       return 0
     }
-    const value = parseFloat(
-      formatUnits(
-        shortcut,
-        isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
-      ),
+    const value = formatUnits(
+      shortcut,
+      isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
     )
-    if (isUSDCDenominated) {
-      return Number(value.toFixed(2))
-    } else {
-      return Number(value.toFixed(baseToken.decimals * 0.5))
-    }
+    return value
   }, [
     baseToken.decimals,
     isUSDCDenominated,

@@ -19,6 +19,7 @@ import {
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useOrderValue } from "@/hooks/use-order-value"
 import { usePrice } from "@/stores/price-store"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
@@ -36,13 +37,10 @@ export function NewOrderStepperInner({
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const { amount, isUSDCDenominated, base } = props
-  const price = usePrice({
-    baseAddress: Token.findByTicker(base).address,
-  })
+  const { priceInUsd } = useOrderValue({ ...props })
   let baseAmount = amount
-  if (isUSDCDenominated && price) {
-    // TODO: [SAFETY]: Check if amount is a number
-    baseAmount = Number(amount) / price
+  if (isUSDCDenominated && priceInUsd) {
+    baseAmount = priceInUsd
   }
 
   if (isDesktop) {

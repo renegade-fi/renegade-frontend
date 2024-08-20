@@ -22,7 +22,7 @@ export function usePredictedFees({
     baseAddress: baseToken.address,
   })
 
-  const orderValue = useOrderValue({
+  const { priceInBase, priceInUsd } = useOrderValue({
     amount,
     base,
     isSell,
@@ -30,45 +30,45 @@ export function usePredictedFees({
   })
 
   // TODO: [PERFORMANCE] baseAmount triggers render each time price changes, should debounce price s.t. it changes every 10s
-  const baseAmount = React.useMemo(() => {
-    if (!price) return 0
-    if (isUSDCDenominated) {
-      return debouncedAmount / price
-    }
-    return debouncedAmount
-  }, [debouncedAmount, isUSDCDenominated, price])
+  // const baseAmount = React.useMemo(() => {
+  //   if (!price) return 0
+  //   if (isUSDCDenominated) {
+  //     return debouncedAmount / price
+  //   }
+  //   return debouncedAmount
+  // }, [debouncedAmount, isUSDCDenominated, price])
 
   const feesCalculation = React.useMemo(() => {
     let res = {
       relayerFee: 0,
       protocolFee: 0,
     }
-    if (!orderValue) return res
-    res.protocolFee = orderValue * PROTOCOL_FEE
-    res.relayerFee = orderValue * RELAYER_FEE
+    if (!priceInUsd) return res
+    res.protocolFee = parseFloat(priceInUsd) * PROTOCOL_FEE
+    res.relayerFee = parseFloat(priceInUsd) * RELAYER_FEE
     return res
-  }, [orderValue])
+  }, [priceInUsd])
 
-  const { data, isSuccess } = useSavings({
-    amount: baseAmount,
-    base,
-    isSell,
-    isUSDCDenominated,
-  })
-  const [predictedSavings, setPredictedSavings] = React.useState(0)
-  React.useEffect(() => {
-    setPredictedSavings((prev) => {
-      if (isSuccess && prev !== data.savings) {
-        return data.savings
-      } else if (!amount) {
-        return 0
-      }
-      return prev
-    })
-  }, [amount, data?.savings, isSuccess])
+  // const { data, isSuccess } = useSavings({
+  //   amount: baseAmount,
+  //   base,
+  //   isSell,
+  //   isUSDCDenominated,
+  // })
+  // const [predictedSavings, setPredictedSavings] = React.useState(0)
+  // React.useEffect(() => {
+  //   setPredictedSavings((prev) => {
+  //     if (isSuccess && prev !== data.savings) {
+  //       return data.savings
+  //     } else if (!amount) {
+  //       return 0
+  //     }
+  //     return prev
+  //   })
+  // }, [amount, data?.savings, isSuccess])
 
   return {
     ...feesCalculation,
-    predictedSavings,
+    predictedSavings: 0,
   }
 }

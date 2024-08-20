@@ -44,18 +44,20 @@ import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
-import { formatCurrency } from "@/lib/format"
+import { formatCurrency, formatCurrencyFromString } from "@/lib/format"
 import { usePrice } from "@/stores/price-store"
 
 const formSchema = z.object({
-  amount: z.coerce
-    .number({
-      required_error: "You must submit an amount.",
-      invalid_type_error: "Amount must be a number",
-    })
-    .gt(0, {
-      message: "You must submit an amount greater than 0.",
-    }),
+  amount: z
+    .string()
+    .min(1, { message: "Amount is required" })
+    .refine(
+      (value) => {
+        const num = parseFloat(value)
+        return !isNaN(num) && num > 0
+      },
+      { message: "Amount must be greater than zero" },
+    ),
   base: z.string(),
   isSell: z.boolean(),
   isUSDCDenominated: z.boolean(),
@@ -75,7 +77,7 @@ export function NewOrderForm({
   const isMaxOrders = useIsMaxOrders()
   const status = useStatus()
   const defaultValues = {
-    amount: 0,
+    amount: "",
     base,
     isSell: side === Side.SELL,
     isUSDCDenominated: isUSDCDenominated ?? false,
@@ -86,8 +88,10 @@ export function NewOrderForm({
   })
   const fees = usePredictedFees(form.watch())
   const [open, setOpen] = React.useState(false)
-  const orderValue = useOrderValue(form.watch())
-  const formattedOrderValue = orderValue ? formatCurrency(orderValue) : "--"
+  const { priceInUsd, priceInBase } = useOrderValue(form.watch())
+  const formattedOrderValue = priceInUsd
+    ? formatCurrencyFromString(priceInUsd)
+    : "--"
 
   const price = usePrice({
     baseAddress: Token.findByTicker(base).address,
@@ -98,11 +102,10 @@ export function NewOrderForm({
       if (name === "isUSDCDenominated") {
         setIsUSDCDenominated(value.isUSDCDenominated ?? false)
         if (value.isUSDCDenominated) {
-          form.setValue("amount", orderValue)
+          form.setValue("amount", priceInUsd)
         } else {
           if (price !== 0) {
-            const amount = (orderValue / price).toFixed(2)
-            form.setValue("amount", Number(amount))
+            form.setValue("amount", priceInBase)
           }
         }
       }
@@ -112,7 +115,7 @@ export function NewOrderForm({
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, orderValue, price])
+  }, [form, price, priceInBase, priceInUsd])
 
   React.useEffect(() => {
     if (form.getValues("base")) {
@@ -128,7 +131,7 @@ export function NewOrderForm({
 
   // TODO: Does this need more precision?
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (orderValue < 1) {
+    if (parseFloat(priceInUsd) < 1) {
       form.setError("amount", {
         message: "Order value must be at least 1 USDC",
       })
@@ -208,7 +211,7 @@ export function NewOrderForm({
                         className="h-12 rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
                         placeholder="0.00"
                         {...field}
-                        value={field.value === 0 ? "" : field.value}
+                        value={field.value}
                         type="number"
                       />
                     </FormControl>
