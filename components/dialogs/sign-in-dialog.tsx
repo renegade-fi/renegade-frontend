@@ -1,4 +1,5 @@
 import { useConfig, useConnect } from "@renegade-fi/react"
+import { getSkRoot } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { toast } from "sonner"
 import { useSignMessage } from "wagmi"
@@ -52,8 +53,14 @@ export function SignInDialog({
         async onSuccess(data) {
           console.log("signed message: ", data)
           config.setState((x) => ({ ...x, seed: data }))
+          const skRoot = getSkRoot(config)
+          const blinderShare = config.utils.derive_blinder_share(skRoot)
+          const logs = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
+            .then((res) => res.json())
+            .then((data) => data.logs)
+
           connect(
-            {},
+            { isCreateWallet: logs === 0 },
             {
               onSuccess(data, variables, context) {
                 if (data) {
