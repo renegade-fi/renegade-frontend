@@ -7,7 +7,6 @@ import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
-import { cookieToInitialState } from "wagmi"
 
 import { getInitialPrices } from "@/app/actions"
 import { Faucet } from "@/app/components/faucet"
@@ -23,7 +22,6 @@ import { IntercomProvider } from "@/providers/intercom-provider"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
-import { config } from "@/providers/wagmi-provider/config"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 import { PriceStoreProvider } from "@/stores/price-store"
 
@@ -87,7 +85,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const initialState = cookieToInitialState(config, headers().get("cookie"))
   const renegadeInitialState = renegadeCookieToInitialState(
     renegadeConfig,
     headers().get("cookie"),
@@ -106,7 +103,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <RenegadeProvider initialState={renegadeInitialState}>
-            <WagmiProvider initialState={initialState}>
+            <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
               <PriceStoreProvider initialPrices={prices}>
                 <TailwindIndicator />
                 <TooltipProvider

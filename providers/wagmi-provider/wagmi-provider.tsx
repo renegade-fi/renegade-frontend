@@ -7,8 +7,8 @@ import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider, getDefaultConfig } from "connectkit"
 import {
   WagmiProvider as Provider,
-  State,
   cookieStorage,
+  cookieToInitialState,
   createConfig,
   createStorage,
   http,
@@ -62,14 +62,15 @@ const connectKitOptions = {
 }
 
 export function WagmiProvider({
-  initialState,
   children,
+  cookie,
 }: {
-  initialState?: State
   children: React.ReactNode
+  cookie?: string
 }) {
   const [open, setOpen] = React.useState(false)
   const onOpenChange = () => setOpen(!open)
+  const initialState = cookieToInitialState(config, cookie)
   return (
     <Provider
       config={config}
