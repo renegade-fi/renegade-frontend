@@ -6,6 +6,11 @@ import { formatUnits } from "viem"
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
@@ -129,20 +134,29 @@ export function AmountShortcutButton({
 
   const isDisabled = !formattedShortcut
 
+  let tooltip = `${formattedShortcut} ${isUSDCDenominated ? quoteToken.ticker : baseToken.ticker}`
+
   return (
-    <Button
-      variant="outline"
-      className={cn(className)}
-      onClick={(e) => {
-        e.preventDefault()
-        if (formattedShortcut) {
-          onSetAmount(formattedShortcut)
-        }
-      }}
-      disabled={isDisabled}
-      size="sm"
-    >
-      {percentage === 100 ? "MAX" : `${percentage}%`}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(className)}
+          onClick={(e) => {
+            e.preventDefault()
+            if (formattedShortcut) {
+              onSetAmount(formattedShortcut)
+            }
+          }}
+          disabled={isDisabled}
+          size="sm"
+        >
+          {percentage === 100 ? "MAX" : `${percentage}%`}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="font-sans">{tooltip}</p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
