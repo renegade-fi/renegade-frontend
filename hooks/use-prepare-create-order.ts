@@ -18,7 +18,7 @@ export type UsePrepareCreateOrderParameters = {
   base: `0x${string}`
   quote: `0x${string}`
   side: "buy" | "sell"
-  amount: number
+  amount: string
 }
 
 export type UsePrepareCreateOrderReturnType = {
