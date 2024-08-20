@@ -111,7 +111,7 @@ export default async function RootLayout({
                   skipDelayDuration={0}
                 >
                   <IntercomProvider>
-                    <div className="">{children}</div>
+                    <div className="select-none">{children}</div>
                   </IntercomProvider>
                 </TooltipProvider>
                 <Toaster
