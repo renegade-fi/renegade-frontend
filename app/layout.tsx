@@ -1,5 +1,6 @@
 import localFont from "next/font/local"
 import { headers } from "next/headers"
+import Script from "next/script"
 import { userAgent } from "next/server"
 
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
@@ -111,6 +112,11 @@ export default async function RootLayout({
           </RenegadeProvider>
         </ThemeProvider>
         <Analytics />
+        <Script
+          id="ze-snippet"
+          src="https://static.zdassets.com/ekr/snippet.js?key=0093b78b-22e2-475a-a370-a15a4b7bf55c"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   )
