@@ -116,7 +116,7 @@ export function Header() {
           ) : (
             <ConnectWalletButton />
           )}
-          <SettingsPopover>
+          {/* <SettingsPopover>
             <Button
               className=""
               variant="outline"
@@ -124,7 +124,7 @@ export function Header() {
             >
               <Ellipsis className="h-4 w-4 text-muted-foreground" />
             </Button>
-          </SettingsPopover>
+          </SettingsPopover> */}
         </div>
       </div>
     </header>
