@@ -90,7 +90,7 @@ export function Footer() {
             </Tooltip>
           )}
         </div>
-        <div className="ml-auto pr-20 text-xs">
+        <div className="ml-auto pr-[140px] text-xs">
           <Button
             asChild
             size="icon"
