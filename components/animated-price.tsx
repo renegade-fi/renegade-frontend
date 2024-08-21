@@ -9,9 +9,11 @@ import { cn } from "@/lib/utils"
 import { usePrice } from "@/stores/price-store"
 
 export function AnimatedPrice({
+  className,
   exchange = "binance",
   mint,
 }: {
+  className?: string
   exchange?: Exchange
   mint: `0x${string}`
 }) {
@@ -37,7 +39,7 @@ export function AnimatedPrice({
   return (
     <span
       key={animationKey}
-      className={cn({
+      className={cn(className, {
         "animate-price-green": price > prev.current,
         "animate-price-red": price < prev.current,
       })}
