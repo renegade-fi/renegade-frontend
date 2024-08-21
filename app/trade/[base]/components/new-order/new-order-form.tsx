@@ -179,7 +179,7 @@ export function NewOrderForm({
                 </FormItem>
               )}
             />
-            <TokenSelectDialog>
+            <TokenSelectDialog ticker={base}>
               <Button
                 variant="outline"
                 className="flex-1 border-l-0 font-serif text-2xl font-bold"
