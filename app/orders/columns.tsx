@@ -204,7 +204,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
           <TooltipTrigger asChild>
             <div className="pr-4 text-right">{formatted}</div>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent side="right">
             <p className="font-sans">
               {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
               {token.ticker}

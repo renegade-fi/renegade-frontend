@@ -122,7 +122,7 @@ export function AssetsSection({
           <TooltipTrigger>
             <span>{formattedBaseUsdPrice}</span>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent side="right">
             <p>{`${formattedBaseBalance} ${base}`}</p>
           </TooltipContent>
         </Tooltip>
@@ -150,7 +150,7 @@ export function AssetsSection({
           <TooltipTrigger>
             <span>{formattedQuoteUsdPrice}</span>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent side="right">
             <p>{`${formattedQuoteBalance} ${quote}`}</p>
           </TooltipContent>
         </Tooltip>

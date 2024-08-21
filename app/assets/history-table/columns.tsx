@@ -89,7 +89,10 @@ export const columns: ColumnDef<HistoryData>[] = [
           <TooltipTrigger asChild>
             <div className="text-right">{formatted}</div>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent
+            side="right"
+            sideOffset={15}
+          >
             <p className="font-sans">
               {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
               {token.ticker}
