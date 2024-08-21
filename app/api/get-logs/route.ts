@@ -1,6 +1,8 @@
-import { chain } from "@/lib/viem"
 import { NextRequest } from "next/server"
+
 import { createPublicClient, http, parseAbiItem } from "viem"
+
+import { chain } from "@/lib/viem"
 
 export const runtime = "edge"
 
@@ -13,7 +15,7 @@ const viemClient = createPublicClient({
 export async function GET(req: NextRequest) {
   try {
     const blinderShare = BigInt(
-      req.nextUrl.searchParams.get("blinderShare") || "0"
+      req.nextUrl.searchParams.get("blinderShare") || "0",
     )
     if (!blinderShare) {
       throw new Error("Blinder share is required")
@@ -21,7 +23,7 @@ export async function GET(req: NextRequest) {
     const logs = await viemClient.getLogs({
       address: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
       event: parseAbiItem(
-        "event WalletUpdated(uint256 indexed wallet_blinder_share)"
+        "event WalletUpdated(uint256 indexed wallet_blinder_share)",
       ),
       args: {
         wallet_blinder_share: blinderShare,
