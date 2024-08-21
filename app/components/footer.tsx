@@ -45,7 +45,7 @@ export function Footer() {
               <ContextMenuItem
                 className="rounded-none font-extended"
                 onClick={() => {
-                  window.open("https://renegade.fi/logos.zip", "_blank")
+                  window.open("/logos.zip", "_blank")
                 }}
               >
                 Download Logo Pack
