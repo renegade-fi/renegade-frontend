@@ -38,9 +38,10 @@ export function BBOMarquee({ base }: { base: string }) {
             href={constructExchangeUrl(exchange, base)}
             target="_blank"
           >
-            <div className="flex justify-center gap-4">
+            <div className="flex items-baseline justify-center gap-4 leading-none">
               <span>{names[exchange]}</span>
               <AnimatedPrice
+                className="font-mono"
                 exchange={exchange}
                 mint={Token.findByTicker(base).address}
               />
