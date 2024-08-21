@@ -1,9 +1,17 @@
 import type { NextRequest } from "next/server"
-import { NextResponse } from "next/server"
+import { NextResponse, userAgent } from "next/server"
 
 import { STORAGE_BASE } from "@/lib/constants/storage"
 
 export function middleware(request: NextRequest) {
+  const { device } = userAgent(request)
+  if (device.type === "mobile") {
+    if (request.nextUrl.pathname !== "/m") {
+      request.nextUrl.pathname = "/m"
+      return NextResponse.rewrite(request.nextUrl)
+    }
+    return
+  }
   if (
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname === "/trade"

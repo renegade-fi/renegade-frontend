@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import { headers } from "next/headers"
+import { userAgent } from "next/server"
 
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
@@ -89,6 +90,7 @@ export default async function RootLayout({
     renegadeConfig,
     headers().get("cookie"),
   )
+  const { device } = userAgent({ headers: headers() })
   // const prices = await getInitialPrices()
   const prices = new Map()
   return (
@@ -110,7 +112,7 @@ export default async function RootLayout({
                   delayDuration={0}
                   skipDelayDuration={0}
                 >
-                  <IntercomProvider>
+                  <IntercomProvider isMobile={device.type === "mobile"}>
                     <div className="select-none">{children}</div>
                   </IntercomProvider>
                 </TooltipProvider>
