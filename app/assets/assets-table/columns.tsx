@@ -77,7 +77,7 @@ export const columns: ColumnDef<BalanceData>[] = [
   },
   {
     accessorKey: "l2Balance",
-    header: () => <div>Arbitrum Balance</div>,
+    header: () => <div className="text-right">Arbitrum Balance</div>,
     cell: ({ row, table }) => {
       const balance = row.original.rawL2Balance
       const token = Token.findByAddress(row.original.mint)
@@ -91,7 +91,7 @@ export const columns: ColumnDef<BalanceData>[] = [
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="pr-4 text-right">{formatted}</div>
+            <div className="text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-sans">
@@ -141,7 +141,7 @@ export const columns: ColumnDef<BalanceData>[] = [
   },
   {
     accessorKey: "renegadeBalance",
-    header: () => <div>Renegade Balance</div>,
+    header: () => <div className="text-right">Renegade Balance</div>,
     cell: ({ row, table }) => {
       const balance = row.original.rawRenegadeBalance
       const token = Token.findByAddress(row.original.mint)
@@ -155,7 +155,7 @@ export const columns: ColumnDef<BalanceData>[] = [
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="pr-4 text-right">{formatted}</div>
+            <div className="text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-sans">
