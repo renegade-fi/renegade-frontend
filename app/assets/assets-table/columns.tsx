@@ -77,32 +77,7 @@ export const columns: ColumnDef<BalanceData>[] = [
   },
   {
     accessorKey: "l2Balance",
-    header: ({ column }) => (
-      <div className="flex flex-row-reverse">
-        <Button
-          variant="ghost"
-          onClick={() => {
-            const isSorted = column.getIsSorted()
-            if (isSorted === "desc") {
-              column.toggleSorting(false)
-            } else if (isSorted === "asc") {
-              column.clearSorting()
-            } else {
-              column.toggleSorting(true)
-            }
-          }}
-        >
-          Arbitrum Balance
-          {column.getIsSorted() === "asc" ? (
-            <ChevronUp className="ml-2 h-4 w-4" />
-          ) : column.getIsSorted() === "desc" ? (
-            <ChevronDown className="ml-2 h-4 w-4" />
-          ) : (
-            <ChevronsUpDown className="ml-2 h-4 w-4" />
-          )}
-        </Button>
-      </div>
-    ),
+    header: () => <div>Arbitrum Balance</div>,
     cell: ({ row, table }) => {
       const balance = row.original.rawL2Balance
       const token = Token.findByAddress(row.original.mint)
@@ -166,32 +141,7 @@ export const columns: ColumnDef<BalanceData>[] = [
   },
   {
     accessorKey: "renegadeBalance",
-    header: ({ column }) => (
-      <div className="flex flex-row-reverse">
-        <Button
-          variant="ghost"
-          onClick={() => {
-            const isSorted = column.getIsSorted()
-            if (isSorted === "desc") {
-              column.toggleSorting(false)
-            } else if (isSorted === "asc") {
-              column.clearSorting()
-            } else {
-              column.toggleSorting(true)
-            }
-          }}
-        >
-          Renegade Balance
-          {column.getIsSorted() === "asc" ? (
-            <ChevronUp className="ml-2 h-4 w-4" />
-          ) : column.getIsSorted() === "desc" ? (
-            <ChevronDown className="ml-2 h-4 w-4" />
-          ) : (
-            <ChevronsUpDown className="ml-2 h-4 w-4" />
-          )}
-        </Button>
-      </div>
-    ),
+    header: () => <div>Renegade Balance</div>,
     cell: ({ row, table }) => {
       const balance = row.original.rawRenegadeBalance
       const token = Token.findByAddress(row.original.mint)
