@@ -35,7 +35,13 @@ import { STORAGE_FAVORITES } from "@/lib/constants/storage"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
-export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
+export function TokenSelectDialog({
+  children,
+  ticker,
+}: {
+  children: React.ReactNode
+  ticker: string
+}) {
   const [open, setOpen] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
   const [debouncedSearchTerm] = useDebounceValue(searchTerm, 300)
@@ -63,6 +69,8 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
             <TokenList
               enabled={open}
               searchTerm={debouncedSearchTerm}
+              onClose={() => setOpen(false)}
+              ticker={ticker}
             />
           </ScrollArea>
         </DialogContent>
@@ -87,6 +95,8 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
           <TokenList
             enabled={open}
             searchTerm={debouncedSearchTerm}
+            onClose={() => setOpen(false)}
+            ticker={ticker}
           />
         </ScrollArea>
         <DrawerFooter className="pt-2">
@@ -102,9 +112,13 @@ export function TokenSelectDialog({ children }: { children: React.ReactNode }) {
 function TokenList({
   enabled,
   searchTerm,
+  onClose,
+  ticker,
 }: {
   enabled: boolean
   searchTerm: string
+  onClose: () => void
+  ticker: string
 }) {
   const renegadeStatus = useStatus()
   const { data, status } = useWallet({
@@ -167,6 +181,7 @@ function TokenList({
             <div
               className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
               key={token.address}
+              onClick={() => token.ticker === ticker && onClose()}
             >
               <Link
                 href={`/trade/${token.ticker}`}
