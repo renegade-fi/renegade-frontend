@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
     {
-      id: "renegadeBalance",
+      id: "renegadeUsdValue",
       desc: true,
     },
   ])
