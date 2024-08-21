@@ -213,9 +213,9 @@ export function OrderDetailsSheet({
               data={data}
               isCancelled={order.state === OrderState.Cancelled}
             />
-            <div className="flex cursor-pointer items-center gap-2 text-xs text-muted transition-colors hover:text-muted-foreground">
+            {/* <div className="flex cursor-pointer items-center gap-2 text-xs text-muted transition-colors hover:text-muted-foreground">
               <Info className="h-4 w-4" /> How are savings calculated?
-            </div>
+            </div> */}
           </div>
         </ScrollArea>
       </SheetContent>
