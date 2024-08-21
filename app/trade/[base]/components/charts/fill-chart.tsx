@@ -305,7 +305,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 text-xs leading-none text-muted-foreground">
-              Data by Ambderdata.
+              Data by Amberdata.
             </div>
           </div>
         </div>
