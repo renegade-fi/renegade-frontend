@@ -427,7 +427,6 @@ function TransferForm({
                         )}
                         placeholder="0.00"
                         {...field}
-                        // value={field.value === 0 ? "" : field.value}
                         value={field.value}
                       />
                       {!hideMaxButton && (

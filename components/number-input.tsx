@@ -6,6 +6,12 @@ import { cn } from "@/lib/utils"
 
 const NumberInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
+    const handleBeforeInput = (event: React.FormEvent<HTMLInputElement>) => {
+      const inputEvent = event.nativeEvent as InputEvent
+      if (inputEvent.data && !/^\d*\.?\d*$/.test(inputEvent.data)) {
+        event.preventDefault()
+      }
+    }
     return (
       <Input
         className={cn(
@@ -13,6 +19,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, InputProps>(
           className,
         )}
         onWheel={(e) => (e.target as HTMLElement).blur()}
+        onBeforeInput={handleBeforeInput}
         ref={ref}
         type="number"
         {...props}
