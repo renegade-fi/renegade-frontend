@@ -81,22 +81,34 @@ export function SuccessStepWithoutSavings() {
             <DialogDescription>Your order has been placed.</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        {/* {formattedOrderStatus && <div className="">{formattedOrderStatus}</div>} */}
         <div className="space-y-6 p-6">
-          {states.map((state, i) => (
-            <div
-              key={state}
-              className={cn("flex items-center gap-2", {
-                "animate-pulse":
-                  orderStatus === state && orderStatus !== "Completed",
-                "text-muted": orderStatus !== state,
-              })}
-            >
-              {formatTaskState(state)}{" "}
-              {i < states.indexOf(orderStatus) && "(DONE)"}
-              {i === states.indexOf(orderStatus) && Icon}
-            </div>
-          ))}
+          <div className="space-y-1 border p-4 font-mono">
+            {states.map((state, i) => (
+              <div
+                key={state}
+                className={cn(
+                  "flex items-center justify-between transition-colors hover:text-primary",
+                  {
+                    "animate-pulse":
+                      orderStatus === state && orderStatus !== "Completed",
+                    "text-muted": orderStatus !== state,
+                  },
+                )}
+              >
+                {i + 1}. {formatTaskState(state)}{" "}
+                {orderStatus === state && orderStatus !== "Completed" && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                {orderStatus === "Completed" &&
+                  i === states.indexOf(orderStatus) && (
+                    <Check className="h-4 w-4" />
+                  )}
+                {states.indexOf(orderStatus) > i && (
+                  <Check className="h-4 w-4" />
+                )}
+              </div>
+            ))}
+          </div>
 
           <OrderSuccessSection />
         </div>
@@ -143,16 +155,16 @@ export function SuccessStepWithoutSavings() {
 function OrderSuccessSection() {
   return (
     <>
-      <div className="border p-4 text-sm text-muted-foreground">
+      <div className="space-y-4 border p-4 text-sm text-muted-foreground">
         <div className="flex items-start justify-between">
           Did you know?
-          <Button
+          {/* <Button
             size="icon"
             variant="ghost"
             className="rounded-none"
           >
             <Repeat className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </div>
         <div>All trades are pre-trade and post-trade private.</div>
       </div>
