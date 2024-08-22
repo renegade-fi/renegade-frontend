@@ -16,7 +16,6 @@ export function PriceChart({ base }: { base: string }) {
 
   const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
     symbol: `${remapToken(base)}_usdt`,
-    ...config,
   }
   return (
     <>
