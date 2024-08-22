@@ -11,6 +11,7 @@ import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 
 import { getInitialPrices } from "@/app/actions"
+import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
 import { InvalidateQueries } from "@/app/components/invalidate-queries"
 import { OrderToaster } from "@/app/components/order-toaster"
@@ -129,6 +130,7 @@ export default async function RootLayout({
                 <TaskToaster />
                 <ReactQueryDevtools initialIsOpen={false} />
                 <Faucet />
+                <LazyDatadog />
               </PriceStoreProvider>
             </WagmiProvider>
           </RenegadeProvider>

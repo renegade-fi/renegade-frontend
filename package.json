@@ -12,6 +12,8 @@
     "postinstall": "./postinstall.sh"
   },
   "dependencies": {
+    "@datadog/browser-logs": "^5.23.3",
+    "@datadog/browser-rum": "^5.23.3",
     "@hookform/resolvers": "^3.9.0",
     "@nivo/line": "^0.87.0",
     "@radix-ui/react-avatar": "^1.1.0",

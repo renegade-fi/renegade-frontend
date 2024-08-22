@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@datadog/browser-logs':
+        specifier: ^5.23.3
+        version: 5.23.3(@datadog/browser-rum@5.23.3)
+      '@datadog/browser-rum':
+        specifier: ^5.23.3
+        version: 5.23.3(@datadog/browser-logs@5.23.3)
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.52.1(react@18.3.1))
@@ -999,6 +1005,28 @@ packages:
 
   '@coinbase/wallet-sdk@4.0.4':
     resolution: {integrity: sha512-74c040CRnGhfRjr3ArnkAgud86erIqdkPHNt5HR1k9u97uTIZCJww9eGYT67Qf7gHPpGS/xW8Be1D4dvRm63FA==}
+
+  '@datadog/browser-core@5.23.3':
+    resolution: {integrity: sha512-WaVJfTIHqU1m6voRlxVOEPXBBjHzr/ygE8tYTQRIVCWo7w/3yGOpc6dqlclHM/dpAHBVJ/L8/rQZLp0FoOAmOA==}
+
+  '@datadog/browser-logs@5.23.3':
+    resolution: {integrity: sha512-OGUDn0KVnfWwIv8gK8q6D7Z1U2XFekKVYcqrq8UXnHM+mznn/j31I3Z/FAUuBNsk/Xr3U70OZw1QtFQTB69fng==}
+    peerDependencies:
+      '@datadog/browser-rum': 5.23.3
+    peerDependenciesMeta:
+      '@datadog/browser-rum':
+        optional: true
+
+  '@datadog/browser-rum-core@5.23.3':
+    resolution: {integrity: sha512-kJBbRCttzSwUe4T6Hz2swhnX1V9uhmmkxuRY7hE1JExsii8Ub9VSILIXQ9EkkwRm+Ax2/BxJAgsAscSzF+wqFQ==}
+
+  '@datadog/browser-rum@5.23.3':
+    resolution: {integrity: sha512-T8tt3M0muq3Wwm6RzAZFnOM1xoXo/fY4vJPMCexgyO/SSxl39p9UkkGn8K5Dq1Ry8XQQnf3XoO9IJvfcFVo7ew==}
+    peerDependencies:
+      '@datadog/browser-logs': 5.23.3
+    peerDependenciesMeta:
+      '@datadog/browser-logs':
+        optional: true
 
   '@emotion/is-prop-valid@0.8.8':
     resolution: {integrity: sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==}
@@ -7637,6 +7665,25 @@ snapshots:
       keccak: 3.0.4
       preact: 10.23.1
       sha.js: 2.4.11
+
+  '@datadog/browser-core@5.23.3': {}
+
+  '@datadog/browser-logs@5.23.3(@datadog/browser-rum@5.23.3)':
+    dependencies:
+      '@datadog/browser-core': 5.23.3
+    optionalDependencies:
+      '@datadog/browser-rum': 5.23.3(@datadog/browser-logs@5.23.3)
+
+  '@datadog/browser-rum-core@5.23.3':
+    dependencies:
+      '@datadog/browser-core': 5.23.3
+
+  '@datadog/browser-rum@5.23.3(@datadog/browser-logs@5.23.3)':
+    dependencies:
+      '@datadog/browser-core': 5.23.3
+      '@datadog/browser-rum-core': 5.23.3
+    optionalDependencies:
+      '@datadog/browser-logs': 5.23.3(@datadog/browser-rum@5.23.3)
 
   '@emotion/is-prop-valid@0.8.8':
     dependencies:
