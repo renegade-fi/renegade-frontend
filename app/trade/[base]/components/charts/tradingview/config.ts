@@ -55,12 +55,7 @@ const disabled_features: Partial<ChartingLibraryFeatureset>[] = [
   "show_chart_property_page",
   "header_screenshot",
   "create_volume_indicator_by_default",
-  "save_chart_properties_to_local_storage",
 ]
-
-if (process.env.NODE_ENV === "development") {
-  disabled_features.push("use_localstorage_for_settings")
-}
 
 const enabled_features = [
   "items_favoriting",
@@ -113,10 +108,6 @@ const time_frames = [
 ]
 
 const overrides = {
-  "mainSeriesProperties.style": 3,
-  // "mainSeriesProperties.areaStyle.color1": ""rgba(41, 98, 255, 0.28)"
-  // "mainSeriesProperties.areaStyle.color2": "rgba(173, 201, 255, 1)",
-  // "mainSeriesProperties.areaStyle.linecolor": "rgba(173, 201, 255, 1)",
   "paneProperties.backgroundType": "solid",
   "paneProperties.background": "#0B0A09",
   "paneProperties.vertGridProperties.color": "#292524",
@@ -233,7 +224,6 @@ function constructConfig(
 export const config = constructConfig({
   autosize: true,
   custom_css_url: "/static/theme.css",
-  // debug: process.env.NODE_ENV === "development",
   debug: false,
   disabled_features,
   enabled_features,
@@ -243,6 +233,6 @@ export const config = constructConfig({
   library_path: "/static/charting_library/",
   loading_screen,
   overrides,
-  theme: "dark",
   time_frames,
+
 })
