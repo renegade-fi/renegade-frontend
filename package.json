@@ -35,6 +35,7 @@
     "@renegade-fi/tradingview-charts": "0.27.6",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-table": "^8.17.3",
+    "@vercel/analytics": "^1.3.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
