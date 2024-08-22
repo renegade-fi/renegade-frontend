@@ -7,6 +7,8 @@ import {
   widget,
 } from "@renegade-fi/tradingview-charts"
 
+import { config } from "@/app/trade/[base]/components/charts/tradingview/config"
+
 import { datafeed } from "./datafeed"
 
 export default function TradingViewChart(
@@ -21,7 +23,8 @@ export default function TradingViewChart(
       datafeed,
       interval: props.interval as ResolutionString,
       locale: props.locale as LanguageCode,
-      ...props,
+      symbol: props.symbol,
+      ...config,
     }
 
     const tvWidget = new widget(widgetOptions)
