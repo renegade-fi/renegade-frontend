@@ -6,6 +6,7 @@ import { userAgent } from "next/server"
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { Analytics } from "@vercel/analytics/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 
@@ -132,6 +133,7 @@ export default async function RootLayout({
             </WagmiProvider>
           </RenegadeProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )
