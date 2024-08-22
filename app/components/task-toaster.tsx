@@ -43,26 +43,7 @@ export function TaskToaster() {
 }
 
 function processTask(incomingTask: Task) {
-  // // Order toaster handles SettleMatch task completion
-  // // Ignore pay fees tasks
-  // // Handle withdraw tasks separately
-  // if (
-  //   isSettleMatchTask(incomingTask) ||
-  //   isPayFeesTask(incomingTask) ||
-  //   isWithdrawTask(incomingTask)
-  // ) {
-  //   return
-  // }
-
   const state = formatTaskState(incomingTask.state)
-  if (isCancelOrderTask(incomingTask)) {
-    console.log("debug incoming task", {
-      id: incomingTask.id,
-      n: incomingTask.task_info.amount,
-      state,
-    })
-  }
-
   if (incomingTask.state === "Completed") {
     const message = generateCompletionToastMessage(incomingTask)
     toast.success(message, {
