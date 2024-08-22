@@ -116,15 +116,17 @@ export function Header() {
           ) : (
             <ConnectWalletButton />
           )}
-          <SettingsPopover>
-            <Button
-              className=""
-              variant="outline"
-              size="icon"
-            >
-              <Ellipsis className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </SettingsPopover>
+          {status === "in relayer" && (
+            <SettingsPopover>
+              <Button
+                className=""
+                variant="outline"
+                size="icon"
+              >
+                <Ellipsis className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </SettingsPopover>
+          )}
         </div>
       </div>
     </header>
