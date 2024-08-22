@@ -11,15 +11,25 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export function SettingsPopover({ children }: { children: React.ReactNode }) {
   const walletId = useWalletId()
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-80 rounded-none">
+      <PopoverContent
+        className="w-80 rounded-none"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+        }}
+      >
         <div className="grid gap-4">
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="animate">Animate banners</Label>
               <Checkbox
@@ -58,9 +68,9 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
               />
             </div>
           </div>
-          <Separator />
+          <Separator /> */}
           <div className="grid gap-2">
-            <Button
+            {/* <Button
               variant="link"
               className="h-fit w-fit p-0"
             >
@@ -71,13 +81,25 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
               className="h-fit w-fit p-0"
             >
               Terms and Conditions
-            </Button>
-            <Button
-              variant="link"
-              className="h-fit w-fit p-0 font-mono text-xs"
-            >
-              {walletId}
-            </Button>
+            </Button> */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="link"
+                  className="h-fit w-fit p-0 font-mono text-xs"
+                  onClick={() => {
+                    if (walletId) {
+                      navigator.clipboard.writeText(walletId)
+                    }
+                  }}
+                >
+                  {walletId}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-sans">Copy wallet ID</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </PopoverContent>
