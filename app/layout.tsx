@@ -21,6 +21,7 @@ import { TaskToaster } from "@/app/components/task-toaster"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
+import { constructMetadata } from "@/lib/utils"
 import { IntercomProvider } from "@/providers/intercom-provider"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
@@ -63,25 +64,7 @@ const fontMono = localFont({
   variable: "--font-mono",
 })
 
-export const metadata: Metadata = {
-  title: {
-    template: "%s | Renegade",
-    default: "Trade | Renegade",
-  },
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-}
+export const metadata = constructMetadata()
 
 export default async function RootLayout({
   children,
