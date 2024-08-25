@@ -53,8 +53,7 @@ export function SignInDialog({
         async onSuccess(data) {
           console.log("signed message: ", data)
           config.setState((x) => ({ ...x, seed: data }))
-          const skRoot = getSkRoot(config)
-          const blinderShare = config.utils.derive_blinder_share(skRoot)
+          const blinderShare = config.utils.derive_blinder_share(data)
           const logs = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
             .then((res) => res.json())
             .then((data) => data.logs)
