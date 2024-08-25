@@ -32,6 +32,7 @@ export function usePrepareCreateOrder(
   const config = useConfig()
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
+    if (!config.state.seed) return Error("Seed is required")
     // TODO: Create error types for common errors in SDK
     if (!isSuccess) return Error("Failed to fetch wallet.")
     if (wallet.orders.filter((order) => order.amount).length >= MAX_ORDERS)
@@ -42,6 +43,7 @@ export function usePrepareCreateOrder(
     )
     if (parsedAmount instanceof Error) return Error("Failed to parse amount.")
     return config.utils.new_order(
+      config.state.seed,
       stringifyForWasm(wallet),
       id,
       base,
