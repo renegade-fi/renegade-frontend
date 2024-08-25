@@ -2,9 +2,9 @@ import React from "react"
 
 import {
   Token,
-  parseAmount,
+  useBackOfQueueWallet,
   useConfig,
-  useTaskHistory,
+  useTaskHistory
 } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { QueryStatus } from "@tanstack/react-query"
@@ -31,6 +31,11 @@ export function useDeposit({
     (task) => task.state !== "Completed" && task.state !== "Failed",
   )
   const [status, setStatus] = React.useState<QueryStatus>()
+  const { data: keychainNonce } = useBackOfQueueWallet({
+    query: {
+      select: (wallet) => wallet.key_chain.nonce
+    }
+  })
 
   async function handleDeposit({
     onSuccess,
@@ -45,7 +50,9 @@ export function useDeposit({
       return
     }
     // TODO: Make into hook
-    const pkRoot = getPkRootScalars(config)
+    const pkRoot = getPkRootScalars(config, {
+      nonce: keychainNonce ?? BigInt(0)
+    })
     setStatus("pending")
     // Generate Permit2 Signature
     const { signature, nonce, deadline } = await signPermit2({
