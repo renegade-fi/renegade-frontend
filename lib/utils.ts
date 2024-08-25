@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
+import { Metadata } from "next/types";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -85,3 +86,51 @@ export const fundList: { ticker: string; amount: string }[] = [
     amount: "10000",
   },
 ]
+
+export function constructMetadata({
+  title = `Renegade Testnet | On-Chain Dark Pool`,
+  description = `Trade any ERC-20 with zero price impact. Renegade is a MPC-based dark pool, delivering zero slippage cryptocurrency trades via anonymous crosses at midpoint prices.`,
+  image = "/opengraph.png",
+  noIndex = false,
+}: {
+  title?: string
+  description?: string
+  image?: string | null
+  noIndex?: boolean
+} = {}): Metadata {
+  return {
+    title: {
+      template: "%s | Renegade",
+      default: "Trade | Renegade",
+    },
+    description,
+    openGraph: {
+      title,
+      description,
+      url: process.env.NEXT_PUBLIC_URL,
+      ...(image && {
+        images: [
+          {
+            url: image,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      title,
+      description,
+      ...(image && {
+        card: "summary_large_image",
+        images: [image],
+      }),
+      creator: "@renegade_fi",
+    },
+    metadataBase: new URL("https://trade.renegade.fi"),
+    ...(noIndex && {
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }),
+  }
+}
