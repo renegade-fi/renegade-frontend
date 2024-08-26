@@ -1,6 +1,8 @@
 "use client"
 
-import { useWalletId } from "@renegade-fi/react"
+import { useConfig, useStatus, useWalletId } from "@renegade-fi/react"
+import { refreshWallet } from "@renegade-fi/react/actions"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -17,8 +19,22 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import {
+  FAILED_REFRESH_WALLET_MSG,
+  START_REFRESH_WALLET_MSG,
+} from "@/lib/constants/task"
+
 export function SettingsPopover({ children }: { children: React.ReactNode }) {
+  const config = useConfig()
+  const status = useStatus()
   const walletId = useWalletId()
+  const handleRefreshWallet = async () => {
+    if (status === "in relayer") {
+      await refreshWallet(config)
+        .then(() => toast.message(START_REFRESH_WALLET_MSG))
+        .catch(() => toast.message(FAILED_REFRESH_WALLET_MSG))
+    }
+  }
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
@@ -82,6 +98,13 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
             >
               Terms and Conditions
             </Button> */}
+            <Button
+              variant="link"
+              className="h-fit w-fit p-0"
+              onClick={handleRefreshWallet}
+            >
+              Refresh wallet
+            </Button>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
