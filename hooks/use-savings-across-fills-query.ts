@@ -1,10 +1,7 @@
 import { OrderMetadata, Token, formatAmount } from "@renegade-fi/react"
 import { useQuery } from "@tanstack/react-query"
 
-import {
-  RENEGADE_PROTOCOL_FEE_RATE,
-  RENEGADE_RELAYER_FEE_RATE,
-} from "@/lib/constants/protocol"
+import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 
 export function useSavingsAcrossFillsQuery({
   order,
@@ -19,7 +16,7 @@ export function useSavingsAcrossFillsQuery({
     baseTicker: baseToken.ticker,
     quoteTicker,
     direction,
-    renegadeFeeRate: RENEGADE_PROTOCOL_FEE_RATE + RENEGADE_RELAYER_FEE_RATE,
+    renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,
     timestamp: Number(fill.price.timestamp),
   }))
   const queryKey = ["savings-across-fills", order.id]

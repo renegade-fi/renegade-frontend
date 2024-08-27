@@ -1,10 +1,14 @@
+import { GlowText } from "@/components/glow-text"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { FEES_SECTION_FEES } from "@/lib/constants/tooltips"
+import {
+  FEES_SECTION_FEES,
+  FEES_SECTION_TOTAL_SAVINGS,
+} from "@/lib/constants/tooltips"
 import { formatCurrency } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
@@ -37,11 +41,7 @@ export function FeesSection({
         </Tooltip>
         <span>{amount ? feeLabel : "--"}</span>
       </div>
-      {/* <div
-        className={cn("flex justify-between transition-colors", {
-          "font-bold": !!totalFees && !!binanceFee,
-        })}
-      >
+      <div className={cn("flex justify-between transition-colors")}>
         <Tooltip>
           <TooltipTrigger>
             <span className="text-muted-foreground">
@@ -53,11 +53,11 @@ export function FeesSection({
           </TooltipContent>
         </Tooltip>
         <GlowText
-          enabled={!!predictedSavings && !!amount && savingsLabel !== "$0.00"}
           className="bg-green-price"
+          enabled={!!predictedSavings && !!amount && savingsLabel !== "$0.00"}
           text={savingsLabel}
         />
-      </div> */}
+      </div>
     </>
   )
 }
