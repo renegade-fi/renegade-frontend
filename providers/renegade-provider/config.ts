@@ -1,10 +1,9 @@
 import {
-  RenegadeProvider as Provider,
-  cookieStorage,
   createConfig,
-  createStorage,
+  createStorage
 } from "@renegade-fi/react"
 
+import { cookieStorage } from "@/lib/cookie"
 import { viemClient } from "@/lib/viem"
 
 export const config = createConfig({
