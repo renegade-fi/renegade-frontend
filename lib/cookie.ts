@@ -16,7 +16,7 @@ export const cookieStorage: BaseStorage = {
     },
     setItem(key: string, value: string): void {
         if (typeof window === 'undefined') return
-        document.cookie = `${key}=${value};path=/;SameSite=Strict;Secure;max-age=31536000`
+        document.cookie = `${key}=${value};path=/;SameSite=Strict;Secure;max-age=604800`
     },
     removeItem(key: string): void {
         if (typeof window === 'undefined') return
