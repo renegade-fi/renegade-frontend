@@ -8,6 +8,7 @@ import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-o
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
+import { useSavings } from "@/hooks/use-savings-query"
 
 export function usePredictedFees({
   amount,
@@ -46,26 +47,26 @@ export function usePredictedFees({
     return res
   }, [priceInUsd])
 
-  // const { data, isSuccess } = useSavings({
-  //   amount: baseAmount,
-  //   base,
-  //   isSell,
-  //   isUSDCDenominated,
-  // })
-  // const [predictedSavings, setPredictedSavings] = React.useState(0)
-  // React.useEffect(() => {
-  //   setPredictedSavings((prev) => {
-  //     if (isSuccess && prev !== data.savings) {
-  //       return data.savings
-  //     } else if (!amount) {
-  //       return 0
-  //     }
-  //     return prev
-  //   })
-  // }, [amount, data?.savings, isSuccess])
+  const { data, isSuccess } = useSavings({
+    amount: debouncedAmount,
+    base,
+    isSell,
+    isUSDCDenominated,
+  })
+  const [predictedSavings, setPredictedSavings] = React.useState(0)
+  React.useEffect(() => {
+    setPredictedSavings((prev) => {
+      if (isSuccess && prev !== data.savings) {
+        return data.savings
+      } else if (!amount) {
+        return 0
+      }
+      return prev
+    })
+  }, [amount, data?.savings, isSuccess])
 
   return {
     ...feesCalculation,
-    predictedSavings: 0,
+    predictedSavings,
   }
 }

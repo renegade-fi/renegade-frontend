@@ -3,10 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
-import {
-  RENEGADE_PROTOCOL_FEE_RATE,
-  RENEGADE_RELAYER_FEE_RATE,
-} from "@/lib/constants/protocol"
+import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 
 export function useSavings({ amount, base, isSell }: NewOrderFormProps) {
   const baseToken = Token.findByTicker(base)
@@ -15,7 +12,7 @@ export function useSavings({ amount, base, isSell }: NewOrderFormProps) {
     baseTicker: baseToken.ticker,
     direction: isSell ? "sell" : "buy",
     quoteTicker: "USDC",
-    renegadeFeeRate: RENEGADE_PROTOCOL_FEE_RATE + RENEGADE_RELAYER_FEE_RATE,
+    renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,
   }
   const queryKey = ["savings", options]
   return {
