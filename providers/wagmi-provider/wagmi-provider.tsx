@@ -7,7 +7,6 @@ import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider, getDefaultConfig } from "connectkit"
 import {
   WagmiProvider as Provider,
-  cookieStorage,
   cookieToInitialState,
   createConfig,
   createStorage,
@@ -18,6 +17,7 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
 
+import { cookieStorage } from "@/lib/cookie"
 import { chain } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
@@ -97,10 +97,10 @@ export function WagmiProvider({
 
 function SyncRenegadeWagmiState() {
   const config = useConfig()
-  const { address, connector, status } = useAccount()
+  const { connector } = useAccount()
 
-  // Disconnect on wallet change
   React.useEffect(() => {
+    if (!connector?.emitter) return
     const handleConnectorUpdate = (
       data: {
         accounts?: readonly `0x${string}`[] | undefined
@@ -109,35 +109,27 @@ function SyncRenegadeWagmiState() {
         uid: string
       },
     ) => {
-      if (data.accounts) {
-        console.log("disconnecting because connector update")
-        disconnect(config)
-      }
+      console.log("connector update", data)
+      disconnect(config)
     }
 
-    if (connector?.emitter) {
-      connector.emitter.on("change", handleConnectorUpdate)
-    }
+    connector.emitter.on("change", handleConnectorUpdate)
 
     return () => {
-      if (connector?.emitter) {
-        connector?.emitter.off("change", handleConnectorUpdate)
-      }
+      connector.emitter.off("change", handleConnectorUpdate)
     }
   }, [config, connector])
 
   useAccountEffect({
+    // onConnect(data) {
+    //   console.log("🚀 ~ onConnect ~ data:", data)
+    //   console.log("disconnecting because onConnect")
+    //   disconnect(config)
+    // },
     onDisconnect() {
       console.log("disconnecting because onDisconnect")
       disconnect(config)
     },
   })
-
-  React.useEffect(() => {
-    if (!address) {
-      console.log("disconnecting because address is undefined")
-      disconnect(config)
-    }
-  }, [address, config])
   return null
 }
