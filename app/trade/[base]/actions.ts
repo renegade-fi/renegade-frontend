@@ -8,17 +8,24 @@ import {
   STORAGE_BASE,
 } from "@/lib/constants/storage"
 
+function setCookie(key: string, value: string) {
+  cookies().set(key, value, {
+    path: "/",
+    sameSite: "strict",
+    secure: true,
+    maxAge: 31536000,
+
+  })
+}
+
 export async function setSide(side: "buy" | "sell") {
-  cookies().set(STORAGE_SIDE, side)
+  setCookie(STORAGE_SIDE, side)
 }
 
 export async function setIsUSDCDenominated(isUSDCDenominated: boolean) {
-  cookies().set(
-    STORAGE_IS_USDC_DENOMINATED,
-    isUSDCDenominated ? "true" : "false",
-  )
+  setCookie(STORAGE_IS_USDC_DENOMINATED, isUSDCDenominated ? "true" : "false")
 }
 
 export async function setBase(base: string) {
-  cookies().set(STORAGE_BASE, base)
+  setCookie(STORAGE_BASE, base)
 }
