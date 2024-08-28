@@ -120,9 +120,8 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${
-    includeSymbol ? "%" : ""
-  }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
+    }`
 }
 
 export const formatOrderState = (state: OrderState) => {
@@ -192,4 +191,9 @@ export function formatTimestampReadable(ms: number): string {
   const hours = Math.floor(ms / oneHour)
   const minutes = Math.floor((ms % oneHour) / oneMinute)
   return `${hours}h ${minutes}m`
+}
+
+
+export function formatStat(volume: number) {
+  return numeral(volume).format("$0,0.00a")
 }
