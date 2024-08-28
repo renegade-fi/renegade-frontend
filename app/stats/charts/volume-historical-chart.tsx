@@ -2,8 +2,18 @@
 
 import * as React from "react"
 
+import { useQueryClient } from "@tanstack/react-query"
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+
+import {
+  getCumulativeVolume,
+  useCumulativeVolume,
+} from "@/app/stats/hooks/use-cumulative-volume"
+import {
+  getHistoricalVolume,
+  useHistoricalVolume,
+} from "@/app/stats/hooks/use-historical-volume"
 
 import {
   Card,
@@ -18,6 +28,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+
+import { formatVolume } from "@/lib/format"
 
 const chartConfig = {
   volume: {
@@ -26,28 +40,107 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function VolumeHistorical({
-  initialData,
-}: {
-  initialData: { timestamp: string; volume: number }[]
-}) {
+/**
+ * Rounds the given timestamp to the next day at midnight (UTC)
+ * @param timestamp Unix timestamp in seconds
+ * @returns Unix timestamp in seconds for the next day at midnight
+ */
+function roundToNextDay(timestamp: number): number {
+  const date = new Date(timestamp * 1000)
+  date.setUTCHours(24, 0, 0, 0)
+  return Math.floor(date.getTime() / 1000)
+}
+
+const timePeriod = {
+  year: 365 * 24 * 60 * 60,
+  month: 30 * 24 * 60 * 60,
+} as const
+
+export function VolumeHistoricalChart() {
+  const [value, setValue] = React.useState<keyof typeof timePeriod>("year")
+
+  const now = roundToNextDay(Math.floor(Date.now() / 1000)) // Current time in seconds
+  const { data } = useHistoricalVolume({
+    from: now - timePeriod[value],
+    to: now,
+  })
+
+  const { data: cumulativeData } = useCumulativeVolume({
+    from: now - timePeriod[value],
+    to: now,
+  })
+  const cumulativeVolumeLabel = React.useMemo(() => {
+    if (!cumulativeData) return ""
+    return formatVolume(cumulativeData[cumulativeData.length - 1].volume)
+  }, [cumulativeData])
+
+  const queryClient = useQueryClient()
+
+  // Prefetch data for the other time period
+  React.useEffect(() => {
+    const otherPeriod = value === "year" ? "month" : "year"
+    const from = now - timePeriod[otherPeriod]
+
+    queryClient.prefetchQuery({
+      queryKey: [
+        "stats",
+        "historical-volume",
+        { from, to: now, interval: 86400 },
+      ],
+      queryFn: () => getHistoricalVolume({ from, to: now, interval: 86400 }),
+    })
+
+    queryClient.prefetchQuery({
+      queryKey: ["stats", "cumulative-volume", { from, to: now }],
+      queryFn: () => getCumulativeVolume({ from, to: now }),
+    })
+  }, [now, queryClient, value])
+
   return (
-    <Card>
+    <Card className="w-full rounded-none">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>Renegade Volume</CardTitle>
-          <CardDescription></CardDescription>
+          <CardTitle className="font-serif text-4xl font-bold">
+            {cumulativeVolumeLabel ? (
+              cumulativeVolumeLabel
+            ) : (
+              <Skeleton className="h-10 w-40" />
+            )}
+          </CardTitle>
+          <CardDescription>Past {value}</CardDescription>
         </div>
-        <div className="flex"></div>
+        <div className="flex px-8">
+          <ToggleGroup
+            type="single"
+            size="lg"
+            value={value}
+            onValueChange={(value) => {
+              if (value) setValue(value as keyof typeof timePeriod)
+            }}
+          >
+            <ToggleGroupItem
+              value="month"
+              aria-label="1M"
+            >
+              M
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="year"
+              aria-label="1Y"
+            >
+              Y
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
       </CardHeader>
-      <CardContent className="px-2 sm:p-6">
+      <CardContent>
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
           <BarChart
             accessibilityLayer
-            data={initialData}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -65,6 +158,7 @@ export function VolumeHistorical({
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
+                  hour: "numeric",
                 })
               }}
             />
@@ -97,7 +191,8 @@ export function VolumeHistorical({
                     return new Date(Number(value)).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
-                      year: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
                     })
                   }}
                 />

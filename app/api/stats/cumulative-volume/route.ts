@@ -2,12 +2,18 @@ import { DDogClient } from "@renegade-fi/internal-sdk"
 
 export const runtime = "edge"
 
-export async function GET() {
+export async function GET(request: Request) {
     const ddog = new DDogClient()
     try {
-        const to = ddog.getTimestamp()
-        const from = to - 365 * 24 * 60 * 60 // One year in seconds
-        const res = await ddog.getTotalMatchVolume(from, to)
+        const { searchParams } = new URL(request.url)
+        const to = parseInt(searchParams.get('to') || '')
+        const from = parseInt(searchParams.get('from') || '')
+
+        if (isNaN(to) || isNaN(from)) {
+            return new Response(JSON.stringify({ error: 'Invalid to or from parameter' }), { status: 400 })
+        }
+
+        const res = await ddog.getCumulativeMatchVolume(from, to)
         if (res.status === 'ok') {
             if (res.series && res.series.length > 0) {
                 return new Response(JSON.stringify({ data: res.series[0].pointlist }), { status: 200 })
