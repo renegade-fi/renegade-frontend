@@ -1,0 +1,8 @@
+{
+    "crons": [
+      {
+        "path": "/api/chain/set-inflow-kv",
+        "schedule": "0 */4 * * *"
+      }
+    ]
+}
