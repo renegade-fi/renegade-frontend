@@ -72,8 +72,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@renegade-fi/react':
-        specifier: 0.0.0-canary-20240826223907
-        version: 0.0.0-canary-20240826223907(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+        specifier: 0.0.53
+        version: 0.0.53(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@renegade-fi/tradingview-charts':
         specifier: 0.27.6
         version: 0.27.6
@@ -2412,8 +2412,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  '@renegade-fi/core@0.0.0-canary-20240826223907':
-    resolution: {integrity: sha512-FCerQY3eaAUa5Ghixcpd7egBn2vDdYf5KvNMHZDq0ip3aV+qyACRJkP5tRGiH5bE1pXloVoKrb3I9mzM4WpLqA==}
+  '@renegade-fi/core@0.0.50':
+    resolution: {integrity: sha512-+vSIu7yzA9ofGauSaZ7OSh0Gug0nk7ibpkTaat8Hi60xj0G2U7I4LQ/JoI00pK1KsSk6fbVa8jxg7cgIMZPaPA==}
     peerDependencies:
       '@tanstack/query-core': '>=5.0.0'
       viem: 2.x
@@ -2421,8 +2421,8 @@ packages:
       '@tanstack/query-core':
         optional: true
 
-  '@renegade-fi/react@0.0.0-canary-20240826223907':
-    resolution: {integrity: sha512-vIKRRuN1X2GVAaBBoAjHzzgZ1kiALIlS/LdqmJ3bWhiRg/A0X0ciTqL7zSMmqKcDrzQOzzpICricWyMb8ZhoMA==}
+  '@renegade-fi/react@0.0.53':
+    resolution: {integrity: sha512-soiXrH3DknsM3MQT+7/vZtmdoiBLLzNTIWqZv2RfueNJVWMOn5Z8CSW6PUopT83BWlXfAfqkkfa7I9Br5wx3eQ==}
     peerDependencies:
       '@tanstack/react-query': '>=5.0.0'
       react: '>=18'
@@ -9359,7 +9359,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@renegade-fi/core@0.0.0-canary-20240826223907(@tanstack/query-core@5.45.0)(@types/react@18.3.3)(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@renegade-fi/core@0.0.50(@tanstack/query-core@5.45.0)(@types/react@18.3.3)(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
       axios: 1.7.5
       isomorphic-ws: 5.0.0(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -9376,9 +9376,9 @@ snapshots:
       - react
       - ws
 
-  '@renegade-fi/react@0.0.0-canary-20240826223907(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@renegade-fi/react@0.0.53(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
-      '@renegade-fi/core': 0.0.0-canary-20240826223907(@tanstack/query-core@5.45.0)(@types/react@18.3.3)(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@renegade-fi/core': 0.0.50(@tanstack/query-core@5.45.0)(@types/react@18.3.3)(react@18.3.1)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@tanstack/react-query': 5.45.1(react@18.3.1)
       json-bigint: 1.0.0
       react: 18.3.1
