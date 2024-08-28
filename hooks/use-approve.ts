@@ -4,9 +4,10 @@ import { Token } from "@renegade-fi/react"
 import { QueryStatus, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
-import { useAccount } from "wagmi"
+import { BaseError, useAccount, useWaitForTransactionReceipt } from "wagmi"
 
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
+import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { viemClient } from "@/lib/viem"
 
@@ -24,7 +25,8 @@ export function useApprove({
   enabled?: boolean
 }) {
   const { address } = useAccount()
-  const { data, isSuccess, queryKey } = useReadErc20Allowance({
+  const queryClient = useQueryClient()
+  const { data: allowance, isSuccess, queryKey } = useReadErc20Allowance({
     address: mint as `0x${string}`,
     args: [address ?? "0x", process.env.NEXT_PUBLIC_PERMIT2_CONTRACT],
     query: {
@@ -38,38 +40,16 @@ export function useApprove({
   })
   const [status, setStatus] = React.useState<QueryStatus>()
 
-  useRefreshOnBlock({ queryKey })
+  const needsApproval = React.useMemo(() => {
+    if (!mint || !isAddress(mint) || !address || !isSuccess) return false
+    const token = Token.findByAddress(mint as `0x${string}`)
+    const parsedAmount = safeParseUnits(amount, token.decimals)
+    if (parsedAmount instanceof Error) return false
+    return parsedAmount > allowance
+  }, [mint, address, allowance, isSuccess, amount])
 
-  const needsApproval = isSuccess && !data
-  // Flag is true if and only if allowance successfully fetched and allowance is less than amount
-  // let needsApproval = false
-  // if (isSuccess && amount && mint && isAddress(mint)) {
-  //   needsApproval = data < parseAmount(amount, Token.findByAddress(mint))
-  // }
+  const { writeContract, data: hash } = useWriteErc20Approve()
 
-  // TODO: Handle error case
-  const { writeContract } = useWriteErc20Approve({
-    mutation: {
-      onSuccess(data, variables, context) {
-        toast(`Approved ${Token.findByAddress(variables.address).ticker}`, {
-          action: {
-            label: "Explorer",
-            onClick: () => {
-              window.open(
-                `${viemClient.chain.blockExplorers?.default.url}/tx/${data}`,
-                "_blank",
-              )
-            },
-          },
-        })
-      },
-      onError(error) {
-        toast.error(`Error approving. Reason: ${error.message}`)
-      },
-    },
-  })
-
-  const queryClient = useQueryClient()
   async function handleApprove({ onSuccess }: { onSuccess?: () => void }) {
     if (!mint || !isAddress(mint) || !address) return
     setStatus("pending")
@@ -83,18 +63,41 @@ export function useApprove({
         nonce,
       },
       {
-        onSuccess() {
+        onSuccess(data, variables) {
+          toast(`Approved ${Token.findByAddress(variables.address).ticker}`, {
+            action: {
+              label: "Explorer",
+              onClick: () => {
+                window.open(
+                  `${viemClient.chain.blockExplorers?.default.url}/tx/${data}`,
+                  "_blank",
+                )
+              },
+            },
+          })
+
           setStatus("success")
           onSuccess?.()
-          queryClient.invalidateQueries({ queryKey })
         },
         onError(error) {
           setStatus("error")
-          toast.error(`Error approving. Reason: ${error.message}`)
+          toast.error(
+            `Error approving: ${(error as BaseError).shortMessage || error.message}`,
+          )
         },
       },
     )
   }
+
+  const { isSuccess: isApproved } = useWaitForTransactionReceipt({
+    hash,
+  })
+  React.useEffect(() => {
+    if (isApproved) {
+      queryClient.invalidateQueries({ queryKey })
+    }
+  }, [isApproved, queryClient, queryKey])
+  useRefreshOnBlock({ queryKey })
 
   return { needsApproval, handleApprove, status }
 }
