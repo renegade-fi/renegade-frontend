@@ -113,6 +113,7 @@ const overrides = {
   "paneProperties.vertGridProperties.color": "#292524",
   "paneProperties.horzGridProperties.color": "#292524",
   "paneProperties.separatorColor": "#292524",
+  "scalesProperties.textColor": "hsl(24, 5.4%, 63.9%)",
 }
 
 const customTimezones = new Set([
@@ -234,5 +235,5 @@ export const config = constructConfig({
   loading_screen,
   overrides,
   time_frames,
-
+  // custom_font_family: "var(--font-sans)",
 })
