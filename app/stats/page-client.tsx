@@ -1,5 +1,6 @@
 "use client"
 
+import { InflowsOutflowsChart } from "@/app/stats/charts/inflows-outflows-chart"
 import { TvlCumulativeDisplay } from "@/app/stats/charts/tvl-cumulative-display"
 import { VolumeHistoricalChart } from "@/app/stats/charts/volume-historical-chart"
 
@@ -18,6 +19,12 @@ export function PageClient() {
             <h1 className="mb-4 mt-6 font-serif text-3xl font-bold">Volume</h1>
             <VolumeHistoricalChart />
           </div>
+        </div>
+        <div className="flex-1">
+          <h1 className="mb-4 mt-6 font-serif text-3xl font-bold">
+            Inflows / Outflows
+          </h1>
+          <InflowsOutflowsChart />
         </div>
       </div>
     </main>
