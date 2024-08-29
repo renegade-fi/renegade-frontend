@@ -194,6 +194,6 @@ export function formatTimestampReadable(ms: number): string {
 }
 
 
-export function formatVolume(volume: number) {
+export function formatStat(volume: number) {
   return numeral(volume).format("$0,0.00a")
 }

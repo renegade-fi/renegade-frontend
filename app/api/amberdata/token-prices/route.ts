@@ -1,0 +1,33 @@
+import { NextRequest } from "next/server"
+import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
+import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
+
+export const runtime = "edge"
+
+export async function GET(req: NextRequest) {
+    const tokens = DISPLAY_TOKENS()
+    try {
+        const apiKey = process.env.NEXT_PUBLIC_AMBERDATA_API_KEY;
+        if (!apiKey) {
+            throw new Error("NEXT_PUBLIC_AMBERDATA_API_KEY is not set");
+        }
+
+        const pricePromises = tokens.map(token => fetchAssetPrice(remapToken(token.ticker), apiKey));
+        const priceResults = await Promise.all(pricePromises);
+
+        const priceData = tokens.map((token, index) => ({
+            ticker: token.ticker,
+            price: priceResults[index].payload.price
+        }));
+
+        return new Response(JSON.stringify({ data: priceData }), {
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        console.error("Error fetching token prices:", error);
+        return new Response(
+            JSON.stringify({ error: error instanceof Error ? error.message : "Failed to fetch price data" }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
+}

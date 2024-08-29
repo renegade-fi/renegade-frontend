@@ -31,7 +31,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
-import { formatVolume } from "@/lib/format"
+import { formatStat } from "@/lib/format"
 
 const chartConfig = {
   volume: {
@@ -71,7 +71,7 @@ export function VolumeHistoricalChart() {
   })
   const cumulativeVolumeLabel = React.useMemo(() => {
     if (!cumulativeData) return ""
-    return formatVolume(cumulativeData[cumulativeData.length - 1].volume)
+    return formatStat(cumulativeData[cumulativeData.length - 1].volume)
   }, [cumulativeData])
 
   const queryClient = useQueryClient()
