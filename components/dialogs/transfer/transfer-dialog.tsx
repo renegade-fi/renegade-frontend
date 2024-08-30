@@ -107,9 +107,6 @@ export function TransferDialog({
         <DialogContent
           className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
           hideCloseButton
-          onOpenAutoFocus={(e) => {
-            e.preventDefault()
-          }}
           onPointerDownOutside={(e) => {
             // Prevent closing the dialog when clicking inside toast
             if (
@@ -437,6 +434,7 @@ function TransferForm({
                       />
                       {!hideMaxButton && (
                         <Button
+                          type="button"
                           variant="ghost"
                           size="icon"
                           className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
@@ -461,6 +459,7 @@ function TransferForm({
                 &nbsp;Balance
               </div>
               <Button
+                type="button"
                 variant="link"
                 className="h-5 p-0"
                 onClick={(e) => {

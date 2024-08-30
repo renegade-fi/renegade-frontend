@@ -85,6 +85,7 @@ export function TokenSelect({
     >
       <PopoverTrigger asChild>
         <Button
+          autoFocus
           variant="outline"
           role="combobox"
           aria-expanded={open}
