@@ -45,7 +45,7 @@ export async function getHistoricalVolume({ from, to, interval }: VolumeParams) 
     if (interval) searchParams.append('interval', interval.toString());
 
     const url = `/api/stats/historical-volume?${searchParams.toString()}`;
-    const res = await fetch(url, { cache: 'force-cache' }).then((res) => res.json());
+    const res = await fetch(url, { cache: 'force-cache', next: { revalidate: 3600 } }).then((res) => res.json());
     if (res.error) {
         throw new Error(res.error);
     }
