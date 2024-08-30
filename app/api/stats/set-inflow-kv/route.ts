@@ -49,8 +49,10 @@ async function getBlockTimestamps(
 }
 
 export async function GET(req: NextRequest) {
+  console.log("Starting cron job: set-inflow-kv")
   try {
     // Get all token prices
+    console.log("Fetching token prices")
     const tokens = DISPLAY_TOKENS()
     const apiKey = process.env.NEXT_PUBLIC_AMBERDATA_API_KEY
     if (!apiKey) {
@@ -66,13 +68,16 @@ export async function GET(req: NextRequest) {
       ticker: token.ticker,
       price: priceResults[index].payload.price,
     }))
+    console.log(`Fetched prices for ${priceData.length} tokens`)
 
     // Get the last processed block number
     let fromBlock = BigInt(
       (await kv.get(LAST_PROCESSED_BLOCK_KEY)) || process.env.FROM_BLOCK || 0,
     )
-    console.log("🚀 ~ GET ~ fromBlock:", fromBlock)
+    console.log(`Starting from block: ${fromBlock}`)
+
     // Get all external transfer logs
+    console.log("Fetching external transfer logs")
     const logs = await viemClient.getLogs({
       address: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
       event: parseAbiItem(
@@ -80,18 +85,23 @@ export async function GET(req: NextRequest) {
       ),
       fromBlock: fromBlock,
     })
+    console.log(`Fetched ${logs.length} logs`)
 
     if (logs.length === 0) {
+      console.log("No new logs to process")
       return new Response(JSON.stringify({ message: "No new logs to process" }))
     }
 
     // Get timestamps for all blocks (chunked)
+    console.log("Fetching block timestamps")
     const uniqueBlockNumbers = Array.from(
       new Set(logs.map((log) => log.blockNumber)),
     )
     const blockNumberToTimestamp = await getBlockTimestamps(uniqueBlockNumbers)
+    console.log(`Fetched timestamps for ${uniqueBlockNumbers.length} blocks`)
 
     // Process all logs
+    console.log("Processing logs")
     const processPromises = logs.map(async (log) => {
       const mint = log.args.mint?.toString().toLowerCase()
       if (mint && isAddress(mint)) {
@@ -130,11 +140,14 @@ export async function GET(req: NextRequest) {
     const processedResults = results.filter(
       (result): result is ExternalTransferData => result !== null,
     )
+    console.log(`Successfully processed ${processedResults.length} logs`)
 
     // Store the last processed block number
     const lastProcessedBlock = logs[logs.length - 1].blockNumber
     await kv.set(LAST_PROCESSED_BLOCK_KEY, lastProcessedBlock.toString())
+    console.log(`Updated last processed block to ${lastProcessedBlock}`)
 
+    console.log("Cron job completed successfully")
     return new Response(
       JSON.stringify({
         message: `Processed ${processedResults.length} logs`,
@@ -142,7 +155,7 @@ export async function GET(req: NextRequest) {
       }),
     )
   } catch (error) {
-    console.error(error)
+    console.error("Error in cron job:", error)
     return new Response(JSON.stringify({ error }), { status: 500 })
   }
 }

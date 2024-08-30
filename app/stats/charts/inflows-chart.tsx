@@ -60,15 +60,12 @@ export function InflowsChart() {
       return sum
     }, 0)
   }, [data])
-  const netFlowColor = netFlow24h >= 0 ? "text-blue" : "text-primary"
 
   return (
     <Card className="w-full rounded-none">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle
-            className={`font-serif text-4xl font-bold ${netFlowColor}`}
-          >
+          <CardTitle className={`font-serif text-4xl font-bold`}>
             {netFlow24h ? (
               numeral(netFlow24h).format("$0.00a")
             ) : (
