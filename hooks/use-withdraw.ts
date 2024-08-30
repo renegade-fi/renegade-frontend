@@ -2,8 +2,7 @@ import {
   Token,
   UpdateType,
   useConfig,
-  usePayFees,
-  useTaskHistory,
+  usePayFees
 } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
@@ -12,9 +11,8 @@ import { useAccount } from "wagmi"
 
 import {
   FAILED_WITHDRAWAL_MSG,
-  QUEUED_WITHDRAWAL_MSG,
   WITHDRAW_TOAST_ID,
-  constructStartToastMessage,
+  constructStartToastMessage
 } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 
@@ -27,14 +25,6 @@ export function useWithdraw({
 }) {
   const { address } = useAccount()
   const config = useConfig()
-  const { data: isQueue } = useTaskHistory({
-    query: {
-      select: (data) =>
-        Array.from(data.values()).some(
-          (task) => task.state !== "Completed" && task.state !== "Failed",
-        ),
-    },
-  })
   const { payFeesAsync } = usePayFees()
 
   const handleWithdraw = async ({
@@ -49,9 +39,7 @@ export function useWithdraw({
       toast.error("Withdrawal amount is invalid")
       return
     }
-    const message = isQueue
-      ? QUEUED_WITHDRAWAL_MSG(token, parsedAmount)
-      : constructStartToastMessage(UpdateType.Withdraw)
+    const message = constructStartToastMessage(UpdateType.Withdraw)
     const id = WITHDRAW_TOAST_ID(mint, parsedAmount)
     console.log("starting withdraw toast with id: ", id)
 
