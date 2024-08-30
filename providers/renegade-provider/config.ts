@@ -1,7 +1,4 @@
-import {
-  createConfig,
-  createStorage
-} from "@renegade-fi/react"
+import { createConfig, createStorage } from "@renegade-fi/react"
 
 import { cookieStorage } from "@/lib/cookie"
 import { viemClient } from "@/lib/viem"

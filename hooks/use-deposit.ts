@@ -4,7 +4,7 @@ import {
   Token,
   useBackOfQueueWallet,
   useConfig,
-  useTaskHistory
+  useTaskHistory,
 } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { QueryStatus } from "@tanstack/react-query"
@@ -33,8 +33,8 @@ export function useDeposit({
   const [status, setStatus] = React.useState<QueryStatus>()
   const { data: keychainNonce } = useBackOfQueueWallet({
     query: {
-      select: (wallet) => wallet.key_chain.nonce
-    }
+      select: (wallet) => wallet.key_chain.nonce,
+    },
   })
 
   async function handleDeposit({
@@ -51,7 +51,7 @@ export function useDeposit({
     }
     // TODO: Make into hook
     const pkRoot = getPkRootScalars(config, {
-      nonce: keychainNonce ?? BigInt(0)
+      nonce: keychainNonce ?? BigInt(0),
     })
     setStatus("pending")
     // Generate Permit2 Signature

@@ -1,8 +1,8 @@
 {
-    "crons": [
-      {
-        "path": "/api/stats/set-inflow-kv",
-        "schedule": "0 */4 * * *"
-      }
-    ]
+  "crons": [
+    {
+      "path": "/api/stats/set-inflow-kv",
+      "schedule": "0 */4 * * *"
+    }
+  ]
 }

@@ -26,7 +26,11 @@ export function useApprove({
 }) {
   const { address } = useAccount()
   const queryClient = useQueryClient()
-  const { data: allowance, isSuccess, queryKey } = useReadErc20Allowance({
+  const {
+    data: allowance,
+    isSuccess,
+    queryKey,
+  } = useReadErc20Allowance({
     address: mint as `0x${string}`,
     args: [address ?? "0x", process.env.NEXT_PUBLIC_PERMIT2_CONTRACT],
     query: {
