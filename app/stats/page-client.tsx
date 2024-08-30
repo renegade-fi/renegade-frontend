@@ -7,7 +7,7 @@ import { VolumeChart } from "@/app/stats/charts/volume-chart"
 export function PageClient() {
   return (
     <main>
-      <div className="container mt-12 space-y-12">
+      <div className="container mb-8 mt-12 space-y-12">
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-1">
             <h1 className="mb-4 mt-6 font-serif text-3xl font-bold">

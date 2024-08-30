@@ -24,6 +24,28 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { formatStat } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
+const tokenColors = {
+  WBTC: "orange",
+  WETH: "blue",
+  BNB: "yellow",
+  MATIC: "purple",
+  LDO: "sky",
+  USDC: "blue",
+  USDT: "green",
+  LINK: "sky",
+  UNI: "pink",
+  SUSHI: "rose",
+  "1INCH": "cyan",
+  AAVE: "purple",
+  COMP: "green",
+  MKR: "teal",
+  REN: "red",
+  MANA: "rose",
+  ENS: "indigo",
+  DYDX: "violet",
+  CRV: "red",
+} as const
+
 // Tailwind color palette
 const tailwindColors = [
   "red",
@@ -51,9 +73,14 @@ export function TvlChart() {
   const chartConfig = React.useMemo(() => {
     const config: ChartConfig = {}
     DISPLAY_TOKENS().forEach((token, i) => {
+      const color =
+        token.ticker in tokenColors
+          ? `var(--color-${tokenColors[token.ticker as keyof typeof tokenColors]})`
+          : `var(--color-${tailwindColors[i % tailwindColors.length]})`
+      // const color = chartColors[i % chartColors.length]
       config[token.ticker] = {
         label: token.ticker,
-        color: `var(--color-${tailwindColors[i % tailwindColors.length]})`,
+        color: color,
       }
     })
     return config
