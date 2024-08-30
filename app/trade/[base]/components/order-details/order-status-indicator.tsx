@@ -10,7 +10,7 @@ const HIDDEN_STATES = [
   OrderState.SettlingMatch,
 ]
 export function OrderStatusIndicator({ order }: { order: OrderMetadata }) {
-  const status = formatOrderState(order.state)
+  const status = formatOrderState[order.state]
   const Icon = {
     [OrderState.Created]: AlertTriangle,
     [OrderState.Matching]: AlertTriangle,
