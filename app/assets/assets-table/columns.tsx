@@ -70,39 +70,53 @@ export const columns: ColumnDef<BalanceData>[] = [
     ),
     cell: ({ row }) => {
       const value = row.getValue<string>("l2UsdValue")
-      return (
-        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
-      )
-    },
-  },
-  {
-    accessorKey: "l2Balance",
-    header: () => <div className="text-right">Arbitrum Balance</div>,
-    cell: ({ row, table }) => {
       const balance = row.original.rawL2Balance
       const token = Token.findByAddress(row.original.mint)
-      const formatted = formatNumber(
-        balance,
-        token.decimals,
-        table.options.meta?.isLongFormat,
-      )
-      const formattedLong = formatNumber(balance, token.decimals, true)
-      const unformatted = formatUnits(balance, token.decimals)
+      const formatted = formatNumber(balance, token.decimals)
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="text-right">{formatted}</div>
+            <div className="pr-4 text-right">
+              {formatCurrencyFromString(value)}
+            </div>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-sans">
-              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
-              {token.ticker}
+              {formatted} {token.ticker}
             </p>
           </TooltipContent>
         </Tooltip>
       )
     },
   },
+  // {
+  //   accessorKey: "l2Balance",
+  //   header: () => <div className="text-right">Arbitrum Balance</div>,
+  //   cell: ({ row, table }) => {
+  //     const balance = row.original.rawL2Balance
+  //     const token = Token.findByAddress(row.original.mint)
+  //     const formatted = formatNumber(
+  //       balance,
+  //       token.decimals,
+  //       table.options.meta?.isLongFormat,
+  //     )
+  //     const formattedLong = formatNumber(balance, token.decimals, true)
+  //     const unformatted = formatUnits(balance, token.decimals)
+  //     return (
+  //       <Tooltip>
+  //         <TooltipTrigger asChild>
+  //           <div className="text-right">{formatted}</div>
+  //         </TooltipTrigger>
+  //         <TooltipContent side="right">
+  //           <p className="font-sans">
+  //             {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
+  //             {token.ticker}
+  //           </p>
+  //         </TooltipContent>
+  //       </Tooltip>
+  //     )
+  //   },
+  // },
   {
     id: "renegadeUsdValue",
     accessorFn: (row) => row.renegadeUsdValue,
@@ -134,37 +148,51 @@ export const columns: ColumnDef<BalanceData>[] = [
     ),
     cell: ({ row }) => {
       const value = row.getValue<string>("renegadeUsdValue")
-      return (
-        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
-      )
-    },
-  },
-  {
-    accessorKey: "renegadeBalance",
-    header: () => <div className="text-right">Renegade Balance</div>,
-    cell: ({ row, table }) => {
       const balance = row.original.rawRenegadeBalance
       const token = Token.findByAddress(row.original.mint)
-      const formatted = formatNumber(
-        balance,
-        token.decimals,
-        table.options.meta?.isLongFormat,
-      )
-      const formattedLong = formatNumber(balance, token.decimals, true)
-      const unformatted = formatUnits(balance, token.decimals)
+      const formatted = formatNumber(balance, token.decimals)
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="text-right">{formatted}</div>
+            <div className="pr-4 text-right">
+              {formatCurrencyFromString(value)}
+            </div>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-sans">
-              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
-              {token.ticker}
+              {formatted} {token.ticker}
             </p>
           </TooltipContent>
         </Tooltip>
       )
     },
   },
+  // {
+  //   accessorKey: "renegadeBalance",
+  //   header: () => <div className="text-right">Renegade Balance</div>,
+  //   cell: ({ row, table }) => {
+  //     const balance = row.original.rawRenegadeBalance
+  //     const token = Token.findByAddress(row.original.mint)
+  //     const formatted = formatNumber(
+  //       balance,
+  //       token.decimals,
+  //       table.options.meta?.isLongFormat,
+  //     )
+  //     const formattedLong = formatNumber(balance, token.decimals, true)
+  //     const unformatted = formatUnits(balance, token.decimals)
+  //     return (
+  //       <Tooltip>
+  //         <TooltipTrigger asChild>
+  //           <div className="text-right">{formatted}</div>
+  //         </TooltipTrigger>
+  //         <TooltipContent side="right">
+  //           <p className="font-sans">
+  //             {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
+  //             {token.ticker}
+  //           </p>
+  //         </TooltipContent>
+  //       </Tooltip>
+  //     )
+  //   },
+  // },
 ]
