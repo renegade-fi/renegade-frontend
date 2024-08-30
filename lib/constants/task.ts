@@ -40,32 +40,6 @@ export const START_CANCEL_ORDER_MSG = (
 
 export const START_REFRESH_WALLET_MSG = "Refreshing wallet to on-chain state..."
 
-export const QUEUED_DEPOSIT_MSG = (mint: Token, amount: bigint) =>
-  `Queued: Depositing ${formatNumber(amount, mint.decimals)} ${mint.ticker}.`
-
-export const QUEUED_WITHDRAWAL_MSG = (mint: Token, amount: bigint) =>
-  `Queued: Withdrawing ${formatNumber(amount, mint.decimals)} ${mint.ticker}.`
-
-export const QUEUED_PLACE_ORDER_MSG = (
-  base: Token,
-  amount: bigint,
-  side: string,
-) =>
-  `Queued: Placing order to ${side.toLowerCase()} ${formatNumber(
-    amount,
-    base.decimals,
-  )} ${base.ticker}.`
-
-export const QUEUED_CANCEL_ORDER_MSG = (
-  base: Token,
-  amount: bigint,
-  side: string,
-) =>
-  `Queued: Cancelling order to ${side.toLowerCase()} ${formatNumber(
-    amount,
-    base.decimals,
-  )} ${base.ticker}.`
-
 export const QUEUED_REFRESH_WALLET_MSG = "Queued: Refreshing wallet..."
 
 export const FAILED_DEPOSIT_MSG = (
@@ -73,13 +47,11 @@ export const FAILED_DEPOSIT_MSG = (
   amount: bigint,
   reason?: string,
 ) =>
-  `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${
-    reason ?? "Please try again"
+  `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${reason ?? "Please try again"
   }`
 
 export const FAILED_WITHDRAWAL_MSG = (mint: Token, amount: bigint) =>
-  `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${
-    mint.ticker
+  `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${mint.ticker
   }. Please try again.`
 
 export const FAILED_PLACE_ORDER_MSG = (
@@ -151,23 +123,21 @@ export function generateCompletionToastMessage(task: Task) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
           const mint = Token.findByAddress(taskInfo.mint)
-          message = `${
-            taskInfo.update_type === UpdateType.Deposit
+          message = `${taskInfo.update_type === UpdateType.Deposit
               ? "Deposited"
               : "Withdrew"
-          } ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker}`
+            } ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker}`
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
           const base = Token.findByAddress(taskInfo.base)
-          message = `${
-            taskInfo.update_type === UpdateType.PlaceOrder
+          message = `${taskInfo.update_type === UpdateType.PlaceOrder
               ? "Placed"
               : "Cancelled"
-          } order to ${taskInfo.side.toLowerCase()} ${formatNumber(
-            taskInfo.amount,
-            base.decimals,
-          )} ${base.ticker}`
+            } order to ${taskInfo.side.toLowerCase()} ${formatNumber(
+              taskInfo.amount,
+              base.decimals,
+            )} ${base.ticker}`
           break
       }
       break
@@ -200,23 +170,21 @@ export function generateStartToastMessage(task: Task) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
           const mint = Token.findByAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
-          message = `${
-            taskInfo.update_type === UpdateType.Deposit
+          message = `${taskInfo.update_type === UpdateType.Deposit
               ? "Depositing"
               : "Withdrawing"
-          } ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker}`
+            } ${formatNumber(taskInfo.amount, mint.decimals)} ${mint.ticker}`
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
           const base = Token.findByAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
-          message = `${
-            taskInfo.update_type === UpdateType.PlaceOrder
+          message = `${taskInfo.update_type === UpdateType.PlaceOrder
               ? "Placing"
               : "Cancelling"
-          } order to ${taskInfo.side.toLowerCase()} ${formatNumber(
-            taskInfo.amount,
-            base.decimals,
-          )} ${base.ticker}`
+            } order to ${taskInfo.side.toLowerCase()} ${formatNumber(
+              taskInfo.amount,
+              base.decimals,
+            )} ${base.ticker}`
           break
       }
       break

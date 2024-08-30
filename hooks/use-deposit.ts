@@ -3,8 +3,7 @@ import React from "react"
 import {
   Token,
   useBackOfQueueWallet,
-  useConfig,
-  useTaskHistory,
+  useConfig
 } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { QueryStatus } from "@tanstack/react-query"
@@ -12,7 +11,7 @@ import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useWalletClient } from "wagmi"
 
-import { FAILED_DEPOSIT_MSG, QUEUED_DEPOSIT_MSG } from "@/lib/constants/task"
+import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
@@ -26,10 +25,6 @@ export function useDeposit({
 }) {
   const config = useConfig()
   const { data: walletClient } = useWalletClient()
-  const { data: taskHistory } = useTaskHistory()
-  const isQueue = Array.from(taskHistory?.values() || []).find(
-    (task) => task.state !== "Completed" && task.state !== "Failed",
-  )
   const [status, setStatus] = React.useState<QueryStatus>()
   const { data: keychainNonce } = useBackOfQueueWallet({
     query: {
@@ -74,9 +69,6 @@ export function useDeposit({
       setStatus("error")
       return e
     })
-    if (isQueue) {
-      toast.message(QUEUED_DEPOSIT_MSG(token, parsedAmount))
-    }
     if (!signature || !nonce || !deadline) {
       setStatus("error")
       return
