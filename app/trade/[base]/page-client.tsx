@@ -39,9 +39,9 @@ export function PageClient({
   base: string
   isUSDCDenominated?: boolean
 }) {
-  const onLayout = (sizes: number[]) => {
-    document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}; path=/; SameSite=Strict; Secure`
-  }
+  // const onLayout = (sizes: number[]) => {
+  //   document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}; path=/; SameSite=Strict; Secure`
+  // }
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const isMounted = useMounted()
 
@@ -54,7 +54,7 @@ export function PageClient({
       <ResizablePanelGroup
         autoSaveId={STORAGE_LAYOUT}
         direction="horizontal"
-        onLayout={onLayout}
+        // onLayout={onLayout}
       >
         {(!isMounted || (isMounted && isDesktop)) && (
           <>
@@ -70,9 +70,10 @@ export function PageClient({
                 isUSDCDenominated={isUSDCDenominated}
               />
             </ResizablePanel>
-            <ResizableHandle />
+            {/* <ResizableHandle /> */}
           </>
         )}
+        <Separator orientation="vertical" />
         <ResizablePanel
           defaultSize={defaultLayout[1]}
           order={2}

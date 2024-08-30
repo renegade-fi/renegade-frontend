@@ -20,13 +20,11 @@ const fetchTvlData = async (): Promise<{ ticker: string; tvl: bigint }[]> => {
   if (!response.ok) {
     throw new Error("Failed to fetch TVL data")
   }
-  const res = await response
-    .json()
-    .then((res) =>
-      res.data.map(({ ticker, tvl }: { ticker: string; tvl: string }) => ({
-        ticker,
-        tvl: BigInt(tvl),
-      })),
-    )
+  const res = await response.json().then((res) =>
+    res.data.map(({ ticker, tvl }: { ticker: string; tvl: string }) => ({
+      ticker,
+      tvl: BigInt(tvl),
+    })),
+  )
   return res
 }
