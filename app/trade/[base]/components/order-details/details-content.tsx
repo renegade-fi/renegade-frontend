@@ -123,7 +123,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
       <Separator />
       <div className="flex h-24 items-center">
         <div className="flex-1 px-6">
-          <div className="text-sm">{formatOrderState(order.state)}</div>
+          <div className="text-sm">{formatOrderState[order.state]}</div>
           <Tooltip>
             <TooltipTrigger>
               <div className="text-sm">{title}</div>

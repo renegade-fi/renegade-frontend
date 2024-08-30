@@ -33,7 +33,9 @@ import {
 } from "@/components/ui/table"
 
 import { useCancelAllOrders } from "@/hooks/use-cancel-all-orders"
+import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { cn } from "@/lib/utils"
 
 const statuses = [
   { value: "open", label: "Open" },
@@ -52,14 +54,16 @@ const tokens = DISPLAY_TOKENS().map((token) => ({
 }))
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<ExtendedOrderMetadata, any>[]
+  data: ExtendedOrderMetadata[]
   initialStatus?: string
   initialSide?: string
   initialMint?: string
   initialVisibleColumns?: VisibilityState
   isTradePage?: boolean
 }
+
+const RECENT_ORDER_DURATION_MS = 7 * 1000
 
 export function DataTable<TData, TValue>({
   columns,
@@ -108,6 +112,44 @@ export function DataTable<TData, TValue>({
       isLongFormat,
     },
   })
+
+  const [recentOrders, setRecentOrders] = React.useState<Set<string>>(new Set())
+
+  React.useEffect(() => {
+    if (data.length === 0) return
+
+    const now = Date.now()
+    const hasRecentOrders = data.some(
+      (order) => now - Number(order.created) < RECENT_ORDER_DURATION_MS,
+    )
+
+    if (!hasRecentOrders && recentOrders.size === 0) return
+
+    setRecentOrders((prev) => {
+      const newRecentOrders = new Set(prev)
+      data.forEach((order) => {
+        if (now - Number(order.created) < RECENT_ORDER_DURATION_MS) {
+          newRecentOrders.add(order.id)
+        }
+      })
+      return newRecentOrders
+    })
+
+    const interval = setInterval(() => {
+      setRecentOrders((prev) => {
+        const updated = new Set(prev)
+        const currentTime = Date.now()
+        data.forEach((order) => {
+          if (currentTime - Number(order.created) >= RECENT_ORDER_DURATION_MS) {
+            updated.delete(order.id)
+          }
+        })
+        return updated
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [data, recentOrders.size])
 
   React.useEffect(() => {
     table.getColumn("status")?.setFilterValue(status)
@@ -164,7 +206,7 @@ export function DataTable<TData, TValue>({
           variant="link"
           onClick={handleCancelAllOrders}
         >
-          Close all open orders
+          Cancel all open orders
         </Button>
         <div className="flex items-center space-x-2">
           <Switch
@@ -209,7 +251,11 @@ export function DataTable<TData, TValue>({
                   >
                     <TableRow
                       key={row.id}
-                      className="cursor-pointer"
+                      className={cn("relative cursor-pointer", {
+                        "animate-pulse bg-accent": recentOrders.has(
+                          row.original.id,
+                        ),
+                      })}
                       data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
