@@ -10,6 +10,14 @@ import {
   STORAGE_IS_USDC_DENOMINATED,
   STORAGE_SIDE,
 } from "@/lib/constants/storage"
+import { DISPLAY_TOKENS } from "@/lib/token"
+
+export async function generateStaticParams() {
+  const tokens = DISPLAY_TOKENS({ hideStables: true, hideHidden: true })
+  return tokens.map((token) => ({
+    base: token.ticker,
+  }))
+}
 
 export default function Page({ params }: { params: { base: string } }) {
   const layout = cookies().get("react-resizable-panels:layout")
