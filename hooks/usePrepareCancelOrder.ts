@@ -25,7 +25,11 @@ export function usePrepareCancelOrder(
     if (!config.state.seed) return Error("Seed is required")
     if (!isSuccess) return ""
     if (wallet.orders.find((order) => order.id === id)) {
-      return config.utils.cancel_order(config.state.seed, stringifyForWasm(wallet), id)
+      return config.utils.cancel_order(
+        config.state.seed,
+        stringifyForWasm(wallet),
+        id,
+      )
     }
     return undefined
   }, [config, wallet, id, isSuccess])

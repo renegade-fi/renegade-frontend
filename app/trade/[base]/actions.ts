@@ -14,7 +14,6 @@ function setCookie(key: string, value: string) {
     sameSite: "strict",
     secure: true,
     maxAge: 31536000,
-
   })
 }
 
