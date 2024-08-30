@@ -7,6 +7,7 @@ import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
 import { OrderStatusIndicator } from "@/app/trade/[base]/components/order-details/order-status-indicator"
 
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
@@ -15,24 +16,11 @@ import {
 } from "@/components/ui/tooltip"
 
 import { Side } from "@/lib/constants/protocol"
-import { formatNumber, formatOrderState, formatPercentage } from "@/lib/format"
+import { LONG_FILL_TIME_TOOLTIP } from "@/lib/constants/tooltips"
+import { formatNumber, formatOrderState } from "@/lib/format"
 
 export function EmptyContent({ order }: { order: OrderMetadata }) {
   const token = Token.findByAddress(order.data.base_mint)
-
-  const filledAmount = order.fills.reduce(
-    (acc, fill) => acc + fill.amount,
-    BigInt(0),
-  )
-  const formattedFilledAmount = formatNumber(filledAmount, token.decimals)
-  const formattedFilledAmountLong = formatUnits(filledAmount, token.decimals)
-  const percentageFilled =
-    (Number(filledAmount) / Number(order.data.amount)) * 100
-  const percentageFilledLabel = formatPercentage(
-    Number(filledAmount),
-    Number(order.data.amount),
-  )
-
   const formattedTotalAmount = formatNumber(
     order.data.amount,
     token.decimals,
@@ -78,7 +66,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
       <Separator />
       <div className="flex h-24 items-center">
         <div className="flex-1 px-6">
-          <div className="text-sm">{formatOrderState(order.state)}</div>
+          <div className="text-sm">{formatOrderState[order.state]}</div>
           <Tooltip>
             <TooltipTrigger>
               <div className="text-sm">{title}</div>
@@ -92,7 +80,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
       </div>
       <Separator />
       <div className="grid h-[500px] place-items-center">
-        <div className="space-y-10">
+        <div className="flex flex-col items-center gap-10">
           <Image
             priority
             alt="logo"
@@ -101,9 +89,22 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
             src="/glyph_dark.svg"
             width="46"
           />
-          <div className="text-sm text-muted-foreground">
+          <div>
             Once your order is filled, you&apos;ll see the details here.
           </div>
+          <Button
+            asChild
+            className="p-0 text-sm text-muted-foreground"
+            variant="link"
+          >
+            <a
+              href={`https://help.renegade.fi/hc/en-us/articles/32759851318931-Why-is-my-order-still-open`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Why is it taking so long to fill my order?
+            </a>
+          </Button>
         </div>
       </div>
     </>

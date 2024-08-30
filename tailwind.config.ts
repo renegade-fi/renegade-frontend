@@ -113,6 +113,10 @@ const config = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(calc(-100% - var(--gap)))" },
         },
+        ellipsis: {
+          '0%, 100%': { opacity: '0' },
+          '50%': { opacity: '1' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -121,6 +125,7 @@ const config = {
         "price-red": "price-red 0.5s ease-in-out",
         "shimmer-button": "shimmer-button 45s ease infinite",
         marquee: "marquee var(--duration) linear infinite",
+        ellipsis: 'ellipsis 1.5s ease-in-out infinite',
       },
     },
   },

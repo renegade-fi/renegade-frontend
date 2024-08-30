@@ -3,6 +3,8 @@ import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
+import { AnimatedEllipsis } from "@/app/components/animated-ellipsis"
+
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -20,7 +22,7 @@ import {
   formatCurrency,
   formatCurrencyFromString,
   formatNumber,
-  formatOrderStateForTable,
+  formatOrderState,
   formatPercentage,
   formatTimestamp,
 } from "@/lib/format"
@@ -59,7 +61,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     accessorKey: "state",
     header: () => <div>Status</div>,
     cell: ({ row }) => {
-      return <div>{formatOrderStateForTable(row.getValue("status"))}</div>
+      return <div>{formatOrderState[row.getValue<OrderState>("status")]}</div>
     },
     filterFn: (row, _, filterValue) => {
       if (filterValue === "open") {
@@ -229,7 +231,10 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
               <div className="text-right text-sm">{percentageFilledLabel}</div>
             </div>
           ) : (
-            <div className="flex justify-center">--</div>
+            <div>
+              Finding counterparties
+              <AnimatedEllipsis />
+            </div>
           )}
         </>
       )

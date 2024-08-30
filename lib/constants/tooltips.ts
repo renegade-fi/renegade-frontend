@@ -19,3 +19,4 @@ export const GAS_FEE_TOOLTIP =
   "Gas fees for this transaction are paid for by your connected relayer."
 export const MAX_BALANCES_PLACE_ORDER_TOOLTIP = `This order will not fill because it would result in more than ${MAX_BALANCES} balances.`
 export const UNUSED_BALANCE_NEEDED_TOOLTIP = `You have an open order that needs an empty balance slot to be filled.`
+export const LONG_FILL_TIME_TOOLTIP = `Read about Renegade's matching engine in our help center.`

@@ -38,7 +38,7 @@ export function CancelButton({
         )
       }
     >
-      Close Order
+      Cancel Order
     </Button>
   )
 }

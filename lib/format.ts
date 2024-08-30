@@ -120,30 +120,17 @@ export const formatPercentage = (
 ): string => {
   if (denominator === 0 || numerator === 0)
     return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${
-    includeSymbol ? "%" : ""
-  }`
+  return `${((numerator / denominator) * 100).toFixed(precision)}${includeSymbol ? "%" : ""
+    }`
 }
 
-export const formatOrderState = (state: OrderState) => {
-  return {
-    [OrderState.Created]: "Open",
-    [OrderState.Matching]: "Open",
-    [OrderState.Cancelled]: "Cancelled",
-    [OrderState.Filled]: "Filled",
-    [OrderState.SettlingMatch]: "Open",
-  }[state]
-}
-
-export const formatOrderStateForTable = (state: OrderState) => {
-  return {
-    [OrderState.Created]: "Open",
-    [OrderState.Matching]: "Open",
-    [OrderState.Cancelled]: "Cancelled",
-    [OrderState.Filled]: "Filled",
-    [OrderState.SettlingMatch]: "Open",
-  }[state]
-}
+export const formatOrderState = {
+  [OrderState.Created]: "Open",
+  [OrderState.Matching]: "Open",
+  [OrderState.Cancelled]: "Cancelled",
+  [OrderState.Filled]: "Filled",
+  [OrderState.SettlingMatch]: "Settling Order...",
+} as const
 
 export const formatStatus = (status: UseStatusReturnType) => {
   switch (status) {
