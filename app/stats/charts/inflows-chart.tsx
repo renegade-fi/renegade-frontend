@@ -17,6 +17,8 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
@@ -107,7 +109,7 @@ export function InflowsChart() {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  className="w-[150px]"
+                  className="w-[175px]"
                   nameKey="depositAmount"
                   formatter={(value, name, item, index) => {
                     const n = numeral(Math.abs(Number(value))).format(
@@ -140,6 +142,8 @@ export function InflowsChart() {
                 />
               }
             />
+            <ChartLegend content={<ChartLegendContent />} />
+
             <Bar
               dataKey="depositAmount"
               fill={`var(--color-depositAmount)`}

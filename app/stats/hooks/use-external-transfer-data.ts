@@ -1,5 +1,5 @@
-import { BucketData } from "@/app/api/chain/constants";
-import { ExternalTransferLogsResponse } from '@/app/api/chain/external-transfer-logs/route';
+import { BucketData } from "@/app/api/stats/constants";
+import { ExternalTransferLogsResponse } from '@/app/api/stats/external-transfer-logs/route';
 import { useQuery } from '@tanstack/react-query';
 
 export function useExternalTransferLogs(intervalMs: number = 86400000) {
@@ -16,8 +16,9 @@ export function useExternalTransferLogs(intervalMs: number = 86400000) {
 }
 
 const fetchExternalTransferLogs = async (intervalMs: number): Promise<BucketData[]> => {
-    const response = await fetch(`/api/chain/external-transfer-logs?interval=${intervalMs}`, {
-        cache: 'no-store', // Ensure we always get fresh data
+    const response = await fetch(`/api/stats/external-transfer-logs?interval=${intervalMs}`, {
+        cache: 'force-cache',
+        next: { revalidate: 3600 }
     });
     if (!response.ok) {
         throw new Error('Failed to fetch external transfer logs');

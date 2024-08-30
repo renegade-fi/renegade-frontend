@@ -6,7 +6,7 @@ import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 import { Token } from "@renegade-fi/react"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { kv } from '@vercel/kv'
-import { BLOCK_CHUNK_SIZE, LAST_PROCESSED_BLOCK_KEY, INFLOWS_KEY, ExternalTransferData, INFLOWS_SET_KEY } from "@/app/api/chain/constants"
+import { BLOCK_CHUNK_SIZE, LAST_PROCESSED_BLOCK_KEY, INFLOWS_KEY, ExternalTransferData, INFLOWS_SET_KEY } from "@/app/api/stats/constants"
 
 export const maxDuration = 300
 export const dynamic = 'force-dynamic'
