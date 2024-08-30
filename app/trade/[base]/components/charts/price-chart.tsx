@@ -1,19 +1,14 @@
-import { useState } from "react"
+import React from "react"
 
-import dynamic from "next/dynamic"
 import Script from "next/script"
 
 import { ChartingLibraryWidgetOptions } from "@renegade-fi/tradingview-charts"
 
+import TradingViewChart from "@/app/trade/[base]/components/charts/tradingview"
+
 import { remapToken } from "@/lib/token"
 
-import { config } from "./tradingview/config"
-
-const TradingViewChart = dynamic(() => import("./tradingview"), { ssr: false })
-
 export function PriceChart({ base }: { base: string }) {
-  const [isScriptReady, setIsScriptReady] = useState(false)
-
   const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
     symbol: `${remapToken(base)}_usdt`,
   }
@@ -22,11 +17,8 @@ export function PriceChart({ base }: { base: string }) {
       <Script
         src="/static/datafeeds/udf/dist/bundle.js"
         strategy="afterInteractive"
-        onReady={() => {
-          setIsScriptReady(true)
-        }}
       />
-      {isScriptReady && <TradingViewChart {...defaultWidgetProps} />}
+      <TradingViewChart {...defaultWidgetProps} />
     </>
   )
 }
