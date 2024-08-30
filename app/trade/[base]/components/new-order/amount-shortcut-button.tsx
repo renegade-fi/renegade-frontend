@@ -134,6 +134,7 @@ export function AmountShortcutButton({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+          type="button"
           variant="outline"
           className={cn(className)}
           onClick={(e) => {
