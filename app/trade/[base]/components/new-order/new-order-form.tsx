@@ -164,15 +164,13 @@ export function NewOrderForm({
                 <FormItem className="flex-1">
                   <FormControl>
                     <Button
+                      type="button"
                       variant="outline"
                       className="w-full font-serif text-2xl font-bold"
                       size="xl"
                       {...field}
                       value={""}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        field.onChange(!field.value)
-                      }}
+                      onClick={() => field.onChange(!field.value)}
                     >
                       {field.value ? "Sell" : "Buy"}
                       <ArrowRightLeft className="ml-2 h-5 w-5" />
@@ -213,6 +211,7 @@ export function NewOrderForm({
                         {...field}
                         value={field.value}
                         type="number"
+                        autoFocus
                       />
                     </FormControl>
                     <FormMessage />
@@ -226,6 +225,7 @@ export function NewOrderForm({
                   <FormItem>
                     <FormControl>
                       <Button
+                        type="button"
                         variant="ghost"
                         className="h-12 flex-1 rounded-none px-2 py-0 font-serif text-2xl font-bold"
                         {...field}
