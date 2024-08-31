@@ -18,6 +18,8 @@ import { useOrderTableData } from "@/hooks/use-order-table-data"
 import { Side } from "@/lib/constants/protocol"
 import { STORAGE_LAYOUT } from "@/lib/constants/storage"
 
+import { setSide } from "./actions"
+
 const DEFAULT_LAYOUT = [22, 78]
 const DEFAULT_SIDE = Math.random() < 0.5 ? Side.BUY : Side.SELL
 
@@ -26,7 +28,7 @@ const PriceChartMemo = React.memo(PriceChart)
 
 export function PageClient({
   defaultLayout = DEFAULT_LAYOUT,
-  side = DEFAULT_SIDE,
+  side,
   base,
   isUSDCDenominated,
 }: {
@@ -42,6 +44,14 @@ export function PageClient({
   const isMounted = useMounted()
 
   const data = useOrderTableData()
+
+  React.useEffect(() => {
+    console.log("setting side")
+    if (!side) {
+      const randomSide = Math.random() < 0.5 ? Side.BUY : Side.SELL
+      setSide(randomSide)
+    }
+  }, [side])
 
   return (
     <div>
@@ -62,7 +72,7 @@ export function PageClient({
             >
               <NewOrderPanel
                 base={base}
-                side={side}
+                side={side ?? DEFAULT_SIDE}
                 isUSDCDenominated={isUSDCDenominated}
               />
             </ResizablePanel>

@@ -13,7 +13,7 @@ import { Header } from "@/app/components/header"
 import { FavoritesBanner } from "@/app/trade/[base]/components/favorites-banner"
 import { PageClient } from "@/app/trade/[base]/page-client"
 
-import { EXCHANGES, Side } from "@/lib/constants/protocol"
+import { Side } from "@/lib/constants/protocol"
 import {
   STORAGE_IS_USDC_DENOMINATED,
   STORAGE_SIDE,
