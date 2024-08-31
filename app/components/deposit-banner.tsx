@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import { Cross2Icon } from "@radix-ui/react-icons"
 import { useWallet } from "@renegade-fi/react"
 import { ArrowRight } from "lucide-react"
@@ -12,13 +14,27 @@ import { STORAGE_DEPOSIT_BANNER } from "@/lib/constants/storage"
 
 export function DepositBanner() {
   const [isClosed, setIsClosed] = useLocalStorage(STORAGE_DEPOSIT_BANNER, false)
+  const [isVisible, setIsVisible] = React.useState(false)
   const { data } = useWallet({
     query: {
       select: (data) => data.balances.length,
     },
   })
-  if (data === 0 && !isClosed) {
-    return (
+
+  React.useEffect(() => {
+    if (data === 0 && !isClosed) {
+      setTimeout(() => setIsVisible(true), 100)
+    } else {
+      setIsVisible(false)
+    }
+  }, [data, isClosed])
+
+  return (
+    <div
+      className={`transition-all duration-300 ease-in ${
+        isVisible ? "max-h-20 opacity-100" : "max-h-0 overflow-hidden opacity-0"
+      }`}
+    >
       <div className="flex w-full items-center border-b border-border bg-[#00183e] pl-4 text-sm text-blue">
         <div>
           Welcome to Renegade! Deposit your Arbitrum tokens to get started.
@@ -36,12 +52,15 @@ export function DepositBanner() {
           className="ml-auto"
           size="icon"
           variant="ghost"
-          onClick={() => setIsClosed(true)}
+          onClick={() => {
+            setIsVisible(false)
+            setTimeout(() => setIsClosed(true), 300)
+          }}
         >
           <Cross2Icon className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </Button>
       </div>
-    )
-  }
+    </div>
+  )
 }
