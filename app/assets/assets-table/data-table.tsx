@@ -98,9 +98,9 @@ export function DataTable<TData, TValue>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="outline"
-              size="sm"
               className="ml-auto text-muted-foreground"
+              size="sm"
+              variant="outline"
             >
               <Settings2 className="mr-2 h-4 w-4 text-muted-foreground" />
               View
@@ -165,8 +165,8 @@ export function DataTable<TData, TValue>({
                   >
                     <TableRow
                       key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
                       className="cursor-pointer"
+                      data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>

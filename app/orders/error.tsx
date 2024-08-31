@@ -38,10 +38,10 @@ export default function Error({
           the bottom right.
         </p>
         <Image
-          src="/r.gif"
           alt="spinning-renegade"
-          width={800}
           height={450}
+          src="/r.gif"
+          width={800}
         />
         <div className="flex flex-col">
           <p>

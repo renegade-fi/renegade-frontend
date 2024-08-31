@@ -81,6 +81,9 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
         <DialogFooter>
           <Button
             autoFocus
+            className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
+            size="xl"
+            variant="outline"
             onClick={() => {
               if (request instanceof Error) {
                 toast.error(request.message)
@@ -88,9 +91,6 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
               }
               createOrder({ request })
             }}
-            variant="outline"
-            className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
-            size="xl"
           >
             {props.isSell ? "Sell" : "Buy"} {props.base}
           </Button>
@@ -193,11 +193,11 @@ function NewOrderForm({
         ticker={base}
       />
       <InsufficientWarning
+        richColors
         amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
         baseMint={token.address}
         className="text-sm text-orange-400"
         quoteMint={Token.findByTicker("USDC").address}
-        richColors
         side={isSell ? Side.SELL : Side.BUY}
       />
     </>

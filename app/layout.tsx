@@ -76,10 +76,10 @@ export default async function RootLayout({
         className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
         <ThemeProvider
+          disableTransitionOnChange
+          enableSystem
           attribute="class"
           defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
         >
           <RenegadeProvider initialState={renegadeInitialState}>
             <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
@@ -94,9 +94,9 @@ export default async function RootLayout({
               </TooltipProvider>
               <Toaster
                 className="pointer-events-auto"
-                toastOptions={{ duration: 5000 }}
                 position="bottom-center"
                 theme="light"
+                toastOptions={{ duration: 5000 }}
                 visibleToasts={MAX_ORDERS}
               />
               <InvalidateQueries />

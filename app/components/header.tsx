@@ -35,11 +35,11 @@ export function Header() {
             <ContextMenuTrigger>
               <Link href="/trade">
                 <Image
-                  src="/glyph_dark.svg"
-                  alt="logo"
-                  width="31"
-                  height="38"
                   priority
+                  alt="logo"
+                  height="38"
+                  src="/glyph_dark.svg"
+                  width="31"
                 />
               </Link>
             </ContextMenuTrigger>
@@ -60,34 +60,34 @@ export function Header() {
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
           <Link
-            href="/trade"
             className={cn("hover:underline", {
               "text-primary": pathname === "/" || pathname.includes("/trade"),
             })}
+            href="/trade"
           >
             Trade
           </Link>
           <Link
-            href="/assets"
             className={cn("hover:underline", {
               "text-primary": pathname.includes("/assets"),
             })}
+            href="/assets"
           >
             Assets
           </Link>
           <Link
-            href="/orders"
             className={cn("hover:underline", {
               "text-primary": pathname.includes("/orders"),
             })}
+            href="/orders"
           >
             Orders
           </Link>
           <Link
-            href="/stats"
             className={cn("hover:underline", {
               "text-primary": pathname.includes("/stats"),
             })}
+            href="/stats"
           >
             Stats
           </Link>
@@ -128,8 +128,8 @@ export function Header() {
             <SettingsPopover>
               <Button
                 className=""
-                variant="outline"
                 size="icon"
+                variant="outline"
               >
                 <Ellipsis className="h-4 w-4 text-muted-foreground" />
               </Button>

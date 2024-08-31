@@ -79,17 +79,17 @@ export function TokenSelect({
 
   return (
     <Popover
+      modal
       open={open}
       onOpenChange={setOpen}
-      modal
     >
       <PopoverTrigger asChild>
         <Button
           autoFocus
-          variant="outline"
-          role="combobox"
           aria-expanded={open}
           className={cn("justify-between", !value && "text-muted-foreground")}
+          role="combobox"
+          variant="outline"
         >
           {value
             ? tokens.find((framework) => framework.value === value)?.label
@@ -111,8 +111,8 @@ export function TokenSelect({
           }}
         >
           <CommandInput
-            placeholder="Search for token..."
             className="h-9"
+            placeholder="Search for token..."
           />
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>

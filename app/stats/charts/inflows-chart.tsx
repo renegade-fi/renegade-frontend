@@ -69,8 +69,8 @@ export function InflowsChart() {
       </CardHeader>
       <CardContent>
         <ChartContainer
-          config={chartConfig}
           className="aspect-auto h-[250px] w-full"
+          config={chartConfig}
         >
           <BarChart
             accessibilityLayer
@@ -82,10 +82,8 @@ export function InflowsChart() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="timestamp"
-              tickLine={false}
               axisLine={false}
-              tickMargin={8}
+              dataKey="timestamp"
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(Number(value))
@@ -95,12 +93,13 @@ export function InflowsChart() {
                   timeZone: "UTC",
                 })
               }}
+              tickLine={false}
+              tickMargin={8}
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   className="w-[175px]"
-                  nameKey="depositAmount"
                   formatter={(value, name, item, index) => {
                     const n = numeral(Math.abs(Number(value))).format(
                       "$0,0.00a",
@@ -130,6 +129,7 @@ export function InflowsChart() {
                       timeZone: "UTC",
                     })
                   }}
+                  nameKey="depositAmount"
                 />
               }
             />

@@ -134,11 +134,11 @@ export function AmountShortcutButton({
         <TooltipTrigger asChild>
           <span tabIndex={0}>
             <Button
+              disabled
+              className={cn(className, "w-full")}
+              size="sm"
               type="button"
               variant="outline"
-              className={cn(className, "w-full")}
-              disabled
-              size="sm"
             >
               {percentage === 100 ? "MAX" : `${percentage}%`}
             </Button>
@@ -147,16 +147,16 @@ export function AmountShortcutButton({
       ) : (
         <TooltipTrigger asChild>
           <Button
+            className={cn(className)}
+            size="sm"
             type="button"
             variant="outline"
-            className={cn(className)}
             onClick={(e) => {
               e.preventDefault()
               if (formattedShortcut) {
                 onSetAmount(formattedShortcut)
               }
             }}
-            size="sm"
           >
             {percentage === 100 ? "MAX" : `${percentage}%`}
           </Button>

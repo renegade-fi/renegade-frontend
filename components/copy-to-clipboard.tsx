@@ -29,8 +29,8 @@ export function CopyToClipboard({
       <Tooltip>
         <TooltipTrigger asChild>
           <p
-            onClick={() => copyToClipboard(text)}
             className={cn("cursor-pointer", className)}
+            onClick={() => copyToClipboard(text)}
           >
             {text}
           </p>

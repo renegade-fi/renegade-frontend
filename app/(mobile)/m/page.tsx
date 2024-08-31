@@ -16,11 +16,11 @@ export default function M() {
           Unfortunately,
         </div>
         <Image
-          src="/logo_dark.svg"
-          alt="logo"
-          width="288"
-          height="45"
           priority
+          alt="logo"
+          height="45"
+          src="/logo_dark.svg"
+          width="288"
         />
         <div className="text-right font-serif text-lg text-muted-foreground">
           is not yet available on mobile.
