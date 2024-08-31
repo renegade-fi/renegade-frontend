@@ -1,7 +1,15 @@
-import { useConfig, useConnect } from "@renegade-fi/react"
-import { getSkRoot } from "@renegade-fi/react/actions"
+import React from "react"
+
+import { useConfig } from "@renegade-fi/react"
+import {
+  createWallet,
+  getWalletFromRelayer,
+  getWalletId,
+  lookupWallet,
+} from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { toast } from "sonner"
+import { BaseError } from "viem"
 import { useSignMessage } from "wagmi"
 
 import { Button } from "@/components/ui/button"
@@ -37,12 +45,7 @@ export function SignInDialog({
     isSuccess: signSuccess,
   } = useSignMessage()
   const config = useConfig()
-
-  const {
-    connect,
-    status: connectStatus,
-    isSuccess: connectSuccess,
-  } = useConnect()
+  const [isConnecting, setIsConnecting] = React.useState(false)
 
   const handleClick = () =>
     signMessage(
@@ -51,35 +54,73 @@ export function SignInDialog({
       },
       {
         async onSuccess(data) {
-          console.log("signed message: ", data)
           config.setState((x) => ({ ...x, seed: data }))
-          const blinderShare = config.utils.derive_blinder_share(data)
-          const logs = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
-            .then((res) => res.json())
-            .then((data) => data.logs)
+          const id = getWalletId(config)
+          config.setState((x) => ({ ...x, id }))
+          setIsConnecting(true)
+          try {
+            // GET wallet from relayer
+            const wallet = await getWalletFromRelayer(config)
+            // If success, return
+            if (wallet) {
+              config.setState((x) => ({ ...x, status: "in relayer" }))
+              toast.success("Successfully signed in")
+              onOpenChange()
+              setIsConnecting(false)
+              return
+            }
+          } catch (error) {}
 
-          connect(
-            { isCreateWallet: logs === 0 },
-            {
-              onSuccess(data, variables, context) {
-                if (data) {
-                  const { isLookup, job } = data
-                  toast.promise(job, {
-                    loading: isLookup
-                      ? LOOKUP_WALLET_START
-                      : CREATE_WALLET_START,
-                    success: () => {
-                      if (!isLookup) {
-                        return CREATE_WALLET_SUCCESS
-                      }
-                      return LOOKUP_WALLET_SUCCESS
-                    },
-                    error: isLookup ? LOOKUP_WALLET_ERROR : CREATE_WALLET_ERROR,
-                  })
-                }
-                onOpenChange()
+          // GET # logs
+          const blinderShare = config.utils.derive_blinder_share(data)
+          const res = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
+
+          if (!res.ok) {
+            toast.error("Failed to query chain, please try again.")
+            setIsConnecting(false)
+          }
+          const { logs } = await res.json()
+          if (logs === 0) {
+            // Iff logs === 0, create wallet
+            toast.promise(
+              createWallet(config)
+                .then(() => {
+                  onOpenChange()
+                })
+                .finally(() => {
+                  setIsConnecting(false)
+                }),
+              {
+                loading: CREATE_WALLET_START,
+                success: CREATE_WALLET_SUCCESS,
+                error: (error) => {
+                  console.error(error)
+                  return CREATE_WALLET_ERROR
+                },
               },
-            },
+            )
+          } else if (logs > 0) {
+            // Iff logs > 0, lookup wallet
+            toast.promise(
+              lookupWallet(config)
+                .then(() => {
+                  onOpenChange()
+                })
+                .finally(() => {
+                  setIsConnecting(false)
+                }),
+              {
+                loading: LOOKUP_WALLET_START,
+                success: LOOKUP_WALLET_SUCCESS,
+                error: LOOKUP_WALLET_ERROR,
+              },
+            )
+          }
+        },
+        onError(error) {
+          console.error(error)
+          toast.error(
+            `Error signing message: ${(error as BaseError).shortMessage || error.message}`,
           )
         },
       },
@@ -106,9 +147,9 @@ export function SignInDialog({
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
             size="xl"
             onClick={handleClick}
-            disabled={signStatus === "pending" || connectStatus === "pending"}
+            disabled={isConnecting || signStatus === "pending"}
           >
-            {signStatus === "pending" || connectStatus === "pending"
+            {signStatus === "pending" || isConnecting
               ? "Confirm in wallet"
               : "Sign in to Renegade"}
           </Button>
