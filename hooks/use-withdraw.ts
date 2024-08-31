@@ -1,9 +1,4 @@
-import {
-  Token,
-  UpdateType,
-  useConfig,
-  usePayFees
-} from "@renegade-fi/react"
+import { Token, UpdateType, useConfig, usePayFees } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
 import { isAddress } from "viem"
@@ -12,7 +7,7 @@ import { useAccount } from "wagmi"
 import {
   FAILED_WITHDRAWAL_MSG,
   WITHDRAW_TOAST_ID,
-  constructStartToastMessage
+  constructStartToastMessage,
 } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 

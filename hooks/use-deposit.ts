@@ -1,10 +1,6 @@
 import React from "react"
 
-import {
-  Token,
-  useBackOfQueueWallet,
-  useConfig
-} from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet, useConfig } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { QueryStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
