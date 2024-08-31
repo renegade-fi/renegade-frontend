@@ -164,14 +164,19 @@ export function DataTable<TData, TValue>({
           variant="link"
           onClick={handleCancelAllOrders}
         >
-          Cancel all open orders
+          Close all open orders
         </Button>
         <div className="flex items-center space-x-2">
           <Switch
             checked={isLongFormat}
             onCheckedChange={(value) => setIsLongFormat(!!value)}
           />
-          <Label htmlFor="long-format">Show decimals</Label>
+          <Label
+            className="text-muted-foreground"
+            htmlFor="long-format"
+          >
+            Show decimals
+          </Label>
         </div>
       </div>
       <div className="border">

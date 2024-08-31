@@ -155,7 +155,12 @@ export function DataTable<TData, TValue>({
             checked={isLongFormat}
             onCheckedChange={(value) => setIsLongFormat(!!value)}
           />
-          <Label htmlFor="long-format">Show decimals</Label>
+          <Label
+            className="text-muted-foreground"
+            htmlFor="long-format"
+          >
+            Show decimals
+          </Label>
         </div>
       </div>
       <div className="border">
