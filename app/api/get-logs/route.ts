@@ -8,7 +8,6 @@ export const runtime = "edge"
 
 // Necessary because public RPC does not support getting logs
 const viemClient = createPublicClient({
-  chain,
   transport: http(process.env.RPC_URL),
 })
 
