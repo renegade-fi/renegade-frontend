@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Token, useWallet } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
@@ -36,7 +36,7 @@ export function AmountShortcutButton({
 }: AmountShortcutButtonProps) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker("USDC")
-  const { data } = useWallet({
+  const { data } = useBackOfQueueWallet({
     query: {
       select: (data) => ({
         [baseToken.address]: data.balances.find(

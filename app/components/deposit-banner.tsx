@@ -3,7 +3,7 @@
 import React from "react"
 
 import { Cross2Icon } from "@radix-ui/react-icons"
-import { useWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { ArrowRight } from "lucide-react"
 import { useLocalStorage } from "usehooks-ts"
 
@@ -15,7 +15,7 @@ import { STORAGE_DEPOSIT_BANNER } from "@/lib/constants/storage"
 export function DepositBanner() {
   const [isClosed, setIsClosed] = useLocalStorage(STORAGE_DEPOSIT_BANNER, false)
   const [isVisible, setIsVisible] = React.useState(false)
-  const { data } = useWallet({
+  const { data } = useBackOfQueueWallet({
     query: {
       select: (data) => data.balances.length,
     },

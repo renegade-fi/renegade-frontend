@@ -32,5 +32,6 @@ export function usePriceQuery(
     queryKey,
     queryFn: () => getPriceFromPriceReporter(topic),
     initialData: 0,
+    staleTime: Infinity
   })
 }

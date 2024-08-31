@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { Token, useWallet } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { erc20Abi, isAddress } from "viem"
 import { useAccount, useReadContracts } from "wagmi"
 
@@ -64,7 +64,7 @@ export function TokenSelect({
 
   useRefreshOnBlock({ queryKey })
 
-  const { data: renegadeBalances } = useWallet({
+  const { data: renegadeBalances } = useBackOfQueueWallet({
     query: {
       enabled: open && direction === ExternalTransferDirection.Withdraw,
       select: (data) =>
