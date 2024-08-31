@@ -1,7 +1,7 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { OrderMetadata } from "@renegade-fi/react"
 
-import { DetailsContent } from "@/app/trade/[base]/components/order-details/details.content"
+import { DetailsContent } from "@/app/trade/[base]/components/order-details/details-content"
 import { EmptyContent } from "@/app/trade/[base]/components/order-details/empty-content"
 
 import {
