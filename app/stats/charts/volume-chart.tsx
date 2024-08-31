@@ -81,8 +81,8 @@ export function VolumeChart() {
       </CardHeader>
       <CardContent>
         <ChartContainer
-          config={chartConfig}
           className="h-[250px] w-full"
+          config={chartConfig}
         >
           <BarChart
             accessibilityLayer
@@ -94,10 +94,8 @@ export function VolumeChart() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="timestamp"
-              tickLine={false}
               axisLine={false}
-              tickMargin={8}
+              dataKey="timestamp"
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(Number(value))
@@ -106,12 +104,13 @@ export function VolumeChart() {
                   day: "numeric",
                 })
               }}
+              tickLine={false}
+              tickMargin={8}
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  nameKey="data"
                   formatter={(value, name, item, index) => {
                     const n = numeral(value).format("$0,0.00a")
                     return (
@@ -138,6 +137,7 @@ export function VolumeChart() {
                       day: "numeric",
                     })
                   }}
+                  nameKey="data"
                 />
               }
             />

@@ -102,13 +102,13 @@ export function TvlChart() {
       </CardHeader>
       <CardContent>
         <ChartContainer
-          config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"
+          config={chartConfig}
         >
           <PieChart>
             <ChartTooltip
-              cursor={false}
               content={<ChartTooltipContent hideLabel />}
+              cursor={false}
               formatter={(value, name, item, index) => {
                 const n = formatStat(Number(value))
                 return (

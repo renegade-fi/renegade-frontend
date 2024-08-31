@@ -29,8 +29,8 @@ export function TableEmptyState({
         }}
       >
         <TableCell
-          colSpan={colSpan}
           className="h-24 text-center"
+          colSpan={colSpan}
         >
           {message}
         </TableCell>

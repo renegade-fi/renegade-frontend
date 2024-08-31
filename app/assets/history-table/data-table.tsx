@@ -119,28 +119,28 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center gap-2 pb-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <TableSelect
-          values={taskStates}
           placeholder="Status"
           value={status}
+          values={taskStates}
           onChange={setStatus}
         />
         <TableSelect
-          values={tokens}
           placeholder="Asset"
           value={mint}
+          values={tokens}
           onChange={setMint}
         />
         <TableSelect
-          values={types}
           placeholder="Type"
           value={isWithdrawal}
+          values={types}
           onChange={setIsWithdrawal}
         />
         {status || mint || isWithdrawal ? (
           <Button
-            variant="outline"
-            size="sm"
             className="text-muted-foreground"
+            size="sm"
+            variant="outline"
             onClick={() => {
               setStatus("")
               setMint("")
@@ -208,18 +208,18 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          size="sm"
+          variant="outline"
+          onClick={() => table.previousPage()}
         >
           Previous
         </Button>
         <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          size="sm"
+          variant="outline"
+          onClick={() => table.nextPage()}
         >
           Next
         </Button>

@@ -9,10 +9,10 @@ export function ConnectWalletButton() {
   return (
     <>
       <Button
-        onClick={handleClick}
-        variant="shimmer"
         className="border border-[#333333] font-extended text-base hover:border-[#999999]"
         size="shimmer"
+        variant="shimmer"
+        onClick={handleClick}
       >
         {content}
       </Button>

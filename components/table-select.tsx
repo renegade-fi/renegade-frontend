@@ -34,17 +34,17 @@ export function TableSelect({
 
   return (
     <Popover
+      modal
       open={open}
       onOpenChange={setOpen}
-      modal
     >
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
-          role="combobox"
           aria-expanded={open}
           className={cn("justify-between", !value && "text-muted-foreground")}
+          role="combobox"
           size="sm"
+          variant="outline"
         >
           <CirclePlus className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           {value ? values.find((v) => v.value === value)?.label : placeholder}

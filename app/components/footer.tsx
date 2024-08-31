@@ -31,11 +31,11 @@ export function Footer() {
           <ContextMenu>
             <ContextMenuTrigger>
               <Image
-                src="/logo_dark.svg"
-                alt="logo"
-                width="192"
-                height="30"
                 priority
+                alt="logo"
+                height="30"
+                src="/logo_dark.svg"
+                width="192"
               />
             </ContextMenuTrigger>
             <ContextMenuContent
@@ -90,63 +90,63 @@ export function Footer() {
         <div className="ml-auto pr-20 text-xs">
           <Button
             asChild
-            variant="ghost"
             size="icon"
+            variant="ghost"
           >
             <a
               href="https://x.com/renegade_fi"
-              target="_blank"
+              rel="noreferrer" target="_blank"
             >
               <Image
                 alt="x"
                 height="12"
-                width="12"
                 src="/x.svg"
+                width="12"
               />
             </a>
           </Button>
           <Button
+            asChild
             size="icon"
             variant="ghost"
-            asChild
           >
             <a
               href="https://github.com/renegade-fi/"
-              target="_blank"
+              rel="noreferrer" target="_blank"
             >
               <Image
                 alt="github"
                 height="12"
-                width="12"
                 src="/github.svg"
+                width="12"
               />
             </a>
           </Button>
           <Button
-            variant="ghost"
             asChild
             size="icon"
+            variant="ghost"
           >
             <a
               href="https://discord.com/invite/renegade-fi"
-              target="_blank"
+              rel="noreferrer" target="_blank"
             >
               <Image
                 alt="discord"
                 height="12"
-                width="12"
                 src="/discord.svg"
+                width="12"
               />
             </a>
           </Button>
           <Button
+            asChild
             size="icon"
             variant="ghost"
-            asChild
           >
             <a
               href="https://renegade.fi/docs"
-              target="_blank"
+              rel="noreferrer" target="_blank"
             >
               <Book className="h-3 w-3" />
             </a>

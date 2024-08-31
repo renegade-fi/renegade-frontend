@@ -126,28 +126,28 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center gap-4 pb-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <TableSelect
-          values={statuses}
           placeholder="Status"
           value={status}
+          values={statuses}
           onChange={setStatus}
         />
         <TableSelect
-          values={sides}
           placeholder="Side"
           value={side}
+          values={sides}
           onChange={setSide}
         />
         <TableSelect
-          values={tokens}
           placeholder="Token"
           value={mint}
+          values={tokens}
           onChange={setMint}
         />
         {status || side || mint ? (
           <Button
-            variant="outline"
-            size="sm"
             className="text-muted-foreground"
+            size="sm"
+            variant="outline"
             onClick={() => {
               setStatus("")
               setSide("")
@@ -158,11 +158,11 @@ export function DataTable<TData, TValue>({
           </Button>
         ) : null}
         <Button
-          variant="link"
-          size="sm"
           className="ml-auto text-muted-foreground"
-          onClick={handleCancelAllOrders}
           disabled={isDisabled}
+          size="sm"
+          variant="link"
+          onClick={handleCancelAllOrders}
         >
           Cancel all open orders
         </Button>
@@ -204,8 +204,8 @@ export function DataTable<TData, TValue>({
                   >
                     <TableRow
                       key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
                       className="cursor-pointer"
+                      data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
@@ -242,18 +242,18 @@ export function DataTable<TData, TValue>({
         ) : (
           <div className="flex items-center justify-end space-x-2 pt-4">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              size="sm"
+              variant="outline"
+              onClick={() => table.previousPage()}
             >
               Previous
             </Button>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              size="sm"
+              variant="outline"
+              onClick={() => table.nextPage()}
             >
               Next
             </Button>

@@ -14,14 +14,14 @@ const NumberInput = React.forwardRef<HTMLInputElement, InputProps>(
     }
     return (
       <Input
+        ref={ref}
         className={cn(
           "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
           className,
         )}
-        onWheel={(e) => (e.target as HTMLElement).blur()}
-        onBeforeInput={handleBeforeInput}
-        ref={ref}
         type="number"
+        onBeforeInput={handleBeforeInput}
+        onWheel={(e) => (e.target as HTMLElement).blur()}
         {...props}
       />
     )

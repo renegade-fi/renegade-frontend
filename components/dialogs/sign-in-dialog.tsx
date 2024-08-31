@@ -143,11 +143,11 @@ export function SignInDialog({
         </DialogHeader>
         <DialogFooter>
           <Button
-            variant="outline"
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-            size="xl"
-            onClick={handleClick}
             disabled={isConnecting || signStatus === "pending"}
+            size="xl"
+            variant="outline"
+            onClick={handleClick}
           >
             {signStatus === "pending" || isConnecting
               ? "Confirm in wallet"

@@ -107,9 +107,9 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         <OrderStatusIndicator order={order} />
         {isOpen && (
           <InsufficientWarning
-            className="text-sm font-bold"
             amount={order.data.amount}
             baseMint={order.data.base_mint}
+            className="text-sm font-bold"
             quoteMint={order.data.quote_mint}
             side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
           />
@@ -143,8 +143,8 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
           <div className="text-sm">Midpoint Peg</div>
         </div>
         <Separator
-          orientation="vertical"
           className="h-full"
+          orientation="vertical"
         />
         <div className="flex-1 px-6">
           <div className="text-sm">Filled</div>

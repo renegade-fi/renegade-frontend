@@ -25,8 +25,8 @@ export function NewOrderPanel({
       <Separator />
       <NewOrderForm
         base={base}
-        side={side}
         isUSDCDenominated={isUSDCDenominated}
+        side={side}
       />
       <div className="flex items-center px-6 text-xs text-muted-foreground">
         {/* <Button

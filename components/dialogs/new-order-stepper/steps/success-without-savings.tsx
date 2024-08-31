@@ -116,9 +116,9 @@ export function SuccessStepWithoutSavings() {
           <DialogClose asChild>
             <Button
               autoFocus
-              variant="outline"
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
               size="xl"
+              variant="outline"
             >
               Close
             </Button>

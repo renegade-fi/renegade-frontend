@@ -13,11 +13,11 @@ export function TokenIcon({
 }) {
   return (
     <Image
-      className={cn(className)}
-      src={`/tokens/${ticker.toLowerCase()}.png`}
       alt={ticker}
-      width={size}
+      className={cn(className)}
       height={size}
+      src={`/tokens/${ticker.toLowerCase()}.png`}
+      width={size}
     />
   )
 }

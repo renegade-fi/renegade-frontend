@@ -66,14 +66,14 @@ export function PageClient({
           <>
             <ResizablePanel
               defaultSize={defaultLayout[0]}
-              minSize={DEFAULT_LAYOUT[0]}
               maxSize={50}
+              minSize={DEFAULT_LAYOUT[0]}
               order={1}
             >
               <NewOrderPanel
                 base={base}
-                side={side ?? DEFAULT_SIDE}
                 isUSDCDenominated={isUSDCDenominated}
+                side={side ?? DEFAULT_SIDE}
               />
             </ResizablePanel>
             {/* <ResizableHandle /> */}
@@ -90,6 +90,7 @@ export function PageClient({
               <Separator />
               <div className="p-6">
                 <DataTable
+                  isTradePage
                   columns={columns}
                   data={data}
                   initialStatus="open"
@@ -98,7 +99,6 @@ export function PageClient({
                     actions: false,
                     saved: false,
                   }}
-                  isTradePage
                 />
               </div>
             </div>

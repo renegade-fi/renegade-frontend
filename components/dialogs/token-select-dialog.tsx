@@ -69,8 +69,8 @@ export function TokenSelectDialog({
             <TokenList
               enabled={open}
               searchTerm={debouncedSearchTerm}
-              onClose={() => setOpen(false)}
               ticker={ticker}
+              onClose={() => setOpen(false)}
             />
           </ScrollArea>
         </DialogContent>
@@ -95,8 +95,8 @@ export function TokenSelectDialog({
           <TokenList
             enabled={open}
             searchTerm={debouncedSearchTerm}
-            onClose={() => setOpen(false)}
             ticker={ticker}
+            onClose={() => setOpen(false)}
           />
         </ScrollArea>
         <DrawerFooter className="pt-2">
@@ -179,14 +179,14 @@ function TokenList({
               : formatNumber(balance ?? BigInt(0), token.decimals, true)
           return (
             <div
-              className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
               key={token.address}
+              className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
               onClick={() => token.ticker === ticker && onClose()}
             >
               <Link
-                href={`/trade/${token.ticker}`}
-                className="w-full"
                 key={token.address}
+                className="w-full"
+                href={`/trade/${token.ticker}`}
               >
                 <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4">
                   <TokenIcon ticker={token.ticker} />
@@ -202,8 +202,8 @@ function TokenList({
                 </div>
               </Link>
               <Button
-                variant="ghost"
                 size="icon"
+                variant="ghost"
                 onClick={() => {
                   setFavorites((favorites) => {
                     if (favorites.includes(token.address)) {

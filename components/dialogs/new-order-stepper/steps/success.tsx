@@ -81,9 +81,9 @@ export function SuccessStep(props: NewOrderConfirmationProps) {
           <DialogClose asChild>
             <Button
               autoFocus
-              variant="outline"
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
               size="xl"
+              variant="outline"
             >
               Close
             </Button>
@@ -126,8 +126,8 @@ function OrderSuccessSection({ predictedSavings }: NewOrderConfirmationProps) {
       <div className="flex flex-col items-center space-y-4 text-pretty text-center">
         <div>You&apos;re estimated to save</div>
         <GlowText
-          enabled={!!predictedSavings && savingsLabel !== "$0.00"}
           className="bg-green-price text-4xl"
+          enabled={!!predictedSavings && savingsLabel !== "$0.00"}
           text={savingsLabel}
         />
         <div>when your order fills at the realtime Binance midpoint price.</div>
@@ -136,9 +136,9 @@ function OrderSuccessSection({ predictedSavings }: NewOrderConfirmationProps) {
         <div className="flex items-start justify-between">
           Did you know?
           <Button
+            className="rounded-none"
             size="icon"
             variant="ghost"
-            className="rounded-none"
           >
             <Repeat className="h-4 w-4" />
           </Button>
@@ -148,8 +148,8 @@ function OrderSuccessSection({ predictedSavings }: NewOrderConfirmationProps) {
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Checkbox id="donot-show-again" />
         <label
-          htmlFor="donot-show-again"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          htmlFor="donot-show-again"
         >
           Don&apos;t show again
         </label>

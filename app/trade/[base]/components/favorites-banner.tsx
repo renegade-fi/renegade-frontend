@@ -29,8 +29,8 @@ export function FavoritesBanner() {
           const token = Token.findByAddress(address)
           return (
             <div
-              className="flex items-center gap-8"
               key={address}
+              className="flex items-center gap-8"
             >
               <Link href={`/trade/${token.ticker}`}>
                 <span className="space-x-4">

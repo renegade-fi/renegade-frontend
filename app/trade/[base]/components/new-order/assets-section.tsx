@@ -41,8 +41,8 @@ export function AssetsSectionWithDepositButton({
       {data && (
         <TransferDialog mint={baseToken.address}>
           <Button
-            variant="outline"
             className="ml-6 h-full font-extended"
+            variant="outline"
           >
             Deposit
           </Button>
@@ -102,17 +102,17 @@ export function AssetsSection({
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
           <TokenIcon
-            ticker={base}
             size={16}
+            ticker={base}
           />
           <TransferDialog mint={baseToken.address}>
             <Button
-              variant="link"
               className="text-md h-fit p-0 text-muted-foreground"
+              disabled={renegadeStatus !== "in relayer"}
+              variant="link"
               onClick={(e) => {
                 if (renegadeStatus !== "in relayer") e.preventDefault()
               }}
-              disabled={renegadeStatus !== "in relayer"}
             >
               {base}
             </Button>
@@ -130,17 +130,17 @@ export function AssetsSection({
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
           <TokenIcon
-            ticker={quote}
             size={16}
+            ticker={quote}
           />
           <TransferDialog mint={quoteToken.address}>
             <Button
-              variant="link"
               className="text-md h-fit p-0 text-muted-foreground"
+              disabled={renegadeStatus !== "in relayer"}
+              variant="link"
               onClick={(e) => {
                 if (renegadeStatus !== "in relayer") e.preventDefault()
               }}
-              disabled={renegadeStatus !== "in relayer"}
             >
               {quote}
             </Button>

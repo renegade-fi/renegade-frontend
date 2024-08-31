@@ -46,11 +46,11 @@ export default function TradingViewChart(
   return (
     <>
       <div
+        ref={chartContainerRef}
         className={cn("z-10 h-[500px] transition-opacity duration-300", {
           "opacity-0": !isReady,
           "opacity-100": isReady,
         })}
-        ref={chartContainerRef}
       />
       <div
         className={cn(
@@ -62,12 +62,12 @@ export default function TradingViewChart(
         )}
       >
         <Image
-          className="animate-pulse"
-          src="/glyph_dark.svg"
-          alt="logo"
-          width="46"
-          height="57"
           priority
+          alt="logo"
+          className="animate-pulse"
+          height="57"
+          src="/glyph_dark.svg"
+          width="46"
         />
       </div>
     </>

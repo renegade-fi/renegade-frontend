@@ -105,8 +105,8 @@ export function TransferDialog({
       >
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent
-          className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
           hideCloseButton
+          className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
           onPointerDownOutside={(e) => {
             // Prevent closing the dialog when clicking inside toast
             if (
@@ -120,7 +120,6 @@ export function TransferDialog({
           <DialogHeader>
             <div className="flex flex-row border-b border-border">
               <Button
-                variant="outline"
                 className={cn(
                   "flex-1 border-0 font-extended text-lg font-bold",
                   direction === ExternalTransferDirection.Deposit
@@ -128,12 +127,12 @@ export function TransferDialog({
                     : "text-muted-foreground",
                 )}
                 size="xl"
+                variant="outline"
                 onClick={() => setDirection(ExternalTransferDirection.Deposit)}
               >
                 Deposit
               </Button>
               <Button
-                variant="outline"
                 className={cn(
                   "border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold",
                   direction === ExternalTransferDirection.Withdraw
@@ -141,6 +140,7 @@ export function TransferDialog({
                     : "text-muted-foreground",
                 )}
                 size="xl"
+                variant="outline"
                 onClick={() => setDirection(ExternalTransferDirection.Withdraw)}
               >
                 Withdraw
@@ -180,17 +180,17 @@ export function TransferDialog({
         <DrawerHeader className="p-0">
           <div className="flex flex-row border-b border-border">
             <Button
-              variant="outline"
               className="flex-1 border-0 font-extended text-lg font-bold"
               size="xl"
+              variant="outline"
               onClick={() => setDirection(ExternalTransferDirection.Deposit)}
             >
               Deposit
             </Button>
             <Button
-              variant="outline"
               className="border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold"
               size="xl"
+              variant="outline"
               onClick={() => setDirection(ExternalTransferDirection.Withdraw)}
             >
               Withdraw
@@ -434,10 +434,10 @@ function TransferForm({
                       />
                       {!hideMaxButton && (
                         <Button
+                          className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
+                          size="icon"
                           type="button"
                           variant="ghost"
-                          size="icon"
-                          className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
                           onClick={() => {
                             field.onChange(balance, { shouldValidate: true })
                           }}
@@ -459,9 +459,9 @@ function TransferForm({
                 &nbsp;Balance
               </div>
               <Button
+                className="h-5 p-0"
                 type="button"
                 variant="link"
-                className="h-5 p-0"
                 onClick={(e) => {
                   e.preventDefault()
                   form.setValue("amount", balance, {
@@ -476,8 +476,8 @@ function TransferForm({
             </div>
             {direction === ExternalTransferDirection.Deposit && (
               <MaxBalancesWarning
-                mint={mint}
                 className="text-sm text-orange-400"
+                mint={mint}
               />
             )}
           </div>
@@ -485,9 +485,7 @@ function TransferForm({
         {isDesktop ? (
           <DialogFooter>
             <Button
-              variant="outline"
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-              size="xl"
               disabled={
                 !form.formState.isValid ||
                 (direction === ExternalTransferDirection.Deposit &&
@@ -495,6 +493,8 @@ function TransferForm({
                 approveStatus === "pending" ||
                 depositStatus === "pending"
               }
+              size="xl"
+              variant="outline"
             >
               {buttonText}
             </Button>
@@ -502,7 +502,6 @@ function TransferForm({
         ) : (
           <DrawerFooter>
             <Button
-              variant="default"
               disabled={
                 !form.formState.isValid ||
                 (direction === ExternalTransferDirection.Deposit &&
@@ -510,6 +509,7 @@ function TransferForm({
                 approveStatus === "pending" ||
                 depositStatus === "pending"
               }
+              variant="default"
             >
               {buttonText}
             </Button>

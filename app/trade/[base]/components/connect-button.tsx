@@ -10,12 +10,12 @@ export function ConnectButton({ className }: { className?: string }) {
   return (
     <>
       <Button
+        className={cn(className)}
+        size="xl"
         onClick={(e) => {
           e.preventDefault()
           handleClick()
         }}
-        className={cn(className)}
-        size="xl"
       >
         {content}
       </Button>

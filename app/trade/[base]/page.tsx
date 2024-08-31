@@ -59,10 +59,10 @@ export default async function Page({ params }: { params: { base: string } }) {
       </div>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <PageClient
-          defaultLayout={defaultLayout}
           base={params.base}
-          side={defaultSide}
+          defaultLayout={defaultLayout}
           isUSDCDenominated={defaultUseUSDC}
+          side={defaultSide}
         />
       </HydrationBoundary>
       <div className="sticky bottom-20 min-h-marquee overflow-hidden">
