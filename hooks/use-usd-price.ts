@@ -3,10 +3,10 @@ import React from "react"
 import { Token } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
-import { usePrice } from "@/stores/price-store"
 
 type ReturnType<T extends boolean> = T extends true ? string : bigint
 
@@ -15,7 +15,7 @@ export function useUSDPrice<T extends boolean = true>(
   amount: bigint,
   formatted: T = true as T,
 ): ReturnType<T> {
-  const price = usePrice({ baseAddress: token.address })
+  const { data: price } = usePriceQuery(token.address)
   return React.useMemo(() => {
     const result = amountTimesPrice(amount, price)
 

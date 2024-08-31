@@ -42,10 +42,10 @@ import {
 
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
-import { formatCurrency, formatCurrencyFromString } from "@/lib/format"
-import { usePrice } from "@/stores/price-store"
+import { formatCurrencyFromString } from "@/lib/format"
 
 const formSchema = z.object({
   amount: z
@@ -93,9 +93,7 @@ export function NewOrderForm({
     ? formatCurrencyFromString(priceInUsd)
     : "--"
 
-  const price = usePrice({
-    baseAddress: Token.findByTicker(base).address,
-  })
+  const { data: price } = usePriceQuery(Token.findByTicker(base).address)
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
