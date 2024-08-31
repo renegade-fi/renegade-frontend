@@ -141,6 +141,7 @@ export function NewOrderForm({
         setLockedFormValues({
           ...values,
           ...fees,
+          amount: values.isUSDCDenominated ? priceInBase : values.amount,
         })
         setOpen(true)
       }
