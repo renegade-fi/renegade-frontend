@@ -47,18 +47,10 @@ export function InflowsChart() {
 
   const netFlow24h = React.useMemo(() => {
     if (!data) return 0
-    const now = new Date()
-    const last24h = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() - 1,
-    ).getTime()
-    return data.reduce((sum, day) => {
-      if (Number(day.timestamp) >= last24h) {
-        return sum + day.depositAmount - day.withdrawalAmount
-      }
-      return sum
-    }, 0)
+    return (
+      data[data.length - 1].depositAmount -
+      data[data.length - 1].withdrawalAmount
+    )
   }, [data])
 
   return (
@@ -100,6 +92,7 @@ export function InflowsChart() {
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
+                  timeZone: "UTC",
                 })
               }}
             />
@@ -134,6 +127,7 @@ export function InflowsChart() {
                     return new Date(Number(value)).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC",
                     })
                   }}
                 />
