@@ -12,12 +12,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { cn } from "@/lib/utils"
-import { usePrice } from "@/stores/price-store"
 
 interface AmountShortcutButtonProps extends NewOrderFormProps {
   className?: string
@@ -48,9 +48,7 @@ export function AmountShortcutButton({
       }),
     },
   })
-  const price = usePrice({
-    baseAddress: baseToken.address,
-  })
+  const { data: price } = usePriceQuery(baseToken.address)
 
   const maxBalance = React.useMemo(() => {
     if (!price) return BigInt(0)

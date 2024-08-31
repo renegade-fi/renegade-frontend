@@ -5,9 +5,9 @@ import { formatUnits } from "viem/utils"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { safeParseUnits } from "@/lib/format"
-import { usePrice } from "@/stores/price-store"
 
 export function useOrderValue({
   amount,
@@ -16,9 +16,7 @@ export function useOrderValue({
 }: NewOrderFormProps) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker("USDC")
-  const usdPerBase = usePrice({
-    baseAddress: baseToken.address,
-  })
+  const { data: usdPerBase } = usePriceQuery(baseToken.address)
   const basePerUsd = React.useMemo(() => {
     if (!usdPerBase) return ""
     return 1 / usdPerBase

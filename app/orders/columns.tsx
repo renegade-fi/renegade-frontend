@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import {
@@ -22,7 +23,6 @@ import {
   formatPercentage,
   formatTimestamp,
 } from "@/lib/format"
-import { usePrice } from "@/stores/price-store"
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -137,9 +137,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
       )
     },
     cell: function Cell({ row }) {
-      const price = usePrice({
-        baseAddress: row.getValue<`0x${string}`>("mint"),
-      })
+      const { data: price } = usePriceQuery(row.getValue<`0x${string}`>("mint"))
       const usdValueBigInt = amountTimesPrice(
         row.getValue<bigint>("amount"),
         price,

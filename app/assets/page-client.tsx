@@ -15,11 +15,12 @@ import { useAccount, useReadContracts } from "wagmi"
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
+import { usePriceQueries } from "@/hooks/use-price-queries"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { erc20Abi } from "@/lib/generated"
+import { createPriceTopic } from "@/lib/query"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { constructPriceTopic, usePrice, usePrices } from "@/stores/price-store"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -69,11 +70,8 @@ export function PageClient() {
 
   useRefreshOnBlock({ queryKey })
 
-  const prices = usePrices()
-  // Subscribe to USDC price
-  usePrice({
-    baseAddress: Token.findByTicker("USDC").address,
-  })
+  const priceResults = usePriceQueries(DISPLAY_TOKENS())
+
   const balances: BalanceData[] = React.useMemo(() => {
     const l2BalancesMap = new Map(
       l2Balances?.map((balance, index) => [
@@ -82,16 +80,14 @@ export function PageClient() {
       ]),
     )
     return DISPLAY_TOKENS()
-      .map((token) => {
+      .map((token, i) => {
         const t = Token.findByAddress(token.address)
 
         const renegadeBalance =
           renegadeBalances?.get(token.address) ?? BigInt(0)
 
-        const priceTopic = constructPriceTopic({
-          baseAddress: t.address,
-        })
-        const price = prices.get(priceTopic) || 0
+        const priceTopic = createPriceTopic("binance", t.address)
+        const price = priceResults[i]?.data ?? 0
         const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price)
         const renegadeUsdValue = formatUnits(renegadeUsdValueBigInt, t.decimals)
 
@@ -117,7 +113,7 @@ export function PageClient() {
       )
   }, [
     l2Balances,
-    prices,
+    priceResults,
     renegadeBalances,
     showZeroL2Balance,
     showZeroRenegadeBalance,
@@ -138,9 +134,6 @@ export function PageClient() {
           task.task_info.update_type === UpdateType.Withdraw)
       ) {
         const token = Token.findByAddress(task.task_info.mint)
-        const priceTopic = constructPriceTopic({
-          baseAddress: task.task_info.mint,
-        })
 
         acc.push({
           status: task.state,

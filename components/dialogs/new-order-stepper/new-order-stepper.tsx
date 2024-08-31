@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token } from "@renegade-fi/react"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
@@ -20,7 +19,6 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOrderValue } from "@/hooks/use-order-value"
-import { usePrice } from "@/stores/price-store"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void

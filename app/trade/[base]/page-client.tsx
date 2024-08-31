@@ -9,11 +9,7 @@ import { BBOMarquee } from "@/app/trade/[base]/components/bbo-marquee"
 import { PriceChart } from "@/app/trade/[base]/components/charts/price-chart"
 import { NewOrderPanel } from "@/app/trade/[base]/components/new-order/new-order-panel"
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Separator } from "@/components/ui/separator"
 
 import { useMediaQuery } from "@/hooks/use-media-query"

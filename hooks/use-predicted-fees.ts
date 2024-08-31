@@ -6,9 +6,8 @@ import { useDebounceValue } from "usehooks-ts"
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { useOrderValue } from "@/hooks/use-order-value"
-import { useSavings } from "@/hooks/use-savings-query"
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
-import { usePrice } from "@/stores/price-store"
 
 export function usePredictedFees({
   amount,
@@ -18,9 +17,7 @@ export function usePredictedFees({
 }: NewOrderFormProps) {
   const [debouncedAmount] = useDebounceValue(amount, 500)
   const baseToken = Token.findByTicker(base)
-  const price = usePrice({
-    baseAddress: baseToken.address,
-  })
+  const { data: price } = usePriceQuery(baseToken.address)
 
   const { priceInBase, priceInUsd } = useOrderValue({
     amount,
