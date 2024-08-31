@@ -2,7 +2,7 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useStatus, useWallet } from "@renegade-fi/react"
+import { useStatus, useBackOfQueueWallet } from "@renegade-fi/react"
 import { Star } from "lucide-react"
 import { useDebounceValue, useLocalStorage } from "usehooks-ts"
 import { fromHex } from "viem/utils"
@@ -121,7 +121,7 @@ function TokenList({
   ticker: string
 }) {
   const renegadeStatus = useStatus()
-  const { data, status } = useWallet({
+  const { data, status } = useBackOfQueueWallet({
     query: {
       select: (data) =>
         new Map(
