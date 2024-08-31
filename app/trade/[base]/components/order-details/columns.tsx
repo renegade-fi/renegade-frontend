@@ -80,7 +80,7 @@ export const columns: ColumnDef<FillTableData>[] = [
           dayjs(Number(previousTimestamp)),
         )
         const formattedTimeDiff = formatTimestampReadable(timeDiffMs)
-        diffLabel += ` | ${formattedTimeDiff} since previous`
+        diffLabel += ` | ${formattedTimeDiff} since previous fill`
       }
 
       return (

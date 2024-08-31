@@ -6,8 +6,6 @@ import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
-import dayjs from "dayjs"
-import relativeTime from "dayjs/plugin/relativeTime"
 
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
@@ -27,8 +25,6 @@ import { ThemeProvider } from "@/providers/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 
 import "./globals.css"
-
-dayjs.extend(relativeTime)
 
 const fontSansExtended = localFont({
   src: "./FavoritExtended.woff2",
