@@ -23,3 +23,5 @@ export enum Side {
   BUY = "buy",
   SELL = "sell",
 }
+
+export const EXCHANGES = ["binance", "coinbase", "kraken", "okx"] as const

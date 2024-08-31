@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import localFont from "next/font/local"
 import { headers } from "next/headers"
 import { userAgent } from "next/server"
@@ -10,7 +9,6 @@ import { Analytics } from "@vercel/analytics/react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 
-import { getInitialPrices } from "@/app/actions"
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
 import { InvalidateQueries } from "@/app/components/invalidate-queries"
@@ -27,7 +25,6 @@ import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
-import { PriceStoreProvider } from "@/stores/price-store"
 
 import "./globals.css"
 
@@ -76,7 +73,6 @@ export default async function RootLayout({
     headers().get("cookie"),
   )
   const { device } = userAgent({ headers: headers() })
-  // const prices = await getInitialPrices()
   const prices = new Map()
   return (
     <html lang="en">
@@ -91,30 +87,28 @@ export default async function RootLayout({
         >
           <RenegadeProvider initialState={renegadeInitialState}>
             <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
-              <PriceStoreProvider initialPrices={prices}>
-                <TailwindIndicator />
-                <TooltipProvider
-                  delayDuration={0}
-                  skipDelayDuration={0}
-                >
-                  <IntercomProvider isMobile={device.type === "mobile"}>
-                    <div className="select-none">{children}</div>
-                  </IntercomProvider>
-                </TooltipProvider>
-                <Toaster
-                  className="pointer-events-auto"
-                  toastOptions={{ duration: 5000 }}
-                  position="bottom-center"
-                  theme="light"
-                  visibleToasts={MAX_ORDERS}
-                />
-                <InvalidateQueries />
-                <OrderToaster />
-                <TaskToaster />
-                <ReactQueryDevtools initialIsOpen={false} />
-                <Faucet />
-                <LazyDatadog />
-              </PriceStoreProvider>
+              <TailwindIndicator />
+              <TooltipProvider
+                delayDuration={0}
+                skipDelayDuration={0}
+              >
+                <IntercomProvider isMobile={device.type === "mobile"}>
+                  <div className="select-none">{children}</div>
+                </IntercomProvider>
+              </TooltipProvider>
+              <Toaster
+                className="pointer-events-auto"
+                toastOptions={{ duration: 5000 }}
+                position="bottom-center"
+                theme="light"
+                visibleToasts={MAX_ORDERS}
+              />
+              <InvalidateQueries />
+              <OrderToaster />
+              <TaskToaster />
+              <ReactQueryDevtools initialIsOpen={false} />
+              <Faucet />
+              <LazyDatadog />
             </WagmiProvider>
           </RenegadeProvider>
         </ThemeProvider>

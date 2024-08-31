@@ -2,11 +2,11 @@
 
 import * as React from "react"
 
-import { Exchange, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
 
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { formatCurrency } from "@/lib/format"
 import { cn } from "@/lib/utils"
-import { usePrice } from "@/stores/price-store"
 
 export function AnimatedPrice({
   className,
@@ -17,10 +17,7 @@ export function AnimatedPrice({
   exchange?: Exchange
   mint: `0x${string}`
 }) {
-  const price = usePrice({
-    exchange,
-    baseAddress: mint,
-  })
+  const { data: price } = usePriceQuery(mint, exchange)
   const prev = React.useRef(price)
   const [animationKey, setAnimationKey] = React.useState(0)
 

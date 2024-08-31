@@ -11,13 +11,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import {
   formatCurrencyFromString,
   formatNumber,
   formatTimestamp,
 } from "@/lib/format"
-import { usePrice } from "@/stores/price-store"
 
 export const columns: ColumnDef<HistoryData>[] = [
   {
@@ -60,9 +60,7 @@ export const columns: ColumnDef<HistoryData>[] = [
     cell: function Cell({ row }) {
       const mint = row.getValue<`0x${string}`>("mint")
       const token = Token.findByAddress(mint)
-      const price = usePrice({
-        baseAddress: mint,
-      })
+      const { data: price } = usePriceQuery(mint)
       const amount = row.original.rawAmount
       const usdValueBigInt = amountTimesPrice(amount, price)
       const usdValue = formatUnits(usdValueBigInt, token.decimals)
