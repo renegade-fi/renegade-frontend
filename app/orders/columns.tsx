@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
@@ -30,7 +31,7 @@ declare module "@tanstack/react-table" {
   }
 }
 
-export const columns: ColumnDef<OrderMetadata>[] = [
+export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
   // {
   //   id: 'select',
   //   header: ({ table }) => (
@@ -107,7 +108,7 @@ export const columns: ColumnDef<OrderMetadata>[] = [
   },
   {
     id: "usdValue",
-    // accessorFn: (row) => Number(row.usdValue),
+    accessorFn: (row) => row.usdValue,
     header: ({ column }) => {
       return (
         <div className="flex flex-row-reverse">
@@ -136,21 +137,10 @@ export const columns: ColumnDef<OrderMetadata>[] = [
         </div>
       )
     },
-    cell: function Cell({ row }) {
-      const { data: price } = usePriceQuery(row.getValue<`0x${string}`>("mint"))
-      const usdValueBigInt = amountTimesPrice(
-        row.getValue<bigint>("amount"),
-        price,
-      )
-      const decimals = Token.findByAddress(
-        row.getValue<`0x${string}`>("mint"),
-      ).decimals
-      const usdValue = formatUnits(usdValueBigInt, decimals)
-      return (
-        <div className="pr-4 text-right">
-          {formatCurrencyFromString(usdValue)}
-        </div>
-      )
+    cell: ({ row }) => {
+      const usdValue = row.original.usdValue
+      const formatted = usdValue ? formatCurrency(usdValue) : "--"
+      return <div className="pr-4 text-right">{formatted}</div>
     },
   },
   {

@@ -29,6 +29,7 @@ import {
   formatOrderState,
   formatPercentage,
 } from "@/lib/format"
+import { getVWAP } from "@/lib/order"
 
 export function DetailsContent({ order }: { order: OrderMetadata }) {
   const token = Token.findByAddress(order.data.base_mint)
@@ -68,16 +69,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
   const isModifiable = [OrderState.Created, OrderState.Matching].includes(
     order.state,
   )
-
-  const formattedFills = order.fills.map((fill) => ({
-    amount: Number(formatNumber(fill.amount, token.decimals)),
-    price: Number(fill.price.price),
-  }))
-  const vwap =
-    formattedFills.reduce((acc, fill) => acc + fill.amount * fill.price, 0) /
-    formattedFills.reduce((acc, fill) => acc + fill.amount, 0)
-
-  // TODO: Calculate in bigint units
+  const vwap = getVWAP(order.fills)
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
   const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
   const filledLabelLong = `${formattedFilledAmountLong} ${token.ticker} @ ${formattedVWAP}`
