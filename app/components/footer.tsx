@@ -95,7 +95,8 @@ export function Footer() {
           >
             <a
               href="https://x.com/renegade_fi"
-              rel="noreferrer" target="_blank"
+              rel="noreferrer"
+              target="_blank"
             >
               <Image
                 alt="x"
@@ -112,7 +113,8 @@ export function Footer() {
           >
             <a
               href="https://github.com/renegade-fi/"
-              rel="noreferrer" target="_blank"
+              rel="noreferrer"
+              target="_blank"
             >
               <Image
                 alt="github"
@@ -129,7 +131,8 @@ export function Footer() {
           >
             <a
               href="https://discord.com/invite/renegade-fi"
-              rel="noreferrer" target="_blank"
+              rel="noreferrer"
+              target="_blank"
             >
               <Image
                 alt="discord"
@@ -146,7 +149,8 @@ export function Footer() {
           >
             <a
               href="https://renegade.fi/docs"
-              rel="noreferrer" target="_blank"
+              rel="noreferrer"
+              target="_blank"
             >
               <Book className="h-3 w-3" />
             </a>

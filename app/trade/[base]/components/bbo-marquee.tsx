@@ -36,7 +36,8 @@ export function BBOMarquee({ base }: { base: string }) {
           <span className="text-xs">•</span>
           <a
             href={constructExchangeUrl(exchange, base)}
-            rel="noreferrer" target="_blank"
+            rel="noreferrer"
+            target="_blank"
           >
             <div className="flex items-baseline justify-center gap-4 leading-none">
               <span>{names[exchange]}</span>
