@@ -1,7 +1,7 @@
-import { useWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
 
 export function useFeeOnZeroBalance() {
-  const { data } = useWallet({
+  const { data } = useBackOfQueueWallet({
     query: {
       select: (data) =>
         data.balances

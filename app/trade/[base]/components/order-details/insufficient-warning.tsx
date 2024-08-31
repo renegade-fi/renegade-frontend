@@ -1,4 +1,4 @@
-import { Token, useWallet } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
 import {
@@ -29,7 +29,7 @@ export function InsufficientWarning({
 }) {
   const token = Token.findByAddress(side === Side.BUY ? quoteMint : baseMint)
 
-  const { data: balance } = useWallet({
+  const { data: balance } = useBackOfQueueWallet({
     query: {
       select: (data) =>
         data.balances.find((balance) => balance.mint === token.address)?.amount,

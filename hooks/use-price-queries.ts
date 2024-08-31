@@ -48,6 +48,7 @@ export function usePriceQueries(
       queryFn: () =>
         getPriceFromPriceReporter(createPriceTopic(exchange, token.address)),
       initialData: 0,
+      staleTime: Infinity
     })),
   })
 }

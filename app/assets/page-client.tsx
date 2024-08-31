@@ -7,7 +7,7 @@ import {
   Token,
   UpdateType,
   useTaskHistory,
-  useWallet,
+  useBackOfQueueWallet,
 } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 import { useAccount, useReadContracts } from "wagmi"
@@ -45,7 +45,7 @@ export type HistoryData = {
 }
 
 export function PageClient() {
-  const { data: renegadeBalances } = useWallet({
+  const { data: renegadeBalances } = useBackOfQueueWallet({
     query: {
       select: (data) =>
         new Map(data.balances.map((balance) => [balance.mint, balance.amount])),

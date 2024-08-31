@@ -1,4 +1,4 @@
-import { Token, useStatus, useWallet } from "@renegade-fi/react"
+import { Token, useStatus, useBackOfQueueWallet } from "@renegade-fi/react"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
@@ -21,7 +21,7 @@ export function AssetsSectionWithDepositButton({
 }) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker(quote)
-  const { data } = useWallet({
+  const { data } = useBackOfQueueWallet({
     query: {
       select: (data) =>
         !data.balances.find((balance) => balance.mint === baseToken.address)
@@ -64,7 +64,7 @@ export function AssetsSection({
 
   const renegadeStatus = useStatus()
 
-  const { data, status } = useWallet({
+  const { data, status } = useBackOfQueueWallet({
     query: {
       select: (data) => ({
         [baseToken.address]: data.balances.find(
