@@ -18,9 +18,9 @@ export function CancelButton({
   return (
     <Button
       autoFocus
-      variant="outline"
       className="flex-1"
       disabled={isDisabled}
+      variant="outline"
       onClick={() =>
         cancelOrder(
           {

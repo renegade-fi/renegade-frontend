@@ -148,8 +148,8 @@ export function NewOrderForm({
     <>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6 px-6"
+          onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="flex">
             <FormField
@@ -159,10 +159,10 @@ export function NewOrderForm({
                 <FormItem className="flex-1">
                   <FormControl>
                     <Button
-                      type="button"
-                      variant="outline"
                       className="w-full font-serif text-2xl font-bold"
                       size="xl"
+                      type="button"
+                      variant="outline"
                       {...field}
                       value={""}
                       onClick={() => field.onChange(!field.value)}
@@ -177,14 +177,14 @@ export function NewOrderForm({
             />
             <TokenSelectDialog ticker={base}>
               <Button
-                variant="outline"
                 className="flex-1 border-l-0 font-serif text-2xl font-bold"
                 size="xl"
+                variant="outline"
               >
                 <TokenIcon
-                  ticker={base}
-                  size={22}
                   className="mr-2"
+                  size={22}
+                  ticker={base}
                 />
                 {base}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -204,9 +204,9 @@ export function NewOrderForm({
                         className="h-12 rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
                         placeholder="0.00"
                         {...field}
-                        value={field.value}
-                        type="number"
                         autoFocus
+                        type="number"
+                        value={field.value}
                       />
                     </FormControl>
                     <FormMessage />
@@ -220,9 +220,9 @@ export function NewOrderForm({
                   <FormItem>
                     <FormControl>
                       <Button
+                        className="h-12 flex-1 rounded-none px-2 py-0 font-serif text-2xl font-bold"
                         type="button"
                         variant="ghost"
-                        className="h-12 flex-1 rounded-none px-2 py-0 font-serif text-2xl font-bold"
                         {...field}
                         value={""}
                         onClick={(e) => {
@@ -273,10 +273,10 @@ export function NewOrderForm({
           {status === "in relayer" ? (
             <div>
               <Button
-                variant="default"
                 className="flex w-full font-serif text-2xl font-bold"
-                size="xl"
                 disabled={!form.formState.isValid || isMaxOrders}
+                size="xl"
+                variant="default"
               >
                 {form.getValues("isSell") ? "Sell" : "Buy"} {base}
               </Button>
@@ -307,9 +307,9 @@ export function NewOrderForm({
           </div>
           <NewOrderStepper
             {...lockedFormValues}
-            onSuccess={() => form.reset()}
             open={open}
             setOpen={setOpen}
+            onSuccess={() => form.reset()}
           />
         </form>
       </Form>

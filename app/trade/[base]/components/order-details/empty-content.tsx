@@ -61,9 +61,9 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
         <OrderStatusIndicator order={order} />
         {isOpen && (
           <InsufficientWarning
-            className="text-sm font-bold"
             amount={order.data.amount}
             baseMint={order.data.base_mint}
+            className="text-sm font-bold"
             quoteMint={order.data.quote_mint}
             side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
           />
@@ -94,12 +94,12 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
       <div className="grid h-[500px] place-items-center">
         <div className="space-y-10">
           <Image
-            className="mx-auto animate-pulse"
-            src="/glyph_dark.svg"
-            alt="logo"
-            width="46"
-            height="57"
             priority
+            alt="logo"
+            className="mx-auto animate-pulse"
+            height="57"
+            src="/glyph_dark.svg"
+            width="46"
           />
           <div className="text-sm text-muted-foreground">
             Once your order is filled, you&apos;ll see the details here.

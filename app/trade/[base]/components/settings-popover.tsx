@@ -99,8 +99,8 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
               Terms and Conditions
             </Button> */}
             <Button
-              variant="link"
               className="h-fit w-fit p-0"
+              variant="link"
               onClick={handleRefreshWallet}
             >
               Refresh wallet
@@ -108,8 +108,8 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="link"
                   className="h-fit w-fit p-0 font-mono text-xs"
+                  variant="link"
                   onClick={() => {
                     if (walletId) {
                       navigator.clipboard.writeText(walletId)

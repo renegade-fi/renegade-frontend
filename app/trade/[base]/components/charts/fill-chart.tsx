@@ -207,50 +207,42 @@ export function FillChart({ order }: { order: OrderMetadata }) {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="timestamp"
-              tickLine={false}
               axisLine={false}
-              tickMargin={8}
+              dataKey="timestamp"
               tickFormatter={formatTimestamp}
+              tickLine={false}
+              tickMargin={8}
             />
             <YAxis
-              dataKey="price"
               axisLine={false}
-              tickLine={false}
-              tickCount={5}
+              dataKey="price"
               domain={calculateYAxisDomain(minValue, maxValue)}
+              tickCount={5}
               tickFormatter={formatCurrency}
+              tickLine={false}
             />
             <ChartLegend content={<ChartLegendContent />} />
             <Line
               dataKey="fillPrice"
-              stroke="var(--color-fillPrice)"
               fill="var(--color-fillPrice)"
-              strokeWidth={0}
               isAnimationActive={false}
+              stroke="var(--color-fillPrice)"
+              strokeWidth={0}
             />
             <Line
-              animationEasing="ease-out"
               animationDuration={750}
+              animationEasing="ease-out"
               dataKey="price"
-              type="linear"
+              dot={false}
               fill="var(--color-price)"
               stroke="var(--color-price)"
-              dot={false}
+              type="linear"
             />
             <ChartTooltip
+              cursor
               content={
                 <ChartTooltipContent
                   className="w-[200px]"
-                  labelFormatter={(value) => {
-                    return new Date(Number(value)).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "numeric",
-                      second: "numeric",
-                      month: "long",
-                    })
-                  }}
                   formatter={(value, name, item, index) => (
                     <>
                       <div
@@ -294,9 +286,17 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                         )}
                     </>
                   )}
+                  labelFormatter={(value) => {
+                    return new Date(Number(value)).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                      second: "numeric",
+                      month: "long",
+                    })
+                  }}
                 />
               }
-              cursor
             />
           </LineChart>
         </ChartContainer>
