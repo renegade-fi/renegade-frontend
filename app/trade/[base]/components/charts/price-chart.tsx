@@ -18,7 +18,9 @@ export function PriceChart({ base }: { base: string }) {
         src="/static/datafeeds/udf/dist/bundle.js"
         strategy="afterInteractive"
       />
-      <TradingViewChart {...defaultWidgetProps} />
+      <div className="relative h-[500px]">
+        <TradingViewChart {...defaultWidgetProps} />
+      </div>
     </>
   )
 }

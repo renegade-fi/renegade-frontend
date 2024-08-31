@@ -46,22 +46,29 @@ export default function TradingViewChart(
   return (
     <>
       <div
-        className={cn("h-[500px]", isReady ? "visible" : "hidden")}
+        className={cn("z-10 h-[500px] transition-opacity duration-300", {
+          "opacity-0": !isReady,
+          "opacity-100": isReady,
+        })}
         ref={chartContainerRef}
       />
       <div
-        className={cn("relative min-h-[500px]", isReady ? "hidden" : "visible")}
+        className={cn(
+          "absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300",
+          {
+            "opacity-100": !isReady,
+            "opacity-0": isReady,
+          },
+        )}
       >
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Image
-            className="animate-pulse"
-            src="/glyph_dark.svg"
-            alt="logo"
-            width="46"
-            height="57"
-            priority
-          />
-        </div>
+        <Image
+          className="animate-pulse"
+          src="/glyph_dark.svg"
+          alt="logo"
+          width="46"
+          height="57"
+          priority
+        />
       </div>
     </>
   )
