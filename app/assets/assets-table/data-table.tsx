@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { Settings2 } from "lucide-react"
+import { DollarSign, Settings2 } from "lucide-react"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TableEmptyState } from "@/components/table-empty-state"
@@ -34,6 +34,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Toggle } from "@/components/ui/toggle"
+
+import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -57,7 +60,12 @@ export function DataTable<TData, TValue>({
     [],
   )
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({
+      renegadeUsdValue: true,
+      l2UsdValue: true,
+      renegadeBalance: false,
+      l2Balance: false,
+    })
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
     {
@@ -107,7 +115,6 @@ export function DataTable<TData, TValue>({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
               checked={showZeroRenegadeBalance}
               onCheckedChange={(value) => setShowZeroRenegadeBalance(!!value)}
@@ -122,6 +129,32 @@ export function DataTable<TData, TValue>({
             </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <div className="ml-4 flex items-center space-x-2">
+          <Toggle
+            aria-label="Toggle USD"
+            pressed={
+              columnVisibility.renegadeUsdValue && columnVisibility.l2UsdValue
+            }
+            size="sm"
+            onPressedChange={(value) => {
+              value
+                ? setColumnVisibility({
+                    renegadeUsdValue: true,
+                    l2UsdValue: true,
+                    renegadeBalance: false,
+                    l2Balance: false,
+                  })
+                : setColumnVisibility({
+                    renegadeUsdValue: false,
+                    l2UsdValue: false,
+                    renegadeBalance: true,
+                    l2Balance: true,
+                  })
+            }}
+          >
+            <DollarSign className={cn("h-4 w-4 text-muted-foreground")} />
+          </Toggle>
+        </div>
         <div className="ml-4 flex items-center space-x-2">
           <Switch
             checked={isLongFormat}
