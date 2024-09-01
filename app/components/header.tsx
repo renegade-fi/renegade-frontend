@@ -8,7 +8,7 @@ import { useStatus } from "@renegade-fi/react"
 import { ChevronDown, Ellipsis } from "lucide-react"
 import { useAccount } from "wagmi"
 
-import { DropdownMenuDemo } from "@/app/components/account-menu"
+import { AccountDropdown } from "@/app/components/account-menu"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 import { SettingsPopover } from "@/app/trade/[base]/components/settings-popover"
 
@@ -115,12 +115,12 @@ export function Header() {
             </>
           )}
           {address ? (
-            <DropdownMenuDemo>
+            <AccountDropdown>
               <Button variant="outline">
                 {`${address.slice(0, 6)}...${address.slice(-4)}`}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
-            </DropdownMenuDemo>
+            </AccountDropdown>
           ) : (
             <ConnectWalletButton />
           )}
