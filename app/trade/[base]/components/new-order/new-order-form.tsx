@@ -89,7 +89,7 @@ export function NewOrderForm({
   const fees = usePredictedFees(form.watch())
   const [open, setOpen] = React.useState(false)
   const { priceInUsd, priceInBase } = useOrderValue(form.watch())
-  const formattedOrderValue = priceInUsd
+  const formattedOrderValue = Number(priceInUsd)
     ? formatCurrencyFromString(priceInUsd)
     : "--"
 
