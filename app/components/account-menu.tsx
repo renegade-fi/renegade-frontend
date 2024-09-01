@@ -3,6 +3,7 @@ import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
 import { Copy, LogOut } from "lucide-react"
 import { useAccount, useDisconnect } from "wagmi"
 
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,7 @@ import {
 
 import { formatStatus } from "@/lib/format"
 
-export function DropdownMenuDemo({ children }: { children: React.ReactNode }) {
+export function AccountDropdown({ children }: { children: React.ReactNode }) {
   const { address } = useAccount()
   const config = useConfig()
   const { disconnect } = useDisconnect()
@@ -42,20 +43,21 @@ export function DropdownMenuDemo({ children }: { children: React.ReactNode }) {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>
           <Tooltip>
-            <TooltipTrigger>{truncatedAddress}</TooltipTrigger>
+            <TooltipTrigger asChild>
+              <Button
+                className="h-fit w-fit p-0"
+                variant="link"
+                onClick={handleCopyAddress}
+              >
+                {truncatedAddress}
+              </Button>
+            </TooltipTrigger>
             <TooltipContent>
-              <span>{address}</span>
+              <p className="font-sans">Copy address</p>
             </TooltipContent>
           </Tooltip>
         </DropdownMenuLabel>
-        <DropdownMenuLabel>
-          <span>Status: {formatStatus(status)}</span>
-        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleCopyAddress}>
-          <Copy className="mr-2 h-4 w-4" />
-          <span>Copy address</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDisconnect}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Disconnect</span>

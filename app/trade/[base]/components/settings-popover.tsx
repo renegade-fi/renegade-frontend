@@ -3,6 +3,7 @@
 import { useConfig, useStatus, useWalletId } from "@renegade-fi/react"
 import { refreshWallet } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
+import { useLocalStorage } from "usehooks-ts"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -19,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 import {
   FAILED_REFRESH_WALLET_MSG,
   START_REFRESH_WALLET_MSG,
@@ -35,6 +37,13 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
         .catch(() => toast.message(FAILED_REFRESH_WALLET_MSG))
     }
   }
+  const [rememberMe, setRememberMe] = useLocalStorage(
+    STORAGE_REMEMBER_ME,
+    false,
+    {
+      initializeWithValue: false,
+    },
+  )
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
@@ -45,22 +54,22 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
         }}
       >
         <div className="grid gap-4">
-          {/* <div className="grid gap-2">
-            <div className="grid grid-cols-2 items-center gap-4">
+          <div className="grid gap-2">
+            {/* <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="animate">Animate banners</Label>
               <Checkbox
-                className="justify-self-end"
                 defaultChecked
+                className="justify-self-end"
               />
-            </div>
-            <div className="grid grid-cols-2 items-center gap-4">
+            </div> */}
+            {/* <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="animate">Order panel left side</Label>
               <Checkbox
-                className="justify-self-end"
                 defaultChecked
+                className="justify-self-end"
               />
-            </div>
-            <div className="grid grid-cols-3 items-center gap-4">
+            </div> */}
+            {/* <div className="grid grid-cols-3 items-center gap-4">
               <Label
                 className="col-span-2"
                 htmlFor="animate"
@@ -68,23 +77,29 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
                 Skip order confirmation
               </Label>
               <Checkbox className="justify-self-end" />
-            </div>
+            </div> */}
             <div className="grid grid-cols-2 items-center gap-4">
-              <Label htmlFor="animate">Remember me</Label>
+              <Label htmlFor="remember-me">Remember me</Label>
               <Checkbox
+                checked={rememberMe}
                 className="justify-self-end"
-                defaultChecked
+                id="remember-me"
+                onCheckedChange={(checked) => {
+                  if (typeof checked === "boolean") {
+                    setRememberMe(checked)
+                  }
+                }}
               />
             </div>
-            <div className="grid grid-cols-2 items-center gap-4">
+            {/* <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="animate">Dark mode</Label>
               <Checkbox
-                className="justify-self-end"
                 defaultChecked
+                className="justify-self-end"
               />
-            </div>
+            </div> */}
           </div>
-          <Separator /> */}
+          <Separator />
           <div className="grid gap-2">
             {/* <Button
               variant="link"
