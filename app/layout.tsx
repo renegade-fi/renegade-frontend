@@ -7,6 +7,7 @@ import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
 
+import { ClearCookie } from "@/app/components/clear-cookie"
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
 import { InvalidateQueries } from "@/app/components/invalidate-queries"
@@ -105,6 +106,7 @@ export default async function RootLayout({
               <ReactQueryDevtools initialIsOpen={false} />
               <Faucet />
               <LazyDatadog />
+              <ClearCookie />
             </WagmiProvider>
           </RenegadeProvider>
         </ThemeProvider>

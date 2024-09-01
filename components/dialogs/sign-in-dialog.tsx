@@ -9,10 +9,12 @@ import {
 } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { toast } from "sonner"
+import { useLocalStorage } from "usehooks-ts"
 import { BaseError } from "viem"
 import { useSignMessage } from "wagmi"
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -22,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 import {
   CREATE_WALLET_ERROR,
   CREATE_WALLET_START,
@@ -126,6 +129,14 @@ export function SignInDialog({
       },
     )
 
+  const [rememberMe, setRememberMe] = useLocalStorage(
+    STORAGE_REMEMBER_ME,
+    false,
+    {
+      initializeWithValue: false,
+    },
+  )
+
   return (
     <Dialog
       open={open}
@@ -141,6 +152,23 @@ export function SignInDialog({
             find your wallet on-chain.
           </DialogDescription>
         </DialogHeader>
+        <div className="flex items-center space-x-2 px-6 pb-6">
+          <Checkbox
+            checked={rememberMe}
+            id="remember-me"
+            onCheckedChange={(checked) => {
+              if (typeof checked === "boolean") {
+                setRememberMe(checked)
+              }
+            }}
+          />
+          <label
+            className="text-sm font-medium leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            htmlFor="remember-me"
+          >
+            Remember me
+          </label>
+        </div>
         <DialogFooter>
           <Button
             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
