@@ -114,8 +114,8 @@ const config = {
           to: { transform: "translateX(calc(-100% - var(--gap)))" },
         },
         ellipsis: {
-          '0%, 100%': { opacity: '0' },
-          '50%': { opacity: '1' },
+          "0%, 100%": { opacity: "0" },
+          "50%": { opacity: "1" },
         },
       },
       animation: {
@@ -125,7 +125,7 @@ const config = {
         "price-red": "price-red 0.5s ease-in-out",
         "shimmer-button": "shimmer-button 45s ease infinite",
         marquee: "marquee var(--duration) linear infinite",
-        ellipsis: 'ellipsis 1.5s ease-in-out infinite',
+        ellipsis: "ellipsis 1.5s ease-in-out infinite",
       },
     },
   },

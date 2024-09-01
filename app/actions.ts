@@ -3,9 +3,7 @@ import { QueryClient } from "@tanstack/react-query"
 
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 
-import {
-  createPriceQueryKey
-} from "@/lib/query"
+import { createPriceQueryKey } from "@/lib/query"
 import { remapToken } from "@/lib/token"
 
 export async function prefetchPrice(

@@ -5,7 +5,7 @@ import { cookies } from "next/headers"
 import {
   STORAGE_BASE,
   STORAGE_IS_USDC_DENOMINATED,
-  STORAGE_SIDE
+  STORAGE_SIDE,
 } from "@/lib/constants/storage"
 
 function setCookie(key: string, value: string) {
