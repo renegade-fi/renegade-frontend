@@ -33,8 +33,6 @@ export function SettingsPopover({ children }: { children: React.ReactNode }) {
   const handleRefreshWallet = async () => {
     if (status === "in relayer") {
       await refreshWallet(config)
-        .then(() => toast.message(START_REFRESH_WALLET_MSG))
-        .catch(() => toast.message(FAILED_REFRESH_WALLET_MSG))
     }
   }
   const [rememberMe, setRememberMe] = useLocalStorage(
