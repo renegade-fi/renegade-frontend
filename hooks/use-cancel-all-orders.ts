@@ -18,9 +18,8 @@ export function useCancelAllOrders() {
     for (const orderId of data) {
       try {
         await cancelOrder(config, { id: orderId })
-        console.log(`Order ${orderId} cancelled successfully`)
       } catch (error) {
-        console.error(`Error cancelling order ${orderId}:`, error)
+        console.error(`Error cancelling order:`, error)
         break
       }
     }

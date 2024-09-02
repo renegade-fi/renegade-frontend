@@ -16,6 +16,7 @@ import {
   isCancelOrderTask,
   isDepositTask,
   isPlaceOrderTask,
+  isRefreshWalletTask,
   isWithdrawTask,
 } from "@/lib/task"
 
@@ -32,7 +33,8 @@ export function TaskToaster() {
       } else if (
         isDepositTask(task) ||
         isPlaceOrderTask(task) ||
-        isCancelOrderTask(task)
+        isCancelOrderTask(task) ||
+        isRefreshWalletTask(task)
       ) {
         processTask(task)
       }

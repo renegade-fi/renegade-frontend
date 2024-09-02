@@ -1,5 +1,13 @@
 import { Task, TaskType, UpdateType } from "@renegade-fi/react"
 
+export function isRefreshWalletTask(task: Task): task is Task & {
+  task_info: {
+    task_type: TaskType.RefreshWallet
+  }
+} {
+  return task.task_info.task_type === TaskType.RefreshWallet
+}
+
 export function isPlaceOrderTask(task: Task): task is Task & {
   task_info: {
     task_type: TaskType.UpdateWallet
