@@ -28,32 +28,32 @@ import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 import "./globals.css"
 
 const fontSansExtended = localFont({
-  src: "./FavoritExtended.woff2",
+  src: "../public/static/fonts/FavoritExtended.woff2",
   display: "swap",
   variable: "--font-sans-extended",
 })
 
 const fontSerif = localFont({
-  src: "./Aime-Regular.woff2",
+  src: "../public/static/fonts/Aime-Regular.woff2",
   display: "swap",
   variable: "--font-serif",
 })
 
 const fontSans = localFont({
-  src: "./Favorit.ttf",
+  src: "../public/static/fonts/Favorit.ttf",
   display: "swap",
   variable: "--font-sans",
 })
 
 const fontSansLight = localFont({
-  src: "./FavoritLight.ttf",
+  src: "../public/static/fonts/FavoritLight.ttf",
   display: "swap",
   variable: "--font-sans-light",
   weight: "200",
 })
 
 const fontMono = localFont({
-  src: "./FavoritMono.ttf",
+  src: "../public/static/fonts/FavoritMono.ttf",
   display: "swap",
   variable: "--font-mono",
 })
