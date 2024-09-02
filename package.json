@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "postinstall": "./postinstall.sh"
+    "postinstall": "bash ./scripts/postinstall.sh"
   },
   "dependencies": {
     "@datadog/browser-logs": "^5.23.3",

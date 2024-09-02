@@ -35,7 +35,6 @@ yarn-error.log*
 next-env.d.ts
 
 ### Charts ###
-/public/static/charting_library
-/public/static/datafeeds
+/public/static/*
 .npmrc
 .env*.local
