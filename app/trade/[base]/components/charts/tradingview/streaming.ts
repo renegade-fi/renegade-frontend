@@ -22,20 +22,16 @@ function createWebSocket() {
   socket = new WebSocket(process.env.NEXT_PUBLIC_AMBERDATA_PROXY_URL)
 
   socket.addEventListener("open", (event) => {
-    console.log("WebSocket is open now.")
     isConnected = true
     resubscribeAll()
   })
 
   socket.addEventListener("message", (event) => {
-    console.log("Message from server ", event.data)
   })
 
   socket.addEventListener("close", (event) => {
-    console.log("WebSocket is closed now.")
     isConnected = false
     setTimeout(() => {
-      console.log("Attempting to reconnect...")
       createWebSocket()
     }, RECONNECT_INTERVAL)
   })
@@ -50,7 +46,6 @@ function createWebSocket() {
     const data = parsedMessage.data
 
     const subscriptionItem = channelToSubscription.get(topic)
-    console.log("[websocket] subscriptionItem:", subscriptionItem)
     if (subscriptionItem === undefined) {
       return
     }
@@ -70,7 +65,6 @@ function createWebSocket() {
           close: data.close,
           volume: data.volume,
         }
-        console.log("[socket] Generate new bar", bar)
       } else {
         bar = {
           ...lastBar,
@@ -79,7 +73,6 @@ function createWebSocket() {
           close: data.close,
           volume: lastBar.volume + data.volume,
         }
-        console.log("[socket] Update the latest bar ", bar)
       }
       handler.callback(bar)
       handler.lastBar = bar
@@ -91,7 +84,6 @@ function resubscribeAll() {
   for (const [topic, subscriptionItem] of Array.from(
     channelToSubscription.entries(),
   )) {
-    console.log(`[resubscribe]: Resubscribing to ${topic}`)
     socket.send(
       JSON.stringify({
         type: "subscribe",
@@ -161,17 +153,12 @@ export function subscribeOnStream(
     handlers: [handler],
   }
   channelToSubscription.set(topic, subscriptionItem)
-  console.log("[subscribeBars]: Subscribe to streaming. Channel:", topic)
   if (isConnected) {
     socket.send(
       JSON.stringify({
         type: "subscribe",
         topic,
       }),
-    )
-  } else {
-    console.log(
-      `[subscribeBars]: WebSocket not connected. Will subscribe to ${topic} upon reconnection.`,
     )
   }
 }
@@ -198,10 +185,6 @@ export function unsubscribeFromStream(subscriberUID: string) {
 
       if (subscriptionItem.handlers.length === 0) {
         // Unsubscribe from the channel if it is the last handler
-        console.log(
-          "[unsubscribeBars]: Unsubscribe from streaming. Channel:",
-          channelString,
-        )
         socket.send(
           JSON.stringify({
             type: "unsubscribe",

@@ -46,7 +46,6 @@ export function PageClient({
   const data = useOrderTableData()
 
   React.useEffect(() => {
-    console.log("setting side")
     if (!side) {
       const randomSide = Math.random() < 0.5 ? Side.BUY : Side.SELL
       setSide(randomSide)

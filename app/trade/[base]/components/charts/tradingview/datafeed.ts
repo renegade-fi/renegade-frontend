@@ -22,7 +22,6 @@ const lastBarsCache = new Map()
 
 export const datafeed = {
   onReady: (callback: any) => {
-    console.log("[onReady]: Method call")
     setTimeout(() => callback(datafeedConfig))
   },
   searchSymbols: async (
@@ -31,7 +30,6 @@ export const datafeed = {
     symbolType,
     onResultReadyCallback,
   ) => {
-    console.log("[searchSymbols]: Method call")
     const symbols = await getAllBinanceSymbols()
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === "" || symbol.exchange === exchange
@@ -47,7 +45,6 @@ export const datafeed = {
     onResolveErrorCallback,
     extension,
   ) => {
-    console.log("[resolveSymbol]: Method call", symbolName)
     try {
       const symbolItem = await fetchSymbolReferenceInfo(symbolName)
       const symbolInfo = {
@@ -72,10 +69,8 @@ export const datafeed = {
         volume_precision: 2,
       } satisfies LibrarySymbolInfo
 
-      console.log("[resolveSymbol]: Symbol resolved", symbolName)
       onSymbolResolvedCallback(symbolInfo)
     } catch (error) {
-      console.log("[resolveSymbol]: Error", error)
       onResolveErrorCallback("cannot resolve symbol")
     }
   },
@@ -87,14 +82,6 @@ export const datafeed = {
     onErrorCallback,
   ) {
     const { from, to, firstDataRequest } = periodParams
-    console.log(
-      "[getBars]: Method call",
-      symbolInfo,
-      resolution,
-      from,
-      to,
-      periodParams,
-    )
 
     try {
       const resolutionSettings: {
@@ -127,13 +114,11 @@ export const datafeed = {
           ...bars[bars.length - 1],
         })
       }
-      console.log(`[getBars]: returned ${bars.length} bar(s)`)
 
       onHistoryCallback(bars, {
         noData: false,
       })
     } catch (error) {
-      console.log("[getBars]: Get error", error)
       if (error === "NoData") {
         onHistoryCallback([], {
           noData: true,
@@ -150,10 +135,6 @@ export const datafeed = {
     subscriberUID,
     onResetCacheNeededCallback,
   ) => {
-    console.log(
-      "[subscribeBars]: Method call with subscriberUID:",
-      subscriberUID,
-    )
     subscribeOnStream(
       symbolInfo,
       resolution,
@@ -165,10 +146,6 @@ export const datafeed = {
   },
 
   unsubscribeBars: (subscriberUID) => {
-    console.log(
-      "[unsubscribeBars]: Method call with subscriberUID:",
-      subscriberUID,
-    )
     unsubscribeFromStream(subscriberUID)
   },
 } satisfies IBasicDataFeed
