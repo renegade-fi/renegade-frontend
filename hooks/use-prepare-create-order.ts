@@ -19,6 +19,7 @@ export type UsePrepareCreateOrderParameters = {
   quote: `0x${string}`
   side: "buy" | "sell"
   amount: string
+  worstCasePrice: string
 }
 
 export type UsePrepareCreateOrderReturnType = {
@@ -28,7 +29,7 @@ export type UsePrepareCreateOrderReturnType = {
 export function usePrepareCreateOrder(
   parameters: UsePrepareCreateOrderParameters,
 ) {
-  const { id = "", base, quote, side, amount } = parameters
+  const { id = "", base, quote, side, amount, worstCasePrice } = parameters
   const config = useConfig()
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
@@ -37,6 +38,7 @@ export function usePrepareCreateOrder(
     if (!isSuccess) return Error("Failed to fetch wallet.")
     if (wallet.orders.filter((order) => order.amount).length >= MAX_ORDERS)
       return Error("Max orders reached.")
+    if (!worstCasePrice) return Error("Worst case price is required")
     const parsedAmount = safeParseUnits(
       amount,
       Token.findByAddress(base).decimals,
@@ -50,7 +52,8 @@ export function usePrepareCreateOrder(
       quote,
       side,
       toHex(parsedAmount),
+      worstCasePrice,
     ) as string
-  }, [config, wallet, id, base, quote, side, amount, isSuccess])
+  }, [config.state.seed, config.utils, isSuccess, wallet, amount, base, id, quote, side, worstCasePrice])
   return { request }
 }
