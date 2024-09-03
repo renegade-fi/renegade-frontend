@@ -48,15 +48,9 @@ export function useOrderValue({
     }
     return formatUnits(
       amountTimesPrice(parsedAmount, basePerUsd),
-      baseToken.decimals,
+      quoteToken.decimals,
     )
-  }, [
-    amount,
-    basePerUsd,
-    baseToken.decimals,
-    isUSDCDenominated,
-    quoteToken.decimals,
-  ])
+  }, [amount, basePerUsd, isUSDCDenominated, quoteToken.decimals])
 
   return {
     priceInUsd,
