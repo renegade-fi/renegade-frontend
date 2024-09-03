@@ -1,4 +1,5 @@
-import { GlowText } from "@/components/glow-text"
+import MotionNumber from "motion-number"
+
 import {
   Tooltip,
   TooltipContent,
@@ -41,7 +42,7 @@ export function FeesSection({
         </Tooltip>
         <span>{amount ? feeLabel : "--"}</span>
       </div>
-      <div className={cn("flex justify-between transition-colors")}>
+      <div className={cn("relative flex justify-between transition-colors")}>
         <Tooltip>
           <TooltipTrigger>
             <span className="text-muted-foreground">
@@ -52,11 +53,28 @@ export function FeesSection({
             <p>{FEES_SECTION_TOTAL_SAVINGS}</p>
           </TooltipContent>
         </Tooltip>
-        <GlowText
-          className="bg-green-price"
-          enabled={!!predictedSavings && !!amount && savingsLabel !== "$0.00"}
-          text={savingsLabel}
+        <MotionNumber
+          className={cn("text-green-price transition-opacity", {
+            "opacity-0": !predictedSavings || !amount,
+          })}
+          format={{
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits:
+              predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
+            maximumFractionDigits:
+              predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
+          }}
+          locales="en-US"
+          value={predictedSavings}
         />
+        <span
+          className={cn("absolute right-0 transition-opacity", {
+            "opacity-0": predictedSavings && amount,
+          })}
+        >
+          --
+        </span>
       </div>
     </>
   )
