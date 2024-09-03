@@ -17,7 +17,7 @@ export function AnimatedPrice({
   exchange?: Exchange
   mint: `0x${string}`
 }) {
-  const { data: price } = usePriceQuery(mint, exchange)
+  const { data: price, status } = usePriceQuery(mint, exchange)
   const prev = React.useRef(price)
   const [animationKey, setAnimationKey] = React.useState(0)
 
@@ -36,9 +36,10 @@ export function AnimatedPrice({
   return (
     <span
       key={animationKey}
-      className={cn(className, {
+      className={cn("transition-colors", className, {
         "animate-price-green": price > prev.current,
         "animate-price-red": price < prev.current,
+        "text-muted": !price,
       })}
     >
       {formatCurrency(price)}
