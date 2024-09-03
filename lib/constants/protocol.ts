@@ -1,10 +1,12 @@
 // Constants
-
 import { Token } from "@renegade-fi/react"
 import { parseUnits } from "viem/utils"
 
 // Min fill size of the quote asset that the relayer will accept
-export const MIN_FILL_SIZE = parseUnits("1", Token.findByTicker("USDT").decimals)
+export const MIN_FILL_SIZE = parseUnits(
+  "1",
+  Token.findByTicker("USDT").decimals,
+)
 // TODO: [CORRECTNESS] Should fetch from relayer
 // Relayer fee
 export const RELAYER_FEE = 0.0008
