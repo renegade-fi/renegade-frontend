@@ -3,6 +3,7 @@ import { Fragment } from "react"
 import { Exchange, Token } from "@renegade-fi/react"
 
 import { AnimatedPrice } from "@/components/animated-price"
+import { AnimatedPriceStatus } from "@/components/animated-price-status"
 import {
   Tooltip,
   TooltipContent,
@@ -46,7 +47,11 @@ export function BBOMarquee({ base }: { base: string }) {
                 exchange={exchange}
                 mint={Token.findByTicker(base).address}
               />
-              <span className="font-extended text-green-price">LIVE</span>
+              <AnimatedPriceStatus
+                className="font-extended text-green-price"
+                exchange={exchange}
+                mint={Token.findByTicker(base).address}
+              />
             </div>
           </a>
         </Fragment>
