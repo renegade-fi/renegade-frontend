@@ -56,11 +56,6 @@ const connectKitTheme = {
   "--ck-overlay-background": "rgba(0,0,0,.8)",
 }
 
-const connectKitOptions = {
-  hideQuestionMarkCTA: true,
-  hideTooltips: true,
-}
-
 export function WagmiProvider({
   children,
   cookie,
@@ -79,7 +74,11 @@ export function WagmiProvider({
       <QueryProvider>
         <ConnectKitProvider
           customTheme={connectKitTheme}
-          options={connectKitOptions}
+          options={{
+            hideQuestionMarkCTA: true,
+            hideTooltips: true,
+            enforceSupportedChains: true,
+          }}
           theme="midnight"
           onConnect={onOpenChange}
         >
