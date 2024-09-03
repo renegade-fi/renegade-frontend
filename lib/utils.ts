@@ -2,6 +2,7 @@ import { Metadata } from "next/types"
 
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+
 import { isTestnet } from "@/lib/viem"
 
 export function cn(...inputs: ClassValue[]) {
