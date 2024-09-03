@@ -1,4 +1,4 @@
-const STORAGE_PREFIX = "renegade"
+const STORAGE_PREFIX = "trade.renegade"
 
 export const STORAGE_STORE = `${STORAGE_PREFIX}.store`
 
