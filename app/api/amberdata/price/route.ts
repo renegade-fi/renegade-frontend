@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
   try {
-    const apiKey = process.env.NEXT_PUBLIC_AMBERDATA_API_KEY
+    const apiKey = process.env.AMBERDATA_API_KEY
     if (!apiKey) {
-      throw new Error("NEXT_PUBLIC_AMBERDATA_API_KEY is not set")
+      throw new Error("AMBERDATA_API_KEY is not set")
     }
 
     const { searchParams } = new URL(request.url)

@@ -7,23 +7,6 @@ import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
 
 const BASE_URL = "https://api.amberdata.com"
 
-export async function fetchAmberdata(url: URL) {
-  invariant(
-    process.env.NEXT_PUBLIC_AMBERDATA_API_KEY,
-    "Amberdata API key is required",
-  )
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_AMBERDATA_API_KEY,
-      "Accept-Encoding": "gzip, deflate, br",
-    },
-  }
-  const response = await fetch(url.toString(), options)
-  return response.json()
-}
-
 export async function fetchBars({
   instrument,
   startDateMs,
