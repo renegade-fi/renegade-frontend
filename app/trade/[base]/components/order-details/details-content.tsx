@@ -30,10 +30,11 @@ import {
   formatPercentage,
 } from "@/lib/format"
 import { getVWAP } from "@/lib/order"
+import { adjustPriceDecimals } from "@/lib/utils"
 
 export function DetailsContent({ order }: { order: OrderMetadata }) {
   const token = Token.findByAddress(order.data.base_mint)
-
+  const quoteToken = Token.findByAddress(order.data.quote_mint)
   const filledAmount = order.fills.reduce(
     (acc, fill) => acc + fill.amount,
     BigInt(0),
@@ -69,7 +70,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
   const isModifiable = [OrderState.Created, OrderState.Matching].includes(
     order.state,
   )
-  const vwap = getVWAP(order.fills)
+  const vwap = getVWAP(order)
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
   const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
   const filledLabelLong = `${formattedFilledAmountLong} ${token.ticker} @ ${formattedVWAP}`
@@ -77,7 +78,14 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
   const data: FillTableData[] = order.fills.map((fill, index) => {
     const amount = formatNumber(fill.amount, token.decimals)
     const amountLong = formatNumber(fill.amount, token.decimals, true)
-    const value = amountTimesPrice(fill.amount, fill.price.price)
+    const value = amountTimesPrice(
+      fill.amount,
+      adjustPriceDecimals(
+        fill.price.price,
+        token.decimals,
+        quoteToken.decimals,
+      ),
+    )
     const formattedValue = formatUnits(value, token.decimals)
     const formattedValueUSD = formatCurrencyFromString(formattedValue)
     return {
