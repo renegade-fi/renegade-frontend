@@ -225,15 +225,22 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
       )
       return (
         <>
-          {percentageFilledNumber ? (
-            <div className="flex items-center justify-between gap-2">
-              <Progress value={percentageFilledNumber} />
-              <div className="text-right text-sm">{percentageFilledLabel}</div>
-            </div>
-          ) : (
+          {!row.original.fills.length &&
+          row.original.state !== OrderState.Cancelled ? (
             <div>
               Finding counterparties
               <AnimatedEllipsis />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              {percentageFilledNumber ? (
+                <Progress value={percentageFilledNumber} />
+              ) : (
+                <></>
+              )}
+              <div className="ml-auto text-right text-sm">
+                {percentageFilledLabel}
+              </div>
             </div>
           )}
         </>
