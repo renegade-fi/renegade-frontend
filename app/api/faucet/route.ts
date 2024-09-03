@@ -11,6 +11,7 @@ import { createConfig } from "wagmi"
 
 import { readErc20BalanceOf } from "@/lib/generated"
 import { chain, viemClient } from "@/lib/viem"
+import { arbitrum, arbitrumSepolia } from "viem/chains"
 
 export const maxDuration = 300
 
@@ -24,7 +25,8 @@ const abi = parseAbi([
 const viemConfig = createConfig({
   chains: [chain],
   transports: {
-    [chain.id]: http(),
+    [arbitrum.id]: http(),
+    [arbitrumSepolia.id]: http(),
   },
 })
 
@@ -150,8 +152,7 @@ async function mintUpTo(
     }
   } else {
     console.log(
-      `No minting needed for ${
-        Token.findByAddress(token).ticker
+      `No minting needed for ${Token.findByAddress(token).ticker
       } for address ${recipientAddr}`,
     )
   }
@@ -176,14 +177,12 @@ async function mint(
   })
   if (tx.status === "success") {
     console.log(
-      `Minted ${formatEther(amount)} ${
-        Token.findByAddress(token).ticker
+      `Minted ${formatEther(amount)} ${Token.findByAddress(token).ticker
       } for address ${recipientAddr}`,
     )
   } else {
     console.log(
-      `Failed to mint ${formatEther(amount)} ${
-        Token.findByAddress(token).ticker
+      `Failed to mint ${formatEther(amount)} ${Token.findByAddress(token).ticker
       } for address ${recipientAddr}`,
     )
   }

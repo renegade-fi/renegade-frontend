@@ -2,6 +2,7 @@ import { Metadata } from "next/types"
 
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { isTestnet } from "@/lib/viem"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -11,16 +12,18 @@ export const fundWallet = async (
   tokens: { ticker: string; amount: string }[],
   address: `0x${string}`,
 ) => {
-  await fetch(`/api/faucet`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      tokens,
-      address,
-    }),
-  })
+  if (isTestnet) {
+    await fetch(`/api/faucet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tokens,
+        address,
+      }),
+    })
+  }
 }
 
 export const fundList: { ticker: string; amount: string }[] = [

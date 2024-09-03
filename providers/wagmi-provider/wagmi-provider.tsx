@@ -79,9 +79,9 @@ export function WagmiProvider({
       <QueryProvider>
         <ConnectKitProvider
           customTheme={connectKitTheme}
-          onConnect={onOpenChange}
           options={connectKitOptions}
           theme="midnight"
+          onConnect={onOpenChange}
         >
           {children}
           <SyncRenegadeWagmiState />
