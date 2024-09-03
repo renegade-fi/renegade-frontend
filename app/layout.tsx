@@ -90,9 +90,9 @@ export default async function RootLayout({
                 delayDuration={0}
                 skipDelayDuration={0}
               >
-                <IntercomProvider isMobile={device.type === "mobile"}>
-                  <div className="select-none">{children}</div>
-                </IntercomProvider>
+                {/* <IntercomProvider isMobile={device.type === "mobile"}> */}
+                <div className="select-none">{children}</div>
+                {/* </IntercomProvider> */}
               </TooltipProvider>
               <Toaster
                 className="pointer-events-auto"
