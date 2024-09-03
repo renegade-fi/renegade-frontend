@@ -169,7 +169,6 @@ export function adjustPriceDecimals(
   baseDecimals: number,
   quoteDecimals: number,
 ): number {
-  // const adjustedPrice = price * Math.pow(10, baseDecimals - quoteDecimals)
-  // return adjustedPrice
-  return price
+  const adjustedPrice = price * Math.pow(10, baseDecimals - quoteDecimals)
+  return adjustedPrice
 }
