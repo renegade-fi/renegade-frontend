@@ -48,11 +48,19 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
   const worstCasePrice = React.useMemo(() => {
     if (!price) return 0
     const wcp = price * (props.isSell ? 0.5 : 1.5)
-    const wcpQuoteDecimals = safeParseUnits(wcp, quoteToken.decimals)
+    const wcpQuoteDecimals = safeParseUnits(wcp.toString(), quoteToken.decimals)
     if (wcpQuoteDecimals instanceof Error) return 0
-    const wcpBaseDecimals = wcpQuoteDecimals / BigInt(10 ** baseToken.decimals)
-    return wcpBaseDecimals
+
+    const wcpQuoteDecimalsStr = wcpQuoteDecimals.toString()
+
+    const decimalsDiff = quoteToken.decimals - baseToken.decimals
+    const dividedValue =
+      parseFloat(wcpQuoteDecimalsStr) / Math.pow(10, decimalsDiff)
+
+    return dividedValue
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
+
+  console.log("🚀 ~ worstCasePrice:", worstCasePrice)
 
   const { request } = usePrepareCreateOrder({
     base: baseToken.address,
