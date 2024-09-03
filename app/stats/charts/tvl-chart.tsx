@@ -44,6 +44,16 @@ const tokenColors = {
   ENS: "indigo",
   DYDX: "violet",
   CRV: "red",
+  ARB: "sky",
+  GMX: "purple",
+  PENDLE: "white",
+  PEPE: "green",
+  ZRO: "gray",
+  LPT: "green",
+  GRT: "purple",
+  XAI: "red",
+  RDNT: "blue",
+  ETHFI: "purple",
 } as const
 
 // Tailwind color palette
