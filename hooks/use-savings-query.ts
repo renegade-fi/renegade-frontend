@@ -24,6 +24,7 @@ export function useSavings({ amount, base, isSell }: NewOrderFormProps) {
           body: JSON.stringify(options),
         }).then((res) => res.json()),
       enabled: !!amount,
+      staleTime: 0,
     }),
     queryKey,
   }
