@@ -20,6 +20,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 import { constructMetadata } from "@/lib/utils"
+import { isTestnet } from "@/lib/viem"
 import { IntercomProvider } from "@/providers/intercom-provider"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
@@ -59,7 +60,11 @@ const fontMono = localFont({
   variable: "--font-mono",
 })
 
-export const metadata = constructMetadata()
+export const metadata = constructMetadata({
+  title: isTestnet
+    ? "Renegade Testnet | On-Chain Dark Pool"
+    : "Renegade | On-Chain Dark Pool",
+})
 
 export default async function RootLayout({
   children,
