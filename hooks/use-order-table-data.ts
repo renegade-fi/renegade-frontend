@@ -15,7 +15,7 @@ export function useOrderTableData() {
   })
 
   const extendedOrders: ExtendedOrderMetadata[] = (data || []).map((order) => {
-    const vwap = getVWAP(order.fills)
+    const vwap = getVWAP(order)
     const token = Token.findByAddress(order.data.base_mint)
     const usdValue =
       vwap * Number(formatUnits(order.data.amount, token.decimals))

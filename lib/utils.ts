@@ -163,3 +163,12 @@ export function constructMetadata({
     }),
   }
 }
+
+export function adjustPriceDecimals(
+  price: number,
+  baseDecimals: number,
+  quoteDecimals: number,
+): number {
+  const adjustedPrice = price * Math.pow(10, baseDecimals - quoteDecimals)
+  return adjustedPrice
+}
