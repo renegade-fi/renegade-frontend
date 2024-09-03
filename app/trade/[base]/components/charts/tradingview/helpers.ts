@@ -27,18 +27,17 @@ export async function getAllBinanceSymbols() {
 }
 
 export async function makeAmberApiRequest(url: URL) {
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_AMBERDATA_API_KEY!,
-    },
-  }
+  const proxyUrl = new URL('/api/amberdata', window.location.origin);
+  proxyUrl.searchParams.set('path', url.pathname + url.search);
+
   try {
-    const response = await fetch(url.toString(), options)
-    return response.json()
+    const response = await fetch(proxyUrl.toString());
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   } catch (error) {
-    throw new Error(`Amber request error: ${error}`)
+    throw new Error(`Amber request error: ${error}`);
   }
 }
 

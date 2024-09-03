@@ -54,9 +54,9 @@ export async function GET(req: NextRequest) {
     // Get all token prices
     console.log("Fetching token prices")
     const tokens = DISPLAY_TOKENS()
-    const apiKey = process.env.NEXT_PUBLIC_AMBERDATA_API_KEY
+    const apiKey = process.env.AMBERDATA_API_KEY
     if (!apiKey) {
-      throw new Error("NEXT_PUBLIC_AMBERDATA_API_KEY is not set")
+      throw new Error("AMBERDATA_API_KEY is not set")
     }
 
     const pricePromises = tokens.map((token) =>

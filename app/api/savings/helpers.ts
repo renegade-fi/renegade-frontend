@@ -257,7 +257,7 @@ async function amberdataRequest(
   let amberdataReq = new Request(amberdataUrl)
   amberdataReq.headers.set(
     API_KEY_HEADER,
-    process.env.NEXT_PUBLIC_AMBERDATA_API_KEY as string,
+    process.env.AMBERDATA_API_KEY as string,
   )
 
   return amberdataReq

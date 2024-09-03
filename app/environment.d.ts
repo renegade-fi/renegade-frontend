@@ -3,7 +3,7 @@ import Next from "next"
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      NEXT_PUBLIC_AMBERDATA_API_KEY: string
+      AMBERDATA_API_KEY: string
       NEXT_PUBLIC_AMBERDATA_PROXY_URL: string
       NEXT_PUBLIC_BOT_SECRETS: string
       NEXT_PUBLIC_DARKPOOL_CONTRACT: `0x${string}`
