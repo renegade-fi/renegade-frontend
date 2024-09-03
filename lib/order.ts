@@ -1,7 +1,7 @@
 import { OrderMetadata, Token } from "@renegade-fi/react"
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { adjustPriceDecimals } from "@/lib/utils"
+import { decimalNormalizePrice } from "@/lib/utils"
 
 export function getVWAP(order: OrderMetadata): number {
   if (order.fills.length === 0) {
@@ -18,7 +18,7 @@ export function getVWAP(order: OrderMetadata): number {
     const fillVolume = fill.amount
     const fillValue = amountTimesPrice(
       fill.amount,
-      adjustPriceDecimals(
+      decimalNormalizePrice(
         fill.price.price,
         token.decimals,
         quoteToken.decimals,

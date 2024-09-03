@@ -3,6 +3,7 @@ import { Metadata } from "next/types"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+import { safeParseUnits } from "@/lib/format"
 import { isTestnet } from "@/lib/viem"
 
 export function cn(...inputs: ClassValue[]) {
@@ -164,11 +165,30 @@ export function constructMetadata({
   }
 }
 
-export function adjustPriceDecimals(
+// Inverse of decimalCorrectPrice
+export function decimalNormalizePrice(
   price: number,
   baseDecimals: number,
   quoteDecimals: number,
 ): number {
-  const adjustedPrice = price * Math.pow(10, baseDecimals - quoteDecimals)
-  return adjustedPrice
+  const decimalDiff = baseDecimals - quoteDecimals
+  const normalizedPrice = safeParseUnits(
+    price.toFixed(baseDecimals + quoteDecimals),
+    decimalDiff,
+  )
+  if (normalizedPrice instanceof Error) return 0
+
+  return Number(normalizedPrice)
+}
+
+// Decimal correct a price for a given token pair
+export function decimalCorrectPrice(
+  price: number,
+  baseDecimals: number,
+  quoteDecimals: number,
+) {
+  const decimalDiff = quoteDecimals - baseDecimals
+  const correctedPrice = price * Math.pow(10, decimalDiff)
+
+  return correctedPrice
 }

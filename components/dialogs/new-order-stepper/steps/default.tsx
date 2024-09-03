@@ -1,3 +1,5 @@
+import React from "react"
+
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
 import { toast } from "sonner"
@@ -29,10 +31,12 @@ import {
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber, safeParseUnits } from "@/lib/format"
+import { decimalCorrectPrice } from "@/lib/utils"
 
 export function DefaultStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
@@ -40,12 +44,20 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
 
   const baseToken = Token.findByTicker(props.base)
   const quoteToken = Token.findByTicker("USDC")
+  const { data: price } = usePriceQuery(baseToken.address)
+
+  const worstCasePrice = React.useMemo(() => {
+    if (!price) return 0
+    const wcp = price * (props.isSell ? 0.5 : 1.5)
+    return decimalCorrectPrice(wcp, baseToken.decimals, quoteToken.decimals)
+  }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
   const { request } = usePrepareCreateOrder({
     base: baseToken.address,
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
+    worstCasePrice: worstCasePrice.toString(),
   })
 
   const { createOrder } = useCreateOrder({

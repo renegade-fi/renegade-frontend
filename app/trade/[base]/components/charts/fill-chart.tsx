@@ -24,7 +24,7 @@ import { useOHLC } from "@/hooks/use-ohlc"
 import { oneMinute } from "@/lib/constants/time"
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
 import { remapToken } from "@/lib/token"
-import { adjustPriceDecimals } from "@/lib/utils"
+import { decimalNormalizePrice } from "@/lib/utils"
 
 const chartConfig = {
   price: {
@@ -60,7 +60,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       timestamp: Number(fill.price.timestamp),
       amount: Number(formatNumber(fill.amount, token.decimals)),
       price: Number(
-        adjustPriceDecimals(
+        decimalNormalizePrice(
           fill.price.price,
           token.decimals,
           quoteToken.decimals,

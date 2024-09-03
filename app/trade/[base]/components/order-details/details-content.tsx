@@ -30,7 +30,7 @@ import {
   formatPercentage,
 } from "@/lib/format"
 import { getVWAP } from "@/lib/order"
-import { adjustPriceDecimals } from "@/lib/utils"
+import { decimalNormalizePrice } from "@/lib/utils"
 
 export function DetailsContent({ order }: { order: OrderMetadata }) {
   const token = Token.findByAddress(order.data.base_mint)
@@ -80,7 +80,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
     const amountLong = formatNumber(fill.amount, token.decimals, true)
     const value = amountTimesPrice(
       fill.amount,
-      adjustPriceDecimals(
+      decimalNormalizePrice(
         fill.price.price,
         token.decimals,
         quoteToken.decimals,
