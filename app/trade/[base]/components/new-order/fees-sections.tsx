@@ -1,5 +1,6 @@
 import MotionNumber from "motion-number"
 
+import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
@@ -33,8 +34,21 @@ export function FeesSection({
     <>
       <div className={cn("flex justify-between transition-colors")}>
         <Tooltip>
-          <TooltipTrigger onClick={(e) => e.preventDefault()}>
-            <span className="text-muted-foreground">Fee</span>
+          <TooltipTrigger asChild>
+            <Button
+              asChild
+              className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
+              type="button"
+              variant="link"
+            >
+              <a
+                href={`https://help.renegade.fi/hc/en-us/articles/32530643173651-What-are-the-fees`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Fee
+              </a>
+            </Button>
           </TooltipTrigger>
           <TooltipContent>
             <p>{FEES_SECTION_FEES}</p>
@@ -45,9 +59,20 @@ export function FeesSection({
       <div className={cn("relative flex justify-between transition-colors")}>
         <Tooltip>
           <TooltipTrigger>
-            <span className="text-muted-foreground">
-              Total savings vs. Binance
-            </span>
+            <Button
+              asChild
+              className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
+              type="button"
+              variant="link"
+            >
+              <a
+                href={`https://help.renegade.fi/hc/en-us/articles/33044476688531-How-are-the-savings-versus-Binance-calculated`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Total Savings vs. Binance
+              </a>
+            </Button>
           </TooltipTrigger>
           <TooltipContent>
             <p>{FEES_SECTION_TOTAL_SAVINGS}</p>

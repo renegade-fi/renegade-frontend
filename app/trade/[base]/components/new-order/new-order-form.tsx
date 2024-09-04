@@ -287,8 +287,21 @@ export function NewOrderForm({
           <div className="space-y-3 whitespace-nowrap text-sm">
             <div className="flex items-center justify-between">
               <Tooltip>
-                <TooltipTrigger onClick={(e) => e.preventDefault()}>
-                  <span className="text-muted-foreground">Type</span>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
+                    type="button"
+                    variant="link"
+                  >
+                    <a
+                      href={`https://help.renegade.fi/hc/en-us/articles/32530574872211-How-does-Renegade-s-midpoint-peg-pricing-work`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      Type
+                    </a>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{MIDPOINT_TOOLTIP}</p>

@@ -28,17 +28,24 @@ export function NewOrderPanel({
         isUSDCDenominated={isUSDCDenominated}
         side={side}
       />
-      <div className="flex items-center px-6 text-xs text-muted-foreground">
-        {/* <Button
+      <div className="px-6">
+        <Button
+          asChild
+          className="text-pretty p-0 text-xs text-muted-foreground"
           variant="link"
-          className="p-0 text-muted-foreground"
-          size="sm"
         >
-          <Lock className="mr-2 h-3 w-3" />
-          All orders are pre-trade and post-trade private.
-        </Button> */}
-        <Lock className="mr-2 h-3 w-3" />
-        All orders are pre-trade and post-trade private.
+          <a
+            // TODO: Add link to help center
+            href={
+              "https://help.renegade.fi/hc/en-us/articles/32760870056723-What-is-pre-trade-and-post-trade-privacy"
+            }
+            rel="noreferrer"
+            target="_blank"
+          >
+            <Lock className="mr-2 h-3 w-3" />
+            All orders are pre-trade and post-trade private.
+          </a>
+        </Button>
       </div>
     </aside>
   )
