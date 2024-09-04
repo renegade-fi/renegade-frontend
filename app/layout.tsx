@@ -21,7 +21,6 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
-import { IntercomProvider } from "@/providers/intercom-provider"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
@@ -95,9 +94,7 @@ export default async function RootLayout({
                 delayDuration={0}
                 skipDelayDuration={0}
               >
-                {/* <IntercomProvider isMobile={device.type === "mobile"}> */}
                 <div className="select-none">{children}</div>
-                {/* </IntercomProvider> */}
               </TooltipProvider>
               <Toaster
                 className="pointer-events-auto"
