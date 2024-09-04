@@ -38,3 +38,6 @@ next-env.d.ts
 /public/static/*
 .npmrc
 .env*.local
+
+# Ignore VS Code settings
+.vscode/
