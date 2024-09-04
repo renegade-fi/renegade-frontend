@@ -26,8 +26,7 @@ function createWebSocket() {
     resubscribeAll()
   })
 
-  socket.addEventListener("message", (event) => {
-  })
+  socket.addEventListener("message", (event) => {})
 
   socket.addEventListener("close", (event) => {
     isConnected = false

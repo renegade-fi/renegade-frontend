@@ -1,8 +1,9 @@
+import { Exchange, Token } from "@renegade-fi/react"
+import { QueryClient } from "@tanstack/react-query"
+
 import { createPriceQueryKey } from "@/lib/query"
 import { remapToken } from "@/lib/token"
 import { getURL } from "@/lib/utils"
-import { Exchange, Token } from "@renegade-fi/react"
-import { QueryClient } from "@tanstack/react-query"
 
 export async function prefetchPrice(
   queryClient: QueryClient,
@@ -15,7 +16,9 @@ export async function prefetchPrice(
     queryFn: async () => {
       const ticker = remapToken(Token.findByAddress(baseMint).ticker)
       if (exchange === "binance") {
-        const res = await fetch(`${getURL()}/api/amberdata/price?asset=${ticker}`)
+        const res = await fetch(
+          `${getURL()}/api/amberdata/price?asset=${ticker}`,
+        )
         const data = await res.json()
         return data.payload.price
       }

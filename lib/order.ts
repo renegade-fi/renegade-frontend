@@ -18,7 +18,11 @@ export function getVWAP(order: OrderMetadata): number {
     const fillVolume = fill.amount
     const fillValue = amountTimesPrice(
       fill.amount,
-      adjustPriceDecimals(fill.price.price, token.decimals, quoteToken.decimals),
+      adjustPriceDecimals(
+        fill.price.price,
+        token.decimals,
+        quoteToken.decimals,
+      ),
     )
 
     totalVolume += fillVolume

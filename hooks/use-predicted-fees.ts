@@ -1,6 +1,5 @@
 import React from "react"
 
-
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { useOrderValue } from "@/hooks/use-order-value"
@@ -14,7 +13,6 @@ export function usePredictedFees({
   isSell,
   isUSDCDenominated,
 }: NewOrderFormProps) {
-
   const { priceInBase, priceInUsd } = useOrderValue({
     amount,
     base,

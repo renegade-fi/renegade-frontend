@@ -13,7 +13,8 @@
 
 ---
 
-This repository contains React source for [trade.renegade.fi](https://trade.renegade.fi).
+This repository contains React source for
+[trade.renegade.fi](https://trade.renegade.fi).
 
 <div>
   <a href="https://twitter.com/renegade_fi" target="_blank">
