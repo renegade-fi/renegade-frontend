@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
         const ddog = new DDogClient()
         const { searchParams } = new URL(req.url)
         const to = parseInt(searchParams.get("to") || Date.now().toString())
-        const from = parseInt(searchParams.get("from") || (to - 30 * 24 * 60 * 60 * 1000).toString()) // Default to 30 days if not provided
+        const from = parseInt(searchParams.get("from") || "1693958400")
         const interval = parseInt(searchParams.get("interval") || (24 * 60 * 60).toString()) // Default to 1 day if not provided
 
         console.log(`Parameters: to=${to}, from=${from}, interval=${interval}`)
