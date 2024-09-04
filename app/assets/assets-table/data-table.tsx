@@ -12,18 +12,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { DollarSign, Settings2 } from "lucide-react"
+import { DollarSign } from "lucide-react"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TableEmptyState } from "@/components/table-empty-state"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -103,33 +95,7 @@ export function DataTable<TData, TValue>({
           Your deposits inside of Renegade. Only you and your connected relayer
           can see your balances.
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="ml-auto text-muted-foreground"
-              size="sm"
-              variant="outline"
-            >
-              <Settings2 className="mr-2 h-4 w-4 text-muted-foreground" />
-              View
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem
-              checked={showZeroRenegadeBalance}
-              onCheckedChange={(value) => setShowZeroRenegadeBalance(!!value)}
-            >
-              Show zero Renegade Balance
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showZeroL2Balance}
-              onCheckedChange={(value) => setShowZeroL2Balance(!!value)}
-            >
-              Show zero Arbitrum Balance
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <div className="ml-4 flex items-center space-x-2">
+        <div className="ml-auto flex items-center space-x-2">
           <Toggle
             aria-label="Toggle USD"
             pressed={
@@ -154,6 +120,21 @@ export function DataTable<TData, TValue>({
           >
             <DollarSign className={cn("h-4 w-4 text-muted-foreground")} />
           </Toggle>
+        </div>
+        <div className="ml-4 flex items-center space-x-2">
+          <Switch
+            checked={showZeroL2Balance && showZeroRenegadeBalance}
+            onCheckedChange={(value) => {
+              setShowZeroL2Balance(!!value)
+              setShowZeroRenegadeBalance(!!value)
+            }}
+          />
+          <Label
+            className="text-muted-foreground"
+            htmlFor="long-format"
+          >
+            Show zeroes
+          </Label>
         </div>
         <div className="ml-4 flex items-center space-x-2">
           <Switch

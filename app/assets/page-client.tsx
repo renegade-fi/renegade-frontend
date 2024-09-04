@@ -7,8 +7,8 @@ import {
   TaskType,
   Token,
   UpdateType,
-  useTaskHistory,
   useBackOfQueueWallet,
+  useTaskHistory,
 } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
@@ -114,12 +114,12 @@ export function PageClient() {
           l2UsdValue,
         }
       })
-      .filter((balance) =>
-        !showZeroL2Balance ? balance.l2Balance !== 0 : true,
-      )
-      .filter((balance) =>
-        !showZeroRenegadeBalance ? balance.renegadeBalance !== 0 : true,
-      )
+      .filter((balance) => {
+        if (!showZeroL2Balance && !showZeroRenegadeBalance) {
+          return balance.l2Balance !== 0 || balance.renegadeBalance !== 0
+        }
+        return true
+      })
   }, [
     l2Balances,
     priceResults,
