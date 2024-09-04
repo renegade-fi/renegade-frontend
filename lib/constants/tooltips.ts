@@ -1,7 +1,7 @@
 import { MAX_BALANCES, MAX_ORDERS } from "@renegade-fi/react/constants"
 
 export const FEES_SECTION_FEES =
-  "0.02% protocol fee and 0.08% relayer fee are paid upon successful matches. To get lower fees, run your own relayer."
+  "0.02% protocol fee and 0.02% relayer fee are paid upon successful matches. To get lower fees, run your own relayer."
 export const FEES_SECTION_BINANCE_FEES =
   "The estimated fees you would pay if you were to execute this order on Binance."
 export const FEES_SECTION_TOTAL_SAVINGS =
