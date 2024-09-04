@@ -33,5 +33,7 @@ export async function getHistoricalVolume(): Promise<VolumeDataPoint[]> {
   }
 
   const data: HistoricalVolumeResponse = await res.json()
-  return data.data
+
+  // Filter data for entries after 1725321600
+  return data.data.filter(point => point.timestamp >= 1725321600)
 }
