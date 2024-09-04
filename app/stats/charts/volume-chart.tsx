@@ -26,7 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { formatStat } from "@/lib/format"
 
 const chartConfig = {
-  data: {
+  volume: {
     label: "Volume",
     color: "hsl(var(--chart-blue))",
   },
@@ -51,19 +51,23 @@ const timePeriod = {
 
 export function VolumeChart() {
   const now = roundToNextDay(Math.floor(Date.now() / 1000)) // Current time in seconds
-  const { data } = useVolumeData({
-    from: now - timePeriod.year,
-    to: now,
-  })
+  const { data } = useVolumeData()
 
-  const { data: cumulativeData } = useCumulativeVolume({
-    from: now - 2 * timePeriod.day,
-    to: now,
-  })
-  const cumulativeVolumeLabel = React.useMemo(() => {
-    if (!cumulativeData) return ""
-    return formatStat(cumulativeData[cumulativeData.length - 1].volume)
-  }, [cumulativeData])
+  const chartData = data?.map((dataPoint) => ({
+    timestamp: (dataPoint.timestamp * 1000).toString(),
+    volume: dataPoint.volume,
+  }))
+
+  // const { data: cumulativeData } = useCumulativeVolume({
+  //   from: now - 2 * timePeriod.day,
+  //   to: now,
+  // })
+  // const cumulativeVolumeLabel = React.useMemo(() => {
+  //   if (!cumulativeData) return ""
+  //   return formatStat(cumulativeData[cumulativeData.length - 1].volume)
+  // }, [cumulativeData])
+  const cumulativeVolume = chartData?.[chartData.length - 1]?.volume
+  const cumulativeVolumeLabel = formatStat(cumulativeVolume ?? 0)
 
   return (
     <Card className="w-full rounded-none">
@@ -86,7 +90,7 @@ export function VolumeChart() {
         >
           <BarChart
             accessibilityLayer
-            data={data}
+            data={chartData}
             margin={{
               left: 12,
               right: 12,
@@ -102,6 +106,7 @@ export function VolumeChart() {
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
+                  timeZone: "UTC",
                 })
               }}
               tickLine={false}
@@ -135,15 +140,16 @@ export function VolumeChart() {
                     return new Date(Number(value)).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC",
                     })
                   }}
-                  nameKey="data"
+                  nameKey="volume"
                 />
               }
             />
             <Bar
-              dataKey="data"
-              fill={`var(--color-data)`}
+              dataKey="volume"
+              fill={`var(--color-volume)`}
             />
           </BarChart>
         </ChartContainer>

@@ -17,3 +17,8 @@ export type BucketData = {
   withdrawalAmount: number
   transactions: ExternalTransferData[]
 }
+
+// Volume
+
+export const HISTORICAL_VOLUME_KEY_PREFIX = "stats:historical-volume"
+export const HISTORICAL_VOLUME_SET_KEY = "stats:historical-volume:set"
