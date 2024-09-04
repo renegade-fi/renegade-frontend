@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/tooltip"
 
 import { Side } from "@/lib/constants/protocol"
-import { LONG_FILL_TIME_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber, formatOrderState } from "@/lib/format"
 
 export function EmptyContent({ order }: { order: OrderMetadata }) {

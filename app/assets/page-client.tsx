@@ -2,6 +2,7 @@
 
 import React from "react"
 
+import { InfoCircledIcon } from "@radix-ui/react-icons"
 import {
   TaskType,
   Token,
@@ -9,15 +10,23 @@ import {
   useTaskHistory,
   useBackOfQueueWallet,
 } from "@renegade-fi/react"
+import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
 import { useAccount, useReadContracts } from "wagmi"
 
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
 import { erc20Abi } from "@/lib/generated"
 import { createPriceTopic } from "@/lib/query"
 import { DISPLAY_TOKENS } from "@/lib/token"
@@ -161,6 +170,17 @@ export function PageClient() {
             showZeroL2Balance={showZeroL2Balance}
             showZeroRenegadeBalance={showZeroRenegadeBalance}
           />
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="mt-4 flex items-center text-xs text-muted-foreground">
+                <Info className="mr-1 h-3 w-3" />
+                Where are my assets?
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-sans">{ASSETS_TOOLTIP}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
         <div className="mt-20">
           <h1 className="my-6 font-serif text-3xl font-bold">

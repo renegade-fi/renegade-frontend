@@ -152,21 +152,62 @@ export function SuccessStepWithoutSavings() {
   )
 }
 
+const DID_YOU_KNOW_CONTENT = [
+  {
+    text: "All trades are pre-trade and post-trade private.",
+    link: "https://help.renegade.fi/hc/en-us/articles/32760870056723-What-is-pre-trade-and-post-trade-privacy",
+  },
+  {
+    text: "All trades clear at the midpoint of the Binance bid-ask spread.",
+    link: "https://help.renegade.fi/hc/en-us/articles/32530574872211-What-is-a-midpoint-peg",
+  },
+  {
+    text: "Trading in Renegade has zero MEV, slippage, or price impact.",
+    link: "https://help.renegade.fi/hc/en-us/articles/32762213393043-Does-Renegade-really-have-zero-MEV-copy-trading-slippage-or-price-impact",
+  },
+] as const
+
 function OrderSuccessSection() {
+  const [randomContent, setRandomContent] = React.useState(() => {
+    const randomIndex = Math.floor(Math.random() * DID_YOU_KNOW_CONTENT.length)
+    return DID_YOU_KNOW_CONTENT[randomIndex]
+  })
+
+  const handleRefresh = () => {
+    let newIndex: number
+    do {
+      newIndex = Math.floor(Math.random() * DID_YOU_KNOW_CONTENT.length)
+    } while (DID_YOU_KNOW_CONTENT[newIndex] === randomContent)
+    setRandomContent(DID_YOU_KNOW_CONTENT[newIndex])
+  }
+
   return (
     <>
-      <div className="space-y-4 border p-4 text-sm text-muted-foreground">
-        <div className="flex items-start justify-between">
+      <div className="space-y-2 border p-4 pt-2 text-sm text-muted-foreground">
+        <div className="flex items-center justify-between">
           Did you know?
-          {/* <Button
+          <Button
+            className="rounded-none"
             size="icon"
             variant="ghost"
-            className="rounded-none"
+            onClick={handleRefresh}
           >
             <Repeat className="h-4 w-4" />
-          </Button> */}
+          </Button>
         </div>
-        <div>All trades are pre-trade and post-trade private.</div>
+        <Button
+          asChild
+          className="text-pretty p-0 text-sm text-muted-foreground"
+          variant="link"
+        >
+          <a
+            href={randomContent.link}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {randomContent.text}
+          </a>
+        </Button>
       </div>
       {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Checkbox id="donot-show-again" />
