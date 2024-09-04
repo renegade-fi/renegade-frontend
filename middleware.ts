@@ -17,10 +17,10 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname === "/trade"
   ) {
     let defaultBase = "WETH"
-    let cookie = request.cookies.get(STORAGE_BASE)
-    if (cookie?.value) {
-      defaultBase = cookie.value
-    }
+    // let cookie = request.cookies.get(STORAGE_BASE)
+    // if (cookie?.value) {
+    //   defaultBase = cookie.value
+    // }
     return NextResponse.redirect(new URL(`/trade/${defaultBase}`, request.url))
   }
 
