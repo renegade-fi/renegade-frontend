@@ -18,7 +18,7 @@ function startOfPeriod(timestamp: number, intervalMs: number): number {
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams
-    const intervalMs = parseInt(searchParams.get("interval") || "86400000") // Default to 1 day
+    const intervalMs = parseInt(searchParams.get("interval") || "86400000")
 
     // Fetch all transaction hashes from the Set
     const transactionHashes = await kv.smembers(INFLOWS_SET_KEY)
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
       },
     )
   } catch (error) {
-    console.error(error)
+    console.error("Error in GET request:", error)
     return new Response(
       JSON.stringify({ error: "Failed to fetch external transfer logs" }),
       {

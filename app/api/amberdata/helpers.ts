@@ -3,7 +3,7 @@ export async function fetchAssetPrice(
   apiKey: string,
 ): Promise<any> {
   const response = await fetch(
-    `https://api.amberdata.com/market/spot/prices/assets/${asset}/latest/`,
+    `https://api.amberdata.com/market/spot/prices/pairs/${asset}_usdt/latest/?exchange=binance`,
     {
       headers: {
         accept: "application/json",
@@ -13,7 +13,9 @@ export async function fetchAssetPrice(
   )
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+    throw new Error(
+      `HTTP error fetching price for ${asset}: status: ${response.status}`,
+    )
   }
 
   return response.json()
