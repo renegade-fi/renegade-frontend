@@ -1,4 +1,5 @@
 import { Token, useStatus, useBackOfQueueWallet } from "@renegade-fi/react"
+import { formatUnits } from "viem/utils"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
@@ -84,18 +85,22 @@ export function AssetsSection({
     ? "--"
     : formatNumber(baseBalance, baseToken.decimals, true)
   const baseUsdPrice = useUSDPrice(baseToken, baseBalance)
-  const formattedBaseUsdPrice = isLoading
+  // baseBalance is in base decimals, so adjust by base decimals
+  const formattedBaseUsdPrice = formatUnits(baseUsdPrice, baseToken.decimals)
+  const formattedBaseUsdPriceLabel = isLoading
     ? "--"
-    : formatCurrencyFromString(baseUsdPrice)
+    : formatCurrencyFromString(formattedBaseUsdPrice)
 
   const quoteBalance = data?.[quoteToken.address] ?? BigInt(0)
   const formattedQuoteBalance = isLoading
     ? "--"
     : formatNumber(quoteBalance, quoteToken.decimals, true)
   const quoteUsdPrice = useUSDPrice(quoteToken, quoteBalance)
-  const formattedQuoteUsdPrice = isLoading
+  // quoteBalance is in quote decimals, so adjust by quote decimals
+  const formattedQuoteUsdPrice = formatUnits(quoteUsdPrice, quoteToken.decimals)
+  const formattedQuoteUsdPriceLabel = isLoading
     ? "--"
-    : formatCurrencyFromString(quoteUsdPrice)
+    : formatCurrencyFromString(formattedQuoteUsdPrice)
 
   return (
     <>
@@ -120,7 +125,7 @@ export function AssetsSection({
         </div>
         <Tooltip>
           <TooltipTrigger>
-            <span>{formattedBaseUsdPrice}</span>
+            <span>{formattedBaseUsdPriceLabel}</span>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>{`${formattedBaseBalance} ${base}`}</p>
@@ -148,7 +153,7 @@ export function AssetsSection({
         </div>
         <Tooltip>
           <TooltipTrigger>
-            <span>{formattedQuoteUsdPrice}</span>
+            <span>{formattedQuoteUsdPriceLabel}</span>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>{`${formattedQuoteBalance} ${quote}`}</p>

@@ -1,5 +1,6 @@
 import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
+import { formatUnits } from "viem/utils"
 
 import {
   Tooltip,
@@ -27,7 +28,9 @@ export function InsufficientWarning({
   richColors?: boolean
   side: Side
 }) {
-  const token = Token.findByAddress(side === Side.BUY ? quoteMint : baseMint)
+  const baseToken = Token.findByAddress(baseMint)
+  const quoteToken = Token.findByAddress(quoteMint)
+  const token = side === Side.BUY ? quoteToken : baseToken
 
   const { data: balance } = useBackOfQueueWallet({
     query: {
@@ -36,11 +39,19 @@ export function InsufficientWarning({
     },
   })
 
-  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount, false)
+  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount)
 
   let isInsufficient = false
   if (side === Side.BUY) {
-    isInsufficient = balance ? balance < usdPrice : true
+    // Adjust by # of other token's decimals
+    const formattedUsdPrice = formatUnits(
+      usdPrice,
+      side === Side.BUY ? baseToken.decimals : quoteToken.decimals,
+    )
+    isInsufficient = balance
+      ? parseFloat(formatUnits(balance, token.decimals)) <
+        parseFloat(formattedUsdPrice)
+      : true
   } else {
     isInsufficient = balance ? balance < amount : true
   }

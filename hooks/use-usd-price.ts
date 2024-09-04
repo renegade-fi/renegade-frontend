@@ -8,27 +8,20 @@ import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 
-type ReturnType<T extends boolean> = T extends true ? string : bigint
-
-export function useUSDPrice<T extends boolean = true>(
-  token: Token,
-  amount: bigint,
-  formatted: T = true as T,
-): ReturnType<T> {
-  const { data: price } = usePriceQuery(token.address)
+export function useUSDPrice(
+  base: Token,
+  amount: bigint, // amount in token decimals
+) {
+  const { data: price } = usePriceQuery(base.address)
   return React.useMemo(() => {
     const result = amountTimesPrice(amount, price)
 
     if (result < MIN_FILL_SIZE) {
-      return (
-        formatted ? formatUnits(BigInt(0), token.decimals) : BigInt(0)
-      ) as ReturnType<T>
+      return BigInt(0)
     }
 
-    return (
-      formatted ? formatUnits(result, token.decimals) : result
-    ) as ReturnType<T>
-  }, [amount, price, token.decimals, formatted])
+    return result
+  }, [amount, price])
 }
 
 export function amountTimesPrice(amount: bigint, price: number) {
