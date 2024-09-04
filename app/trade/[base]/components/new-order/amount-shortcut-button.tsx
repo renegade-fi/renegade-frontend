@@ -1,7 +1,7 @@
 import React from "react"
 
 import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
-import { formatUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
@@ -102,15 +102,22 @@ export function AmountShortcutButton({
     return shortcutBigInt
   }, [maxBalance, percentage])
 
-  const usdPrice = useUSDPrice(baseToken, shortcut, false)
+  const usdPrice = useUSDPrice(baseToken, shortcut)
 
   const formattedShortcut = React.useMemo(() => {
     if (isUSDCDenominated && shortcut < MIN_FILL_SIZE) {
       return 0
     }
-    if (!isUSDCDenominated && usdPrice < MIN_FILL_SIZE) {
+    const formattedUsdPrice = parseFloat(
+      formatUnits(usdPrice, baseToken.decimals),
+    )
+    const minFillSize = parseFloat(
+      formatUnits(MIN_FILL_SIZE, quoteToken.decimals),
+    )
+    if (!isUSDCDenominated && formattedUsdPrice < minFillSize) {
       return 0
     }
+    // Adjust by # of other token's decimals
     const value = formatUnits(
       shortcut,
       isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
