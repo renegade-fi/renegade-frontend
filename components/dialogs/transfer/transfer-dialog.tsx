@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
@@ -324,6 +324,8 @@ function TransferForm({
     }
   }
   const router = useRouter()
+  const pathname = usePathname()
+  const isTradePage = pathname.includes("/trade")
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (direction === ExternalTransferDirection.Deposit) {
       await checkChain()
@@ -350,8 +352,9 @@ function TransferForm({
                 toast.loading(message, {
                   id: data.taskId,
                 })
-                baseToken?.ticker !== "USDC" &&
+                if (isTradePage && baseToken?.ticker !== "USDC") {
                   router.push(`/trade/${baseToken?.ticker}`)
+                }
               },
             })
           },
@@ -365,8 +368,9 @@ function TransferForm({
             toast.loading(message, {
               id: data.taskId,
             })
-            baseToken?.ticker !== "USDC" &&
+            if (isTradePage && baseToken?.ticker !== "USDC") {
               router.push(`/trade/${baseToken?.ticker}`)
+            }
           },
         })
       }
