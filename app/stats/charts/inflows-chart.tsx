@@ -38,6 +38,7 @@ const chartConfig = {
 export function InflowsChart() {
   const { data } = useExternalTransferLogs()
   const chartData = React.useMemo(() => {
+    if (!data || !data.length) return []
     return data?.map((day) => ({
       timestamp: day.timestamp,
       depositAmount: day.depositAmount,
@@ -46,7 +47,7 @@ export function InflowsChart() {
   }, [data])
 
   const netFlow24h = React.useMemo(() => {
-    if (!data) return 0
+    if (!data || !data.length) return 0
     return (
       data[data.length - 1].depositAmount -
       data[data.length - 1].withdrawalAmount
