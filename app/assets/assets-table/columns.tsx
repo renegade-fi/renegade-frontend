@@ -105,7 +105,7 @@ export const columns: ColumnDef<BalanceData>[] = [
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="text-right">{formatted}</div>
+            <div className="pr-4 text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-sans">
@@ -183,7 +183,7 @@ export const columns: ColumnDef<BalanceData>[] = [
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="text-right">{formatted}</div>
+            <div className="pr-4 text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
             <p className="font-sans">
