@@ -16,6 +16,8 @@ export const PROTOCOL_FEE = 0.0002
 export const RELAYER_FEE = 0.0002
 // Binance base fee
 export const BINANCE_BASE_FEE = 0.001
+// Minimum deposit amount (in USD)
+export const MIN_DEPOSIT_AMOUNT = 1
 
 // Types
 

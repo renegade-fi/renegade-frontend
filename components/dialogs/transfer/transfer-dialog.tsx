@@ -1,10 +1,11 @@
 import * as React from "react"
 
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useBalances, usePayFees } from "@renegade-fi/react"
+import { QueryClient, useQueryClient } from "@tanstack/react-query"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
@@ -47,11 +48,14 @@ import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useFeeOnZeroBalance } from "@/hooks/use-fee-on-zero-balance"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useWithdraw } from "@/hooks/use-withdraw"
+import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber, safeParseUnits } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
+import { createPriceQueryKey } from "@/lib/query"
 import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
@@ -326,6 +330,10 @@ function TransferForm({
   const router = useRouter()
   const pathname = usePathname()
   const isTradePage = pathname.includes("/trade")
+  const queryClient = useQueryClient()
+  // Ensure price is loaded
+  usePriceQuery(baseToken?.address || "0x")
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (direction === ExternalTransferDirection.Deposit) {
       await checkChain()
@@ -340,7 +348,17 @@ function TransferForm({
         })
         return
       }
-
+      const isAmountSufficient = checkAmount(
+        queryClient,
+        values.amount,
+        baseToken,
+      )
+      if (!isAmountSufficient) {
+        form.setError("amount", {
+          message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+        })
+        return
+      }
       if (needsApproval) {
         handleApprove({
           onSuccess: () => {
@@ -525,6 +543,21 @@ function TransferForm({
       </form>
     </Form>
   )
+}
+
+// Return true if the amount is greater than or equal to the minimum deposit amount (1 USDC)
+function checkAmount(
+  queryClient: QueryClient,
+  amount: string,
+  baseToken?: Token,
+) {
+  if (!baseToken) return false
+  const usdPrice = queryClient.getQueryData<number>(
+    createPriceQueryKey("binance", baseToken.address),
+  )
+  if (!usdPrice) return false
+  const amountInUsd = Number(amount) * usdPrice
+  return amountInUsd >= MIN_DEPOSIT_AMOUNT
 }
 
 // Returns true if the amount is less than or equal to the balance
