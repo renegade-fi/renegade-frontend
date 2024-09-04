@@ -11,13 +11,13 @@ import {
   createConfig,
   createStorage,
   http,
-  useAccount,
   useAccountEffect,
 } from "wagmi"
 
 import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
 
 import { cookieStorage } from "@/lib/cookie"
+import { getURL } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
@@ -37,7 +37,7 @@ export const config = createConfig(
     appName: "Renegade",
     appDescription: "On-chain dark pool",
     appUrl: "https://trade.renegade.fi",
-    appIcon: "/glyph_dark.svg",
+    appIcon: `${getURL()}/glyph_light.svg`,
   }),
 )
 
@@ -96,28 +96,6 @@ export function WagmiProvider({
 
 function SyncRenegadeWagmiState() {
   const config = useConfig()
-  const { connector } = useAccount()
-
-  React.useEffect(() => {
-    if (!connector?.emitter) return
-    const handleConnectorUpdate = (
-      data: {
-        accounts?: readonly `0x${string}`[] | undefined
-        chainId?: number | undefined
-      } & {
-        uid: string
-      },
-    ) => {
-      disconnect(config)
-    }
-
-    connector.emitter.on("change", handleConnectorUpdate)
-
-    return () => {
-      connector.emitter.off("change", handleConnectorUpdate)
-    }
-  }, [config, connector])
-
   useAccountEffect({
     onDisconnect() {
       console.log("disconnecting because onDisconnect")
