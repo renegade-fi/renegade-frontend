@@ -14,6 +14,5 @@ export function useSkRoot(
 ): UseSkRootReturnType {
   const { config } = parameters
   const skRoot = getSkRoot(config)
-  console.log("🚀 ~ skRoot:", skRoot)
   return skRoot
 }

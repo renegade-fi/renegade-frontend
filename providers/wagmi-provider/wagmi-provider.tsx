@@ -108,7 +108,6 @@ function SyncRenegadeWagmiState() {
         uid: string
       },
     ) => {
-      console.log("connector update", data)
       disconnect(config)
     }
 
@@ -120,11 +119,6 @@ function SyncRenegadeWagmiState() {
   }, [config, connector])
 
   useAccountEffect({
-    // onConnect(data) {
-    //   console.log("🚀 ~ onConnect ~ data:", data)
-    //   console.log("disconnecting because onConnect")
-    //   disconnect(config)
-    // },
     onDisconnect() {
       console.log("disconnecting because onDisconnect")
       disconnect(config)

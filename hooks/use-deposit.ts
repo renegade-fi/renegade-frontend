@@ -82,7 +82,6 @@ export function useDeposit({
         onSuccess?.({ taskId })
       })
       .catch((e) => {
-        console.log("in catch")
         setStatus("error")
         toast.error(
           FAILED_DEPOSIT_MSG(

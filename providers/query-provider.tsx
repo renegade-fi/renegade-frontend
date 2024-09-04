@@ -68,7 +68,6 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
           mutationKey: mutation.options.mutationKey,
           error,
         })
-        console.log("TODO: Refresh wallet after error?")
       },
     }),
   )
