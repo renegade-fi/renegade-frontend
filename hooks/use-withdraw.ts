@@ -1,14 +1,10 @@
-import { Token, UpdateType, useConfig, usePayFees } from "@renegade-fi/react"
+import { Token, useConfig, usePayFees } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
 
-import {
-  FAILED_WITHDRAWAL_MSG,
-  WITHDRAW_TOAST_ID,
-  constructStartToastMessage,
-} from "@/lib/constants/task"
+import { FAILED_WITHDRAWAL_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 
 export function useWithdraw({
@@ -34,12 +30,6 @@ export function useWithdraw({
       toast.error("Withdrawal amount is invalid")
       return
     }
-    const message = constructStartToastMessage(UpdateType.Withdraw)
-    const id = WITHDRAW_TOAST_ID(mint, parsedAmount)
-
-    toast.loading(message, {
-      id,
-    })
 
     await payFeesAsync()
 
@@ -51,9 +41,7 @@ export function useWithdraw({
     })
       .then(onSuccess)
       .catch((e) => {
-        toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount), {
-          id,
-        })
+        toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount))
         console.error(`Error withdrawing: ${e.response?.data ?? e.message}`)
       })
   }
