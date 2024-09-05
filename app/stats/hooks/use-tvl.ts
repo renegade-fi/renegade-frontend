@@ -13,10 +13,7 @@ export function useTvl() {
 }
 
 const fetchTvlData = async (): Promise<{ ticker: string; tvl: bigint }[]> => {
-  const response = await fetch("/api/stats/tvl", {
-    cache: "no-store",
-    next: { revalidate: 3600 },
-  })
+  const response = await fetch("/api/stats/tvl")
   if (!response.ok) {
     throw new Error("Failed to fetch TVL data")
   }

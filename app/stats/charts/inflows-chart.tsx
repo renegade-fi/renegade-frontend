@@ -5,6 +5,7 @@ import * as React from "react"
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
+import { useNetFlow } from "@/app/hooks/useNetFlow"
 import { useExternalTransferLogs } from "@/app/stats/hooks/use-external-transfer-data"
 
 import {
@@ -37,6 +38,7 @@ const chartConfig = {
 
 export function InflowsChart() {
   const { data } = useExternalTransferLogs()
+  const { data: netFlowData, isSuccess } = useNetFlow()
   const chartData = React.useMemo(() => {
     if (!data || !data.length) return []
     return data?.map((day) => ({
@@ -46,21 +48,13 @@ export function InflowsChart() {
     }))
   }, [data])
 
-  const netFlow24h = React.useMemo(() => {
-    if (!data || !data.length) return 0
-    return (
-      data[data.length - 1].depositAmount -
-      data[data.length - 1].withdrawalAmount
-    )
-  }, [data])
-
   return (
     <Card className="w-full rounded-none">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className={`font-serif text-4xl font-bold`}>
-            {netFlow24h ? (
-              numeral(netFlow24h).format("$0.00a")
+            {isSuccess ? (
+              numeral(netFlowData?.netFlow).format("$0.00a")
             ) : (
               <Skeleton className="h-10 w-40" />
             )}

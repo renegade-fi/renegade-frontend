@@ -3,7 +3,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import type {
   HistoricalVolumeResponse,
   VolumeDataPoint,
-} from "@/app/api/stats/get-historical-volume/route"
+} from "@/app/api/stats/historical-volume-kv/route"
 
 type UseHistoricalVolumeResult = UseQueryResult<VolumeDataPoint[], Error> & {
   queryKey: readonly ["stats", "historical-volume"]
@@ -26,11 +26,8 @@ export function useVolumeData(): UseHistoricalVolumeResult {
 }
 
 export async function getHistoricalVolume(): Promise<VolumeDataPoint[]> {
-  const url = `/api/stats/get-historical-volume`
-  const res = await fetch(url, {
-    cache: "force-cache",
-    next: { revalidate: 3600 },
-  })
+  const url = `/api/stats/historical-volume-kv`
+  const res = await fetch(url)
 
   if (!res.ok) {
     throw new Error(`Failed to fetch historical volume data: ${res.statusText}`)

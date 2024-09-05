@@ -1,14 +1,12 @@
-import { NextRequest } from "next/server"
-
-import { kv } from "@vercel/kv"
-
 import {
   BucketData,
   ExternalTransferData,
   INFLOWS_KEY,
   INFLOWS_SET_KEY,
 } from "@/app/api/stats/constants"
-
+import { getAllSetMembers } from "@/app/lib/kv-utils"
+import { kv } from "@vercel/kv"
+import { NextRequest } from "next/server"
 export const runtime = "edge"
 export const dynamic = "force-dynamic"
 
@@ -18,70 +16,51 @@ function startOfPeriod(timestamp: number, intervalMs: number): number {
 
 export async function GET(req: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams
-    const intervalMs = parseInt(searchParams.get("interval") || "86400000")
+    const intervalMs = parseInt(req.nextUrl.searchParams.get("interval") || "86400000")
 
-    // Fetch all transaction hashes from the Set
-    const transactionHashes = await kv.smembers(INFLOWS_SET_KEY)
+    const transactionHashes = await getAllSetMembers(kv, INFLOWS_SET_KEY);
 
-    // Fetch all values for the transaction hashes
-    const dataPromises = transactionHashes.map((hash) =>
-      kv.get(`${INFLOWS_KEY}:${hash}`),
-    )
-    const data = await Promise.all(dataPromises)
+    // Use pipelining to fetch all data in a single round-trip
+    const pipeline = kv.pipeline();
+    transactionHashes.forEach(hash => pipeline.get(`${INFLOWS_KEY}:${hash}`));
+    const data = await pipeline.exec();
 
-    // Filter out any null values and ensure the type is ExternalTransferData
-    const validData: ExternalTransferData[] = data.filter(
-      (item): item is ExternalTransferData =>
-        item !== null && typeof item === "object" && "timestamp" in item,
-    )
+    const buckets: Record<string, BucketData> = {};
 
-    // Sort validData in chronological order
-    validData.sort((a, b) => a.timestamp - b.timestamp)
+    data.forEach((item) => {
+      if (item && typeof item === "object" && "timestamp" in item) {
+        const transfer = item as ExternalTransferData;
+        const bucketTimestamp = startOfPeriod(transfer.timestamp, intervalMs);
+        const bucketKey = bucketTimestamp.toString();
 
-    // Bucket data into specified intervals
-    const buckets = validData.reduce(
-      (acc, item) => {
-        const bucketTimestamp = startOfPeriod(item.timestamp, intervalMs)
-        if (!acc[bucketTimestamp]) {
-          acc[bucketTimestamp] = {
-            timestamp: bucketTimestamp.toString(),
+        if (!buckets[bucketKey]) {
+          buckets[bucketKey] = {
+            timestamp: bucketKey,
             depositAmount: 0,
             withdrawalAmount: 0,
-            transactions: [],
-          }
+          };
         }
-        if (item.isWithdrawal) {
-          acc[bucketTimestamp].withdrawalAmount += item.amount
+
+        if (transfer.isWithdrawal) {
+          buckets[bucketKey].withdrawalAmount += transfer.amount;
         } else {
-          acc[bucketTimestamp].depositAmount += item.amount
+          buckets[bucketKey].depositAmount += transfer.amount;
         }
-        acc[bucketTimestamp].transactions.push(item)
-        return acc
-      },
-      {} as Record<string, BucketData>,
-    )
+      }
+    });
 
-    // Convert to array and sort by timestamp (oldest first)
     const sortedBucketData = Object.values(buckets).sort(
-      (a, b) => parseInt(a.timestamp) - parseInt(b.timestamp),
-    )
+      (a, b) => parseInt(a.timestamp) - parseInt(b.timestamp)
+    );
 
-    return new Response(
-      JSON.stringify({ data: sortedBucketData, intervalMs }),
-      {
-        headers: { "Content-Type": "application/json" },
-      },
-    )
+    return new Response(JSON.stringify({ data: sortedBucketData, intervalMs }), {
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    console.error("Error in GET request:", error)
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch external transfer logs" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    )
+    return new Response(JSON.stringify({ error: "Failed to fetch external transfer logs" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
