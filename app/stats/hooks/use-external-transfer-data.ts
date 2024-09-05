@@ -19,7 +19,9 @@ export function useExternalTransferLogs(intervalMs: number = 86400000) {
 const fetchExternalTransferLogs = async (
   intervalMs: number,
 ): Promise<BucketData[]> => {
-  const response = await fetch(`/api/stats/external-transfer-logs?interval=${intervalMs}`)
+  const response = await fetch(
+    `/api/stats/external-transfer-logs?interval=${intervalMs}`,
+  )
   if (!response.ok) {
     throw new Error("Failed to fetch external transfer logs")
   }
