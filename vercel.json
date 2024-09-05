@@ -8,5 +8,10 @@
       "path": "/api/stats/set-historical-volume-kv",
       "schedule": "0 0 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled":{
+      "main": false
+    }
+  }
 }
