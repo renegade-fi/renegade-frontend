@@ -50,9 +50,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PKG_GITHUB_TOKEN }}
 
-      - name: Run linting, formatting check, and type checking
-        run: |
-          pnpm run lint &
-          pnpm prettier --check . &
-          pnpm run typecheck &
-          wait
+      - name: Run linting
+        run: pnpm run lint
+
+      - name: Run formatting check
+        run: pnpm prettier --check .
+
+      - name: Run type checking
+        run: pnpm run typecheck

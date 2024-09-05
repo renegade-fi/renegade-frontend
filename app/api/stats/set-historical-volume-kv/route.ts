@@ -17,27 +17,29 @@ interface VolumeData {
 }
 
 interface SearchParams {
-  to: number;
-  from: number;
-  interval: number;
+  to: number
+  from: number
+  interval: number
 }
 
 const DEFAULT_PARAMS: SearchParams = {
   to: Math.floor(Date.now() / 1000),
   from: 1693958400,
   interval: 24 * 60 * 60,
-};
+}
 
 export async function GET(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
   try {
     const ddog = new DDogClient()
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url)
     const params: SearchParams = {
       to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to)),
       from: parseInt(searchParams.get("from") ?? String(DEFAULT_PARAMS.from)),
-      interval: parseInt(searchParams.get("interval") ?? String(DEFAULT_PARAMS.interval)),
-    };
+      interval: parseInt(
+        searchParams.get("interval") ?? String(DEFAULT_PARAMS.interval),
+      ),
+    }
 
     console.log(`Parameters: ${JSON.stringify(params)}`)
 
@@ -52,7 +54,11 @@ export async function GET(req: NextRequest) {
     console.log(
       `Fetching match volume from ${params.from} to ${params.to} with interval ${params.interval}`,
     )
-    const res = await ddog.getMatchVolumePerInterval(params.from, params.to, params.interval)
+    const res = await ddog.getMatchVolumePerInterval(
+      params.from,
+      params.to,
+      params.interval,
+    )
     console.log(`DDogClient response status: ${res.status}`)
 
     if (
