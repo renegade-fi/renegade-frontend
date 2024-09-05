@@ -337,6 +337,18 @@ function TransferForm({
   const { setSide } = useSide()
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const isAmountSufficient = checkAmount(
+      queryClient,
+      values.amount,
+      baseToken,
+    )
+    if (!isAmountSufficient) {
+      form.setError("amount", {
+        message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+      })
+      return
+    }
+
     if (direction === ExternalTransferDirection.Deposit) {
       await checkChain()
       const isBalanceSufficient = checkBalance({
@@ -347,17 +359,6 @@ function TransferForm({
       if (!isBalanceSufficient) {
         form.setError("amount", {
           message: "Insufficient Arbitrum balance",
-        })
-        return
-      }
-      const isAmountSufficient = checkAmount(
-        queryClient,
-        values.amount,
-        baseToken,
-      )
-      if (!isAmountSufficient) {
-        form.setError("amount", {
-          message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
         })
         return
       }
