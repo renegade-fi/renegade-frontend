@@ -23,6 +23,7 @@ import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
+import { SideProvider } from "@/providers/side-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 
@@ -94,7 +95,9 @@ export default async function RootLayout({
                 delayDuration={0}
                 skipDelayDuration={0}
               >
-                <div className="select-none">{children}</div>
+                <SideProvider cookie={headers().get("cookie")}>
+                  <div className="select-none">{children}</div>
+                </SideProvider>
               </TooltipProvider>
               <Toaster
                 className="pointer-events-auto"

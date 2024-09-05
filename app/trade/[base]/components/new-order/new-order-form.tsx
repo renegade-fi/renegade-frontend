@@ -6,11 +6,7 @@ import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import {
-  setBase,
-  setIsUSDCDenominated,
-  setSide,
-} from "@/app/trade/[base]/actions"
+import { setBase, setIsUSDCDenominated } from "@/app/trade/[base]/actions"
 import { ConnectButton } from "@/app/trade/[base]/components/connect-button"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
@@ -46,6 +42,7 @@ import { usePriceQuery } from "@/hooks/use-price-query"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
+import { useSide } from "@/providers/side-provider"
 
 const formSchema = z.object({
   amount: z
@@ -67,13 +64,13 @@ export type NewOrderFormProps = z.infer<typeof formSchema>
 
 export function NewOrderForm({
   base,
-  side,
   isUSDCDenominated,
 }: {
   base: string
-  side: Side
   isUSDCDenominated?: boolean
 }) {
+  const { side, setSide } = useSide()
+
   const isMaxOrders = useIsMaxOrders()
   const status = useStatus()
   const defaultValues = {
@@ -96,6 +93,10 @@ export function NewOrderForm({
   const { data: price } = usePriceQuery(Token.findByTicker(base).address)
 
   React.useEffect(() => {
+    form.setValue("isSell", side === Side.SELL)
+  }, [form, side])
+
+  React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (name === "isUSDCDenominated") {
         setIsUSDCDenominated(value.isUSDCDenominated ?? false)
@@ -107,9 +108,12 @@ export function NewOrderForm({
           }
         }
       }
+      if (name === "isSell") {
+        setSide(value.isSell ? Side.SELL : Side.BUY)
+      }
     })
     return () => subscription.unsubscribe()
-  }, [form, price, priceInBase, priceInUsd])
+  }, [form, price, priceInBase, priceInUsd, setSide])
 
   React.useEffect(() => {
     if (form.getValues("base")) {

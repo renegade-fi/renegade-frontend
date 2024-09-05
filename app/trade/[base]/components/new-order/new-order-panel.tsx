@@ -10,11 +10,9 @@ import { Side } from "@/lib/constants/protocol"
 
 export function NewOrderPanel({
   base,
-  side,
   isUSDCDenominated,
 }: {
   base: string
-  side: Side
   isUSDCDenominated?: boolean
 }) {
   return (
@@ -26,7 +24,6 @@ export function NewOrderPanel({
       <NewOrderForm
         base={base}
         isUSDCDenominated={isUSDCDenominated}
-        side={side}
       />
       <div className="px-6">
         <Button
