@@ -62,7 +62,6 @@ export default async function Page({ params }: { params: { base: string } }) {
           base={params.base}
           defaultLayout={defaultLayout}
           isUSDCDenominated={defaultUseUSDC}
-          side={defaultSide}
         />
       </HydrationBoundary>
       <div className="sticky bottom-20 min-h-marquee overflow-hidden">

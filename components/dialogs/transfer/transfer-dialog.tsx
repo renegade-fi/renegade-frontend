@@ -51,12 +51,13 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useWithdraw } from "@/hooks/use-withdraw"
-import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
+import { MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber, safeParseUnits } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
 import { createPriceQueryKey } from "@/lib/query"
 import { cn } from "@/lib/utils"
+import { useSide } from "@/providers/side-provider"
 
 const formSchema = z.object({
   amount: z
@@ -333,6 +334,7 @@ function TransferForm({
   const queryClient = useQueryClient()
   // Ensure price is loaded
   usePriceQuery(baseToken?.address || "0x")
+  const { setSide } = useSide()
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (direction === ExternalTransferDirection.Deposit) {
@@ -370,6 +372,7 @@ function TransferForm({
                 toast.loading(message, {
                   id: data.taskId,
                 })
+                setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
                 if (isTradePage && baseToken?.ticker !== "USDC") {
                   router.push(`/trade/${baseToken?.ticker}`)
                 }
@@ -386,6 +389,7 @@ function TransferForm({
             toast.loading(message, {
               id: data.taskId,
             })
+            setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
             if (isTradePage && baseToken?.ticker !== "USDC") {
               router.push(`/trade/${baseToken?.ticker}`)
             }
