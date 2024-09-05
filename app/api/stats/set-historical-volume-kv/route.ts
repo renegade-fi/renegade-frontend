@@ -16,20 +16,32 @@ interface VolumeData {
   volume: number
 }
 
+interface SearchParams {
+  to: number;
+  from: number;
+  interval: number;
+}
+
+const DEFAULT_PARAMS: SearchParams = {
+  to: Math.floor(Date.now() / 1000),
+  from: 1693958400,
+  interval: 24 * 60 * 60,
+};
+
 export async function GET(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
   try {
     const ddog = new DDogClient()
-    const { searchParams } = new URL(req.url)
-    const to = parseInt(searchParams.get("to") || Date.now().toString())
-    const from = parseInt(searchParams.get("from") || "1693958400")
-    const interval = parseInt(
-      searchParams.get("interval") || (24 * 60 * 60).toString(),
-    ) // Default to 1 day if not provided
+    const { searchParams } = new URL(req.url);
+    const params: SearchParams = {
+      to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to)),
+      from: parseInt(searchParams.get("from") ?? String(DEFAULT_PARAMS.from)),
+      interval: parseInt(searchParams.get("interval") ?? String(DEFAULT_PARAMS.interval)),
+    };
 
-    console.log(`Parameters: to=${to}, from=${from}, interval=${interval}`)
+    console.log(`Parameters: ${JSON.stringify(params)}`)
 
-    if (isNaN(to) || isNaN(from) || isNaN(interval)) {
+    if (Object.values(params).some(isNaN)) {
       console.error("Invalid parameters detected")
       return new Response(
         JSON.stringify({ error: "Invalid to, from, or interval parameter" }),
@@ -38,9 +50,9 @@ export async function GET(req: NextRequest) {
     }
 
     console.log(
-      `Fetching match volume from ${from} to ${to} with interval ${interval}`,
+      `Fetching match volume from ${params.from} to ${params.to} with interval ${params.interval}`,
     )
-    const res = await ddog.getMatchVolumePerInterval(from, to, interval)
+    const res = await ddog.getMatchVolumePerInterval(params.from, params.to, params.interval)
     console.log(`DDogClient response status: ${res.status}`)
 
     if (

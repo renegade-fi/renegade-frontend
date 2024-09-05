@@ -9,6 +9,7 @@ import {
   INFLOWS_SET_KEY,
 } from "@/app/api/stats/constants"
 
+export const runtime = "edge"
 export const dynamic = "force-dynamic"
 
 function startOfPeriod(timestamp: number, intervalMs: number): number {
