@@ -7,6 +7,10 @@
     {
       "path": "/api/stats/set-historical-volume-kv",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/stats/set-net-flow-kv",
+      "schedule": "0 */4 * * *"
     }
   ]
 }
