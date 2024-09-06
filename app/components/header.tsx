@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation"
 
 import { useStatus } from "@renegade-fi/react"
 import { ChevronDown, Ellipsis } from "lucide-react"
-import { useAccount } from "wagmi"
+import { mainnet } from "viem/chains"
+import { createConfig, http, useAccount, useEnsName } from "wagmi"
 
 import { AccountDropdown } from "@/app/components/account-menu"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
@@ -27,6 +28,18 @@ export function Header() {
   const pathname = usePathname()
   const status = useStatus()
   const { address } = useAccount()
+
+  // Fetch ENS name from mainnet
+  const config = createConfig({
+    chains: [mainnet],
+    transports: {
+      [mainnet.id]: http(),
+    },
+  })
+  const { data: ensName } = useEnsName({
+    address,
+    config,
+  })
   return (
     <header className="fixed top-0 z-10 min-w-full border-b bg-background">
       <div className="grid min-h-20 grid-cols-3 items-center">
@@ -117,7 +130,9 @@ export function Header() {
           {address ? (
             <AccountDropdown>
               <Button variant="outline">
-                {`${address.slice(0, 6)}...${address.slice(-4)}`}
+                {ensName
+                  ? ensName
+                  : `${address.slice(0, 6)}...${address.slice(-4)}`}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </AccountDropdown>
