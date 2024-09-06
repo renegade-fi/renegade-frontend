@@ -31,6 +31,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Toggle } from "@/components/ui/toggle"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useCancelAllOrders } from "@/hooks/use-cancel-all-orders"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
@@ -200,7 +206,7 @@ export function DataTable<TData, TValue>({
           </Button>
         ) : null}
         <Button
-          className="ml-auto text-muted-foreground"
+          className="ml-auto px-0 text-muted-foreground"
           disabled={isDisabled}
           size="sm"
           variant="link"
@@ -208,18 +214,23 @@ export function DataTable<TData, TValue>({
         >
           Cancel all open orders
         </Button>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={isLongFormat}
-            onCheckedChange={(value) => setIsLongFormat(!!value)}
-          />
-          <Label
-            className="text-muted-foreground"
-            htmlFor="long-format"
-          >
-            Show decimals
-          </Label>
-        </div>
+        <Tooltip>
+          <TooltipTrigger>
+            <Toggle
+              aria-label="Toggle decimal display"
+              className="w-8 p-0 font-mono text-xs font-bold text-muted-foreground data-[state=on]:text-muted-foreground"
+              pressed={isLongFormat}
+              size="sm"
+              variant="outline"
+              onPressedChange={(value) => setIsLongFormat(value)}
+            >
+              .00
+            </Toggle>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Show decimals</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="border">
         <Table>

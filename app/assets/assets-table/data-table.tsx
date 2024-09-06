@@ -12,12 +12,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { DollarSign } from "lucide-react"
+import { DollarSign, EyeOff } from "lucide-react"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TableEmptyState } from "@/components/table-empty-state"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -27,8 +25,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Toggle } from "@/components/ui/toggle"
-
-import { cn } from "@/lib/utils"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -95,58 +96,76 @@ export function DataTable<TData, TValue>({
           Your deposits inside of Renegade. Only you and your connected relayer
           can see your balances.
         </div>
-        <div className="ml-auto flex items-center space-x-2">
-          <Toggle
-            aria-label="Toggle USD"
-            pressed={
-              columnVisibility.renegadeUsdValue && columnVisibility.l2UsdValue
-            }
-            size="sm"
-            onPressedChange={(value) => {
-              value
-                ? setColumnVisibility({
-                    renegadeUsdValue: true,
-                    l2UsdValue: true,
-                    renegadeBalance: false,
-                    l2Balance: false,
-                  })
-                : setColumnVisibility({
-                    renegadeUsdValue: false,
-                    l2UsdValue: false,
-                    renegadeBalance: true,
-                    l2Balance: true,
-                  })
-            }}
-          >
-            <DollarSign className={cn("h-4 w-4 text-muted-foreground")} />
-          </Toggle>
-        </div>
-        <div className="ml-4 flex items-center space-x-2">
-          <Switch
-            checked={showZeroL2Balance && showZeroRenegadeBalance}
-            onCheckedChange={(value) => {
-              setShowZeroL2Balance(!!value)
-              setShowZeroRenegadeBalance(!!value)
-            }}
-          />
-          <Label
-            className="text-muted-foreground"
-            htmlFor="long-format"
-          >
-            Show zeroes
-          </Label>
-        </div>
-        <div className="ml-4 flex items-center space-x-2">
-          <Switch
-            checked={isLongFormat}
-            onCheckedChange={(value) => setIsLongFormat(!!value)}
-          />
-          <Label
-            className="text-muted-foreground"
-            htmlFor="long-format"
-          >
-            Show decimals
-          </Label>
+        <div className="ml-auto flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <Toggle
+                aria-label="Toggle USD"
+                pressed={
+                  columnVisibility.renegadeUsdValue &&
+                  columnVisibility.l2UsdValue
+                }
+                size="sm"
+                variant="outline"
+                onPressedChange={(value) => {
+                  value
+                    ? setColumnVisibility({
+                        renegadeUsdValue: true,
+                        l2UsdValue: true,
+                        renegadeBalance: false,
+                        l2Balance: false,
+                      })
+                    : setColumnVisibility({
+                        renegadeUsdValue: false,
+                        l2UsdValue: false,
+                        renegadeBalance: true,
+                        l2Balance: true,
+                      })
+                }}
+              >
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>USD Value</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <Toggle
+                aria-label="Show zero balances"
+                pressed={!showZeroL2Balance && !showZeroRenegadeBalance}
+                size="sm"
+                variant="outline"
+                onPressedChange={(value) => {
+                  setShowZeroL2Balance(!value)
+                  setShowZeroRenegadeBalance(!value)
+                }}
+              >
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Hide zero balances</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <Toggle
+                aria-label="Toggle decimal display"
+                className="w-8 p-0 font-mono text-xs font-bold text-muted-foreground data-[state=on]:text-muted-foreground"
+                pressed={isLongFormat}
+                size="sm"
+                variant="outline"
+                onPressedChange={(value) => setIsLongFormat(value)}
+              >
+                .00
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Show decimals</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
       <div className="border">
