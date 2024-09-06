@@ -2,7 +2,6 @@
 
 import React from "react"
 
-import { InfoCircledIcon } from "@radix-ui/react-icons"
 import {
   TaskType,
   Token,
@@ -161,7 +160,9 @@ export function PageClient() {
     <main>
       <div className="container">
         <div className="mt-12">
-          <h1 className="mt-6 font-serif text-3xl font-bold">Assets</h1>
+          <h1 className="font-serif text-3xl font-bold leading-normal">
+            Assets
+          </h1>
           <AssetTable
             columns={assetColumns}
             data={balances}
@@ -183,7 +184,7 @@ export function PageClient() {
           </Tooltip>
         </div>
         <div className="mt-20">
-          <h1 className="my-6 font-serif text-3xl font-bold">
+          <h1 className="font-serif text-3xl font-bold leading-normal">
             Transfer History
           </h1>
           <TransferHistoryTable

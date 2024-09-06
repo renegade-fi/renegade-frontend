@@ -26,6 +26,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Toggle } from "@/components/ui/toggle"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { DISPLAY_TOKENS } from "@/lib/token"
 
@@ -150,17 +156,24 @@ export function DataTable<TData, TValue>({
             Clear
           </Button>
         ) : null}
-        <div className="ml-auto flex items-center space-x-2">
-          <Switch
-            checked={isLongFormat}
-            onCheckedChange={(value) => setIsLongFormat(!!value)}
-          />
-          <Label
-            className="text-muted-foreground"
-            htmlFor="long-format"
-          >
-            Show decimals
-          </Label>
+        <div className="ml-auto">
+          <Tooltip>
+            <TooltipTrigger>
+              <Toggle
+                aria-label="Toggle decimal display"
+                className="w-8 p-0 font-mono text-xs font-bold text-muted-foreground data-[state=on]:text-muted-foreground"
+                pressed={isLongFormat}
+                size="sm"
+                variant="outline"
+                onPressedChange={(value) => setIsLongFormat(value)}
+              >
+                .00
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toggle decimals</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
       <div className="border">
