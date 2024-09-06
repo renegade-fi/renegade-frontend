@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useId } from "react"
 
 import { useConfig } from "@renegade-fi/react"
 import {
@@ -49,6 +49,7 @@ export function SignInDialog({
   } = useSignMessage()
   const config = useConfig()
   const [isConnecting, setIsConnecting] = React.useState(false)
+  const toastId = useId()
 
   const handleClick = () =>
     signMessage(
@@ -57,6 +58,9 @@ export function SignInDialog({
       },
       {
         async onSuccess(data) {
+          toast.loading("Processing request...", {
+            id: toastId,
+          })
           config.setState((x) => ({ ...x, seed: data }))
           const id = getWalletId(config)
           config.setState((x) => ({ ...x, id }))
@@ -67,7 +71,9 @@ export function SignInDialog({
             // If success, return
             if (wallet) {
               config.setState((x) => ({ ...x, status: "in relayer" }))
-              toast.success("Successfully signed in")
+              toast.success("Successfully signed in", {
+                id: toastId,
+              })
               onOpenChange()
               setIsConnecting(false)
               return
@@ -94,6 +100,7 @@ export function SignInDialog({
                   setIsConnecting(false)
                 }),
               {
+                id: toastId,
                 loading: CREATE_WALLET_START,
                 success: CREATE_WALLET_SUCCESS,
                 error: (error) => {
@@ -113,6 +120,7 @@ export function SignInDialog({
                   setIsConnecting(false)
                 }),
               {
+                id: toastId,
                 loading: LOOKUP_WALLET_START,
                 success: LOOKUP_WALLET_SUCCESS,
                 error: LOOKUP_WALLET_ERROR,
@@ -124,6 +132,9 @@ export function SignInDialog({
           console.error(error)
           toast.error(
             `Error signing message: ${(error as BaseError).shortMessage || error.message}`,
+            {
+              id: toastId,
+            },
           )
         },
       },
