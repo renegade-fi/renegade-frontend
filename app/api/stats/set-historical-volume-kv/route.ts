@@ -9,7 +9,6 @@ import {
 } from "@/app/api/stats/constants"
 
 export const maxDuration = 300
-export const dynamic = "force-dynamic"
 
 interface VolumeData {
   timestamp: number
@@ -28,7 +27,7 @@ const DEFAULT_PARAMS: SearchParams = {
   interval: 24 * 60 * 60,
 }
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
   try {
     const ddog = new DDogClient()

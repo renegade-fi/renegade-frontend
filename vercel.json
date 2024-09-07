@@ -2,15 +2,15 @@
   "crons": [
     {
       "path": "/api/stats/set-inflow-kv",
-      "schedule": "0 */4 * * *"
+      "schedule": "0 5 * * *"
     },
     {
       "path": "/api/stats/set-historical-volume-kv",
-      "schedule": "0 0 * * *"
+      "schedule": "0 5 * * *"
     },
     {
       "path": "/api/stats/set-net-flow-kv",
-      "schedule": "0 */4 * * *"
+      "schedule": "0 5 * * *"
     }
   ],
   "git": {

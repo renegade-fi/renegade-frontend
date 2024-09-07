@@ -10,7 +10,7 @@ import { getAllSetMembers } from "@/app/lib/kv-utils"
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 
-export async function GET() {
+export async function POST() {
   console.log("Starting net flow calculation cron job")
   try {
     const now = Date.now()
