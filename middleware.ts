@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   if (device.type === "mobile") {
     if (request.nextUrl.pathname !== "/m") {
       request.nextUrl.pathname = "/m"
-      return NextResponse.rewrite(request.nextUrl)
+      return NextResponse.redirect(request.nextUrl)
     }
     return
   }
