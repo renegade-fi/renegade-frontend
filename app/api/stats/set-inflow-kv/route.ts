@@ -48,8 +48,8 @@ async function getBlockTimestamps(
   return blockNumberToTimestamp
 }
 
-export async function GET(req: NextRequest) {
-  console.log("Starting cron job: set-inflow-kv")
+export async function POST(req: NextRequest) {
+  console.log("Starting POST request: set-inflow-kv")
   try {
     // Get all token prices
     console.log("Fetching token prices")
@@ -147,15 +147,18 @@ export async function GET(req: NextRequest) {
     await kv.set(LAST_PROCESSED_BLOCK_KEY, lastProcessedBlock.toString())
     console.log(`Updated last processed block to ${lastProcessedBlock}`)
 
-    console.log("Cron job completed successfully")
+    console.log("POST request completed successfully")
     return new Response(
       JSON.stringify({
         message: `Processed ${processedResults.length} logs`,
         lastProcessedBlock: lastProcessedBlock.toString(),
       }),
+      { status: 200 },
     )
   } catch (error) {
-    console.error("Error in cron job:", error)
-    return new Response(JSON.stringify({ error }), { status: 500 })
+    console.error("Error in POST request:", error)
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
+      status: 500,
+    })
   }
 }
