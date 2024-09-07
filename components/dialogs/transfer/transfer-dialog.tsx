@@ -251,7 +251,7 @@ function TransferForm({
     ? formatUnits(renegadeBalance ?? BigInt(0), baseToken.decimals)
     : ""
   const renegadeBalanceLabel = baseToken
-    ? formatNumber(renegadeBalance ?? BigInt(0), baseToken.decimals)
+    ? formatNumber(renegadeBalance ?? BigInt(0), baseToken.decimals, true)
     : ""
 
   const { data: l2Balance, queryKey } = useReadErc20BalanceOf({
@@ -271,7 +271,7 @@ function TransferForm({
     ? formatUnits(l2Balance ?? BigInt(0), baseToken.decimals)
     : ""
   const l2BalanceLabel = baseToken
-    ? formatNumber(l2Balance ?? BigInt(0), baseToken.decimals)
+    ? formatNumber(l2Balance ?? BigInt(0), baseToken.decimals, true)
     : ""
 
   const balance =
