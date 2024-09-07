@@ -19,6 +19,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, InputProps>(
           "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
           className,
         )}
+        step="any"
         type="number"
         onBeforeInput={handleBeforeInput}
         onWheel={(e) => (e.target as HTMLElement).blur()}
