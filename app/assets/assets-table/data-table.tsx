@@ -153,7 +153,7 @@ export function DataTable<TData, TValue>({
             <TooltipTrigger>
               <Toggle
                 aria-label="Toggle decimal display"
-                className="w-8 p-0 font-mono text-xs font-bold text-muted-foreground data-[state=on]:text-muted-foreground"
+                className="w-8 p-0 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
                 pressed={isLongFormat}
                 size="sm"
                 variant="outline"
