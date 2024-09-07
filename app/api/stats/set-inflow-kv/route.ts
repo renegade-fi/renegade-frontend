@@ -23,13 +23,13 @@ import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
 import { chain } from "@/lib/viem"
 
-export const maxDuration = 300
-export const dynamic = "force-dynamic"
-
 const viemClient = createPublicClient({
   chain,
   transport: http(process.env.RPC_URL),
 })
+
+export const maxDuration = 300
+export const dynamic = "force-dynamic"
 
 async function getBlockTimestamps(
   blockNumbers: bigint[],
@@ -48,7 +48,7 @@ async function getBlockTimestamps(
   return blockNumberToTimestamp
 }
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   console.log("Starting POST request: set-inflow-kv")
   try {
     // Get all token prices
