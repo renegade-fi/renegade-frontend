@@ -1,4 +1,4 @@
-import React, { useId } from "react"
+import React from "react"
 
 import { useConfig } from "@renegade-fi/react"
 import {
@@ -8,10 +8,16 @@ import {
   lookupWallet,
 } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { useModal } from "connectkit"
 import { toast } from "sonner"
 import { useLocalStorage } from "usehooks-ts"
 import { BaseError } from "viem"
-import { useSignMessage } from "wagmi"
+import {
+  useAccount,
+  useDisconnect,
+  useSignMessage,
+  useConfig as useWagmiConfig,
+} from "wagmi"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -42,16 +48,35 @@ export function SignInDialog({
   open: boolean
   onOpenChange: () => void
 }) {
-  const {
-    signMessage,
-    status: signStatus,
-    isSuccess: signSuccess,
-  } = useSignMessage()
+  const { signMessage, status: signStatus } = useSignMessage()
   const config = useConfig()
   const [isConnecting, setIsConnecting] = React.useState(false)
-  const toastId = useId()
+  const toastId = React.useId()
+  const account = useAccount()
+  const wagmiConfig = useWagmiConfig()
+  const { disconnect } = useDisconnect({
+    mutation: {
+      onError: (error) => {
+        wagmiConfig.setState((x) => ({
+          ...x,
+          connections: new Map(),
+          current: null,
+          status: "disconnected",
+        }))
+      },
+      onSettled: () => {
+        toast.info("Please connect your wallet to continue")
+        onOpenChange()
+      },
+    },
+  })
 
-  const handleClick = () =>
+  const handleClick = () => {
+    if (account.status !== "connected") {
+      disconnect()
+      return
+    }
+
     signMessage(
       {
         message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
@@ -139,6 +164,7 @@ export function SignInDialog({
         },
       },
     )
+  }
 
   const [rememberMe, setRememberMe] = useLocalStorage(
     STORAGE_REMEMBER_ME,
