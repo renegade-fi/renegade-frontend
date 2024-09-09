@@ -16,10 +16,14 @@ export const cookieStorage: BaseStorage = {
   },
   setItem(key: string, value: string): void {
     if (typeof window === "undefined") return
-    document.cookie = `${key}=${value};path=/;SameSite=Strict;Secure;max-age=604800`
+    const isProduction = process.env.NODE_ENV === "production"
+    const secureFlag = isProduction ? "Secure;" : ""
+    document.cookie = `${key}=${value};path=/;SameSite=Strict;${secureFlag}max-age=604800`
   },
   removeItem(key: string): void {
     if (typeof window === "undefined") return
-    document.cookie = `${key}=;path=/;SameSite=Strict;Secure;max-age=-1`
+    const isProduction = process.env.NODE_ENV === "production"
+    const secureFlag = isProduction ? "Secure;" : ""
+    document.cookie = `${key}=;path=/;SameSite=Strict;${secureFlag}max-age=-1`
   },
 }

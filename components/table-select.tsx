@@ -50,7 +50,7 @@ export function TableSelect({
           {value ? values.find((v) => v.value === value)?.label : placeholder}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="max-w-28 p-0">
+      <PopoverContent className="min-w-fit p-0">
         <Command>
           <CommandList>
             <CommandEmpty>No token found.</CommandEmpty>

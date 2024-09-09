@@ -4,9 +4,8 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
-import { DefaultStep } from "@/components/dialogs/new-order-stepper/steps/default"
-import { SuccessStep } from "@/components/dialogs/new-order-stepper/steps/success"
-import { SuccessStepWithoutSavings } from "@/components/dialogs/new-order-stepper/steps/success-without-savings"
+import { DefaultStep } from "@/components/dialogs/order-stepper/desktop/steps/default"
+import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/desktop/steps/success-without-savings"
 import {
   Dialog,
   DialogContent,
@@ -15,10 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
-
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { useOrderValue } from "@/hooks/use-order-value"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void
@@ -32,68 +27,22 @@ export function NewOrderStepperInner({
   ...props
 }: React.PropsWithChildren<NewOrderConfirmationProps>) {
   const { step, open, setOpen } = useStepper()
-  const isDesktop = useMediaQuery("(min-width: 768px)")
-
-  const { amount, isUSDCDenominated, base } = props
-  const { priceInUsd } = useOrderValue({ ...props })
-  let baseAmount = amount
-  if (isUSDCDenominated && priceInUsd) {
-    baseAmount = priceInUsd
-  }
-
-  if (isDesktop) {
-    return (
-      <Dialog
-        open={open}
-        onOpenChange={setOpen}
-      >
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogHeader className="sr-only">
-          <VisuallyHidden>
-            <DialogTitle className="font-extended">Review Order</DialogTitle>
-            <DialogDescription>
-              Review your order before placing it.
-            </DialogDescription>
-          </VisuallyHidden>
-        </DialogHeader>
-        <DialogContent
-          className="p-0 sm:max-w-[425px]"
-          onOpenAutoFocus={(e) => {
-            e.preventDefault()
-          }}
-        >
-          {step === Step.DEFAULT && (
-            <DefaultStep
-              {...props}
-              amount={baseAmount}
-            />
-          )}
-          {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
-        </DialogContent>
-      </Dialog>
-    )
-  }
   return (
-    <Drawer
+    <Dialog
       open={open}
       onOpenChange={setOpen}
     >
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
-        {step === Step.DEFAULT && (
-          <DefaultStep
-            {...props}
-            amount={baseAmount}
-          />
-        )}
-        {step === Step.SUCCESS && (
-          <SuccessStep
-            {...props}
-            amount={baseAmount}
-          />
-        )}
-      </DrawerContent>
-    </Drawer>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent
+        className="p-0 sm:max-w-[425px]"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+        }}
+      >
+        {step === Step.DEFAULT && <DefaultStep {...props} />}
+        {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
+      </DialogContent>
+    </Dialog>
   )
 }
 

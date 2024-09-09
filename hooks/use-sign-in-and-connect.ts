@@ -12,8 +12,6 @@ export function useSignInAndConnect() {
   const { setOpen } = useModal()
   const [open, setOpenSignIn] = useState(false)
 
-  const onOpenChange = () => setOpenSignIn((open) => !open)
-
   const renegadeStatus = useStatus()
 
   const handleClick = () => {
@@ -40,5 +38,5 @@ export function useSignInAndConnect() {
     content = "Connect Wallet"
   }
 
-  return { handleClick, content, open, onOpenChange }
+  return { handleClick, content, open, onOpenChange: setOpenSignIn }
 }

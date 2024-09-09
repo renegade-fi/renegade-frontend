@@ -53,7 +53,7 @@ export default async function Page({ params }: { params: { base: string } }) {
     : false
 
   return (
-    <div className="grid min-h-screen grid-rows-[auto_1fr_auto_auto]">
+    <div className="grid min-h-screen max-w-full grid-cols-1 grid-rows-[auto_1fr_auto_auto]">
       <div className="min-h-20">
         <Header />
       </div>
@@ -64,7 +64,7 @@ export default async function Page({ params }: { params: { base: string } }) {
           isUSDCDenominated={defaultUseUSDC}
         />
       </HydrationBoundary>
-      <div className="sticky bottom-20 min-h-marquee overflow-hidden">
+      <div className="sticky bottom-20 hidden min-h-marquee overflow-hidden lg:block">
         <FavoritesBanner />
       </div>
       <div className="min-h-20">

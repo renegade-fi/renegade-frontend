@@ -55,6 +55,7 @@ const disabled_features: Partial<ChartingLibraryFeatureset>[] = [
   "show_chart_property_page",
   "header_screenshot",
   "create_volume_indicator_by_default",
+  "save_chart_properties_to_local_storage",
 ]
 
 const enabled_features = [
@@ -235,5 +236,6 @@ export const config = constructConfig({
   loading_screen,
   overrides,
   time_frames,
+  theme: "dark",
   // custom_font_family: "var(--font-sans)",
 })

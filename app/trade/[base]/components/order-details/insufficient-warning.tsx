@@ -3,10 +3,10 @@ import { AlertTriangle } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
@@ -65,21 +65,21 @@ export function InsufficientWarning({
         "flex items-center": !richColors,
       })}
     >
-      <Tooltip>
-        <TooltipTrigger>
+      <ResponsiveTooltip>
+        <ResponsiveTooltipTrigger>
           <div className={cn("flex items-center gap-2", className)}>
             <AlertTriangle className="h-4 w-4" />
             <span>Only part of the order will be filled.</span>
           </div>
-        </TooltipTrigger>
-        <TooltipContent>
+        </ResponsiveTooltipTrigger>
+        <ResponsiveTooltipContent>
           <p>
             {INSUFFICIENT_BALANCE_TOOLTIP({
               ticker: token.ticker,
             })}
           </p>
-        </TooltipContent>
-      </Tooltip>
+        </ResponsiveTooltipContent>
+      </ResponsiveTooltip>
     </div>
   )
 }

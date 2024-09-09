@@ -12,13 +12,13 @@ import { InsufficientWarning } from "@/app/trade/[base]/components/order-details
 import { OrderStatusIndicator } from "@/app/trade/[base]/components/order-details/order-status-indicator"
 
 import { Progress } from "@/components/ui/progress"
+import {
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
@@ -103,18 +103,18 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="flex p-6">
+      <div className="flex flex-col gap-4 p-6 lg:flex-row">
         <OrderStatusIndicator order={order} />
         {isOpen && (
           <InsufficientWarning
             amount={order.data.amount}
             baseMint={order.data.base_mint}
-            className="text-sm font-bold"
+            className="text-sm font-bold tracking-tighter lg:tracking-normal"
             quoteMint={order.data.quote_mint}
             side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
           />
         )}
-        <div className="ml-auto flex">
+        <div className="flex lg:ml-auto">
           <CancelButton
             id={order.id}
             isDisabled={!isCancellable}
@@ -129,36 +129,33 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         </div>
       </div>
       <Separator />
-      <div className="flex h-24 items-center">
-        <div className="flex-1 px-6">
-          <div className="text-sm">{formatOrderState[order.state]}</div>
-          <Tooltip>
-            <TooltipTrigger>
-              <div className="text-sm">{title}</div>
-            </TooltipTrigger>
-            <TooltipContent>
+      <div className="flex flex-col items-center lg:flex-row lg:text-sm">
+        <div className="w-full flex-1 px-6 py-4 lg:w-auto lg:border-r">
+          <div>{formatOrderState[order.state]}</div>
+          <ResponsiveTooltip>
+            <ResponsiveTooltipTrigger>
+              <div>{title}</div>
+            </ResponsiveTooltipTrigger>
+            <ResponsiveTooltipContent>
               <p className="font-sans">{titleLong}</p>
-            </TooltipContent>
-          </Tooltip>
-          <div className="text-sm">Midpoint Peg</div>
+            </ResponsiveTooltipContent>
+          </ResponsiveTooltip>
+          <div>Midpoint Peg</div>
         </div>
-        <Separator
-          className="h-full"
-          orientation="vertical"
-        />
-        <div className="flex-1 px-6">
-          <div className="text-sm">Filled</div>
-          <Tooltip>
-            <TooltipTrigger>
+        <Separator className="lg:hidden" />
+        <div className="w-full flex-1 px-6 py-4 lg:w-auto">
+          <div>Filled</div>
+          <ResponsiveTooltip>
+            <ResponsiveTooltipTrigger>
               <span className="flex justify-center">{filledLabel}</span>
-            </TooltipTrigger>
-            <TooltipContent>
+            </ResponsiveTooltipTrigger>
+            <ResponsiveTooltipContent>
               <p className="font-sans">{filledLabelLong}</p>
-            </TooltipContent>
-          </Tooltip>
+            </ResponsiveTooltipContent>
+          </ResponsiveTooltip>
           <div className="flex items-center gap-2">
             <Progress value={percentageFilled} />
-            <div className="text-sm">{percentageFilledLabel}</div>
+            <div>{percentageFilledLabel}</div>
           </div>
         </div>
       </div>

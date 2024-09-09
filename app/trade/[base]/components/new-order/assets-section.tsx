@@ -1,14 +1,14 @@
-import { Token, useStatus, useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
@@ -56,9 +56,11 @@ export function AssetsSectionWithDepositButton({
 export function AssetsSection({
   base,
   quote = "USDC",
+  disabled = false,
 }: {
   base: string
   quote?: string
+  disabled?: boolean
 }) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker(quote)
@@ -116,21 +118,22 @@ export function AssetsSection({
               disabled={renegadeStatus !== "in relayer"}
               variant="link"
               onClick={(e) => {
-                if (renegadeStatus !== "in relayer") e.preventDefault()
+                if (renegadeStatus !== "in relayer" || disabled)
+                  e.preventDefault()
               }}
             >
               {base}
             </Button>
           </TransferDialog>
         </div>
-        <Tooltip>
-          <TooltipTrigger>
+        <ResponsiveTooltip>
+          <ResponsiveTooltipTrigger>
             <span>{formattedBaseUsdPriceLabel}</span>
-          </TooltipTrigger>
-          <TooltipContent side="right">
+          </ResponsiveTooltipTrigger>
+          <ResponsiveTooltipContent side="right">
             <p>{`${formattedBaseBalance} ${base}`}</p>
-          </TooltipContent>
-        </Tooltip>
+          </ResponsiveTooltipContent>
+        </ResponsiveTooltip>
       </div>
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
@@ -144,21 +147,22 @@ export function AssetsSection({
               disabled={renegadeStatus !== "in relayer"}
               variant="link"
               onClick={(e) => {
-                if (renegadeStatus !== "in relayer") e.preventDefault()
+                if (renegadeStatus !== "in relayer" || disabled)
+                  e.preventDefault()
               }}
             >
               {quote}
             </Button>
           </TransferDialog>
         </div>
-        <Tooltip>
-          <TooltipTrigger>
+        <ResponsiveTooltip>
+          <ResponsiveTooltipTrigger>
             <span>{formattedQuoteUsdPriceLabel}</span>
-          </TooltipTrigger>
-          <TooltipContent side="right">
+          </ResponsiveTooltipTrigger>
+          <ResponsiveTooltipContent side="right">
             <p>{`${formattedQuoteBalance} ${quote}`}</p>
-          </TooltipContent>
-        </Tooltip>
+          </ResponsiveTooltipContent>
+        </ResponsiveTooltip>
       </div>
     </>
   )

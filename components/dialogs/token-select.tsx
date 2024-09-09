@@ -21,6 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useMediaQuery } from "@/hooks/use-media-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
@@ -77,6 +78,8 @@ export function TokenSelect({
       ? l2Balances
       : renegadeBalances
 
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
+
   return (
     <Popover
       modal
@@ -97,7 +100,10 @@ export function TokenSelect({
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent
+        className="p-0"
+        onOpenAutoFocus={(e) => (!isDesktop ? e.preventDefault() : undefined)}
+      >
         <Command
           filter={(value, search) => {
             if (!isAddress(value)) return 0

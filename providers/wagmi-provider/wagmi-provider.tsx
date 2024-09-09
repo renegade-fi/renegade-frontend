@@ -64,7 +64,6 @@ export function WagmiProvider({
   cookie?: string
 }) {
   const [open, setOpen] = React.useState(false)
-  const onOpenChange = () => setOpen(!open)
   const initialState = cookieToInitialState(config, cookie)
   return (
     <Provider
@@ -80,14 +79,14 @@ export function WagmiProvider({
             enforceSupportedChains: true,
           }}
           theme="midnight"
-          onConnect={onOpenChange}
+          onConnect={() => setOpen(true)}
         >
           {children}
           <SyncRenegadeWagmiState />
         </ConnectKitProvider>
         <SignInDialog
           open={open}
-          onOpenChange={onOpenChange}
+          onOpenChange={setOpen}
         />
       </QueryProvider>
     </Provider>

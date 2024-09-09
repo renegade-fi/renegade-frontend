@@ -5,12 +5,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { useStatus } from "@renegade-fi/react"
-import { ChevronDown, Ellipsis } from "lucide-react"
+import { ChevronDown, Ellipsis, Menu } from "lucide-react"
 import { mainnet } from "viem/chains"
 import { createConfig, http, useAccount, useEnsName } from "wagmi"
 
 import { AccountDropdown } from "@/app/components/account-menu"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
+import { MobileNavSheet } from "@/app/components/mobile-nav-sheet"
 import { SettingsPopover } from "@/app/trade/[base]/components/settings-popover"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
@@ -42,8 +43,52 @@ export function Header() {
   })
   return (
     <header className="fixed top-0 z-10 min-w-full border-b bg-background">
-      <div className="grid min-h-20 grid-cols-3 items-center">
-        <div className="w-fit pl-6">
+      <div className="flex min-h-20 items-center justify-between pl-2 pr-4 lg:hidden">
+        <div className="flex items-center gap-2">
+          <MobileNavSheet>
+            <Button
+              size="icon"
+              variant="ghost"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </MobileNavSheet>
+
+          <Image
+            priority
+            alt="logo"
+            height="28"
+            src="/glyph_dark.svg"
+            width="24"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          {address ? (
+            <AccountDropdown>
+              <Button variant="outline">
+                {ensName
+                  ? ensName
+                  : `${address.slice(0, 6)}...${address.slice(-2)}`}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </AccountDropdown>
+          ) : (
+            <ConnectWalletButton className="text-sm" />
+          )}
+          {status === "in relayer" && (
+            <SettingsPopover>
+              <Button
+                size="icon"
+                variant="outline"
+              >
+                <Ellipsis className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </SettingsPopover>
+          )}
+        </div>
+      </div>
+      <div className="hidden min-h-20 grid-cols-3 items-center px-6 lg:grid">
+        <div className="w-fit">
           <ContextMenu>
             <ContextMenuTrigger>
               <Link href="/trade">
@@ -105,7 +150,7 @@ export function Header() {
             Stats
           </Link>
         </nav>
-        <div className="flex items-center space-x-4 justify-self-end pr-4">
+        <div className="flex items-center space-x-4 justify-self-end">
           {status === "in relayer" && (
             <>
               {/* <TaskHistorySheet>
@@ -142,7 +187,6 @@ export function Header() {
           {status === "in relayer" && (
             <SettingsPopover>
               <Button
-                className=""
                 size="icon"
                 variant="outline"
               >

@@ -7,7 +7,7 @@ import { Repeat } from "lucide-react"
 import {
   NewOrderConfirmationProps,
   useStepper,
-} from "@/components/dialogs/new-order-stepper/new-order-stepper"
+} from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { GlowText } from "@/components/glow-text"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -31,7 +31,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatCurrency } from "@/lib/format"
 
 export function SuccessStep(props: NewOrderConfirmationProps) {
-  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { taskId } = useStepper()
   const [status, setStatus] = React.useState<"pending" | "success" | "error">(
     "pending",
@@ -98,7 +98,7 @@ export function SuccessStep(props: NewOrderConfirmationProps) {
       <DrawerHeader className="text-left">
         <DrawerTitle className="font-extended">{title}</DrawerTitle>
       </DrawerHeader>
-      <ScrollArea className="max-h-[60vh] overflow-auto">
+      <ScrollArea className="max-h-[60dvh] overflow-auto">
         <div className="space-y-6 p-4">
           <OrderSuccessSection {...props} />
         </div>

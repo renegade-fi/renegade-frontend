@@ -1,7 +1,7 @@
 import localFont from "next/font/local"
 import { headers } from "next/headers"
 import Script from "next/script"
-import { userAgent } from "next/server"
+import { Viewport } from "next/types"
 
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
@@ -15,6 +15,7 @@ import { InvalidateQueries } from "@/app/components/invalidate-queries"
 import { OrderToaster } from "@/app/components/order-toaster"
 import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
+import { Zendesk } from "@/app/components/zendesk"
 
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -66,6 +67,17 @@ export const metadata = constructMetadata({
     : "Renegade | On-Chain Dark Pool",
 })
 
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
+  viewportFit: "cover",
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -75,12 +87,10 @@ export default async function RootLayout({
     renegadeConfig,
     headers().get("cookie"),
   )
-  const { device } = userAgent({ headers: headers() })
-  const prices = new Map()
   return (
     <html lang="en">
       <body
-        className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
+        className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
       >
         <ThemeProvider
           disableTransitionOnChange
@@ -101,7 +111,6 @@ export default async function RootLayout({
               </TooltipProvider>
               <Toaster
                 className="pointer-events-auto"
-                position="bottom-center"
                 theme="light"
                 toastOptions={{ duration: 5000 }}
                 visibleToasts={MAX_ORDERS}
@@ -117,11 +126,7 @@ export default async function RootLayout({
           </RenegadeProvider>
         </ThemeProvider>
         <Analytics />
-        <Script
-          id="ze-snippet"
-          src="https://static.zdassets.com/ekr/snippet.js?key=0093b78b-22e2-475a-a370-a15a4b7bf55c"
-          strategy="lazyOnload"
-        />
+        <Zendesk />
       </body>
     </html>
   )

@@ -61,7 +61,11 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     accessorKey: "state",
     header: () => <div>Status</div>,
     cell: ({ row }) => {
-      return <div>{formatOrderState[row.getValue<OrderState>("status")]}</div>
+      return (
+        <div className="whitespace-nowrap">
+          {formatOrderState[row.getValue<OrderState>("status")]}
+        </div>
+      )
     },
     filterFn: (row, _, filterValue) => {
       if (filterValue === "open") {
@@ -93,7 +97,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     accessorFn: (row) => {
       return row.data.base_mint
     },
-    header: () => <div>Asset</div>,
+    header: () => <div className="pr-7">Asset</div>,
     cell: ({ row }) => {
       const mint = row.getValue<`0x${string}`>("mint")
       const token = Token.findByAddress(mint)
@@ -227,7 +231,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
         <>
           {!row.original.fills.length &&
           row.original.state !== OrderState.Cancelled ? (
-            <div>
+            <div className="whitespace-nowrap">
               Finding counterparties
               <AnimatedEllipsis />
             </div>
@@ -325,7 +329,9 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
       const timestamp = row.getValue<bigint>("timestamp")
       const formatted = formatTimestamp(Number(timestamp))
 
-      return <div className="pr-4 text-right font-medium">{formatted}</div>
+      return (
+        <div className="whitespace-nowrap pr-4 text-right">{formatted}</div>
+      )
     },
   },
   // {

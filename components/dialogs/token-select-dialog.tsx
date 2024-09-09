@@ -2,7 +2,7 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useStatus, useBackOfQueueWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
 import { Star } from "lucide-react"
 import { useDebounceValue, useLocalStorage } from "usehooks-ts"
 import { fromHex } from "viem/utils"
@@ -19,10 +19,8 @@ import {
 } from "@/components/ui/dialog"
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -45,7 +43,7 @@ export function TokenSelectDialog({
   const [open, setOpen] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
   const [debouncedSearchTerm] = useDebounceValue(searchTerm, 300)
-  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
 
   if (isDesktop) {
     return (
@@ -59,7 +57,7 @@ export function TokenSelectDialog({
             <DialogTitle className="font-extended">Select Token</DialogTitle>
             <DialogDescription>
               <Input
-                placeholder="Search name"
+                placeholder="Search tokens"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -84,14 +82,18 @@ export function TokenSelectDialog({
       onOpenChange={setOpen}
     >
       <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle className="font-extended">Select Token</DrawerTitle>
+      <DrawerContent className="max-h-[90dvh]">
+        <DrawerHeader className="space-y-4 text-left">
+          <DrawerTitle>Select Token</DrawerTitle>
           <DrawerDescription>
-            <Input placeholder="Search name" />
+            <Input
+              placeholder="Search tokens"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </DrawerDescription>
         </DrawerHeader>
-        <ScrollArea className="max-h-[50vh] overflow-auto">
+        <ScrollArea className="max-h-[50dvh] overflow-auto">
           <TokenList
             enabled={open}
             searchTerm={debouncedSearchTerm}
@@ -99,11 +101,6 @@ export function TokenSelectDialog({
             onClose={() => setOpen(false)}
           />
         </ScrollArea>
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   )

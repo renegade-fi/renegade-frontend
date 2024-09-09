@@ -7,11 +7,12 @@ import { toast } from "sonner"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 import { NoBalanceSlotWarning } from "@/app/trade/[base]/components/new-order/no-balance-slot-warning"
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning"
+import { orderFormEvents } from "@/app/trade/[base]/events/order-events"
 
 import {
   NewOrderConfirmationProps,
   useStepper,
-} from "@/components/dialogs/new-order-stepper/new-order-stepper"
+} from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,14 +21,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import {
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
@@ -40,7 +40,6 @@ import { decimalCorrectPrice } from "@/lib/utils"
 
 export function DefaultStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
-  const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const baseToken = Token.findByTicker(props.base)
   const quoteToken = Token.findByTicker("USDC")
@@ -70,77 +69,55 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
         toast.loading(message, {
           id: data.taskId,
         })
+        orderFormEvents.emit("reset")
       },
     },
   })
 
-  if (isDesktop) {
-    return (
-      <>
-        <DialogHeader className="space-y-4 px-6 pt-6">
-          <DialogTitle className="font-extended">Review Order</DialogTitle>
-          <VisuallyHidden>
-            <DialogDescription>
-              Review your order before placing it.
-            </DialogDescription>
-          </VisuallyHidden>
-        </DialogHeader>
-        <ScrollArea className="max-h-[70vh]">
-          <div className="space-y-6 p-6">
-            <NewOrderForm {...props} />
-          </div>
-        </ScrollArea>
-        <DialogFooter>
-          <Button
-            autoFocus
-            className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
-            size="xl"
-            variant="outline"
-            onClick={() => {
-              if (request instanceof Error) {
-                toast.error(request.message)
-                return
-              }
-              createOrder({ request })
-            }}
-          >
-            {props.isSell ? "Sell" : "Buy"} {props.base}
-          </Button>
-        </DialogFooter>
-      </>
-    )
-  }
-
   return (
     <>
-      <DrawerHeader className="text-left">
-        <DrawerTitle className="font-extended">Review Order</DrawerTitle>
-      </DrawerHeader>
-      <ScrollArea className="max-h-[60vh] overflow-auto">
-        <div className="space-y-6 p-4">
-          <NewOrderForm {...props} />
+      <DialogHeader className="space-y-4 px-6 pt-6">
+        <DialogTitle className="font-extended">Review Order</DialogTitle>
+        <VisuallyHidden>
+          <DialogDescription>
+            Review your order before placing it.
+          </DialogDescription>
+        </VisuallyHidden>
+      </DialogHeader>
+      <ScrollArea className="max-h-[70vh]">
+        <div className="space-y-6 p-6">
+          <ConfirmOrderDisplay {...props} />
         </div>
       </ScrollArea>
-      <DrawerFooter className="pt-2">
+      <DialogFooter>
         <Button
           autoFocus
+          className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
+          size="xl"
           variant="outline"
-          onClick={onNext}
+          onClick={() => {
+            if (request instanceof Error) {
+              toast.error(request.message)
+              return
+            }
+            createOrder({ request })
+          }}
         >
           {props.isSell ? "Sell" : "Buy"} {props.base}
         </Button>
-      </DrawerFooter>
+      </DialogFooter>
     </>
   )
 }
 
-function NewOrderForm({
+export function ConfirmOrderDisplay({
   base,
   isSell,
   amount,
   onSuccess,
   ...fees
 }: NewOrderConfirmationProps) {
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const token = Token.findByTicker(base)
   const parsedAmount = safeParseUnits(amount, token.decimals)
   const formattedAmount = formatNumber(
@@ -170,28 +147,30 @@ function NewOrderForm({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Receive at least</div>
-          <div className="">--</div>
+          <div >--</div>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Type</div>
-          <div className="">Midpoint Peg</div>
+          <div >Midpoint Peg</div>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground">Est. time to fill</div>
-          <div className="">--</div>
+          <div >--</div>
         </div>
       </div> */}
       <Separator />
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Tooltip>
-            <TooltipTrigger onClick={(e) => e.preventDefault()}>
+          <ResponsiveTooltip>
+            <ResponsiveTooltipTrigger
+              onClick={(e) => isDesktop && e.preventDefault()}
+            >
               <span className="text-muted-foreground">Network costs</span>
-            </TooltipTrigger>
-            <TooltipContent>
+            </ResponsiveTooltipTrigger>
+            <ResponsiveTooltipContent>
               <p>{GAS_FEE_TOOLTIP}</p>
-            </TooltipContent>
-          </Tooltip>
+            </ResponsiveTooltipContent>
+          </ResponsiveTooltip>
           <div>$0.00</div>
         </div>
         <FeesSection

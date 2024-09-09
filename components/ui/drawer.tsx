@@ -6,10 +6,11 @@ import { cn } from '@/lib/utils'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
 const Drawer = ({
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root
+  scrollLockTimeout={0}
     shouldScaleBackground={shouldScaleBackground}
     {...props}
   />
@@ -94,7 +95,7 @@ const DrawerTitle = React.forwardRef<
   <DrawerPrimitive.Title
     ref={ref}
     className={cn(
-      'text-lg font-semibold leading-none tracking-tight',
+      'text-lg font-extended',
       className,
     )}
     {...props}

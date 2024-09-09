@@ -23,7 +23,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 
+import { useMediaQuery } from "@/hooks/use-media-query"
 import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 import {
   CREATE_WALLET_ERROR,
@@ -40,7 +49,7 @@ export function SignInDialog({
   onOpenChange,
 }: {
   open: boolean
-  onOpenChange: () => void
+  onOpenChange: (open: boolean) => void
 }) {
   const {
     signMessage,
@@ -74,7 +83,7 @@ export function SignInDialog({
               toast.success("Successfully signed in", {
                 id: toastId,
               })
-              onOpenChange()
+              onOpenChange(false)
               setIsConnecting(false)
               return
             }
@@ -94,7 +103,7 @@ export function SignInDialog({
             toast.promise(
               createWallet(config)
                 .then(() => {
-                  onOpenChange()
+                  onOpenChange(false)
                 })
                 .finally(() => {
                   setIsConnecting(false)
@@ -114,7 +123,7 @@ export function SignInDialog({
             toast.promise(
               lookupWallet(config)
                 .then(() => {
-                  onOpenChange()
+                  onOpenChange(false)
                 })
                 .finally(() => {
                   setIsConnecting(false)
@@ -139,7 +148,74 @@ export function SignInDialog({
         },
       },
     )
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
 
+  if (isDesktop) {
+    return (
+      <Dialog
+        open={open}
+        onOpenChange={onOpenChange}
+      >
+        <DialogContent className="gap-0 p-0 sm:max-w-[425px]">
+          <DialogHeader className="p-6">
+            <DialogTitle className="font-extended">
+              Unlock your Wallet
+            </DialogTitle>
+            <DialogDescription>
+              To trade on Renegade, we require a one-time signature to create or
+              find your wallet on-chain.
+            </DialogDescription>
+          </DialogHeader>
+          <SignInContent />
+          <DialogFooter>
+            <Button
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              disabled={isConnecting || signStatus === "pending"}
+              size="xl"
+              variant="outline"
+              onClick={handleClick}
+            >
+              {signStatus === "pending" || isConnecting
+                ? "Confirm in wallet"
+                : "Sign in to Renegade"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle>Unlock your Wallet</DrawerTitle>
+          <DrawerDescription>
+            To trade on Renegade, we require a one-time signature to create or
+            find your wallet on-chain.
+          </DrawerDescription>
+        </DrawerHeader>
+        <SignInContent />
+        <DrawerFooter>
+          <Button
+            className="font-extended"
+            disabled={isConnecting || signStatus === "pending"}
+            onClick={handleClick}
+          >
+            {signStatus === "pending" || isConnecting
+              ? "Confirm in wallet"
+              : "Sign in to Renegade"}
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  )
+}
+
+function SignInContent() {
   const [rememberMe, setRememberMe] = useLocalStorage(
     STORAGE_REMEMBER_ME,
     false,
@@ -147,53 +223,25 @@ export function SignInDialog({
       initializeWithValue: false,
     },
   )
-
   return (
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-    >
-      <DialogContent className="gap-0 p-0 sm:max-w-[425px]">
-        <DialogHeader className="p-6">
-          <DialogTitle className="font-extended">
-            Unlock your Wallet
-          </DialogTitle>
-          <DialogDescription>
-            To trade on Renegade, we require a one-time signature to create or
-            find your wallet on-chain.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-center space-x-2 px-6 pb-6">
-          <Checkbox
-            checked={rememberMe}
-            id="remember-me"
-            onCheckedChange={(checked) => {
-              if (typeof checked === "boolean") {
-                setRememberMe(checked)
-              }
-            }}
-          />
-          <label
-            className="text-sm font-medium leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            htmlFor="remember-me"
-          >
-            Remember me
-          </label>
-        </div>
-        <DialogFooter>
-          <Button
-            className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-            disabled={isConnecting || signStatus === "pending"}
-            size="xl"
-            variant="outline"
-            onClick={handleClick}
-          >
-            {signStatus === "pending" || isConnecting
-              ? "Confirm in wallet"
-              : "Sign in to Renegade"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      <div className="flex items-center space-x-2 px-6 pb-6">
+        <Checkbox
+          checked={rememberMe}
+          id="remember-me"
+          onCheckedChange={(checked) => {
+            if (typeof checked === "boolean") {
+              setRememberMe(checked)
+            }
+          }}
+        />
+        <label
+          className="text-sm font-medium leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          htmlFor="remember-me"
+        >
+          Remember me
+        </label>
+      </div>
+    </>
   )
 }

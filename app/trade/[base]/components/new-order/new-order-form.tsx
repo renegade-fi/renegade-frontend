@@ -13,11 +13,9 @@ import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sectio
 import { MaxOrdersWarning } from "@/app/trade/[base]/components/new-order/max-orders-warning"
 import { NoBalanceSlotWarning } from "@/app/trade/[base]/components/new-order/no-balance-slot-warning"
 import { useIsMaxOrders } from "@/app/trade/[base]/components/new-order/use-is-max-orders"
+import { orderFormEvents } from "@/app/trade/[base]/events/order-events"
 
-import {
-  NewOrderConfirmationProps,
-  NewOrderStepper,
-} from "@/components/dialogs/new-order-stepper/new-order-stepper"
+import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
 import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"
@@ -65,9 +63,11 @@ export type NewOrderFormProps = z.infer<typeof formSchema>
 export function NewOrderForm({
   base,
   isUSDCDenominated,
+  onSubmit,
 }: {
   base: string
   isUSDCDenominated?: boolean
+  onSubmit: (values: NewOrderConfirmationProps) => void
 }) {
   const { side, setSide } = useSide()
 
@@ -84,7 +84,6 @@ export function NewOrderForm({
     defaultValues,
   })
   const fees = usePredictedFees(form.watch())
-  const [open, setOpen] = React.useState(false)
   const { priceInUsd, priceInBase } = useOrderValue(form.watch())
   const formattedOrderValue = Number(priceInUsd)
     ? formatCurrencyFromString(priceInUsd)
@@ -121,14 +120,15 @@ export function NewOrderForm({
     }
   }, [form])
 
-  const [lockedFormValues, setLockedFormValues] =
-    React.useState<NewOrderConfirmationProps>({
-      ...defaultValues,
-      ...fees,
+  React.useEffect(() => {
+    const unbind = orderFormEvents.on("reset", () => {
+      form.reset()
     })
 
-  // TODO: Does this need more precision?
-  function onSubmit(values: z.infer<typeof formSchema>) {
+    return unbind
+  }, [form])
+
+  function handleSubmit(values: z.infer<typeof formSchema>) {
     if (parseFloat(priceInUsd) < 1) {
       form.setError("amount", {
         message: "Order value must be at least 1 USDC",
@@ -138,40 +138,100 @@ export function NewOrderForm({
 
     form.trigger().then((isValid) => {
       if (isValid) {
-        setLockedFormValues({
+        onSubmit({
           ...values,
           ...fees,
           amount: values.isUSDCDenominated ? priceInBase : values.amount,
         })
-        setOpen(true)
       }
     })
   }
 
   return (
-    <>
-      <Form {...form}>
-        <form
-          className="space-y-6 px-6"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
+    <Form {...form}>
+      <form
+        className="space-y-6 px-6"
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
+        <div className="flex">
+          <FormField
+            control={form.control}
+            name="isSell"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormControl>
+                  <Button
+                    className="w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
+                    size="xl"
+                    type="button"
+                    variant="outline"
+                    {...field}
+                    value={""}
+                    onClick={() => field.onChange(!field.value)}
+                  >
+                    {field.value ? "Sell" : "Buy"}
+                    <ArrowRightLeft className="ml-2 h-5 w-5" />
+                  </Button>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <TokenSelectDialog ticker={base}>
+            <Button
+              className="hidden flex-1 border-l-0 font-serif text-2xl font-bold lg:inline-flex"
+              size="xl"
+              variant="outline"
+            >
+              <TokenIcon
+                className="mr-2"
+                size={22}
+                ticker={base}
+              />
+              {base}
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </TokenSelectDialog>
+        </div>
+        <div>
+          <Label className="font-sans text-muted-foreground">Amount</Label>
           <div className="flex">
             <FormField
               control={form.control}
-              name="isSell"
+              name="amount"
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
+                    <NumberInput
+                      className="h-12 rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
+                      placeholder="0.00"
+                      {...field}
+                      type="number"
+                      value={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isUSDCDenominated"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
                     <Button
-                      className="w-full font-serif text-2xl font-bold"
-                      size="xl"
+                      className="h-12 flex-1 rounded-none px-2 py-0 font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       {...field}
                       value={""}
-                      onClick={() => field.onChange(!field.value)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        field.onChange(!field.value)
+                      }}
                     >
-                      {field.value ? "Sell" : "Buy"}
+                      {field.value ? "USDC" : base}
                       <ArrowRightLeft className="ml-2 h-5 w-5" />
                     </Button>
                   </FormControl>
@@ -179,157 +239,87 @@ export function NewOrderForm({
                 </FormItem>
               )}
             />
-            <TokenSelectDialog ticker={base}>
-              <Button
-                className="flex-1 border-l-0 font-serif text-2xl font-bold"
-                size="xl"
-                variant="outline"
-              >
-                <TokenIcon
-                  className="mr-2"
-                  size={22}
-                  ticker={base}
-                />
-                {base}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TokenSelectDialog>
           </div>
+        </div>
+        <div className="grid grid-cols-3">
+          <AmountShortcutButton
+            {...form.watch()}
+            percentage={25}
+            onSetAmount={(amount) =>
+              form.setValue("amount", amount, { shouldValidate: true })
+            }
+          />
+          <AmountShortcutButton
+            {...form.watch()}
+            className="border-x-0"
+            percentage={50}
+            onSetAmount={(amount) =>
+              form.setValue("amount", amount, { shouldValidate: true })
+            }
+          />
+          <AmountShortcutButton
+            {...form.watch()}
+            percentage={100}
+            onSetAmount={(amount) =>
+              form.setValue("amount", amount, { shouldValidate: true })
+            }
+          />
+        </div>
+        <MaxOrdersWarning className="text-sm text-orange-400" />
+        <NoBalanceSlotWarning
+          className="text-sm text-orange-400"
+          isSell={form.getValues("isSell")}
+          ticker={base}
+        />
+        {status === "in relayer" ? (
           <div>
-            <Label className="font-sans text-muted-foreground">Amount</Label>
-            <div className="flex">
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <NumberInput
-                        className="h-12 rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
-                        placeholder="0.00"
-                        {...field}
-                        autoFocus
-                        type="number"
-                        value={field.value}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isUSDCDenominated"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Button
-                        className="h-12 flex-1 rounded-none px-2 py-0 font-serif text-2xl font-bold"
-                        type="button"
-                        variant="ghost"
-                        {...field}
-                        value={""}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          field.onChange(!field.value)
-                        }}
-                      >
-                        {field.value ? "USDC" : base}
-                        <ArrowRightLeft className="ml-2 h-5 w-5" />
-                      </Button>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <Button
+              className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
+              disabled={!form.formState.isValid || isMaxOrders}
+              size="xl"
+              variant="default"
+            >
+              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+            </Button>
           </div>
-          <div className="grid grid-cols-3">
-            <AmountShortcutButton
-              {...form.watch()}
-              percentage={25}
-              onSetAmount={(amount) =>
-                form.setValue("amount", amount, { shouldValidate: true })
-              }
-            />
-            <AmountShortcutButton
-              {...form.watch()}
-              className="border-x-0"
-              percentage={50}
-              onSetAmount={(amount) =>
-                form.setValue("amount", amount, { shouldValidate: true })
-              }
-            />
-            <AmountShortcutButton
-              {...form.watch()}
-              percentage={100}
-              onSetAmount={(amount) =>
-                form.setValue("amount", amount, { shouldValidate: true })
-              }
-            />
-          </div>
-          <MaxOrdersWarning className="text-sm text-orange-400" />
-          <NoBalanceSlotWarning
-            className="text-sm text-orange-400"
-            isSell={form.getValues("isSell")}
-            ticker={base}
-          />
-          {status === "in relayer" ? (
-            <div>
-              <Button
-                className="flex w-full font-serif text-2xl font-bold"
-                disabled={!form.formState.isValid || isMaxOrders}
-                size="xl"
-                variant="default"
-              >
-                {form.getValues("isSell") ? "Sell" : "Buy"} {base}
-              </Button>
-            </div>
-          ) : (
-            <ConnectButton className="flex w-full font-serif text-2xl font-bold" />
-          )}
-          <div className="space-y-3 whitespace-nowrap text-sm">
-            <div className="flex items-center justify-between">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
-                    type="button"
-                    variant="link"
+        ) : (
+          <ConnectButton className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal" />
+        )}
+        <div className="space-y-3 whitespace-nowrap text-sm">
+          <div className="flex items-center justify-between">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
+                  type="button"
+                  variant="link"
+                >
+                  <a
+                    href={`https://help.renegade.fi/hc/en-us/articles/32530574872211-How-does-Renegade-s-midpoint-peg-pricing-work`}
+                    rel="noreferrer"
+                    target="_blank"
                   >
-                    <a
-                      href={`https://help.renegade.fi/hc/en-us/articles/32530574872211-How-does-Renegade-s-midpoint-peg-pricing-work`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      Type
-                    </a>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{MIDPOINT_TOOLTIP}</p>
-                </TooltipContent>
-              </Tooltip>
-              <div>Midpoint</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="text-muted-foreground">Order Value</div>
-              <div>{formattedOrderValue}</div>
-            </div>
-            <FeesSection
-              amount={form.watch("amount")}
-              {...fees}
-            />
+                    Type
+                  </a>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{MIDPOINT_TOOLTIP}</p>
+              </TooltipContent>
+            </Tooltip>
+            <div>Midpoint</div>
           </div>
-          <NewOrderStepper
-            {...lockedFormValues}
-            open={open}
-            setOpen={setOpen}
-            onSuccess={() => form.reset()}
+          <div className="flex items-center justify-between">
+            <div className="text-muted-foreground">Order Value</div>
+            <div>{formattedOrderValue}</div>
+          </div>
+          <FeesSection
+            amount={form.watch("amount")}
+            {...fees}
           />
-        </form>
-      </Form>
-    </>
+        </div>
+      </form>
+    </Form>
   )
 }

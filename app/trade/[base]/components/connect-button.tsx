@@ -12,6 +12,7 @@ export function ConnectButton({ className }: { className?: string }) {
       <Button
         className={cn(className)}
         size="xl"
+        type="button"
         onClick={(e) => {
           e.preventDefault()
           handleClick()

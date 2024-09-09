@@ -30,7 +30,7 @@ export const columns: ColumnDef<HistoryData>[] = [
   },
   {
     accessorKey: "mint",
-    header: () => <div>Asset</div>,
+    header: () => <div className="pr-7">Asset</div>,
     cell: ({ row }) => {
       const mint = row.getValue<`0x${string}`>("mint")
       const token = Token.findByAddress(mint)
@@ -56,7 +56,9 @@ export const columns: ColumnDef<HistoryData>[] = [
   },
   {
     id: "usdValue",
-    header: () => <div className="text-right">Amount ($)</div>,
+    header: () => (
+      <div className="whitespace-nowrap text-right">Amount ($)</div>
+    ),
     cell: function Cell({ row }) {
       const mint = row.getValue<`0x${string}`>("mint")
       const token = Token.findByAddress(mint)
@@ -106,7 +108,7 @@ export const columns: ColumnDef<HistoryData>[] = [
     cell: ({ row }) => {
       const timestamp = row.getValue<number>("timestamp")
       const formatted = formatTimestamp(timestamp)
-      return <div className="text-right">{formatted}</div>
+      return <div className="whitespace-nowrap text-right">{formatted}</div>
     },
   },
 ]

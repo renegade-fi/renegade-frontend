@@ -27,7 +27,7 @@ const buttonVariants = cva(
         lg: 'h-10 rounded-md px-8',
         icon: 'h-9 w-9',
         xl: 'h-16',
-        shimmer: 'h-10 px-4',
+        shimmer: 'h-9 px-4',
       },
     },
     defaultVariants: {
