@@ -1,4 +1,4 @@
-import { NewOrderConfirmationProps } from "@/components/dialogs/new-order-stepper/new-order-stepper"
+import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 
 import { useOrderValue } from "@/hooks/use-order-value"
 

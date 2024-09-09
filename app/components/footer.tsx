@@ -26,9 +26,9 @@ import { isTestnet } from "@/lib/viem"
 export function Footer() {
   const { address } = useAccount()
   return (
-    <footer className="fixed bottom-0 z-10 min-w-full border-t bg-background">
+    <footer className="z-10 hidden min-w-full border-t bg-background lg:fixed lg:bottom-0 lg:block">
       <div className="grid min-h-20 grid-cols-2 items-center">
-        <div className="flex items-center pl-6">
+        <div className="hidden items-center pl-6 lg:flex">
           <ContextMenu>
             <ContextMenuTrigger>
               <Image
@@ -90,7 +90,7 @@ export function Footer() {
             </Tooltip>
           )}
         </div>
-        <div className="ml-auto pr-[140px] text-xs">
+        <div className="ml-2 flex text-xs lg:ml-auto lg:pr-[140px]">
           <Button
             asChild
             size="icon"

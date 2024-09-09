@@ -1,12 +1,16 @@
+import * as React from "react"
+
 import { Lock } from "lucide-react"
 
 import { AssetsSectionWithDepositButton } from "@/app/trade/[base]/components/new-order/assets-section"
 import { NewOrderForm } from "@/app/trade/[base]/components/new-order/new-order-form"
 
+import {
+  NewOrderConfirmationProps,
+  NewOrderStepper,
+} from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-
-import { Side } from "@/lib/constants/protocol"
 
 export function NewOrderPanel({
   base,
@@ -15,6 +19,15 @@ export function NewOrderPanel({
   base: string
   isUSDCDenominated?: boolean
 }) {
+  const [open, setOpen] = React.useState(false)
+  const [lockedFormValues, setLockedFormValues] =
+    React.useState<NewOrderConfirmationProps | null>(null)
+
+  const handleSubmit = (values: NewOrderConfirmationProps) => {
+    setLockedFormValues(values)
+    setOpen(true)
+  }
+
   return (
     <aside className="space-y-6">
       <div className="px-6 pt-6 text-sm">
@@ -24,7 +37,15 @@ export function NewOrderPanel({
       <NewOrderForm
         base={base}
         isUSDCDenominated={isUSDCDenominated}
+        onSubmit={handleSubmit}
       />
+      {lockedFormValues && (
+        <NewOrderStepper
+          {...lockedFormValues}
+          open={open}
+          setOpen={setOpen}
+        />
+      )}
       <div className="px-6">
         <Button
           asChild
@@ -32,10 +53,7 @@ export function NewOrderPanel({
           variant="link"
         >
           <a
-            // TODO: Add link to help center
-            href={
-              "https://help.renegade.fi/hc/en-us/articles/32760870056723-What-is-pre-trade-and-post-trade-privacy"
-            }
+            href="https://help.renegade.fi/hc/en-us/articles/32760870056723-What-is-pre-trade-and-post-trade-privacy"
             rel="noreferrer"
             target="_blank"
           >

@@ -91,14 +91,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center pb-4">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
         <div className="text-sm font-medium text-muted-foreground">
           Your deposits inside of Renegade. Only you and your connected relayer
           can see your balances.
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2 lg:ml-auto">
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Toggle
                 aria-label="Toggle USD"
                 pressed={
@@ -131,7 +131,7 @@ export function DataTable<TData, TValue>({
             </TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Toggle
                 aria-label="Show zero balances"
                 pressed={!showZeroL2Balance && !showZeroRenegadeBalance}
@@ -150,10 +150,10 @@ export function DataTable<TData, TValue>({
             </TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Toggle
                 aria-label="Toggle decimal display"
-                className="w-8 p-0 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+                className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
                 pressed={isLongFormat}
                 size="sm"
                 variant="outline"
@@ -168,7 +168,7 @@ export function DataTable<TData, TValue>({
           </Tooltip>
         </div>
       </div>
-      <div className="border">
+      <div className="mt-2 border lg:mt-4">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

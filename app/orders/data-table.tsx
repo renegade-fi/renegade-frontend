@@ -171,7 +171,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center gap-4 pb-4">
+      <div className="flex flex-wrap items-center gap-2 lg:gap-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <TableSelect
           placeholder="Status"
@@ -206,19 +206,19 @@ export function DataTable<TData, TValue>({
           </Button>
         ) : null}
         <Button
-          className="ml-auto px-0 text-muted-foreground"
+          className="text-muted-foreground sm:ml-auto"
           disabled={isDisabled}
           size="sm"
-          variant="link"
+          variant="outline"
           onClick={handleCancelAllOrders}
         >
           Cancel all open orders
         </Button>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Toggle
               aria-label="Toggle decimal display"
-              className="w-8 p-0 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+              className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
               pressed={isLongFormat}
               size="sm"
               variant="outline"
@@ -232,7 +232,7 @@ export function DataTable<TData, TValue>({
           </TooltipContent>
         </Tooltip>
       </div>
-      <div className="border">
+      <div className="mt-2 border lg:mt-4">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

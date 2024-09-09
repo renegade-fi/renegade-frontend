@@ -28,7 +28,7 @@ export function OrderStatusIndicator({ order }: { order: OrderMetadata }) {
           "text-green-price": order.state === OrderState.Filled,
         })}
       />
-      <div className="flex-1 border-0 text-sm font-bold">
+      <div className="flex-1 border-0 text-sm font-bold tracking-tighter lg:tracking-normal">
         {status.toUpperCase()}
       </div>
     </div>

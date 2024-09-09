@@ -40,7 +40,7 @@ export function AccountDropdown({ children }: { children: React.ReactNode }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent>
         <DropdownMenuLabel>
           <Tooltip>
             <TooltipTrigger asChild>

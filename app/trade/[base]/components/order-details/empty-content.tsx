@@ -8,12 +8,12 @@ import { InsufficientWarning } from "@/app/trade/[base]/components/order-details
 import { OrderStatusIndicator } from "@/app/trade/[base]/components/order-details/order-status-indicator"
 
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
+import { Separator } from "@/components/ui/separator"
 
 import { Side } from "@/lib/constants/protocol"
 import { formatNumber, formatOrderState } from "@/lib/format"
@@ -44,18 +44,18 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
 
   return (
     <>
-      <div className="flex p-6">
+      <div className="flex flex-col gap-4 p-6 lg:flex-row">
         <OrderStatusIndicator order={order} />
         {isOpen && (
           <InsufficientWarning
             amount={order.data.amount}
             baseMint={order.data.base_mint}
-            className="text-sm font-bold"
+            className="text-sm font-bold tracking-tighter lg:tracking-normal"
             quoteMint={order.data.quote_mint}
             side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
           />
         )}
-        <div className="ml-auto flex">
+        <div className="flex lg:ml-auto">
           <CancelButton
             id={order.id}
             isDisabled={!isCancellable}
@@ -64,22 +64,22 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
       </div>
       <Separator />
       <div className="flex h-24 items-center">
-        <div className="flex-1 px-6">
-          <div className="text-sm">{formatOrderState[order.state]}</div>
-          <Tooltip>
-            <TooltipTrigger>
-              <div className="text-sm">{title}</div>
-            </TooltipTrigger>
-            <TooltipContent>
+        <div className="flex-1 px-6 py-4 lg:text-sm">
+          <div>{formatOrderState[order.state]}</div>
+          <ResponsiveTooltip>
+            <ResponsiveTooltipTrigger>
+              <div>{title}</div>
+            </ResponsiveTooltipTrigger>
+            <ResponsiveTooltipContent>
               <p className="font-sans">{titleLong}</p>
-            </TooltipContent>
-          </Tooltip>
-          <div className="text-sm">Midpoint Peg</div>
+            </ResponsiveTooltipContent>
+          </ResponsiveTooltip>
+          <div>Midpoint Peg</div>
         </div>
       </div>
       <Separator />
-      <div className="grid h-[500px] place-items-center">
-        <div className="flex flex-col items-center gap-10">
+      <div className="grid h-[500px] place-items-center p-4">
+        <div className="flex flex-col items-center gap-10 text-pretty text-center">
           <Image
             priority
             alt="logo"
@@ -93,7 +93,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
           </div>
           <Button
             asChild
-            className="p-0 text-sm text-muted-foreground"
+            className="p-0 text-muted-foreground"
             variant="link"
           >
             <a

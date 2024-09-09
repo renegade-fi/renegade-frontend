@@ -17,10 +17,10 @@ import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
 
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
 
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
@@ -157,36 +157,36 @@ export function PageClient() {
   }, [transferHistory])
 
   return (
-    <main>
-      <div className="container">
-        <div className="mt-12">
-          <h1 className="font-serif text-3xl font-bold leading-normal">
-            Assets
-          </h1>
-          <AssetTable
-            columns={assetColumns}
-            data={balances}
-            setShowZeroL2Balance={setShowZeroL2Balance}
-            setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
-            showZeroL2Balance={showZeroL2Balance}
-            showZeroRenegadeBalance={showZeroRenegadeBalance}
-          />
-          <Tooltip>
-            <TooltipTrigger>
-              <span className="mt-4 flex items-center text-xs text-muted-foreground">
-                <Info className="mr-1 h-3 w-3" />
-                Where are my assets?
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-sans">{ASSETS_TOOLTIP}</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-        <div className="mt-20">
-          <h1 className="font-serif text-3xl font-bold leading-normal">
-            Transfer History
-          </h1>
+    <main className="container px-4 lg:px-8">
+      <div className="mt-12">
+        <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
+          Assets
+        </h1>
+        <AssetTable
+          columns={assetColumns}
+          data={balances}
+          setShowZeroL2Balance={setShowZeroL2Balance}
+          setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
+          showZeroL2Balance={showZeroL2Balance}
+          showZeroRenegadeBalance={showZeroRenegadeBalance}
+        />
+        <ResponsiveTooltip>
+          <ResponsiveTooltipTrigger>
+            <span className="mt-4 flex cursor-pointer items-center text-xs text-muted-foreground">
+              <Info className="mr-1 h-3 w-3" />
+              Where are my assets?
+            </span>
+          </ResponsiveTooltipTrigger>
+          <ResponsiveTooltipContent>
+            <p className="font-sans">{ASSETS_TOOLTIP}</p>
+          </ResponsiveTooltipContent>
+        </ResponsiveTooltip>
+      </div>
+      <div className="mt-20">
+        <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
+          Transfer History
+        </h1>
+        <div className="mt-2 lg:mt-4">
           <TransferHistoryTable
             columns={historyColumns}
             data={historyData}

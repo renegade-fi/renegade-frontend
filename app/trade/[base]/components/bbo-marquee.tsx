@@ -10,20 +10,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol"
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips"
 import { remapToken } from "@/lib/token"
-
-const exchanges: Exchange[] = ["binance", "coinbase", "kraken", "okx"]
-const names: Record<Exchange, string> = {
-  binance: "Binance",
-  coinbase: "Coinbase",
-  kraken: "Kraken",
-  okx: "OKX",
-}
+import { constructExchangeUrl } from "@/lib/utils"
 
 export function BBOMarquee({ base }: { base: string }) {
   return (
-    <div className="grid min-h-marquee grid-cols-[0.5fr_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center whitespace-nowrap border-b border-border font-extended text-sm">
+    <div className="hidden min-h-marquee grid-cols-[0.5fr_6px_1fr_6px_1fr_6px_1fr_6px_1fr] items-center whitespace-nowrap border-b border-border font-extended text-sm lg:grid">
       <Tooltip>
         <TooltipTrigger>
           <span className="flex justify-center">BBO Feeds</span>
@@ -32,7 +26,7 @@ export function BBOMarquee({ base }: { base: string }) {
           <p className="font-sans">{BBO_TOOLTIP}</p>
         </TooltipContent>
       </Tooltip>
-      {exchanges.map((exchange) => (
+      {EXCHANGES.map((exchange) => (
         <Fragment key={exchange}>
           <span className="text-xs">•</span>
           <a
@@ -41,7 +35,7 @@ export function BBOMarquee({ base }: { base: string }) {
             target="_blank"
           >
             <div className="flex items-baseline justify-center gap-4 leading-none">
-              <span>{names[exchange]}</span>
+              <span>{exchangeToName[exchange]}</span>
               <AnimatedPrice
                 className="font-mono"
                 exchange={exchange}
@@ -58,32 +52,4 @@ export function BBOMarquee({ base }: { base: string }) {
       ))}
     </div>
   )
-}
-
-function remapQuote(exchange: Exchange) {
-  switch (exchange) {
-    case "binance":
-    case "okx":
-      return "USDT"
-    case "coinbase":
-    case "kraken":
-      return "USD"
-  }
-}
-
-function constructExchangeUrl(exchange: Exchange, base: string) {
-  const remappedBase = remapToken(base)
-  const quote = remapQuote(exchange)
-  switch (exchange) {
-    case "binance":
-      return `https://www.binance.com/en/trade/${remappedBase}_${quote}`
-    case "coinbase":
-      return `https://www.coinbase.com/advanced-trade/${remappedBase}-${quote}`
-    case "kraken":
-      return `https://pro.kraken.com/app/trade/${remappedBase}-${quote}`
-    case "okx":
-      return `https://www.okx.com/trade-spot/${remappedBase}-${quote}`
-    default:
-      return ""
-  }
 }

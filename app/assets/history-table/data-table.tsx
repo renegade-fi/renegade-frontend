@@ -16,8 +16,6 @@ import {
 import { TableEmptyState } from "@/components/table-empty-state"
 import { TableSelect } from "@/components/table-select"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -122,7 +120,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center gap-2 pb-4">
+      <div className="flex flex-wrap items-center gap-2 lg:gap-4">
         <div className="text-sm font-medium text-muted-foreground">Filters</div>
         <TableSelect
           placeholder="Status"
@@ -156,12 +154,12 @@ export function DataTable<TData, TValue>({
             Clear
           </Button>
         ) : null}
-        <div className="ml-auto">
+        <div className="sm:ml-auto">
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Toggle
                 aria-label="Toggle decimal display"
-                className="w-8 p-0 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+                className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
                 pressed={isLongFormat}
                 size="sm"
                 variant="outline"
@@ -176,7 +174,7 @@ export function DataTable<TData, TValue>({
           </Tooltip>
         </div>
       </div>
-      <div className="border">
+      <div className="mt-2 border lg:mt-4">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

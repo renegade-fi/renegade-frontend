@@ -16,7 +16,7 @@ export default async function Page() {
   // )
 
   return (
-    <div className="grid min-h-screen grid-rows-[auto_1fr_auto]">
+    <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto]">
       <div className="min-h-20">
         <Header />
       </div>

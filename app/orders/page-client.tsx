@@ -9,14 +9,16 @@ import { columns } from "./columns"
 export function PageClient() {
   const data = useOrderTableData()
   return (
-    <main>
-      <div className="container">
-        <div className="mt-12">
-          <h1 className="mb-1 mt-6 font-serif text-3xl font-bold">Orders</h1>
-          <div className="pb-4 text-sm font-medium text-muted-foreground">
-            Your private orders. Only you and your connected relayer can see
-            these values.
-          </div>
+    <main className="container px-4 lg:px-8">
+      <div className="mt-12">
+        <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
+          Orders
+        </h1>
+        <div className="text-sm font-medium text-muted-foreground lg:mt-2">
+          Your private orders. Only you and your connected relayer can see these
+          values.
+        </div>
+        <div className="mt-2 lg:mt-4">
           <DataTable
             columns={columns}
             data={data}

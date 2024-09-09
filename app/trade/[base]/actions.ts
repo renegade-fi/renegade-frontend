@@ -12,7 +12,8 @@ function setCookie(key: string, value: string) {
   cookies().set(key, value, {
     path: "/",
     sameSite: "strict",
-    secure: true,
+    // Disable secure flag in development
+    secure: process.env.NODE_ENV === "production",
     maxAge: 31536000,
   })
 }

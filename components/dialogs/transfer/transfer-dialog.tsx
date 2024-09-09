@@ -30,8 +30,10 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
+  DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {
@@ -88,7 +90,7 @@ export function TransferDialog({
   children: React.ReactNode
 }) {
   const [open, setOpen] = React.useState(false)
-  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const [direction, setDirection] = React.useState<ExternalTransferDirection>(
     ExternalTransferDirection.Deposit,
   )
@@ -181,11 +183,16 @@ export function TransferDialog({
       onOpenChange={setOpen}
     >
       <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent hideHandle>
-        <DrawerHeader className="p-0">
-          <div className="flex flex-row border-b border-border">
+      <DrawerContent>
+        <DrawerHeader className="p-0 pt-6">
+          <div className="flex flex-row border-y border-border font-extended">
             <Button
-              className="flex-1 border-0 font-extended text-lg font-bold"
+              className={cn(
+                "flex-1 border-0 text-lg tracking-tight",
+                direction === ExternalTransferDirection.Deposit
+                  ? "text-primary"
+                  : "text-muted-foreground",
+              )}
               size="xl"
               variant="outline"
               onClick={() => setDirection(ExternalTransferDirection.Deposit)}
@@ -193,7 +200,12 @@ export function TransferDialog({
               Deposit
             </Button>
             <Button
-              className="border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold"
+              className={cn(
+                "border-l-1 flex-1 border-y-0 border-r-0 text-lg tracking-tight",
+                direction === ExternalTransferDirection.Withdraw
+                  ? "text-primary"
+                  : "text-muted-foreground",
+              )}
               size="xl"
               variant="outline"
               onClick={() => setDirection(ExternalTransferDirection.Withdraw)}
@@ -201,8 +213,21 @@ export function TransferDialog({
               Withdraw
             </Button>
           </div>
+          <VisuallyHidden>
+            <DrawerTitle>
+              {direction === ExternalTransferDirection.Deposit
+                ? "Deposit"
+                : "Withdraw"}
+            </DrawerTitle>
+            <DrawerDescription>
+              {direction === ExternalTransferDirection.Deposit
+                ? "Deposit tokens into Renegade"
+                : "Withdraw tokens from Renegade"}
+            </DrawerDescription>
+          </VisuallyHidden>
         </DrawerHeader>
         <TransferForm
+          className="p-6"
           direction={direction}
           initialMint={mint}
           onSuccess={() => setOpen(false)}
@@ -222,7 +247,7 @@ function TransferForm({
   initialMint?: string
   onSuccess: () => void
 }) {
-  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -546,6 +571,7 @@ function TransferForm({
         ) : (
           <DrawerFooter>
             <Button
+              className="font-extended"
               disabled={
                 !form.formState.isValid ||
                 (direction === ExternalTransferDirection.Deposit &&
@@ -557,9 +583,6 @@ function TransferForm({
             >
               {buttonText}
             </Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
           </DrawerFooter>
         )}
       </form>

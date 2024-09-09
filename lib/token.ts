@@ -38,6 +38,17 @@ export const remapToken = (token: string) => {
   }
 }
 
+export function remapQuote(exchange: Exchange) {
+  switch (exchange) {
+    case "binance":
+    case "okx":
+      return "USDT"
+    case "coinbase":
+    case "kraken":
+      return "USD"
+  }
+}
+
 export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
   binance: Token.findByTicker("USDT").address,
   coinbase: Token.findByTicker("USDC").address,

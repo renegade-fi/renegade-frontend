@@ -1,5 +1,5 @@
 // Constants
-import { Token } from "@renegade-fi/react"
+import { Exchange, Token } from "@renegade-fi/react"
 import { parseUnits } from "viem/utils"
 
 // Min fill size of the quote asset that the relayer will accept
@@ -28,3 +28,10 @@ export enum Side {
 }
 
 export const EXCHANGES = ["binance", "coinbase", "kraken", "okx"] as const
+
+export const exchangeToName: Record<Exchange, string> = {
+  binance: "Binance",
+  coinbase: "Coinbase",
+  kraken: "Kraken",
+  okx: "OKX",
+}

@@ -47,10 +47,13 @@ export default function TradingViewChart(
     <>
       <div
         ref={chartContainerRef}
-        className={cn("z-10 h-[500px] transition-opacity duration-300", {
-          "opacity-0": !isReady,
-          "opacity-100": isReady,
-        })}
+        className={cn(
+          "z-10 h-[400px] transition-opacity duration-300 lg:h-[500px]",
+          {
+            "opacity-0": !isReady,
+            "opacity-100": isReady,
+          },
+        )}
       />
       <div
         className={cn(

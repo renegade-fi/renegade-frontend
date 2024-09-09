@@ -1,8 +1,10 @@
 import { Metadata } from "next/types"
 
+import { Exchange } from "@renegade-fi/react"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+import { remapQuote, remapToken } from "@/lib/token"
 import { isTestnet } from "@/lib/viem"
 
 export function cn(...inputs: ClassValue[]) {
@@ -185,4 +187,21 @@ export function decimalCorrectPrice(
   const correctedPrice = price * Math.pow(10, decimalDiff)
 
   return correctedPrice
+}
+
+export function constructExchangeUrl(exchange: Exchange, base: string) {
+  const remappedBase = remapToken(base)
+  const quote = remapQuote(exchange)
+  switch (exchange) {
+    case "binance":
+      return `https://www.binance.com/en/trade/${remappedBase}_${quote}`
+    case "coinbase":
+      return `https://www.coinbase.com/advanced-trade/${remappedBase}-${quote}`
+    case "kraken":
+      return `https://pro.kraken.com/app/trade/${remappedBase}-${quote}`
+    case "okx":
+      return `https://www.okx.com/trade-spot/${remappedBase}-${quote}`
+    default:
+      return ""
+  }
 }
