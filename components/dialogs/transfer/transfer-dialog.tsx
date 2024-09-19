@@ -342,14 +342,14 @@ function TransferForm({
       values.amount,
       baseToken,
     )
-    if (!isAmountSufficient) {
-      form.setError("amount", {
-        message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
-      })
-      return
-    }
 
     if (direction === ExternalTransferDirection.Deposit) {
+      if (!isAmountSufficient) {
+        form.setError("amount", {
+          message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+        })
+        return
+      }
       await checkChain()
       const isBalanceSufficient = checkBalance({
         amount: values.amount,
@@ -398,11 +398,28 @@ function TransferForm({
         })
       }
     } else {
+      const renegadeBalance = renegadeBalances.get(
+        values.mint as `0x${string}`,
+      )?.amount
+      // User is allowed to withdraw whole balance even if amount is < MIN_TRANSFER_AMOUNT
+      if (
+        !isAmountSufficient &&
+        !isMaxBalance({
+          amount: values.amount,
+          mint: values.mint,
+          balance: renegadeBalance,
+        })
+      ) {
+        form.setError("amount", {
+          message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+        })
+        return
+      }
       // TODO: Check if balance is sufficient
       const isBalanceSufficient = checkBalance({
         amount: values.amount,
         mint: values.mint,
-        balance: renegadeBalances.get(values.mint as `0x${string}`)?.amount,
+        balance: renegadeBalance,
       })
       if (!isBalanceSufficient) {
         form.setError("amount", {
@@ -582,6 +599,24 @@ function checkBalance({
       return false
     }
     return parsedAmount <= balance
+  } catch (error) {
+    return false
+  }
+}
+
+// Returns true iff the amount is equal to the balance
+function isMaxBalance({
+  amount,
+  mint,
+  balance,
+}: z.infer<typeof formSchema> & { balance?: bigint }) {
+  if (!balance) {
+    return false
+  }
+  try {
+    const token = Token.findByAddress(mint as `0x${string}`)
+    const formattedAmount = formatUnits(balance, token.decimals)
+    return amount === formattedAmount
   } catch (error) {
     return false
   }
