@@ -3,7 +3,6 @@ import { Metadata } from "next/types"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { safeParseUnits } from "@/lib/format"
 import { isTestnet } from "@/lib/viem"
 
 export function cn(...inputs: ClassValue[]) {
@@ -172,13 +171,8 @@ export function decimalNormalizePrice(
   quoteDecimals: number,
 ): number {
   const decimalDiff = baseDecimals - quoteDecimals
-  const normalizedPrice = safeParseUnits(
-    price.toFixed(baseDecimals + quoteDecimals),
-    decimalDiff,
-  )
-  if (normalizedPrice instanceof Error) return 0
-
-  return Number(normalizedPrice)
+  const normalizedPrice = price * Math.pow(10, decimalDiff)
+  return normalizedPrice
 }
 
 // Decimal correct a price for a given token pair

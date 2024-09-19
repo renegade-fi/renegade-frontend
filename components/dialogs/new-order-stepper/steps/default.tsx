@@ -57,7 +57,7 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
-    worstCasePrice: worstCasePrice.toString(),
+    worstCasePrice: worstCasePrice.toFixed(18),
   })
 
   const { createOrder } = useCreateOrder({
