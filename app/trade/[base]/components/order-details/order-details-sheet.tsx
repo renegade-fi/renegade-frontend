@@ -4,14 +4,18 @@ import { OrderMetadata } from "@renegade-fi/react"
 import { DetailsContent } from "@/app/trade/[base]/components/order-details/details-content"
 import { EmptyContent } from "@/app/trade/[base]/components/order-details/empty-content"
 
+import { Button } from "@/components/ui/button"
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Sheet,
   SheetContent,
@@ -58,23 +62,36 @@ export function OrderDetailsSheet({
     )
   }
   return (
-    <Drawer>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="max-h-[90dvh]">
-        <div className="overflow-auto">
-          <VisuallyHidden>
-            <DrawerHeader>
-              <DrawerTitle>Order Details</DrawerTitle>
-              <DrawerDescription>View order details</DrawerDescription>
-            </DrawerHeader>
-          </VisuallyHidden>
-          {order.fills.length ? (
-            <DetailsContent order={order} />
-          ) : (
-            <EmptyContent order={order} />
-          )}
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="h-dvh p-0">
+        <div className="">
+          <ScrollArea className="max-h-[calc(100dvh-64px)] overflow-auto">
+            <VisuallyHidden>
+              <DialogHeader>
+                <DialogTitle>Order Details</DialogTitle>
+                <DialogDescription>View order details</DialogDescription>
+              </DialogHeader>
+            </VisuallyHidden>
+            {order.fills.length ? (
+              <DetailsContent order={order} />
+            ) : (
+              <EmptyContent order={order} />
+            )}
+          </ScrollArea>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button
+                className="font-extended text-lg"
+                size="xl"
+                variant="ghost"
+              >
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
         </div>
-      </DrawerContent>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
   )
 }
