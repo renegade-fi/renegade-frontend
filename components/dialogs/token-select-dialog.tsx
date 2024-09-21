@@ -11,20 +11,14 @@ import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -77,32 +71,51 @@ export function TokenSelectDialog({
   }
 
   return (
-    <Drawer
+    <Dialog
       open={open}
       onOpenChange={setOpen}
     >
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="max-h-[90dvh]">
-        <DrawerHeader className="space-y-4 text-left">
-          <DrawerTitle>Select Token</DrawerTitle>
-          <DrawerDescription>
-            <Input
-              placeholder="Search tokens"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent
+        className="h-dvh p-0"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+        }}
+      >
+        <div>
+          <DialogHeader className="mt-6 space-y-4 px-6 text-left">
+            <DialogTitle>Select Token</DialogTitle>
+            <DialogDescription>
+              <Input
+                autoFocus={false}
+                placeholder="Search tokens"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[calc(100dvh-158px)] overflow-auto">
+            <TokenList
+              enabled={open}
+              searchTerm={debouncedSearchTerm}
+              ticker={ticker}
+              onClose={() => setOpen(false)}
             />
-          </DrawerDescription>
-        </DrawerHeader>
-        <ScrollArea className="max-h-[50dvh] overflow-auto">
-          <TokenList
-            enabled={open}
-            searchTerm={debouncedSearchTerm}
-            ticker={ticker}
-            onClose={() => setOpen(false)}
-          />
-        </ScrollArea>
-      </DrawerContent>
-    </Drawer>
+          </ScrollArea>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button
+                className="font-extended text-lg"
+                size="xl"
+                variant="ghost"
+              >
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

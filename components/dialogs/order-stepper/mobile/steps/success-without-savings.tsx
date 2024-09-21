@@ -8,8 +8,13 @@ import { useStepper } from "@/components/dialogs/order-stepper/mobile/new-order-
 import { DidYouKnowContent } from "@/components/did-you-know-content"
 import { OrderStatusDisplay } from "@/components/order-status-display"
 import { Button } from "@/components/ui/button"
-import { DialogDescription, DialogTitle } from "@/components/ui/dialog"
-import { DrawerClose, DrawerFooter, DrawerHeader } from "@/components/ui/drawer"
+import {
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const states: TaskState[] = [
   "Proving",
@@ -53,15 +58,15 @@ export function SuccessStepWithoutSavings() {
 
   return (
     <>
-      <DrawerHeader className="text-left">
-        <DialogTitle className="flex items-center gap-2 font-extended">
+      <DialogHeader className="text-left">
+        <DialogTitle className="flex items-center gap-2 p-6 font-extended">
           {Icon}
           {title}
         </DialogTitle>
         <VisuallyHidden>
           <DialogDescription>Your order has been placed.</DialogDescription>
         </VisuallyHidden>
-      </DrawerHeader>
+      </DialogHeader>
       <div className="space-y-6 p-6 pb-0">
         <OrderStatusDisplay
           currentStatus={orderStatus}
@@ -69,7 +74,17 @@ export function SuccessStepWithoutSavings() {
         />
         <DidYouKnowContent />
       </div>
-      <DrawerFooter />
+      <DialogFooter className="mt-auto">
+        <DialogClose asChild>
+          <Button
+            className="font-extended text-lg"
+            size="xl"
+            variant="ghost"
+          >
+            Close
+          </Button>
+        </DialogClose>
+      </DialogFooter>
     </>
   )
 }
