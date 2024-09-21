@@ -19,6 +19,7 @@ import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -26,16 +27,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
 import {
   Form,
   FormControl,
@@ -178,17 +169,31 @@ export function TransferDialog({
   }
 
   return (
-    <Drawer
+    <Dialog
       open={open}
       onOpenChange={setOpen}
     >
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="p-0 pt-6">
-          <div className="flex flex-row border-y border-border font-extended">
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="h-dvh p-0">
+        <div className="flex flex-col">
+          <DialogHeader className="">
+            <VisuallyHidden>
+              <DialogTitle>
+                {direction === ExternalTransferDirection.Deposit
+                  ? "Deposit"
+                  : "Withdraw"}
+              </DialogTitle>
+              <DialogDescription>
+                {direction === ExternalTransferDirection.Deposit
+                  ? "Deposit tokens into Renegade"
+                  : "Withdraw tokens from Renegade"}
+              </DialogDescription>
+            </VisuallyHidden>
+          </DialogHeader>
+          <div className="mt-12 flex flex-row px-6 font-extended">
             <Button
               className={cn(
-                "flex-1 border-0 text-lg tracking-tight",
+                "flex-1 text-lg tracking-tight",
                 direction === ExternalTransferDirection.Deposit
                   ? "text-primary"
                   : "text-muted-foreground",
@@ -201,7 +206,7 @@ export function TransferDialog({
             </Button>
             <Button
               className={cn(
-                "border-l-1 flex-1 border-y-0 border-r-0 text-lg tracking-tight",
+                "flex-1 border-l-0 text-lg tracking-tight",
                 direction === ExternalTransferDirection.Withdraw
                   ? "text-primary"
                   : "text-muted-foreground",
@@ -213,27 +218,15 @@ export function TransferDialog({
               Withdraw
             </Button>
           </div>
-          <VisuallyHidden>
-            <DrawerTitle>
-              {direction === ExternalTransferDirection.Deposit
-                ? "Deposit"
-                : "Withdraw"}
-            </DrawerTitle>
-            <DrawerDescription>
-              {direction === ExternalTransferDirection.Deposit
-                ? "Deposit tokens into Renegade"
-                : "Withdraw tokens from Renegade"}
-            </DrawerDescription>
-          </VisuallyHidden>
-        </DrawerHeader>
-        <TransferForm
-          className="p-6"
-          direction={direction}
-          initialMint={mint}
-          onSuccess={() => setOpen(false)}
-        />
-      </DrawerContent>
-    </Drawer>
+          <TransferForm
+            className="p-6"
+            direction={direction}
+            initialMint={mint}
+            onSuccess={() => setOpen(false)}
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -464,7 +457,10 @@ function TransferForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        className="flex flex-1 flex-col"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <div className={cn("space-y-8", className)}>
           <div className="grid w-full items-center gap-3">
             <FormField
@@ -569,9 +565,18 @@ function TransferForm({
             </Button>
           </DialogFooter>
         ) : (
-          <DrawerFooter>
+          <DialogFooter className="mt-auto flex-row">
+            <DialogClose asChild>
+              <Button
+                className="flex-1 font-extended text-lg"
+                size="xl"
+                variant="ghost"
+              >
+                Close
+              </Button>
+            </DialogClose>
             <Button
-              className="font-extended"
+              className="flex-1 font-extended text-lg"
               disabled={
                 !form.formState.isValid ||
                 (direction === ExternalTransferDirection.Deposit &&
@@ -579,11 +584,12 @@ function TransferForm({
                 approveStatus === "pending" ||
                 depositStatus === "pending"
               }
+              size="xl"
               variant="default"
             >
               {buttonText}
             </Button>
-          </DrawerFooter>
+          </DialogFooter>
         )}
       </form>
     </Form>

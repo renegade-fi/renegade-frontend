@@ -23,14 +23,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
@@ -186,32 +178,35 @@ export function SignInDialog({
   }
 
   return (
-    <Drawer
+    <Dialog
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Unlock your Wallet</DrawerTitle>
-          <DrawerDescription>
-            To trade on Renegade, we require a one-time signature to create or
-            find your wallet on-chain.
-          </DrawerDescription>
-        </DrawerHeader>
-        <SignInContent />
-        <DrawerFooter>
-          <Button
-            className="font-extended"
-            disabled={isConnecting || signStatus === "pending"}
-            onClick={handleClick}
-          >
-            {signStatus === "pending" || isConnecting
-              ? "Confirm in wallet"
-              : "Sign in to Renegade"}
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+      <DialogContent className="h-dvh p-0">
+        <div className="flex flex-col">
+          <DialogHeader className="p-6 text-left">
+            <DialogTitle>Unlock your Wallet</DialogTitle>
+            <DialogDescription>
+              To trade on Renegade, we require a one-time signature to create or
+              find your wallet on-chain.
+            </DialogDescription>
+          </DialogHeader>
+          <SignInContent />
+          <DialogFooter className="mt-auto">
+            <Button
+              className="font-extended text-lg"
+              disabled={isConnecting || signStatus === "pending"}
+              size="xl"
+              onClick={handleClick}
+            >
+              {signStatus === "pending" || isConnecting
+                ? "Confirm in wallet"
+                : "Sign in to Renegade"}
+            </Button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
