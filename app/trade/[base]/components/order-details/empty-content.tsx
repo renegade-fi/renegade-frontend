@@ -48,6 +48,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
         <OrderStatusIndicator order={order} />
         {isOpen && (
           <InsufficientWarning
+            withDialog
             amount={order.data.amount}
             baseMint={order.data.base_mint}
             className="text-sm font-bold tracking-tighter lg:tracking-normal"

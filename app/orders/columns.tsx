@@ -1,4 +1,4 @@
-import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
+import { OrderState, Token } from "@renegade-fi/react"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
@@ -14,13 +14,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useCheckInsufficientBalancesForOrder } from "@/hooks/use-check-insufficient-balances-for-order"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
-import { usePriceQuery } from "@/hooks/use-price-query"
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
-import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { Side } from "@/lib/constants/protocol"
+import { INSUFFICIENT_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import {
   formatCurrency,
-  formatCurrencyFromString,
   formatNumber,
   formatOrderState,
   formatPercentage,
@@ -56,6 +56,45 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
   //   enableSorting: false,
   //   enableHiding: false,
   // },
+  {
+    id: "notification",
+    header: () => null,
+    cell: function Cell({ row }) {
+      const { isInsufficient } = useCheckInsufficientBalancesForOrder({
+        amount: row.original.data.amount,
+        baseMint: row.original.data.base_mint,
+        quoteMint: row.original.data.quote_mint,
+        side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
+      })
+      const mint = row.getValue<`0x${string}`>("mint")
+      const token = Token.findByAddress(mint)
+
+      if (
+        [
+          OrderState.Created,
+          OrderState.Matching,
+          OrderState.SettlingMatch,
+        ].includes(row.original.state) &&
+        isInsufficient
+      ) {
+        return (
+          <div className="flex items-center justify-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-sans">
+                  {INSUFFICIENT_BALANCE_TOOLTIP({ ticker: token.ticker })}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        )
+      }
+      return null
+    },
+  },
   {
     id: "status",
     accessorKey: "state",
