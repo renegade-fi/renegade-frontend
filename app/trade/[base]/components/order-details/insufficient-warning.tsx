@@ -1,14 +1,14 @@
-import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
-import { formatUnits } from "viem/utils"
 
+import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
+import { Button } from "@/components/ui/button"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
-import { useUSDPrice } from "@/hooks/use-usd-price"
+import { useCheckInsufficientBalancesForOrder } from "@/hooks/use-check-insufficient-balances-for-order"
 import { Side } from "@/lib/constants/protocol"
 import { INSUFFICIENT_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
@@ -20,6 +20,7 @@ export function InsufficientWarning({
   quoteMint,
   richColors = false,
   side,
+  withDialog = false,
 }: {
   amount: bigint
   baseMint: `0x${string}`
@@ -27,36 +28,24 @@ export function InsufficientWarning({
   quoteMint: `0x${string}`
   richColors?: boolean
   side: Side
+  withDialog?: boolean
 }) {
-  const baseToken = Token.findByAddress(baseMint)
-  const quoteToken = Token.findByAddress(quoteMint)
-  const token = side === Side.BUY ? quoteToken : baseToken
-
-  const { data: balance } = useBackOfQueueWallet({
-    query: {
-      select: (data) =>
-        data.balances.find((balance) => balance.mint === token.address)?.amount,
-    },
+  const { isInsufficient, token } = useCheckInsufficientBalancesForOrder({
+    amount,
+    baseMint,
+    quoteMint,
+    side,
   })
 
-  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount)
-
-  let isInsufficient = false
-  if (side === Side.BUY) {
-    // Adjust by # of other token's decimals
-    const formattedUsdPrice = formatUnits(
-      usdPrice,
-      side === Side.BUY ? baseToken.decimals : quoteToken.decimals,
-    )
-    isInsufficient = balance
-      ? parseFloat(formatUnits(balance, token.decimals)) <
-        parseFloat(formattedUsdPrice)
-      : true
-  } else {
-    isInsufficient = balance ? balance < amount : true
-  }
-
   if (!isInsufficient) return null
+
+  const warningContent = (
+    <div className={cn("flex items-center gap-2", className)}>
+      <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
+      <span>Only part of the order will be filled.</span>
+    </div>
+  )
+
   return (
     <div
       className={cn({
@@ -67,10 +56,13 @@ export function InsufficientWarning({
     >
       <ResponsiveTooltip>
         <ResponsiveTooltipTrigger>
-          <div className={cn("flex items-center gap-2", className)}>
-            <AlertTriangle className="h-4 w-4" />
-            <span>Only part of the order will be filled.</span>
-          </div>
+          {withDialog ? (
+            <TransferDialog mint={side === Side.BUY ? quoteMint : baseMint}>
+              <Button variant="ghost">{warningContent}</Button>
+            </TransferDialog>
+          ) : (
+            warningContent
+          )}
         </ResponsiveTooltipTrigger>
         <ResponsiveTooltipContent>
           <p>
