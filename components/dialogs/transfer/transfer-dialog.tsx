@@ -44,11 +44,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import {
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
 
 import { useApprove } from "@/hooks/use-approve"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useFeeOnZeroBalance } from "@/hooks/use-fee-on-zero-balance"
+import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
@@ -462,6 +468,8 @@ function TransferForm({
     }
   }
 
+  const { data: maintenanceMode } = useMaintenanceMode()
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -553,36 +561,82 @@ function TransferForm({
         </div>
         {isDesktop ? (
           <DialogFooter>
-            <Button
-              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
-              disabled={
-                !form.formState.isValid ||
-                (direction === ExternalTransferDirection.Deposit &&
-                  isMaxBalances) ||
-                approveStatus === "pending" ||
-                depositStatus === "pending"
-              }
-              size="xl"
-              variant="outline"
-            >
-              {buttonText}
-            </Button>
+            <ResponsiveTooltip>
+              <ResponsiveTooltipTrigger
+                asChild
+                className="!pointer-events-auto"
+                type="submit"
+              >
+                <Button
+                  className="flex-1 border-0 border-t font-extended text-2xl"
+                  disabled={
+                    !form.formState.isValid ||
+                    (direction === ExternalTransferDirection.Deposit &&
+                      isMaxBalances) ||
+                    approveStatus === "pending" ||
+                    depositStatus === "pending" ||
+                    (maintenanceMode?.enabled &&
+                      maintenanceMode.severity === "critical")
+                  }
+                  size="xl"
+                  variant="outline"
+                >
+                  {buttonText}
+                </Button>
+              </ResponsiveTooltipTrigger>
+              <ResponsiveTooltipContent
+                className={
+                  maintenanceMode?.enabled &&
+                  maintenanceMode.severity === "critical"
+                    ? "visible"
+                    : "invisible"
+                }
+              >
+                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+              </ResponsiveTooltipContent>
+            </ResponsiveTooltip>
           </DialogFooter>
         ) : (
-          <DrawerFooter>
-            <Button
-              className="font-extended"
-              disabled={
-                !form.formState.isValid ||
-                (direction === ExternalTransferDirection.Deposit &&
-                  isMaxBalances) ||
-                approveStatus === "pending" ||
-                depositStatus === "pending"
-              }
-              variant="default"
-            >
-              {buttonText}
-            </Button>
+          <DrawerFooter className="mt-auto flex-row">
+            <DrawerClose asChild>
+              <Button
+                className="flex-1 font-extended text-lg"
+                size="xl"
+                variant="outline"
+              >
+                Close
+              </Button>
+            </DrawerClose>
+            <ResponsiveTooltip>
+              <ResponsiveTooltipTrigger className="flex-1">
+                <Button
+                  className="w-full border-l-0 font-extended text-lg"
+                  disabled={
+                    !form.formState.isValid ||
+                    (direction === ExternalTransferDirection.Deposit &&
+                      isMaxBalances) ||
+                    approveStatus === "pending" ||
+                    depositStatus === "pending" ||
+                    (maintenanceMode?.enabled &&
+                      maintenanceMode.severity === "critical")
+                  }
+                  size="xl"
+                  variant="outline"
+                >
+                  {buttonText}
+                </Button>
+              </ResponsiveTooltipTrigger>
+              <ResponsiveTooltipContent
+                className={
+                  maintenanceMode?.enabled &&
+                  maintenanceMode.severity === "critical"
+                    ? "visible"
+                    : "invisible"
+                }
+              >
+                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+              </ResponsiveTooltipContent>
+            </ResponsiveTooltip>
           </DrawerFooter>
         )}
       </form>

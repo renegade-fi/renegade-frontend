@@ -29,11 +29,17 @@ import {
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
 import {
+  ResponsiveTooltip,
+  ResponsiveTooltipContent,
+  ResponsiveTooltipTrigger,
+} from "@/components/ui/responsive-tooltip"
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { usePriceQuery } from "@/hooks/use-price-query"
@@ -70,6 +76,7 @@ export function NewOrderForm({
   onSubmit: (values: NewOrderConfirmationProps) => void
 }) {
   const { side, setSide } = useSide()
+  const { data: maintenanceMode } = useMaintenanceMode()
 
   const isMaxOrders = useIsMaxOrders()
   const status = useStatus()
@@ -273,14 +280,33 @@ export function NewOrderForm({
         />
         {status === "in relayer" ? (
           <div>
-            <Button
-              className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-              disabled={!form.formState.isValid || isMaxOrders}
-              size="xl"
-              variant="default"
-            >
-              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
-            </Button>
+            <ResponsiveTooltip>
+              <ResponsiveTooltipTrigger className="!pointer-events-auto w-full">
+                <Button
+                  className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
+                  disabled={
+                    !form.formState.isValid ||
+                    isMaxOrders ||
+                    (maintenanceMode?.enabled &&
+                      maintenanceMode.severity === "critical")
+                  }
+                  size="xl"
+                  variant="default"
+                >
+                  {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+                </Button>
+              </ResponsiveTooltipTrigger>
+              <ResponsiveTooltipContent
+                className={
+                  maintenanceMode?.enabled &&
+                  maintenanceMode.severity === "critical"
+                    ? "visible"
+                    : "invisible"
+                }
+              >
+                {`Placing orders is temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+              </ResponsiveTooltipContent>
+            </ResponsiveTooltip>
           </div>
         ) : (
           <ConnectButton className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal" />

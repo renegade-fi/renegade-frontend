@@ -26,10 +26,10 @@ export function ResponsiveTooltipTrigger({ children, ...props }: ResponsiveToolt
   const isDesktop = useSharedMediaQuery("(min-width: 1024px)");
 
   if (isDesktop) {
-    return <TooltipTrigger {...props}>{children}</TooltipTrigger>;
+    return <TooltipTrigger type="button" {...props}>{children}</TooltipTrigger>;
   }
 
-  return <PopoverTrigger {...props}>{children}</PopoverTrigger>;
+  return <PopoverTrigger type="button" {...props}>{children}</PopoverTrigger>;
 }
 
 export function ResponsiveTooltipContent({ children, side, className, ...props }: ResponsiveTooltipContentProps) {

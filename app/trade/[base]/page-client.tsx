@@ -3,6 +3,7 @@
 import React from "react"
 
 import { DepositBanner } from "@/app/components/deposit-banner"
+import { MaintenanceBanner } from "@/app/components/maintenance-banner"
 import { MobileBottomBar } from "@/app/components/mobile-bottom-bar"
 import { columns } from "@/app/orders/columns"
 import { DataTable } from "@/app/orders/data-table"
@@ -35,6 +36,7 @@ export function PageClient({
 
   return (
     <div>
+      <MaintenanceBanner />
       <DepositBanner />
       <BBOMarquee base={base} />
       <MobileAssetPriceAccordion base={base} />
