@@ -1,6 +1,5 @@
 import localFont from "next/font/local"
 import { headers } from "next/headers"
-import Script from "next/script"
 import { Viewport } from "next/types"
 
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
