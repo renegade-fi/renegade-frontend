@@ -66,8 +66,11 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
         quoteMint: row.original.data.quote_mint,
         side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
       })
-      const mint = row.getValue<`0x${string}`>("mint")
-      const token = Token.findByAddress(mint)
+      const token = Token.findByAddress(
+        row.original.data.side === "Buy"
+          ? row.original.data.quote_mint
+          : row.original.data.base_mint,
+      )
 
       if (
         [
