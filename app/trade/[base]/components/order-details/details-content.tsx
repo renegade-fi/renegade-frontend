@@ -47,6 +47,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
     Number(filledAmount),
     Number(order.data.amount),
   )
+  const remainingAmount = order.data.amount - filledAmount
 
   const formattedTotalAmount = formatNumber(
     order.data.amount,
@@ -108,7 +109,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         {isOpen && (
           <InsufficientWarning
             withDialog
-            amount={order.data.amount}
+            amount={remainingAmount}
             baseMint={order.data.base_mint}
             className="text-sm font-bold tracking-tighter lg:tracking-normal"
             quoteMint={order.data.quote_mint}

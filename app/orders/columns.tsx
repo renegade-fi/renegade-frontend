@@ -60,8 +60,11 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     id: "notification",
     header: () => null,
     cell: function Cell({ row }) {
+      const remainingAmount =
+        row.original.data.amount -
+        row.original.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
       const { isInsufficient } = useCheckInsufficientBalancesForOrder({
-        amount: row.original.data.amount,
+        amount: remainingAmount,
         baseMint: row.original.data.base_mint,
         quoteMint: row.original.data.quote_mint,
         side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
