@@ -4,14 +4,11 @@ import { AssetsSection } from "@/app/trade/[base]/components/new-order/assets-se
 import { NewOrderForm } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
-import { Button } from "@/components/ui/button"
 import {
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator"
 
 export function DefaultStep(props: {
@@ -21,13 +18,13 @@ export function DefaultStep(props: {
 }) {
   return (
     <>
-      <DialogHeader className="p-0">
+      <DrawerHeader className="p-0">
         <VisuallyHidden>
-          <DialogTitle>Place Order</DialogTitle>
-          <DialogDescription>Place a new order.</DialogDescription>
+          <DrawerTitle>Place Order</DrawerTitle>
+          <DrawerDescription>Place a new order.</DrawerDescription>
         </VisuallyHidden>
-      </DialogHeader>
-      <div className="mt-6 p-6">
+      </DrawerHeader>
+      <div className="p-6">
         <AssetsSection
           disabled
           base={props.base}
@@ -37,17 +34,6 @@ export function DefaultStep(props: {
       <div className="pt-6">
         <NewOrderForm {...props} />
       </div>
-      <DialogFooter className="mt-auto">
-        <DialogClose asChild>
-          <Button
-            className="font-extended text-lg"
-            size="xl"
-            variant="ghost"
-          >
-            Close
-          </Button>
-        </DialogClose>
-      </DialogFooter>
     </>
   )
 }

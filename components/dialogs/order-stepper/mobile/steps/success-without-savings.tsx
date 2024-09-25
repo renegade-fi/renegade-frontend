@@ -9,12 +9,12 @@ import { DidYouKnowContent } from "@/components/did-you-know-content"
 import { OrderStatusDisplay } from "@/components/order-status-display"
 import { Button } from "@/components/ui/button"
 import {
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  DrawerClose,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 
 const states: TaskState[] = [
   "Proving",
@@ -58,33 +58,33 @@ export function SuccessStepWithoutSavings() {
 
   return (
     <>
-      <DialogHeader className="text-left">
-        <DialogTitle className="flex items-center gap-2 p-6 font-extended">
+      <DrawerHeader className="text-left">
+        <DrawerTitle className="flex items-center gap-2 font-extended">
           {Icon}
           {title}
-        </DialogTitle>
+        </DrawerTitle>
         <VisuallyHidden>
-          <DialogDescription>Your order has been placed.</DialogDescription>
+          <DrawerDescription>Your order has been placed.</DrawerDescription>
         </VisuallyHidden>
-      </DialogHeader>
-      <div className="space-y-6 p-6 pb-0">
+      </DrawerHeader>
+      <div className="h-full space-y-6 p-4">
         <OrderStatusDisplay
           currentStatus={orderStatus}
           states={states}
         />
         <DidYouKnowContent />
       </div>
-      <DialogFooter className="mt-auto">
-        <DialogClose asChild>
+      <DrawerFooter>
+        <DrawerClose asChild>
           <Button
             className="font-extended text-lg"
             size="xl"
-            variant="ghost"
+            variant="outline"
           >
             Close
           </Button>
-        </DialogClose>
-      </DialogFooter>
+        </DrawerClose>
+      </DrawerFooter>
     </>
   )
 }

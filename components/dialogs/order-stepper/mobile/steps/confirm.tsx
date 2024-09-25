@@ -7,12 +7,7 @@ import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/de
 import { ConfirmOrderDisplay } from "@/components/dialogs/order-stepper/desktop/steps/default"
 import { useStepper } from "@/components/dialogs/order-stepper/mobile/new-order-stepper"
 import { Button } from "@/components/ui/button"
-import {
-  DialogClose,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
@@ -57,27 +52,18 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
 
   return (
     <>
-      <DialogHeader className="p-6 text-left">
-        <DialogTitle className="font-extended">Review Order</DialogTitle>
-      </DialogHeader>
+      <DrawerHeader className="text-left">
+        <DrawerTitle className="font-extended">Review Order</DrawerTitle>
+      </DrawerHeader>
       <ScrollArea className="max-h-dvh overflow-auto">
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-4">
           <ConfirmOrderDisplay {...props} />
         </div>
       </ScrollArea>
-      <DialogFooter className="mt-auto flex-row">
-        <DialogClose asChild>
-          <Button
-            className="flex-1 font-extended text-lg"
-            size="xl"
-            variant="ghost"
-          >
-            Close
-          </Button>
-        </DialogClose>
+      <DrawerFooter>
         <Button
           autoFocus
-          className="flex-1 font-extended text-lg"
+          className="font-extended text-lg"
           size="xl"
           onClick={() => {
             if (request instanceof Error) {
@@ -89,7 +75,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
         >
           {props.isSell ? "Sell" : "Buy"} {props.base}
         </Button>
-      </DialogFooter>
+      </DrawerFooter>
     </>
   )
 }

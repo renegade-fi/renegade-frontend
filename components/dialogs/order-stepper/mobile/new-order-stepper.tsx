@@ -4,7 +4,7 @@ import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/de
 import { ConfirmStep } from "@/components/dialogs/order-stepper/mobile/steps/confirm"
 import { DefaultStep } from "@/components/dialogs/order-stepper/mobile/steps/default"
 import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/mobile/steps/success-without-savings"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 
 export function NewOrderStepperInner({
   children,
@@ -22,16 +22,16 @@ export function NewOrderStepperInner({
   }
 
   return (
-    <Dialog
+    <Drawer
       onOpenChange={() => {
         setLockedFormValues(null)
         setStep(Step.DEFAULT)
         setTaskId("")
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="h-dvh p-0">
-        <div className="flex flex-col overflow-auto">
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerContent className="h-[90dvh] p-0">
+        <div className="flex h-full flex-col overflow-y-auto">
           {step === Step.DEFAULT && (
             <DefaultStep
               {...props}
@@ -43,8 +43,8 @@ export function NewOrderStepperInner({
           )}
           {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   )
 }
 
