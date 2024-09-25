@@ -77,43 +77,41 @@ export function TokenSelectDialog({
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="h-dvh p-0"
+        className="h-dvh gap-0 p-0"
         onOpenAutoFocus={(e) => {
           e.preventDefault()
         }}
       >
-        <div>
-          <DialogHeader className="mt-6 space-y-4 px-6 text-left">
-            <DialogTitle>Select Token</DialogTitle>
-            <DialogDescription>
-              <Input
-                autoFocus={false}
-                placeholder="Search tokens"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[calc(100dvh-158px)] overflow-auto">
-            <TokenList
-              enabled={open}
-              searchTerm={debouncedSearchTerm}
-              ticker={ticker}
-              onClose={() => setOpen(false)}
+        <DialogHeader className="mt-6 space-y-4 px-6 text-left">
+          <DialogTitle>Select Token</DialogTitle>
+          <DialogDescription>
+            <Input
+              autoFocus={false}
+              placeholder="Search tokens"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </ScrollArea>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                className="font-extended text-lg"
-                size="xl"
-                variant="ghost"
-              >
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </div>
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[calc(100dvh-158px)]">
+          <TokenList
+            enabled={open}
+            searchTerm={debouncedSearchTerm}
+            ticker={ticker}
+            onClose={() => setOpen(false)}
+          />
+        </ScrollArea>
+        <DialogFooter className="p-6 pt-0">
+          <DialogClose asChild>
+            <Button
+              className="font-extended text-lg"
+              size="xl"
+              variant="outline"
+            >
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

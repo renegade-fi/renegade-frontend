@@ -30,19 +30,17 @@ export function NewOrderStepperInner({
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="h-dvh p-0">
-        <div className="flex flex-col overflow-auto">
-          {step === Step.DEFAULT && (
-            <DefaultStep
-              {...props}
-              onSubmit={handleSubmit}
-            />
-          )}
-          {step === Step.CONFIRM && lockedFormValues && (
-            <ConfirmStep {...lockedFormValues} />
-          )}
-          {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
-        </div>
+      <DialogContent className="flex h-dvh flex-col gap-0 p-0">
+        {step === Step.DEFAULT && (
+          <DefaultStep
+            {...props}
+            onSubmit={handleSubmit}
+          />
+        )}
+        {step === Step.CONFIRM && lockedFormValues && (
+          <ConfirmStep {...lockedFormValues} />
+        )}
+        {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
       </DialogContent>
     </Dialog>
   )

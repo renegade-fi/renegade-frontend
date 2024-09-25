@@ -64,33 +64,31 @@ export function OrderDetailsSheet({
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="h-dvh p-0">
-        <div className="">
-          <ScrollArea className="h-[calc(100dvh-64px)] overflow-auto">
-            <VisuallyHidden>
-              <DialogHeader>
-                <DialogTitle>Order Details</DialogTitle>
-                <DialogDescription>View order details</DialogDescription>
-              </DialogHeader>
-            </VisuallyHidden>
-            {order.fills.length ? (
-              <DetailsContent order={order} />
-            ) : (
-              <EmptyContent order={order} />
-            )}
-          </ScrollArea>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                className="font-extended text-lg"
-                size="xl"
-                variant="ghost"
-              >
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
+      <DialogContent className="h-dvh gap-0 p-0">
+        <VisuallyHidden>
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+            <DialogDescription>View order details</DialogDescription>
+          </DialogHeader>
+        </VisuallyHidden>
+        <div className="overflow-y-auto">
+          {order.fills.length ? (
+            <DetailsContent order={order} />
+          ) : (
+            <EmptyContent order={order} />
+          )}
         </div>
+        <DialogFooter className="p-6 pt-0">
+          <DialogClose asChild>
+            <Button
+              className="font-extended text-lg"
+              size="xl"
+              variant="outline"
+            >
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

@@ -158,7 +158,9 @@ export function SignInDialog({
               find your wallet on-chain.
             </DialogDescription>
           </DialogHeader>
-          <SignInContent />
+          <div className="p-6 pt-0">
+            <SignInContent />
+          </div>
           <DialogFooter>
             <Button
               className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
@@ -182,29 +184,29 @@ export function SignInDialog({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="h-dvh p-0">
-        <div className="flex flex-col">
-          <DialogHeader className="p-6 text-left">
-            <DialogTitle>Unlock your Wallet</DialogTitle>
-            <DialogDescription>
-              To trade on Renegade, we require a one-time signature to create or
-              find your wallet on-chain.
-            </DialogDescription>
-          </DialogHeader>
-          <SignInContent />
-          <DialogFooter className="mt-auto">
-            <Button
-              className="font-extended text-lg"
-              disabled={isConnecting || signStatus === "pending"}
-              size="xl"
-              onClick={handleClick}
-            >
-              {signStatus === "pending" || isConnecting
-                ? "Confirm in wallet"
-                : "Sign in to Renegade"}
-            </Button>
-          </DialogFooter>
-        </div>
+      <DialogContent className="h-dvh gap-0">
+        <DialogHeader className="text-left">
+          <DialogTitle>Unlock your Wallet</DialogTitle>
+          <DialogDescription>
+            To trade on Renegade, we require a one-time signature to create or
+            find your wallet on-chain.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            className="font-extended text-lg"
+            disabled={isConnecting || signStatus === "pending"}
+            size="xl"
+            onClick={handleClick}
+          >
+            {signStatus === "pending" || isConnecting
+              ? "Confirm in wallet"
+              : "Sign in to Renegade"}
+          </Button>
+          <div className="mb-6">
+            <SignInContent />
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
@@ -220,7 +222,7 @@ function SignInContent() {
   )
   return (
     <>
-      <div className="flex items-center space-x-2 px-6 pb-6">
+      <div className="flex items-center space-x-2">
         <Checkbox
           checked={rememberMe}
           id="remember-me"

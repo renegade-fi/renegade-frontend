@@ -593,7 +593,7 @@ function TransferForm({
             </ResponsiveTooltip>
           </DialogFooter>
         ) : (
-          <DialogFooter className="mt-auto flex-row">
+          <DialogFooter className="mt-auto flex-row p-6">
             <DialogClose asChild>
               <Button
                 className="flex-1 font-extended text-lg"
@@ -606,7 +606,7 @@ function TransferForm({
             <ResponsiveTooltip>
               <ResponsiveTooltipTrigger className="flex-1">
                 <Button
-                  className="w-full border-l-0 font-extended text-lg"
+                  className="w-full !border-l-0 font-extended text-lg"
                   disabled={
                     !form.formState.isValid ||
                     (direction === ExternalTransferDirection.Deposit &&
@@ -617,7 +617,6 @@ function TransferForm({
                       maintenanceMode.severity === "critical")
                   }
                   size="xl"
-                  variant="outline"
                 >
                   {buttonText}
                 </Button>
