@@ -5,7 +5,6 @@ import { ConfirmStep } from "@/components/dialogs/order-stepper/mobile/steps/con
 import { DefaultStep } from "@/components/dialogs/order-stepper/mobile/steps/default"
 import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/mobile/steps/success-without-savings"
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function NewOrderStepperInner({
   children,

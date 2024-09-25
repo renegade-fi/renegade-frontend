@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/dialog"
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -598,15 +597,6 @@ function TransferForm({
           </DialogFooter>
         ) : (
           <DrawerFooter className="mt-auto flex-row">
-            <DrawerClose asChild>
-              <Button
-                className="flex-1 font-extended text-lg"
-                size="xl"
-                variant="outline"
-              >
-                Close
-              </Button>
-            </DrawerClose>
             <ResponsiveTooltip>
               <ResponsiveTooltipTrigger className="flex-1">
                 <Button

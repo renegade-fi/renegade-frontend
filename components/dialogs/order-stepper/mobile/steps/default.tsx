@@ -4,9 +4,7 @@ import { AssetsSection } from "@/app/trade/[base]/components/new-order/assets-se
 import { NewOrderForm } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
-import { Button } from "@/components/ui/button"
 import {
-  DrawerClose,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,

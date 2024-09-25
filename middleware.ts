@@ -1,14 +1,6 @@
-import { NextRequest, NextResponse, userAgent } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 export function middleware(request: NextRequest) {
-  const { device } = userAgent(request)
-  if (device.type === "mobile") {
-    if (request.nextUrl.pathname !== "/m") {
-      request.nextUrl.pathname = "/m"
-      return NextResponse.redirect(request.nextUrl)
-    }
-    return
-  }
   if (
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname === "/trade"
