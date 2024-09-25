@@ -34,15 +34,15 @@ export function DefaultStep(props: {
         />
       </div>
       <Separator />
-      <div className="pt-6">
+      <div className="overflow-y-auto py-6">
         <NewOrderForm {...props} />
       </div>
-      <DialogFooter className="mt-auto">
+      <DialogFooter className="mt-auto p-6 pt-0">
         <DialogClose asChild>
           <Button
             className="font-extended text-lg"
             size="xl"
-            variant="ghost"
+            variant="outline"
           >
             Close
           </Button>

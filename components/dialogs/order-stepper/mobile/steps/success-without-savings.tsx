@@ -67,19 +67,19 @@ export function SuccessStepWithoutSavings() {
           <DialogDescription>Your order has been placed.</DialogDescription>
         </VisuallyHidden>
       </DialogHeader>
-      <div className="space-y-6 p-6 pb-0">
+      <div className="space-y-6 overflow-y-auto px-6">
         <OrderStatusDisplay
           currentStatus={orderStatus}
           states={states}
         />
         <DidYouKnowContent />
       </div>
-      <DialogFooter className="mt-auto">
+      <DialogFooter className="mt-auto p-6 pt-0">
         <DialogClose asChild>
           <Button
             className="font-extended text-lg"
             size="xl"
-            variant="ghost"
+            variant="outline"
           >
             Close
           </Button>

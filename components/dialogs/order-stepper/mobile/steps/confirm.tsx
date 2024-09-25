@@ -60,17 +60,15 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
       <DialogHeader className="p-6 text-left">
         <DialogTitle className="font-extended">Review Order</DialogTitle>
       </DialogHeader>
-      <ScrollArea className="max-h-dvh overflow-auto">
-        <div className="space-y-6 p-6">
-          <ConfirmOrderDisplay {...props} />
-        </div>
-      </ScrollArea>
-      <DialogFooter className="mt-auto flex-row">
+      <div className="space-y-6 overflow-y-auto px-6">
+        <ConfirmOrderDisplay {...props} />
+      </div>
+      <DialogFooter className="mt-auto flex-row p-6 pt-0">
         <DialogClose asChild>
           <Button
             className="flex-1 font-extended text-lg"
             size="xl"
-            variant="ghost"
+            variant="outline"
           >
             Close
           </Button>
