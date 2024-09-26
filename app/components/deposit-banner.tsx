@@ -2,19 +2,15 @@
 
 import React from "react"
 
-import { Cross2Icon } from "@radix-ui/react-icons"
 import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { ArrowRight } from "lucide-react"
-import { useLocalStorage } from "usehooks-ts"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { STORAGE_DEPOSIT_BANNER } from "@/lib/constants/storage"
 
 export function DepositBanner() {
-  const [isClosed, setIsClosed] = useLocalStorage(STORAGE_DEPOSIT_BANNER, false)
   const [isVisible, setIsVisible] = React.useState(false)
   const { data } = useBackOfQueueWallet({
     query: {
@@ -24,12 +20,17 @@ export function DepositBanner() {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 
   React.useEffect(() => {
-    if (data === 0 && !isClosed) {
-      setTimeout(() => setIsVisible(true), 100)
+    let timeoutId: NodeJS.Timeout
+    if (data === 0) {
+      timeoutId = setTimeout(() => setIsVisible(true), 100)
     } else {
       setIsVisible(false)
     }
-  }, [data, isClosed])
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [data])
 
   if (isDesktop) {
     return (
@@ -53,18 +54,6 @@ export function DepositBanner() {
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </TransferDialog>
-          <Button
-            className="ml-auto"
-            size="icon"
-            variant="ghost"
-            onClick={() => {
-              setIsVisible(false)
-              setTimeout(() => setIsClosed(true), 300)
-            }}
-          >
-            <Cross2Icon className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </div>
       </div>
     )
@@ -82,18 +71,6 @@ export function DepositBanner() {
             Welcome to Renegade! Deposit your Arbitrum tokens to get started.
           </div>
         </TransferDialog>
-        <Button
-          className="ml-auto"
-          size="icon"
-          variant="ghost"
-          onClick={() => {
-            setIsVisible(false)
-            setTimeout(() => setIsClosed(true), 300)
-          }}
-        >
-          <Cross2Icon className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </Button>
       </div>
     </div>
   )
