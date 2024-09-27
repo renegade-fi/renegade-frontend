@@ -12,12 +12,14 @@ export function usePredictedFees({
   base,
   isSell,
   isUSDCDenominated,
+  minFillAmount,
 }: NewOrderFormProps) {
   const { priceInBase, priceInUsd } = useOrderValue({
     amount,
     base,
     isSell,
     isUSDCDenominated,
+    minFillAmount,
   })
 
   const feesCalculation = React.useMemo(() => {
@@ -37,6 +39,7 @@ export function usePredictedFees({
     base,
     isSell,
     isUSDCDenominated,
+    minFillAmount,
   })
   const [predictedSavings, setPredictedSavings] = React.useState(0)
   React.useEffect(() => {

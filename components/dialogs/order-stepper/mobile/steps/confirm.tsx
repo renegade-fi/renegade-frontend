@@ -40,6 +40,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
+    minFillAmount: props.minFillAmount,
   })
 
   const { createOrder } = useCreateOrder({
