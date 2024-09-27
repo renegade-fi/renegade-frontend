@@ -8,6 +8,7 @@ import {
   lookupWallet,
 } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useLocalStorage } from "usehooks-ts"
 import { BaseError } from "viem"
@@ -59,8 +60,9 @@ export function SignInDialog({
       },
       {
         async onSuccess(data) {
-          toast.loading("Processing request...", {
+          toast.success("Processing request...", {
             id: toastId,
+            icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
           })
           config.setState((x) => ({ ...x, seed: data }))
           const id = getWalletId(config)
@@ -74,6 +76,7 @@ export function SignInDialog({
               config.setState((x) => ({ ...x, status: "in relayer" }))
               toast.success("Successfully signed in", {
                 id: toastId,
+                icon: undefined,
               })
               onOpenChange(false)
               setIsConnecting(false)
@@ -108,6 +111,7 @@ export function SignInDialog({
                   console.error(error)
                   return CREATE_WALLET_ERROR
                 },
+                icon: undefined,
               },
             )
           } else if (logs > 0) {
@@ -125,6 +129,7 @@ export function SignInDialog({
                 loading: LOOKUP_WALLET_START,
                 success: LOOKUP_WALLET_SUCCESS,
                 error: LOOKUP_WALLET_ERROR,
+                icon: undefined,
               },
             )
           }
@@ -135,6 +140,7 @@ export function SignInDialog({
             `Error signing message: ${(error as BaseError).shortMessage || error.message}`,
             {
               id: toastId,
+              icon: undefined,
             },
           )
         },

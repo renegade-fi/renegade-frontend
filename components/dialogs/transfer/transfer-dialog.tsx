@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useBalances, usePayFees } from "@renegade-fi/react"
 import { QueryClient, useQueryClient } from "@tanstack/react-query"
+import { Loader2 } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
@@ -394,8 +395,9 @@ function TransferForm({
                 form.reset()
                 onSuccess?.()
                 const message = constructStartToastMessage(UpdateType.Deposit)
-                toast.loading(message, {
+                toast.success(message, {
                   id: data.taskId,
+                  icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
                 })
                 setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
                 if (isTradePage && baseToken?.ticker !== "USDC") {
@@ -411,8 +413,9 @@ function TransferForm({
             form.reset()
             onSuccess?.()
             const message = constructStartToastMessage(UpdateType.Deposit)
-            toast.loading(message, {
+            toast.success(message, {
               id: data.taskId,
+              icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
             })
             setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
             if (isTradePage && baseToken?.ticker !== "USDC") {

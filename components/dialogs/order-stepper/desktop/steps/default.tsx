@@ -2,6 +2,7 @@ import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
@@ -66,8 +67,9 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
         onNext()
         setTaskId(data.taskId)
         const message = constructStartToastMessage(UpdateType.PlaceOrder)
-        toast.loading(message, {
+        toast.success(message, {
           id: data.taskId,
+          icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
         })
         orderFormEvents.emit("reset")
       },

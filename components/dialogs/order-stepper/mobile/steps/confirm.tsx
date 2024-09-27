@@ -1,6 +1,7 @@
 import React from "react"
 
 import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
@@ -48,8 +49,9 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
         setTaskId(data.taskId)
         onNext()
         const message = constructStartToastMessage(UpdateType.PlaceOrder)
-        toast.loading(message, {
+        toast.success(message, {
           id: data.taskId,
+          icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
         })
       },
     },
