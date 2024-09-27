@@ -50,17 +50,6 @@ export function DefaultStep(props: {
           {...props}
         />
       </div>
-      {/* <DialogFooter className="mt-auto p-6 pt-0">
-        <DialogClose asChild>
-          <Button
-            className="font-extended text-lg"
-            size="xl"
-            variant="outline"
-          >
-            Close
-          </Button>
-        </DialogClose>
-      </DialogFooter> */}
     </>
   )
 }

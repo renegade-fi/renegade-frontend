@@ -58,7 +58,7 @@ export function SuccessStepWithoutSavings() {
 
   return (
     <>
-      <DialogHeader className="text-left">
+      <DialogHeader className="mt-[90px] text-left">
         <DialogTitle className="flex items-center gap-2 p-6 font-extended">
           {Icon}
           {title}
