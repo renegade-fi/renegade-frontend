@@ -19,6 +19,12 @@ import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/de
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
 import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -62,6 +68,7 @@ const formSchema = z.object({
   base: z.string(),
   isSell: z.boolean(),
   isUSDCDenominated: z.boolean(),
+  minFillAmount: z.string().optional(),
 })
 
 export type NewOrderFormProps = z.infer<typeof formSchema>
@@ -87,6 +94,7 @@ export function NewOrderForm({
     base,
     isSell: side === Side.SELL,
     isUSDCDenominated: isUSDCDenominated ?? false,
+    minFillAmount: "",
   }
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -145,12 +153,22 @@ export function NewOrderForm({
       return
     }
 
+    const amount = parseFloat(values.amount)
+    const minFillAmount = parseFloat(values.minFillAmount || "0")
+
+    if (minFillAmount > amount) {
+      form.setError("minFillAmount", {
+        message: "Min. Fill Amount must be less than or equal to Amount",
+      })
+      return
+    }
     form.trigger().then((isValid) => {
       if (isValid) {
         onSubmit({
           ...values,
           ...fees,
           amount: values.isUSDCDenominated ? priceInBase : values.amount,
+          minFillAmount: values.minFillAmount || "0",
         })
       }
     })
@@ -313,6 +331,41 @@ export function NewOrderForm({
         ) : (
           <ConnectButton className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal" />
         )}
+        <Accordion
+          collapsible
+          type="single"
+        >
+          <AccordionItem
+            className="border-none"
+            value="item-1"
+          >
+            <AccordionTrigger className="py-0 text-muted-foreground">
+              Advanced
+            </AccordionTrigger>
+            <AccordionContent className="pb-0 pt-4">
+              <Label className="font-sans text-muted-foreground">
+                Min. Fill Amount
+              </Label>
+              <FormField
+                control={form.control}
+                name="minFillAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <NumberInput
+                        className="rounded-none font-mono focus-visible:ring-0"
+                        placeholder="0"
+                        {...field}
+                        type="number"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <div className="space-y-3 whitespace-nowrap text-sm">
           <div className="flex items-center justify-between">
             <Tooltip>
