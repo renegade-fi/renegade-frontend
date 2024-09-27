@@ -29,6 +29,10 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
     order.data.amount,
     token.decimals,
   )
+  const formattedMinFillAmount = formatNumber(
+    order.data.min_fill_amount || BigInt(0),
+    token.decimals,
+  )
   const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${token.ticker} ${
     order.data.side === "Buy" ? "with" : "for"
   } USDC`
@@ -76,6 +80,9 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
             </ResponsiveTooltipContent>
           </ResponsiveTooltip>
           <div>Midpoint Peg</div>
+          <div>
+            Min fill amount: {formattedMinFillAmount} {token.ticker}
+          </div>
         </div>
       </div>
       <Separator className="lg:hidden" />

@@ -48,6 +48,10 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
     Number(order.data.amount),
   )
   const remainingAmount = order.data.amount - filledAmount
+  const formattedMinFillAmount = formatNumber(
+    order.data.min_fill_amount || BigInt(0),
+    token.decimals,
+  )
 
   const formattedTotalAmount = formatNumber(
     order.data.amount,
@@ -158,6 +162,9 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
           <div className="flex items-center gap-2">
             <Progress value={percentageFilled} />
             <div>{percentageFilledLabel}</div>
+          </div>
+          <div>
+            Min fill amount: {formattedMinFillAmount} {token.ticker}
           </div>
         </div>
       </div>
