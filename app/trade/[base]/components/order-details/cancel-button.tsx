@@ -11,11 +11,14 @@ import {
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { usePrepareCancelOrder } from "@/hooks/usePrepareCancelOrder"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { cn } from "@/lib/utils"
 
 export function CancelButton({
+  className,
   id,
   isDisabled,
 }: {
+  className?: string
   id: string
   isDisabled?: boolean
 }) {
@@ -27,7 +30,7 @@ export function CancelButton({
       <ResponsiveTooltipTrigger className="!pointer-events-auto w-full">
         <Button
           autoFocus
-          className="w-full flex-1"
+          className={cn("w-full flex-1", className)}
           disabled={
             isDisabled ||
             (maintenanceMode?.enabled &&
