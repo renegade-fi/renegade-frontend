@@ -34,10 +34,23 @@ export function DefaultStep(props: {
         />
       </div>
       <Separator />
-      <div className="overflow-y-auto py-6">
-        <NewOrderForm {...props} />
+      <div className="h-full overflow-y-auto py-6">
+        <NewOrderForm
+          closeButton={
+            <DialogClose asChild>
+              <Button
+                className="flex-1 font-extended text-lg"
+                size="xl"
+                variant="outline"
+              >
+                Close
+              </Button>
+            </DialogClose>
+          }
+          {...props}
+        />
       </div>
-      <DialogFooter className="mt-auto p-6 pt-0">
+      {/* <DialogFooter className="mt-auto p-6 pt-0">
         <DialogClose asChild>
           <Button
             className="font-extended text-lg"
@@ -47,7 +60,7 @@ export function DefaultStep(props: {
             Close
           </Button>
         </DialogClose>
-      </DialogFooter>
+      </DialogFooter> */}
     </>
   )
 }

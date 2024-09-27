@@ -70,10 +70,12 @@ export function NewOrderForm({
   base,
   isUSDCDenominated,
   onSubmit,
+  closeButton,
 }: {
   base: string
   isUSDCDenominated?: boolean
   onSubmit: (values: NewOrderConfirmationProps) => void
+  closeButton?: React.ReactNode
 }) {
   const { side, setSide } = useSide()
   const { data: maintenanceMode } = useMaintenanceMode()
@@ -157,7 +159,7 @@ export function NewOrderForm({
   return (
     <Form {...form}>
       <form
-        className="space-y-6 px-6"
+        className="flex h-full flex-col gap-6 px-6"
         onSubmit={form.handleSubmit(handleSubmit)}
       >
         <div className="flex">
@@ -279,7 +281,7 @@ export function NewOrderForm({
           ticker={base}
         />
         {status === "in relayer" ? (
-          <div>
+          <div className="hidden lg:block">
             <ResponsiveTooltip>
               <ResponsiveTooltipTrigger className="!pointer-events-auto w-full">
                 <Button
@@ -344,6 +346,22 @@ export function NewOrderForm({
             amount={form.watch("amount")}
             {...fees}
           />
+        </div>
+        <div className="mt-auto flex flex-row lg:hidden">
+          {closeButton}
+          <Button
+            className="flex-1 font-extended text-lg"
+            disabled={
+              !form.formState.isValid ||
+              isMaxOrders ||
+              (maintenanceMode?.enabled &&
+                maintenanceMode.severity === "critical")
+            }
+            size="xl"
+            variant="default"
+          >
+            {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+          </Button>
         </div>
       </form>
     </Form>
