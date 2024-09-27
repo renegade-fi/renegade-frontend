@@ -44,6 +44,20 @@ export const erc20Abi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// weth
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const wethAbi = [
+  {
+    type: "function",
+    inputs: [],
+    name: "deposit",
+    outputs: [],
+    stateMutability: "payable",
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Action
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -94,6 +108,34 @@ export const simulateErc20 = /*#__PURE__*/ createSimulateContract({
 export const simulateErc20Approve = /*#__PURE__*/ createSimulateContract({
   abi: erc20Abi,
   functionName: "approve",
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link wethAbi}__
+ */
+export const writeWeth = /*#__PURE__*/ createWriteContract({ abi: wethAbi })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"deposit"`
+ */
+export const writeWethDeposit = /*#__PURE__*/ createWriteContract({
+  abi: wethAbi,
+  functionName: "deposit",
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link wethAbi}__
+ */
+export const simulateWeth = /*#__PURE__*/ createSimulateContract({
+  abi: wethAbi,
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"deposit"`
+ */
+export const simulateWethDeposit = /*#__PURE__*/ createSimulateContract({
+  abi: wethAbi,
+  functionName: "deposit",
 })
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,4 +193,34 @@ export const useSimulateErc20 = /*#__PURE__*/ createUseSimulateContract({
 export const useSimulateErc20Approve = /*#__PURE__*/ createUseSimulateContract({
   abi: erc20Abi,
   functionName: "approve",
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link wethAbi}__
+ */
+export const useWriteWeth = /*#__PURE__*/ createUseWriteContract({
+  abi: wethAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"deposit"`
+ */
+export const useWriteWethDeposit = /*#__PURE__*/ createUseWriteContract({
+  abi: wethAbi,
+  functionName: "deposit",
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link wethAbi}__
+ */
+export const useSimulateWeth = /*#__PURE__*/ createUseSimulateContract({
+  abi: wethAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"deposit"`
+ */
+export const useSimulateWethDeposit = /*#__PURE__*/ createUseSimulateContract({
+  abi: wethAbi,
+  functionName: "deposit",
 })
