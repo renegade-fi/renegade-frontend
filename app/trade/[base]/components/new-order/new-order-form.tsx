@@ -68,7 +68,7 @@ const formSchema = z.object({
   base: z.string(),
   isSell: z.boolean(),
   isUSDCDenominated: z.boolean(),
-  minFillAmount: z.string().optional(),
+  minFillAmount: z.string(),
 })
 
 export type NewOrderFormProps = z.infer<typeof formSchema>

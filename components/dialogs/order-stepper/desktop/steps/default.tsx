@@ -58,7 +58,9 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
+    minFillAmount: props.minFillAmount,
   })
+  console.log("🚀 ~ DefaultStep ~ request:", request)
 
   const { createOrder } = useCreateOrder({
     mutation: {
