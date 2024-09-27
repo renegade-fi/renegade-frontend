@@ -3,6 +3,7 @@
 import React from "react"
 
 import { Task, useTaskHistoryWebSocket } from "@renegade-fi/react"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import {
@@ -75,22 +76,30 @@ function processTask(
 
   if (incomingTask.state === "Completed") {
     const message = generateCompletionToastMessage(incomingTask)
-    toast.success(message, { id, description: state })
+    toast.success(message, { id, description: state, icon: undefined })
   } else if (incomingTask.state === "Failed") {
     const message = generateFailedToastMessage(incomingTask)
-    toast.error(message, { id })
+    toast.error(message, { id, icon: undefined })
   } else if (incomingTask.state === "Proving") {
     const message = generateStartToastMessage(incomingTask)
-    toast.loading(message, { id, description: state })
+    toast.success(message, {
+      id,
+      description: state,
+      icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+    })
   } else if (
     incomingTask.state === "Updating Validity Proofs" &&
     isDepositTask(incomingTask)
   ) {
     const message = generateCompletionToastMessage(incomingTask)
-    toast.success(message, { id, description: "Completed" })
+    toast.success(message, { id, description: "Completed", icon: undefined })
   } else {
     const message = generateStartToastMessage(incomingTask)
-    toast.loading(message, { id, description: state })
+    toast.success(message, {
+      id,
+      description: state,
+      icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+    })
   }
 
   scheduleToastDismissal(id)
@@ -106,18 +115,22 @@ function processWithdrawTask(
 
     if (incomingTask.state === "Completed") {
       const message = generateCompletionToastMessage(incomingTask)
-      toast.success(message, { id, description: state })
+      toast.success(message, { id, description: state, icon: undefined })
     } else if (incomingTask.state === "Failed") {
       const message = generateFailedToastMessage(incomingTask)
-      toast.error(message, { id })
+      toast.error(message, { id, icon: undefined })
     } else if (incomingTask.state === "Updating Validity Proofs") {
       const message = generateCompletionToastMessage(incomingTask)
-      toast.success(message, { id, description: "Completed" })
+      toast.success(message, { id, description: "Completed", icon: undefined })
     } else if (incomingTask.state === "Proving") {
       return
     } else {
       const message = generateStartToastMessage(incomingTask)
-      toast.loading(message, { id, description: state })
+      toast.success(message, {
+        id,
+        description: state,
+        icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+      })
     }
 
     scheduleToastDismissal(id)

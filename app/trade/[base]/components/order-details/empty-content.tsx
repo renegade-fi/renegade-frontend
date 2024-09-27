@@ -56,7 +56,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
             side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
           />
         )}
-        <div className="flex lg:ml-auto">
+        <div className="hidden lg:ml-auto lg:flex">
           <CancelButton
             id={order.id}
             isDisabled={!isCancellable}
@@ -77,6 +77,14 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
           </ResponsiveTooltip>
           <div>Midpoint Peg</div>
         </div>
+      </div>
+      <Separator className="lg:hidden" />
+      <div className="flex p-6 lg:hidden">
+        <CancelButton
+          className="border-destructive"
+          id={order.id}
+          isDisabled={!isCancellable}
+        />
       </div>
       <Separator />
       <div className="grid h-[500px] place-items-center p-4">

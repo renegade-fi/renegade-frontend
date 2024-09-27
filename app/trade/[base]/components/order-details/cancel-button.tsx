@@ -1,4 +1,5 @@
 import { UpdateType, useCancelOrder } from "@renegade-fi/react"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -48,8 +49,11 @@ export function CancelButton({
                   const message = constructStartToastMessage(
                     UpdateType.CancelOrder,
                   )
-                  toast.loading(message, {
+                  toast.success(message, {
                     id: data.taskId,
+                    icon: (
+                      <Loader2 className="h-4 w-4 animate-spin text-black" />
+                    ),
                   })
                 },
               },
