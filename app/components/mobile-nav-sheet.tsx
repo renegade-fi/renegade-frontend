@@ -86,6 +86,13 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
           >
             Stats
           </Link>
+          <a
+            href="https://help.renegade.fi/hc/en-us"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Help
+          </a>
         </div>
         <Separator />
         <div className="flex justify-between p-8">
