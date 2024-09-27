@@ -3,9 +3,9 @@ import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { erc20Abi, isAddress } from "viem"
-import { useAccount, useReadContracts } from "wagmi"
+import { useAccount, useBalance, useReadContracts } from "wagmi"
 
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/transfer-dialog"
+import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -43,6 +43,9 @@ export function TokenSelect({
 }) {
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
+
+  const { data: ethBalance } = useBalance({ address })
+
   const { data: l2Balances, queryKey } = useReadContracts({
     contracts: DISPLAY_TOKENS().map((token) => ({
       address: token.address,
@@ -73,10 +76,16 @@ export function TokenSelect({
     },
   })
 
-  const displayBalances =
-    direction === ExternalTransferDirection.Deposit
-      ? l2Balances
-      : renegadeBalances
+  // TODO: Sometimes old balances are added
+  const displayBalances = React.useMemo(() => {
+    if (direction !== ExternalTransferDirection.Deposit) return renegadeBalances
+    if (!l2Balances) return undefined
+    const weth = Token.findByTicker("WETH")
+    const combinedEthBalance =
+      (l2Balances?.get(weth.address) ?? BigInt(0)) +
+      (ethBalance?.value ?? BigInt(0))
+    return new Map(l2Balances).set(weth.address, combinedEthBalance)
+  }, [direction, ethBalance?.value, l2Balances, renegadeBalances])
 
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 
