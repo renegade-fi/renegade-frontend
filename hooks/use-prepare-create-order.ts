@@ -30,7 +30,15 @@ export type UsePrepareCreateOrderReturnType = {
 export function usePrepareCreateOrder(
   parameters: UsePrepareCreateOrderParameters,
 ) {
-  const { id = "", base, quote, side, amount, worstCasePrice, minFillAmount } = parameters
+  const {
+    id = "",
+    base,
+    quote,
+    side,
+    amount,
+    worstCasePrice,
+    minFillAmount,
+  } = parameters
   const config = useConfig()
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
@@ -49,8 +57,10 @@ export function usePrepareCreateOrder(
       minFillAmount,
       Token.findByAddress(base).decimals,
     )
-    if (parsedMinFillAmount instanceof Error) return Error("Failed to parse min fill amount.")
-    if (parsedMinFillAmount > parsedAmount) return Error("Min fill amount must be less than or equal to amount.")
+    if (parsedMinFillAmount instanceof Error)
+      return Error("Failed to parse min fill amount.")
+    if (parsedMinFillAmount > parsedAmount)
+      return Error("Min fill amount must be less than or equal to amount.")
     return config.utils.new_order(
       config.state.seed,
       stringifyForWasm(wallet),
@@ -62,6 +72,18 @@ export function usePrepareCreateOrder(
       worstCasePrice,
       toHex(parsedMinFillAmount),
     ) as string
-  }, [config.state.seed, config.utils, isSuccess, wallet, worstCasePrice, amount, base, minFillAmount, id, quote, side])
+  }, [
+    config.state.seed,
+    config.utils,
+    isSuccess,
+    wallet,
+    worstCasePrice,
+    amount,
+    base,
+    minFillAmount,
+    id,
+    quote,
+    side,
+  ])
   return { request }
 }
