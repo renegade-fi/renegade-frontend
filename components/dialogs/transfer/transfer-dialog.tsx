@@ -609,7 +609,7 @@ function TransferForm({
             <ResponsiveTooltip>
               <ResponsiveTooltipTrigger className="flex-1">
                 <Button
-                  className="w-full !border-l-0 font-extended text-lg"
+                  className="w-full whitespace-normal !border-l-0 font-extended text-lg leading-tight"
                   disabled={
                     !form.formState.isValid ||
                     (direction === ExternalTransferDirection.Deposit &&
