@@ -116,7 +116,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
             side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
           />
         )}
-        <div className="flex lg:ml-auto">
+        <div className="hidden lg:ml-auto lg:flex">
           <CancelButton
             id={order.id}
             isDisabled={!isCancellable}
@@ -164,6 +164,14 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
       <Separator />
       <FillChart order={order} />
       <Separator />
+      <div className="p-6 lg:hidden">
+        <CancelButton
+          className="border-destructive"
+          id={order.id}
+          isDisabled={!isCancellable}
+        />
+      </div>
+      <Separator className="lg:hidden" />
       <div className="space-y-4 p-6">
         <h3 className="font-semibold leading-none tracking-tight">Fills</h3>
         <DataTable
