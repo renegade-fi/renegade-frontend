@@ -17,6 +17,7 @@ export interface HistoricalVolumeResponse {
   totalPoints: number
 }
 
+export const runtime = "edge"
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
