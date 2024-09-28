@@ -135,6 +135,16 @@ export function constructMetadata({
       default: "Trade | Renegade",
     },
     description,
+    icons: {
+      icon: [
+        { url: "/icons/icon1.png", sizes: "32x32", type: "image/png" },
+        { url: "/icons/icon2.png", sizes: "16x16", type: "image/png" },
+      ],
+      shortcut: "/icons/apple-icon.png",
+      apple: [
+        { url: "/icons/apple-icon.png", sizes: "180x180", type: "image/png" },
+      ],
+    },
     openGraph: {
       title,
       description,
@@ -163,6 +173,16 @@ export function constructMetadata({
         follow: false,
       },
     }),
+    appleWebApp: {
+      title: "Renegade",
+      statusBarStyle: "black",
+      startupImage: [
+        {
+          url: "/startup/apple-touch-startup-image-1179x2556.png",
+          media: "screen and (orientation: portrait)",
+        },
+      ],
+    },
   }
 }
 
