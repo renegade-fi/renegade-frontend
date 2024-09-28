@@ -24,10 +24,29 @@ export async function GET(req: NextRequest) {
   try {
     const allKeys = await getAllSetMembers(kv, HISTORICAL_VOLUME_SET_KEY)
 
-    // Use pipelining to fetch all data in a single round-trip
-    const pipeline = kv.pipeline()
-    allKeys.forEach((key) => pipeline.get(key))
-    const data = await pipeline.exec()
+    // Fetch all values for the keys using individual GET requests
+    const data = await Promise.all(
+      allKeys.map(async (key) => {
+        const response = await fetch(
+          `${process.env.KV_REST_API_URL}/get/${key}`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+            },
+            cache: "no-store",
+          },
+        )
+
+        if (!response.ok) {
+          throw new Error(
+            `HTTP error! status: ${response.status} for key: ${key}`,
+          )
+        }
+
+        const { result } = await response.json()
+        return JSON.parse(result) as VolumeDataPoint
+      }),
+    )
 
     const volumeData: VolumeDataPoint[] = []
     let startTimestamp = Infinity

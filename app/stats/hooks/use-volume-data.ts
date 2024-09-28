@@ -26,7 +26,9 @@ export function useVolumeData(): UseHistoricalVolumeResult {
 }
 
 export async function getHistoricalVolume(): Promise<VolumeDataPoint[]> {
-  const res = await fetch("/api/stats/historical-volume-kv", { cache: 'no-store' })
+  const res = await fetch("/api/stats/historical-volume-kv", {
+    cache: "no-store",
+  })
 
   if (!res.ok) {
     throw new Error(`Failed to fetch historical volume data: ${res.statusText}`)
