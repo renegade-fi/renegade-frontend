@@ -4,6 +4,8 @@ import { Footer } from "@/app/components/footer"
 import { Header } from "@/app/components/header"
 import { PageClient } from "@/app/stats/page-client"
 
+export const fetchCache = "force-no-store"
+
 export default function Page() {
   unstable_noStore()
   return (
