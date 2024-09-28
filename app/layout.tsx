@@ -117,7 +117,10 @@ export default async function RootLayout({
               <InvalidateQueries />
               <OrderToaster />
               <TaskToaster />
-              <ReactQueryDevtools initialIsOpen={false} />
+              <ReactQueryDevtools
+                buttonPosition="bottom-left"
+                initialIsOpen={false}
+              />
               <Faucet />
               <LazyDatadog />
               <ClearCookie />
