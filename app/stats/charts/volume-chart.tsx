@@ -5,7 +5,6 @@ import * as React from "react"
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
-import { useCumulativeVolume } from "@/app/stats/hooks/use-cumulative-volume"
 import { useVolumeData } from "@/app/stats/hooks/use-volume-data"
 
 import {
