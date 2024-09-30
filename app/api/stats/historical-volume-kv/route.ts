@@ -24,29 +24,48 @@ export async function GET(req: NextRequest) {
   try {
     const allKeys = await getAllSetMembers(kv, HISTORICAL_VOLUME_SET_KEY)
 
-    // Fetch all values for the keys using individual GET requests
-    const data = await Promise.all(
-      allKeys.map(async (key) => {
-        const response = await fetch(
-          `${process.env.KV_REST_API_URL}/get/${key}`,
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
-            },
-            cache: "no-store",
-          },
-        )
+    const pipelineBody = JSON.stringify(allKeys.map((key) => ["GET", key]))
 
-        if (!response.ok) {
-          throw new Error(
-            `HTTP error! status: ${response.status} for key: ${key}`,
-          )
-        }
-
-        const { result } = await response.json()
-        return JSON.parse(result) as VolumeDataPoint
-      }),
+    // Fetch all values for the keys using a single pipeline request
+    const pipelineResponse = await fetch(
+      `${process.env.KV_REST_API_URL}/pipeline`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+        },
+        body: pipelineBody,
+        cache: "no-store",
+      },
     )
+
+    if (!pipelineResponse.ok) {
+      throw new Error(`HTTP error! status: ${pipelineResponse.status}`)
+    }
+
+    const pipelineResults = await pipelineResponse.json()
+
+    // Process the pipeline results
+    const data: VolumeDataPoint[] = pipelineResults
+      .map(({ result }: { result: string | null }, index: number) => {
+        if (result === null) {
+          console.warn(`No data found for key: ${allKeys[index]}`)
+          return null
+        }
+        try {
+          return JSON.parse(result) as VolumeDataPoint
+        } catch (error) {
+          console.error(
+            `Error parsing result for key ${allKeys[index]}:`,
+            error,
+          )
+          return null
+        }
+      })
+      .filter(
+        (item: VolumeDataPoint | null): item is VolumeDataPoint =>
+          item !== null,
+      )
 
     const volumeData: VolumeDataPoint[] = []
     let startTimestamp = Infinity
