@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 
 import numeral from "numeral"
@@ -57,15 +55,7 @@ export function VolumeChart() {
     volume: dataPoint.volume,
   }))
 
-  // const { data: cumulativeData } = useCumulativeVolume({
-  //   from: now - 2 * timePeriod.day,
-  //   to: now,
-  // })
-  // const cumulativeVolumeLabel = React.useMemo(() => {
-  //   if (!cumulativeData) return ""
-  //   return formatStat(cumulativeData[cumulativeData.length - 1].volume)
-  // }, [cumulativeData])
-  const cumulativeVolume = chartData?.[chartData.length - 1]?.volume
+  const cumulativeVolume = chartData?.[chartData.length - 2]?.volume
   const cumulativeVolumeLabel = formatStat(cumulativeVolume ?? 0)
 
   return (
@@ -73,7 +63,7 @@ export function VolumeChart() {
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="font-serif text-4xl font-bold tracking-tighter lg:tracking-normal">
-            {cumulativeVolumeLabel ? (
+            {cumulativeVolume ? (
               cumulativeVolumeLabel
             ) : (
               <Skeleton className="h-10 w-40" />
