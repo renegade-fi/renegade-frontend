@@ -25,16 +25,36 @@ export async function GET(req: NextRequest) {
 
     const transactionHashes = await getAllSetMembers(kv, INFLOWS_SET_KEY)
 
-    // Use pipelining to fetch all data in a single round-trip
-    const pipeline = kv.pipeline()
-    transactionHashes.forEach((hash) => pipeline.get(`${INFLOWS_KEY}:${hash}`))
-    const data = await pipeline.exec()
+    // Use fetch pipeline to get all data in a single round-trip
+    const pipelineBody = JSON.stringify(
+      transactionHashes.map((hash) => ["GET", `${INFLOWS_KEY}:${hash}`]),
+    )
+
+    const pipelineResponse = await fetch(
+      `${process.env.KV_REST_API_URL}/pipeline`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+        },
+        body: pipelineBody,
+        cache: "no-store",
+      },
+    )
+
+    if (!pipelineResponse.ok) {
+      throw new Error(`HTTP error! status: ${pipelineResponse.status}`)
+    }
+
+    const pipelineResults = await pipelineResponse.json()
 
     const buckets: Record<string, BucketData> = {}
 
-    data.forEach((item) => {
-      if (item && typeof item === "object" && "timestamp" in item) {
-        const transfer = item as ExternalTransferData
+    pipelineResults.forEach(({ result }: { result: string | null }) => {
+      if (result === null) return
+
+      try {
+        const transfer = JSON.parse(result) as ExternalTransferData
         const bucketTimestamp = startOfPeriod(transfer.timestamp, intervalMs)
         const bucketKey = bucketTimestamp.toString()
 
@@ -51,6 +71,8 @@ export async function GET(req: NextRequest) {
         } else {
           buckets[bucketKey].depositAmount += transfer.amount
         }
+      } catch (error) {
+        console.error("Error parsing result:", error)
       }
     })
 
