@@ -1,7 +1,3 @@
-import { NextRequest } from "next/server"
-
-import { kv } from "@vercel/kv"
-
 import { NET_FLOW_KEY } from "@/app/api/stats/constants"
 
 export interface NetFlowResponse {
@@ -12,14 +8,31 @@ export interface NetFlowResponse {
 export const runtime = "edge"
 export const dynamic = "force-dynamic"
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const data = await kv.get<NetFlowResponse>(NET_FLOW_KEY)
+    const response = await fetch(
+      `${process.env.KV_REST_API_URL}/get/${NET_FLOW_KEY}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+        },
+        cache: "no-store",
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+
     if (data) {
-      return new Response(JSON.stringify(data), {
+      return new Response(data.result, {
         headers: { "Content-Type": "application/json" },
       })
     }
+
     return new Response(
       JSON.stringify({ error: "Net flow data not available" }),
       {
@@ -28,6 +41,7 @@ export async function GET(req: NextRequest) {
       },
     )
   } catch (error) {
+    console.error("Error fetching net flow data:", error)
     return new Response(
       JSON.stringify({ error: "Failed to retrieve net flow data" }),
       {
