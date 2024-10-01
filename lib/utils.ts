@@ -190,8 +190,22 @@ export function decimalCorrectPrice(
 }
 
 export function constructExchangeUrl(exchange: Exchange, base: string) {
-  const remappedBase = remapToken(base)
   const quote = remapQuote(exchange)
+  if (base.toLowerCase() === "wbtc") {
+    switch (exchange) {
+      case "binance":
+        return `https://www.binance.com/en/trade/WBTC_${quote}`
+      case "coinbase":
+        return `https://www.coinbase.com/advanced-trade/BTC-${quote}`
+      case "kraken":
+        return `https://pro.kraken.com/app/trade/BTC-${quote}`
+      case "okx":
+        return `https://www.okx.com/trade-spot/WBTC-${quote}`
+      default:
+        return ""
+    }
+  }
+  const remappedBase = remapToken(base)
   switch (exchange) {
     case "binance":
       return `https://www.binance.com/en/trade/${remappedBase}_${quote}`
