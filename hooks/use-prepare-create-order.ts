@@ -53,7 +53,7 @@ export function usePrepareCreateOrder(
       side,
       toHex(parsedAmount),
       worstCasePrice,
-      toHex(BigInt(0))
+      toHex(BigInt(0)),
     ) as string
   }, [
     config.state.seed,
