@@ -49,7 +49,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
   )
   const remainingAmount = order.data.amount - filledAmount
   const formattedMinFillAmount = formatNumber(
-    order.data.min_fill_amount || BigInt(0),
+    order.data.min_fill_size || BigInt(0),
     token.decimals,
   )
 

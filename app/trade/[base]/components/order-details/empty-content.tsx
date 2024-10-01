@@ -30,7 +30,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
     token.decimals,
   )
   const formattedMinFillAmount = formatNumber(
-    order.data.min_fill_amount || BigInt(0),
+    order.data.min_fill_size || BigInt(0),
     token.decimals,
   )
   const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${token.ticker} ${
