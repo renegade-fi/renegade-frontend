@@ -29,7 +29,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
     order.data.amount,
     token.decimals,
   )
-  const formattedMinFillAmount = formatNumber(
+  const formattedMinFillAmount = formatUnits(
     order.data.min_fill_size || BigInt(0),
     token.decimals,
   )
