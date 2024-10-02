@@ -8,6 +8,7 @@ import { Smartphone } from "lucide-react"
 import { useLocalStorage } from "usehooks-ts"
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogClose,
@@ -20,13 +21,13 @@ import {
 } from "@/components/ui/dialog"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
 import {
   Tooltip,
   TooltipContent,
@@ -63,17 +64,24 @@ export function SettingsDropdown({ children }: { children: React.ReactNode }) {
           side="bottom"
         >
           <DropdownMenuLabel>Settings</DropdownMenuLabel>
-          <DropdownMenuCheckboxItem
-            checked={rememberMe}
-            id="remember-me"
-            onCheckedChange={(checked) => {
-              if (typeof checked === "boolean") {
-                setRememberMe(checked)
-              }
+          <DropdownMenuItem
+            className="grid grid-cols-2 items-center gap-4"
+            onSelect={(e) => {
+              e.preventDefault()
+              setRememberMe(!rememberMe)
             }}
           >
-            Remember me
-          </DropdownMenuCheckboxItem>
+            <Label>Remember me</Label>
+            <Checkbox
+              checked={rememberMe}
+              className="justify-self-end"
+              onCheckedChange={(checked) => {
+                if (typeof checked === "boolean") {
+                  setRememberMe(checked)
+                }
+              }}
+            />
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DialogTrigger
             asChild
@@ -90,8 +98,11 @@ export function SettingsDropdown({ children }: { children: React.ReactNode }) {
                 {walletId}
               </DropdownMenuItem>
             </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-sans">Copy wallet ID</p>
+            <TooltipContent
+              className="font-sans"
+              side="left"
+            >
+              Copy wallet ID
             </TooltipContent>
           </Tooltip>
         </DropdownMenuContent>
