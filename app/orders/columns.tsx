@@ -1,4 +1,4 @@
-import { OrderState, Token } from "@renegade-fi/react"
+import { OrderState, Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
@@ -105,12 +105,25 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     id: "status",
     accessorKey: "state",
     header: () => <div>Status</div>,
-    cell: ({ row }) => {
-      return (
-        <div className="whitespace-nowrap">
-          {formatOrderState[row.getValue<OrderState>("status")]}
-        </div>
-      )
+    cell: function Cell({ row }) {
+      const { data: isCapitalized } = useBackOfQueueWallet({
+        query: {
+          select: (data) =>
+            data.balances.some(
+              (balance) =>
+                balance.mint ===
+                  (row.original.data.side === "Buy"
+                    ? row.original.data.quote_mint
+                    : row.original.data.base_mint) &&
+                balance.amount > BigInt(0),
+            ),
+        },
+      })
+      let status: string = formatOrderState[row.getValue<OrderState>("status")]
+      if (!isCapitalized && status === "Open") {
+        status = "Undercapitalized"
+      }
+      return <div className="whitespace-nowrap">{status}</div>
     },
     filterFn: (row, _, filterValue) => {
       if (filterValue === "open") {
@@ -259,7 +272,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
       return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
     },
     header: () => <div className="w-[100px]">Filled</div>,
-    cell: ({ row }) => {
+    cell: function Cell({ row }) {
       const filledAmount = row.getValue<bigint>("filled")
       const totalAmount = row.getValue<bigint>("amount")
       const percentageFilled =
@@ -272,28 +285,43 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
         Number(filledAmount),
         Number(totalAmount),
       )
-      return (
-        <>
-          {!row.original.fills.length &&
-          row.original.state !== OrderState.Cancelled ? (
-            <div className="whitespace-nowrap">
-              Finding counterparties
-              <AnimatedEllipsis />
+      const { data: isCapitalized } = useBackOfQueueWallet({
+        query: {
+          select: (data) =>
+            data.balances.some(
+              (balance) =>
+                balance.mint ===
+                  (row.original.data.side === "Buy"
+                    ? row.original.data.quote_mint
+                    : row.original.data.base_mint) &&
+                balance.amount > BigInt(0),
+            ),
+        },
+      })
+      if (
+        row.original.fills.length ||
+        row.original.state === OrderState.Cancelled
+      ) {
+        return (
+          <div className="flex items-center justify-between gap-2">
+            {percentageFilledNumber ? (
+              <Progress value={percentageFilledNumber} />
+            ) : (
+              <></>
+            )}
+            <div className="ml-auto text-right text-sm">
+              {percentageFilledLabel}
             </div>
-          ) : (
-            <div className="flex items-center justify-between gap-2">
-              {percentageFilledNumber ? (
-                <Progress value={percentageFilledNumber} />
-              ) : (
-                <></>
-              )}
-              <div className="ml-auto text-right text-sm">
-                {percentageFilledLabel}
-              </div>
-            </div>
-          )}
-        </>
-      )
+          </div>
+        )
+      } else if (isCapitalized) {
+        return (
+          <div className="whitespace-nowrap">
+            Finding counterparties
+            <AnimatedEllipsis />
+          </div>
+        )
+      }
     },
   },
   {
