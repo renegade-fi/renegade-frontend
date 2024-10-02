@@ -12,7 +12,7 @@ import { createConfig, http, useAccount, useEnsName } from "wagmi"
 import { AccountDropdown } from "@/app/components/account-menu"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 import { MobileNavSheet } from "@/app/components/mobile-nav-sheet"
-import { SettingsPopover } from "@/app/trade/[base]/components/settings-popover"
+import { SettingsDropdown } from "@/app/trade/[base]/components/settings-dropdown"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
@@ -76,14 +76,14 @@ export function Header() {
             <ConnectWalletButton className="text-sm" />
           )}
           {status === "in relayer" && (
-            <SettingsPopover>
+            <SettingsDropdown>
               <Button
                 size="icon"
                 variant="outline"
               >
                 <Ellipsis className="h-4 w-4 text-muted-foreground" />
               </Button>
-            </SettingsPopover>
+            </SettingsDropdown>
           )}
         </div>
       </div>
@@ -185,14 +185,14 @@ export function Header() {
             <ConnectWalletButton />
           )}
           {status === "in relayer" && (
-            <SettingsPopover>
+            <SettingsDropdown>
               <Button
                 size="icon"
                 variant="outline"
               >
                 <Ellipsis className="h-4 w-4 text-muted-foreground" />
               </Button>
-            </SettingsPopover>
+            </SettingsDropdown>
           )}
         </div>
       </div>
