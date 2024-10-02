@@ -33,12 +33,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useMediaQuery } from "@/hooks/use-media-query"
 import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
+import { cn } from "@/lib/utils"
 
 export function SettingsDropdown({ children }: { children: React.ReactNode }) {
   const config = useConfig()
   const status = useStatus()
   const walletId = useWalletId()
+  const isPWA = useMediaQuery("(display-mode: standalone)")
   const handleRefreshWallet = async () => {
     if (status === "in relayer") {
       await refreshWallet(config)
@@ -74,7 +77,7 @@ export function SettingsDropdown({ children }: { children: React.ReactNode }) {
           <DropdownMenuSeparator />
           <DialogTrigger
             asChild
-            className="lg:hidden"
+            className={cn("lg:hidden", isPWA && "hidden")}
           >
             <DropdownMenuItem>Install Mobile App</DropdownMenuItem>
           </DialogTrigger>
