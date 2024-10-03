@@ -1,7 +1,12 @@
 import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
+import {
+  Token,
+  UpdateType,
+  useBackOfQueueWallet,
+  useCreateOrder,
+} from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -14,9 +19,11 @@ import {
   NewOrderConfirmationProps,
   useStepper,
 } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
+import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
+  DialogClose,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -40,7 +47,7 @@ import { formatNumber, safeParseUnits } from "@/lib/format"
 import { decimalCorrectPrice } from "@/lib/utils"
 
 export function DefaultStep(props: NewOrderConfirmationProps) {
-  const { onNext, setTaskId } = useStepper()
+  const { onNext, setTaskId, setOpen } = useStepper()
 
   const baseToken = Token.findByTicker(props.base)
   const quoteToken = Token.findByTicker("USDC")
@@ -75,6 +82,82 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
       },
     },
   })
+
+  const { data: hasBalances } = useBackOfQueueWallet({
+    query: {
+      select: (data) =>
+        data.balances.some((balance) => balance.amount > BigInt(0)),
+    },
+  })
+  const parsedAmount = safeParseUnits(props.amount, baseToken.decimals)
+  const formattedAmount = formatNumber(
+    parsedAmount instanceof Error ? BigInt(0) : parsedAmount,
+    baseToken.decimals,
+    true,
+  )
+
+  if (!hasBalances) {
+    return (
+      <>
+        <DialogHeader className="space-y-4 px-6 pt-6">
+          <DialogTitle className="font-extended">Funds Required</DialogTitle>
+          <VisuallyHidden>
+            <DialogDescription>
+              Deposit {props.isSell ? props.base : "USDC"} to place this order.
+            </DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
+        <ScrollArea className="max-h-[70vh]">
+          <div className="space-y-6 p-6">
+            <div className="space-y-3">
+              <div className="text-muted-foreground">
+                {props.isSell ? "Sell" : "Buy"}
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="font-serif text-3xl font-bold">
+                  {formattedAmount} {props.base}
+                </div>
+                <TokenIcon ticker={props.base} />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="text-muted-foreground">
+                {props.isSell ? "For" : "With"}
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="font-serif text-3xl font-bold">USDC</div>
+                <TokenIcon ticker="USDC" />
+              </div>
+            </div>
+            <Separator />
+            <div className="flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
+                <span className="text-sm text-orange-400">
+                  You must fund your account before placing an order.
+                </span>
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
+        <DialogFooter>
+          <TransferDialog
+            mint={props.isSell ? baseToken.address : quoteToken.address}
+          >
+            <Button
+              autoFocus
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
+              Deposit {props.isSell ? props.base : "USDC"}
+            </Button>
+          </TransferDialog>
+        </DialogFooter>
+      </>
+    )
+  }
 
   return (
     <>
