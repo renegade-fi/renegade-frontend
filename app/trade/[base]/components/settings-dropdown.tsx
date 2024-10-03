@@ -94,7 +94,14 @@ export function SettingsDropdown({ children }: { children: React.ReactNode }) {
           </DropdownMenuItem>
           <Tooltip>
             <TooltipTrigger asChild>
-              <DropdownMenuItem className="text-nowrap font-mono text-xs">
+              <DropdownMenuItem
+                className="text-nowrap font-mono text-xs"
+                onSelect={() => {
+                  if (walletId) {
+                    navigator.clipboard.writeText(walletId)
+                  }
+                }}
+              >
                 {walletId}
               </DropdownMenuItem>
             </TooltipTrigger>
