@@ -1,19 +1,10 @@
 import * as React from "react"
 
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { DefaultStep } from "@/components/dialogs/order-stepper/desktop/steps/default"
 import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/desktop/steps/success-without-savings"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void
