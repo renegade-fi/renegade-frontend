@@ -35,3 +35,7 @@ export const exchangeToName: Record<Exchange, string> = {
   kraken: "Kraken",
   okx: "OKX",
 }
+
+export const MAX_INT = BigInt(
+  "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+)

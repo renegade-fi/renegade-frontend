@@ -1,5 +1,8 @@
 import { Exchange, Token } from "@renegade-fi/react"
 import { tokenMapping } from "@renegade-fi/react/constants"
+import { getAddress } from "viem"
+
+import { isTestnet } from "@/lib/viem"
 
 export const HIDDEN_TICKERS = ["USDT", "REN"]
 export const STABLECOINS = ["USDC", "USDT"]
@@ -55,3 +58,13 @@ export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
   kraken: "0x0000000000000000000000000000000000000000" as `0x${string}`,
   okx: Token.findByTicker("USDT").address,
 }
+
+// TODO: Only mainnet for now
+export const ADDITIONAL_TOKENS = {
+  "USDC.e": new Token(
+    "Bridged USDC",
+    "USDC.e",
+    getAddress("0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"),
+    6,
+  ),
+} as const

@@ -2,6 +2,12 @@
 
 import React from "react"
 
+import {
+  ChainType,
+  EVM,
+  createConfig as createLifiConfig,
+  getChains,
+} from "@lifi/sdk"
 import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider, getDefaultConfig } from "connectkit"
@@ -40,6 +46,13 @@ export const config = createConfig(
     appIcon: `${getURL()}/glyph_light.svg`,
   }),
 )
+
+createLifiConfig({
+  integrator: "renegade",
+  providers: [EVM()],
+  // We disable chain preloading and will update chain configuration in runtime
+  preloadChains: false,
+})
 
 const connectKitTheme = {
   "--ck-body-background": "hsl(var(--background))",
