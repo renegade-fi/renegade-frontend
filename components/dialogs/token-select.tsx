@@ -24,7 +24,8 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { useReadErc20BalanceOf } from "@/lib/generated"
+import { ADDITIONAL_TOKENS, DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 const tokens = DISPLAY_TOKENS().map((token) => ({
@@ -43,8 +44,6 @@ export function TokenSelect({
 }) {
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
-
-  const { data: ethBalance } = useBalance({ address })
 
   const { data: l2Balances, queryKey } = useReadContracts({
     contracts: DISPLAY_TOKENS().map((token) => ({
@@ -76,16 +75,28 @@ export function TokenSelect({
     },
   })
 
+  // Alternative balances (e.g. ETH, USDC.e)
+  const { data: ethBalance } = useBalance({ address })
+  const { data: usdceBalance } = useReadErc20BalanceOf({
+    address: ADDITIONAL_TOKENS["USDC.e"].address,
+    args: [address ?? "0x"],
+  })
+
   // TODO: Sometimes old balances are added
   const displayBalances = React.useMemo(() => {
     if (direction !== ExternalTransferDirection.Deposit) return renegadeBalances
     if (!l2Balances) return undefined
     const weth = Token.findByTicker("WETH")
+    const usdc = Token.findByTicker("USDC")
     const combinedEthBalance =
       (l2Balances?.get(weth.address) ?? BigInt(0)) +
       (ethBalance?.value ?? BigInt(0))
-    return new Map(l2Balances).set(weth.address, combinedEthBalance)
-  }, [direction, ethBalance?.value, l2Balances, renegadeBalances])
+    const combinedUsdcBalance =
+      (l2Balances?.get(usdc.address) ?? BigInt(0)) + (usdceBalance ?? BigInt(0))
+    return new Map(l2Balances)
+      .set(weth.address, combinedEthBalance)
+      .set(usdc.address, combinedUsdcBalance)
+  }, [direction, ethBalance?.value, l2Balances, renegadeBalances, usdceBalance])
 
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 

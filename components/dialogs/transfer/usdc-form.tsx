@@ -1,13 +1,11 @@
 import * as React from "react"
 
-import { usePathname, useRouter } from "next/navigation"
-
 import { Token, UpdateType } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatEther, parseEther } from "viem"
-import { useAccount, useBalance } from "wagmi"
+import { formatUnits, parseEther, parseUnits } from "viem"
+import { useAccount, useSendTransaction } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -19,6 +17,7 @@ import {
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
+import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
@@ -49,18 +48,15 @@ import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
-import {
-  useReadErc20BalanceOf,
-  useWriteErc20Approve,
-  useWriteWethDeposit,
-} from "@/lib/generated"
+import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
+import { ADDITIONAL_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
 
-import { WrapEthWarning } from "./wrap-eth-warning"
+const USDCE = ADDITIONAL_TOKENS["USDC.e"]
 
 // Assume direction is deposit and mint is WETH
-export function WETHForm({
+export function USDCForm({
   className,
   form,
   onSuccess,
@@ -69,83 +65,132 @@ export function WETHForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const { data: maintenanceMode } = useMaintenanceMode()
+  const { checkChain } = useCheckChain()
+  const queryClient = useQueryClient()
+  const { setSide } = useSide()
+  const [totalSteps, setTotalSteps] = React.useState(0)
+  const [currentStep, setCurrentStep] = React.useState(0)
 
   const mint = useWatch({
     control: form.control,
     name: "mint",
   })
-  const baseToken = Token.findByTicker("WETH")
+  const amount = useWatch({
+    control: form.control,
+    name: "amount",
+  })
+  const baseToken = Token.findByTicker("USDC")
   const { address } = useAccount()
   const isMaxBalances = useIsMaxBalances(mint)
+  // Ensure price is loaded
+  usePriceQuery(baseToken.address)
 
-  const { data: wethBalance, queryKey: wethBalanceQueryKey } =
+  const { data: usdcBalance, queryKey: usdcBalanceQueryKey } =
     useReadErc20BalanceOf({
       address: baseToken.address,
       args: [address ?? "0x"],
     })
 
-  useRefreshOnBlock({ queryKey: wethBalanceQueryKey })
+  useRefreshOnBlock({ queryKey: usdcBalanceQueryKey })
 
-  const formattedWethBalance = formatEther(wethBalance ?? BigInt(0))
-  const wethBalanceLabel = formatNumber(
-    wethBalance ?? BigInt(0),
+  const formattedUsdcBalance = formatUnits(
+    usdcBalance ?? BigInt(0),
+    baseToken.decimals,
+  )
+  const usdcBalanceLabel = formatNumber(
+    usdcBalance ?? BigInt(0),
     baseToken.decimals,
     true,
   )
 
-  // ETH-specific logic
-  const { data: ethBalance, queryKey: ethBalanceQueryKey } = useBalance({
-    address,
-  })
-  const formattedEthBalance = formatEther(ethBalance?.value ?? BigInt(0))
-  const ethBalanceLabel = formatNumber(ethBalance?.value ?? BigInt(0), 18, true)
+  // USDC.e-specific logic
+  const { data: usdceBalance, queryKey: usdceBalanceQueryKey } =
+    useReadErc20BalanceOf({
+      address: USDCE.address,
+      args: [address ?? "0x"],
+    })
+  const formattedUsdceBalance = formatUnits(
+    usdceBalance ?? BigInt(0),
+    USDCE.decimals,
+  )
+  const usdceBalanceLabel = formatNumber(
+    usdceBalance ?? BigInt(0),
+    USDCE.decimals,
+    true,
+  )
   const basePerQuotePrice = useBasePerQuotePrice(baseToken.address)
 
-  // Calculate the minimum ETH to keep unwrapped for gas fees
-  const minEthToKeepUnwrapped = basePerQuotePrice ?? BigInt(4e15)
-
   const combinedBalance =
-    (wethBalance ?? BigInt(0)) + (ethBalance?.value ?? BigInt(0))
-  const maxAmountToWrap = combinedBalance - minEthToKeepUnwrapped
-  const formattedMaxAmountToWrap = formatEther(maxAmountToWrap)
+    (usdcBalance ?? BigInt(0)) + (usdceBalance ?? BigInt(0))
+  const formattedCombinedBalance = formatUnits(
+    combinedBalance ?? BigInt(0),
+    baseToken.decimals,
+  )
 
-  const amount = useWatch({
-    control: form.control,
-    name: "amount",
+  const remainingUsdceBalance =
+    parseEther(amount) > (usdcBalance ?? BigInt(0))
+      ? combinedBalance - parseUnits(amount, baseToken.decimals)
+      : usdceBalance ?? BigInt(0)
+
+  // If the amount is greater than the USDC balance, we need to swap USDCe
+  const needsSwap =
+    parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
+
+  const amountToSwap = parseFloat(amount) - parseFloat(formattedUsdcBalance)
+  const quote = useSwapQuote({
+    fromMint: USDCE.address,
+    toMint: baseToken.address,
+    amount: amountToSwap.toFixed(6),
   })
 
-  const remainingEthBalance =
-    parseEther(amount) > (wethBalance ?? BigInt(0))
-      ? (ethBalance?.value ?? BigInt(0)) +
-        (wethBalance ?? BigInt(0)) -
-        parseEther(amount)
-      : ethBalance?.value ?? BigInt(0)
+  const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
+    useAllowanceRequired({
+      amount: amount.toString(),
+      mint: USDCE.address,
+      spender: quote?.estimate.approvalAddress,
+      decimals: USDCE.decimals,
+    })
 
-  const hideMaxButton =
-    !mint ||
-    formattedMaxAmountToWrap === "0" ||
-    amount.toString() === formattedMaxAmountToWrap
+  const catchError = (error: Error, message: string) => {
+    console.error("Error in USDC form", error)
+    catchErrorWithToast(error, message)
+    // Reset steps on error
+    setTotalSteps(0)
+    setCurrentStep(0)
+  }
 
-  const { handleDeposit, status: depositStatus } = useDeposit({
-    amount,
-    mint,
-  })
+  const { writeContract: handleSwapApprove, status: swapApproveStatus } =
+    useWriteErc20Approve({
+      mutation: {
+        onError: (error) => catchError(error, "Couldn't approve swap"),
+      },
+    })
 
-  const { data: needsApproval, queryKey: wethAllowanceQueryKey } =
+  const { setTransactionHash: setSwapApproveHash } = useTransactionConfirmation(
+    async () => {
+      queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
+      await handleSwap(
+        // @ts-ignore
+        {
+          // TODO: Maybe unsafe
+          ...quote?.transactionRequest,
+          type: "legacy",
+        },
+        {
+          onSuccess: (data) => setSwapHash(data),
+        },
+      )
+    },
+  )
+
+  const { data: needsApproval, queryKey: usdcAllowanceQueryKey } =
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
       spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
       decimals: baseToken.decimals,
     })
-
-  const catchError = (error: Error, message: string) => {
-    console.error("Error in WETH form", error)
-    catchErrorWithToast(error, message)
-    // Reset steps on error
-    setTotalSteps(0)
-    setCurrentStep(0)
-  }
 
   const { writeContract: handleApprove, status: approveStatus } =
     useWriteErc20Approve({
@@ -156,7 +201,7 @@ export function WETHForm({
 
   const { setTransactionHash: setApproveHash } = useTransactionConfirmation(
     async () => {
-      queryClient.invalidateQueries({ queryKey: wethAllowanceQueryKey }),
+      queryClient.invalidateQueries({ queryKey: usdcAllowanceQueryKey }),
         setCurrentStep((prev) => prev + 1)
       handleDeposit({
         onSuccess: handleDepositSuccess,
@@ -164,111 +209,28 @@ export function WETHForm({
     },
   )
 
-  // If the amount is greater than the WETH balance, we need to wrap ETH
-  const needsWrapEth = parseEther(amount) > (wethBalance ?? BigInt(0))
-
-  const { checkChain } = useCheckChain()
-
-  const router = useRouter()
-  const pathname = usePathname()
-  const isTradePage = pathname.includes("/trade")
-  const queryClient = useQueryClient()
-  // Ensure price is loaded
-  usePriceQuery(baseToken.address)
-  const { setSide } = useSide()
-
-  const [totalSteps, setTotalSteps] = React.useState(0)
-  const [currentStep, setCurrentStep] = React.useState(0)
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const isAmountSufficient = checkAmount(
-      queryClient,
-      values.amount,
-      baseToken,
-    )
-
-    if (!isAmountSufficient) {
-      form.setError("amount", {
-        message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
-      })
-      return
-    }
-    await checkChain()
-    const isBalanceSufficient = checkBalance({
-      amount: values.amount,
-      mint: values.mint,
-      balance: needsWrapEth ? combinedBalance : wethBalance,
-    })
-    if (!isBalanceSufficient) {
-      form.setError("amount", {
-        message: "Insufficient Arbitrum balance",
-      })
-      return
-    }
-
-    // Calculate total steps
-    let steps = 1 // Deposit is always required
-    if (needsWrapEth) steps++
-    if (needsApproval) steps++
-    setTotalSteps(steps)
-    setCurrentStep(0)
-
-    if (needsWrapEth) {
-      const ethAmount = parseEther(values.amount) - (wethBalance ?? BigInt(0))
-      wrapEth(
-        {
-          address: baseToken.address,
-          value: ethAmount,
-        },
-        {
-          onSuccess: (data) => setWrapHash(data),
-        },
-      )
-    } else if (needsApproval) {
-      handleApprove(
-        {
-          address: baseToken.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            MAX_INT,
-          ],
-        },
-        {
-          onSuccess: (data) => setApproveHash(data),
-        },
-      )
-    } else {
-      handleDeposit({
-        onSuccess: handleDepositSuccess,
-      })
-    }
-  }
-
-  const handleDepositSuccess = (data: any) => {
-    setCurrentStep((prev) => prev + 1)
-    form.reset()
-    onSuccess?.()
-    const message = constructStartToastMessage(UpdateType.Deposit)
-    toast.loading(message, {
-      id: data.taskId,
-    })
-    setSide(Side.SELL)
-    if (isTradePage) {
-      router.push(`/trade/WETH`)
-    }
-  }
-
-  const { writeContract: wrapEth, status: wrapStatus } = useWriteWethDeposit({
-    mutation: {
-      onError: (error) => catchError(error, "Couldn't wrap ETH"),
-    },
+  const { handleDeposit, status: depositStatus } = useDeposit({
+    amount: needsSwap
+      ? formatUnits(
+          BigInt(quote?.estimate.toAmountMin ?? 0) + (usdcBalance ?? BigInt(0)),
+          baseToken.decimals,
+        )
+      : amount,
+    mint,
   })
 
-  const { setTransactionHash: setWrapHash } = useTransactionConfirmation(
+  const { sendTransaction: handleSwap, status: swapStatus } =
+    useSendTransaction({
+      mutation: {
+        onError: (error) => catchError(error, "Couldn't swap"),
+      },
+    })
+
+  const { setTransactionHash: setSwapHash } = useTransactionConfirmation(
     async () => {
+      queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
-      queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
-      queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
       if (needsApproval) {
         handleApprove(
           {
@@ -290,18 +252,99 @@ export function WETHForm({
     },
   )
 
-  const { data: maintenanceMode } = useMaintenanceMode()
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const isAmountSufficient = checkAmount(
+      queryClient,
+      values.amount,
+      baseToken,
+    )
+
+    if (!isAmountSufficient) {
+      form.setError("amount", {
+        message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+      })
+      return
+    }
+    await checkChain()
+    const isBalanceSufficient = checkBalance({
+      amount: values.amount,
+      mint: values.mint,
+      balance: needsSwap ? combinedBalance : usdcBalance,
+    })
+    if (!isBalanceSufficient) {
+      form.setError("amount", {
+        message: "Insufficient Arbitrum balance",
+      })
+      return
+    }
+
+    // Calculate total steps
+    let steps = 1 // Deposit is always required
+    if (needsSwapApproval) steps++
+    if (needsSwap) steps++
+    if (needsApproval) steps++
+    setTotalSteps(steps)
+    setCurrentStep(0)
+
+    if (needsSwap && quote) {
+      if (needsSwapApproval) {
+        handleSwapApprove(
+          {
+            address: USDCE.address,
+            args: [
+              quote.estimate.approvalAddress as `0x${string}`,
+              BigInt(quote?.estimate.fromAmount ?? MAX_INT),
+            ],
+          },
+          {
+            onSuccess: (data) => setSwapApproveHash(data),
+          },
+        )
+      } else {
+        handleSwap(
+          // @ts-ignore
+          {
+            ...quote.transactionRequest,
+            type: "legacy",
+          },
+          {
+            onSuccess: (data) => setSwapHash(data),
+          },
+        )
+      }
+    } else if (needsApproval) {
+      handleApprove(
+        {
+          address: baseToken.address,
+          args: [
+            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            MAX_INT,
+          ],
+        },
+        {
+          onSuccess: (data) => setApproveHash(data),
+        },
+      )
+    } else {
+      handleDeposit({
+        onSuccess: handleDepositSuccess,
+      })
+    }
+  }
 
   let buttonText = ""
   let buttonTextInParentheses = ""
-  if (needsWrapEth) {
-    if (wrapStatus === "pending") {
+  // TODO: After useSwap
+  if (needsSwap) {
+    if (!quote) {
+      buttonText = "Fetching quote..."
+    } else if (swapStatus === "pending") {
       buttonText = "Confirm in wallet"
       buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
     } else if (needsApproval) {
-      buttonText = "Wrap, Approve & Deposit"
+      buttonText = "Swap, Approve & Deposit"
     } else {
-      buttonText = "Wrap & Deposit"
+      buttonText = "Swap & Deposit"
     }
   } else if (needsApproval) {
     if (approveStatus === "pending") {
@@ -318,6 +361,22 @@ export function WETHForm({
       buttonText = "Deposit"
     }
   }
+
+  const handleDepositSuccess = (data: any) => {
+    setCurrentStep((prev) => prev + 1)
+    form.reset()
+    onSuccess?.()
+    const message = constructStartToastMessage(UpdateType.Deposit)
+    toast.loading(message, {
+      id: data.taskId,
+    })
+    setSide(Side.BUY)
+  }
+
+  const hideMaxButton =
+    !mint ||
+    formattedCombinedBalance === "0" ||
+    amount.toString() === formattedCombinedBalance
 
   return (
     <Form {...form}>
@@ -371,7 +430,7 @@ export function WETHForm({
                           type="button"
                           variant="ghost"
                           onClick={() => {
-                            form.setValue("amount", formattedMaxAmountToWrap, {
+                            form.setValue("amount", formattedCombinedBalance, {
                               shouldValidate: true,
                               shouldDirty: true,
                             })
@@ -403,78 +462,60 @@ export function WETHForm({
                         variant="link"
                         onClick={(e) => {
                           e.preventDefault()
-                          form.setValue("amount", formattedWethBalance, {
+                          form.setValue("amount", formattedUsdcBalance, {
                             shouldValidate: true,
                           })
                         }}
                       >
                         <div className="font-mono text-sm">
                           {baseToken
-                            ? `${wethBalanceLabel} ${baseToken.ticker}`
+                            ? `${usdcBalanceLabel} ${baseToken.ticker}`
                             : "--"}
                         </div>
                       </Button>
                     </ResponsiveTooltipTrigger>
                     <ResponsiveTooltipContent>
-                      {`${formattedWethBalance} WETH`}
+                      {`${formattedUsdcBalance} ${baseToken?.ticker}`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
                 </div>
               </div>
               <div className="text-right">
                 <ResponsiveTooltip>
-                  <ResponsiveTooltipTrigger
-                    asChild
-                    className={cn(
-                      "!pointer-events-auto",
-                      ethBalance?.value &&
-                        minEthToKeepUnwrapped > ethBalance.value
-                        ? ""
-                        : "cursor-pointer",
-                    )}
-                  >
+                  <ResponsiveTooltipTrigger asChild>
                     <Button
                       className="h-5 p-0"
-                      disabled={
-                        ethBalance?.value
-                          ? minEthToKeepUnwrapped > ethBalance.value
-                          : false
-                      }
                       type="button"
                       variant="link"
                       onClick={(e) => {
                         e.preventDefault()
-                        form.setValue("amount", formattedMaxAmountToWrap, {
+                        form.setValue("amount", formattedCombinedBalance, {
                           shouldValidate: true,
                           shouldDirty: true,
                         })
                       }}
                     >
                       <div className="font-mono text-sm">
-                        {`${ethBalanceLabel}`}&nbsp;ETH
+                        {`${usdceBalanceLabel}`}&nbsp;USDC.e
                       </div>
                     </Button>
                   </ResponsiveTooltipTrigger>
                   <ResponsiveTooltipContent>
-                    {ethBalance?.value &&
-                    minEthToKeepUnwrapped > ethBalance.value
-                      ? "Not enough ETH to wrap"
-                      : `${formattedEthBalance} ETH`}
+                    {`${formattedUsdceBalance} USDC.e`}
                   </ResponsiveTooltipContent>
                 </ResponsiveTooltip>
-                <span className="font-mono text-sm">&nbsp;</span>
               </div>
             </div>
             <MaxBalancesWarning
               className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
               mint={mint}
             />
-            {needsWrapEth && (
+            {/* {needsWrapEth && (
               <WrapEthWarning
                 minEthToKeepUnwrapped={minEthToKeepUnwrapped}
                 remainingEthBalance={remainingEthBalance}
               />
-            )}
+            )} */}
           </div>
         </div>
         {isDesktop ? (
@@ -490,11 +531,13 @@ export function WETHForm({
                   disabled={
                     !form.formState.isValid ||
                     isMaxBalances ||
-                    wrapStatus === "pending" ||
+                    swapStatus === "pending" ||
                     approveStatus === "pending" ||
                     depositStatus === "pending" ||
                     (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+                      maintenanceMode.severity === "critical") ||
+                    // TODO: Don't fetch quote if amount > combinedBalance
+                    (needsSwap && !quote)
                   }
                   size="xl"
                   variant="outline"
@@ -532,11 +575,12 @@ export function WETHForm({
                   disabled={
                     !form.formState.isValid ||
                     isMaxBalances ||
-                    wrapStatus === "pending" ||
+                    swapStatus === "pending" ||
                     approveStatus === "pending" ||
                     depositStatus === "pending" ||
                     (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+                      maintenanceMode.severity === "critical") ||
+                    (needsSwap && !quote)
                   }
                   size="xl"
                   variant="outline"

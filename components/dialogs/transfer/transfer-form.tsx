@@ -10,6 +10,7 @@ import {
   ExternalTransferDirection,
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
+import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
 export function TransferForm({
@@ -29,17 +30,24 @@ export function TransferForm({
       mint: initialMint ?? "",
     },
   })
-  if (
-    direction === ExternalTransferDirection.Deposit &&
-    form.watch("mint") === Token.findByTicker("WETH").address
-  ) {
-    return (
-      <WETHForm
-        className={className}
-        form={form}
-        onSuccess={onSuccess}
-      />
-    )
+  if (direction === ExternalTransferDirection.Deposit) {
+    if (form.watch("mint") === Token.findByTicker("WETH").address) {
+      return (
+        <WETHForm
+          className={className}
+          form={form}
+          onSuccess={onSuccess}
+        />
+      )
+    } else if (form.watch("mint") === Token.findByTicker("USDC").address) {
+      return (
+        <USDCForm
+          className={className}
+          form={form}
+          onSuccess={onSuccess}
+        />
+      )
+    }
   }
   return (
     <DefaultForm

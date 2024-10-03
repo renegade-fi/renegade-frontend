@@ -2,12 +2,11 @@ import * as React from "react"
 
 import { usePathname, useRouter } from "next/navigation"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Token, UpdateType, useBalances } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm, UseFormReturn, useWatch } from "react-hook-form"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits } from "viem"
+import { BaseError, formatUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
@@ -38,18 +37,19 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
-import { useApprove } from "@/hooks/use-approve"
+import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
+import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWithdraw } from "@/hooks/use-withdraw"
-import { MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
+import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber } from "@/lib/format"
-import { useReadErc20BalanceOf } from "@/lib/generated"
+import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
 
@@ -133,15 +133,34 @@ export function DefaultForm({
     mint,
   })
 
-  const {
-    needsApproval,
-    handleApprove,
-    status: approveStatus,
-  } = useApprove({
-    amount: amount.toString(),
-    mint,
-    enabled: direction === ExternalTransferDirection.Deposit,
-  })
+  const { data: needsApproval, queryKey: allowanceQueryKey } =
+    useAllowanceRequired({
+      amount: amount.toString(),
+      mint,
+      spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+      decimals: baseToken?.decimals ?? 0,
+    })
+
+  const { writeContractAsync: handleApprove, status: approveStatus } =
+    useWriteErc20Approve({
+      mutation: {
+        onError: (error) => {
+          console.error("Error approving:", error)
+          toast.error(
+            `Error approving: ${(error as BaseError).shortMessage || error.message}`,
+          )
+        },
+      },
+    })
+
+  const { setTransactionHash: setApproveHash } = useTransactionConfirmation(
+    async () => {
+      queryClient.invalidateQueries({ queryKey: allowanceQueryKey }),
+        handleDeposit({
+          onSuccess: handleDepositSuccess,
+        })
+    },
+  )
 
   const { checkChain } = useCheckChain()
 
@@ -169,6 +188,19 @@ export function DefaultForm({
   usePriceQuery(baseToken?.address || "0x")
   const { setSide } = useSide()
 
+  const handleDepositSuccess = (data: any) => {
+    form.reset()
+    onSuccess?.()
+    const message = constructStartToastMessage(UpdateType.Deposit)
+    toast.loading(message, {
+      id: data.taskId,
+    })
+    setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
+    if (isTradePage && baseToken?.ticker !== "USDC") {
+      router.push(`/trade/${baseToken?.ticker}`)
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
       queryClient,
@@ -195,39 +227,22 @@ export function DefaultForm({
         })
         return
       }
-      if (needsApproval) {
-        handleApprove({
-          onSuccess: () => {
-            handleDeposit({
-              onSuccess: (data) => {
-                form.reset()
-                onSuccess?.()
-                const message = constructStartToastMessage(UpdateType.Deposit)
-                toast.loading(message, {
-                  id: data.taskId,
-                })
-                setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
-                if (isTradePage && baseToken?.ticker !== "USDC") {
-                  router.push(`/trade/${baseToken?.ticker}`)
-                }
-              },
-            })
+      if (needsApproval && baseToken?.address) {
+        await handleApprove(
+          {
+            address: baseToken.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              MAX_INT,
+            ],
           },
-        })
+          {
+            onSuccess: (data) => setApproveHash(data),
+          },
+        )
       } else {
         handleDeposit({
-          onSuccess: (data) => {
-            form.reset()
-            onSuccess?.()
-            const message = constructStartToastMessage(UpdateType.Deposit)
-            toast.loading(message, {
-              id: data.taskId,
-            })
-            setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
-            if (isTradePage && baseToken?.ticker !== "USDC") {
-              router.push(`/trade/${baseToken?.ticker}`)
-            }
-          },
+          onSuccess: handleDepositSuccess,
         })
       }
     } else {
