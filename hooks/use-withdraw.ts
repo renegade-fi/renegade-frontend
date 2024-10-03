@@ -1,5 +1,8 @@
+import { useState } from "react"
+
 import { Token, useConfig, usePayFees } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
+import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
@@ -16,6 +19,7 @@ export function useWithdraw({
 }) {
   const { address } = useAccount()
   const config = useConfig()
+  const [status, setStatus] = useState<MutationStatus>("idle")
   const { payFeesAsync } = usePayFees()
 
   const handleWithdraw = async ({
@@ -30,6 +34,7 @@ export function useWithdraw({
       toast.error("Withdrawal amount is invalid")
       return
     }
+    setStatus("pending")
 
     await payFeesAsync()
 
@@ -39,12 +44,16 @@ export function useWithdraw({
       amount: parsedAmount,
       destinationAddr: address,
     })
-      .then(onSuccess)
+      .then(({ taskId }) => {
+        setStatus("success")
+        onSuccess?.({ taskId })
+      })
       .catch((e) => {
         toast.error(FAILED_WITHDRAWAL_MSG(token, parsedAmount))
+        setStatus("error")
         console.error(`Error withdrawing: ${e.response?.data ?? e.message}`)
       })
   }
 
-  return { handleWithdraw }
+  return { handleWithdraw, status, reset: () => setStatus("idle") }
 }

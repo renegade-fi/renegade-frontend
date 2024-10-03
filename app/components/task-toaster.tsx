@@ -62,12 +62,6 @@ function processTask(incomingTask: Task) {
       description: state,
       icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
     })
-  } else if (
-    incomingTask.state === "Updating Validity Proofs" &&
-    isDepositTask(incomingTask)
-  ) {
-    const message = generateCompletionToastMessage(incomingTask)
-    toast.success(message, { id, description: "Completed", icon: undefined })
   } else {
     const message = generateStartToastMessage(incomingTask)
     toast.success(message, {
@@ -94,14 +88,6 @@ function processWithdrawTask(incomingTask: Task) {
     } else if (incomingTask.state === "Failed") {
       const message = generateFailedToastMessage(incomingTask)
       toast.error(message, { id, icon: undefined, duration: 10000 })
-    } else if (incomingTask.state === "Updating Validity Proofs") {
-      const message = generateCompletionToastMessage(incomingTask)
-      toast.success(message, {
-        id,
-        description: "Completed",
-        icon: undefined,
-        duration: 10000,
-      })
     } else if (incomingTask.state === "Proving") {
       const message = generateStartToastMessage(incomingTask)
       toast.success(message, {

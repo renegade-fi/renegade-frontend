@@ -2,10 +2,11 @@ import * as React from "react"
 
 import { usePathname, useRouter } from "next/navigation"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Token, UpdateType, useBalances } from "@renegade-fi/react"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm, UseFormReturn, useWatch } from "react-hook-form"
+import { AlertCircle, Check, Loader2 } from "lucide-react"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
 import { useAccount } from "wagmi"
@@ -13,17 +14,27 @@ import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
 import {
+  ExternalTransferDirection,
   checkAmount,
   checkBalance,
-  ExternalTransferDirection,
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import {
+  Step,
+  getSteps,
+} from "@/components/dialogs/transfer/transfer-details-page"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
+import {
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -38,18 +49,25 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
-import { useApprove } from "@/hooks/use-approve"
+import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
+import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
+import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
-import { MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
+import {
+  MIN_DEPOSIT_AMOUNT,
+  Side,
+  UNLIMITED_ALLOWANCE,
+} from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
-import { useReadErc20BalanceOf } from "@/lib/generated"
+import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
 
@@ -58,27 +76,41 @@ export function DefaultForm({
   direction,
   form,
   onSuccess,
+  header,
 }: React.ComponentProps<"form"> & {
   direction: ExternalTransferDirection
   onSuccess: () => void
   form: UseFormReturn<z.infer<typeof formSchema>>
+  header: React.ReactNode
 }) {
+  const { address } = useAccount()
+  const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const { data: maintenanceMode } = useMaintenanceMode()
+  const isTradePage = usePathname().includes("/trade")
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const { setSide } = useSide()
+  const [currentStep, setCurrentStep] = React.useState(0)
+  const [steps, setSteps] = React.useState<string[]>([])
 
   const mint = useWatch({
     control: form.control,
     name: "mint",
   })
+  const isMaxBalances = useIsMaxBalances(mint)
   const baseToken = mint
     ? Token.findByAddress(mint as `0x${string}`)
     : undefined
-  const { address } = useAccount()
-  const isMaxBalances = useIsMaxBalances(mint)
+  // Ensure price is loaded
+  usePriceQuery(baseToken?.address || "0x")
 
-  const renegadeBalances = useBalances()
-  const renegadeBalance = baseToken
-    ? renegadeBalances.get(baseToken.address)?.amount
-    : undefined
+  const { data: renegadeBalance } = useBackOfQueueWallet({
+    query: {
+      select: (data) =>
+        data.balances.find((balance) => balance.mint === mint)?.amount,
+    },
+  })
 
   const formattedRenegadeBalance = baseToken
     ? formatUnits(renegadeBalance ?? BigInt(0), baseToken.decimals)
@@ -95,6 +127,7 @@ export function DefaultForm({
         direction === ExternalTransferDirection.Deposit &&
         !!baseToken &&
         !!address,
+      staleTime: 0,
     },
   })
 
@@ -120,54 +153,82 @@ export function DefaultForm({
     control: form.control,
     name: "amount",
   })
-  const hideMaxButton =
-    !mint || balance === "0" || amount.toString() === balance
 
-  const { handleDeposit, status: depositStatus } = useDeposit({
-    amount,
-    mint,
-  })
+  const catchError = (error: Error, message: string) => {
+    console.error("Error in USDC form", error)
+    catchErrorWithToast(error, message)
+  }
 
-  const { handleWithdraw } = useWithdraw({
-    amount,
-    mint,
-  })
+  // Approve
+  const { data: allowanceRequired, queryKey: allowanceQueryKey } =
+    useAllowanceRequired({
+      amount: amount.toString(),
+      mint,
+      spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+      decimals: baseToken?.decimals ?? 0,
+    })
 
   const {
-    needsApproval,
-    handleApprove,
+    data: approveHash,
+    writeContractAsync: handleApprove,
     status: approveStatus,
-  } = useApprove({
-    amount: amount.toString(),
-    mint,
-    enabled: direction === ExternalTransferDirection.Deposit,
+  } = useWriteErc20Approve({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't approve"),
+    },
   })
 
-  const { checkChain } = useCheckChain()
+  const approveConfirmationStatus = useTransactionConfirmation(
+    approveHash,
+    async () => {
+      queryClient.invalidateQueries({ queryKey: allowanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
+      handleDeposit({
+        amount,
+        mint,
+        onSuccess: handleDepositSuccess,
+      })
+    },
+  )
 
-  let buttonText = ""
-  if (direction === ExternalTransferDirection.Withdraw) {
-    buttonText = "Withdraw"
-  } else if (needsApproval) {
-    if (approveStatus === "pending") {
-      buttonText = "Confirm in wallet"
-    } else {
-      buttonText = "Approve & Deposit"
-    }
-  } else {
-    if (depositStatus === "pending") {
-      buttonText = "Confirm in wallet"
-    } else {
-      buttonText = "Deposit"
-    }
+  // Deposit
+  const { handleDeposit, status: depositStatus } = useDeposit()
+
+  const { status: depositTaskStatus, setTaskId: setDepositTaskId } =
+    useWaitForTask(() => {
+      onSuccess?.()
+    })
+
+  const handleDepositSuccess = (data: any) => {
+    setDepositTaskId(data.taskId)
+    // form.reset()
+    // onSuccess?.()
+    const message = constructStartToastMessage(UpdateType.Deposit)
+    toast.loading(message, {
+      id: data.taskId,
+    })
+    setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
+    // TODO: Automatically closes dialog
+    // if (isTradePage && baseToken?.ticker !== "USDC") {
+    //   router.push(`/trade/${baseToken?.ticker}`)
+    // }
   }
-  const router = useRouter()
-  const pathname = usePathname()
-  const isTradePage = pathname.includes("/trade")
-  const queryClient = useQueryClient()
-  // Ensure price is loaded
-  usePriceQuery(baseToken?.address || "0x")
-  const { setSide } = useSide()
+
+  // Withdraw
+  const { handleWithdraw, status: withdrawStatus } = useWithdraw({
+    amount,
+    mint,
+  })
+  const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
+    useWaitForTask(() => {
+      onSuccess?.()
+    })
+
+  const handleWithdrawSuccess = (data: any) => {
+    setWithdrawTaskId(data.taskId)
+    // form.reset()
+    onSuccess?.()
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
@@ -195,45 +256,34 @@ export function DefaultForm({
         })
         return
       }
-      if (needsApproval) {
-        handleApprove({
-          onSuccess: () => {
-            handleDeposit({
-              onSuccess: (data) => {
-                form.reset()
-                onSuccess?.()
-                const message = constructStartToastMessage(UpdateType.Deposit)
-                toast.loading(message, {
-                  id: data.taskId,
-                })
-                setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
-                if (isTradePage && baseToken?.ticker !== "USDC") {
-                  router.push(`/trade/${baseToken?.ticker}`)
-                }
-              },
-            })
-          },
+
+      // Calculate and set initial steps
+      setSteps(() => {
+        const steps = []
+        if (allowanceRequired) {
+          steps.push("Approve Deposit")
+        }
+        steps.push("Deposit")
+        return steps
+      })
+      setCurrentStep(0)
+
+      if (allowanceRequired && baseToken?.address) {
+        await handleApprove({
+          address: baseToken.address,
+          args: [
+            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            UNLIMITED_ALLOWANCE,
+          ],
         })
       } else {
         handleDeposit({
-          onSuccess: (data) => {
-            form.reset()
-            onSuccess?.()
-            const message = constructStartToastMessage(UpdateType.Deposit)
-            toast.loading(message, {
-              id: data.taskId,
-            })
-            setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
-            if (isTradePage && baseToken?.ticker !== "USDC") {
-              router.push(`/trade/${baseToken?.ticker}`)
-            }
-          },
+          amount,
+          mint,
+          onSuccess: handleDepositSuccess,
         })
       }
     } else {
-      const renegadeBalance = renegadeBalances.get(
-        values.mint as `0x${string}`,
-      )?.amount
       // User is allowed to withdraw whole balance even if amount is < MIN_TRANSFER_AMOUNT
       if (
         !isAmountSufficient &&
@@ -248,7 +298,6 @@ export function DefaultForm({
         })
         return
       }
-      // TODO: Check if balance is sufficient
       const isBalanceSufficient = checkBalance({
         amount: values.amount,
         mint: values.mint,
@@ -261,42 +310,181 @@ export function DefaultForm({
         return
       }
 
+      // Calculate and set initial steps
+      setSteps(() => {
+        const steps = []
+        steps.push("Withdraw")
+        return steps
+      })
+      setCurrentStep(0)
+
       handleWithdraw({
-        onSuccess: (data) => {
-          form.reset()
-          onSuccess?.()
-        },
+        onSuccess: handleWithdrawSuccess,
       })
     }
   }
 
-  const { data: maintenanceMode } = useMaintenanceMode()
+  const stepList: (Step | undefined)[] = React.useMemo(() => {
+    return steps.map((step) => {
+      switch (step) {
+        case "Approve Deposit":
+          return {
+            type: "transaction",
+            txHash: approveHash,
+            mutationStatus: approveStatus,
+            txStatus: approveConfirmationStatus,
+            label: step,
+          }
+        case "Deposit":
+          return {
+            type: "task",
+            mutationStatus: depositStatus,
+            taskStatus: depositTaskStatus,
+            label: `Deposit ${baseToken?.ticker}`,
+          }
+        case "Withdraw":
+          return {
+            type: "task",
+            mutationStatus: withdrawStatus,
+            taskStatus: withdrawTaskStatus,
+            label: `Withdraw ${baseToken?.ticker}`,
+          }
+        default:
+          return
+      }
+    })
+  }, [
+    approveConfirmationStatus,
+    approveHash,
+    approveStatus,
+    baseToken?.ticker,
+    depositStatus,
+    depositTaskStatus,
+    steps,
+    withdrawStatus,
+    withdrawTaskStatus,
+  ])
+
+  const execution = React.useMemo(() => {
+    return {
+      steps: stepList,
+      baseToken,
+    }
+  }, [stepList, baseToken])
+
+  let buttonText = ""
+  if (direction === ExternalTransferDirection.Deposit) {
+    if (allowanceRequired) {
+      buttonText = "Approve & Deposit"
+    } else {
+      buttonText = "Deposit"
+    }
+  } else {
+    buttonText = "Withdraw"
+  }
+
+  const hideMaxButton =
+    !mint || balance === "0" || amount.toString() === balance
+
+  if (steps.length > 0) {
+    let Icon = <Loader2 className="h-6 w-6 animate-spin" />
+    if (stepList.some((step) => step?.mutationStatus === "error")) {
+      Icon = <AlertCircle className="h-6 w-6" />
+    } else if (
+      direction === ExternalTransferDirection.Deposit &&
+      depositTaskStatus === "Completed"
+    ) {
+      Icon = <Check className="h-6 w-6" />
+    } else if (
+      direction === ExternalTransferDirection.Withdraw &&
+      withdrawTaskStatus === "Completed"
+    ) {
+      Icon = <Check className="h-6 w-6" />
+    }
+
+    let title = `${direction === ExternalTransferDirection.Deposit ? "Depositing" : "Withdrawing"} ${baseToken?.ticker}`
+    if (
+      direction === ExternalTransferDirection.Deposit &&
+      stepList.some((step) => step?.mutationStatus === "pending")
+    ) {
+      title = "Confirm in wallet"
+    } else if (
+      stepList.some((step) => step?.txHash && step?.txStatus === "pending")
+    ) {
+      title = "Waiting for confirmation"
+    } else if (stepList.some((step) => step?.mutationStatus === "error")) {
+      title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} ${baseToken?.ticker}`
+    } else if (
+      (direction === ExternalTransferDirection.Deposit &&
+        depositTaskStatus === "Completed") ||
+      (direction === ExternalTransferDirection.Withdraw &&
+        withdrawTaskStatus === "Completed")
+    ) {
+      title = `Completed`
+    }
+
+    return (
+      <>
+        <DialogHeader className="space-y-4 px-6 pt-6">
+          <DialogTitle className="flex items-center gap-2 font-extended">
+            {Icon}
+            {title}
+          </DialogTitle>
+          <VisuallyHidden>
+            <DialogDescription>
+              {direction === ExternalTransferDirection.Deposit
+                ? `Depositing ${baseToken?.ticker}`
+                : `Withdrawing ${baseToken?.ticker}`}
+            </DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
+        <div className="flex flex-1 flex-col p-6">
+          <div className="space-y-3 border p-4 font-mono">
+            {getSteps(execution, currentStep)}
+          </div>
+        </div>
+        <DialogFooter className="mt-auto flex-row">
+          <DialogClose asChild>
+            <Button
+              autoFocus
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+              variant="outline"
+            >
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </>
+    )
+  }
 
   return (
-    <Form {...form}>
-      <form
-        className="flex flex-1 flex-col"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <div className={cn("space-y-8", className)}>
-          <div className="grid w-full items-center gap-3">
-            <FormField
-              control={form.control}
-              name="mint"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Token</FormLabel>
-                  <TokenSelect
-                    direction={direction}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="grid w-full items-center gap-3">
+    <>
+      {header}
+      <Form {...form}>
+        <form
+          className="flex flex-1 flex-col"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <div className={cn("space-y-6", className)}>
+            <div className="grid w-full items-center gap-3">
+              <FormField
+                control={form.control}
+                name="mint"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Token</FormLabel>
+                    <TokenSelect
+                      direction={direction}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="amount"
@@ -346,9 +534,11 @@ export function DefaultForm({
                 variant="link"
                 onClick={(e) => {
                   e.preventDefault()
-                  form.setValue("amount", balance, {
-                    shouldValidate: true,
-                  })
+                  if (Number(balance)) {
+                    form.setValue("amount", balance, {
+                      shouldValidate: true,
+                    })
+                  }
                 }}
               >
                 <div className="font-mono text-sm">
@@ -363,88 +553,84 @@ export function DefaultForm({
               />
             )}
           </div>
-        </div>
-        {isDesktop ? (
-          <DialogFooter>
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger
-                asChild
-                className="!pointer-events-auto"
-                type="submit"
-              >
-                <Button
-                  className="flex-1 border-0 border-t font-extended text-2xl"
-                  disabled={
-                    !form.formState.isValid ||
-                    (direction === ExternalTransferDirection.Deposit &&
-                      isMaxBalances) ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+          {isDesktop ? (
+            <DialogFooter>
+              <ResponsiveTooltip>
+                <ResponsiveTooltipTrigger
+                  asChild
+                  className="!pointer-events-auto"
+                  type="submit"
+                >
+                  <Button
+                    className="flex-1 border-0 border-t font-extended text-2xl"
+                    disabled={
+                      !form.formState.isValid ||
+                      (direction === ExternalTransferDirection.Deposit &&
+                        isMaxBalances) ||
+                      (maintenanceMode?.enabled &&
+                        maintenanceMode.severity === "critical")
+                    }
+                    size="xl"
+                    variant="outline"
+                  >
+                    {buttonText}
+                  </Button>
+                </ResponsiveTooltipTrigger>
+                <ResponsiveTooltipContent
+                  className={
+                    maintenanceMode?.enabled &&
+                    maintenanceMode.severity === "critical"
+                      ? "visible"
+                      : "invisible"
                   }
+                >
+                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+                </ResponsiveTooltipContent>
+              </ResponsiveTooltip>
+            </DialogFooter>
+          ) : (
+            <DialogFooter className="mt-auto flex-row">
+              <DialogClose asChild>
+                <Button
+                  className="flex-1 font-extended text-lg"
                   size="xl"
                   variant="outline"
                 >
-                  {buttonText}
+                  Close
                 </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
-                }
-              >
-                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
-          </DialogFooter>
-        ) : (
-          <DialogFooter className="mt-auto flex-row">
-            <DialogClose asChild>
-              <Button
-                className="flex-1 font-extended text-lg"
-                size="xl"
-                variant="outline"
-              >
-                Close
-              </Button>
-            </DialogClose>
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger className="flex-1">
-                <Button
-                  className="w-full whitespace-normal border-l-0 font-extended text-lg"
-                  disabled={
-                    !form.formState.isValid ||
-                    (direction === ExternalTransferDirection.Deposit &&
-                      isMaxBalances) ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+              </DialogClose>
+              <ResponsiveTooltip>
+                <ResponsiveTooltipTrigger className="flex-1">
+                  <Button
+                    className="w-full whitespace-normal border-l-0 font-extended text-lg"
+                    disabled={
+                      !form.formState.isValid ||
+                      (direction === ExternalTransferDirection.Deposit &&
+                        isMaxBalances) ||
+                      (maintenanceMode?.enabled &&
+                        maintenanceMode.severity === "critical")
+                    }
+                    size="xl"
+                    variant="outline"
+                  >
+                    {buttonText}
+                  </Button>
+                </ResponsiveTooltipTrigger>
+                <ResponsiveTooltipContent
+                  className={
+                    maintenanceMode?.enabled &&
+                    maintenanceMode.severity === "critical"
+                      ? "visible"
+                      : "invisible"
                   }
-                  size="xl"
-                  variant="outline"
                 >
-                  {buttonText}
-                </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
-                }
-              >
-                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
-          </DialogFooter>
-        )}
-      </form>
-    </Form>
+                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+                </ResponsiveTooltipContent>
+              </ResponsiveTooltip>
+            </DialogFooter>
+          )}
+        </form>
+      </Form>
+    </>
   )
 }

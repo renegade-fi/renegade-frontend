@@ -1,6 +1,6 @@
 export function AnimatedEllipsis() {
   return (
-    <span className="inline-flex">
+    <span className="">
       <span className="animate-ellipsis">.</span>
       <span
         className="animate-ellipsis"

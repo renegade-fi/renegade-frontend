@@ -55,6 +55,13 @@ export const wethAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [{ name: "wad", type: "uint256" }],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,6 +131,14 @@ export const writeWethDeposit = /*#__PURE__*/ createWriteContract({
 })
 
 /**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const writeWethWithdraw = /*#__PURE__*/ createWriteContract({
+  abi: wethAbi,
+  functionName: "withdraw",
+})
+
+/**
  * Wraps __{@link simulateContract}__ with `abi` set to __{@link wethAbi}__
  */
 export const simulateWeth = /*#__PURE__*/ createSimulateContract({
@@ -136,6 +151,14 @@ export const simulateWeth = /*#__PURE__*/ createSimulateContract({
 export const simulateWethDeposit = /*#__PURE__*/ createSimulateContract({
   abi: wethAbi,
   functionName: "deposit",
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const simulateWethWithdraw = /*#__PURE__*/ createSimulateContract({
+  abi: wethAbi,
+  functionName: "withdraw",
 })
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,6 +234,14 @@ export const useWriteWethDeposit = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useWriteWethWithdraw = /*#__PURE__*/ createUseWriteContract({
+  abi: wethAbi,
+  functionName: "withdraw",
+})
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link wethAbi}__
  */
 export const useSimulateWeth = /*#__PURE__*/ createUseSimulateContract({
@@ -223,4 +254,12 @@ export const useSimulateWeth = /*#__PURE__*/ createUseSimulateContract({
 export const useSimulateWethDeposit = /*#__PURE__*/ createUseSimulateContract({
   abi: wethAbi,
   functionName: "deposit",
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link wethAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useSimulateWethWithdraw = /*#__PURE__*/ createUseSimulateContract({
+  abi: wethAbi,
+  functionName: "withdraw",
 })
