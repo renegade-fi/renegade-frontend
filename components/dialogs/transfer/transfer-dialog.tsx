@@ -4,7 +4,13 @@ import { usePathname, useRouter } from "next/navigation"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useBalances, usePayFees } from "@renegade-fi/react"
+import {
+  Token,
+  UpdateType,
+  useBackOfQueueWallet,
+  useBalances,
+  usePayFees,
+} from "@renegade-fi/react"
 import { QueryClient, useQueryClient } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
@@ -95,12 +101,22 @@ export function TransferDialog({
 
   const { payFees } = usePayFees()
   const feeOnZeroBalance = useFeeOnZeroBalance()
+  const { data: numFees } = useBackOfQueueWallet({
+    query: {
+      select: (data) =>
+        data.balances.filter(
+          (balance) =>
+            balance.protocol_fee_balance || balance.relayer_fee_balance,
+        ).length,
+    },
+  })
 
   React.useEffect(() => {
-    if (open && feeOnZeroBalance) {
+    if (!open) return
+    if (feeOnZeroBalance || (numFees ?? 0) > 2) {
       payFees()
     }
-  }, [open, payFees, feeOnZeroBalance])
+  }, [feeOnZeroBalance, numFees, open, payFees])
 
   if (isDesktop) {
     return (
