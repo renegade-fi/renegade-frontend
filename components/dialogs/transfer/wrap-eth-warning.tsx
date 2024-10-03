@@ -19,6 +19,10 @@ export function WrapEthWarning({
   remainingEthBalance: bigint
   minEthToKeepUnwrapped: bigint
 }) {
+  const bufferedMinEthToKeepUnwrapped = BigInt(
+    Math.round(Number(minEthToKeepUnwrapped) * 0.9),
+  )
+
   const formattedRemainingEthBalance = formatNumber(
     remainingEthBalance,
     18,
@@ -42,7 +46,7 @@ export function WrapEthWarning({
     className = "bg-[#2A0000] text-red-500"
     mainText = "Transaction will result in 0 ETH balance"
     tooltipText = "You will have no ETH left to cover gas fees."
-  } else if (remainingEthBalance < minEthToKeepUnwrapped) {
+  } else if (remainingEthBalance < bufferedMinEthToKeepUnwrapped) {
     className = "bg-[#2A0000] text-red-400"
     mainText = "Transaction will result in very low ETH balance"
     tooltipText = `You will have ${formattedRemainingEthBalance} ETH (${formattedUsdValueLabel}) after wrapping`
@@ -55,7 +59,7 @@ export function WrapEthWarning({
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-center rounded-md p-3 text-center text-sm",
+        "flex w-full items-center justify-center rounded-md p-3 text-sm",
         className,
       )}
     >
