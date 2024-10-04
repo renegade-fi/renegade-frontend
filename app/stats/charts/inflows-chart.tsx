@@ -5,7 +5,6 @@ import * as React from "react"
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
-import { useNetFlow } from "@/app/hooks/useNetFlow"
 import { useExternalTransferLogs } from "@/app/stats/hooks/use-external-transfer-data"
 
 import {
@@ -38,7 +37,7 @@ const chartConfig = {
 
 export function InflowsChart() {
   const { data } = useExternalTransferLogs()
-  const { data: netFlowData, isSuccess } = useNetFlow()
+
   const chartData = React.useMemo(() => {
     if (!data || !data.length) return []
     return data?.map((day) => ({
@@ -48,13 +47,37 @@ export function InflowsChart() {
     }))
   }, [data])
 
+  const netFlowData = React.useMemo(() => {
+    if (chartData.length === 0) return null
+
+    const lastTimestamp = Math.max(
+      ...chartData.map((item) => Number(item.timestamp)),
+    )
+
+    // Calculate the start time (24 hours before the last timestamp)
+    const startTime = lastTimestamp - 24 * 60 * 60 * 1000
+
+    const last24HoursData = chartData.filter((item) => {
+      const itemTimestamp = Number(item.timestamp)
+      return itemTimestamp > startTime
+    })
+
+    const netFlow = last24HoursData.reduce((sum, item) => {
+      return sum + item.depositAmount + item.withdrawalAmount
+    }, 0)
+
+    return { netFlow }
+  }, [chartData])
+
+  const isSuccess = netFlowData !== null
+
   return (
     <Card className="w-full rounded-none">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="font-serif text-4xl font-bold tracking-tighter lg:tracking-normal">
             {isSuccess ? (
-              numeral(netFlowData?.netFlow).format("$0.00a")
+              numeral(netFlowData.netFlow).format("$0.00a")
             ) : (
               <Skeleton className="h-10 w-40" />
             )}
