@@ -1,7 +1,8 @@
 import * as React from "react"
 
+import { getStatus } from "@lifi/sdk"
 import { Token, UpdateType } from "@renegade-fi/react"
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits, parseEther, parseUnits } from "viem"
@@ -44,6 +45,7 @@ import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
+import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
@@ -96,6 +98,18 @@ export function USDCForm({
 
   useRefreshOnBlock({ queryKey: usdcBalanceQueryKey })
 
+  React.useEffect(() => {
+    const { unsubscribe } = form.watch((value, { name, type }) => {
+      if (name === "amount") {
+        setNeedsSwap(
+          parseUnits(value.amount ?? "0", baseToken.decimals) >
+            (usdcBalance ?? BigInt(0)),
+        )
+      }
+    })
+    return () => unsubscribe()
+  }, [baseToken.decimals, form, usdcBalance])
+
   const formattedUsdcBalance = formatUnits(
     usdcBalance ?? BigInt(0),
     baseToken.decimals,
@@ -135,27 +149,6 @@ export function USDCForm({
       ? combinedBalance - parseUnits(amount, baseToken.decimals)
       : usdceBalance ?? BigInt(0)
 
-  // If the amount is greater than the USDC balance, we need to swap USDCe
-  const needsSwap =
-    parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
-
-  const amountToSwap = parseFloat(amount) - parseFloat(formattedUsdcBalance)
-
-  // TODO: Implement outdated quote logic
-  const quote = useSwapQuote({
-    fromMint: USDCE.address,
-    toMint: baseToken.address,
-    amount: amountToSwap.toFixed(6),
-  })
-
-  const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
-    useAllowanceRequired({
-      amount: amountToSwap.toFixed(6),
-      mint: USDCE.address,
-      spender: quote?.estimate.approvalAddress,
-      decimals: USDCE.decimals,
-    })
-
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
     catchErrorWithToast(error, message)
@@ -164,7 +157,23 @@ export function USDCForm({
     setCurrentStep(0)
   }
 
+  // Fetch quote for swap
+  // TODO: Implement outdated quote logic
+  const { data: quote, queryKey: quoteQueryKey } = useSwapQuote({
+    fromMint: USDCE.address,
+    toMint: baseToken.address,
+    amount: (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
+  })
+
   // Approve swap
+  const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
+    useAllowanceRequired({
+      amount: (parseFloat(quote?.estimate.fromAmount ?? "0") * 1.1).toFixed(6), // Account for slippage
+      mint: USDCE.address,
+      spender: quote?.estimate.approvalAddress,
+      decimals: USDCE.decimals,
+    })
+
   const {
     writeContract: handleSwapApprove,
     status: swapApproveStatus,
@@ -177,9 +186,10 @@ export function USDCForm({
 
   const swapApproveConfirmationStatus = useTransactionConfirmation(
     swapApproveHash,
-    () => {
+    async () => {
       queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
+      await queryClient.refetchQueries({ queryKey: quoteQueryKey })
       handleSwap(
         // @ts-ignore
         {
@@ -201,6 +211,25 @@ export function USDCForm({
       onError: (error) => catchError(error, "Couldn't swap"),
     },
   })
+
+  // const swapConfirmationStatus = useSwapConfirmation(swapHash, () => {
+  //   queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
+  //   queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
+  //   setCurrentStep((prev) => prev + 1)
+  //   if (needsApproval) {
+  //     handleApprove({
+  //       address: baseToken.address,
+  //       args: [
+  //         process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+  //         MAX_INT,
+  //       ],
+  //     })
+  //   } else {
+  //     handleDeposit({
+  //       onSuccess: handleDepositSuccess,
+  //     })
+  //   }
+  // })
 
   const swapConfirmationStatus = useTransactionConfirmation(swapHash, () => {
     queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
@@ -251,16 +280,41 @@ export function USDCForm({
     },
   )
 
+  // If the amount is greater than the USDC balance, we need to swap USDCe
+  // Should not react to USDC balance changes due to swap
+  // const needsSwap =
+  //   parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
+  const [needsSwap, setNeedsSwap] = React.useState(false)
+  const [originalUsdcAmount, setOriginalUsdcAmount] = React.useState<bigint>()
   // Deposit
-  const { handleDeposit, status: depositStatus } = useDeposit({
-    amount: needsSwap
-      ? formatUnits(
-          BigInt(quote?.estimate.toAmountMin ?? 0) + (usdcBalance ?? BigInt(0)),
-          baseToken.decimals,
-        )
-      : amount,
-    mint,
-  })
+  const { handleDeposit: innerHandleDeposit, status: depositStatus } =
+    useDeposit({
+      amount: needsSwap
+        ? formatUnits(
+            // BigInt(swapConfirmation?.receiving?.amount ?? 0) +
+            BigInt(quote?.estimate.toAmountMin ?? 0) +
+              (originalUsdcAmount ?? BigInt(0)),
+            baseToken.decimals,
+          )
+        : amount,
+      mint,
+    })
+
+  const handleDeposit = (...args: Parameters<typeof innerHandleDeposit>) => {
+    console.log("deposit debug: ", {
+      usdcBalance,
+      needsSwap,
+      amount: needsSwap
+        ? formatUnits(
+            BigInt(quote?.estimate.toAmountMin ?? 0) +
+              (originalUsdcAmount ?? BigInt(0)),
+            baseToken.decimals,
+          )
+        : amount,
+      mint,
+    })
+    return innerHandleDeposit(...args)
+  }
 
   const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
@@ -276,6 +330,10 @@ export function USDCForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setNeedsSwap(
+      parseUnits(values.amount, baseToken.decimals) >
+        (usdcBalance ?? BigInt(0)),
+    )
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -318,7 +376,9 @@ export function USDCForm({
     setSteps(newSteps)
     setCurrentStep(0)
 
+    await queryClient.refetchQueries({ queryKey: quoteQueryKey })
     if (needsSwap && quote) {
+      setOriginalUsdcAmount(usdcBalance)
       if (needsSwapApproval) {
         handleSwapApprove({
           address: USDCE.address,
@@ -392,21 +452,20 @@ export function USDCForm({
         case "Approve Swap":
           return {
             status: swapApproveStatus,
-            confirmationStatus: swapApproveHash
-              ? swapApproveConfirmationStatus
-              : undefined,
+            confirmationStatus: swapApproveConfirmationStatus,
+            hash: swapApproveHash,
           }
         case "Swap USDC.e to USDC":
           return {
             status: swapStatus,
-            confirmationStatus: swapHash ? swapConfirmationStatus : undefined,
+            // confirmationStatus: swapConfirmationStatus,
+            hash: swapHash,
           }
         case "Approve USDC":
           return {
             status: approveStatus,
-            confirmationStatus: approveHash
-              ? approveConfirmationStatus
-              : undefined,
+            confirmationStatus: approveConfirmationStatus,
+            hash: approveHash,
           }
         case "Deposit USDC":
           return {
@@ -427,7 +486,7 @@ export function USDCForm({
     swapApproveConfirmationStatus,
     swapApproveHash,
     swapApproveStatus,
-    swapConfirmationStatus,
+    // swapConfirmationStatus,
     swapHash,
     swapStatus,
   ])

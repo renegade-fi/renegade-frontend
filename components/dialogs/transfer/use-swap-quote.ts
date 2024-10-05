@@ -1,4 +1,4 @@
-import { QuoteRequest, getQuote } from "@lifi/sdk"
+import { QuoteRequest, getQuote, getStatus } from "@lifi/sdk"
 import { Token } from "@renegade-fi/react"
 import { useQuery } from "@tanstack/react-query"
 import { useAccount } from "wagmi"
@@ -13,12 +13,17 @@ export interface UseSwapParams {
 
 export function useSwapQuote({ fromMint, toMint, amount }: UseSwapParams) {
   const params = useParams({ fromMint, toMint, amount })
-  const { data: quote } = useQuery({
-    queryKey: ["swap", "quote", fromMint, toMint, amount],
-    queryFn: () => getQuote(params!),
-    enabled: !!params,
-  })
-  return quote
+  const queryKey = ["swap", "quote", fromMint, toMint]
+  return {
+    queryKey,
+    ...useQuery({
+      queryKey,
+      queryFn: () => getQuote(params!),
+      enabled: !!params,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    }),
+  }
 }
 
 function useParams({
