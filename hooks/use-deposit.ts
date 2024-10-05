@@ -12,13 +12,7 @@ import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
 
-export function useDeposit({
-  mint,
-  amount,
-}: {
-  mint?: string
-  amount: string
-}) {
+export function useDeposit() {
   const config = useConfig()
   const { data: walletClient } = useWalletClient()
   const [status, setStatus] = React.useState<QueryStatus>()
@@ -29,10 +23,19 @@ export function useDeposit({
   })
 
   async function handleDeposit({
+    mint,
+    amount,
+
     onSuccess,
   }: {
+    mint?: string
+    amount: string
     onSuccess?: ({ taskId }: { taskId: string }) => void
   }) {
+    console.log("deposit debug: ", {
+      mint,
+      amount,
+    })
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)

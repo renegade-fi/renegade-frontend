@@ -44,14 +44,11 @@ export function TransferStatusDisplay({
         return (
           <React.Fragment key={step}>
             <div
-              className={cn(
-                "flex items-center justify-between transition-colors hover:text-primary",
-                {
-                  "text-muted": !isCurrentStep && !isSuccess,
-                },
-              )}
+              className={cn("flex items-center justify-between", {
+                "text-muted": !isCurrentStep && !isSuccess,
+              })}
             >
-              {i + 1}.{step}
+              {i + 1}.&nbsp;{step}
               {isCurrentStep && isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" />
               )}

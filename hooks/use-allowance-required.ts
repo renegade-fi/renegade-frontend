@@ -23,6 +23,10 @@ export function useAllowanceRequired({
       select: (data) => {
         const parsedAmount = safeParseUnits(amount, decimals)
         if (parsedAmount instanceof Error) return false
+        console.log("allowance debug: ", {
+          parsedAmount,
+          data,
+        })
         return parsedAmount > data
       },
       enabled:
@@ -30,7 +34,8 @@ export function useAllowanceRequired({
         isAddress(mint) &&
         !!address &&
         !!spender &&
-        isAddress(spender),
+        isAddress(spender) &&
+        Number(amount) > 0,
     },
   })
 }

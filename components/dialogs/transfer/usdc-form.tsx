@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { getStatus } from "@lifi/sdk"
+import { ExtendedTransactionInfo, getStatus } from "@lifi/sdk"
 import { Token, UpdateType } from "@renegade-fi/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -212,26 +212,7 @@ export function USDCForm({
     },
   })
 
-  // const swapConfirmationStatus = useSwapConfirmation(swapHash, () => {
-  //   queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
-  //   queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
-  //   setCurrentStep((prev) => prev + 1)
-  //   if (needsApproval) {
-  //     handleApprove({
-  //       address: baseToken.address,
-  //       args: [
-  //         process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-  //         MAX_INT,
-  //       ],
-  //     })
-  //   } else {
-  //     handleDeposit({
-  //       onSuccess: handleDepositSuccess,
-  //     })
-  //   }
-  // })
-
-  const swapConfirmationStatus = useTransactionConfirmation(swapHash, () => {
+  const swapConfirmationStatus = useSwapConfirmation(swapHash, (swap) => {
     queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
     setCurrentStep((prev) => prev + 1)
@@ -245,10 +226,22 @@ export function USDCForm({
       })
     } else {
       handleDeposit({
+        amount: needsSwap
+          ? formatUnits(
+              BigInt(swap.receivedAmount ?? 0) +
+                (originalUsdcAmount ?? BigInt(0)),
+              baseToken.decimals,
+            )
+          : amount,
+        mint,
         onSuccess: handleDepositSuccess,
       })
     }
   })
+  console.log(
+    "🚀 ~ swapConfirmationStatus ~ swapConfirmationStatus:",
+    swapConfirmationStatus,
+  )
 
   // Approve deposit
   const { data: needsApproval, queryKey: usdcAllowanceQueryKey } =
@@ -275,6 +268,14 @@ export function USDCForm({
       queryClient.invalidateQueries({ queryKey: usdcAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       handleDeposit({
+        amount: needsSwap
+          ? formatUnits(
+              BigInt(swapConfirmationStatus?.receivedAmount ?? 0) +
+                (originalUsdcAmount ?? BigInt(0)),
+              baseToken.decimals,
+            )
+          : amount,
+        mint,
         onSuccess: handleDepositSuccess,
       })
     },
@@ -288,17 +289,7 @@ export function USDCForm({
   const [originalUsdcAmount, setOriginalUsdcAmount] = React.useState<bigint>()
   // Deposit
   const { handleDeposit: innerHandleDeposit, status: depositStatus } =
-    useDeposit({
-      amount: needsSwap
-        ? formatUnits(
-            // BigInt(swapConfirmation?.receiving?.amount ?? 0) +
-            BigInt(quote?.estimate.toAmountMin ?? 0) +
-              (originalUsdcAmount ?? BigInt(0)),
-            baseToken.decimals,
-          )
-        : amount,
-      mint,
-    })
+    useDeposit()
 
   const handleDeposit = (...args: Parameters<typeof innerHandleDeposit>) => {
     console.log("deposit debug: ", {
@@ -360,20 +351,20 @@ export function USDCForm({
     }
 
     // Calculate and set initial steps
-    const newSteps: string[] = []
-
-    if (needsSwapApproval) {
-      newSteps.push("Approve Swap")
-    }
-    if (needsSwap) {
-      newSteps.push("Swap USDC.e to USDC")
-    }
-    if (needsApproval) {
-      newSteps.push("Approve USDC")
-    }
-    newSteps.push("Deposit USDC")
-
-    setSteps(newSteps)
+    setSteps(() => {
+      const steps = []
+      if (needsSwap) {
+        if (needsSwapApproval) {
+          steps.push("Approve Swap")
+        }
+        steps.push("Swap USDC.e to USDC")
+      }
+      if (needsApproval) {
+        steps.push("Approve USDC")
+      }
+      steps.push("Deposit USDC")
+      return steps
+    })
     setCurrentStep(0)
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
@@ -406,6 +397,8 @@ export function USDCForm({
       })
     } else {
       handleDeposit({
+        amount,
+        mint,
         onSuccess: handleDepositSuccess,
       })
     }
@@ -458,7 +451,7 @@ export function USDCForm({
         case "Swap USDC.e to USDC":
           return {
             status: swapStatus,
-            // confirmationStatus: swapConfirmationStatus,
+            confirmationStatus: swapConfirmationStatus?.status,
             hash: swapHash,
           }
         case "Approve USDC":
@@ -486,7 +479,7 @@ export function USDCForm({
     swapApproveConfirmationStatus,
     swapApproveHash,
     swapApproveStatus,
-    // swapConfirmationStatus,
+    swapConfirmationStatus,
     swapHash,
     swapStatus,
   ])
