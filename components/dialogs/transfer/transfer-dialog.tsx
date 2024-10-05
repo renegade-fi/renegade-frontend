@@ -117,7 +117,8 @@ export function TransferDialog({
             className="p-6"
             direction={direction}
             initialMint={mint}
-            onSuccess={() => setOpen(false)}
+            // onSuccess={() => setOpen(false)}
+            onSuccess={() => {}}
           />
         </DialogContent>
       </Dialog>
@@ -178,7 +179,8 @@ export function TransferDialog({
             className="p-6"
             direction={direction}
             initialMint={mint}
-            onSuccess={() => setOpen(false)}
+            // onSuccess={() => setOpen(false)}
+            onSuccess={() => {}}
           />
         </div>
       </DialogContent>

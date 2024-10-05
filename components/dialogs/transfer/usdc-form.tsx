@@ -16,6 +16,7 @@ import {
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { NumberInput } from "@/components/number-input"
@@ -44,6 +45,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
+import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
@@ -69,7 +71,7 @@ export function USDCForm({
   const { checkChain } = useCheckChain()
   const queryClient = useQueryClient()
   const { setSide } = useSide()
-  const [totalSteps, setTotalSteps] = React.useState(0)
+  const [steps, setSteps] = React.useState<string[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
 
   const mint = useWatch({
@@ -138,6 +140,8 @@ export function USDCForm({
     parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
 
   const amountToSwap = parseFloat(amount) - parseFloat(formattedUsdcBalance)
+
+  // TODO: Implement outdated quote logic
   const quote = useSwapQuote({
     fromMint: USDCE.address,
     toMint: baseToken.address,
@@ -146,7 +150,7 @@ export function USDCForm({
 
   const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
     useAllowanceRequired({
-      amount: amount.toString(),
+      amount: amountToSwap.toFixed(6),
       mint: USDCE.address,
       spender: quote?.estimate.approvalAddress,
       decimals: USDCE.decimals,
@@ -156,34 +160,68 @@ export function USDCForm({
     console.error("Error in USDC form", error)
     catchErrorWithToast(error, message)
     // Reset steps on error
-    setTotalSteps(0)
+    setSteps([])
     setCurrentStep(0)
   }
 
-  const { writeContract: handleSwapApprove, status: swapApproveStatus } =
-    useWriteErc20Approve({
-      mutation: {
-        onError: (error) => catchError(error, "Couldn't approve swap"),
-      },
-    })
+  // Approve swap
+  const {
+    writeContract: handleSwapApprove,
+    status: swapApproveStatus,
+    data: swapApproveHash,
+  } = useWriteErc20Approve({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't approve swap"),
+    },
+  })
 
-  const { setTransactionHash: setSwapApproveHash } = useTransactionConfirmation(
-    async () => {
+  const swapApproveConfirmationStatus = useTransactionConfirmation(
+    swapApproveHash,
+    () => {
       queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
-      await handleSwap(
+      setCurrentStep((prev) => prev + 1)
+      handleSwap(
         // @ts-ignore
         {
           // TODO: Maybe unsafe
           ...quote?.transactionRequest,
           type: "legacy",
         },
-        {
-          onSuccess: (data) => setSwapHash(data),
-        },
       )
     },
   )
 
+  // Swap
+  const {
+    data: swapHash,
+    sendTransaction: handleSwap,
+    status: swapStatus,
+  } = useSendTransaction({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't swap"),
+    },
+  })
+
+  const swapConfirmationStatus = useTransactionConfirmation(swapHash, () => {
+    queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
+    queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
+    setCurrentStep((prev) => prev + 1)
+    if (needsApproval) {
+      handleApprove({
+        address: baseToken.address,
+        args: [
+          process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+          MAX_INT,
+        ],
+      })
+    } else {
+      handleDeposit({
+        onSuccess: handleDepositSuccess,
+      })
+    }
+  })
+
+  // Approve deposit
   const { data: needsApproval, queryKey: usdcAllowanceQueryKey } =
     useAllowanceRequired({
       amount: amount.toString(),
@@ -192,23 +230,28 @@ export function USDCForm({
       decimals: baseToken.decimals,
     })
 
-  const { writeContract: handleApprove, status: approveStatus } =
-    useWriteErc20Approve({
-      mutation: {
-        onError: (error) => catchError(error, "Couldn't approve deposit"),
-      },
-    })
+  const {
+    writeContract: handleApprove,
+    status: approveStatus,
+    data: approveHash,
+  } = useWriteErc20Approve({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't approve deposit"),
+    },
+  })
 
-  const { setTransactionHash: setApproveHash } = useTransactionConfirmation(
-    async () => {
-      queryClient.invalidateQueries({ queryKey: usdcAllowanceQueryKey }),
-        setCurrentStep((prev) => prev + 1)
+  const approveConfirmationStatus = useTransactionConfirmation(
+    approveHash,
+    () => {
+      queryClient.invalidateQueries({ queryKey: usdcAllowanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
       handleDeposit({
         onSuccess: handleDepositSuccess,
       })
     },
   )
 
+  // Deposit
   const { handleDeposit, status: depositStatus } = useDeposit({
     amount: needsSwap
       ? formatUnits(
@@ -219,38 +262,18 @@ export function USDCForm({
     mint,
   })
 
-  const { sendTransaction: handleSwap, status: swapStatus } =
-    useSendTransaction({
-      mutation: {
-        onError: (error) => catchError(error, "Couldn't swap"),
-      },
-    })
+  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
-  const { setTransactionHash: setSwapHash } = useTransactionConfirmation(
-    async () => {
-      queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
-      queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
-      setCurrentStep((prev) => prev + 1)
-      if (needsApproval) {
-        handleApprove(
-          {
-            address: baseToken.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              MAX_INT,
-            ],
-          },
-          {
-            onSuccess: (data) => setApproveHash(data),
-          },
-        )
-      } else {
-        handleDeposit({
-          onSuccess: handleDepositSuccess,
-        })
-      }
-    },
-  )
+  const handleDepositSuccess = (data: any) => {
+    setTaskId(data.taskId)
+    // form.reset()
+    onSuccess?.()
+    const message = constructStartToastMessage(UpdateType.Deposit)
+    toast.loading(message, {
+      id: data.taskId,
+    })
+    setSide(Side.BUY)
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
@@ -278,28 +301,32 @@ export function USDCForm({
       return
     }
 
-    // Calculate total steps
-    let steps = 1 // Deposit is always required
-    if (needsSwapApproval) steps++
-    if (needsSwap) steps++
-    if (needsApproval) steps++
-    setTotalSteps(steps)
+    // Calculate and set initial steps
+    const newSteps: string[] = []
+
+    if (needsSwapApproval) {
+      newSteps.push("Approve Swap")
+    }
+    if (needsSwap) {
+      newSteps.push("Swap USDC.e to USDC")
+    }
+    if (needsApproval) {
+      newSteps.push("Approve USDC")
+    }
+    newSteps.push("Deposit USDC")
+
+    setSteps(newSteps)
     setCurrentStep(0)
 
     if (needsSwap && quote) {
       if (needsSwapApproval) {
-        handleSwapApprove(
-          {
-            address: USDCE.address,
-            args: [
-              quote.estimate.approvalAddress as `0x${string}`,
-              BigInt(quote?.estimate.fromAmount ?? MAX_INT),
-            ],
-          },
-          {
-            onSuccess: (data) => setSwapApproveHash(data),
-          },
-        )
+        handleSwapApprove({
+          address: USDCE.address,
+          args: [
+            quote.estimate.approvalAddress as `0x${string}`,
+            BigInt(quote?.estimate.fromAmount ?? MAX_INT),
+          ],
+        })
       } else {
         handleSwap(
           // @ts-ignore
@@ -307,24 +334,16 @@ export function USDCForm({
             ...quote.transactionRequest,
             type: "legacy",
           },
-          {
-            onSuccess: (data) => setSwapHash(data),
-          },
         )
       }
     } else if (needsApproval) {
-      handleApprove(
-        {
-          address: baseToken.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            MAX_INT,
-          ],
-        },
-        {
-          onSuccess: (data) => setApproveHash(data),
-        },
-      )
+      handleApprove({
+        address: baseToken.address,
+        args: [
+          process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+          MAX_INT,
+        ],
+      })
     } else {
       handleDeposit({
         onSuccess: handleDepositSuccess,
@@ -340,7 +359,7 @@ export function USDCForm({
       buttonText = "Fetching quote..."
     } else if (swapStatus === "pending") {
       buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
+      buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
     } else if (needsApproval) {
       buttonText = "Swap, Approve & Deposit"
     } else {
@@ -349,34 +368,69 @@ export function USDCForm({
   } else if (needsApproval) {
     if (approveStatus === "pending") {
       buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
+      buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
     } else {
       buttonText = "Approve & Deposit"
     }
   } else {
     if (depositStatus === "pending") {
       buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
+      buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
     } else {
       buttonText = "Deposit"
     }
-  }
-
-  const handleDepositSuccess = (data: any) => {
-    setCurrentStep((prev) => prev + 1)
-    form.reset()
-    onSuccess?.()
-    const message = constructStartToastMessage(UpdateType.Deposit)
-    toast.loading(message, {
-      id: data.taskId,
-    })
-    setSide(Side.BUY)
   }
 
   const hideMaxButton =
     !mint ||
     formattedCombinedBalance === "0" ||
     amount.toString() === formattedCombinedBalance
+
+  const statuses = React.useMemo(() => {
+    return steps.map((step) => {
+      switch (step) {
+        case "Approve Swap":
+          return {
+            status: swapApproveStatus,
+            confirmationStatus: swapApproveHash
+              ? swapApproveConfirmationStatus
+              : undefined,
+          }
+        case "Swap USDC.e to USDC":
+          return {
+            status: swapStatus,
+            confirmationStatus: swapHash ? swapConfirmationStatus : undefined,
+          }
+        case "Approve USDC":
+          return {
+            status: approveStatus,
+            confirmationStatus: approveHash
+              ? approveConfirmationStatus
+              : undefined,
+          }
+        case "Deposit USDC":
+          return {
+            status: depositStatus,
+            taskStatus: depositTaskStatus,
+          }
+        default:
+          return { status: undefined, confirmationStatus: undefined }
+      }
+    })
+  }, [
+    approveConfirmationStatus,
+    approveHash,
+    approveStatus,
+    depositStatus,
+    depositTaskStatus,
+    steps,
+    swapApproveConfirmationStatus,
+    swapApproveHash,
+    swapApproveStatus,
+    swapConfirmationStatus,
+    swapHash,
+    swapStatus,
+  ])
 
   return (
     <Form {...form}>
@@ -516,6 +570,13 @@ export function USDCForm({
                 remainingEthBalance={remainingEthBalance}
               />
             )} */}
+          </div>
+          <div className="border p-4 font-mono">
+            <TransferStatusDisplay
+              currentStep={currentStep}
+              statuses={statuses}
+              steps={steps}
+            />
           </div>
         </div>
         {isDesktop ? (

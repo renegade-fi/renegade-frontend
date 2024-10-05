@@ -141,19 +141,23 @@ export function DefaultForm({
       decimals: baseToken?.decimals ?? 0,
     })
 
-  const { writeContractAsync: handleApprove, status: approveStatus } =
-    useWriteErc20Approve({
-      mutation: {
-        onError: (error) => {
-          console.error("Error approving:", error)
-          toast.error(
-            `Error approving: ${(error as BaseError).shortMessage || error.message}`,
-          )
-        },
+  const {
+    data: approveHash,
+    writeContractAsync: handleApprove,
+    status: approveStatus,
+  } = useWriteErc20Approve({
+    mutation: {
+      onError: (error) => {
+        console.error("Error approving:", error)
+        toast.error(
+          `Error approving: ${(error as BaseError).shortMessage || error.message}`,
+        )
       },
-    })
+    },
+  })
 
-  const { setTransactionHash: setApproveHash } = useTransactionConfirmation(
+  const approveConfirmationStatus = useTransactionConfirmation(
+    approveHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: allowanceQueryKey }),
         handleDeposit({
@@ -228,18 +232,13 @@ export function DefaultForm({
         return
       }
       if (needsApproval && baseToken?.address) {
-        await handleApprove(
-          {
-            address: baseToken.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              MAX_INT,
-            ],
-          },
-          {
-            onSuccess: (data) => setApproveHash(data),
-          },
-        )
+        await handleApprove({
+          address: baseToken.address,
+          args: [
+            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            MAX_INT,
+          ],
+        })
       } else {
         handleDeposit({
           onSuccess: handleDepositSuccess,

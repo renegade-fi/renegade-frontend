@@ -147,14 +147,18 @@ export function WETHForm({
     setCurrentStep(0)
   }
 
-  const { writeContract: handleApprove, status: approveStatus } =
-    useWriteErc20Approve({
-      mutation: {
-        onError: (error) => catchError(error, "Couldn't approve deposit"),
-      },
-    })
+  const {
+    data: approveHash,
+    writeContract: handleApprove,
+    status: approveStatus,
+  } = useWriteErc20Approve({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't approve deposit"),
+    },
+  })
 
-  const { setTransactionHash: setApproveHash } = useTransactionConfirmation(
+  const approveConfirmationStatus = useTransactionConfirmation(
+    approveHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: wethAllowanceQueryKey }),
         setCurrentStep((prev) => prev + 1)
@@ -215,28 +219,18 @@ export function WETHForm({
 
     if (needsWrapEth) {
       const ethAmount = parseEther(values.amount) - (wethBalance ?? BigInt(0))
-      wrapEth(
-        {
-          address: baseToken.address,
-          value: ethAmount,
-        },
-        {
-          onSuccess: (data) => setWrapHash(data),
-        },
-      )
+      wrapEth({
+        address: baseToken.address,
+        value: ethAmount,
+      })
     } else if (needsApproval) {
-      handleApprove(
-        {
-          address: baseToken.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            MAX_INT,
-          ],
-        },
-        {
-          onSuccess: (data) => setApproveHash(data),
-        },
-      )
+      handleApprove({
+        address: baseToken.address,
+        args: [
+          process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+          MAX_INT,
+        ],
+      })
     } else {
       handleDeposit({
         onSuccess: handleDepositSuccess,
@@ -258,30 +252,30 @@ export function WETHForm({
     }
   }
 
-  const { writeContract: wrapEth, status: wrapStatus } = useWriteWethDeposit({
+  const {
+    data: wrapHash,
+    writeContract: wrapEth,
+    status: wrapStatus,
+  } = useWriteWethDeposit({
     mutation: {
       onError: (error) => catchError(error, "Couldn't wrap ETH"),
     },
   })
 
-  const { setTransactionHash: setWrapHash } = useTransactionConfirmation(
+  const wrapConfirmationStatus = useTransactionConfirmation(
+    wrapHash,
     async () => {
       setCurrentStep((prev) => prev + 1)
       queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
       if (needsApproval) {
-        handleApprove(
-          {
-            address: baseToken.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              MAX_INT,
-            ],
-          },
-          {
-            onSuccess: (data) => setApproveHash(data),
-          },
-        )
+        handleApprove({
+          address: baseToken.address,
+          args: [
+            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            MAX_INT,
+          ],
+        })
       } else {
         handleDeposit({
           onSuccess: handleDepositSuccess,

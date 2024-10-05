@@ -2,22 +2,24 @@ import React from "react"
 
 import { useWaitForTransactionReceipt } from "wagmi"
 
-export function useTransactionConfirmation(onConfirm?: () => void) {
-  const [hash, setHash] = React.useState<`0x${string}` | undefined>(undefined)
-
-  const { isSuccess } = useWaitForTransactionReceipt({
+export function useTransactionConfirmation(
+  hash?: `0x${string}`,
+  onConfirm?: () => void,
+) {
+  const { isSuccess, status } = useWaitForTransactionReceipt({
     hash,
-    confirmations: 1,
+    confirmations: 10,
   })
 
-  React.useEffect(() => {
-    if (isSuccess && hash) {
-      onConfirm?.()
-      setHash(undefined)
-    }
-  }, [hash, isSuccess, onConfirm])
+  const [isConfirmationHandled, setIsConfirmationHandled] =
+    React.useState(false)
 
-  return {
-    setTransactionHash: setHash,
-  }
+  React.useEffect(() => {
+    if (isSuccess && hash && !isConfirmationHandled) {
+      onConfirm?.()
+      setIsConfirmationHandled(true)
+    }
+  }, [hash, isSuccess, onConfirm, isConfirmationHandled])
+
+  return status
 }
