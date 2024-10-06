@@ -1,12 +1,10 @@
 import * as React from "react"
 
-import { ExtendedTransactionInfo, getStatus } from "@lifi/sdk"
 import { Token, UpdateType } from "@renegade-fi/react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { AnimatePresence, motion } from "framer-motion"
+import { useQueryClient } from "@tanstack/react-query"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits, parseEther, parseUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 import { useAccount, useSendTransaction } from "wagmi"
 import { z } from "zod"
 
@@ -18,6 +16,7 @@ import {
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { SwapWarning } from "@/components/dialogs/transfer/swap-warning"
 import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
@@ -39,7 +38,6 @@ import {
 } from "@/components/ui/responsive-tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
-import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
@@ -99,18 +97,6 @@ export function USDCForm({
 
   useRefreshOnBlock({ queryKey: usdcBalanceQueryKey })
 
-  React.useEffect(() => {
-    const { unsubscribe } = form.watch((value, { name, type }) => {
-      if (name === "amount") {
-        setNeedsSwap(
-          parseUnits(value.amount ?? "0", baseToken.decimals) >
-            (usdcBalance ?? BigInt(0)),
-        )
-      }
-    })
-    return () => unsubscribe()
-  }, [baseToken.decimals, form, usdcBalance])
-
   const formattedUsdcBalance = formatUnits(
     usdcBalance ?? BigInt(0),
     baseToken.decimals,
@@ -144,8 +130,24 @@ export function USDCForm({
     baseToken.decimals,
   )
 
+  React.useEffect(() => {
+    const { unsubscribe } = form.watch((value, { name, type }) => {
+      if (name === "amount") {
+        const parsedAmount = parseUnits(value.amount ?? "0", baseToken.decimals)
+        setNeedsSwap(
+          parsedAmount <= combinedBalance &&
+            parsedAmount > (usdcBalance ?? BigInt(0)),
+        )
+        setCurrentStep(0)
+        setSteps([])
+        setFrozenSwapAmount(undefined)
+      }
+    })
+    return () => unsubscribe()
+  }, [baseToken.decimals, combinedBalance, form, usdcBalance])
+
   const remainingUsdceBalance =
-    parseEther(amount) > (usdcBalance ?? BigInt(0))
+    parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
       ? combinedBalance - parseUnits(amount, baseToken.decimals)
       : usdceBalance ?? BigInt(0)
 
@@ -153,6 +155,13 @@ export function USDCForm({
     console.error("Error in USDC form", error)
     catchErrorWithToast(error, message)
   }
+
+  // If the amount is greater than the USDC balance, we need to swap USDCe
+  // Should not react to USDC balance changes due to swap
+  const [needsSwap, setNeedsSwap] = React.useState(false)
+  // TODO: Certain values must be "frozen" on form submission, can this be standardized?
+  const [frozenSwapAmount, setFrozenSwapAmount] = React.useState<string>()
+  const [originalUsdcAmount, setOriginalUsdcAmount] = React.useState<bigint>()
 
   // Fetch quote for swap
   // TODO: Implement outdated quote logic
@@ -163,8 +172,12 @@ export function USDCForm({
   } = useSwapQuote({
     fromMint: USDCE.address,
     toMint: baseToken.address,
-    amount: (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
+    amount:
+      frozenSwapAmount ??
+      (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
+    enabled: currentStep === 0 && needsSwap,
   })
+  console.log("🚀 ~ quote:", quote)
 
   // Approve swap
   const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
@@ -281,11 +294,6 @@ export function USDCForm({
     },
   )
 
-  // If the amount is greater than the USDC balance, we need to swap USDCe
-  // Should not react to USDC balance changes due to swap
-  const [needsSwap, setNeedsSwap] = React.useState(false)
-  const [originalUsdcAmount, setOriginalUsdcAmount] = React.useState<bigint>()
-
   // Deposit
   const { handleDeposit, status: depositStatus } = useDeposit()
 
@@ -303,9 +311,10 @@ export function USDCForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const parsedAmount = parseUnits(values.amount ?? "0", baseToken.decimals)
     setNeedsSwap(
-      parseUnits(values.amount, baseToken.decimals) >
-        (usdcBalance ?? BigInt(0)),
+      parsedAmount <= combinedBalance &&
+        parsedAmount > (usdcBalance ?? BigInt(0)),
     )
     const isAmountSufficient = checkAmount(
       queryClient,
@@ -348,6 +357,9 @@ export function USDCForm({
       return steps
     })
     setCurrentStep(0)
+    setFrozenSwapAmount(
+      (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
+    )
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
     if (needsSwap && quote) {
@@ -598,31 +610,28 @@ export function USDCForm({
               className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
               mint={mint}
             />
-            {/* {needsWrapEth && (
-              <WrapEthWarning
-                minEthToKeepUnwrapped={minEthToKeepUnwrapped}
-                remainingEthBalance={remainingEthBalance}
+            {needsSwap && (
+              <SwapWarning
+                quote={quote}
+                remainingBalance={remainingUsdceBalance}
               />
-            )} */}
-          </div>
-          <AnimatePresence>
-            {steps.length > 0 && (
-              <motion.div
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                initial={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: "easeIn" }}
-              >
-                <div className="border p-4 font-mono">
-                  <TransferStatusDisplay
-                    currentStep={currentStep}
-                    statuses={statuses}
-                    steps={steps}
-                  />
-                </div>
-              </motion.div>
             )}
-          </AnimatePresence>
+            <div
+              className={`m-0 transition-all duration-300 ease-in ${
+                steps.length > 0
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 overflow-hidden opacity-0"
+              }`}
+            >
+              <div className="border p-4 font-mono">
+                <TransferStatusDisplay
+                  currentStep={currentStep}
+                  statuses={statuses}
+                  steps={steps}
+                />
+              </div>
+            </div>
+          </div>
         </div>
         {isDesktop ? (
           <DialogFooter>

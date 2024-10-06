@@ -9,17 +9,23 @@ export interface UseSwapParams {
   fromMint: `0x${string}`
   toMint: `0x${string}`
   amount: string
+  enabled?: boolean
 }
 
-export function useSwapQuote({ fromMint, toMint, amount }: UseSwapParams) {
+export function useSwapQuote({
+  fromMint,
+  toMint,
+  amount,
+  enabled = true,
+}: UseSwapParams) {
   const params = useParams({ fromMint, toMint, amount })
-  const queryKey = ["swap", "quote", fromMint, toMint]
+  const queryKey = ["swap", "quote", fromMint, toMint, amount]
   return {
     queryKey,
     ...useQuery({
       queryKey,
       queryFn: () => getQuote(params!),
-      enabled: !!params,
+      enabled: Boolean(enabled && params),
       refetchOnWindowFocus: false,
       staleTime: Infinity,
     }),

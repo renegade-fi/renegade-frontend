@@ -116,9 +116,7 @@ export function WETHForm({
 
   const remainingEthBalance =
     parseEther(amount) > (wethBalance ?? BigInt(0))
-      ? (ethBalance?.value ?? BigInt(0)) +
-        (wethBalance ?? BigInt(0)) -
-        parseEther(amount)
+      ? combinedBalance - parseEther(amount)
       : ethBalance?.value ?? BigInt(0)
 
   const hideMaxButton =
