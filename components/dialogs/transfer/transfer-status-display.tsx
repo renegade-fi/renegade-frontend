@@ -2,7 +2,7 @@ import React from "react"
 
 import { TaskState } from "@renegade-fi/react"
 import { MutationStatus } from "@tanstack/react-query"
-import { Check, ExternalLink, Loader2 } from "lucide-react"
+import { Check, ExternalLink, Loader2, X } from "lucide-react"
 
 import { AnimatedEllipsis } from "@/app/components/animated-ellipsis"
 
@@ -35,36 +35,45 @@ export function TransferStatusDisplay({
         const isCurrentStep = currentStep === i
         const isPending =
           status === "pending" ||
-          confirmationStatus === "pending" ||
+          (hash && confirmationStatus === "pending") ||
           (taskStatus && taskStatus !== "Completed" && taskStatus !== "Failed")
         const isSuccess =
           (status === "success" && confirmationStatus === "success") ||
           taskStatus === "Completed"
+        const isError =
+          status === "error" ||
+          (hash && confirmationStatus === "error") ||
+          (taskStatus && taskStatus === "Failed")
 
         return (
-          <React.Fragment key={step}>
-            <div
-              className={cn("flex items-center justify-between", {
-                "text-muted": !isCurrentStep && !isSuccess,
-              })}
-            >
+          <div
+            key={step}
+            className={cn("", {
+              "text-muted": !isCurrentStep,
+              group: currentStep > i,
+            })}
+          >
+            <div className="flex items-center justify-between transition-colors group-hover:text-primary">
               {i + 1}.&nbsp;{step}
               {isCurrentStep && isPending && (
                 <Loader2 className="h-4 w-4 animate-spin" />
               )}
-              {isSuccess && <Check className="h-4 w-4" />}
+              {isSuccess && <Check className="h-4 w-4 text-green-price" />}
+              {isError && <X className="h-4 w-4 text-red-price" />}
             </div>
-            {isCurrentStep && confirmationStatus === "pending" && (
-              <span className="whitespace-nowrap text-xs">
+            {isCurrentStep && hash && confirmationStatus === "pending" && (
+              <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
                 └─&nbsp;Confirming
                 <AnimatedEllipsis />
               </span>
             )}
             {hash && confirmationStatus === "success" && (
-              <span className="whitespace-nowrap text-xs">
+              <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
                 └─&nbsp;
                 <Button
-                  className="h-4 p-0"
+                  className={cn("h-4 p-0 group-hover:text-primary", {
+                    "text-muted": !isCurrentStep,
+                  })}
                   size="sm"
                   type="button"
                   variant="link"
@@ -83,7 +92,7 @@ export function TransferStatusDisplay({
             {taskStatus && !confirmationStatus && (
               <span className="text-xs">{`└─  ${formatTaskState(taskStatus)}`}</span>
             )}
-          </React.Fragment>
+          </div>
         )
       })}
     </div>

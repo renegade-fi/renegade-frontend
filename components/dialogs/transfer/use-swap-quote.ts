@@ -42,7 +42,6 @@ function useParams({
   if (parsedAmount instanceof Error) {
     return undefined
   }
-  console.log("getting quote for amount: ", amount)
   return {
     fromChain: 42161,
     fromToken: fromMint,

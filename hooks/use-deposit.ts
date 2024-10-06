@@ -32,10 +32,6 @@ export function useDeposit() {
     amount: string
     onSuccess?: ({ taskId }: { taskId: string }) => void
   }) {
-    console.log("deposit debug: ", {
-      mint,
-      amount,
-    })
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)

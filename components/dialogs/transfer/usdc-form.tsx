@@ -3,6 +3,7 @@ import * as React from "react"
 import { ExtendedTransactionInfo, getStatus } from "@lifi/sdk"
 import { Token, UpdateType } from "@renegade-fi/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { AnimatePresence, motion } from "framer-motion"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits, parseEther, parseUnits } from "viem"
@@ -135,7 +136,6 @@ export function USDCForm({
     USDCE.decimals,
     true,
   )
-  const basePerQuotePrice = useBasePerQuotePrice(baseToken.address)
 
   const combinedBalance =
     (usdcBalance ?? BigInt(0)) + (usdceBalance ?? BigInt(0))
@@ -152,14 +152,15 @@ export function USDCForm({
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
     catchErrorWithToast(error, message)
-    // Reset steps on error
-    setSteps([])
-    setCurrentStep(0)
   }
 
   // Fetch quote for swap
   // TODO: Implement outdated quote logic
-  const { data: quote, queryKey: quoteQueryKey } = useSwapQuote({
+  const {
+    data: quote,
+    queryKey: quoteQueryKey,
+    isFetching: isQuoteFetching,
+  } = useSwapQuote({
     fromMint: USDCE.address,
     toMint: baseToken.address,
     amount: (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
@@ -168,24 +169,27 @@ export function USDCForm({
   // Approve swap
   const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
     useAllowanceRequired({
-      amount: (parseFloat(quote?.estimate.fromAmount ?? "0") * 1.1).toFixed(6), // Account for slippage
+      amount: formatUnits(
+        BigInt(quote?.estimate.fromAmount ?? 0),
+        USDCE.decimals,
+      ),
       mint: USDCE.address,
       spender: quote?.estimate.approvalAddress,
       decimals: USDCE.decimals,
     })
 
   const {
-    writeContract: handleSwapApprove,
-    status: swapApproveStatus,
-    data: swapApproveHash,
+    writeContract: handleApproveSwap,
+    status: approveSwapStatus,
+    data: approveSwapHash,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve swap"),
     },
   })
 
-  const swapApproveConfirmationStatus = useTransactionConfirmation(
-    swapApproveHash,
+  const approveSwapConfirmationStatus = useTransactionConfirmation(
+    approveSwapHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
@@ -238,10 +242,6 @@ export function USDCForm({
       })
     }
   })
-  console.log(
-    "🚀 ~ swapConfirmationStatus ~ swapConfirmationStatus:",
-    swapConfirmationStatus,
-  )
 
   // Approve deposit
   const { data: needsApproval, queryKey: usdcAllowanceQueryKey } =
@@ -283,29 +283,11 @@ export function USDCForm({
 
   // If the amount is greater than the USDC balance, we need to swap USDCe
   // Should not react to USDC balance changes due to swap
-  // const needsSwap =
-  //   parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
   const [needsSwap, setNeedsSwap] = React.useState(false)
   const [originalUsdcAmount, setOriginalUsdcAmount] = React.useState<bigint>()
-  // Deposit
-  const { handleDeposit: innerHandleDeposit, status: depositStatus } =
-    useDeposit()
 
-  const handleDeposit = (...args: Parameters<typeof innerHandleDeposit>) => {
-    console.log("deposit debug: ", {
-      usdcBalance,
-      needsSwap,
-      amount: needsSwap
-        ? formatUnits(
-            BigInt(quote?.estimate.toAmountMin ?? 0) +
-              (originalUsdcAmount ?? BigInt(0)),
-            baseToken.decimals,
-          )
-        : amount,
-      mint,
-    })
-    return innerHandleDeposit(...args)
-  }
+  // Deposit
+  const { handleDeposit, status: depositStatus } = useDeposit()
 
   const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
@@ -371,7 +353,7 @@ export function USDCForm({
     if (needsSwap && quote) {
       setOriginalUsdcAmount(usdcBalance)
       if (needsSwapApproval) {
-        handleSwapApprove({
+        handleApproveSwap({
           address: USDCE.address,
           args: [
             quote.estimate.approvalAddress as `0x${string}`,
@@ -408,7 +390,7 @@ export function USDCForm({
   let buttonTextInParentheses = ""
   // TODO: After useSwap
   if (needsSwap) {
-    if (!quote) {
+    if (!quote || isQuoteFetching) {
       buttonText = "Fetching quote..."
     } else if (swapStatus === "pending") {
       buttonText = "Confirm in wallet"
@@ -444,9 +426,9 @@ export function USDCForm({
       switch (step) {
         case "Approve Swap":
           return {
-            status: swapApproveStatus,
-            confirmationStatus: swapApproveConfirmationStatus,
-            hash: swapApproveHash,
+            status: approveSwapStatus,
+            confirmationStatus: approveSwapConfirmationStatus,
+            hash: approveSwapHash,
           }
         case "Swap USDC.e to USDC":
           return {
@@ -476,9 +458,9 @@ export function USDCForm({
     depositStatus,
     depositTaskStatus,
     steps,
-    swapApproveConfirmationStatus,
-    swapApproveHash,
-    swapApproveStatus,
+    approveSwapConfirmationStatus,
+    approveSwapHash,
+    approveSwapStatus,
     swapConfirmationStatus,
     swapHash,
     swapStatus,
@@ -623,13 +605,24 @@ export function USDCForm({
               />
             )} */}
           </div>
-          <div className="border p-4 font-mono">
-            <TransferStatusDisplay
-              currentStep={currentStep}
-              statuses={statuses}
-              steps={steps}
-            />
-          </div>
+          <AnimatePresence>
+            {steps.length > 0 && (
+              <motion.div
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: "easeIn" }}
+              >
+                <div className="border p-4 font-mono">
+                  <TransferStatusDisplay
+                    currentStep={currentStep}
+                    statuses={statuses}
+                    steps={steps}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         {isDesktop ? (
           <DialogFooter>
@@ -650,7 +643,7 @@ export function USDCForm({
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical") ||
                     // TODO: Don't fetch quote if amount > combinedBalance
-                    (needsSwap && !quote)
+                    (needsSwap && (isQuoteFetching || !quote))
                   }
                   size="xl"
                   variant="outline"
