@@ -374,7 +374,13 @@ export function USDCForm({
     setCurrentStep(0)
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
-    if (snapshot.swapRequired && quote) {
+    if (snapshot.swapRequired) {
+      if (!quote) {
+        form.setError("root", {
+          message: "Couldn't fetch quote",
+        })
+        return
+      }
       if (swapAllowanceRequired) {
         handleApproveSwap({
           address: USDCE.address,
@@ -467,8 +473,6 @@ export function USDCForm({
   } else if (snapshot.swapRequired) {
     if (isQuoteFetching) {
       buttonText = "Fetching quote"
-    } else if (!quote) {
-      buttonText = "Couldn't fetch quote"
     } else {
       buttonText = "Swap & Deposit"
     }
