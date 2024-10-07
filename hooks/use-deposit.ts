@@ -92,5 +92,5 @@ export function useDeposit() {
         console.error(`Error depositing: ${e.response?.data ?? e.message}`)
       })
   }
-  return { handleDeposit, status }
+  return { handleDeposit, status, reset: () => setStatus(undefined) }
 }

@@ -285,7 +285,11 @@ export function USDCForm({
   )
 
   // Deposit
-  const { handleDeposit, status: depositStatus } = useDeposit()
+  const {
+    handleDeposit,
+    status: depositStatus,
+    reset: resetDeposit,
+  } = useDeposit()
 
   const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
@@ -304,7 +308,8 @@ export function USDCForm({
     resetApproveSwap()
     resetSwap()
     resetApprove()
-  }, [resetApprove, resetApproveSwap, resetSwap])
+    resetDeposit()
+  }, [resetApprove, resetApproveSwap, resetSwap, resetDeposit])
 
   React.useEffect(() => {
     const { unsubscribe } = form.watch((value, { name, type }) => {
@@ -344,6 +349,7 @@ export function USDCForm({
       return
     }
 
+    captureSnapshot(formattedUsdcBalance)
     // Calculate and set initial steps
     setSteps(() => {
       const steps = []
@@ -354,14 +360,12 @@ export function USDCForm({
         steps.push("Swap USDC.e to USDC")
       }
       if (allowanceRequired) {
-        steps.push("Approve USDC")
+        steps.push("Approve Deposit")
       }
       steps.push("Deposit USDC")
       return steps
     })
     setCurrentStep(0)
-
-    captureSnapshot(formattedUsdcBalance)
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
     if (snapshot.swapRequired && quote) {
@@ -399,41 +403,6 @@ export function USDCForm({
     }
   }
 
-  let buttonText = ""
-  let buttonTextInParentheses = ""
-  // TODO: After useSwap
-  if (snapshot.swapRequired) {
-    if (!quote || isQuoteFetching) {
-      buttonText = "Fetching quote..."
-    } else if (swapStatus === "pending") {
-      buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
-    } else if (allowanceRequired) {
-      buttonText = "Swap, Approve & Deposit"
-    } else {
-      buttonText = "Swap & Deposit"
-    }
-  } else if (allowanceRequired) {
-    if (approveStatus === "pending") {
-      buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
-    } else {
-      buttonText = "Approve & Deposit"
-    }
-  } else {
-    if (depositStatus === "pending") {
-      buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
-    } else {
-      buttonText = "Deposit"
-    }
-  }
-
-  const hideMaxButton =
-    !mint ||
-    formattedCombinedBalance === "0" ||
-    amount.toString() === formattedCombinedBalance
-
   const statuses = React.useMemo(() => {
     return steps.map((step) => {
       switch (step) {
@@ -449,7 +418,7 @@ export function USDCForm({
             confirmationStatus: swapConfirmationStatus?.status,
             hash: swapHash,
           }
-        case "Approve USDC":
+        case "Approve Deposit":
           return {
             status: approveStatus,
             confirmationStatus: approveConfirmationStatus,
@@ -478,6 +447,33 @@ export function USDCForm({
     swapHash,
     swapStatus,
   ])
+
+  let buttonText = ""
+  let buttonTextInParentheses = ""
+  if (statuses.some((status) => status.status === "pending")) {
+    buttonText = "Confirm in wallet"
+  } else if (
+    statuses.some(
+      (status) => status.hash && status.confirmationStatus === "pending",
+    )
+  ) {
+    buttonText = "Waiting for confirmation"
+  } else if (snapshot.swapRequired) {
+    if (isQuoteFetching) {
+      buttonText = "Fetching quote"
+    } else if (!quote) {
+      buttonText = "Couldn't fetch quote"
+    } else {
+      buttonText = "Swap & Deposit"
+    }
+  } else {
+    buttonText = "Deposit"
+  }
+
+  const hideMaxButton =
+    !mint ||
+    formattedCombinedBalance === "0" ||
+    amount.toString() === formattedCombinedBalance
 
   return (
     <Form {...form}>
@@ -647,12 +643,14 @@ export function USDCForm({
                   disabled={
                     !form.formState.isValid ||
                     isMaxBalances ||
-                    swapStatus === "pending" ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
+                    statuses.some(
+                      (status) =>
+                        status.status === "pending" ||
+                        (status.hash &&
+                          status.confirmationStatus === "pending"),
+                    ) ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical") ||
-                    // TODO: Don't fetch quote if amount > combinedBalance
                     (snapshot.swapRequired && (isQuoteFetching || !quote))
                   }
                   size="xl"
@@ -691,12 +689,15 @@ export function USDCForm({
                   disabled={
                     !form.formState.isValid ||
                     isMaxBalances ||
-                    swapStatus === "pending" ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
+                    statuses.some(
+                      (status) =>
+                        status.status === "pending" ||
+                        (status.hash &&
+                          status.confirmationStatus === "pending"),
+                    ) ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical") ||
-                    (snapshot.swapRequired && !quote)
+                    (snapshot.swapRequired && (isQuoteFetching || !quote))
                   }
                   size="xl"
                   variant="outline"

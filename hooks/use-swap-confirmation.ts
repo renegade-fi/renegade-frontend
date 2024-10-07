@@ -45,6 +45,7 @@ export function useSwapConfirmation(
   const [isConfirmationHandled, setIsConfirmationHandled] =
     React.useState(false)
 
+  // TODO: useTransactionConfirmation
   React.useEffect(() => {
     if (data && data.status === "success" && hash && !isConfirmationHandled) {
       onConfirm?.(data)
