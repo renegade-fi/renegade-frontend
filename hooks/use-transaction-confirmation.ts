@@ -23,5 +23,10 @@ export function useTransactionConfirmation(
     }
   }, [hash, isSuccess, onConfirm, isConfirmationHandled])
 
+  // If hash changes, should run onConfirm
+  React.useEffect(() => {
+    setIsConfirmationHandled(false)
+  }, [hash])
+
   return status
 }

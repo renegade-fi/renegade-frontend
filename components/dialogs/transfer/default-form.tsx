@@ -54,6 +54,7 @@ import {
   UNLIMITED_ALLOWANCE,
 } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
@@ -138,6 +139,11 @@ export function DefaultForm({
     name: "amount",
   })
 
+  const catchError = (error: Error, message: string) => {
+    console.error("Error in USDC form", error)
+    catchErrorWithToast(error, message)
+  }
+
   // Approve
   const { data: needsApproval, queryKey: allowanceQueryKey } =
     useAllowanceRequired({
@@ -154,12 +160,7 @@ export function DefaultForm({
     reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
-      onError: (error) => {
-        console.error("Error approving:", error)
-        toast.error(
-          `Error approving: ${(error as BaseError).shortMessage || error.message}`,
-        )
-      },
+      onError: (error) => catchError(error, "Couldn't approve"),
     },
   })
 
@@ -167,11 +168,12 @@ export function DefaultForm({
     approveHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: allowanceQueryKey }),
-        handleDeposit({
-          amount,
-          mint,
-          onSuccess: handleDepositSuccess,
-        })
+        setCurrentStep((prev) => prev + 1)
+      handleDeposit({
+        amount,
+        mint,
+        onSuccess: handleDepositSuccess,
+      })
     },
   )
 
@@ -182,8 +184,11 @@ export function DefaultForm({
     reset: resetDeposit,
   } = useDeposit()
 
-  const { status: depositTaskStatus, setTaskId: setDepositTaskId } =
-    useWaitForTask()
+  const {
+    status: depositTaskStatus,
+    setTaskId: setDepositTaskId,
+    reset: resetDepositTask,
+  } = useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
     setDepositTaskId(data.taskId)
@@ -194,13 +199,13 @@ export function DefaultForm({
       id: data.taskId,
     })
     setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
-    if (isTradePage && baseToken?.ticker !== "USDC") {
-      router.push(`/trade/${baseToken?.ticker}`)
-    }
+    // TODO: Automatically closes dialog
+    // if (isTradePage && baseToken?.ticker !== "USDC") {
+    //   router.push(`/trade/${baseToken?.ticker}`)
+    // }
   }
 
   // Withdraw
-  // TODO: Add reset and wait for task
   const {
     handleWithdraw,
     status: withdrawStatus,
@@ -209,8 +214,11 @@ export function DefaultForm({
     amount,
     mint,
   })
-  const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
-    useWaitForTask()
+  const {
+    status: withdrawTaskStatus,
+    setTaskId: setWithdrawTaskId,
+    reset: resetWithdrawTask,
+  } = useWaitForTask()
 
   const handleWithdrawSuccess = (data: any) => {
     setWithdrawTaskId(data.taskId)
@@ -222,11 +230,19 @@ export function DefaultForm({
     resetApprove()
     resetDeposit()
     resetWithdraw()
-  }, [resetApprove, resetDeposit, resetWithdraw])
+    resetDepositTask()
+    resetWithdrawTask()
+  }, [
+    resetApprove,
+    resetDeposit,
+    resetDepositTask,
+    resetWithdraw,
+    resetWithdrawTask,
+  ])
 
   React.useEffect(() => {
     const { unsubscribe } = form.watch((_, { name }) => {
-      if (name === "amount") {
+      if (name === "amount" || name === "mint") {
         setSteps([])
         setCurrentStep(0)
         resetMutations()
@@ -236,6 +252,8 @@ export function DefaultForm({
   }, [form, resetMutations])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setSteps([])
+    setCurrentStep(0)
     resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,

@@ -16,5 +16,9 @@ export function useWaitForTask() {
   return {
     status,
     setTaskId,
+    reset: () => {
+      setTaskId(undefined)
+      setStatus(undefined)
+    },
   }
 }
