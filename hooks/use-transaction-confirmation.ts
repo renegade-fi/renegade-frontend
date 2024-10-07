@@ -2,13 +2,15 @@ import React from "react"
 
 import { useWaitForTransactionReceipt } from "wagmi"
 
+import { CONFIRMATIONS } from "@/lib/constants/protocol"
+
 export function useTransactionConfirmation(
   hash?: `0x${string}`,
   onConfirm?: () => void,
 ) {
   const { isSuccess, status } = useWaitForTransactionReceipt({
     hash,
-    confirmations: 10,
+    confirmations: CONFIRMATIONS,
   })
 
   const [isConfirmationHandled, setIsConfirmationHandled] =

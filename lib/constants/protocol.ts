@@ -36,6 +36,9 @@ export const exchangeToName: Record<Exchange, string> = {
   okx: "OKX",
 }
 
-export const MAX_INT = BigInt(
+export const UNLIMITED_ALLOWANCE = BigInt(
   "115792089237316195423570985008687907853269984665640564039457584007913129639935",
 )
+
+// Number of confirmations to wait for
+export const CONFIRMATIONS = 1

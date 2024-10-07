@@ -48,7 +48,11 @@ import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
-import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
+import {
+  UNLIMITED_ALLOWANCE,
+  MIN_DEPOSIT_AMOUNT,
+  Side,
+} from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
@@ -228,7 +232,7 @@ export function USDCForm({
         address: baseToken.address,
         args: [
           process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-          MAX_INT,
+          UNLIMITED_ALLOWANCE,
         ],
       })
     } else {
@@ -374,7 +378,7 @@ export function USDCForm({
           address: USDCE.address,
           args: [
             quote.estimate.approvalAddress as `0x${string}`,
-            BigInt(quote?.estimate.fromAmount ?? MAX_INT),
+            BigInt(quote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
           ],
         })
       } else {
@@ -391,7 +395,7 @@ export function USDCForm({
         address: baseToken.address,
         args: [
           process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-          MAX_INT,
+          UNLIMITED_ALLOWANCE,
         ],
       })
     } else {

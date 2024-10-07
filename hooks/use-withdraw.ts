@@ -1,4 +1,4 @@
-import React from "react"
+import { useState } from "react"
 
 import { Token, useConfig, usePayFees } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
@@ -19,7 +19,7 @@ export function useWithdraw({
 }) {
   const { address } = useAccount()
   const config = useConfig()
-  const [status, setStatus] = React.useState<QueryStatus>()
+  const [status, setStatus] = useState<QueryStatus>()
   const { payFeesAsync } = usePayFees()
 
   const handleWithdraw = async ({

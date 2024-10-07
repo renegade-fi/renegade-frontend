@@ -48,7 +48,11 @@ import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
-import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
+import {
+  MIN_DEPOSIT_AMOUNT,
+  Side,
+  UNLIMITED_ALLOWANCE,
+} from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
@@ -232,6 +236,7 @@ export function DefaultForm({
   }, [form, resetMutations])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -274,7 +279,7 @@ export function DefaultForm({
           address: baseToken.address,
           args: [
             process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            MAX_INT,
+            UNLIMITED_ALLOWANCE,
           ],
         })
       } else {
@@ -377,22 +382,6 @@ export function DefaultForm({
     buttonText =
       direction === ExternalTransferDirection.Deposit ? "Deposit" : "Withdraw"
   }
-
-  // if (direction === ExternalTransferDirection.Withdraw) {
-  //   buttonText = "Withdraw"
-  // } else if (needsApproval) {
-  //   if (approveStatus === "pending") {
-  //     buttonText = "Confirm in wallet"
-  //   } else {
-  //     buttonText = "Approve & Deposit"
-  //   }
-  // } else {
-  //   if (depositStatus === "pending") {
-  //     buttonText = "Confirm in wallet"
-  //   } else {
-  //     buttonText = "Deposit"
-  //   }
-  // }
 
   const hideMaxButton =
     !mint || balance === "0" || amount.toString() === balance
