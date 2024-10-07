@@ -1,12 +1,11 @@
 import { LiFiStep } from "@lifi/sdk"
-import { Info } from "lucide-react"
+import { Info, Loader2 } from "lucide-react"
 
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
-import { Skeleton } from "@/components/ui/skeleton"
 
 import { formatNumber } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -26,8 +25,8 @@ export function SwapWarning({
         )}
       >
         <div className="flex w-full items-center gap-2">
-          <Info className="h-4 w-4" />
-          <Skeleton className="h-4 w-full" />
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="animate-pulse">Fetching quote...</span>
         </div>
       </div>
     )
@@ -63,7 +62,7 @@ export function SwapWarning({
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-center text-pretty rounded-md p-3 text-sm",
+        "flex w-full items-center text-pretty rounded-md p-3 text-sm",
         className,
       )}
     >

@@ -20,6 +20,7 @@ import { SwapWarning } from "@/components/dialogs/transfer/swap-warning"
 import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
+import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
@@ -83,6 +84,15 @@ export function USDCForm({
     control: form.control,
     name: "amount",
   })
+  React.useEffect(() => {
+    const { unsubscribe } = form.watch((value, { name, type }) => {
+      if (name === "amount") {
+        setSteps([])
+        setCurrentStep(0)
+      }
+    })
+    return () => unsubscribe()
+  }, [form])
   const baseToken = Token.findByTicker("USDC")
   const { address } = useAccount()
   const isMaxBalances = useIsMaxBalances(mint)
@@ -129,22 +139,11 @@ export function USDCForm({
     combinedBalance ?? BigInt(0),
     baseToken.decimals,
   )
-
-  React.useEffect(() => {
-    const { unsubscribe } = form.watch((value, { name, type }) => {
-      if (name === "amount") {
-        const parsedAmount = parseUnits(value.amount ?? "0", baseToken.decimals)
-        setNeedsSwap(
-          parsedAmount <= combinedBalance &&
-            parsedAmount > (usdcBalance ?? BigInt(0)),
-        )
-        setCurrentStep(0)
-        setSteps([])
-        setFrozenSwapAmount(undefined)
-      }
-    })
-    return () => unsubscribe()
-  }, [baseToken.decimals, combinedBalance, form, usdcBalance])
+  const { snapshot, captureSnapshot } = useSwapState(
+    form,
+    usdcBalance,
+    usdceBalance,
+  )
 
   const remainingUsdceBalance =
     parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
@@ -156,13 +155,6 @@ export function USDCForm({
     catchErrorWithToast(error, message)
   }
 
-  // If the amount is greater than the USDC balance, we need to swap USDCe
-  // Should not react to USDC balance changes due to swap
-  const [needsSwap, setNeedsSwap] = React.useState(false)
-  // TODO: Certain values must be "frozen" on form submission, can this be standardized?
-  const [frozenSwapAmount, setFrozenSwapAmount] = React.useState<string>()
-  const [originalUsdcAmount, setOriginalUsdcAmount] = React.useState<bigint>()
-
   // Fetch quote for swap
   // TODO: Implement outdated quote logic
   const {
@@ -173,11 +165,10 @@ export function USDCForm({
     fromMint: USDCE.address,
     toMint: baseToken.address,
     amount:
-      frozenSwapAmount ??
+      snapshot.usdceToSwap ??
       (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
-    enabled: currentStep === 0 && needsSwap,
+    enabled: currentStep === 0 && snapshot.swapRequired,
   })
-  console.log("🚀 ~ quote:", quote)
 
   // Approve swap
   const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
@@ -243,10 +234,9 @@ export function USDCForm({
       })
     } else {
       handleDeposit({
-        amount: needsSwap
+        amount: snapshot.swapRequired
           ? formatUnits(
-              BigInt(swap.receivedAmount ?? 0) +
-                (originalUsdcAmount ?? BigInt(0)),
+              BigInt(swap.receivedAmount ?? 0) + snapshot.usdcBalance,
               baseToken.decimals,
             )
           : amount,
@@ -281,10 +271,10 @@ export function USDCForm({
       queryClient.invalidateQueries({ queryKey: usdcAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       handleDeposit({
-        amount: needsSwap
+        amount: snapshot.swapRequired
           ? formatUnits(
               BigInt(swapConfirmationStatus?.receivedAmount ?? 0) +
-                (originalUsdcAmount ?? BigInt(0)),
+                snapshot.usdcBalance,
               baseToken.decimals,
             )
           : amount,
@@ -311,11 +301,6 @@ export function USDCForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const parsedAmount = parseUnits(values.amount ?? "0", baseToken.decimals)
-    setNeedsSwap(
-      parsedAmount <= combinedBalance &&
-        parsedAmount > (usdcBalance ?? BigInt(0)),
-    )
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -332,7 +317,7 @@ export function USDCForm({
     const isBalanceSufficient = checkBalance({
       amount: values.amount,
       mint: values.mint,
-      balance: needsSwap ? combinedBalance : usdcBalance,
+      balance: snapshot.swapRequired ? combinedBalance : usdcBalance,
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
@@ -344,7 +329,7 @@ export function USDCForm({
     // Calculate and set initial steps
     setSteps(() => {
       const steps = []
-      if (needsSwap) {
+      if (snapshot.swapRequired) {
         if (needsSwapApproval) {
           steps.push("Approve Swap")
         }
@@ -357,13 +342,11 @@ export function USDCForm({
       return steps
     })
     setCurrentStep(0)
-    setFrozenSwapAmount(
-      (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
-    )
+
+    captureSnapshot(formattedUsdcBalance)
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
-    if (needsSwap && quote) {
-      setOriginalUsdcAmount(usdcBalance)
+    if (snapshot.swapRequired && quote) {
       if (needsSwapApproval) {
         handleApproveSwap({
           address: USDCE.address,
@@ -401,7 +384,7 @@ export function USDCForm({
   let buttonText = ""
   let buttonTextInParentheses = ""
   // TODO: After useSwap
-  if (needsSwap) {
+  if (snapshot.swapRequired) {
     if (!quote || isQuoteFetching) {
       buttonText = "Fetching quote..."
     } else if (swapStatus === "pending") {
@@ -610,7 +593,7 @@ export function USDCForm({
               className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
               mint={mint}
             />
-            {needsSwap && (
+            {snapshot.swapRequired && (
               <SwapWarning
                 quote={quote}
                 remainingBalance={remainingUsdceBalance}
@@ -652,7 +635,7 @@ export function USDCForm({
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical") ||
                     // TODO: Don't fetch quote if amount > combinedBalance
-                    (needsSwap && (isQuoteFetching || !quote))
+                    (snapshot.swapRequired && (isQuoteFetching || !quote))
                   }
                   size="xl"
                   variant="outline"
@@ -695,7 +678,7 @@ export function USDCForm({
                     depositStatus === "pending" ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical") ||
-                    (needsSwap && !quote)
+                    (snapshot.swapRequired && !quote)
                   }
                   size="xl"
                   variant="outline"
