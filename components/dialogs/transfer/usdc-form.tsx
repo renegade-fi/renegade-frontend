@@ -171,7 +171,7 @@ export function USDCForm({
   })
 
   // Approve swap
-  const { data: needsSwapApproval, queryKey: swapAllowanceQueryKey } =
+  const { data: swapAllowanceRequired, queryKey: swapAllowanceQueryKey } =
     useAllowanceRequired({
       amount: formatUnits(
         BigInt(quote?.estimate.fromAmount ?? 0),
@@ -224,7 +224,7 @@ export function USDCForm({
     queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
     queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
     setCurrentStep((prev) => prev + 1)
-    if (needsApproval) {
+    if (allowanceRequired) {
       handleApprove({
         address: baseToken.address,
         args: [
@@ -247,7 +247,7 @@ export function USDCForm({
   })
 
   // Approve deposit
-  const { data: needsApproval, queryKey: usdcAllowanceQueryKey } =
+  const { data: allowanceRequired, queryKey: usdcAllowanceQueryKey } =
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
@@ -330,12 +330,12 @@ export function USDCForm({
     setSteps(() => {
       const steps = []
       if (snapshot.swapRequired) {
-        if (needsSwapApproval) {
+        if (swapAllowanceRequired) {
           steps.push("Approve Swap")
         }
         steps.push("Swap USDC.e to USDC")
       }
-      if (needsApproval) {
+      if (allowanceRequired) {
         steps.push("Approve USDC")
       }
       steps.push("Deposit USDC")
@@ -347,7 +347,7 @@ export function USDCForm({
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
     if (snapshot.swapRequired && quote) {
-      if (needsSwapApproval) {
+      if (swapAllowanceRequired) {
         handleApproveSwap({
           address: USDCE.address,
           args: [
@@ -364,7 +364,7 @@ export function USDCForm({
           },
         )
       }
-    } else if (needsApproval) {
+    } else if (allowanceRequired) {
       handleApprove({
         address: baseToken.address,
         args: [
@@ -390,12 +390,12 @@ export function USDCForm({
     } else if (swapStatus === "pending") {
       buttonText = "Confirm in wallet"
       buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
-    } else if (needsApproval) {
+    } else if (allowanceRequired) {
       buttonText = "Swap, Approve & Deposit"
     } else {
       buttonText = "Swap & Deposit"
     }
-  } else if (needsApproval) {
+  } else if (allowanceRequired) {
     if (approveStatus === "pending") {
       buttonText = "Confirm in wallet"
       buttonTextInParentheses = `(${currentStep + 1} of ${steps.length})`
