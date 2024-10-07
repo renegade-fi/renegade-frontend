@@ -57,24 +57,24 @@ export function SwapWarning({
 
   className = "bg-[#00183e] text-blue"
   mainText = `This will swap ${formattedFromAmount} ${fromTicker} to ${formattedToAmount} ${toTicker}`
-  tooltipText = `You will have ${formattedRemainingBalance} ${toTicker} after swapping`
+  tooltipText = `You will have ${formattedRemainingBalance} ${fromTicker} after swapping`
 
   return (
-    <div
-      className={cn(
-        "flex w-full items-center text-pretty rounded-md p-3 text-sm",
-        className,
-      )}
-    >
-      <ResponsiveTooltip>
-        <ResponsiveTooltipTrigger>
+    <ResponsiveTooltip>
+      <ResponsiveTooltipTrigger>
+        <div
+          className={cn(
+            "flex w-full items-center text-pretty rounded-md p-3 text-sm",
+            className,
+          )}
+        >
           <div className="flex items-center gap-2">
             <Info className="h-4 w-4" />
             {mainText}
           </div>
-        </ResponsiveTooltipTrigger>
-        <ResponsiveTooltipContent>{tooltipText}</ResponsiveTooltipContent>
-      </ResponsiveTooltip>
-    </div>
+        </div>
+      </ResponsiveTooltipTrigger>
+      <ResponsiveTooltipContent>{tooltipText}</ResponsiveTooltipContent>
+    </ResponsiveTooltip>
   )
 }

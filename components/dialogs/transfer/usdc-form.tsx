@@ -84,15 +84,6 @@ export function USDCForm({
     control: form.control,
     name: "amount",
   })
-  React.useEffect(() => {
-    const { unsubscribe } = form.watch((value, { name, type }) => {
-      if (name === "amount") {
-        setSteps([])
-        setCurrentStep(0)
-      }
-    })
-    return () => unsubscribe()
-  }, [form])
   const baseToken = Token.findByTicker("USDC")
   const { address } = useAccount()
   const isMaxBalances = useIsMaxBalances(mint)
@@ -103,6 +94,9 @@ export function USDCForm({
     useReadErc20BalanceOf({
       address: baseToken.address,
       args: [address ?? "0x"],
+      query: {
+        staleTime: 0,
+      },
     })
 
   useRefreshOnBlock({ queryKey: usdcBalanceQueryKey })
@@ -122,6 +116,9 @@ export function USDCForm({
     useReadErc20BalanceOf({
       address: USDCE.address,
       args: [address ?? "0x"],
+      query: {
+        staleTime: 0,
+      },
     })
   const formattedUsdceBalance = formatUnits(
     usdceBalance ?? BigInt(0),
@@ -186,6 +183,7 @@ export function USDCForm({
     writeContract: handleApproveSwap,
     status: approveSwapStatus,
     data: approveSwapHash,
+    reset: resetApproveSwap,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve swap"),
@@ -214,6 +212,7 @@ export function USDCForm({
     data: swapHash,
     sendTransaction: handleSwap,
     status: swapStatus,
+    reset: resetSwap,
   } = useSendTransaction({
     mutation: {
       onError: (error) => catchError(error, "Couldn't swap"),
@@ -259,6 +258,7 @@ export function USDCForm({
     writeContract: handleApprove,
     status: approveStatus,
     data: approveHash,
+    reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve deposit"),
@@ -300,7 +300,25 @@ export function USDCForm({
     setSide(Side.BUY)
   }
 
+  const resetMutations = React.useCallback(() => {
+    resetApproveSwap()
+    resetSwap()
+    resetApprove()
+  }, [resetApprove, resetApproveSwap, resetSwap])
+
+  React.useEffect(() => {
+    const { unsubscribe } = form.watch((value, { name, type }) => {
+      if (name === "amount") {
+        setSteps([])
+        setCurrentStep(0)
+        resetMutations()
+      }
+    })
+    return () => unsubscribe()
+  }, [form, resetMutations])
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
