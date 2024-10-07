@@ -18,6 +18,7 @@ import {
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
@@ -45,6 +46,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
+import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
@@ -69,15 +71,26 @@ export function WETHForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const baseToken = Token.findByTicker("WETH")
+  const { address } = useAccount()
+  const { checkChain } = useCheckChain()
+  const router = useRouter()
+  const pathname = usePathname()
+  const isTradePage = pathname.includes("/trade")
+  const queryClient = useQueryClient()
+  const { data: maintenanceMode } = useMaintenanceMode()
+  const [steps, setSteps] = React.useState<string[]>([])
+  const [currentStep, setCurrentStep] = React.useState(0)
 
   const mint = useWatch({
     control: form.control,
     name: "mint",
   })
-  const baseToken = Token.findByTicker("WETH")
-  const { address } = useAccount()
+  const amount = useWatch({
+    control: form.control,
+    name: "amount",
+  })
   const isMaxBalances = useIsMaxBalances(mint)
-
   const { data: wethBalance, queryKey: wethBalanceQueryKey } =
     useReadErc20BalanceOf({
       address: baseToken.address,
@@ -109,27 +122,24 @@ export function WETHForm({
   const maxAmountToWrap = combinedBalance - minEthToKeepUnwrapped
   const formattedMaxAmountToWrap = formatEther(maxAmountToWrap)
 
-  const amount = useWatch({
-    control: form.control,
-    name: "amount",
-  })
-
   const remainingEthBalance =
     parseEther(amount) > (wethBalance ?? BigInt(0))
       ? combinedBalance - parseEther(amount)
       : ethBalance?.value ?? BigInt(0)
 
-  const hideMaxButton =
-    !mint ||
-    formattedMaxAmountToWrap === "0" ||
-    amount.toString() === formattedMaxAmountToWrap
+  // If the amount is greater than the WETH balance, we need to wrap ETH
+  const wrapRequired = parseEther(amount) > (wethBalance ?? BigInt(0))
+  // Ensure price is loaded
+  usePriceQuery(baseToken.address)
+  const { setSide } = useSide()
 
-  const { handleDeposit, status: depositStatus } = useDeposit({
-    amount,
-    mint,
-  })
+  const catchError = (error: Error, message: string) => {
+    console.error("Error in WETH form", error)
+    catchErrorWithToast(error, message)
+  }
 
-  const { data: needsApproval, queryKey: wethAllowanceQueryKey } =
+  // Approve deposit
+  const { data: allowanceRequired, queryKey: wethAllowanceQueryKey } =
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
@@ -137,18 +147,11 @@ export function WETHForm({
       decimals: baseToken.decimals,
     })
 
-  const catchError = (error: Error, message: string) => {
-    console.error("Error in WETH form", error)
-    catchErrorWithToast(error, message)
-    // Reset steps on error
-    setTotalSteps(0)
-    setCurrentStep(0)
-  }
-
   const {
     data: approveHash,
     writeContract: handleApprove,
     status: approveStatus,
+    reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve deposit"),
@@ -159,30 +162,54 @@ export function WETHForm({
     approveHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: wethAllowanceQueryKey }),
-        setCurrentStep((prev) => prev + 1)
-      handleDeposit({
-        onSuccess: handleDepositSuccess,
-      })
+        handleDeposit({
+          amount,
+          mint,
+          onSuccess: handleDepositSuccess,
+        })
     },
   )
 
-  // If the amount is greater than the WETH balance, we need to wrap ETH
-  const needsWrapEth = parseEther(amount) > (wethBalance ?? BigInt(0))
+  // Deposit
+  const {
+    handleDeposit,
+    status: depositStatus,
+    reset: resetDeposit,
+  } = useDeposit()
+  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
-  const { checkChain } = useCheckChain()
+  const handleDepositSuccess = (data: any) => {
+    setTaskId(data.taskId)
+    // form.reset()
+    onSuccess?.()
+    const message = constructStartToastMessage(UpdateType.Deposit)
+    toast.loading(message, {
+      id: data.taskId,
+    })
+    setSide(Side.SELL)
+    if (isTradePage) {
+      router.push(`/trade/WETH`)
+    }
+  }
 
-  const router = useRouter()
-  const pathname = usePathname()
-  const isTradePage = pathname.includes("/trade")
-  const queryClient = useQueryClient()
-  // Ensure price is loaded
-  usePriceQuery(baseToken.address)
-  const { setSide } = useSide()
+  const resetMutations = React.useCallback(() => {
+    resetApprove()
+    resetDeposit()
+  }, [resetApprove, resetDeposit])
 
-  const [totalSteps, setTotalSteps] = React.useState(0)
-  const [currentStep, setCurrentStep] = React.useState(0)
+  React.useEffect(() => {
+    const { unsubscribe } = form.watch((_, { name }) => {
+      if (name === "amount") {
+        setSteps([])
+        setCurrentStep(0)
+        resetMutations()
+      }
+    })
+    return () => unsubscribe()
+  }, [form, resetMutations])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -199,7 +226,7 @@ export function WETHForm({
     const isBalanceSufficient = checkBalance({
       amount: values.amount,
       mint: values.mint,
-      balance: needsWrapEth ? combinedBalance : wethBalance,
+      balance: wrapRequired ? combinedBalance : wethBalance,
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
@@ -208,20 +235,27 @@ export function WETHForm({
       return
     }
 
-    // Calculate total steps
-    let steps = 1 // Deposit is always required
-    if (needsWrapEth) steps++
-    if (needsApproval) steps++
-    setTotalSteps(steps)
+    // Calculate and set initial steps
+    setSteps(() => {
+      const steps = []
+      if (wrapRequired) {
+        steps.push("Wrap ETH")
+      }
+      if (allowanceRequired) {
+        steps.push("Approve Deposit")
+      }
+      steps.push("Deposit WETH")
+      return steps
+    })
     setCurrentStep(0)
 
-    if (needsWrapEth) {
+    if (wrapRequired) {
       const ethAmount = parseEther(values.amount) - (wethBalance ?? BigInt(0))
       wrapEth({
         address: baseToken.address,
         value: ethAmount,
       })
-    } else if (needsApproval) {
+    } else if (allowanceRequired) {
       handleApprove({
         address: baseToken.address,
         args: [
@@ -231,22 +265,10 @@ export function WETHForm({
       })
     } else {
       handleDeposit({
+        amount,
+        mint,
         onSuccess: handleDepositSuccess,
       })
-    }
-  }
-
-  const handleDepositSuccess = (data: any) => {
-    setCurrentStep((prev) => prev + 1)
-    form.reset()
-    onSuccess?.()
-    const message = constructStartToastMessage(UpdateType.Deposit)
-    toast.loading(message, {
-      id: data.taskId,
-    })
-    setSide(Side.SELL)
-    if (isTradePage) {
-      router.push(`/trade/WETH`)
     }
   }
 
@@ -263,10 +285,9 @@ export function WETHForm({
   const wrapConfirmationStatus = useTransactionConfirmation(
     wrapHash,
     async () => {
-      setCurrentStep((prev) => prev + 1)
       queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
-      if (needsApproval) {
+      if (allowanceRequired) {
         handleApprove({
           address: baseToken.address,
           args: [
@@ -276,40 +297,70 @@ export function WETHForm({
         })
       } else {
         handleDeposit({
+          amount,
+          mint,
           onSuccess: handleDepositSuccess,
         })
       }
     },
   )
 
-  const { data: maintenanceMode } = useMaintenanceMode()
+  const statuses = React.useMemo(() => {
+    return steps.map((step) => {
+      switch (step) {
+        case "Wrap ETH":
+          return {
+            status: wrapStatus,
+            confirmationStatus: wrapConfirmationStatus,
+            hash: wrapHash,
+          }
+        case "Approve Deposit":
+          return {
+            status: approveStatus,
+            confirmationStatus: approveConfirmationStatus,
+            hash: approveHash,
+          }
+        case "Deposit WETH":
+          return {
+            status: depositStatus,
+            taskStatus: depositTaskStatus,
+          }
+        default:
+          return { status: undefined, confirmationStatus: undefined }
+      }
+    })
+  }, [
+    approveConfirmationStatus,
+    approveHash,
+    approveStatus,
+    depositStatus,
+    depositTaskStatus,
+    steps,
+    wrapConfirmationStatus,
+    wrapHash,
+    wrapStatus,
+  ])
 
   let buttonText = ""
-  let buttonTextInParentheses = ""
-  if (needsWrapEth) {
-    if (wrapStatus === "pending") {
-      buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
-    } else if (needsApproval) {
-      buttonText = "Wrap, Approve & Deposit"
-    } else {
-      buttonText = "Wrap & Deposit"
-    }
-  } else if (needsApproval) {
-    if (approveStatus === "pending") {
-      buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
-    } else {
-      buttonText = "Approve & Deposit"
-    }
+
+  if (statuses.some((status) => status.status === "pending")) {
+    buttonText = "Confirm in wallet"
+  } else if (
+    statuses.some(
+      (status) => status.hash && status.confirmationStatus === "pending",
+    )
+  ) {
+    buttonText = "Waiting for confirmation"
+  } else if (wrapRequired) {
+    buttonText = "Wrap & Deposit"
   } else {
-    if (depositStatus === "pending") {
-      buttonText = "Confirm in wallet"
-      buttonTextInParentheses = `(${currentStep + 1} of ${totalSteps})`
-    } else {
-      buttonText = "Deposit"
-    }
+    buttonText = "Deposit"
   }
+
+  const hideMaxButton =
+    !mint ||
+    formattedMaxAmountToWrap === "0" ||
+    amount.toString() === formattedMaxAmountToWrap
 
   return (
     <Form {...form}>
@@ -461,12 +512,27 @@ export function WETHForm({
               className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
               mint={mint}
             />
-            {needsWrapEth && (
+            {wrapRequired && (
               <WrapEthWarning
                 minEthToKeepUnwrapped={minEthToKeepUnwrapped}
                 remainingEthBalance={remainingEthBalance}
               />
             )}
+            <div
+              className={`m-0 transition-all duration-300 ease-in ${
+                steps.length > 0
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 overflow-hidden opacity-0"
+              }`}
+            >
+              <div className="border p-4 font-mono">
+                <TransferStatusDisplay
+                  currentStep={currentStep}
+                  statuses={statuses}
+                  steps={steps}
+                />
+              </div>
+            </div>
           </div>
         </div>
         {isDesktop ? (
@@ -482,9 +548,12 @@ export function WETHForm({
                   disabled={
                     !form.formState.isValid ||
                     isMaxBalances ||
-                    wrapStatus === "pending" ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
+                    statuses.some(
+                      (status) =>
+                        status.status === "pending" ||
+                        (status.hash &&
+                          status.confirmationStatus === "pending"),
+                    ) ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical")
                   }
@@ -524,21 +593,19 @@ export function WETHForm({
                   disabled={
                     !form.formState.isValid ||
                     isMaxBalances ||
-                    wrapStatus === "pending" ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
+                    statuses.some(
+                      (status) =>
+                        status.status === "pending" ||
+                        (status.hash &&
+                          status.confirmationStatus === "pending"),
+                    ) ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical")
                   }
                   size="xl"
                   variant="outline"
                 >
-                  <span>{buttonText}</span>
-                  {buttonTextInParentheses && (
-                    <span className="whitespace-nowrap">
-                      &nbsp;{buttonTextInParentheses}
-                    </span>
-                  )}
+                  {buttonText}
                 </Button>
               </ResponsiveTooltipTrigger>
               <ResponsiveTooltipContent
