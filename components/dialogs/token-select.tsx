@@ -80,6 +80,10 @@ export function TokenSelect({
   const { data: usdceBalance } = useReadErc20BalanceOf({
     address: ADDITIONAL_TOKENS["USDC.e"].address,
     args: [address ?? "0x"],
+    query: {
+      enabled: !!address,
+      staleTime: 0,
+    },
   })
 
   // TODO: Sometimes old balances are added

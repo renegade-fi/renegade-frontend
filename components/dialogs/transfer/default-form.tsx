@@ -113,6 +113,7 @@ export function DefaultForm({
         direction === ExternalTransferDirection.Deposit &&
         !!baseToken &&
         !!address,
+      staleTime: 0,
     },
   })
 
@@ -167,8 +168,8 @@ export function DefaultForm({
   const approveConfirmationStatus = useTransactionConfirmation(
     approveHash,
     async () => {
-      queryClient.invalidateQueries({ queryKey: allowanceQueryKey }),
-        setCurrentStep((prev) => prev + 1)
+      queryClient.invalidateQueries({ queryKey: allowanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
       handleDeposit({
         amount,
         mint,

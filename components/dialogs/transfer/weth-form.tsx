@@ -99,6 +99,10 @@ export function WETHForm({
     useReadErc20BalanceOf({
       address: baseToken.address,
       args: [address ?? "0x"],
+      query: {
+        staleTime: 0,
+        enabled: !!address,
+      },
     })
 
   useRefreshOnBlock({ queryKey: wethBalanceQueryKey })
@@ -158,6 +162,7 @@ export function WETHForm({
     async () => {
       queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         handleApprove({
           address: baseToken.address,
@@ -215,7 +220,11 @@ export function WETHForm({
     reset: resetDeposit,
   } = useDeposit()
 
-  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
+  const {
+    status: depositTaskStatus,
+    setTaskId,
+    reset: resetDepositTask,
+  } = useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)
@@ -234,7 +243,8 @@ export function WETHForm({
   const resetMutations = React.useCallback(() => {
     resetApprove()
     resetDeposit()
-  }, [resetApprove, resetDeposit])
+    resetDepositTask()
+  }, [resetApprove, resetDeposit, resetDepositTask])
 
   React.useEffect(() => {
     const { unsubscribe } = form.watch((_, { name }) => {

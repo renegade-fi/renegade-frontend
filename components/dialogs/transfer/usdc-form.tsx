@@ -99,6 +99,7 @@ export function USDCForm({
       address: baseToken.address,
       args: [address ?? "0x"],
       query: {
+        enabled: !!address,
         staleTime: 0,
       },
     })
@@ -121,6 +122,7 @@ export function USDCForm({
       address: USDCE.address,
       args: [address ?? "0x"],
       query: {
+        enabled: !!address,
         staleTime: 0,
       },
     })
