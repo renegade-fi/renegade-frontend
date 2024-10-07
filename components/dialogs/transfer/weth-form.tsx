@@ -138,6 +138,40 @@ export function WETHForm({
     catchErrorWithToast(error, message)
   }
 
+  // Wrap ETH
+  const {
+    data: wrapHash,
+    writeContract: wrapEth,
+    status: wrapStatus,
+  } = useWriteWethDeposit({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't wrap ETH"),
+    },
+  })
+
+  const wrapConfirmationStatus = useTransactionConfirmation(
+    wrapHash,
+    async () => {
+      queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
+      if (allowanceRequired) {
+        handleApprove({
+          address: baseToken.address,
+          args: [
+            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            MAX_INT,
+          ],
+        })
+      } else {
+        handleDeposit({
+          amount,
+          mint,
+          onSuccess: handleDepositSuccess,
+        })
+      }
+    },
+  )
+
   // Approve deposit
   const { data: allowanceRequired, queryKey: wethAllowanceQueryKey } =
     useAllowanceRequired({
@@ -176,6 +210,7 @@ export function WETHForm({
     status: depositStatus,
     reset: resetDeposit,
   } = useDeposit()
+
   const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
@@ -271,39 +306,6 @@ export function WETHForm({
       })
     }
   }
-
-  const {
-    data: wrapHash,
-    writeContract: wrapEth,
-    status: wrapStatus,
-  } = useWriteWethDeposit({
-    mutation: {
-      onError: (error) => catchError(error, "Couldn't wrap ETH"),
-    },
-  })
-
-  const wrapConfirmationStatus = useTransactionConfirmation(
-    wrapHash,
-    async () => {
-      queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
-      queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
-      if (allowanceRequired) {
-        handleApprove({
-          address: baseToken.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            MAX_INT,
-          ],
-        })
-      } else {
-        handleDeposit({
-          amount,
-          mint,
-          onSuccess: handleDepositSuccess,
-        })
-      }
-    },
-  )
 
   const statuses = React.useMemo(() => {
     return steps.map((step) => {

@@ -19,6 +19,7 @@ import {
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
@@ -45,6 +46,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
+import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
 import { MAX_INT, MIN_DEPOSIT_AMOUNT, Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
@@ -64,6 +66,15 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const { checkChain } = useCheckChain()
+  const router = useRouter()
+  const pathname = usePathname()
+  const isTradePage = pathname.includes("/trade")
+  const queryClient = useQueryClient()
+  const { setSide } = useSide()
+  const { data: maintenanceMode } = useMaintenanceMode()
+  const [steps, setSteps] = React.useState<string[]>([])
+  const [currentStep, setCurrentStep] = React.useState(0)
 
   const mint = useWatch({
     control: form.control,
@@ -74,6 +85,8 @@ export function DefaultForm({
     : undefined
   const { address } = useAccount()
   const isMaxBalances = useIsMaxBalances(mint)
+  // Ensure price is loaded
+  usePriceQuery(baseToken?.address || "0x")
 
   const renegadeBalances = useBalances()
   const renegadeBalance = baseToken
@@ -120,19 +133,8 @@ export function DefaultForm({
     control: form.control,
     name: "amount",
   })
-  const hideMaxButton =
-    !mint || balance === "0" || amount.toString() === balance
 
-  const { handleDeposit, status: depositStatus } = useDeposit({
-    amount,
-    mint,
-  })
-
-  const { handleWithdraw } = useWithdraw({
-    amount,
-    mint,
-  })
-
+  // Approve
   const { data: needsApproval, queryKey: allowanceQueryKey } =
     useAllowanceRequired({
       amount: amount.toString(),
@@ -145,6 +147,7 @@ export function DefaultForm({
     data: approveHash,
     writeContractAsync: handleApprove,
     status: approveStatus,
+    reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => {
@@ -161,39 +164,26 @@ export function DefaultForm({
     async () => {
       queryClient.invalidateQueries({ queryKey: allowanceQueryKey }),
         handleDeposit({
+          amount,
+          mint,
           onSuccess: handleDepositSuccess,
         })
     },
   )
 
-  const { checkChain } = useCheckChain()
+  // Deposit
+  const {
+    handleDeposit,
+    status: depositStatus,
+    reset: resetDeposit,
+  } = useDeposit()
 
-  let buttonText = ""
-  if (direction === ExternalTransferDirection.Withdraw) {
-    buttonText = "Withdraw"
-  } else if (needsApproval) {
-    if (approveStatus === "pending") {
-      buttonText = "Confirm in wallet"
-    } else {
-      buttonText = "Approve & Deposit"
-    }
-  } else {
-    if (depositStatus === "pending") {
-      buttonText = "Confirm in wallet"
-    } else {
-      buttonText = "Deposit"
-    }
-  }
-  const router = useRouter()
-  const pathname = usePathname()
-  const isTradePage = pathname.includes("/trade")
-  const queryClient = useQueryClient()
-  // Ensure price is loaded
-  usePriceQuery(baseToken?.address || "0x")
-  const { setSide } = useSide()
+  const { status: depositTaskStatus, setTaskId: setDepositTaskId } =
+    useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
-    form.reset()
+    setDepositTaskId(data.taskId)
+    // form.reset()
     onSuccess?.()
     const message = constructStartToastMessage(UpdateType.Deposit)
     toast.loading(message, {
@@ -204,6 +194,42 @@ export function DefaultForm({
       router.push(`/trade/${baseToken?.ticker}`)
     }
   }
+
+  // Withdraw
+  // TODO: Add reset and wait for task
+  const {
+    handleWithdraw,
+    status: withdrawStatus,
+    reset: resetWithdraw,
+  } = useWithdraw({
+    amount,
+    mint,
+  })
+  const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
+    useWaitForTask()
+
+  const handleWithdrawSuccess = (data: any) => {
+    setWithdrawTaskId(data.taskId)
+    // form.reset()
+    onSuccess?.()
+  }
+
+  const resetMutations = React.useCallback(() => {
+    resetApprove()
+    resetDeposit()
+    resetWithdraw()
+  }, [resetApprove, resetDeposit, resetWithdraw])
+
+  React.useEffect(() => {
+    const { unsubscribe } = form.watch((_, { name }) => {
+      if (name === "amount") {
+        setSteps([])
+        setCurrentStep(0)
+        resetMutations()
+      }
+    })
+    return () => unsubscribe()
+  }, [form, resetMutations])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
@@ -231,6 +257,18 @@ export function DefaultForm({
         })
         return
       }
+
+      // Calculate and set initial steps
+      setSteps(() => {
+        const steps = []
+        if (needsApproval) {
+          steps.push("Approve Deposit")
+        }
+        steps.push("Deposit")
+        return steps
+      })
+      setCurrentStep(0)
+
       if (needsApproval && baseToken?.address) {
         await handleApprove({
           address: baseToken.address,
@@ -241,6 +279,8 @@ export function DefaultForm({
         })
       } else {
         handleDeposit({
+          amount,
+          mint,
           onSuccess: handleDepositSuccess,
         })
       }
@@ -275,16 +315,87 @@ export function DefaultForm({
         return
       }
 
+      // Calculate and set initial steps
+      setSteps(() => {
+        const steps = []
+        steps.push("Withdraw")
+        return steps
+      })
+      setCurrentStep(0)
+
       handleWithdraw({
-        onSuccess: (data) => {
-          form.reset()
-          onSuccess?.()
-        },
+        onSuccess: handleWithdrawSuccess,
       })
     }
   }
 
-  const { data: maintenanceMode } = useMaintenanceMode()
+  const statuses = React.useMemo(() => {
+    return steps.map((step) => {
+      switch (step) {
+        case "Approve Deposit":
+          return {
+            status: approveStatus,
+            confirmationStatus: approveConfirmationStatus,
+            hash: approveHash,
+          }
+        case "Deposit":
+          return {
+            status: depositStatus,
+            taskStatus: depositTaskStatus,
+          }
+        case "Withdraw":
+          return {
+            status: withdrawStatus,
+            taskStatus: withdrawTaskStatus,
+          }
+        default:
+          return { status: undefined, confirmationStatus: undefined }
+      }
+    })
+  }, [
+    approveConfirmationStatus,
+    approveHash,
+    approveStatus,
+    depositStatus,
+    depositTaskStatus,
+    steps,
+    withdrawStatus,
+    withdrawTaskStatus,
+  ])
+
+  let buttonText = ""
+
+  if (statuses.some((status) => status.status === "pending")) {
+    buttonText = "Confirm in wallet"
+  } else if (
+    statuses.some(
+      (status) => status.hash && status.confirmationStatus === "pending",
+    )
+  ) {
+    buttonText = "Waiting for confirmation"
+  } else {
+    buttonText =
+      direction === ExternalTransferDirection.Deposit ? "Deposit" : "Withdraw"
+  }
+
+  // if (direction === ExternalTransferDirection.Withdraw) {
+  //   buttonText = "Withdraw"
+  // } else if (needsApproval) {
+  //   if (approveStatus === "pending") {
+  //     buttonText = "Confirm in wallet"
+  //   } else {
+  //     buttonText = "Approve & Deposit"
+  //   }
+  // } else {
+  //   if (depositStatus === "pending") {
+  //     buttonText = "Confirm in wallet"
+  //   } else {
+  //     buttonText = "Deposit"
+  //   }
+  // }
+
+  const hideMaxButton =
+    !mint || balance === "0" || amount.toString() === balance
 
   return (
     <Form {...form}>
@@ -376,6 +487,21 @@ export function DefaultForm({
                 mint={mint}
               />
             )}
+            <div
+              className={`m-0 transition-all duration-300 ease-in ${
+                steps.length > 0
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 overflow-hidden opacity-0"
+              }`}
+            >
+              <div className="border p-4 font-mono">
+                <TransferStatusDisplay
+                  currentStep={currentStep}
+                  statuses={statuses}
+                  steps={steps}
+                />
+              </div>
+            </div>
           </div>
         </div>
         {isDesktop ? (
@@ -392,8 +518,12 @@ export function DefaultForm({
                     !form.formState.isValid ||
                     (direction === ExternalTransferDirection.Deposit &&
                       isMaxBalances) ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
+                    statuses.some(
+                      (status) =>
+                        status.status === "pending" ||
+                        (status.hash &&
+                          status.confirmationStatus === "pending"),
+                    ) ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical")
                   }
@@ -434,8 +564,12 @@ export function DefaultForm({
                     !form.formState.isValid ||
                     (direction === ExternalTransferDirection.Deposit &&
                       isMaxBalances) ||
-                    approveStatus === "pending" ||
-                    depositStatus === "pending" ||
+                    statuses.some(
+                      (status) =>
+                        status.status === "pending" ||
+                        (status.hash &&
+                          status.confirmationStatus === "pending"),
+                    ) ||
                     (maintenanceMode?.enabled &&
                       maintenanceMode.severity === "critical")
                   }
