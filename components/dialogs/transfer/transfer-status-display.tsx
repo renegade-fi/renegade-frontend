@@ -8,6 +8,7 @@ import { AnimatedEllipsis } from "@/app/components/animated-ellipsis"
 
 import { Button } from "@/components/ui/button"
 
+import { TASK_STATES } from "@/lib/constants/protocol"
 import { formatTaskState } from "@/lib/constants/task"
 import { cn } from "@/lib/utils"
 import { viemClient } from "@/lib/viem"
@@ -17,6 +18,7 @@ type StepStatus = {
   confirmationStatus?: "error" | "pending" | "success"
   taskStatus?: TaskState
   hash?: `0x${string}`
+  isTask?: boolean
 }
 
 export function TransferStatusDisplay({
@@ -31,7 +33,8 @@ export function TransferStatusDisplay({
   return (
     <div className="cursor-default space-y-1">
       {steps.map((step, i) => {
-        const { status, confirmationStatus, taskStatus, hash } = statuses[i]
+        const { status, confirmationStatus, taskStatus, hash, isTask } =
+          statuses[i]
         const isCurrentStep = currentStep === i
         const isPending =
           status === "pending" ||
@@ -44,6 +47,54 @@ export function TransferStatusDisplay({
           status === "error" ||
           (hash && confirmationStatus === "error") ||
           (taskStatus && taskStatus === "Failed")
+
+        const Content = () => {
+          if (isTask) {
+            return (
+              <div className="text-xs text-muted">
+                {TASK_STATES.map((state) => (
+                  <div
+                    key={state}
+                    className={cn("text-primary hover:text-primary", {
+                      "text-muted": taskStatus !== state,
+                    })}
+                  >{`└─  ${formatTaskState(state)}`}</div>
+                ))}
+              </div>
+            )
+          }
+
+          if (confirmationStatus) {
+            if (hash) {
+              if (isCurrentStep) {
+                ;<span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
+                  └─&nbsp;Confirming
+                  <AnimatedEllipsis />
+                </span>
+              } else if (confirmationStatus === "success")
+                <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
+                  └─&nbsp;
+                  <Button
+                    className={cn("h-4 p-0 group-hover:text-primary", {
+                      "text-muted": !isCurrentStep,
+                    })}
+                    size="sm"
+                    type="button"
+                    variant="link"
+                    onClick={() => {
+                      window.open(
+                        `${viemClient.chain.blockExplorers?.default.url}/tx/${hash}`,
+                        "_blank",
+                      )
+                    }}
+                  >
+                    Confirmed
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </Button>
+                </span>
+            }
+          }
+        }
 
         return (
           <div
@@ -61,37 +112,7 @@ export function TransferStatusDisplay({
               {isSuccess && <Check className="h-4 w-4 text-green-price" />}
               {isError && <X className="h-4 w-4 text-red-price" />}
             </div>
-            {isCurrentStep && hash && confirmationStatus === "pending" && (
-              <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
-                └─&nbsp;Confirming
-                <AnimatedEllipsis />
-              </span>
-            )}
-            {hash && confirmationStatus === "success" && (
-              <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
-                └─&nbsp;
-                <Button
-                  className={cn("h-4 p-0 group-hover:text-primary", {
-                    "text-muted": !isCurrentStep,
-                  })}
-                  size="sm"
-                  type="button"
-                  variant="link"
-                  onClick={() => {
-                    window.open(
-                      `${viemClient.chain.blockExplorers?.default.url}/tx/${hash}`,
-                      "_blank",
-                    )
-                  }}
-                >
-                  Confirmed
-                  <ExternalLink className="ml-1 h-3 w-3" />
-                </Button>
-              </span>
-            )}
-            {taskStatus && !confirmationStatus && (
-              <span className="text-xs">{`└─  ${formatTaskState(taskStatus)}`}</span>
-            )}
+            <Content />
           </div>
         )
       })}

@@ -1,5 +1,5 @@
 // Constants
-import { Exchange, Token } from "@renegade-fi/react"
+import { Exchange, TaskState, Token } from "@renegade-fi/react"
 import { parseUnits } from "viem/utils"
 
 // Min fill size of the quote asset that the relayer will accept
@@ -26,6 +26,14 @@ export enum Side {
   BUY = "buy",
   SELL = "sell",
 }
+
+export const TASK_STATES: TaskState[] = [
+  "Proving",
+  "Submitting Tx",
+  "Finding Opening",
+  "Updating Validity Proofs",
+  "Completed",
+]
 
 export const EXCHANGES = ["binance", "coinbase", "kraken", "okx"] as const
 

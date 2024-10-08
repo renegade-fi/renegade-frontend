@@ -377,11 +377,13 @@ export function DefaultForm({
           return {
             status: depositStatus,
             taskStatus: depositTaskStatus,
+            isTask: true,
           }
         case "Withdraw":
           return {
             status: withdrawStatus,
             taskStatus: withdrawTaskStatus,
+            isTask: true,
           }
         default:
           return { status: undefined, confirmationStatus: undefined }

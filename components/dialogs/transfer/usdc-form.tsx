@@ -471,6 +471,7 @@ export function USDCForm({
           return {
             status: depositStatus,
             taskStatus: depositTaskStatus,
+            isTask: true,
           }
         default:
           return { status: undefined, confirmationStatus: undefined }
