@@ -2,28 +2,37 @@ import * as React from "react"
 
 import { usePathname, useRouter } from "next/navigation"
 
-import { Token, UpdateType, useBalances } from "@renegade-fi/react"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Token, UpdateType } from "@renegade-fi/react"
+import { useBalances } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
+import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { BaseError, formatUnits } from "viem"
+import { formatUnits } from "viem"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
 import {
+  ExternalTransferDirection,
   checkAmount,
   checkBalance,
-  ExternalTransferDirection,
   formSchema,
-  isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
+import { isMaxBalance } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
+import {
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -65,10 +74,12 @@ export function DefaultForm({
   direction,
   form,
   onSuccess,
+  header,
 }: React.ComponentProps<"form"> & {
   direction: ExternalTransferDirection
   onSuccess: () => void
   form: UseFormReturn<z.infer<typeof formSchema>>
+  header: React.ReactNode
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { checkChain } = useCheckChain()
@@ -253,9 +264,9 @@ export function DefaultForm({
   }, [form, resetMutations])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setSteps([])
-    setCurrentStep(0)
-    resetMutations()
+    // setSteps([])
+    // setCurrentStep(0)
+    // resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -388,219 +399,297 @@ export function DefaultForm({
   ])
 
   let buttonText = ""
-
-  if (statuses.some((status) => status.status === "pending")) {
-    buttonText = "Confirm in wallet"
-  } else if (
-    statuses.some(
-      (status) => status.hash && status.confirmationStatus === "pending",
-    )
-  ) {
-    buttonText = "Waiting for confirmation"
+  if (direction === ExternalTransferDirection.Deposit) {
+    if (needsApproval) {
+      buttonText = "Approve & Deposit"
+    } else {
+      buttonText = "Deposit"
+    }
   } else {
-    buttonText =
-      direction === ExternalTransferDirection.Deposit ? "Deposit" : "Withdraw"
+    buttonText = "Withdraw"
   }
 
   const hideMaxButton =
     !mint || balance === "0" || amount.toString() === balance
 
-  return (
-    <Form {...form}>
-      <form
-        className="flex flex-1 flex-col"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <div className={cn("space-y-8", className)}>
-          <div className="grid w-full items-center gap-3">
-            <FormField
-              control={form.control}
-              name="mint"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Token</FormLabel>
-                  <TokenSelect
-                    direction={direction}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
+  if (steps.length > 0) {
+    let Icon = <Loader2 className="h-6 w-6 animate-spin" />
+    if (statuses.some((status) => status.status === "error")) {
+      Icon = <AlertCircle className="h-6 w-6" />
+    } else if (
+      direction === ExternalTransferDirection.Deposit &&
+      depositTaskStatus === "Completed"
+    ) {
+      Icon = <Check className="h-6 w-6" />
+    } else if (
+      direction === ExternalTransferDirection.Withdraw &&
+      withdrawTaskStatus === "Completed"
+    ) {
+      Icon = <Check className="h-6 w-6" />
+    }
+
+    let title = `${direction === ExternalTransferDirection.Deposit ? "Depositing" : "Withdrawing"} ${baseToken?.ticker}`
+    if (
+      direction === ExternalTransferDirection.Deposit &&
+      statuses.some((status) => status.status === "pending")
+    ) {
+      title = "Confirm in Wallet"
+    } else if (
+      statuses.some(
+        (status) => status.hash && status.confirmationStatus === "pending",
+      )
+    ) {
+      title = "Waiting for confirmation"
+    } else if (statuses.some((status) => status.status === "error")) {
+      title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} ${baseToken?.ticker}`
+    } else if (
+      (direction === ExternalTransferDirection.Deposit &&
+        depositTaskStatus === "Completed") ||
+      (direction === ExternalTransferDirection.Withdraw &&
+        withdrawTaskStatus === "Completed")
+    ) {
+      title = `Completed`
+    }
+
+    return (
+      <>
+        <DialogHeader className="space-y-4 px-6 pt-6">
+          <DialogTitle className="flex items-center gap-2 font-extended">
+            {Icon}
+            {title}
+          </DialogTitle>
+          <VisuallyHidden>
+            <DialogDescription>
+              {direction === ExternalTransferDirection.Deposit
+                ? `Depositing ${baseToken?.ticker}`
+                : `Withdrawing ${baseToken?.ticker}`}
+            </DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
+        <div className="p-6">
+          <div className="border p-4 font-mono">
+            <TransferStatusDisplay
+              currentStep={currentStep}
+              statuses={statuses}
+              steps={steps}
             />
-          </div>
-          <div className="grid w-full items-center gap-3">
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <NumberInput
-                        className={cn(
-                          "w-full rounded-none pr-12 font-mono",
-                          hideMaxButton ? "pr-12" : "",
-                        )}
-                        placeholder="0.00"
-                        {...field}
-                        value={field.value}
-                      />
-                      {!hideMaxButton && (
-                        <Button
-                          className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
-                          size="icon"
-                          type="button"
-                          variant="ghost"
-                          onClick={() => {
-                            field.onChange(balance, { shouldValidate: true })
-                          }}
-                        >
-                          <span>MAX</span>
-                        </Button>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-between">
-              <div className="text-sm text-muted-foreground">
-                {direction === ExternalTransferDirection.Deposit
-                  ? "Arbitrum"
-                  : "Renegade"}
-                &nbsp;Balance
-              </div>
-              <Button
-                className="h-5 p-0"
-                type="button"
-                variant="link"
-                onClick={(e) => {
-                  e.preventDefault()
-                  form.setValue("amount", balance, {
-                    shouldValidate: true,
-                  })
-                }}
-              >
-                <div className="font-mono text-sm">
-                  {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
-                </div>
-              </Button>
-            </div>
-            {direction === ExternalTransferDirection.Deposit && (
-              <MaxBalancesWarning
-                className="text-sm text-orange-400"
-                mint={mint}
-              />
-            )}
-            <div
-              className={`m-0 transition-all duration-300 ease-in ${
-                steps.length > 0
-                  ? "max-h-[1000px] opacity-100"
-                  : "max-h-0 overflow-hidden opacity-0"
-              }`}
-            >
-              <div className="border p-4 font-mono">
-                <TransferStatusDisplay
-                  currentStep={currentStep}
-                  statuses={statuses}
-                  steps={steps}
-                />
-              </div>
-            </div>
           </div>
         </div>
-        {isDesktop ? (
-          <DialogFooter>
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger
-                asChild
-                className="!pointer-events-auto"
-                type="submit"
-              >
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button
+              autoFocus
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+              variant="outline"
+            >
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {header}
+      <Form {...form}>
+        <form
+          className="flex flex-1 flex-col"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <div className={cn("space-y-8", className)}>
+            <div className="grid w-full items-center gap-3">
+              <FormField
+                control={form.control}
+                name="mint"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Token</FormLabel>
+                    <TokenSelect
+                      direction={direction}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid w-full items-center gap-3">
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <NumberInput
+                          className={cn(
+                            "w-full rounded-none pr-12 font-mono",
+                            hideMaxButton ? "pr-12" : "",
+                          )}
+                          placeholder="0.00"
+                          {...field}
+                          value={field.value}
+                        />
+                        {!hideMaxButton && (
+                          <Button
+                            className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
+                            size="icon"
+                            type="button"
+                            variant="ghost"
+                            onClick={() => {
+                              field.onChange(balance, { shouldValidate: true })
+                            }}
+                          >
+                            <span>MAX</span>
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-between">
+                <div className="text-sm text-muted-foreground">
+                  {direction === ExternalTransferDirection.Deposit
+                    ? "Arbitrum"
+                    : "Renegade"}
+                  &nbsp;Balance
+                </div>
                 <Button
-                  className="flex-1 border-0 border-t font-extended text-2xl"
-                  disabled={
-                    !form.formState.isValid ||
-                    (direction === ExternalTransferDirection.Deposit &&
-                      isMaxBalances) ||
-                    statuses.some(
-                      (status) =>
-                        status.status === "pending" ||
-                        (status.hash &&
-                          status.confirmationStatus === "pending"),
-                    ) ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+                  className="h-5 p-0"
+                  type="button"
+                  variant="link"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    form.setValue("amount", balance, {
+                      shouldValidate: true,
+                    })
+                  }}
+                >
+                  <div className="font-mono text-sm">
+                    {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
+                  </div>
+                </Button>
+              </div>
+              {direction === ExternalTransferDirection.Deposit && (
+                <MaxBalancesWarning
+                  className="text-sm text-orange-400"
+                  mint={mint}
+                />
+              )}
+              <div
+                className={`m-0 transition-all duration-300 ease-in ${
+                  steps.length > 0
+                    ? "max-h-[1000px] opacity-100"
+                    : "max-h-0 overflow-hidden opacity-0"
+                }`}
+              >
+                <div className="border p-4 font-mono">
+                  <TransferStatusDisplay
+                    currentStep={currentStep}
+                    statuses={statuses}
+                    steps={steps}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {isDesktop ? (
+            <DialogFooter>
+              <ResponsiveTooltip>
+                <ResponsiveTooltipTrigger
+                  asChild
+                  className="!pointer-events-auto"
+                  type="submit"
+                >
+                  <Button
+                    className="flex-1 border-0 border-t font-extended text-2xl"
+                    disabled={
+                      !form.formState.isValid ||
+                      (direction === ExternalTransferDirection.Deposit &&
+                        isMaxBalances) ||
+                      statuses.some(
+                        (status) =>
+                          status.status === "pending" ||
+                          (status.hash &&
+                            status.confirmationStatus === "pending"),
+                      ) ||
+                      (maintenanceMode?.enabled &&
+                        maintenanceMode.severity === "critical")
+                    }
+                    size="xl"
+                    variant="outline"
+                  >
+                    {buttonText}
+                  </Button>
+                </ResponsiveTooltipTrigger>
+                <ResponsiveTooltipContent
+                  className={
+                    maintenanceMode?.enabled &&
+                    maintenanceMode.severity === "critical"
+                      ? "visible"
+                      : "invisible"
                   }
+                >
+                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+                </ResponsiveTooltipContent>
+              </ResponsiveTooltip>
+            </DialogFooter>
+          ) : (
+            <DialogFooter className="mt-auto flex-row">
+              <DialogClose asChild>
+                <Button
+                  className="flex-1 font-extended text-lg"
                   size="xl"
                   variant="outline"
                 >
-                  {buttonText}
+                  Close
                 </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
-                }
-              >
-                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
-          </DialogFooter>
-        ) : (
-          <DialogFooter className="mt-auto flex-row">
-            <DialogClose asChild>
-              <Button
-                className="flex-1 font-extended text-lg"
-                size="xl"
-                variant="outline"
-              >
-                Close
-              </Button>
-            </DialogClose>
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger className="flex-1">
-                <Button
-                  className="w-full whitespace-normal border-l-0 font-extended text-lg"
-                  disabled={
-                    !form.formState.isValid ||
-                    (direction === ExternalTransferDirection.Deposit &&
-                      isMaxBalances) ||
-                    statuses.some(
-                      (status) =>
-                        status.status === "pending" ||
-                        (status.hash &&
-                          status.confirmationStatus === "pending"),
-                    ) ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+              </DialogClose>
+              <ResponsiveTooltip>
+                <ResponsiveTooltipTrigger className="flex-1">
+                  <Button
+                    className="w-full whitespace-normal border-l-0 font-extended text-lg"
+                    disabled={
+                      !form.formState.isValid ||
+                      (direction === ExternalTransferDirection.Deposit &&
+                        isMaxBalances) ||
+                      statuses.some(
+                        (status) =>
+                          status.status === "pending" ||
+                          (status.hash &&
+                            status.confirmationStatus === "pending"),
+                      ) ||
+                      (maintenanceMode?.enabled &&
+                        maintenanceMode.severity === "critical")
+                    }
+                    size="xl"
+                    variant="outline"
+                  >
+                    {buttonText}
+                  </Button>
+                </ResponsiveTooltipTrigger>
+                <ResponsiveTooltipContent
+                  className={
+                    maintenanceMode?.enabled &&
+                    maintenanceMode.severity === "critical"
+                      ? "visible"
+                      : "invisible"
                   }
-                  size="xl"
-                  variant="outline"
                 >
-                  {buttonText}
-                </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
-                }
-              >
-                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
-          </DialogFooter>
-        )}
-      </form>
-    </Form>
+                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+                </ResponsiveTooltipContent>
+              </ResponsiveTooltip>
+            </DialogFooter>
+          )}
+        </form>
+      </Form>
+    </>
   )
 }

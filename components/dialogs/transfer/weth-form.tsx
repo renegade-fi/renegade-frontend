@@ -2,12 +2,15 @@ import * as React from "react"
 
 import { usePathname, useRouter } from "next/navigation"
 
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
+import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatEther, parseEther } from "viem"
-import { useAccount, useBalance } from "wagmi"
+import { useAccount } from "wagmi"
+import { useBalance } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -22,7 +25,13 @@ import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-st
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { Button } from "@/components/ui/button"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
+import {
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -48,18 +57,15 @@ import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import {
-  UNLIMITED_ALLOWANCE,
   MIN_DEPOSIT_AMOUNT,
   Side,
+  UNLIMITED_ALLOWANCE,
 } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
-import {
-  useReadErc20BalanceOf,
-  useWriteErc20Approve,
-  useWriteWethDeposit,
-} from "@/lib/generated"
+import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
+import { useWriteWethDeposit } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
 
@@ -70,9 +76,11 @@ export function WETHForm({
   className,
   form,
   onSuccess,
+  header,
 }: React.ComponentProps<"form"> & {
   onSuccess: () => void
   form: UseFormReturn<z.infer<typeof formSchema>>
+  header: React.ReactNode
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const baseToken = Token.findByTicker("WETH")
@@ -358,17 +366,10 @@ export function WETHForm({
   ])
 
   let buttonText = ""
-
-  if (statuses.some((status) => status.status === "pending")) {
-    buttonText = "Confirm in wallet"
-  } else if (
-    statuses.some(
-      (status) => status.hash && status.confirmationStatus === "pending",
-    )
-  ) {
-    buttonText = "Waiting for confirmation"
-  } else if (wrapRequired) {
+  if (wrapRequired) {
     buttonText = "Wrap & Deposit"
+  } else if (allowanceRequired) {
+    buttonText = "Approve & Deposit"
   } else {
     buttonText = "Deposit"
   }
@@ -378,266 +379,318 @@ export function WETHForm({
     formattedMaxAmountToWrap === "0" ||
     amount.toString() === formattedMaxAmountToWrap
 
+  if (steps.length > 0) {
+    let Icon = <Loader2 className="h-6 w-6 animate-spin" />
+    if (statuses.some((status) => status.status === "error")) {
+      Icon = <AlertCircle className="h-6 w-6" />
+    } else if (depositTaskStatus === "Completed") {
+      Icon = <Check className="h-6 w-6" />
+    }
+
+    let title = "Depositing WETH"
+    if (statuses.some((status) => status.status === "pending")) {
+      title = "Confirm in Wallet"
+    } else if (
+      statuses.some(
+        (status) => status.hash && status.confirmationStatus === "pending",
+      )
+    ) {
+      title = "Waiting for confirmation"
+    } else if (statuses.some((status) => status.status === "error")) {
+      title = "Failed to deposit WETH"
+    } else if (depositTaskStatus === "Completed") {
+      title = "Completed"
+    }
+    console.log("statuses", statuses)
+
+    return (
+      <>
+        <DialogHeader className="space-y-4 px-6 pt-6">
+          <DialogTitle className="flex items-center gap-2 font-extended">
+            {Icon}
+            {title}
+          </DialogTitle>
+          <VisuallyHidden>
+            <DialogDescription>Depositing WETH</DialogDescription>
+          </VisuallyHidden>
+        </DialogHeader>
+        <div className="p-6">
+          <div className="border p-4 font-mono">
+            <TransferStatusDisplay
+              currentStep={currentStep}
+              statuses={statuses}
+              steps={steps}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button
+              autoFocus
+              className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+              size="xl"
+              variant="outline"
+            >
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </>
+    )
+  }
+
   return (
-    <Form {...form}>
-      <form
-        className="flex flex-1 flex-col"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <div
-          className={cn(
-            "space-y-8 transition-all duration-300 ease-in-out",
-            className,
-          )}
+    <>
+      {header}
+      <Form {...form}>
+        <form
+          className="flex flex-1 flex-col"
+          onSubmit={form.handleSubmit(onSubmit)}
         >
-          <FormField
-            control={form.control}
-            name="mint"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Token</FormLabel>
-                <TokenSelect
-                  direction={ExternalTransferDirection.Deposit}
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-                <FormMessage />
-              </FormItem>
+          <div
+            className={cn(
+              "space-y-8 transition-all duration-300 ease-in-out",
+              className,
             )}
-          />
-          <div className="grid w-full items-center gap-3 transition-all duration-300 ease-in-out">
+          >
             <FormField
               control={form.control}
-              name="amount"
+              name="mint"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <NumberInput
-                        className={cn(
-                          "w-full rounded-none pr-12 font-mono",
-                          hideMaxButton ? "pr-12" : "",
-                        )}
-                        placeholder="0.00"
-                        {...field}
-                        value={field.value}
-                      />
-                      {!hideMaxButton && (
-                        <Button
-                          className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
-                          size="icon"
-                          type="button"
-                          variant="ghost"
-                          onClick={() => {
-                            form.setValue("amount", formattedMaxAmountToWrap, {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            })
-                          }}
-                        >
-                          <span>MAX</span>
-                        </Button>
-                      )}
-                    </div>
-                  </FormControl>
+                <FormItem className="flex flex-col">
+                  <FormLabel>Token</FormLabel>
+                  <TokenSelect
+                    direction={ExternalTransferDirection.Deposit}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Arbitrum Balance
+            <div className="grid w-full items-center gap-3 transition-all duration-300 ease-in-out">
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <NumberInput
+                          className={cn(
+                            "w-full rounded-none pr-12 font-mono",
+                            hideMaxButton ? "pr-12" : "",
+                          )}
+                          placeholder="0.00"
+                          {...field}
+                          value={field.value}
+                        />
+                        {!hideMaxButton && (
+                          <Button
+                            className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
+                            size="icon"
+                            type="button"
+                            variant="ghost"
+                            onClick={() => {
+                              form.setValue(
+                                "amount",
+                                formattedMaxAmountToWrap,
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                },
+                              )
+                            }}
+                          >
+                            <span>MAX</span>
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Arbitrum Balance
+                  </div>
+                  <div className="flex items-center">
+                    <ResponsiveTooltip>
+                      <ResponsiveTooltipTrigger
+                        asChild
+                        className="cursor-pointer"
+                      >
+                        <Button
+                          className="h-5 p-0"
+                          type="button"
+                          variant="link"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            form.setValue("amount", formattedWethBalance, {
+                              shouldValidate: true,
+                            })
+                          }}
+                        >
+                          <div className="font-mono text-sm">
+                            {baseToken
+                              ? `${wethBalanceLabel} ${baseToken.ticker}`
+                              : "--"}
+                          </div>
+                        </Button>
+                      </ResponsiveTooltipTrigger>
+                      <ResponsiveTooltipContent>
+                        {`${formattedWethBalance} WETH`}
+                      </ResponsiveTooltipContent>
+                    </ResponsiveTooltip>
+                  </div>
                 </div>
-                <div className="flex items-center">
+                <div className="text-right">
                   <ResponsiveTooltip>
                     <ResponsiveTooltipTrigger
                       asChild
-                      className="cursor-pointer"
+                      className={cn(
+                        "!pointer-events-auto",
+                        ethBalance?.value &&
+                          minEthToKeepUnwrapped > ethBalance.value
+                          ? ""
+                          : "cursor-pointer",
+                      )}
                     >
                       <Button
                         className="h-5 p-0"
+                        disabled={
+                          ethBalance?.value
+                            ? minEthToKeepUnwrapped > ethBalance.value
+                            : false
+                        }
                         type="button"
                         variant="link"
                         onClick={(e) => {
                           e.preventDefault()
-                          form.setValue("amount", formattedWethBalance, {
+                          form.setValue("amount", formattedMaxAmountToWrap, {
                             shouldValidate: true,
+                            shouldDirty: true,
                           })
                         }}
                       >
                         <div className="font-mono text-sm">
-                          {baseToken
-                            ? `${wethBalanceLabel} ${baseToken.ticker}`
-                            : "--"}
+                          {`${ethBalanceLabel}`}&nbsp;ETH
                         </div>
                       </Button>
                     </ResponsiveTooltipTrigger>
                     <ResponsiveTooltipContent>
-                      {`${formattedWethBalance} WETH`}
+                      {ethBalance?.value &&
+                      minEthToKeepUnwrapped > ethBalance.value
+                        ? "Not enough ETH to wrap"
+                        : `${formattedEthBalance} ETH`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
+                  <span className="font-mono text-sm">&nbsp;</span>
                 </div>
               </div>
-              <div className="text-right">
-                <ResponsiveTooltip>
-                  <ResponsiveTooltipTrigger
-                    asChild
-                    className={cn(
-                      "!pointer-events-auto",
-                      ethBalance?.value &&
-                        minEthToKeepUnwrapped > ethBalance.value
-                        ? ""
-                        : "cursor-pointer",
-                    )}
-                  >
-                    <Button
-                      className="h-5 p-0"
-                      disabled={
-                        ethBalance?.value
-                          ? minEthToKeepUnwrapped > ethBalance.value
-                          : false
-                      }
-                      type="button"
-                      variant="link"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        form.setValue("amount", formattedMaxAmountToWrap, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        })
-                      }}
-                    >
-                      <div className="font-mono text-sm">
-                        {`${ethBalanceLabel}`}&nbsp;ETH
-                      </div>
-                    </Button>
-                  </ResponsiveTooltipTrigger>
-                  <ResponsiveTooltipContent>
-                    {ethBalance?.value &&
-                    minEthToKeepUnwrapped > ethBalance.value
-                      ? "Not enough ETH to wrap"
-                      : `${formattedEthBalance} ETH`}
-                  </ResponsiveTooltipContent>
-                </ResponsiveTooltip>
-                <span className="font-mono text-sm">&nbsp;</span>
-              </div>
-            </div>
-            <MaxBalancesWarning
-              className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
-              mint={mint}
-            />
-            {wrapRequired && (
-              <WrapEthWarning
-                minEthToKeepUnwrapped={minEthToKeepUnwrapped}
-                remainingEthBalance={remainingEthBalance}
+              <MaxBalancesWarning
+                className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
+                mint={mint}
               />
-            )}
-            <div
-              className={`m-0 transition-all duration-300 ease-in ${
-                steps.length > 0
-                  ? "max-h-[1000px] opacity-100"
-                  : "max-h-0 overflow-hidden opacity-0"
-              }`}
-            >
-              <div className="border p-4 font-mono">
-                <TransferStatusDisplay
-                  currentStep={currentStep}
-                  statuses={statuses}
-                  steps={steps}
+              {wrapRequired && (
+                <WrapEthWarning
+                  minEthToKeepUnwrapped={minEthToKeepUnwrapped}
+                  remainingEthBalance={remainingEthBalance}
                 />
-              </div>
+              )}
             </div>
           </div>
-        </div>
-        {isDesktop ? (
-          <DialogFooter>
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger
-                asChild
-                className="!pointer-events-auto"
-                type="submit"
-              >
-                <Button
-                  className="flex-1 border-0 border-t font-extended text-2xl"
-                  disabled={
-                    !form.formState.isValid ||
-                    isMaxBalances ||
-                    statuses.some(
-                      (status) =>
-                        status.status === "pending" ||
-                        (status.hash &&
-                          status.confirmationStatus === "pending"),
-                    ) ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+          {isDesktop ? (
+            <DialogFooter>
+              <ResponsiveTooltip>
+                <ResponsiveTooltipTrigger
+                  asChild
+                  className="!pointer-events-auto"
+                  type="submit"
+                >
+                  <Button
+                    className="flex-1 border-0 border-t font-extended text-2xl"
+                    disabled={
+                      !form.formState.isValid ||
+                      isMaxBalances ||
+                      statuses.some(
+                        (status) =>
+                          status.status === "pending" ||
+                          (status.hash &&
+                            status.confirmationStatus === "pending"),
+                      ) ||
+                      (maintenanceMode?.enabled &&
+                        maintenanceMode.severity === "critical")
+                    }
+                    size="xl"
+                    variant="outline"
+                  >
+                    {buttonText}
+                  </Button>
+                </ResponsiveTooltipTrigger>
+                <ResponsiveTooltipContent
+                  className={
+                    maintenanceMode?.enabled &&
+                    maintenanceMode.severity === "critical"
+                      ? "visible"
+                      : "invisible"
                   }
+                >
+                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+                </ResponsiveTooltipContent>
+              </ResponsiveTooltip>
+            </DialogFooter>
+          ) : (
+            <DialogFooter className="mt-auto flex-row">
+              <DialogClose asChild>
+                <Button
+                  className="flex-1 font-extended text-lg"
                   size="xl"
                   variant="outline"
                 >
-                  {buttonText}
+                  Close
                 </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
-                }
-              >
-                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
-          </DialogFooter>
-        ) : (
-          <DialogFooter className="mt-auto flex-row">
-            <DialogClose asChild>
-              <Button
-                className="flex-1 font-extended text-lg"
-                size="xl"
-                variant="outline"
-              >
-                Close
-              </Button>
-            </DialogClose>
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger className="flex-1">
-                <Button
-                  className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
-                  disabled={
-                    !form.formState.isValid ||
-                    isMaxBalances ||
-                    statuses.some(
-                      (status) =>
-                        status.status === "pending" ||
-                        (status.hash &&
-                          status.confirmationStatus === "pending"),
-                    ) ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
+              </DialogClose>
+              <ResponsiveTooltip>
+                <ResponsiveTooltipTrigger className="flex-1">
+                  <Button
+                    className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
+                    disabled={
+                      !form.formState.isValid ||
+                      isMaxBalances ||
+                      statuses.some(
+                        (status) =>
+                          status.status === "pending" ||
+                          (status.hash &&
+                            status.confirmationStatus === "pending"),
+                      ) ||
+                      (maintenanceMode?.enabled &&
+                        maintenanceMode.severity === "critical")
+                    }
+                    size="xl"
+                    variant="outline"
+                  >
+                    {buttonText}
+                  </Button>
+                </ResponsiveTooltipTrigger>
+                <ResponsiveTooltipContent
+                  className={
+                    maintenanceMode?.enabled &&
+                    maintenanceMode.severity === "critical"
+                      ? "visible"
+                      : "invisible"
                   }
-                  size="xl"
-                  variant="outline"
                 >
-                  {buttonText}
-                </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
-                }
-              >
-                {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
-          </DialogFooter>
-        )}
-      </form>
-    </Form>
+                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
+                </ResponsiveTooltipContent>
+              </ResponsiveTooltip>
+            </DialogFooter>
+          )}
+        </form>
+      </Form>
+    </>
   )
 }

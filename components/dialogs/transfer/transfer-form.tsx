@@ -18,10 +18,12 @@ export function TransferForm({
   direction,
   initialMint,
   onSuccess,
+  header,
 }: React.ComponentProps<"form"> & {
   direction: ExternalTransferDirection
   initialMint?: string
   onSuccess: () => void
+  header: React.ReactNode
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,6 +38,7 @@ export function TransferForm({
         <WETHForm
           className={className}
           form={form}
+          header={header}
           onSuccess={onSuccess}
         />
       )
@@ -44,6 +47,7 @@ export function TransferForm({
         <USDCForm
           className={className}
           form={form}
+          header={header}
           onSuccess={onSuccess}
         />
       )
@@ -54,6 +58,7 @@ export function TransferForm({
       className={className}
       direction={direction}
       form={form}
+      header={header}
       onSuccess={onSuccess}
     />
   )
