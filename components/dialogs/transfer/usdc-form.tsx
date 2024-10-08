@@ -347,7 +347,12 @@ export function USDCForm({
     resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
-      values.amount,
+      snapshot.swapRequired
+        ? formatUnits(
+            BigInt(quote?.estimate.toAmount ?? 0) + snapshot.usdcBalance,
+            USDCE.decimals,
+          )
+        : values.amount,
       baseToken,
     )
 
