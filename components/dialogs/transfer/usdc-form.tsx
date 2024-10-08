@@ -63,6 +63,8 @@ import { useSide } from "@/providers/side-provider"
 
 const USDCE = ADDITIONAL_TOKENS["USDC.e"]
 
+const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
+
 // Assume direction is deposit and mint is WETH
 export function USDCForm({
   className,
@@ -159,11 +161,11 @@ export function USDCForm({
   }
 
   // Fetch quote for swap
-  // TODO: Implement outdated quote logic
   const {
     data: quote,
     queryKey: quoteQueryKey,
     isFetching: isQuoteFetching,
+    dataUpdatedAt: quoteUpdatedAt,
   } = useSwapQuote({
     fromMint: USDCE.address,
     toMint: baseToken.address,
@@ -201,7 +203,9 @@ export function USDCForm({
     async () => {
       queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
-      await queryClient.refetchQueries({ queryKey: quoteQueryKey })
+      if (Date.now() - quoteUpdatedAt! > QUOTE_STALE_TIME) {
+        await queryClient.refetchQueries({ queryKey: quoteQueryKey })
+      }
       handleSwap(
         // @ts-ignore
         {

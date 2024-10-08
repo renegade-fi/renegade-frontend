@@ -10,7 +10,7 @@ export function useSwapConfirmation(
     receivedAmount: string
   }) => void,
 ) {
-  const { data } = useQuery({
+  const { data, status } = useQuery({
     queryKey: ["swap", "status", hash],
     queryFn: () => getStatus({ txHash: hash ?? "" }),
     enabled: !!hash,
@@ -53,5 +53,13 @@ export function useSwapConfirmation(
     }
   }, [hash, onConfirm, isConfirmationHandled, data])
 
-  return data
+  // If hash changes, should run onConfirm
+  React.useEffect(() => {
+    setIsConfirmationHandled(false)
+  }, [hash])
+
+  // TODO: Improve this
+  return hash && status === "pending"
+    ? ({ status: "pending", receivedAmount: "0" } as const)
+    : data
 }

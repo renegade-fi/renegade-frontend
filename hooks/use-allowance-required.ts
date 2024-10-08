@@ -32,6 +32,7 @@ export function useAllowanceRequired({
         !!spender &&
         isAddress(spender) &&
         Number(amount) > 0,
+      staleTime: 0,
     },
   })
 }
