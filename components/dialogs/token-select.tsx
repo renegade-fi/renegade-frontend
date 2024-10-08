@@ -62,6 +62,7 @@ export function TokenSelect({
             balance.status === "success" ? BigInt(balance.result) : BigInt(0),
           ]),
         ),
+      staleTime: 0,
     },
   })
 
