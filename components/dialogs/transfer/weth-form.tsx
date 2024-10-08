@@ -144,7 +144,9 @@ export function WETHForm({
       : ethBalance?.value ?? BigInt(0)
 
   // If the amount is greater than the WETH balance, we need to wrap ETH
-  const wrapRequired = parseEther(amount) > (wethBalance ?? BigInt(0))
+  const wrapRequired =
+    parseEther(amount) > (wethBalance ?? BigInt(0)) &&
+    parseEther(amount) <= combinedBalance
   // Ensure price is loaded
   usePriceQuery(baseToken.address)
   const { setSide } = useSide()
@@ -587,7 +589,7 @@ export function WETHForm({
                         : `${formattedEthBalance} ETH`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
-                  <span className="font-mono text-sm">&nbsp;</span>
+                  {/* <span className="font-mono text-sm">&nbsp;</span> */}
                 </div>
               </div>
               <MaxBalancesWarning
