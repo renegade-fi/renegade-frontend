@@ -433,7 +433,7 @@ export function DefaultForm({
       direction === ExternalTransferDirection.Deposit &&
       statuses.some((status) => status.status === "pending")
     ) {
-      title = "Confirm in Wallet"
+      title = "Confirm in wallet"
     } else if (
       statuses.some(
         (status) => status.hash && status.confirmationStatus === "pending",

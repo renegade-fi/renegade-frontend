@@ -525,7 +525,7 @@ export function USDCForm({
     if (snapshot.swapRequired && isQuoteFetching) {
       title = "Fetching quote"
     } else if (statuses.some((status) => status.status === "pending")) {
-      title = "Confirm in Wallet"
+      title = "Confirm in wallet"
     } else if (
       statuses.some(
         (status) => status.hash && status.confirmationStatus === "pending",
@@ -538,11 +538,6 @@ export function USDCForm({
       title = "Completed"
     }
 
-    // if (statuses.some((status) => status.status === "error")) {
-    //   title = "Failed to deposit USDC"
-    // } else if (depositTaskStatus === "Completed") {
-    //   title = "Completed"
-    // }
     return (
       <>
         <DialogHeader className="space-y-4 px-6 pt-6">
