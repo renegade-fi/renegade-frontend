@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { usePayFees } from "@renegade-fi/react"
+import { useBackOfQueueWallet, usePayFees } from "@renegade-fi/react"
 
 import { Header } from "@/components/dialogs/transfer/header"
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers"
