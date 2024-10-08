@@ -38,7 +38,7 @@ export function SwapWarning({
     quote.action.fromToken.decimals,
     true,
   )
-  const toAmount = quote.estimate.toAmount
+  const toAmount = quote.estimate.toAmountMin
   const formattedToAmount = formatNumber(
     BigInt(toAmount ?? 0),
     quote.action.toToken.decimals,

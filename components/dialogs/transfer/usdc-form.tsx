@@ -349,7 +349,7 @@ export function USDCForm({
       queryClient,
       snapshot.swapRequired
         ? formatUnits(
-            BigInt(quote?.estimate.toAmount ?? 0) + snapshot.usdcBalance,
+            BigInt(quote?.estimate.toAmountMin ?? 0) + snapshot.usdcBalance,
             USDCE.decimals,
           )
         : values.amount,
@@ -469,12 +469,12 @@ export function USDCForm({
     approveConfirmationStatus,
     approveHash,
     approveStatus,
-    depositStatus,
-    depositTaskStatus,
-    steps,
     approveSwapConfirmationStatus,
     approveSwapHash,
     approveSwapStatus,
+    depositStatus,
+    depositTaskStatus,
+    steps,
     swapConfirmationStatus,
     swapHash,
     swapStatus,
