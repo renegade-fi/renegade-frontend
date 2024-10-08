@@ -301,7 +301,11 @@ export function USDCForm({
     reset: resetDeposit,
   } = useDeposit()
 
-  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
+  const {
+    status: depositTaskStatus,
+    setTaskId,
+    reset: resetDepositTask,
+  } = useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)
@@ -319,7 +323,14 @@ export function USDCForm({
     resetSwap()
     resetApprove()
     resetDeposit()
-  }, [resetApprove, resetApproveSwap, resetSwap, resetDeposit])
+    resetDepositTask()
+  }, [
+    resetApprove,
+    resetApproveSwap,
+    resetSwap,
+    resetDeposit,
+    resetDepositTask,
+  ])
 
   React.useEffect(() => {
     const { unsubscribe } = form.watch((value, { name, type }) => {
