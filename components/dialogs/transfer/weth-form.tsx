@@ -401,7 +401,6 @@ export function WETHForm({
     } else if (depositTaskStatus === "Completed") {
       title = "Completed"
     }
-    console.log("statuses", statuses)
 
     return (
       <>
