@@ -157,7 +157,7 @@ export function DefaultForm({
   }
 
   // Approve
-  const { data: needsApproval, queryKey: allowanceQueryKey } =
+  const { data: allowanceRequired, queryKey: allowanceQueryKey } =
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
@@ -296,7 +296,7 @@ export function DefaultForm({
       // Calculate and set initial steps
       setSteps(() => {
         const steps = []
-        if (needsApproval) {
+        if (allowanceRequired) {
           steps.push("Approve Deposit")
         }
         steps.push("Deposit")
@@ -304,7 +304,7 @@ export function DefaultForm({
       })
       setCurrentStep(0)
 
-      if (needsApproval && baseToken?.address) {
+      if (allowanceRequired && baseToken?.address) {
         await handleApprove({
           address: baseToken.address,
           args: [
@@ -400,7 +400,7 @@ export function DefaultForm({
 
   let buttonText = ""
   if (direction === ExternalTransferDirection.Deposit) {
-    if (needsApproval) {
+    if (allowanceRequired) {
       buttonText = "Approve & Deposit"
     } else {
       buttonText = "Deposit"
