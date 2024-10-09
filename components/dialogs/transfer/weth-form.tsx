@@ -102,7 +102,7 @@ export function WETHForm({
   const { data: maintenanceMode } = useMaintenanceMode()
   const [steps, setSteps] = React.useState<string[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
-  const [shouldUnwrap, setShouldUnwrap] = React.useState(false)
+  const [unwrapRequired, setUnwrapRequired] = React.useState(false)
 
   const mint = useWatch({
     control: form.control,
@@ -282,7 +282,7 @@ export function WETHForm({
   })
   const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
     useWaitForTask(() => {
-      if (shouldUnwrap) {
+      if (unwrapRequired) {
         setCurrentStep((prev) => prev + 1)
         unwrapEth({
           address: baseToken.address,
@@ -413,7 +413,7 @@ export function WETHForm({
       setSteps(() => {
         const steps = []
         steps.push("Withdraw")
-        if (shouldUnwrap) {
+        if (unwrapRequired) {
           steps.push("Unwrap ETH")
         }
         return steps
@@ -507,7 +507,7 @@ export function WETHForm({
       depositTaskStatus === "Completed"
     ) {
       Icon = <Check className="h-6 w-6" />
-    } else if (shouldUnwrap && unwrapConfirmationStatus === "success") {
+    } else if (unwrapRequired && unwrapConfirmationStatus === "success") {
       Icon = <Check className="h-6 w-6" />
     } else if (
       direction === ExternalTransferDirection.Withdraw &&
@@ -532,7 +532,7 @@ export function WETHForm({
       depositTaskStatus === "Completed"
     ) {
       title = "Completed"
-    } else if (shouldUnwrap) {
+    } else if (unwrapRequired) {
       if (unwrapConfirmationStatus === "success") {
         title = "Completed"
       }
@@ -742,7 +742,6 @@ export function WETHForm({
                         : `${formattedEthBalance} ETH`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
-                  {/* <span className="font-mono text-sm">&nbsp;</span> */}
                 </div>
               </div>
               <div
@@ -765,11 +764,11 @@ export function WETHForm({
                   </div>
                 </div>
                 <Switch
-                  checked={shouldUnwrap}
+                  checked={unwrapRequired}
                   id="unwrap"
                   onCheckedChange={(checked) => {
                     if (typeof checked === "boolean") {
-                      setShouldUnwrap(checked)
+                      setUnwrapRequired(checked)
                     }
                   }}
                 />
