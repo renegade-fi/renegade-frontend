@@ -279,9 +279,11 @@ export function WETHForm({
     mint,
   })
   const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
-    useWaitForTask(() => {
+    useWaitForTask(async () => {
       if (unwrapRequired) {
         setCurrentStep((prev) => prev + 1)
+        // Wait to prevent contract error
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         unwrapEth({
           address: baseToken.address,
           args: [parseEther(amount)],
@@ -519,6 +521,13 @@ export function WETHForm({
       )
     ) {
       title = "Waiting for confirmation"
+    } else if (wrapStatus === "error" || wrapConfirmationStatus === "error") {
+      title = "Failed to wrap ETH"
+    } else if (
+      unwrapStatus === "error" ||
+      unwrapConfirmationStatus === "error"
+    ) {
+      title = "Failed to unwrap ETH"
     } else if (statuses.some((status) => status.status === "error")) {
       title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} WETH`
     } else if (
