@@ -66,32 +66,37 @@ export function TransferStatusDisplay({
 
           if (confirmationStatus) {
             if (hash) {
-              if (isCurrentStep) {
-                ;<span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
-                  └─&nbsp;Confirming
-                  <AnimatedEllipsis />
-                </span>
-              } else if (confirmationStatus === "success")
-                <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
-                  └─&nbsp;
-                  <Button
-                    className={cn("h-4 p-0 group-hover:text-primary", {
-                      "text-muted": !isCurrentStep,
-                    })}
-                    size="sm"
-                    type="button"
-                    variant="link"
-                    onClick={() => {
-                      window.open(
-                        `${viemClient.chain.blockExplorers?.default.url}/tx/${hash}`,
-                        "_blank",
-                      )
-                    }}
-                  >
-                    Confirmed
-                    <ExternalLink className="ml-1 h-3 w-3" />
-                  </Button>
-                </span>
+              if (confirmationStatus === "success") {
+                return (
+                  <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
+                    └─&nbsp;
+                    <Button
+                      className={cn("h-4 p-0 group-hover:text-primary", {
+                        "text-muted": !isCurrentStep,
+                      })}
+                      size="sm"
+                      type="button"
+                      variant="link"
+                      onClick={() => {
+                        window.open(
+                          `${viemClient.chain.blockExplorers?.default.url}/tx/${hash}`,
+                          "_blank",
+                        )
+                      }}
+                    >
+                      Confirmed
+                      <ExternalLink className="ml-1 h-3 w-3" />
+                    </Button>
+                  </span>
+                )
+              } else {
+                return (
+                  <span className="whitespace-nowrap text-xs transition-colors group-hover:text-primary">
+                    └─&nbsp;Confirming
+                    <AnimatedEllipsis />
+                  </span>
+                )
+              }
             }
           }
         }
