@@ -78,7 +78,9 @@ import { useSide } from "@/providers/side-provider"
 
 import { WrapEthWarning } from "./wrap-eth-warning"
 
-// Assume direction is deposit and mint is WETH
+// Assume mint is WETH
+const baseToken = Token.findByTicker("WETH")
+
 export function WETHForm({
   className,
   direction,
@@ -91,19 +93,17 @@ export function WETHForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const baseToken = Token.findByTicker("WETH")
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
-  const router = useRouter()
-  const pathname = usePathname()
-  const isTradePage = pathname.includes("/trade")
-  const queryClient = useQueryClient()
+  const isMaxBalances = useIsMaxBalances(baseToken.address)
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { data: maintenanceMode } = useMaintenanceMode()
-  const [steps, setSteps] = React.useState<string[]>([])
+  const isTradePage = usePathname().includes("/trade")
+  const queryClient = useQueryClient()
+  const router = useRouter()
   const [currentStep, setCurrentStep] = React.useState(0)
+  const [steps, setSteps] = React.useState<string[]>([])
   const [unwrapRequired, setUnwrapRequired] = React.useState(false)
-
   const mint = useWatch({
     control: form.control,
     name: "mint",
@@ -112,15 +112,13 @@ export function WETHForm({
     control: form.control,
     name: "amount",
   })
-  const isMaxBalances = useIsMaxBalances(mint)
 
-  const { data: renegadeBalances } = useBackOfQueueWallet({
+  const { data: renegadeBalance } = useBackOfQueueWallet({
     query: {
       select: (data) =>
-        new Map(data.balances.map((balance) => [balance.mint, balance])),
+        data.balances.find((balance) => balance.mint === mint)?.amount,
     },
   })
-  const renegadeBalance = renegadeBalances?.get(baseToken.address)?.amount
   const formattedRenegadeBalance = formatEther(renegadeBalance ?? BigInt(0))
   const renegadeBalanceLabel = formatNumber(
     renegadeBalance ?? BigInt(0),
@@ -379,9 +377,6 @@ export function WETHForm({
         })
       }
     } else {
-      const renegadeBalance = renegadeBalances?.get(
-        values.mint as `0x${string}`,
-      )?.amount
       // User is allowed to withdraw whole balance even if amount is < MIN_TRANSFER_AMOUNT
       if (
         !isAmountSufficient &&
@@ -396,7 +391,6 @@ export function WETHForm({
         })
         return
       }
-      // TODO: Check if balance is sufficient
       const isBalanceSufficient = checkBalance({
         amount: values.amount,
         mint: values.mint,

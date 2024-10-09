@@ -3,8 +3,7 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType } from "@renegade-fi/react"
-import { useBalances } from "@renegade-fi/react"
+import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -19,8 +18,8 @@ import {
   checkAmount,
   checkBalance,
   formSchema,
+  isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
-import { isMaxBalance } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
@@ -81,33 +80,34 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const { address } = useAccount()
   const { checkChain } = useCheckChain()
-  const router = useRouter()
-  const pathname = usePathname()
-  const isTradePage = pathname.includes("/trade")
-  const queryClient = useQueryClient()
-  const { setSide } = useSide()
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { data: maintenanceMode } = useMaintenanceMode()
-  const [steps, setSteps] = React.useState<string[]>([])
+  const isTradePage = usePathname().includes("/trade")
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const { setSide } = useSide()
   const [currentStep, setCurrentStep] = React.useState(0)
+  const [steps, setSteps] = React.useState<string[]>([])
 
   const mint = useWatch({
     control: form.control,
     name: "mint",
   })
+  const isMaxBalances = useIsMaxBalances(mint)
   const baseToken = mint
     ? Token.findByAddress(mint as `0x${string}`)
     : undefined
-  const { address } = useAccount()
-  const isMaxBalances = useIsMaxBalances(mint)
   // Ensure price is loaded
   usePriceQuery(baseToken?.address || "0x")
 
-  const renegadeBalances = useBalances()
-  const renegadeBalance = baseToken
-    ? renegadeBalances.get(baseToken.address)?.amount
-    : undefined
+  const { data: renegadeBalance } = useBackOfQueueWallet({
+    query: {
+      select: (data) =>
+        data.balances.find((balance) => balance.mint === mint)?.amount,
+    },
+  })
 
   const formattedRenegadeBalance = baseToken
     ? formatUnits(renegadeBalance ?? BigInt(0), baseToken.decimals)
@@ -169,7 +169,6 @@ export function DefaultForm({
     data: approveHash,
     writeContractAsync: handleApprove,
     status: approveStatus,
-    reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve"),
@@ -190,17 +189,10 @@ export function DefaultForm({
   )
 
   // Deposit
-  const {
-    handleDeposit,
-    status: depositStatus,
-    reset: resetDeposit,
-  } = useDeposit()
+  const { handleDeposit, status: depositStatus } = useDeposit()
 
-  const {
-    status: depositTaskStatus,
-    setTaskId: setDepositTaskId,
-    reset: resetDepositTask,
-  } = useWaitForTask()
+  const { status: depositTaskStatus, setTaskId: setDepositTaskId } =
+    useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
     setDepositTaskId(data.taskId)
@@ -218,19 +210,12 @@ export function DefaultForm({
   }
 
   // Withdraw
-  const {
-    handleWithdraw,
-    status: withdrawStatus,
-    reset: resetWithdraw,
-  } = useWithdraw({
+  const { handleWithdraw, status: withdrawStatus } = useWithdraw({
     amount,
     mint,
   })
-  const {
-    status: withdrawTaskStatus,
-    setTaskId: setWithdrawTaskId,
-    reset: resetWithdrawTask,
-  } = useWaitForTask()
+  const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
+    useWaitForTask()
 
   const handleWithdrawSuccess = (data: any) => {
     setWithdrawTaskId(data.taskId)
@@ -238,35 +223,7 @@ export function DefaultForm({
     onSuccess?.()
   }
 
-  const resetMutations = React.useCallback(() => {
-    resetApprove()
-    resetDeposit()
-    resetWithdraw()
-    resetDepositTask()
-    resetWithdrawTask()
-  }, [
-    resetApprove,
-    resetDeposit,
-    resetDepositTask,
-    resetWithdraw,
-    resetWithdrawTask,
-  ])
-
-  React.useEffect(() => {
-    const { unsubscribe } = form.watch((_, { name }) => {
-      if (name === "amount" || name === "mint") {
-        setSteps([])
-        setCurrentStep(0)
-        resetMutations()
-      }
-    })
-    return () => unsubscribe()
-  }, [form, resetMutations])
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // setSteps([])
-    // setCurrentStep(0)
-    // resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -320,9 +277,6 @@ export function DefaultForm({
         })
       }
     } else {
-      const renegadeBalance = renegadeBalances.get(
-        values.mint as `0x${string}`,
-      )?.amount
       // User is allowed to withdraw whole balance even if amount is < MIN_TRANSFER_AMOUNT
       if (
         !isAmountSufficient &&
@@ -337,7 +291,6 @@ export function DefaultForm({
         })
         return
       }
-      // TODO: Check if balance is sufficient
       const isBalanceSufficient = checkBalance({
         amount: values.amount,
         mint: values.mint,

@@ -73,7 +73,8 @@ const USDCE = ADDITIONAL_TOKENS["USDC.e"]
 
 const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
-// Assume direction is deposit and mint is WETH
+// Assume direction is deposit and mint is USDC
+const baseToken = Token.findByTicker("USDC")
 export function USDCForm({
   className,
   form,
@@ -84,9 +85,11 @@ export function USDCForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const { data: maintenanceMode } = useMaintenanceMode()
+  const { address } = useAccount()
   const { checkChain } = useCheckChain()
+  const isMaxBalances = useIsMaxBalances(baseToken.address)
+  const { data: maintenanceMode } = useMaintenanceMode()
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
   const { setSide } = useSide()
   const [steps, setSteps] = React.useState<string[]>([])
@@ -100,9 +103,6 @@ export function USDCForm({
     control: form.control,
     name: "amount",
   })
-  const baseToken = Token.findByTicker("USDC")
-  const { address } = useAccount()
-  const isMaxBalances = useIsMaxBalances(mint)
   // Ensure price is loaded
   usePriceQuery(baseToken.address)
 
@@ -201,7 +201,6 @@ export function USDCForm({
     writeContract: handleApproveSwap,
     status: approveSwapStatus,
     data: approveSwapHash,
-    reset: resetApproveSwap,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve swap"),
@@ -232,7 +231,6 @@ export function USDCForm({
     data: swapHash,
     sendTransaction: handleSwap,
     status: swapStatus,
-    reset: resetSwap,
   } = useSendTransaction({
     mutation: {
       onError: (error) => catchError(error, "Couldn't swap"),
@@ -278,7 +276,6 @@ export function USDCForm({
     writeContract: handleApprove,
     status: approveStatus,
     data: approveHash,
-    reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve deposit"),
@@ -305,17 +302,9 @@ export function USDCForm({
   )
 
   // Deposit
-  const {
-    handleDeposit,
-    status: depositStatus,
-    reset: resetDeposit,
-  } = useDeposit()
+  const { handleDeposit, status: depositStatus } = useDeposit()
 
-  const {
-    status: depositTaskStatus,
-    setTaskId,
-    reset: resetDepositTask,
-  } = useWaitForTask()
+  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)
@@ -328,33 +317,7 @@ export function USDCForm({
     setSide(Side.BUY)
   }
 
-  const resetMutations = React.useCallback(() => {
-    resetApproveSwap()
-    resetSwap()
-    resetApprove()
-    resetDeposit()
-    resetDepositTask()
-  }, [
-    resetApprove,
-    resetApproveSwap,
-    resetSwap,
-    resetDeposit,
-    resetDepositTask,
-  ])
-
-  React.useEffect(() => {
-    const { unsubscribe } = form.watch((value, { name, type }) => {
-      if (name === "amount") {
-        setSteps([])
-        setCurrentStep(0)
-        resetMutations()
-      }
-    })
-    return () => unsubscribe()
-  }, [form, resetMutations])
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       snapshot.swapRequired
