@@ -288,7 +288,7 @@ export function WETHForm({
         setCurrentStep((prev) => prev + 1)
         // Wait to prevent contract error
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        unwrapEth({
+        unwrapWeth({
           address: baseToken.address,
           args: [parseEther(amount)],
         })
@@ -304,11 +304,11 @@ export function WETHForm({
   // Unwrap
   const {
     data: unwrapHash,
-    writeContract: unwrapEth,
+    writeContract: unwrapWeth,
     status: unwrapStatus,
   } = useWriteWethWithdraw({
     mutation: {
-      onError: (error) => catchError(error, "Couldn't unwrap ETH"),
+      onError: (error) => catchError(error, "Couldn't unwrap WETH"),
     },
   })
 
@@ -416,7 +416,7 @@ export function WETHForm({
         const steps = []
         steps.push("Withdraw")
         if (unwrapRequired) {
-          steps.push("Unwrap ETH")
+          steps.push("Unwrap WETH")
         }
         return steps
       })
@@ -455,7 +455,7 @@ export function WETHForm({
             taskStatus: withdrawTaskStatus,
             isTask: true,
           }
-        case "Unwrap ETH":
+        case "Unwrap WETH":
           return {
             status: unwrapStatus,
             confirmationStatus: unwrapConfirmationStatus,
@@ -481,6 +481,7 @@ export function WETHForm({
     wrapHash,
     wrapStatus,
   ])
+  console.log("🚀 ~ statuses ~ statuses:", statuses)
 
   let buttonText = ""
   if (direction === ExternalTransferDirection.Deposit) {
@@ -542,7 +543,7 @@ export function WETHForm({
       unwrapStatus === "error" ||
       unwrapConfirmationStatus === "error"
     ) {
-      title = "Failed to unwrap ETH"
+      title = "Failed to unwrap WETH"
     } else if (statuses.some((status) => status.status === "error")) {
       title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} WETH`
     } else if (
