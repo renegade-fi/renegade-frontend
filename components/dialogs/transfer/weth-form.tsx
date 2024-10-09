@@ -3,7 +3,7 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType } from "@renegade-fi/react"
+import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -19,6 +19,7 @@ import {
   checkAmount,
   checkBalance,
   formSchema,
+  isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { TransferStatusDisplay } from "@/components/dialogs/transfer/transfer-status-display"
@@ -56,6 +57,7 @@ import { usePriceQuery } from "@/hooks/use-price-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
+import { useWithdraw } from "@/hooks/use-withdraw"
 import {
   MIN_DEPOSIT_AMOUNT,
   Side,
@@ -74,10 +76,12 @@ import { WrapEthWarning } from "./wrap-eth-warning"
 // Assume direction is deposit and mint is WETH
 export function WETHForm({
   className,
+  direction,
   form,
   onSuccess,
   header,
 }: React.ComponentProps<"form"> & {
+  direction: ExternalTransferDirection
   onSuccess: () => void
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
@@ -103,24 +107,48 @@ export function WETHForm({
     name: "amount",
   })
   const isMaxBalances = useIsMaxBalances(mint)
-  const { data: wethBalance, queryKey: wethBalanceQueryKey } =
+
+  const { data: renegadeBalances } = useBackOfQueueWallet({
+    query: {
+      select: (data) =>
+        new Map(data.balances.map((balance) => [balance.mint, balance])),
+    },
+  })
+  const renegadeBalance = renegadeBalances?.get(baseToken.address)?.amount
+  const formattedRenegadeBalance = formatEther(renegadeBalance ?? BigInt(0))
+  const renegadeBalanceLabel = formatNumber(
+    renegadeBalance ?? BigInt(0),
+    baseToken.decimals,
+    true,
+  )
+
+  const { data: l2Balance, queryKey: l2BalanceQueryKey } =
     useReadErc20BalanceOf({
       address: baseToken.address,
       args: [address ?? "0x"],
       query: {
         staleTime: 0,
-        enabled: !!address,
+        enabled: direction === ExternalTransferDirection.Deposit && !!address,
       },
     })
 
-  useRefreshOnBlock({ queryKey: wethBalanceQueryKey })
+  useRefreshOnBlock({ queryKey: l2BalanceQueryKey })
 
-  const formattedWethBalance = formatEther(wethBalance ?? BigInt(0))
-  const wethBalanceLabel = formatNumber(
-    wethBalance ?? BigInt(0),
+  const formattedL2Balance = formatEther(l2Balance ?? BigInt(0))
+  const l2BalanceLabel = formatNumber(
+    l2Balance ?? BigInt(0),
     baseToken.decimals,
     true,
   )
+
+  const balance =
+    direction === ExternalTransferDirection.Deposit
+      ? formattedL2Balance
+      : formattedRenegadeBalance
+  const balanceLabel =
+    direction === ExternalTransferDirection.Deposit
+      ? l2BalanceLabel
+      : renegadeBalanceLabel
 
   // ETH-specific logic
   const { data: ethBalance, queryKey: ethBalanceQueryKey } = useBalance({
@@ -134,18 +162,18 @@ export function WETHForm({
   const minEthToKeepUnwrapped = basePerQuotePrice ?? BigInt(4e15)
 
   const combinedBalance =
-    (wethBalance ?? BigInt(0)) + (ethBalance?.value ?? BigInt(0))
+    (l2Balance ?? BigInt(0)) + (ethBalance?.value ?? BigInt(0))
   const maxAmountToWrap = combinedBalance - minEthToKeepUnwrapped
   const formattedMaxAmountToWrap = formatEther(maxAmountToWrap)
 
   const remainingEthBalance =
-    parseEther(amount) > (wethBalance ?? BigInt(0))
+    parseEther(amount) > (l2Balance ?? BigInt(0))
       ? combinedBalance - parseEther(amount)
       : ethBalance?.value ?? BigInt(0)
 
   // If the amount is greater than the WETH balance, we need to wrap ETH
   const wrapRequired =
-    parseEther(amount) > (wethBalance ?? BigInt(0)) &&
+    parseEther(amount) > (l2Balance ?? BigInt(0)) &&
     parseEther(amount) <= combinedBalance
   // Ensure price is loaded
   usePriceQuery(baseToken.address)
@@ -171,7 +199,7 @@ export function WETHForm({
     wrapHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
-      queryClient.invalidateQueries({ queryKey: wethBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         handleApprove({
@@ -250,6 +278,27 @@ export function WETHForm({
     }
   }
 
+  // Withdraw
+  const {
+    handleWithdraw,
+    status: withdrawStatus,
+    reset: resetWithdraw,
+  } = useWithdraw({
+    amount,
+    mint,
+  })
+  const {
+    status: withdrawTaskStatus,
+    setTaskId: setWithdrawTaskId,
+    reset: resetWithdrawTask,
+  } = useWaitForTask()
+
+  const handleWithdrawSuccess = (data: any) => {
+    setWithdrawTaskId(data.taskId)
+    // form.reset()
+    onSuccess?.()
+  }
+
   const resetMutations = React.useCallback(() => {
     resetApprove()
     resetDeposit()
@@ -275,58 +324,102 @@ export function WETHForm({
       baseToken,
     )
 
-    if (!isAmountSufficient) {
-      form.setError("amount", {
-        message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+    if (direction === ExternalTransferDirection.Deposit) {
+      if (!isAmountSufficient) {
+        form.setError("amount", {
+          message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+        })
+        return
+      }
+      await checkChain()
+      const isBalanceSufficient = checkBalance({
+        amount: values.amount,
+        mint: values.mint,
+        balance: wrapRequired ? combinedBalance : l2Balance,
       })
-      return
-    }
-    await checkChain()
-    const isBalanceSufficient = checkBalance({
-      amount: values.amount,
-      mint: values.mint,
-      balance: wrapRequired ? combinedBalance : wethBalance,
-    })
-    if (!isBalanceSufficient) {
-      form.setError("amount", {
-        message: "Insufficient Arbitrum balance",
-      })
-      return
-    }
+      if (!isBalanceSufficient) {
+        form.setError("amount", {
+          message: "Insufficient Arbitrum balance",
+        })
+        return
+      }
 
-    // Calculate and set initial steps
-    setSteps(() => {
-      const steps = []
+      // Calculate and set initial steps
+      setSteps(() => {
+        const steps = []
+        if (wrapRequired) {
+          steps.push("Wrap ETH")
+        }
+        if (allowanceRequired) {
+          steps.push("Approve Deposit")
+        }
+        steps.push("Deposit WETH")
+        return steps
+      })
+      setCurrentStep(0)
+
       if (wrapRequired) {
-        steps.push("Wrap ETH")
+        const ethAmount = parseEther(values.amount) - (l2Balance ?? BigInt(0))
+        wrapEth({
+          address: baseToken.address,
+          value: ethAmount,
+        })
+      } else if (allowanceRequired) {
+        handleApprove({
+          address: baseToken.address,
+          args: [
+            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            UNLIMITED_ALLOWANCE,
+          ],
+        })
+      } else {
+        handleDeposit({
+          amount,
+          mint,
+          onSuccess: handleDepositSuccess,
+        })
       }
-      if (allowanceRequired) {
-        steps.push("Approve Deposit")
-      }
-      steps.push("Deposit WETH")
-      return steps
-    })
-    setCurrentStep(0)
-
-    if (wrapRequired) {
-      const ethAmount = parseEther(values.amount) - (wethBalance ?? BigInt(0))
-      wrapEth({
-        address: baseToken.address,
-        value: ethAmount,
-      })
-    } else if (allowanceRequired) {
-      handleApprove({
-        address: baseToken.address,
-        args: [
-          process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-          UNLIMITED_ALLOWANCE,
-        ],
-      })
     } else {
-      handleDeposit({
-        amount,
-        mint,
-        onSuccess: handleDepositSuccess,
+      const renegadeBalance = renegadeBalances?.get(
+        values.mint as `0x${string}`,
+      )?.amount
+      // User is allowed to withdraw whole balance even if amount is < MIN_TRANSFER_AMOUNT
+      if (
+        !isAmountSufficient &&
+        !isMaxBalance({
+          amount: values.amount,
+          mint: values.mint,
+          balance: renegadeBalance,
+        })
+      ) {
+        form.setError("amount", {
+          message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
+        })
+        return
+      }
+      // TODO: Check if balance is sufficient
+      const isBalanceSufficient = checkBalance({
+        amount: values.amount,
+        mint: values.mint,
+        balance: renegadeBalance,
+      })
+      if (!isBalanceSufficient) {
+        form.setError("amount", {
+          message: "Insufficient Renegade balance",
+        })
+        return
+      }
+
+      // Calculate and set initial steps
+      setSteps(() => {
+        const steps = []
+        steps.push("Withdraw")
+        return steps
+      })
+      setCurrentStep(0)
+
+      handleWithdraw({
+        onSuccess: handleWithdrawSuccess,
       })
     }
   }
@@ -352,6 +445,12 @@ export function WETHForm({
             taskStatus: depositTaskStatus,
             isTask: true,
           }
+        case "Withdraw":
+          return {
+            status: withdrawStatus,
+            taskStatus: withdrawTaskStatus,
+            isTask: true,
+          }
         default:
           return { status: undefined, confirmationStatus: undefined }
       }
@@ -363,18 +462,24 @@ export function WETHForm({
     depositStatus,
     depositTaskStatus,
     steps,
+    withdrawStatus,
+    withdrawTaskStatus,
     wrapConfirmationStatus,
     wrapHash,
     wrapStatus,
   ])
 
   let buttonText = ""
-  if (wrapRequired) {
-    buttonText = "Wrap & Deposit"
-  } else if (allowanceRequired) {
-    buttonText = "Approve & Deposit"
+  if (direction === ExternalTransferDirection.Deposit) {
+    if (wrapRequired) {
+      buttonText = "Wrap & Deposit"
+    } else if (allowanceRequired) {
+      buttonText = "Approve & Deposit"
+    } else {
+      buttonText = "Deposit"
+    }
   } else {
-    buttonText = "Deposit"
+    buttonText = "Withdraw"
   }
 
   const hideMaxButton =
@@ -386,11 +491,16 @@ export function WETHForm({
     let Icon = <Loader2 className="h-6 w-6 animate-spin" />
     if (statuses.some((status) => status.status === "error")) {
       Icon = <AlertCircle className="h-6 w-6" />
-    } else if (depositTaskStatus === "Completed") {
+    } else if (
+      (direction === ExternalTransferDirection.Deposit &&
+        depositTaskStatus === "Completed") ||
+      (direction === ExternalTransferDirection.Withdraw &&
+        withdrawTaskStatus === "Completed")
+    ) {
       Icon = <Check className="h-6 w-6" />
     }
 
-    let title = "Depositing WETH"
+    let title = `${direction === ExternalTransferDirection.Deposit ? "Depositing" : "Withdrawing"} WETH`
     if (statuses.some((status) => status.status === "pending")) {
       title = "Confirm in wallet"
     } else if (
@@ -400,8 +510,13 @@ export function WETHForm({
     ) {
       title = "Waiting for confirmation"
     } else if (statuses.some((status) => status.status === "error")) {
-      title = "Failed to deposit WETH"
-    } else if (depositTaskStatus === "Completed") {
+      title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} WETH`
+    } else if (
+      (direction === ExternalTransferDirection.Deposit &&
+        depositTaskStatus === "Completed") ||
+      (direction === ExternalTransferDirection.Withdraw &&
+        withdrawTaskStatus === "Completed")
+    ) {
       title = "Completed"
     }
 
@@ -413,7 +528,11 @@ export function WETHForm({
             {title}
           </DialogTitle>
           <VisuallyHidden>
-            <DialogDescription>Depositing WETH</DialogDescription>
+            <DialogDescription>
+              {direction === ExternalTransferDirection.Deposit
+                ? `Depositing WETH`
+                : `Withdrawing WETH`}
+            </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
         <div className="p-6">
@@ -462,7 +581,7 @@ export function WETHForm({
                 <FormItem className="flex flex-col">
                   <FormLabel>Token</FormLabel>
                   <TokenSelect
-                    direction={ExternalTransferDirection.Deposit}
+                    direction={direction}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -517,7 +636,10 @@ export function WETHForm({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Arbitrum Balance
+                    {direction === ExternalTransferDirection.Deposit
+                      ? "Arbitrum"
+                      : "Renegade"}
+                    &nbsp;Balance
                   </div>
                   <div className="flex items-center">
                     <ResponsiveTooltip>
@@ -531,25 +653,32 @@ export function WETHForm({
                           variant="link"
                           onClick={(e) => {
                             e.preventDefault()
-                            form.setValue("amount", formattedWethBalance, {
+                            form.setValue("amount", balance, {
                               shouldValidate: true,
                             })
                           }}
                         >
                           <div className="font-mono text-sm">
                             {baseToken
-                              ? `${wethBalanceLabel} ${baseToken.ticker}`
+                              ? `${balanceLabel} ${baseToken.ticker}`
                               : "--"}
                           </div>
                         </Button>
                       </ResponsiveTooltipTrigger>
                       <ResponsiveTooltipContent>
-                        {`${formattedWethBalance} WETH`}
+                        {`${balance} ${baseToken.ticker}`}
                       </ResponsiveTooltipContent>
                     </ResponsiveTooltip>
                   </div>
                 </div>
-                <div className="text-right">
+                <div
+                  className={cn(
+                    "text-right",
+                    direction === ExternalTransferDirection.Deposit
+                      ? "block"
+                      : "hidden",
+                  )}
+                >
                   <ResponsiveTooltip>
                     <ResponsiveTooltipTrigger
                       asChild
@@ -593,16 +722,19 @@ export function WETHForm({
                   {/* <span className="font-mono text-sm">&nbsp;</span> */}
                 </div>
               </div>
-              <MaxBalancesWarning
-                className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
-                mint={mint}
-              />
-              {wrapRequired && (
-                <WrapEthWarning
-                  minEthToKeepUnwrapped={minEthToKeepUnwrapped}
-                  remainingEthBalance={remainingEthBalance}
+              {direction === ExternalTransferDirection.Deposit && (
+                <MaxBalancesWarning
+                  className="text-sm text-orange-400"
+                  mint={mint}
                 />
               )}
+              {direction === ExternalTransferDirection.Deposit &&
+                wrapRequired && (
+                  <WrapEthWarning
+                    minEthToKeepUnwrapped={minEthToKeepUnwrapped}
+                    remainingEthBalance={remainingEthBalance}
+                  />
+                )}
             </div>
           </div>
           {isDesktop ? (
@@ -617,7 +749,8 @@ export function WETHForm({
                     className="flex-1 border-0 border-t font-extended text-2xl"
                     disabled={
                       !form.formState.isValid ||
-                      isMaxBalances ||
+                      (direction === ExternalTransferDirection.Deposit &&
+                        isMaxBalances) ||
                       statuses.some(
                         (status) =>
                           status.status === "pending" ||
@@ -662,7 +795,8 @@ export function WETHForm({
                     className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
                     disabled={
                       !form.formState.isValid ||
-                      isMaxBalances ||
+                      (direction === ExternalTransferDirection.Deposit &&
+                        isMaxBalances) ||
                       statuses.some(
                         (status) =>
                           status.status === "pending" ||

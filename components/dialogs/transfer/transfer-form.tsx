@@ -32,17 +32,19 @@ export function TransferForm({
       mint: initialMint ?? "",
     },
   })
+  if (form.watch("mint") === Token.findByTicker("WETH").address) {
+    return (
+      <WETHForm
+        className={className}
+        direction={direction}
+        form={form}
+        header={header}
+        onSuccess={onSuccess}
+      />
+    )
+  }
   if (direction === ExternalTransferDirection.Deposit) {
-    if (form.watch("mint") === Token.findByTicker("WETH").address) {
-      return (
-        <WETHForm
-          className={className}
-          form={form}
-          header={header}
-          onSuccess={onSuccess}
-        />
-      )
-    } else if (form.watch("mint") === Token.findByTicker("USDC").address) {
+    if (form.watch("mint") === Token.findByTicker("USDC").address) {
       return (
         <USDCForm
           className={className}
