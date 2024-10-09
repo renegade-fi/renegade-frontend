@@ -238,7 +238,6 @@ export function WETHForm({
     data: approveHash,
     writeContract: handleApprove,
     status: approveStatus,
-    reset: resetApprove,
   } = useWriteErc20Approve({
     mutation: {
       onError: (error) => catchError(error, "Couldn't approve deposit"),
@@ -258,17 +257,9 @@ export function WETHForm({
   )
 
   // Deposit
-  const {
-    handleDeposit,
-    status: depositStatus,
-    reset: resetDeposit,
-  } = useDeposit()
+  const { handleDeposit, status: depositStatus } = useDeposit()
 
-  const {
-    status: depositTaskStatus,
-    setTaskId,
-    reset: resetDepositTask,
-  } = useWaitForTask()
+  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
 
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)
@@ -285,27 +276,20 @@ export function WETHForm({
   }
 
   // Withdraw
-  const {
-    handleWithdraw,
-    status: withdrawStatus,
-    reset: resetWithdraw,
-  } = useWithdraw({
+  const { handleWithdraw, status: withdrawStatus } = useWithdraw({
     amount,
     mint,
   })
-  const {
-    status: withdrawTaskStatus,
-    setTaskId: setWithdrawTaskId,
-    reset: resetWithdrawTask,
-  } = useWaitForTask(() => {
-    if (shouldUnwrap) {
-      setCurrentStep((prev) => prev + 1)
-      unwrapEth({
-        address: baseToken.address,
-        args: [parseEther(amount)],
-      })
-    }
-  })
+  const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
+    useWaitForTask(() => {
+      if (shouldUnwrap) {
+        setCurrentStep((prev) => prev + 1)
+        unwrapEth({
+          address: baseToken.address,
+          args: [parseEther(amount)],
+        })
+      }
+    })
 
   const handleWithdrawSuccess = (data: any) => {
     setWithdrawTaskId(data.taskId)
@@ -332,25 +316,7 @@ export function WETHForm({
     },
   )
 
-  const resetMutations = React.useCallback(() => {
-    resetApprove()
-    resetDeposit()
-    resetDepositTask()
-  }, [resetApprove, resetDeposit, resetDepositTask])
-
-  React.useEffect(() => {
-    const { unsubscribe } = form.watch((_, { name }) => {
-      if (name === "amount") {
-        setSteps([])
-        setCurrentStep(0)
-        resetMutations()
-      }
-    })
-    return () => unsubscribe()
-  }, [form, resetMutations])
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    resetMutations()
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
@@ -795,7 +761,7 @@ export function WETHForm({
                     Withdraw ETH
                   </Label>
                   <div className="text-[0.8rem] text-muted-foreground">
-                    Receive native ETH instead of Wrapped ETH
+                    Receive native ETH instead of wrapped ETH
                   </div>
                 </div>
                 <Switch
