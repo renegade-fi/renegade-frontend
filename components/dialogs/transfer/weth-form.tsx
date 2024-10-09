@@ -577,7 +577,7 @@ export function WETHForm({
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <div className="p-6">
+        <div className="flex flex-1 flex-col p-6">
           <div className="border p-4 font-mono">
             <TransferStatusDisplay
               currentStep={currentStep}
@@ -586,7 +586,7 @@ export function WETHForm({
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="mt-auto flex-row">
           <DialogClose asChild>
             <Button
               autoFocus
