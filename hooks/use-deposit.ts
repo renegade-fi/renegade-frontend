@@ -12,13 +12,7 @@ import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
 
-export function useDeposit({
-  mint,
-  amount,
-}: {
-  mint?: string
-  amount: string
-}) {
+export function useDeposit() {
   const config = useConfig()
   const { data: walletClient } = useWalletClient()
   const [status, setStatus] = React.useState<QueryStatus>()
@@ -29,8 +23,13 @@ export function useDeposit({
   })
 
   async function handleDeposit({
+    mint,
+    amount,
+
     onSuccess,
   }: {
+    mint?: string
+    amount: string
     onSuccess?: ({ taskId }: { taskId: string }) => void
   }) {
     if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
@@ -93,5 +92,5 @@ export function useDeposit({
         console.error(`Error depositing: ${e.response?.data ?? e.message}`)
       })
   }
-  return { handleDeposit, status }
+  return { handleDeposit, status, reset: () => setStatus(undefined) }
 }

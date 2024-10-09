@@ -11,7 +11,8 @@ export function useRefreshOnBlock({ queryKey }: { queryKey: QueryKey }) {
 
   React.useEffect(() => {
     if (data && data % N === BigInt(0)) {
-      queryClient.invalidateQueries({ queryKey })
+      // Disable for more granular control over invalidations
+      // queryClient.invalidateQueries({ queryKey })
     }
   }, [data, queryClient, queryKey])
 }

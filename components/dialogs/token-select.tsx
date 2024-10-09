@@ -3,9 +3,9 @@ import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { erc20Abi, isAddress } from "viem"
-import { useAccount, useReadContracts } from "wagmi"
+import { useAccount, useBalance, useReadContracts } from "wagmi"
 
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/transfer-dialog"
+import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -24,7 +24,8 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { useReadErc20BalanceOf } from "@/lib/generated"
+import { ADDITIONAL_TOKENS, DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 const tokens = DISPLAY_TOKENS().map((token) => ({
@@ -43,6 +44,7 @@ export function TokenSelect({
 }) {
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
+
   const { data: l2Balances, queryKey } = useReadContracts({
     contracts: DISPLAY_TOKENS().map((token) => ({
       address: token.address,
@@ -60,6 +62,7 @@ export function TokenSelect({
             balance.status === "success" ? BigInt(balance.result) : BigInt(0),
           ]),
         ),
+      staleTime: 0,
     },
   })
 
@@ -73,10 +76,32 @@ export function TokenSelect({
     },
   })
 
-  const displayBalances =
-    direction === ExternalTransferDirection.Deposit
-      ? l2Balances
-      : renegadeBalances
+  // Alternative balances (e.g. ETH, USDC.e)
+  const { data: ethBalance } = useBalance({ address })
+  const { data: usdceBalance } = useReadErc20BalanceOf({
+    address: ADDITIONAL_TOKENS["USDC.e"].address,
+    args: [address ?? "0x"],
+    query: {
+      enabled: !!address,
+      staleTime: 0,
+    },
+  })
+
+  // TODO: Sometimes old balances are added
+  const displayBalances = React.useMemo(() => {
+    if (direction !== ExternalTransferDirection.Deposit) return renegadeBalances
+    if (!l2Balances) return undefined
+    const weth = Token.findByTicker("WETH")
+    const usdc = Token.findByTicker("USDC")
+    const combinedEthBalance =
+      (l2Balances?.get(weth.address) ?? BigInt(0)) +
+      (ethBalance?.value ?? BigInt(0))
+    const combinedUsdcBalance =
+      (l2Balances?.get(usdc.address) ?? BigInt(0)) + (usdceBalance ?? BigInt(0))
+    return new Map(l2Balances)
+      .set(weth.address, combinedEthBalance)
+      .set(usdc.address, combinedUsdcBalance)
+  }, [direction, ethBalance?.value, l2Balances, renegadeBalances, usdceBalance])
 
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 
