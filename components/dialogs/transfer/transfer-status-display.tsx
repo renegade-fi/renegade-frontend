@@ -55,8 +55,8 @@ export function TransferStatusDisplay({
                 {TASK_STATES.map((state) => (
                   <div
                     key={state}
-                    className={cn("text-primary hover:text-primary", {
-                      "text-muted": taskStatus !== state,
+                    className={cn("hover:text-primary", {
+                      "text-primary": taskStatus === state && isCurrentStep,
                     })}
                   >{`└─  ${formatTaskState(state)}`}</div>
                 ))}

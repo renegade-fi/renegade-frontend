@@ -9,8 +9,7 @@ import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatEther, parseEther } from "viem"
-import { useAccount } from "wagmi"
-import { useBalance } from "wagmi"
+import { useAccount, useBalance } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -41,11 +40,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Label } from "@/components/ui/label"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
+import { Switch } from "@/components/ui/switch"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
@@ -66,8 +67,12 @@ import {
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
-import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
-import { useWriteWethDeposit } from "@/lib/generated"
+import {
+  useReadErc20BalanceOf,
+  useWriteErc20Approve,
+  useWriteWethDeposit,
+  useWriteWethWithdraw,
+} from "@/lib/generated"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
 
@@ -97,6 +102,7 @@ export function WETHForm({
   const { data: maintenanceMode } = useMaintenanceMode()
   const [steps, setSteps] = React.useState<string[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
+  const [shouldUnwrap, setShouldUnwrap] = React.useState(false)
 
   const mint = useWatch({
     control: form.control,
@@ -291,13 +297,40 @@ export function WETHForm({
     status: withdrawTaskStatus,
     setTaskId: setWithdrawTaskId,
     reset: resetWithdrawTask,
-  } = useWaitForTask()
+  } = useWaitForTask(() => {
+    if (shouldUnwrap) {
+      setCurrentStep((prev) => prev + 1)
+      unwrapEth({
+        address: baseToken.address,
+        args: [parseEther(amount)],
+      })
+    }
+  })
 
   const handleWithdrawSuccess = (data: any) => {
     setWithdrawTaskId(data.taskId)
     // form.reset()
-    onSuccess?.()
   }
+
+  // Unwrap
+  const {
+    data: unwrapHash,
+    writeContract: unwrapEth,
+    status: unwrapStatus,
+  } = useWriteWethWithdraw({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't unwrap ETH"),
+    },
+  })
+
+  const unwrapConfirmationStatus = useTransactionConfirmation(
+    unwrapHash,
+    async () => {
+      queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey }),
+        queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey }),
+        onSuccess?.()
+    },
+  )
 
   const resetMutations = React.useCallback(() => {
     resetApprove()
@@ -414,6 +447,9 @@ export function WETHForm({
       setSteps(() => {
         const steps = []
         steps.push("Withdraw")
+        if (shouldUnwrap) {
+          steps.push("Unwrap ETH")
+        }
         return steps
       })
       setCurrentStep(0)
@@ -451,6 +487,12 @@ export function WETHForm({
             taskStatus: withdrawTaskStatus,
             isTask: true,
           }
+        case "Unwrap ETH":
+          return {
+            status: unwrapStatus,
+            confirmationStatus: unwrapConfirmationStatus,
+            hash: unwrapHash,
+          }
         default:
           return { status: undefined, confirmationStatus: undefined }
       }
@@ -462,6 +504,9 @@ export function WETHForm({
     depositStatus,
     depositTaskStatus,
     steps,
+    unwrapConfirmationStatus,
+    unwrapHash,
+    unwrapStatus,
     withdrawStatus,
     withdrawTaskStatus,
     wrapConfirmationStatus,
@@ -492,10 +537,15 @@ export function WETHForm({
     if (statuses.some((status) => status.status === "error")) {
       Icon = <AlertCircle className="h-6 w-6" />
     } else if (
-      (direction === ExternalTransferDirection.Deposit &&
-        depositTaskStatus === "Completed") ||
-      (direction === ExternalTransferDirection.Withdraw &&
-        withdrawTaskStatus === "Completed")
+      direction === ExternalTransferDirection.Deposit &&
+      depositTaskStatus === "Completed"
+    ) {
+      Icon = <Check className="h-6 w-6" />
+    } else if (shouldUnwrap && unwrapConfirmationStatus === "success") {
+      Icon = <Check className="h-6 w-6" />
+    } else if (
+      direction === ExternalTransferDirection.Withdraw &&
+      withdrawTaskStatus === "Completed"
     ) {
       Icon = <Check className="h-6 w-6" />
     }
@@ -512,10 +562,17 @@ export function WETHForm({
     } else if (statuses.some((status) => status.status === "error")) {
       title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} WETH`
     } else if (
-      (direction === ExternalTransferDirection.Deposit &&
-        depositTaskStatus === "Completed") ||
-      (direction === ExternalTransferDirection.Withdraw &&
-        withdrawTaskStatus === "Completed")
+      direction === ExternalTransferDirection.Deposit &&
+      depositTaskStatus === "Completed"
+    ) {
+      title = "Completed"
+    } else if (shouldUnwrap) {
+      if (unwrapConfirmationStatus === "success") {
+        title = "Completed"
+      }
+    } else if (
+      direction === ExternalTransferDirection.Withdraw &&
+      withdrawTaskStatus === "Completed"
     ) {
       title = "Completed"
     }
@@ -721,6 +778,35 @@ export function WETHForm({
                   </ResponsiveTooltip>
                   {/* <span className="font-mono text-sm">&nbsp;</span> */}
                 </div>
+              </div>
+              <div
+                className={cn(
+                  "items-center justify-between border p-3",
+                  direction === ExternalTransferDirection.Withdraw
+                    ? "flex"
+                    : "hidden",
+                )}
+              >
+                <div className="space-y-0.5">
+                  <Label
+                    className=""
+                    htmlFor="unwrap"
+                  >
+                    Withdraw ETH
+                  </Label>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Receive native ETH instead of Wrapped ETH
+                  </div>
+                </div>
+                <Switch
+                  checked={shouldUnwrap}
+                  id="unwrap"
+                  onCheckedChange={(checked) => {
+                    if (typeof checked === "boolean") {
+                      setShouldUnwrap(checked)
+                    }
+                  }}
+                />
               </div>
               {direction === ExternalTransferDirection.Deposit && (
                 <MaxBalancesWarning

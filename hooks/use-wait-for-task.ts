@@ -1,8 +1,8 @@
 import React from "react"
 
-import { useTaskHistory } from "@renegade-fi/react"
+import { TaskState, useTaskHistory } from "@renegade-fi/react"
 
-export function useWaitForTask() {
+export function useWaitForTask(onConfirm?: () => void) {
   // TODO: Refactor useDeposit to useMutation and declaratively pass taskId from { data }
   // TODO: Then, remove manual reset
   const [taskId, setTaskId] = React.useState<string>()
@@ -12,6 +12,21 @@ export function useWaitForTask() {
       enabled: !!taskId,
     },
   })
+
+  const [isConfirmationHandled, setIsConfirmationHandled] =
+    React.useState(false)
+
+  React.useEffect(() => {
+    if (status === "Completed" && !isConfirmationHandled) {
+      onConfirm?.()
+      setIsConfirmationHandled(true)
+    }
+  }, [status, onConfirm, isConfirmationHandled])
+
+  React.useEffect(() => {
+    setIsConfirmationHandled(false)
+  }, [taskId])
+
   return {
     status,
     setTaskId,
