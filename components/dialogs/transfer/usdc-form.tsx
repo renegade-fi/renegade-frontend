@@ -304,7 +304,9 @@ export function USDCForm({
   // Deposit
   const { handleDeposit, status: depositStatus } = useDeposit()
 
-  const { status: depositTaskStatus, setTaskId } = useWaitForTask()
+  const { status: depositTaskStatus, setTaskId } = useWaitForTask(() => {
+    onSuccess?.()
+  })
 
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)

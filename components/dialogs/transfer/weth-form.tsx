@@ -481,7 +481,6 @@ export function WETHForm({
     wrapHash,
     wrapStatus,
   ])
-  console.log("🚀 ~ statuses ~ statuses:", statuses)
 
   let buttonText = ""
   if (direction === ExternalTransferDirection.Deposit) {

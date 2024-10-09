@@ -192,12 +192,14 @@ export function DefaultForm({
   const { handleDeposit, status: depositStatus } = useDeposit()
 
   const { status: depositTaskStatus, setTaskId: setDepositTaskId } =
-    useWaitForTask()
+    useWaitForTask(() => {
+      onSuccess?.()
+    })
 
   const handleDepositSuccess = (data: any) => {
     setDepositTaskId(data.taskId)
     // form.reset()
-    onSuccess?.()
+    // onSuccess?.()
     const message = constructStartToastMessage(UpdateType.Deposit)
     toast.loading(message, {
       id: data.taskId,
@@ -215,7 +217,9 @@ export function DefaultForm({
     mint,
   })
   const { status: withdrawTaskStatus, setTaskId: setWithdrawTaskId } =
-    useWaitForTask()
+    useWaitForTask(() => {
+      onSuccess?.()
+    })
 
   const handleWithdrawSuccess = (data: any) => {
     setWithdrawTaskId(data.taskId)
