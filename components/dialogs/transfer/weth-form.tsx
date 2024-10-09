@@ -170,6 +170,10 @@ export function WETHForm({
   const maxAmountToWrap = combinedBalance - minEthToKeepUnwrapped
   const formattedMaxAmountToWrap = formatEther(maxAmountToWrap)
 
+  // ||
+  // (direction === ExternalTransferDirection.Deposit &&
+  //   minEthToKeepUnwrapped > (ethBalance?.value ?? BigInt(0)))
+
   const remainingEthBalance =
     parseEther(amount) > (l2Balance ?? BigInt(0))
       ? combinedBalance - parseEther(amount)
@@ -289,6 +293,7 @@ export function WETHForm({
           args: [parseEther(amount)],
         })
       }
+      onSuccess?.()
     })
 
   const handleWithdrawSuccess = (data: any) => {
@@ -310,9 +315,10 @@ export function WETHForm({
   const unwrapConfirmationStatus = useTransactionConfirmation(
     unwrapHash,
     async () => {
-      queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey }),
-        queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey }),
-        onSuccess?.()
+      queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: ["readContracts"] })
+      onSuccess?.()
     },
   )
 
@@ -489,10 +495,17 @@ export function WETHForm({
     buttonText = "Withdraw"
   }
 
+  const maxValue =
+    direction === ExternalTransferDirection.Deposit
+      ? formattedMaxAmountToWrap
+      : formattedRenegadeBalance
+
   const hideMaxButton =
     !mint ||
-    formattedMaxAmountToWrap === "0" ||
-    amount.toString() === formattedMaxAmountToWrap
+    maxValue === "0" ||
+    amount.toString() === maxValue ||
+    (direction === ExternalTransferDirection.Deposit &&
+      maxAmountToWrap < BigInt(0))
 
   if (steps.length > 0) {
     let Icon = <Loader2 className="h-6 w-6 animate-spin" />
@@ -503,8 +516,10 @@ export function WETHForm({
       depositTaskStatus === "Completed"
     ) {
       Icon = <Check className="h-6 w-6" />
-    } else if (unwrapRequired && unwrapConfirmationStatus === "success") {
-      Icon = <Check className="h-6 w-6" />
+    } else if (unwrapRequired) {
+      if (unwrapConfirmationStatus === "success") {
+        Icon = <Check className="h-6 w-6" />
+      }
     } else if (
       direction === ExternalTransferDirection.Withdraw &&
       withdrawTaskStatus === "Completed"
@@ -640,14 +655,10 @@ export function WETHForm({
                             type="button"
                             variant="ghost"
                             onClick={() => {
-                              form.setValue(
-                                "amount",
-                                formattedMaxAmountToWrap,
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                },
-                              )
+                              form.setValue("amount", maxValue, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              })
                             }}
                           >
                             <span>MAX</span>
@@ -713,19 +724,12 @@ export function WETHForm({
                       asChild
                       className={cn(
                         "!pointer-events-auto",
-                        ethBalance?.value &&
-                          minEthToKeepUnwrapped > ethBalance.value
-                          ? ""
-                          : "cursor-pointer",
+                        maxAmountToWrap < BigInt(0) ? "" : "cursor-pointer",
                       )}
                     >
                       <Button
                         className="h-5 p-0"
-                        disabled={
-                          ethBalance?.value
-                            ? minEthToKeepUnwrapped > ethBalance.value
-                            : false
-                        }
+                        disabled={maxAmountToWrap < BigInt(0)}
                         type="button"
                         variant="link"
                         onClick={(e) => {
@@ -745,8 +749,7 @@ export function WETHForm({
                       side="right"
                       sideOffset={10}
                     >
-                      {ethBalance?.value &&
-                      minEthToKeepUnwrapped > ethBalance.value
+                      {maxAmountToWrap < BigInt(0)
                         ? "Not enough ETH to wrap"
                         : `${formattedEthBalance} ETH`}
                     </ResponsiveTooltipContent>
