@@ -640,7 +640,10 @@ export function USDCForm({
                           </div>
                         </Button>
                       </ResponsiveTooltipTrigger>
-                      <ResponsiveTooltipContent>
+                      <ResponsiveTooltipContent
+                        side="right"
+                        sideOffset={10}
+                      >
                         {`${formattedUsdcBalance} ${baseToken?.ticker}`}
                       </ResponsiveTooltipContent>
                     </ResponsiveTooltip>
@@ -666,7 +669,10 @@ export function USDCForm({
                         </div>
                       </Button>
                     </ResponsiveTooltipTrigger>
-                    <ResponsiveTooltipContent>
+                    <ResponsiveTooltipContent
+                      side="right"
+                      sideOffset={10}
+                    >
                       {`${formattedUsdceBalance} USDC.e`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>

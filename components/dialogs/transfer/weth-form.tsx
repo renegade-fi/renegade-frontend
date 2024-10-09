@@ -691,7 +691,10 @@ export function WETHForm({
                           </div>
                         </Button>
                       </ResponsiveTooltipTrigger>
-                      <ResponsiveTooltipContent>
+                      <ResponsiveTooltipContent
+                        side="right"
+                        sideOffset={10}
+                      >
                         {`${balance} ${baseToken.ticker}`}
                       </ResponsiveTooltipContent>
                     </ResponsiveTooltip>
@@ -738,7 +741,10 @@ export function WETHForm({
                         </div>
                       </Button>
                     </ResponsiveTooltipTrigger>
-                    <ResponsiveTooltipContent>
+                    <ResponsiveTooltipContent
+                      side="right"
+                      sideOffset={10}
+                    >
                       {ethBalance?.value &&
                       minEthToKeepUnwrapped > ethBalance.value
                         ? "Not enough ETH to wrap"

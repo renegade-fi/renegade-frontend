@@ -51,7 +51,7 @@ export function TransferStatusDisplay({
         const Content = () => {
           if (isTask) {
             return (
-              <div className="text-xs text-muted">
+              <div className="space-y-0.5 text-xs text-muted">
                 {TASK_STATES.map((state) => (
                   <div
                     key={state}
