@@ -17,6 +17,7 @@ import {
   ExternalTransferDirection,
   checkAmount,
   checkBalance,
+  constructArbitrumBridgeUrl,
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
@@ -27,6 +28,7 @@ import {
 } from "@/components/dialogs/transfer/transfer-details-page"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
+import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -43,6 +45,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
@@ -68,8 +75,10 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
+import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
 export function DefaultForm({
   className,
@@ -130,6 +139,37 @@ export function DefaultForm({
       staleTime: 0,
     },
   })
+
+  const l1Token =
+    baseToken && baseToken.ticker in ETHEREUM_TOKENS
+      ? ETHEREUM_TOKENS[baseToken.ticker as keyof typeof ETHEREUM_TOKENS]
+      : undefined
+
+  const {
+    data: l1Balance,
+    queryKey: l1QueryKey,
+    status: l1Status,
+  } = useReadErc20BalanceOf({
+    address: l1Token?.address,
+    args: [address ?? "0x"],
+    config: mainnetConfig,
+    query: {
+      enabled:
+        direction === ExternalTransferDirection.Deposit &&
+        !!baseToken &&
+        !!address &&
+        !!l1Token?.address,
+      staleTime: 0,
+    },
+  })
+  const formattedL1Balance = baseToken
+    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
+    : ""
+  const l1BalanceLabel = baseToken
+    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
+    : ""
+  const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
+  console.log("🚀 ~ userHasL1Balance:", userHasL1Balance)
 
   useRefreshOnBlock({ queryKey })
 
@@ -521,31 +561,73 @@ export function DefaultForm({
                 </FormItem>
               )}
             />
-            <div className="flex justify-between">
-              <div className="text-sm text-muted-foreground">
-                {direction === ExternalTransferDirection.Deposit
-                  ? "Arbitrum"
-                  : "Renegade"}
-                &nbsp;Balance
-              </div>
-              <Button
-                className="h-5 p-0"
-                type="button"
-                variant="link"
-                onClick={(e) => {
-                  e.preventDefault()
-                  if (Number(balance)) {
-                    form.setValue("amount", balance, {
-                      shouldValidate: true,
-                    })
-                  }
-                }}
-              >
-                <div className="font-mono text-sm">
-                  {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <div className="text-sm text-muted-foreground">
+                  {direction === ExternalTransferDirection.Deposit
+                    ? "Arbitrum"
+                    : "Renegade"}
+                  &nbsp;Balance
                 </div>
-              </Button>
+                <Button
+                  className="h-5 p-0"
+                  type="button"
+                  variant="link"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (Number(balance)) {
+                      form.setValue("amount", balance, {
+                        shouldValidate: true,
+                      })
+                    }
+                  }}
+                >
+                  <div className="font-mono text-sm">
+                    {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
+                  </div>
+                </Button>
+              </div>
+              <div
+                className={cn("flex justify-between", {
+                  hidden: !userHasL1Balance,
+                })}
+              >
+                <div className="text-sm text-muted-foreground">
+                  Ethereum Balance
+                </div>
+                <HoverCard openDelay={200}>
+                  <HoverCardTrigger asChild>
+                    <a
+                      className="flex items-center gap-1 font-mono text-sm hover:underline"
+                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {baseToken
+                        ? `${l1BalanceLabel} ${baseToken.ticker}`
+                        : "--"}
+                    </a>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    className="flex w-fit items-center justify-between gap-4 border p-4"
+                    side="right"
+                    sideOffset={16}
+                  >
+                    <TokenIcon
+                      size={36}
+                      ticker="ARB"
+                    />
+                    <div>
+                      <div className="text-xl font-medium">Arbitrum Bridge</div>
+                      <div className="text-sm text-muted-foreground">
+                        Bridge tokens to Arbitrum One
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
             </div>
+
             {direction === ExternalTransferDirection.Deposit && (
               <MaxBalancesWarning
                 className="text-sm text-orange-400"
