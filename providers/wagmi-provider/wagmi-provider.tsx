@@ -11,6 +11,7 @@ import {
 import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider, getDefaultConfig } from "connectkit"
+import { mainnet } from "viem/chains"
 import {
   WagmiProvider as Provider,
   cookieToInitialState,
@@ -46,6 +47,13 @@ export const config = createConfig(
     appIcon: `${getURL()}/glyph_light.svg`,
   }),
 )
+
+export const mainnetConfig = createConfig({
+  chains: [mainnet],
+  transports: {
+    [mainnet.id]: http("https://node1.web3api.com"),
+  },
+})
 
 createLifiConfig({
   integrator: "renegade",
