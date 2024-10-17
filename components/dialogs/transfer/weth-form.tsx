@@ -8,15 +8,17 @@ import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatEther, parseEther } from "viem"
+import { formatEther, formatUnits, parseEther } from "viem"
 import { useAccount, useBalance } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
+import { BridgePrompt } from "@/components/dialogs/transfer/bridge-prompt"
 import {
   ExternalTransferDirection,
   checkAmount,
   checkBalance,
+  constructArbitrumBridgeUrl,
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
@@ -50,6 +52,11 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 import { Switch } from "@/components/ui/switch"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
@@ -76,8 +83,10 @@ import {
   useWriteWethDeposit,
   useWriteWethWithdraw,
 } from "@/lib/generated"
+import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
 import { WrapEthWarning } from "./wrap-eth-warning"
 
@@ -115,6 +124,7 @@ export function WETHForm({
     control: form.control,
     name: "amount",
   })
+  const isDeposit = direction === ExternalTransferDirection.Deposit
 
   const { data: renegadeBalance } = useBackOfQueueWallet({
     query: {
@@ -135,7 +145,7 @@ export function WETHForm({
       args: [address ?? "0x"],
       query: {
         staleTime: 0,
-        enabled: direction === ExternalTransferDirection.Deposit && !!address,
+        enabled: isDeposit && !!address,
       },
     })
 
@@ -148,14 +158,8 @@ export function WETHForm({
     true,
   )
 
-  const balance =
-    direction === ExternalTransferDirection.Deposit
-      ? formattedL2Balance
-      : formattedRenegadeBalance
-  const balanceLabel =
-    direction === ExternalTransferDirection.Deposit
-      ? l2BalanceLabel
-      : renegadeBalanceLabel
+  const balance = isDeposit ? formattedL2Balance : formattedRenegadeBalance
+  const balanceLabel = isDeposit ? l2BalanceLabel : renegadeBalanceLabel
 
   // ETH-specific logic
   const { data: ethBalance, queryKey: ethBalanceQueryKey } = useBalance({
@@ -165,6 +169,41 @@ export function WETHForm({
   const ethBalanceLabel = formatNumber(ethBalance?.value ?? BigInt(0), 18, true)
   const basePerQuotePrice = useBasePerQuotePrice(baseToken.address)
 
+  const { data: l1EthBalance, queryKey: l1EthBalanceQueryKey } = useBalance({
+    address,
+    config: mainnetConfig,
+  })
+  const formattedL1EthBalance = formatEther(l1EthBalance?.value ?? BigInt(0))
+  const l1EthBalanceLabel = formatNumber(
+    l1EthBalance?.value ?? BigInt(0),
+    18,
+    true,
+  )
+
+  const l1Token = ETHEREUM_TOKENS["WETH"]
+  // L1 WETH Balance
+  const {
+    data: l1Balance,
+    queryKey: l1QueryKey,
+    status: l1Status,
+  } = useReadErc20BalanceOf({
+    address: l1Token?.address,
+    args: [address ?? "0x"],
+    config: mainnetConfig,
+    query: {
+      enabled: isDeposit && !!baseToken && !!address && !!l1Token?.address,
+      staleTime: 0,
+    },
+  })
+  const formattedL1Balance = baseToken
+    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
+    : ""
+  const l1BalanceLabel = baseToken
+    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
+    : ""
+  const userHasL1WETHBalance = Boolean(l1Status === "success" && l1Balance)
+  const userHasL1ETHBalance = Boolean(l1Status === "success" && l1EthBalance)
+
   // Calculate the minimum ETH to keep unwrapped for gas fees
   const minEthToKeepUnwrapped = basePerQuotePrice ?? BigInt(4e15)
 
@@ -172,10 +211,6 @@ export function WETHForm({
     (l2Balance ?? BigInt(0)) + (ethBalance?.value ?? BigInt(0))
   const maxAmountToWrap = combinedBalance - minEthToKeepUnwrapped
   const formattedMaxAmountToWrap = formatEther(maxAmountToWrap)
-
-  // ||
-  // (direction === ExternalTransferDirection.Deposit &&
-  //   minEthToKeepUnwrapped > (ethBalance?.value ?? BigInt(0)))
 
   const remainingEthBalance =
     parseEther(amount) > (l2Balance ?? BigInt(0))
@@ -332,7 +367,7 @@ export function WETHForm({
       baseToken,
     )
 
-    if (direction === ExternalTransferDirection.Deposit) {
+    if (isDeposit) {
       if (!isAmountSufficient) {
         form.setError("amount", {
           message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
@@ -502,7 +537,7 @@ export function WETHForm({
   )
 
   let buttonText = ""
-  if (direction === ExternalTransferDirection.Deposit) {
+  if (isDeposit) {
     if (wrapRequired) {
       buttonText = "Wrap & Deposit"
     } else if (allowanceRequired) {
@@ -514,39 +549,31 @@ export function WETHForm({
     buttonText = "Withdraw"
   }
 
-  const maxValue =
-    direction === ExternalTransferDirection.Deposit
-      ? formattedMaxAmountToWrap
-      : formattedRenegadeBalance
+  const maxValue = isDeposit
+    ? formattedMaxAmountToWrap
+    : formattedRenegadeBalance
 
   const hideMaxButton =
     !mint ||
     maxValue === "0" ||
     amount.toString() === maxValue ||
-    (direction === ExternalTransferDirection.Deposit &&
-      maxAmountToWrap < BigInt(0))
+    (isDeposit && maxAmountToWrap < BigInt(0))
 
   if (steps.length > 0) {
     let Icon = <Loader2 className="h-6 w-6 animate-spin" />
     if (stepList.some((step) => step?.mutationStatus === "error")) {
       Icon = <AlertCircle className="h-6 w-6" />
-    } else if (
-      direction === ExternalTransferDirection.Deposit &&
-      depositTaskStatus === "Completed"
-    ) {
+    } else if (isDeposit && depositTaskStatus === "Completed") {
       Icon = <Check className="h-6 w-6" />
     } else if (unwrapRequired) {
       if (unwrapConfirmationStatus === "success") {
         Icon = <Check className="h-6 w-6" />
       }
-    } else if (
-      direction === ExternalTransferDirection.Withdraw &&
-      withdrawTaskStatus === "Completed"
-    ) {
+    } else if (!isDeposit && withdrawTaskStatus === "Completed") {
       Icon = <Check className="h-6 w-6" />
     }
 
-    let title = `${direction === ExternalTransferDirection.Deposit ? "Depositing" : "Withdrawing"} WETH`
+    let title = `${isDeposit ? "Depositing" : "Withdrawing"} WETH`
     if (stepList.some((step) => step?.mutationStatus === "pending")) {
       title = "Confirm in wallet"
     } else if (
@@ -561,20 +588,14 @@ export function WETHForm({
     ) {
       title = "Failed to unwrap WETH"
     } else if (stepList.some((step) => step?.mutationStatus === "error")) {
-      title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} WETH`
-    } else if (
-      direction === ExternalTransferDirection.Deposit &&
-      depositTaskStatus === "Completed"
-    ) {
+      title = `Failed to ${isDeposit ? "deposit" : "withdraw"} WETH`
+    } else if (isDeposit && depositTaskStatus === "Completed") {
       title = "Completed"
     } else if (unwrapRequired) {
       if (unwrapConfirmationStatus === "success") {
         title = "Completed"
       }
-    } else if (
-      direction === ExternalTransferDirection.Withdraw &&
-      withdrawTaskStatus === "Completed"
-    ) {
+    } else if (!isDeposit && withdrawTaskStatus === "Completed") {
       title = "Completed"
     }
 
@@ -587,9 +608,7 @@ export function WETHForm({
           </DialogTitle>
           <VisuallyHidden>
             <DialogDescription>
-              {direction === ExternalTransferDirection.Deposit
-                ? `Depositing WETH`
-                : `Withdrawing WETH`}
+              {isDeposit ? `Depositing WETH` : `Withdrawing WETH`}
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
@@ -685,10 +704,8 @@ export function WETHForm({
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  {direction === ExternalTransferDirection.Deposit
-                    ? "Arbitrum"
-                    : "Renegade"}
-                  &nbsp;Balance
+                  Balance&nbsp;on&nbsp;
+                  {isDeposit ? "Arbitrum" : "Renegade"}
                 </div>
                 <div className="flex items-center">
                   <ResponsiveTooltip>
@@ -725,14 +742,8 @@ export function WETHForm({
                   </ResponsiveTooltip>
                 </div>
               </div>
-              <div
-                className={cn(
-                  "text-right",
-                  direction === ExternalTransferDirection.Deposit
-                    ? "block"
-                    : "hidden",
-                )}
-              >
+
+              <div className={cn("text-right", isDeposit ? "block" : "hidden")}>
                 <ResponsiveTooltip>
                   <ResponsiveTooltipTrigger
                     asChild
@@ -770,12 +781,90 @@ export function WETHForm({
                 </ResponsiveTooltip>
               </div>
             </div>
+
+            <div
+              className={cn("flex justify-between", {
+                hidden: !userHasL1WETHBalance && !userHasL1ETHBalance,
+              })}
+            >
+              <div className="text-sm text-muted-foreground">
+                Balance on Ethereum
+              </div>
+              <div className="flex flex-col items-end space-y-1">
+                <Tooltip>
+                  <TooltipTrigger
+                    asChild
+                    className={cn({
+                      hidden: !userHasL1WETHBalance,
+                    })}
+                  >
+                    <Button
+                      asChild
+                      className="h-5 p-0 font-mono text-sm"
+                      variant="link"
+                    >
+                      <a
+                        href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {baseToken
+                          ? `${l1BalanceLabel} ${baseToken.ticker}`
+                          : "--"}
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    sideOffset={10}
+                  >
+                    Bridge to Arbitrum to deposit
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger
+                    asChild
+                    className={cn({
+                      hidden: !userHasL1ETHBalance,
+                    })}
+                  >
+                    <Button
+                      className="h-5 p-0"
+                      type="button"
+                      variant="link"
+                    >
+                      <div className="font-mono text-sm">
+                        {`${l1EthBalanceLabel}`}&nbsp;ETH
+                      </div>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    sideOffset={10}
+                  >
+                    Bridge to Arbitrum to deposit
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+
+            <div
+              className={cn({
+                hidden:
+                  !isDeposit && !userHasL1WETHBalance && !userHasL1ETHBalance,
+              })}
+            >
+              <BridgePrompt
+                baseToken={baseToken}
+                formattedL1Balance={formattedL1Balance}
+              />
+            </div>
+
             <div
               className={cn(
                 "items-center justify-between border p-3",
-                direction === ExternalTransferDirection.Withdraw
-                  ? "flex"
-                  : "hidden",
+                !isDeposit ? "flex" : "hidden",
               )}
             >
               <div className="space-y-0.5">
@@ -799,19 +888,18 @@ export function WETHForm({
                 }}
               />
             </div>
-            {direction === ExternalTransferDirection.Deposit && (
+            {isDeposit && (
               <MaxBalancesWarning
                 className="text-sm text-orange-400"
                 mint={mint}
               />
             )}
-            {direction === ExternalTransferDirection.Deposit &&
-              wrapRequired && (
-                <WrapEthWarning
-                  minEthToKeepUnwrapped={minEthToKeepUnwrapped}
-                  remainingEthBalance={remainingEthBalance}
-                />
-              )}
+            {isDeposit && wrapRequired && (
+              <WrapEthWarning
+                minEthToKeepUnwrapped={minEthToKeepUnwrapped}
+                remainingEthBalance={remainingEthBalance}
+              />
+            )}
           </div>
           {isDesktop ? (
             <DialogFooter>
@@ -825,8 +913,7 @@ export function WETHForm({
                     className="flex-1 border-0 border-t font-extended text-2xl"
                     disabled={
                       !form.formState.isValid ||
-                      (direction === ExternalTransferDirection.Deposit &&
-                        isMaxBalances) ||
+                      (isDeposit && isMaxBalances) ||
                       (maintenanceMode?.enabled &&
                         maintenanceMode.severity === "critical")
                     }
@@ -865,8 +952,7 @@ export function WETHForm({
                     className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
                     disabled={
                       !form.formState.isValid ||
-                      (direction === ExternalTransferDirection.Deposit &&
-                        isMaxBalances) ||
+                      (isDeposit && isMaxBalances) ||
                       (maintenanceMode?.enabled &&
                         maintenanceMode.severity === "critical")
                     }
