@@ -170,7 +170,6 @@ export function DefaultForm({
     ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
     : ""
   const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
-  console.log("🚀 ~ userHasL1Balance:", userHasL1Balance)
 
   useRefreshOnBlock({ queryKey })
 
@@ -572,29 +571,47 @@ export function DefaultForm({
                   </div>
                 </Button>
               </div>
+            </div>
 
-              <div
-                className={cn("flex justify-between", {
-                  hidden: !userHasL1Balance || !isDeposit,
-                })}
-              >
-                <div className="text-sm text-muted-foreground">
-                  Balance on Ethereum
-                </div>
-                <Button
-                  asChild
-                  className="h-5 p-0 font-mono text-sm"
-                  variant="link"
-                >
-                  <a
-                    href={constructArbitrumBridgeUrl(formattedL1Balance)}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    {baseToken ? `${l1BalanceLabel} ${baseToken.ticker}` : "--"}
-                  </a>
-                </Button>
+            <div
+              className={cn("flex justify-between", {
+                hidden: !userHasL1Balance || !isDeposit,
+              })}
+            >
+              <div className="text-sm text-muted-foreground">
+                Balance on Ethereum
               </div>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className={cn({
+                    hidden: !userHasL1Balance,
+                  })}
+                >
+                  <Button
+                    asChild
+                    className="h-5 p-0 font-mono text-sm"
+                    type="button"
+                    variant="link"
+                  >
+                    <a
+                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {baseToken
+                        ? `${l1BalanceLabel} ${baseToken.ticker}`
+                        : "--"}
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  sideOffset={10}
+                >
+                  Bridge to Arbitrum to deposit
+                </TooltipContent>
+              </Tooltip>
             </div>
 
             <div

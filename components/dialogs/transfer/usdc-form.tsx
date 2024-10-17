@@ -11,10 +11,12 @@ import { useAccount, useSendTransaction } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
+import { BridgePrompt } from "@/components/dialogs/transfer/bridge-prompt"
 import {
   ExternalTransferDirection,
   checkAmount,
   checkBalance,
+  constructArbitrumBridgeUrl,
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
@@ -48,6 +50,11 @@ import {
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
@@ -68,9 +75,10 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
-import { ADDITIONAL_TOKENS } from "@/lib/token"
+import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
 const USDCE = ADDITIONAL_TOKENS["USDC.e"]
 
@@ -130,6 +138,30 @@ export function USDCForm({
     baseToken.decimals,
     true,
   )
+
+  const l1Token = ETHEREUM_TOKENS["USDC"]
+
+  // L1 Balance
+  const {
+    data: l1Balance,
+    queryKey: l1QueryKey,
+    status: l1Status,
+  } = useReadErc20BalanceOf({
+    address: l1Token?.address,
+    args: [address ?? "0x"],
+    config: mainnetConfig,
+    query: {
+      enabled: !!baseToken && !!address && !!l1Token?.address,
+      staleTime: 0,
+    },
+  })
+  const formattedL1Balance = baseToken
+    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
+    : ""
+  const l1BalanceLabel = baseToken
+    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
+    : ""
+  const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
 
   // USDC.e-specific logic
   const { data: usdceBalance, queryKey: usdceBalanceQueryKey } =
@@ -623,7 +655,7 @@ export function USDCForm({
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Arbitrum Balance
+                  Balance on Arbitrum
                 </div>
                 <div className="flex items-center">
                   <ResponsiveTooltip>
@@ -694,6 +726,54 @@ export function USDCForm({
                 </ResponsiveTooltip>
               </div>
             </div>
+
+            <div
+              className={cn("flex justify-between", {
+                hidden: !userHasL1Balance,
+              })}
+            >
+              <div className="text-sm text-muted-foreground">
+                Balance on Ethereum
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    className="h-5 p-0 font-mono text-sm"
+                    type="button"
+                    variant="link"
+                  >
+                    <a
+                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {baseToken
+                        ? `${l1BalanceLabel} ${baseToken.ticker}`
+                        : "--"}
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  sideOffset={10}
+                >
+                  Bridge to Arbitrum to deposit
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            <div
+              className={cn({
+                hidden: !userHasL1Balance,
+              })}
+            >
+              <BridgePrompt
+                baseToken={baseToken}
+                formattedL1Balance={formattedL1Balance}
+              />
+            </div>
+
             <MaxBalancesWarning
               className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
               mint={mint}
