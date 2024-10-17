@@ -170,7 +170,6 @@ export function DefaultForm({
     ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
     : ""
   const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
-  console.log("🚀 ~ userHasL1Balance:", userHasL1Balance)
 
   useRefreshOnBlock({ queryKey })
 
