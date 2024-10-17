@@ -134,7 +134,7 @@ export const ETHEREUM_TOKENS = {
   COMP: new Token(
     "Compound",
     "COMP",
-    getAddress("0x354a6da3fcde098f8389cad84b0182725c6c91de"),
+    getAddress("0xc00e94Cb662C3520282E6f5717214004A7f26888"),
     18,
   ),
   AAVE: new Token(
