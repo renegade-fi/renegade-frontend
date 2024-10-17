@@ -740,6 +740,7 @@ export function USDCForm({
                   <Button
                     asChild
                     className="h-5 p-0 font-mono text-sm"
+                    type="button"
                     variant="link"
                   >
                     <a
