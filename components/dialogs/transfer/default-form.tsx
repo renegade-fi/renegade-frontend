@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { AlertCircle, Check, Loader2 } from "lucide-react"
+import { AlertCircle, Check, ExternalLink, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
@@ -55,6 +55,11 @@ import {
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
@@ -564,10 +569,10 @@ export function DefaultForm({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <div className="text-sm text-muted-foreground">
+                  Balance&nbsp;on&nbsp;
                   {direction === ExternalTransferDirection.Deposit
                     ? "Arbitrum"
                     : "Renegade"}
-                  &nbsp;Balance
                 </div>
                 <Button
                   className="h-5 p-0"
@@ -593,46 +598,60 @@ export function DefaultForm({
                 })}
               >
                 <div className="text-sm text-muted-foreground">
-                  Ethereum Balance
+                  Balance on Ethereum
                 </div>
-                <HoverCard openDelay={200}>
-                  <HoverCardTrigger asChild>
-                    <Button
-                      asChild
-                      className="h-5 p-0 font-mono text-sm"
-                      variant="link"
-                    >
-                      <a
-                        // className="flex items-center gap-1 font-mono text-sm hover:underline"
-                        href={constructArbitrumBridgeUrl(formattedL1Balance)}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        {baseToken
-                          ? `${l1BalanceLabel} ${baseToken.ticker}`
-                          : "--"}
-                      </a>
-                    </Button>
-                  </HoverCardTrigger>
-                  <HoverCardContent
-                    className="flex w-fit items-center justify-between gap-4 border p-4"
-                    side="right"
-                    sideOffset={16}
+                <Button
+                  asChild
+                  className="h-5 p-0 font-mono text-sm"
+                  variant="link"
+                >
+                  <a
+                    // className="flex items-center gap-1 font-mono text-sm hover:underline"
+                    href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
+                    {baseToken ? `${l1BalanceLabel} ${baseToken.ticker}` : "--"}
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  className={cn(
+                    "group flex gap-4 border p-4 transition-colors hover:cursor-pointer hover:border-primary",
+                    {
+                      hidden: !userHasL1Balance,
+                    },
+                  )}
+                  href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <div className="self-center">
                     <TokenIcon
                       size={36}
                       ticker="ARB"
                     />
-                    <div>
-                      <div className="text-xl font-medium">Arbitrum Bridge</div>
-                      <div className="text-sm text-muted-foreground">
-                        Bridge tokens to Arbitrum One
-                      </div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-medium">Arbitrum Bridge</div>
+                    <div className="text-sm text-muted-foreground">
+                      Bridge tokens to Arbitrum One
                     </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            </div>
+                  </div>
+                  <div className="flex flex-1 justify-end">
+                    <ExternalLink className="h-3 w-3 text-muted-foreground transition-colors group-hover:text-primary" />
+                  </div>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={32}>
+                {`To deposit into Renegade, you must first bridge
+                your ${baseToken?.ticker} to Arbitrum`}
+              </TooltipContent>
+            </Tooltip>
 
             {direction === ExternalTransferDirection.Deposit && (
               <MaxBalancesWarning
