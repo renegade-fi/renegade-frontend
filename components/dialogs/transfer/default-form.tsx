@@ -149,6 +149,7 @@ export function DefaultForm({
       ? ETHEREUM_TOKENS[baseToken.ticker as keyof typeof ETHEREUM_TOKENS]
       : undefined
 
+  // L1 Balance
   const {
     data: l1Balance,
     queryKey: l1QueryKey,
@@ -571,6 +572,7 @@ export function DefaultForm({
                   </div>
                 </Button>
               </div>
+
               <div
                 className={cn("flex justify-between", {
                   hidden: !userHasL1Balance || !isDeposit,
