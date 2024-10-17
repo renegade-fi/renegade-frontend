@@ -597,16 +597,22 @@ export function DefaultForm({
                 </div>
                 <HoverCard openDelay={200}>
                   <HoverCardTrigger asChild>
-                    <a
-                      className="flex items-center gap-1 font-mono text-sm hover:underline"
-                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
-                      rel="noopener noreferrer"
-                      target="_blank"
+                    <Button
+                      asChild
+                      className="h-5 p-0 font-mono text-sm"
+                      variant="link"
                     >
-                      {baseToken
-                        ? `${l1BalanceLabel} ${baseToken.ticker}`
-                        : "--"}
-                    </a>
+                      <a
+                        // className="flex items-center gap-1 font-mono text-sm hover:underline"
+                        href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {baseToken
+                          ? `${l1BalanceLabel} ${baseToken.ticker}`
+                          : "--"}
+                      </a>
+                    </Button>
                   </HoverCardTrigger>
                   <HoverCardContent
                     className="flex w-fit items-center justify-between gap-4 border p-4"
