@@ -801,6 +801,7 @@ export function WETHForm({
                     <Button
                       asChild
                       className="h-5 p-0 font-mono text-sm"
+                      type="button"
                       variant="link"
                     >
                       <a
@@ -830,13 +831,18 @@ export function WETHForm({
                     })}
                   >
                     <Button
-                      className="h-5 p-0"
+                      asChild
+                      className="h-5 p-0 font-mono text-sm"
                       type="button"
                       variant="link"
                     >
-                      <div className="font-mono text-sm">
+                      <a
+                        href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
                         {`${l1EthBalanceLabel}`}&nbsp;ETH
-                      </div>
+                      </a>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent
