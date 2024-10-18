@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 
 declare module "@tanstack/react-table" {
@@ -40,37 +41,42 @@ export const columns: ColumnDef<BalanceData>[] = [
     },
   },
   {
-    id: "l2UsdValue",
-    accessorFn: (row) => row.l2UsdValue,
+    id: "onChainUsdValue",
+    accessorFn: (row) => row.onChainUsdValue,
     header: ({ column }) => (
       <div className="flex flex-row-reverse">
-        <Button
-          variant="ghost"
-          onClick={() => {
-            const isSorted = column.getIsSorted()
-            if (isSorted === "desc") {
-              column.toggleSorting(false)
-            } else if (isSorted === "asc") {
-              column.clearSorting()
-            } else {
-              column.toggleSorting(true)
-            }
-          }}
-        >
-          Arbitrum Balance ($)
-          {column.getIsSorted() === "asc" ? (
-            <ChevronUp className="ml-2 h-4 w-4" />
-          ) : column.getIsSorted() === "desc" ? (
-            <ChevronDown className="ml-2 h-4 w-4" />
-          ) : (
-            <ChevronsUpDown className="ml-2 h-4 w-4" />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const isSorted = column.getIsSorted()
+                if (isSorted === "desc") {
+                  column.toggleSorting(false)
+                } else if (isSorted === "asc") {
+                  column.clearSorting()
+                } else {
+                  column.toggleSorting(true)
+                }
+              }}
+            >
+              On-Chain Balance ($)
+              {column.getIsSorted() === "asc" ? (
+                <ChevronUp className="ml-2 h-4 w-4" />
+              ) : column.getIsSorted() === "desc" ? (
+                <ChevronDown className="ml-2 h-4 w-4" />
+              ) : (
+                <ChevronsUpDown className="ml-2 h-4 w-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP}</TooltipContent>
+        </Tooltip>
       </div>
     ),
     cell: ({ row }) => {
-      const value = row.getValue<string>("l2UsdValue")
-      const balance = row.original.rawL2Balance
+      const value = row.getValue<string>("onChainUsdValue")
+      const balance = row.original.rawOnChainBalance
       const token = Token.findByAddress(row.original.mint)
       const formatted = formatNumber(balance, token.decimals)
       return (
@@ -90,10 +96,17 @@ export const columns: ColumnDef<BalanceData>[] = [
     },
   },
   {
-    accessorKey: "l2Balance",
-    header: () => <div className="text-right">Arbitrum Balance</div>,
+    accessorKey: "onChainBalance",
+    header: () => (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="text-right">On-Chain Balance</div>
+        </TooltipTrigger>
+        <TooltipContent>{ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP}</TooltipContent>
+      </Tooltip>
+    ),
     cell: ({ row, table }) => {
-      const balance = row.original.rawL2Balance
+      const balance = row.original.rawOnChainBalance
       const token = Token.findByAddress(row.original.mint)
       const formatted = formatNumber(
         balance,

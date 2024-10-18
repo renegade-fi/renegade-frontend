@@ -73,7 +73,10 @@ export function TokenSelect({
         <Button
           autoFocus
           aria-expanded={open}
-          className={cn("justify-between", !value && "text-muted-foreground")}
+          className={cn(
+            "justify-between px-3",
+            !value && "text-muted-foreground",
+          )}
           role="combobox"
           variant="outline"
         >

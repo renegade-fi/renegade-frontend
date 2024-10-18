@@ -62,6 +62,7 @@ import {
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
 import { useCheckChain } from "@/hooks/use-check-chain"
+import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -77,6 +78,7 @@ import {
 } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
+import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber } from "@/lib/format"
 import {
   useReadErc20BalanceOf,
@@ -351,12 +353,14 @@ export function WETHForm({
     },
   })
 
+  const { queryKey: combinedBalancesQueryKey } = useCombinedBalances()
+
   const unwrapConfirmationStatus = useTransactionConfirmation(
     unwrapHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
-      queryClient.invalidateQueries({ queryKey: ["readContracts"] })
+      queryClient.invalidateQueries({ queryKey: combinedBalancesQueryKey })
       onSuccess?.()
     },
   )
@@ -852,7 +856,7 @@ export function WETHForm({
                       variant="link"
                     >
                       <a
-                        href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                        href={constructArbitrumBridgeUrl(formattedL1EthBalance)}
                         rel="noopener noreferrer"
                         target="_blank"
                       >
@@ -864,7 +868,7 @@ export function WETHForm({
                     side="right"
                     sideOffset={10}
                   >
-                    Bridge to Arbitrum to deposit
+                    {TRANSFER_DIALOG_L1_BALANCE_TOOLTIP}
                   </TooltipContent>
                 </Tooltip>
               </div>
