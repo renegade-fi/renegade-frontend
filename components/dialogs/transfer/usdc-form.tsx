@@ -74,6 +74,7 @@ import {
 } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
+import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
 import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS } from "@/lib/token"
@@ -767,7 +768,7 @@ export function USDCForm({
                   side="right"
                   sideOffset={10}
                 >
-                  Bridge to Arbitrum to deposit
+                  {TRANSFER_DIALOG_L1_BALANCE_TOOLTIP}
                 </TooltipContent>
               </Tooltip>
             </div>

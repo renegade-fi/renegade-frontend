@@ -35,17 +35,17 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   showZeroRenegadeBalance: boolean
-  showZeroL2Balance: boolean
+  showZeroOnChainBalance: boolean
   setShowZeroRenegadeBalance: (value: boolean) => void
-  setShowZeroL2Balance: (value: boolean) => void
+  setShowZeroOnChainBalance: (value: boolean) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  setShowZeroL2Balance,
+  setShowZeroOnChainBalance,
   setShowZeroRenegadeBalance,
-  showZeroL2Balance,
+  showZeroOnChainBalance,
   showZeroRenegadeBalance,
 }: DataTableProps<TData, TValue>) {
   const status = useStatus()
@@ -55,14 +55,14 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       renegadeUsdValue: true,
-      l2UsdValue: true,
+      onChainUsdValue: true,
       renegadeBalance: false,
-      l2Balance: false,
+      onChainBalance: false,
     })
   const [rowSelection, setRowSelection] = React.useState({})
   const [sorting, setSorting] = React.useState<SortingState>([
     {
-      id: "l2UsdValue",
+      id: "onChainUsdValue",
       desc: true,
     },
   ])
@@ -103,7 +103,7 @@ export function DataTable<TData, TValue>({
                 aria-label="Toggle USD"
                 pressed={
                   columnVisibility.renegadeUsdValue &&
-                  columnVisibility.l2UsdValue
+                  columnVisibility.onChainUsdValue
                 }
                 size="sm"
                 variant="outline"
@@ -111,15 +111,15 @@ export function DataTable<TData, TValue>({
                   value
                     ? setColumnVisibility({
                         renegadeUsdValue: true,
-                        l2UsdValue: true,
+                        onChainUsdValue: true,
                         renegadeBalance: false,
-                        l2Balance: false,
+                        onChainBalance: false,
                       })
                     : setColumnVisibility({
                         renegadeUsdValue: false,
-                        l2UsdValue: false,
+                        onChainUsdValue: false,
                         renegadeBalance: true,
-                        l2Balance: true,
+                        onChainBalance: true,
                       })
                 }}
               >
@@ -134,11 +134,11 @@ export function DataTable<TData, TValue>({
             <TooltipTrigger asChild>
               <Toggle
                 aria-label="Show zero balances"
-                pressed={!showZeroL2Balance && !showZeroRenegadeBalance}
+                pressed={!showZeroOnChainBalance && !showZeroRenegadeBalance}
                 size="sm"
                 variant="outline"
                 onPressedChange={(value) => {
-                  setShowZeroL2Balance(!value)
+                  setShowZeroOnChainBalance(!value)
                   setShowZeroRenegadeBalance(!value)
                 }}
               >

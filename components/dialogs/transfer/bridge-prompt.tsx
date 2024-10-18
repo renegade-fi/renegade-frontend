@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { TRANSFER_DIALOG_BRIDGE_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
 
 export function BridgePrompt({
@@ -42,9 +43,7 @@ export function BridgePrompt({
           </div>
         </a>
       </TooltipTrigger>
-      <TooltipContent>
-        Renegade only supports deposits on the Arbitrum network
-      </TooltipContent>
+      <TooltipContent>{TRANSFER_DIALOG_BRIDGE_TOOLTIP}</TooltipContent>
     </Tooltip>
   )
 }

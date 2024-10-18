@@ -11,7 +11,7 @@ import {
 } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
-import { useAccount, useReadContracts } from "wagmi"
+import { useAccount } from "wagmi"
 
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
@@ -22,12 +22,11 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
+import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
-import { erc20Abi } from "@/lib/generated"
-import { createPriceTopic } from "@/lib/query"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
 import { columns as assetColumns } from "./assets-table/columns"
@@ -37,9 +36,9 @@ export type BalanceData = {
   mint: `0x${string}`
   rawRenegadeBalance: bigint
   renegadeBalance: number
-  rawL2Balance: bigint
-  l2Balance: number
-  l2UsdValue: string
+  rawOnChainBalance: bigint
+  onChainBalance: number
+  onChainUsdValue: string
   renegadeUsdValue: string
 }
 
@@ -61,32 +60,17 @@ export function PageClient() {
   })
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
     React.useState(true)
-  const [showZeroL2Balance, setShowZeroL2Balance] = React.useState(true)
+  const [showZeroOnChainBalance, setShowZeroOnChainBalance] =
+    React.useState(true)
 
   const { address } = useAccount()
-  const { data: l2Balances, queryKey } = useReadContracts({
-    contracts: DISPLAY_TOKENS().map((token) => ({
-      address: token.address,
-      abi: erc20Abi,
-      functionName: "balanceOf",
-      args: [address],
-    })),
-    query: {
-      enabled: !!address,
-    },
-  })
+  const { data: combinedBalances, queryKey } = useCombinedBalances(address)
 
   useRefreshOnBlock({ queryKey })
 
   const priceResults = usePriceQueries(DISPLAY_TOKENS())
 
   const balances: BalanceData[] = React.useMemo(() => {
-    const l2BalancesMap = new Map(
-      l2Balances?.map((balance, index) => [
-        DISPLAY_TOKENS()[index].address,
-        balance.status === "success" ? balance.result : BigInt(0),
-      ]),
-    )
     return DISPLAY_TOKENS()
       .map((token, i) => {
         const t = Token.findByAddress(token.address)
@@ -94,36 +78,35 @@ export function PageClient() {
         const renegadeBalance =
           renegadeBalances?.get(token.address) ?? BigInt(0)
 
-        const priceTopic = createPriceTopic("binance", t.address)
         const price = priceResults[i]?.data ?? 0
         const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price)
         const renegadeUsdValue = formatUnits(renegadeUsdValueBigInt, t.decimals)
 
-        const l2Balance = l2BalancesMap.get(token.address) ?? BigInt(0)
-        const l2UsdValueBigInt = amountTimesPrice(l2Balance, price)
-        const l2UsdValue = formatUnits(l2UsdValueBigInt, t.decimals)
+        const onChainBalance = combinedBalances?.get(token.address) ?? BigInt(0)
+        const onChainUsdValueBigInt = amountTimesPrice(onChainBalance, price)
+        const onChainUsdValue = formatUnits(onChainUsdValueBigInt, t.decimals)
 
         return {
           mint: token.address,
           rawRenegadeBalance: renegadeBalance,
           renegadeBalance: Number(formatUnits(renegadeBalance, t.decimals)),
           renegadeUsdValue,
-          rawL2Balance: l2Balance,
-          l2Balance: Number(formatUnits(l2Balance, t.decimals)),
-          l2UsdValue,
+          rawOnChainBalance: onChainBalance,
+          onChainBalance: Number(formatUnits(onChainBalance, t.decimals)),
+          onChainUsdValue,
         }
       })
       .filter((balance) => {
-        if (!showZeroL2Balance && !showZeroRenegadeBalance) {
-          return balance.l2Balance !== 0 || balance.renegadeBalance !== 0
+        if (!showZeroOnChainBalance && !showZeroRenegadeBalance) {
+          return balance.onChainBalance !== 0 || balance.renegadeBalance !== 0
         }
         return true
       })
   }, [
-    l2Balances,
+    combinedBalances,
     priceResults,
     renegadeBalances,
-    showZeroL2Balance,
+    showZeroOnChainBalance,
     showZeroRenegadeBalance,
   ])
 
@@ -165,9 +148,9 @@ export function PageClient() {
         <AssetTable
           columns={assetColumns}
           data={balances}
-          setShowZeroL2Balance={setShowZeroL2Balance}
+          setShowZeroOnChainBalance={setShowZeroOnChainBalance}
           setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
-          showZeroL2Balance={showZeroL2Balance}
+          showZeroOnChainBalance={showZeroOnChainBalance}
           showZeroRenegadeBalance={showZeroRenegadeBalance}
         />
         <ResponsiveTooltip>

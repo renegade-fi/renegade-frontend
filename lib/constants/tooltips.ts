@@ -21,3 +21,9 @@ export const MAX_BALANCES_PLACE_ORDER_TOOLTIP = `This order will not fill becaus
 export const UNUSED_BALANCE_NEEDED_TOOLTIP = `You have an open order that needs an empty balance slot to be filled.`
 export const LONG_FILL_TIME_TOOLTIP = `Read about Renegade's matching engine in our help center.`
 export const ASSETS_TOOLTIP = `Certain assets are whitelisted in the early days of Renegade. Check back soon!`
+export const ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP =
+  "Balances show the total of all supported tokens across Arbitrum and Ethereum."
+export const TRANSFER_DIALOG_BRIDGE_TOOLTIP =
+  "Renegade only supports deposits on the Arbitrum network."
+export const TRANSFER_DIALOG_L1_BALANCE_TOOLTIP =
+  "Bridge to Arbitrum to deposit."
