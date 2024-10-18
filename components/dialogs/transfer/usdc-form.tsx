@@ -29,6 +29,7 @@ import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balan
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
 import { NumberInput } from "@/components/number-input"
+import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -654,8 +655,13 @@ export function USDCForm({
             />
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Balance on Arbitrum
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance on&nbsp;
+                  <TokenIcon
+                    size={16}
+                    ticker="ARB"
+                  />
+                  Arbitrum
                 </div>
                 <div className="flex items-center">
                   <ResponsiveTooltip>
@@ -667,8 +673,7 @@ export function USDCForm({
                         className="h-5 p-0"
                         type="button"
                         variant="link"
-                        onClick={(e) => {
-                          e.preventDefault()
+                        onClick={() => {
                           if (Number(formattedUsdcBalance)) {
                             form.setValue("amount", formattedUsdcBalance, {
                               shouldValidate: true,
@@ -702,8 +707,7 @@ export function USDCForm({
                       className="h-5 p-0"
                       type="button"
                       variant="link"
-                      onClick={(e) => {
-                        e.preventDefault()
+                      onClick={() => {
                         if (Number(formattedCombinedBalance)) {
                           form.setValue("amount", formattedCombinedBalance, {
                             shouldValidate: true,
@@ -732,14 +736,19 @@ export function USDCForm({
                 hidden: !userHasL1Balance,
               })}
             >
-              <div className="text-sm text-muted-foreground">
-                Balance on Ethereum
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Balance on&nbsp;
+                <TokenIcon
+                  size={16}
+                  ticker="WETH"
+                />
+                Ethereum
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     asChild
-                    className="h-5 p-0 font-mono text-sm"
+                    className="h-5 cursor-pointer p-0 font-mono text-sm"
                     type="button"
                     variant="link"
                   >
@@ -769,8 +778,8 @@ export function USDCForm({
               })}
             >
               <BridgePrompt
-                baseToken={baseToken}
                 formattedL1Balance={formattedL1Balance}
+                token={l1Token}
               />
             </div>
 

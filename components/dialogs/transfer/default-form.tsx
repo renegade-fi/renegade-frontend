@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { AlertCircle, Check, ExternalLink, Loader2 } from "lucide-react"
+import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
@@ -46,11 +46,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
@@ -549,59 +544,84 @@ export function DefaultForm({
             />
             <div className="space-y-1">
               <div className="flex justify-between">
-                <div className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance&nbsp;on&nbsp;
-                  {isDeposit ? "Arbitrum" : "Renegade"}
+                  {isDeposit ? (
+                    <>
+                      <TokenIcon
+                        size={16}
+                        ticker="ARB"
+                      />
+                      Arbitrum
+                    </>
+                  ) : (
+                    "Renegade"
+                  )}
                 </div>
-                <Button
-                  className="h-5 p-0"
-                  type="button"
-                  variant="link"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    if (Number(balance)) {
-                      form.setValue("amount", balance, {
-                        shouldValidate: true,
-                      })
-                    }
-                  }}
-                >
-                  <div className="font-mono text-sm">
-                    {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
-                  </div>
-                </Button>
+                <ResponsiveTooltip>
+                  <ResponsiveTooltipTrigger
+                    asChild
+                    className="cursor-pointer"
+                  >
+                    <Button
+                      className="h-5 p-0"
+                      type="button"
+                      variant="link"
+                      onClick={() => {
+                        if (Number(balance)) {
+                          form.setValue("amount", balance, {
+                            shouldValidate: true,
+                          })
+                        }
+                      }}
+                    >
+                      <div className="font-mono text-sm">
+                        {baseToken
+                          ? `${balanceLabel} ${baseToken.ticker}`
+                          : "--"}
+                      </div>
+                    </Button>
+                  </ResponsiveTooltipTrigger>
+                  <ResponsiveTooltipContent
+                    side="right"
+                    sideOffset={10}
+                  >
+                    {`${balance} ${baseToken?.ticker}`}
+                  </ResponsiveTooltipContent>
+                </ResponsiveTooltip>
               </div>
             </div>
 
             <div
               className={cn("flex justify-between", {
-                hidden: !userHasL1Balance || !isDeposit,
+                hidden: !userHasL1Balance || !isDeposit || !l1Token?.address,
               })}
             >
-              <div className="text-sm text-muted-foreground">
-                Balance on Ethereum
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Balance on&nbsp;
+                <TokenIcon
+                  size={16}
+                  ticker="WETH"
+                />
+                Ethereum
               </div>
               <Tooltip>
-                <TooltipTrigger
-                  asChild
-                  className={cn({
-                    hidden: !userHasL1Balance,
-                  })}
-                >
+                <TooltipTrigger asChild>
                   <Button
                     asChild
-                    className="h-5 p-0 font-mono text-sm"
+                    className="h-5 cursor-pointer p-0 font-mono text-sm"
                     type="button"
                     variant="link"
                   >
                     <a
-                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                      href={constructArbitrumBridgeUrl(
+                        formattedL1Balance,
+                        l1Token?.address,
+                      )}
                       rel="noopener noreferrer"
                       target="_blank"
                     >
-                      {baseToken
-                        ? `${l1BalanceLabel} ${baseToken.ticker}`
-                        : "--"}
+                      {l1Token ? `${l1BalanceLabel} ${l1Token.ticker}` : "--"}
                     </a>
                   </Button>
                 </TooltipTrigger>
@@ -616,12 +636,12 @@ export function DefaultForm({
 
             <div
               className={cn({
-                hidden: !userHasL1Balance || !isDeposit,
+                hidden: !userHasL1Balance || !isDeposit || !l1Token?.address,
               })}
             >
               <BridgePrompt
-                baseToken={baseToken}
                 formattedL1Balance={formattedL1Balance}
+                token={l1Token}
               />
             </div>
 
