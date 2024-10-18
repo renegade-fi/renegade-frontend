@@ -1,9 +1,12 @@
 import { Token } from "@renegade-fi/react"
 import { useQuery } from "@tanstack/react-query"
 
-async function fetchCombinedBalances(address: string) {
+async function fetchCombinedBalances(address: `0x${string}`) {
   const response = await fetch(
     `/api/tokens/get-combined-balances?address=${address}`,
+    {
+      cache: "no-store",
+    },
   )
   if (!response.ok) {
     throw new Error("Failed to fetch combined balances")
