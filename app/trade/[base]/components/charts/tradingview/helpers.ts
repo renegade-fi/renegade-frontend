@@ -3,29 +3,6 @@ import { Bar } from "@renegade-fi/tradingview-charts"
 // Amberdata API URL
 const BASE_URL = "https://api.amberdata.com"
 
-// TODO: Remove because search is disabled
-export async function getAllBinanceSymbols() {
-  const data = await makeAmberApiRequest(
-    new URL(`${BASE_URL}/market/spot/exchanges/reference?exchange=binance`),
-  )
-  let allSymbols = []
-
-  const pairs = data.payload.data.binance
-  for (const key of Object.keys(pairs)) {
-    const pair = pairs[key]
-    const base = pair.baseSymbol
-    const quote = pair.quoteSymbol
-    allSymbols.push({
-      symbol: pair.nativePair,
-      full_name: key,
-      description: `${base}/${quote}`,
-      exchange: "binance",
-      type: "crypto",
-    })
-  }
-  return allSymbols
-}
-
 export async function makeAmberApiRequest(url: URL) {
   const proxyUrl = new URL("/api/amberdata", window.location.origin)
   proxyUrl.searchParams.set("path", url.pathname + url.search)
@@ -46,26 +23,26 @@ export function formatBars(bars: any[]): Bar[] {
     return []
   }
   return bars.map((bar) => ({
-    time: bar[0],
-    low: bar[3],
-    high: bar[2],
-    open: bar[1],
-    close: bar[4],
+    time: bar.exchangeTimestamp,
+    low: bar.low,
+    high: bar.high,
+    open: bar.open,
+    close: bar.close,
   }))
 }
 
 export async function fetchSymbolReferenceInfo(pair: string) {
   try {
-    const url = new URL(`${BASE_URL}/market/spot/exchanges/reference`)
+    const url = new URL(`${BASE_URL}/markets/spot/exchanges/reference`)
     url.searchParams.set("exchange", "binance")
-    url.searchParams.set("pair", pair)
+    url.searchParams.set("instrument", pair)
     const res = await makeAmberApiRequest(url)
     if (res.status !== 200) {
       throw new Error(res.statusText)
-    } else if (!res.payload.data.binance[pair]) {
+    } else if (!res.payload.data || !res.payload.data.length) {
       throw new Error(`Pair not found: ${pair}`)
     }
-    return res.payload.data.binance[pair]
+    return res.payload.data[0]
   } catch (error) {
     throw new Error(`Failed to fetch symbol reference info: ${error}`)
   }
@@ -88,7 +65,7 @@ export async function fetchBarsForPeriod(
   timeInterval: string,
   chunkSizeInMs: number,
 ): Promise<Bar[]> {
-  const url = new URL(`${BASE_URL}/market/spot/ohlcv/${ticker}/historical`)
+  const url = new URL(`${BASE_URL}/markets/spot/ohlcv/${ticker}`)
   url.searchParams.set("exchange", "binance")
   url.searchParams.set("timeInterval", timeInterval)
 
@@ -101,9 +78,6 @@ export async function fetchBarsForPeriod(
     chunks.push({ from: currentFrom, to: currentTo })
     currentFrom = currentTo
   }
-  const validChunks = chunks.filter(
-    (chunk) => chunk.to - chunk.from <= chunkSizeInMs,
-  )
 
   const fetchPromises = chunks.map((chunk) => {
     const chunkUrl = new URL(url.toString())
@@ -115,7 +89,7 @@ export async function fetchBarsForPeriod(
   const responses = await Promise.all(fetchPromises)
   let bars: Bar[] = []
   responses.forEach((res) => {
-    bars = bars.concat(formatBars(res.payload.data.binance))
+    bars = bars.concat(formatBars(res.payload.data))
   })
 
   if (bars.length === 0) {
