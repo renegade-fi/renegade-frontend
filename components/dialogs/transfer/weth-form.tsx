@@ -709,8 +709,8 @@ export function WETHForm({
                   {isDeposit ? (
                     <>
                       <TokenIcon
-                        ticker="ARB"
                         size={16}
+                        ticker="ARB"
                       />
                       Arbitrum
                     </>
@@ -802,8 +802,8 @@ export function WETHForm({
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 Balance on&nbsp;
                 <TokenIcon
-                  ticker="WETH"
                   size={16}
+                  ticker="WETH"
                 />
                 Ethereum
               </div>

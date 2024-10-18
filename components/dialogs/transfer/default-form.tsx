@@ -554,8 +554,8 @@ export function DefaultForm({
                   {isDeposit ? (
                     <>
                       <TokenIcon
-                        ticker="ARB"
                         size={16}
+                        ticker="ARB"
                       />
                       Arbitrum
                     </>
@@ -591,8 +591,8 @@ export function DefaultForm({
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 Balance on&nbsp;
                 <TokenIcon
-                  ticker="WETH"
                   size={16}
+                  ticker="WETH"
                 />
                 Ethereum
               </div>

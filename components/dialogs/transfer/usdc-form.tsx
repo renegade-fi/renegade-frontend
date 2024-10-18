@@ -658,8 +658,8 @@ export function USDCForm({
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
                   <TokenIcon
-                    ticker="ARB"
                     size={16}
+                    ticker="ARB"
                   />
                   Arbitrum
                 </div>
@@ -741,8 +741,8 @@ export function USDCForm({
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 Balance on&nbsp;
                 <TokenIcon
-                  ticker="WETH"
                   size={16}
+                  ticker="WETH"
                 />
                 Ethereum
               </div>
