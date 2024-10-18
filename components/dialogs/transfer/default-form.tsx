@@ -549,9 +549,19 @@ export function DefaultForm({
             />
             <div className="space-y-1">
               <div className="flex justify-between">
-                <div className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance&nbsp;on&nbsp;
-                  {isDeposit ? "Arbitrum" : "Renegade"}
+                  {isDeposit ? (
+                    <>
+                      <TokenIcon
+                        ticker="ARB"
+                        size={16}
+                      />
+                      Arbitrum
+                    </>
+                  ) : (
+                    "Renegade"
+                  )}
                 </div>
                 <Button
                   className="h-5 p-0"
@@ -578,8 +588,13 @@ export function DefaultForm({
                 hidden: !userHasL1Balance || !isDeposit,
               })}
             >
-              <div className="text-sm text-muted-foreground">
-                Balance on Ethereum
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Balance on&nbsp;
+                <TokenIcon
+                  ticker="WETH"
+                  size={16}
+                />
+                Ethereum
               </div>
               <Tooltip>
                 <TooltipTrigger
@@ -590,7 +605,7 @@ export function DefaultForm({
                 >
                   <Button
                     asChild
-                    className="h-5 p-0 font-mono text-sm"
+                    className="h-5 cursor-pointer p-0 font-mono text-sm"
                     type="button"
                     variant="link"
                   >

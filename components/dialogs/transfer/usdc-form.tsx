@@ -29,6 +29,7 @@ import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balan
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
 import { NumberInput } from "@/components/number-input"
+import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -654,8 +655,13 @@ export function USDCForm({
             />
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Balance on Arbitrum
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance on&nbsp;
+                  <TokenIcon
+                    ticker="ARB"
+                    size={16}
+                  />
+                  Arbitrum
                 </div>
                 <div className="flex items-center">
                   <ResponsiveTooltip>
@@ -732,14 +738,19 @@ export function USDCForm({
                 hidden: !userHasL1Balance,
               })}
             >
-              <div className="text-sm text-muted-foreground">
-                Balance on Ethereum
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Balance on&nbsp;
+                <TokenIcon
+                  ticker="WETH"
+                  size={16}
+                />
+                Ethereum
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     asChild
-                    className="h-5 p-0 font-mono text-sm"
+                    className="h-5 cursor-pointer p-0 font-mono text-sm"
                     type="button"
                     variant="link"
                   >
