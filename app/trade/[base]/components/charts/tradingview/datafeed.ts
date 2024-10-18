@@ -12,11 +12,7 @@ import {
 import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
 
 import { datafeedConfig } from "./config"
-import {
-  fetchBarsForPeriod,
-  fetchSymbolReferenceInfo,
-  getAllBinanceSymbols,
-} from "./helpers"
+import { fetchBarsForPeriod, fetchSymbolReferenceInfo } from "./helpers"
 
 const lastBarsCache = new Map()
 
@@ -30,14 +26,8 @@ export const datafeed = {
     symbolType,
     onResultReadyCallback,
   ) => {
-    const symbols = await getAllBinanceSymbols()
-    const newSymbols = symbols.filter((symbol) => {
-      const isExchangeValid = exchange === "" || symbol.exchange === exchange
-      const isFullSymbolContainsInput =
-        symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1
-      return isExchangeValid && isFullSymbolContainsInput
-    })
-    onResultReadyCallback(newSymbols)
+    // Not implemented because search is disabled
+    onResultReadyCallback([])
   },
   resolveSymbol: async (
     symbolName,
@@ -49,7 +39,7 @@ export const datafeed = {
       const symbolItem = await fetchSymbolReferenceInfo(symbolName)
       const symbolInfo = {
         data_status: "streaming",
-        description: `${symbolItem.nativePair}`,
+        description: `${symbolItem.baseSymbol}${symbolItem.quoteSymbol}`,
         exchange: datafeedConfig.exchanges[0].name,
         format: "price",
         has_intraday: true,
@@ -59,7 +49,7 @@ export const datafeed = {
         has_weekly_and_monthly: false,
         listed_exchange: "",
         minmov: 1,
-        name: `${symbolItem.nativePair}`,
+        name: `${symbolItem.baseSymbol}${symbolItem.quoteSymbol}`,
         pricescale: 100,
         session: "24x7",
         supported_resolutions: datafeedConfig.supported_resolutions,
@@ -81,7 +71,7 @@ export const datafeed = {
     onHistoryCallback,
     onErrorCallback,
   ) {
-    const { from, to, firstDataRequest } = periodParams
+    const { from, to, firstDataRequest, countBack } = periodParams
 
     try {
       const resolutionSettings: {
@@ -100,7 +90,7 @@ export const datafeed = {
           from * 1000,
           to * 1000,
           settings.period,
-          settings.duration,
+          countBack,
         )
       } else {
         throw new Error(
