@@ -47,9 +47,13 @@ export async function GET(req: Request) {
   )
 
   // Add native ETH balance to WETH
-  const ethBalance = await readEthBalance(process.env.RPC_URL_MAINNET!, address)
+  const ethBalanceL1 = await readEthBalance(
+    process.env.RPC_URL_MAINNET!,
+    address,
+  )
+  const ethBalanceL2 = await readEthBalance(process.env.RPC_URL!, address)
   const currentWethBalance = combinedBalances.get("WETH") || BigInt(0)
-  combinedBalances.set("WETH", currentWethBalance + ethBalance)
+  combinedBalances.set("WETH", currentWethBalance + ethBalanceL1 + ethBalanceL2)
 
   // Add USDC.e balance to USDC
   const usdceBalance = await readErc20BalanceOf(
