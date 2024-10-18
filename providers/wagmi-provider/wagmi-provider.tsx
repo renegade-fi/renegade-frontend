@@ -51,7 +51,7 @@ export const config = createConfig(
 export const mainnetConfig = createConfig({
   chains: [mainnet],
   transports: {
-    [mainnet.id]: http("https://node1.web3api.com"),
+    [mainnet.id]: http(),
   },
 })
 

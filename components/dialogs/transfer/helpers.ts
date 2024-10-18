@@ -92,11 +92,17 @@ export function isMaxBalance({
   }
 }
 
-export function constructArbitrumBridgeUrl(amount: string) {
+export function constructArbitrumBridgeUrl(
+  amount: string,
+  mint?: `0x${string}`,
+) {
   const base = new URL("https://bridge.arbitrum.io/")
   base.searchParams.set("amount", amount)
   base.searchParams.set("destinationChain", "arbitrum-one")
   base.searchParams.set("sourceChain", "ethereum")
+  if (mint) {
+    base.searchParams.set("token", mint)
+  }
 
   return base.toString()
 }

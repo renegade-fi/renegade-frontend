@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react"
 
 import { constructArbitrumBridgeUrl } from "@/components/dialogs/transfer/helpers"
 import { TokenIcon } from "@/components/token-icon"
+import { Label } from "@/components/ui/label"
 import {
   Tooltip,
   TooltipContent,
@@ -12,34 +13,28 @@ import {
 import { cn } from "@/lib/utils"
 
 export function BridgePrompt({
-  baseToken,
+  token,
   formattedL1Balance,
 }: {
-  baseToken?: Token
+  token?: Token
   formattedL1Balance: string
 }) {
-  if (!baseToken) return null
+  if (!token) return null
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <a
           className={cn(
-            "group flex gap-4 border p-4 transition-colors hover:cursor-pointer hover:border-primary",
+            "group flex justify-between gap-4 border p-3 transition-colors hover:cursor-pointer hover:border-primary",
           )}
-          href={constructArbitrumBridgeUrl(formattedL1Balance)}
+          href={constructArbitrumBridgeUrl(formattedL1Balance, token.address)}
           rel="noopener noreferrer"
           target="_blank"
         >
-          <div className="self-center">
-            <TokenIcon
-              size={36}
-              ticker="ARB"
-            />
-          </div>
-          <div>
-            <div className="text-xl font-medium">Arbitrum Bridge</div>
-            <div className="text-sm text-muted-foreground">
-              Bridge tokens to Arbitrum One
+          <div className="space-y-0.5">
+            <Label className="text-base">Arbitrum Bridge</Label>
+            <div className="text-[0.8rem] text-muted-foreground">
+              {`Bridge ${token.ticker} to Arbitrum to deposit`}
             </div>
           </div>
           <div className="flex flex-1 justify-end">
@@ -48,8 +43,7 @@ export function BridgePrompt({
         </a>
       </TooltipTrigger>
       <TooltipContent>
-        {`To deposit into Renegade, you must first bridge
-                your ${baseToken.ticker} to Arbitrum`}
+        Renegade only supports deposits on the Arbitrum network
       </TooltipContent>
     </Tooltip>
   )

@@ -29,6 +29,7 @@ import {
 } from "@/components/dialogs/transfer/transfer-details-page"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
+import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -703,9 +704,19 @@ export function WETHForm({
             />
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance&nbsp;on&nbsp;
-                  {isDeposit ? "Arbitrum" : "Renegade"}
+                  {isDeposit ? (
+                    <>
+                      <TokenIcon
+                        size={16}
+                        ticker="ARB"
+                      />
+                      Arbitrum
+                    </>
+                  ) : (
+                    "Renegade"
+                  )}
                 </div>
                 <div className="flex items-center">
                   <ResponsiveTooltip>
@@ -717,8 +728,7 @@ export function WETHForm({
                         className="h-5 p-0"
                         type="button"
                         variant="link"
-                        onClick={(e) => {
-                          e.preventDefault()
+                        onClick={() => {
                           if (Number(balance)) {
                             form.setValue("amount", balance, {
                               shouldValidate: true,
@@ -757,8 +767,7 @@ export function WETHForm({
                       disabled={maxAmountToWrap < BigInt(0)}
                       type="button"
                       variant="link"
-                      onClick={(e) => {
-                        e.preventDefault()
+                      onClick={() => {
                         form.setValue("amount", formattedMaxAmountToWrap, {
                           shouldValidate: true,
                           shouldDirty: true,
@@ -783,14 +792,20 @@ export function WETHForm({
             </div>
 
             <div
-              className={cn("flex justify-between", {
-                hidden: !userHasL1WETHBalance && !userHasL1ETHBalance,
+              className={cn("flex items-start justify-between", {
+                hidden:
+                  (!userHasL1WETHBalance && !userHasL1ETHBalance) || !isDeposit,
               })}
             >
-              <div className="text-sm text-muted-foreground">
-                Balance on Ethereum
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Balance on&nbsp;
+                <TokenIcon
+                  size={16}
+                  ticker="WETH"
+                />
+                Ethereum
               </div>
-              <div className="flex flex-col items-end space-y-1">
+              <div className="flex flex-col items-end">
                 <Tooltip>
                   <TooltipTrigger
                     asChild
@@ -800,7 +815,7 @@ export function WETHForm({
                   >
                     <Button
                       asChild
-                      className="h-5 p-0 font-mono text-sm"
+                      className="mb-1 h-5 cursor-pointer p-0 font-mono text-sm"
                       type="button"
                       variant="link"
                     >
@@ -832,7 +847,7 @@ export function WETHForm({
                   >
                     <Button
                       asChild
-                      className="h-5 p-0 font-mono text-sm"
+                      className="h-5 cursor-pointer p-0 font-mono text-sm"
                       type="button"
                       variant="link"
                     >
@@ -858,12 +873,12 @@ export function WETHForm({
             <div
               className={cn({
                 hidden:
-                  !isDeposit && !userHasL1WETHBalance && !userHasL1ETHBalance,
+                  !isDeposit || (!userHasL1WETHBalance && !userHasL1ETHBalance),
               })}
             >
               <BridgePrompt
-                baseToken={baseToken}
                 formattedL1Balance={formattedL1Balance}
+                token={l1Token}
               />
             </div>
 
