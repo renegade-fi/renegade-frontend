@@ -91,3 +91,12 @@ export function isMaxBalance({
     return false
   }
 }
+
+export function constructArbitrumBridgeUrl(amount: string) {
+  const base = new URL("https://bridge.arbitrum.io/")
+  base.searchParams.set("amount", amount)
+  base.searchParams.set("destinationChain", "arbitrum-one")
+  base.searchParams.set("sourceChain", "ethereum")
+
+  return base.toString()
+}

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { AlertCircle, Check, Loader2 } from "lucide-react"
+import { AlertCircle, Check, ExternalLink, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits } from "viem"
@@ -13,10 +13,12 @@ import { useAccount } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
+import { BridgePrompt } from "@/components/dialogs/transfer/bridge-prompt"
 import {
   ExternalTransferDirection,
   checkAmount,
   checkBalance,
+  constructArbitrumBridgeUrl,
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
@@ -27,6 +29,7 @@ import {
 } from "@/components/dialogs/transfer/transfer-details-page"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
+import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
   DialogClose,
@@ -44,10 +47,20 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
@@ -68,8 +81,10 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
+import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
 export function DefaultForm({
   className,
@@ -93,6 +108,7 @@ export function DefaultForm({
   const { setSide } = useSide()
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
+  const isDeposit = direction === ExternalTransferDirection.Deposit
 
   const mint = useWatch({
     control: form.control,
@@ -123,13 +139,37 @@ export function DefaultForm({
     address: baseToken?.address,
     args: [address ?? "0x"],
     query: {
-      enabled:
-        direction === ExternalTransferDirection.Deposit &&
-        !!baseToken &&
-        !!address,
+      enabled: isDeposit && !!baseToken && !!address,
       staleTime: 0,
     },
   })
+
+  const l1Token =
+    baseToken && baseToken.ticker in ETHEREUM_TOKENS
+      ? ETHEREUM_TOKENS[baseToken.ticker as keyof typeof ETHEREUM_TOKENS]
+      : undefined
+
+  // L1 Balance
+  const {
+    data: l1Balance,
+    queryKey: l1QueryKey,
+    status: l1Status,
+  } = useReadErc20BalanceOf({
+    address: l1Token?.address,
+    args: [address ?? "0x"],
+    config: mainnetConfig,
+    query: {
+      enabled: isDeposit && !!baseToken && !!address && !!l1Token?.address,
+      staleTime: 0,
+    },
+  })
+  const formattedL1Balance = baseToken
+    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
+    : ""
+  const l1BalanceLabel = baseToken
+    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
+    : ""
+  const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
 
   useRefreshOnBlock({ queryKey })
 
@@ -140,14 +180,8 @@ export function DefaultForm({
     ? formatNumber(l2Balance ?? BigInt(0), baseToken.decimals, true)
     : ""
 
-  const balance =
-    direction === ExternalTransferDirection.Deposit
-      ? formattedL2Balance
-      : formattedRenegadeBalance
-  const balanceLabel =
-    direction === ExternalTransferDirection.Deposit
-      ? l2BalanceLabel
-      : renegadeBalanceLabel
+  const balance = isDeposit ? formattedL2Balance : formattedRenegadeBalance
+  const balanceLabel = isDeposit ? l2BalanceLabel : renegadeBalanceLabel
 
   const amount = useWatch({
     control: form.control,
@@ -237,7 +271,7 @@ export function DefaultForm({
       baseToken,
     )
 
-    if (direction === ExternalTransferDirection.Deposit) {
+    if (isDeposit) {
       if (!isAmountSufficient) {
         form.setError("amount", {
           message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
@@ -373,7 +407,7 @@ export function DefaultForm({
   }, [stepList, baseToken])
 
   let buttonText = ""
-  if (direction === ExternalTransferDirection.Deposit) {
+  if (isDeposit) {
     if (allowanceRequired) {
       buttonText = "Approve & Deposit"
     } else {
@@ -390,21 +424,15 @@ export function DefaultForm({
     let Icon = <Loader2 className="h-6 w-6 animate-spin" />
     if (stepList.some((step) => step?.mutationStatus === "error")) {
       Icon = <AlertCircle className="h-6 w-6" />
-    } else if (
-      direction === ExternalTransferDirection.Deposit &&
-      depositTaskStatus === "Completed"
-    ) {
+    } else if (isDeposit && depositTaskStatus === "Completed") {
       Icon = <Check className="h-6 w-6" />
-    } else if (
-      direction === ExternalTransferDirection.Withdraw &&
-      withdrawTaskStatus === "Completed"
-    ) {
+    } else if (!isDeposit && withdrawTaskStatus === "Completed") {
       Icon = <Check className="h-6 w-6" />
     }
 
-    let title = `${direction === ExternalTransferDirection.Deposit ? "Depositing" : "Withdrawing"} ${baseToken?.ticker}`
+    let title = `${isDeposit ? "Depositing" : "Withdrawing"} ${baseToken?.ticker}`
     if (
-      direction === ExternalTransferDirection.Deposit &&
+      isDeposit &&
       stepList.some((step) => step?.mutationStatus === "pending")
     ) {
       title = "Confirm in wallet"
@@ -413,12 +441,10 @@ export function DefaultForm({
     ) {
       title = "Waiting for confirmation"
     } else if (stepList.some((step) => step?.mutationStatus === "error")) {
-      title = `Failed to ${direction === ExternalTransferDirection.Deposit ? "deposit" : "withdraw"} ${baseToken?.ticker}`
+      title = `Failed to ${isDeposit ? "deposit" : "withdraw"} ${baseToken?.ticker}`
     } else if (
-      (direction === ExternalTransferDirection.Deposit &&
-        depositTaskStatus === "Completed") ||
-      (direction === ExternalTransferDirection.Withdraw &&
-        withdrawTaskStatus === "Completed")
+      (isDeposit && depositTaskStatus === "Completed") ||
+      (!isDeposit && withdrawTaskStatus === "Completed")
     ) {
       title = `Completed`
     }
@@ -432,7 +458,7 @@ export function DefaultForm({
           </DialogTitle>
           <VisuallyHidden>
             <DialogDescription>
-              {direction === ExternalTransferDirection.Deposit
+              {isDeposit
                 ? `Depositing ${baseToken?.ticker}`
                 : `Withdrawing ${baseToken?.ticker}`}
             </DialogDescription>
@@ -521,32 +547,100 @@ export function DefaultForm({
                 </FormItem>
               )}
             />
-            <div className="flex justify-between">
-              <div className="text-sm text-muted-foreground">
-                {direction === ExternalTransferDirection.Deposit
-                  ? "Arbitrum"
-                  : "Renegade"}
-                &nbsp;Balance
-              </div>
-              <Button
-                className="h-5 p-0"
-                type="button"
-                variant="link"
-                onClick={(e) => {
-                  e.preventDefault()
-                  if (Number(balance)) {
-                    form.setValue("amount", balance, {
-                      shouldValidate: true,
-                    })
-                  }
-                }}
-              >
-                <div className="font-mono text-sm">
-                  {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance&nbsp;on&nbsp;
+                  {isDeposit ? (
+                    <>
+                      <TokenIcon
+                        size={16}
+                        ticker="ARB"
+                      />
+                      Arbitrum
+                    </>
+                  ) : (
+                    "Renegade"
+                  )}
                 </div>
-              </Button>
+                <Button
+                  className="h-5 p-0"
+                  type="button"
+                  variant="link"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (Number(balance)) {
+                      form.setValue("amount", balance, {
+                        shouldValidate: true,
+                      })
+                    }
+                  }}
+                >
+                  <div className="font-mono text-sm">
+                    {baseToken ? `${balanceLabel} ${baseToken.ticker}` : "--"}
+                  </div>
+                </Button>
+              </div>
             </div>
-            {direction === ExternalTransferDirection.Deposit && (
+
+            <div
+              className={cn("flex justify-between", {
+                hidden: !userHasL1Balance || !isDeposit,
+              })}
+            >
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Balance on&nbsp;
+                <TokenIcon
+                  size={16}
+                  ticker="WETH"
+                />
+                Ethereum
+              </div>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className={cn({
+                    hidden: !userHasL1Balance,
+                  })}
+                >
+                  <Button
+                    asChild
+                    className="h-5 cursor-pointer p-0 font-mono text-sm"
+                    type="button"
+                    variant="link"
+                  >
+                    <a
+                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {baseToken
+                        ? `${l1BalanceLabel} ${baseToken.ticker}`
+                        : "--"}
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  sideOffset={10}
+                >
+                  Bridge to Arbitrum to deposit
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            <div
+              className={cn({
+                hidden: !userHasL1Balance || !isDeposit,
+              })}
+            >
+              <BridgePrompt
+                baseToken={baseToken}
+                formattedL1Balance={formattedL1Balance}
+              />
+            </div>
+
+            {isDeposit && (
               <MaxBalancesWarning
                 className="text-sm text-orange-400"
                 mint={mint}
@@ -565,8 +659,7 @@ export function DefaultForm({
                     className="flex-1 border-0 border-t font-extended text-2xl"
                     disabled={
                       !form.formState.isValid ||
-                      (direction === ExternalTransferDirection.Deposit &&
-                        isMaxBalances) ||
+                      (isDeposit && isMaxBalances) ||
                       (maintenanceMode?.enabled &&
                         maintenanceMode.severity === "critical")
                     }
@@ -605,8 +698,7 @@ export function DefaultForm({
                     className="w-full whitespace-normal border-l-0 font-extended text-lg"
                     disabled={
                       !form.formState.isValid ||
-                      (direction === ExternalTransferDirection.Deposit &&
-                        isMaxBalances) ||
+                      (isDeposit && isMaxBalances) ||
                       (maintenanceMode?.enabled &&
                         maintenanceMode.severity === "critical")
                     }
