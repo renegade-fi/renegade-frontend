@@ -2,7 +2,6 @@ import { Token } from "@renegade-fi/react"
 import { ExternalLink } from "lucide-react"
 
 import { constructArbitrumBridgeUrl } from "@/components/dialogs/transfer/helpers"
-import { TokenIcon } from "@/components/token-icon"
 import { Label } from "@/components/ui/label"
 import {
   Tooltip,
@@ -26,7 +25,7 @@ export function BridgePrompt({
       <TooltipTrigger asChild>
         <a
           className={cn(
-            "group flex justify-between gap-4 border p-3 transition-colors hover:cursor-pointer hover:border-primary",
+            "group flex justify-between gap-4 border p-3 text-muted-foreground transition-colors hover:cursor-pointer hover:border-primary hover:text-primary",
           )}
           href={constructArbitrumBridgeUrl(formattedL1Balance, token.address)}
           rel="noopener noreferrer"
@@ -34,12 +33,12 @@ export function BridgePrompt({
         >
           <div className="space-y-0.5">
             <Label className="text-base">Arbitrum Bridge</Label>
-            <div className="text-[0.8rem] text-muted-foreground">
+            <div className="text-[0.8rem]">
               {`Bridge ${token.ticker} to Arbitrum to deposit`}
             </div>
           </div>
           <div className="flex flex-1 justify-end">
-            <ExternalLink className="h-3 w-3 text-muted-foreground transition-colors group-hover:text-primary" />
+            <ExternalLink className="h-3 w-3" />
           </div>
         </a>
       </TooltipTrigger>
