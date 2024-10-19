@@ -25,11 +25,7 @@ import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-b
 import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
 import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
-import {
-  Execution,
-  Step,
-  getSteps,
-} from "@/components/dialogs/transfer/transfer-details-page"
+import { Execution, Step, getSteps } from "@/components/dialogs/transfer/step"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"

@@ -22,6 +22,7 @@ export function useChainBalance({
     address: token?.address,
     args: [address ?? "0x"],
     config: chainId === mainnet.id ? mainnetConfig : undefined,
+    chainId,
     query: {
       enabled: enabled && !!token && !!address,
       staleTime: 0,
@@ -39,7 +40,7 @@ export function useChainBalance({
     bigint: balance,
     string: formattedBalance,
     formatted: balanceLabel,
-    nonZero: balance && balance !== BigInt(0),
+    nonZero: Boolean(balance && balance !== BigInt(0)),
     queryKey,
   }
 }
