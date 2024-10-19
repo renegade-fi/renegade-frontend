@@ -5,21 +5,33 @@ import { useAccount } from "wagmi"
 
 import { safeParseUnits } from "@/lib/format"
 
-export interface UseSwapParams {
+export interface UseBridgeParams {
+  fromChain: number
   fromMint: `0x${string}`
+  toChain: number
   toMint: `0x${string}`
   amount: string
   enabled?: boolean
 }
 
-export function useSwapQuote({
+export function useBridgeQuote({
   fromMint,
   toMint,
   amount,
   enabled = true,
-}: UseSwapParams) {
-  const params = useParams({ fromMint, toMint, amount })
-  const queryKey = ["swap", "quote", fromMint, toMint, amount]
+  fromChain,
+  toChain,
+}: UseBridgeParams) {
+  const params = useParams({ fromMint, toMint, amount, fromChain, toChain })
+  const queryKey = [
+    "bridge",
+    "quote",
+    fromChain,
+    toChain,
+    fromMint,
+    toMint,
+    amount,
+  ]
   return {
     queryKey,
     ...useQuery({
@@ -36,9 +48,11 @@ function useParams({
   fromMint,
   toMint,
   amount,
-}: UseSwapParams & { address?: string }): QuoteRequest | undefined {
+  fromChain,
+  toChain,
+}: UseBridgeParams): QuoteRequest | undefined {
   const { address } = useAccount()
-  if (!address || !Number(amount)) {
+  if (!address || !toMint || !Number(amount)) {
     return undefined
   }
 
@@ -49,14 +63,15 @@ function useParams({
     return undefined
   }
   return {
-    fromChain: 42161,
+    fromChain,
     fromToken: fromMint,
     fromAddress: address,
     fromAmount: parsedAmount.toString(),
-    toChain: 42161,
+    toChain,
     toToken: toMint,
-    order: "RECOMMENDED",
+    order: "FASTEST",
     slippage: 0.005,
-    allowExchanges: ["1inch", "0x"],
+    allowBridges: ["across"],
+    allowExchanges: [],
   }
 }

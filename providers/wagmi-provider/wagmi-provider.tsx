@@ -2,16 +2,11 @@
 
 import React from "react"
 
-import {
-  ChainType,
-  EVM,
-  createConfig as createLifiConfig,
-  getChains,
-} from "@lifi/sdk"
+import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
 import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ConnectKitProvider, getDefaultConfig } from "connectkit"
-import { mainnet } from "viem/chains"
+import { arbitrum, arbitrumSepolia, mainnet } from "viem/chains"
 import {
   WagmiProvider as Provider,
   cookieToInitialState,
@@ -30,9 +25,11 @@ import { QueryProvider } from "@/providers/query-provider"
 
 export const config = createConfig(
   getDefaultConfig({
-    chains: [chain],
+    // TODO: Ensure user never signs message for mainnet
+    chains: [chain, mainnet],
     transports: {
       [chain.id]: http(),
+      [mainnet.id]: http("/api/proxy/mainnet"),
     },
     ssr: true,
     storage: createStorage({
@@ -51,12 +48,20 @@ export const config = createConfig(
 export const mainnetConfig = createConfig({
   chains: [mainnet],
   transports: {
-    [mainnet.id]: http(),
+    [mainnet.id]: http("/api/proxy/mainnet"),
+  },
+})
+
+export const arbitrumConfig = createConfig({
+  chains: [chain],
+  transports: {
+    [arbitrum.id]: http(),
+    [arbitrumSepolia.id]: http(),
   },
 })
 
 createLifiConfig({
-  integrator: "renegade",
+  integrator: "renegade.fi",
   providers: [EVM()],
   // We disable chain preloading and will update chain configuration in runtime
   preloadChains: false,

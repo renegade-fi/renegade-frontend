@@ -26,11 +26,7 @@ import {
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
 import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
-import {
-  Execution,
-  Step,
-  getSteps,
-} from "@/components/dialogs/transfer/transfer-details-page"
+import { Execution, Step, getSteps } from "@/components/dialogs/transfer/step"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"
@@ -56,6 +52,7 @@ import {
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
 import {
   Tooltip,
@@ -624,104 +621,138 @@ export function WETHForm({
           className="flex flex-1 flex-col"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div
-            className={cn(
-              "space-y-6 transition-all duration-300 ease-in-out",
-              className,
-            )}
-          >
-            <FormField
-              control={form.control}
-              name="mint"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Token</FormLabel>
-                  <TokenSelect
-                    direction={direction}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <NumberInput
-                        className={cn(
-                          "w-full rounded-none pr-12 font-mono",
-                          hideMaxButton ? "pr-12" : "",
+          <ScrollArea className="max-h-[70vh]">
+            <div className={cn("space-y-6", className)}>
+              <FormField
+                control={form.control}
+                name="mint"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Token</FormLabel>
+                    <TokenSelect
+                      direction={direction}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <NumberInput
+                          className={cn(
+                            "w-full rounded-none pr-12 font-mono",
+                            hideMaxButton ? "pr-12" : "",
+                          )}
+                          placeholder="0.00"
+                          {...field}
+                          value={field.value}
+                        />
+                        {!hideMaxButton && (
+                          <Button
+                            className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
+                            size="icon"
+                            type="button"
+                            variant="ghost"
+                            onClick={() => {
+                              form.setValue("amount", maxValue, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              })
+                            }}
+                          >
+                            <span>MAX</span>
+                          </Button>
                         )}
-                        placeholder="0.00"
-                        {...field}
-                        value={field.value}
-                      />
-                      {!hideMaxButton && (
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    Balance&nbsp;on&nbsp;
+                    {isDeposit ? (
+                      <>
+                        <TokenIcon
+                          size={16}
+                          ticker="ARB"
+                        />
+                        Arbitrum
+                      </>
+                    ) : (
+                      "Renegade"
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <ResponsiveTooltip>
+                      <ResponsiveTooltipTrigger
+                        asChild
+                        className="cursor-pointer"
+                      >
                         <Button
-                          className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
-                          size="icon"
+                          className="h-5 p-0"
                           type="button"
-                          variant="ghost"
+                          variant="link"
                           onClick={() => {
-                            form.setValue("amount", maxValue, {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            })
+                            if (Number(balance)) {
+                              form.setValue("amount", balance, {
+                                shouldValidate: true,
+                              })
+                            }
                           }}
                         >
-                          <span>MAX</span>
+                          <div className="font-mono text-sm">
+                            {WETH_L2_TOKEN
+                              ? `${balanceLabel} ${WETH_L2_TOKEN.ticker}`
+                              : "--"}
+                          </div>
                         </Button>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  Balance&nbsp;on&nbsp;
-                  {isDeposit ? (
-                    <>
-                      <TokenIcon
-                        size={16}
-                        ticker="ARB"
-                      />
-                      Arbitrum
-                    </>
-                  ) : (
-                    "Renegade"
-                  )}
+                      </ResponsiveTooltipTrigger>
+                      <ResponsiveTooltipContent
+                        side="right"
+                        sideOffset={10}
+                      >
+                        {`${balance} ${WETH_L2_TOKEN.ticker}`}
+                      </ResponsiveTooltipContent>
+                    </ResponsiveTooltip>
+                  </div>
                 </div>
-                <div className="flex items-center">
+
+                <div
+                  className={cn("text-right", isDeposit ? "block" : "hidden")}
+                >
                   <ResponsiveTooltip>
                     <ResponsiveTooltipTrigger
                       asChild
-                      className="cursor-pointer"
+                      className={cn(
+                        "!pointer-events-auto",
+                        maxAmountToWrap < BigInt(0) ? "" : "cursor-pointer",
+                      )}
                     >
                       <Button
                         className="h-5 p-0"
+                        disabled={maxAmountToWrap < BigInt(0)}
                         type="button"
                         variant="link"
                         onClick={() => {
-                          if (Number(balance)) {
-                            form.setValue("amount", balance, {
-                              shouldValidate: true,
-                            })
-                          }
+                          form.setValue("amount", formattedMaxAmountToWrap, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          })
                         }}
                       >
                         <div className="font-mono text-sm">
-                          {WETH_L2_TOKEN
-                            ? `${balanceLabel} ${WETH_L2_TOKEN.ticker}`
-                            : "--"}
+                          {`${ethL2BalanceLabel}`}&nbsp;ETH
                         </div>
                       </Button>
                     </ResponsiveTooltipTrigger>
@@ -729,183 +760,152 @@ export function WETHForm({
                       side="right"
                       sideOffset={10}
                     >
-                      {`${balance} ${WETH_L2_TOKEN.ticker}`}
+                      {maxAmountToWrap < BigInt(0)
+                        ? "Not enough ETH to wrap"
+                        : `${formattedEthL2Balance} ETH`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
                 </div>
               </div>
 
-              <div className={cn("text-right", isDeposit ? "block" : "hidden")}>
-                <ResponsiveTooltip>
-                  <ResponsiveTooltipTrigger
-                    asChild
-                    className={cn(
-                      "!pointer-events-auto",
-                      maxAmountToWrap < BigInt(0) ? "" : "cursor-pointer",
-                    )}
-                  >
-                    <Button
-                      className="h-5 p-0"
-                      disabled={maxAmountToWrap < BigInt(0)}
-                      type="button"
-                      variant="link"
-                      onClick={() => {
-                        form.setValue("amount", formattedMaxAmountToWrap, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        })
-                      }}
-                    >
-                      <div className="font-mono text-sm">
-                        {`${ethL2BalanceLabel}`}&nbsp;ETH
-                      </div>
-                    </Button>
-                  </ResponsiveTooltipTrigger>
-                  <ResponsiveTooltipContent
-                    side="right"
-                    sideOffset={10}
-                  >
-                    {maxAmountToWrap < BigInt(0)
-                      ? "Not enough ETH to wrap"
-                      : `${formattedEthL2Balance} ETH`}
-                  </ResponsiveTooltipContent>
-                </ResponsiveTooltip>
-              </div>
-            </div>
-
-            <div
-              className={cn("flex items-start justify-between", {
-                hidden:
-                  (!userHasWethL1Balance && !userHasEthL1Balance) || !isDeposit,
-              })}
-            >
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                Balance on&nbsp;
-                <TokenIcon
-                  size={16}
-                  ticker="WETH"
-                />
-                Ethereum
-              </div>
-              <div className="flex flex-col items-end">
-                <Tooltip>
-                  <TooltipTrigger
-                    asChild
-                    className={cn({
-                      hidden: !userHasWethL1Balance,
-                    })}
-                  >
-                    <Button
+              <div
+                className={cn("flex items-start justify-between", {
+                  hidden:
+                    (!userHasWethL1Balance && !userHasEthL1Balance) ||
+                    !isDeposit,
+                })}
+              >
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance on&nbsp;
+                  <TokenIcon
+                    size={16}
+                    ticker="WETH"
+                  />
+                  Ethereum
+                </div>
+                <div className="flex flex-col items-end">
+                  <Tooltip>
+                    <TooltipTrigger
                       asChild
-                      className="mb-1 h-5 cursor-pointer p-0 font-mono text-sm"
-                      type="button"
-                      variant="link"
+                      className={cn({
+                        hidden: !userHasWethL1Balance,
+                      })}
                     >
-                      <a
-                        href={constructArbitrumBridgeUrl(
-                          formattedWethL1Balance,
-                        )}
-                        rel="noopener noreferrer"
-                        target="_blank"
+                      <Button
+                        asChild
+                        className="mb-1 h-5 cursor-pointer p-0 font-mono text-sm"
+                        type="button"
+                        variant="link"
                       >
-                        {WETH_L2_TOKEN
-                          ? `${wethL1BalanceLabel} ${WETH_L2_TOKEN.ticker}`
-                          : "--"}
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="right"
-                    sideOffset={10}
-                  >
-                    Bridge to Arbitrum to deposit
-                  </TooltipContent>
-                </Tooltip>
+                        <a
+                          href={constructArbitrumBridgeUrl(
+                            formattedWethL1Balance,
+                          )}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {WETH_L2_TOKEN
+                            ? `${wethL1BalanceLabel} ${WETH_L2_TOKEN.ticker}`
+                            : "--"}
+                        </a>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="right"
+                      sideOffset={10}
+                    >
+                      Bridge to Arbitrum to deposit
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Tooltip>
-                  <TooltipTrigger
-                    asChild
-                    className={cn({
-                      hidden: !userHasEthL1Balance,
-                    })}
-                  >
-                    <Button
+                  <Tooltip>
+                    <TooltipTrigger
                       asChild
-                      className="h-5 cursor-pointer p-0 font-mono text-sm"
-                      type="button"
-                      variant="link"
+                      className={cn({
+                        hidden: !userHasEthL1Balance,
+                      })}
                     >
-                      <a
-                        href={constructArbitrumBridgeUrl(formattedEthL1Balance)}
-                        rel="noopener noreferrer"
-                        target="_blank"
+                      <Button
+                        asChild
+                        className="h-5 cursor-pointer p-0 font-mono text-sm"
+                        type="button"
+                        variant="link"
                       >
-                        {`${ethL1BalanceLabel}`}&nbsp;ETH
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="right"
-                    sideOffset={10}
-                  >
-                    {TRANSFER_DIALOG_L1_BALANCE_TOOLTIP}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-
-            <div
-              className={cn({
-                hidden:
-                  !isDeposit || (!userHasWethL1Balance && !userHasEthL1Balance),
-              })}
-            >
-              <BridgePrompt
-                formattedL1Balance={formattedWethL1Balance}
-                token={WETH_L1_TOKEN}
-              />
-            </div>
-
-            <div
-              className={cn(
-                "items-center justify-between border p-3",
-                !isDeposit ? "flex" : "hidden",
-              )}
-            >
-              <div className="space-y-0.5">
-                <Label
-                  className=""
-                  htmlFor="unwrap"
-                >
-                  Withdraw ETH
-                </Label>
-                <div className="text-[0.8rem] text-muted-foreground">
-                  Receive native ETH instead of wrapped ETH
+                        <a
+                          href={constructArbitrumBridgeUrl(
+                            formattedEthL1Balance,
+                          )}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {`${ethL1BalanceLabel}`}&nbsp;ETH
+                        </a>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="right"
+                      sideOffset={10}
+                    >
+                      {TRANSFER_DIALOG_L1_BALANCE_TOOLTIP}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
-              <Switch
-                checked={unwrapRequired}
-                id="unwrap"
-                onCheckedChange={(checked) => {
-                  if (typeof checked === "boolean") {
-                    setUnwrapRequired(checked)
-                  }
-                }}
-              />
+
+              <div
+                className={cn({
+                  hidden:
+                    !isDeposit ||
+                    (!userHasWethL1Balance && !userHasEthL1Balance),
+                })}
+              >
+                <BridgePrompt
+                  formattedL1Balance={formattedWethL1Balance}
+                  token={WETH_L1_TOKEN}
+                />
+              </div>
+
+              <div
+                className={cn(
+                  "items-center justify-between border p-3",
+                  !isDeposit ? "flex" : "hidden",
+                )}
+              >
+                <div className="space-y-0.5">
+                  <Label
+                    className=""
+                    htmlFor="unwrap"
+                  >
+                    Withdraw ETH
+                  </Label>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Receive native ETH instead of wrapped ETH
+                  </div>
+                </div>
+                <Switch
+                  checked={unwrapRequired}
+                  id="unwrap"
+                  onCheckedChange={(checked) => {
+                    if (typeof checked === "boolean") {
+                      setUnwrapRequired(checked)
+                    }
+                  }}
+                />
+              </div>
+              {isDeposit && (
+                <MaxBalancesWarning
+                  className="text-sm text-orange-400"
+                  mint={mint}
+                />
+              )}
+              {isDeposit && wrapRequired && (
+                <WrapEthWarning
+                  minEthToKeepUnwrapped={minEthToKeepUnwrapped}
+                  remainingEthBalance={remainingEthBalance}
+                />
+              )}
             </div>
-            {isDeposit && (
-              <MaxBalancesWarning
-                className="text-sm text-orange-400"
-                mint={mint}
-              />
-            )}
-            {isDeposit && wrapRequired && (
-              <WrapEthWarning
-                minEthToKeepUnwrapped={minEthToKeepUnwrapped}
-                remainingEthBalance={remainingEthBalance}
-              />
-            )}
-          </div>
+          </ScrollArea>
           {isDesktop ? (
             <DialogFooter>
               <ResponsiveTooltip>

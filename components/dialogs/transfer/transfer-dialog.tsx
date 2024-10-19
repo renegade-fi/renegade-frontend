@@ -51,7 +51,7 @@ export function TransferDialog({
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent
           hideCloseButton
-          className="max-h-[80vh] gap-0 p-0 sm:max-w-[425px]"
+          className="gap-0 p-0 sm:max-w-[425px]"
           onPointerDownOutside={(e) => {
             // Prevent closing the dialog when clicking inside toast
             if (

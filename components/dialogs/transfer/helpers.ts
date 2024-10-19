@@ -1,11 +1,13 @@
 import { Token } from "@renegade-fi/react"
 import { QueryClient } from "@tanstack/react-query"
-import { formatUnits } from "viem"
+import { extractChain, formatUnits } from "viem"
+import { mainnet } from "viem/chains"
 import { z } from "zod"
 
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
+import { chain } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -105,4 +107,35 @@ export function constructArbitrumBridgeUrl(
   }
 
   return base.toString()
+}
+
+export function normalizeStatus(
+  status?: "NOT_FOUND" | "INVALID" | "PENDING" | "DONE" | "FAILED",
+): "error" | "pending" | "success" | undefined {
+  if (!status) return undefined
+  switch (status) {
+    case "NOT_FOUND":
+      return undefined
+    case "INVALID":
+    case "FAILED":
+      return "error"
+    case "DONE":
+      return "success"
+    default:
+      return "pending"
+  }
+}
+
+export const CHAIN_NAME_MAP = {
+  "Arbitrum One": "Arbitrum",
+  "Arbitrum Sepolia": "Arbitrum",
+  Ethereum: "Ethereum",
+} as const
+
+export function getChainName(chainId: number) {
+  const _chain = extractChain({
+    chains: [mainnet, chain],
+    id: chainId as 1 | 421614 | 42161,
+  })
+  return CHAIN_NAME_MAP[_chain.name]
 }

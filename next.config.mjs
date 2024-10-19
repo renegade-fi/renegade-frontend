@@ -23,6 +23,18 @@ const nextConfig = {
         port: "",
         pathname: "/blockchains/ethereum/assets/**",
       },
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        port: "",
+        pathname: "/trustwallet/assets/master/blockchains/ethereum/assets/**",
+      },
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        port: "",
+        pathname: "/lifinance/types/main/src/assets/icons/**",
+      },
     ],
   },
 }
