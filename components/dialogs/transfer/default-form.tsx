@@ -137,7 +137,7 @@ export function DefaultForm({
     string: formattedL2Balance,
     formatted: l2BalanceLabel,
   } = useChainBalance({
-    mint,
+    token: l2Token,
     enabled: isDeposit,
   })
 
@@ -147,7 +147,7 @@ export function DefaultForm({
     nonZero: userHasL1Balance,
   } = useChainBalance({
     chainId: mainnet.id,
-    mint,
+    token: l1Token,
     enabled: isDeposit,
   })
 

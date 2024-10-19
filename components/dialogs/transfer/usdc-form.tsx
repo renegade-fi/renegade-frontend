@@ -7,7 +7,8 @@ import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { formatUnits, parseUnits } from "viem"
-import { useAccount, useSendTransaction } from "wagmi"
+import { mainnet } from "viem/chains"
+import { useSendTransaction } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -19,6 +20,8 @@ import {
   constructArbitrumBridgeUrl,
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
+import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { SwapWarning } from "@/components/dialogs/transfer/swap-warning"
 import {
@@ -62,8 +65,6 @@ import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { usePriceQuery } from "@/hooks/use-price-query"
-import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -75,19 +76,17 @@ import {
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
-import { formatNumber } from "@/lib/format"
-import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
-import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS } from "@/lib/token"
+import { useWriteErc20Approve } from "@/lib/generated"
+import { ADDITIONAL_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
-import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
-const USDCE = ADDITIONAL_TOKENS["USDC.e"]
+const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
 
 const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
-// Assume direction is deposit and mint is USDC
-const baseToken = Token.findByTicker("USDC")
+const USDC_L2_TOKEN = Token.findByTicker("USDC")
+
 export function USDCForm({
   className,
   form,
@@ -98,9 +97,8 @@ export function USDCForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const { address } = useAccount()
   const { checkChain } = useCheckChain()
-  const isMaxBalances = useIsMaxBalances(baseToken.address)
+  const isMaxBalances = useIsMaxBalances(USDC_L2_TOKEN.address)
   const { data: maintenanceMode } = useMaintenanceMode()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
@@ -116,91 +114,55 @@ export function USDCForm({
     control: form.control,
     name: "amount",
   })
-  // Ensure price is loaded
-  usePriceQuery(baseToken.address)
 
-  const { data: usdcBalance, queryKey: usdcBalanceQueryKey } =
-    useReadErc20BalanceOf({
-      address: baseToken.address,
-      args: [address ?? "0x"],
-      query: {
-        enabled: !!address,
-        staleTime: 0,
-      },
-    })
-
-  useRefreshOnBlock({ queryKey: usdcBalanceQueryKey })
-
-  const formattedUsdcBalance = formatUnits(
-    usdcBalance ?? BigInt(0),
-    baseToken.decimals,
-  )
-  const usdcBalanceLabel = formatNumber(
-    usdcBalance ?? BigInt(0),
-    baseToken.decimals,
-    true,
-  )
-
-  const l1Token = ETHEREUM_TOKENS["USDC"]
-
-  // L1 Balance
-  const {
-    data: l1Balance,
-    queryKey: l1QueryKey,
-    status: l1Status,
-  } = useReadErc20BalanceOf({
-    address: l1Token?.address,
-    args: [address ?? "0x"],
-    config: mainnetConfig,
-    query: {
-      enabled: !!baseToken && !!address && !!l1Token?.address,
-      staleTime: 0,
-    },
+  const USDC_L1_TOKEN = useToken({
+    chainId: mainnet.id,
+    mint: USDC_L2_TOKEN.address,
   })
-  const formattedL1Balance = baseToken
-    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
-    : ""
-  const l1BalanceLabel = baseToken
-    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
-    : ""
-  const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
 
-  // USDC.e-specific logic
-  const { data: usdceBalance, queryKey: usdceBalanceQueryKey } =
-    useReadErc20BalanceOf({
-      address: USDCE.address,
-      args: [address ?? "0x"],
-      query: {
-        enabled: !!address,
-        staleTime: 0,
-      },
-    })
-  const formattedUsdceBalance = formatUnits(
-    usdceBalance ?? BigInt(0),
-    USDCE.decimals,
-  )
-  const usdceBalanceLabel = formatNumber(
-    usdceBalance ?? BigInt(0),
-    USDCE.decimals,
-    true,
-  )
+  const {
+    bigint: usdcL2Balance,
+    string: formattedUsdcL2Balance,
+    formatted: formattedUsdcL2BalanceLabel,
+    queryKey: usdcL2BalanceQueryKey,
+  } = useChainBalance({
+    token: USDC_L2_TOKEN,
+  })
+
+  const {
+    string: formattedUsdcL1Balance,
+    formatted: usdcL1BalanceLabel,
+    nonZero: userHasUsdcL1Balance,
+  } = useChainBalance({
+    token: USDC_L1_TOKEN,
+    chainId: mainnet.id,
+  })
+
+  const {
+    bigint: usdceL2Balance,
+    string: formattedUsdceL2Balance,
+    formatted: usdceL2BalanceLabel,
+    queryKey: usdceL2BalanceQueryKey,
+  } = useChainBalance({
+    token: USDCE_L2_TOKEN,
+  })
 
   const combinedBalance =
-    (usdcBalance ?? BigInt(0)) + (usdceBalance ?? BigInt(0))
+    (usdcL2Balance ?? BigInt(0)) + (usdceL2Balance ?? BigInt(0))
   const formattedCombinedBalance = formatUnits(
     combinedBalance ?? BigInt(0),
-    baseToken.decimals,
+    USDC_L2_TOKEN.decimals,
   )
   const { snapshot, captureSnapshot } = useSwapState(
     form,
-    usdcBalance,
-    usdceBalance,
+    usdcL2Balance,
+    usdceL2Balance,
   )
 
   const remainingUsdceBalance =
-    parseUnits(amount, baseToken.decimals) > (usdcBalance ?? BigInt(0))
-      ? combinedBalance - parseUnits(amount, baseToken.decimals)
-      : usdceBalance ?? BigInt(0)
+    parseUnits(amount, USDC_L2_TOKEN.decimals) > (usdcL2Balance ?? BigInt(0))
+      ? combinedBalance - parseUnits(amount, USDC_L2_TOKEN.decimals)
+      : usdceL2Balance ?? BigInt(0)
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -214,11 +176,11 @@ export function USDCForm({
     isFetching: isQuoteFetching,
     dataUpdatedAt: quoteUpdatedAt,
   } = useSwapQuote({
-    fromMint: USDCE.address,
-    toMint: baseToken.address,
+    fromMint: USDCE_L2_TOKEN.address,
+    toMint: USDC_L2_TOKEN.address,
     amount:
       snapshot.usdceToSwap ??
-      (parseFloat(amount) - parseFloat(formattedUsdcBalance)).toFixed(6),
+      (parseFloat(amount) - parseFloat(formattedUsdcL2Balance)).toFixed(6),
     enabled: currentStep === 0 && snapshot.swapRequired,
   })
 
@@ -227,11 +189,11 @@ export function USDCForm({
     useAllowanceRequired({
       amount: formatUnits(
         BigInt(quote?.estimate.fromAmount ?? 0),
-        USDCE.decimals,
+        USDCE_L2_TOKEN.decimals,
       ),
-      mint: USDCE.address,
+      mint: USDCE_L2_TOKEN.address,
       spender: quote?.estimate.approvalAddress,
-      decimals: USDCE.decimals,
+      decimals: USDCE_L2_TOKEN.decimals,
     })
 
   const {
@@ -275,12 +237,12 @@ export function USDCForm({
   })
 
   const swapConfirmationStatus = useSwapConfirmation(swapHash, (swap) => {
-    queryClient.invalidateQueries({ queryKey: usdcBalanceQueryKey })
-    queryClient.invalidateQueries({ queryKey: usdceBalanceQueryKey })
+    queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
+    queryClient.invalidateQueries({ queryKey: usdceL2BalanceQueryKey })
     setCurrentStep((prev) => prev + 1)
     if (allowanceRequired) {
       handleApprove({
-        address: baseToken.address,
+        address: USDC_L2_TOKEN.address,
         args: [
           process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
           UNLIMITED_ALLOWANCE,
@@ -291,7 +253,7 @@ export function USDCForm({
         amount: snapshot.swapRequired
           ? formatUnits(
               BigInt(swap.receivedAmount ?? 0) + snapshot.usdcBalance,
-              baseToken.decimals,
+              USDC_L2_TOKEN.decimals,
             )
           : amount,
         mint,
@@ -306,7 +268,7 @@ export function USDCForm({
       amount: amount.toString(),
       mint,
       spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-      decimals: baseToken.decimals,
+      decimals: USDC_L2_TOKEN.decimals,
     })
 
   const {
@@ -329,7 +291,7 @@ export function USDCForm({
           ? formatUnits(
               BigInt(swapConfirmationStatus?.receivedAmount ?? 0) +
                 snapshot.usdcBalance,
-              baseToken.decimals,
+              USDC_L2_TOKEN.decimals,
             )
           : amount,
         mint,
@@ -362,11 +324,11 @@ export function USDCForm({
       snapshot.swapRequired
         ? formatUnits(
             BigInt(quote?.estimate.toAmountMin ?? 0) +
-              (usdcBalance ?? BigInt(0)),
-            USDCE.decimals,
+              (usdcL2Balance ?? BigInt(0)),
+            USDCE_L2_TOKEN.decimals,
           )
         : values.amount,
-      baseToken,
+      USDC_L2_TOKEN,
     )
 
     if (!isAmountSufficient) {
@@ -379,7 +341,7 @@ export function USDCForm({
     const isBalanceSufficient = checkBalance({
       amount: values.amount,
       mint: values.mint,
-      balance: snapshot.swapRequired ? combinedBalance : usdcBalance,
+      balance: snapshot.swapRequired ? combinedBalance : usdcL2Balance,
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
@@ -405,7 +367,7 @@ export function USDCForm({
     })
     setCurrentStep(0)
 
-    captureSnapshot(formattedUsdcBalance)
+    captureSnapshot(formattedUsdcL2Balance)
 
     await queryClient.refetchQueries({ queryKey: quoteQueryKey })
     if (snapshot.swapRequired) {
@@ -417,7 +379,7 @@ export function USDCForm({
       }
       if (swapAllowanceRequired) {
         handleApproveSwap({
-          address: USDCE.address,
+          address: USDCE_L2_TOKEN.address,
           args: [
             quote.estimate.approvalAddress as `0x${string}`,
             BigInt(quote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
@@ -434,7 +396,7 @@ export function USDCForm({
       }
     } else if (allowanceRequired) {
       handleApprove({
-        address: baseToken.address,
+        address: USDC_L2_TOKEN.address,
         args: [
           process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
           UNLIMITED_ALLOWANCE,
@@ -505,7 +467,7 @@ export function USDCForm({
   const execution = React.useMemo(
     () => ({
       steps: stepList,
-      baseToken,
+      baseToken: USDC_L2_TOKEN,
     }),
     [stepList],
   )
@@ -675,16 +637,16 @@ export function USDCForm({
                         type="button"
                         variant="link"
                         onClick={() => {
-                          if (Number(formattedUsdcBalance)) {
-                            form.setValue("amount", formattedUsdcBalance, {
+                          if (Number(formattedUsdcL2Balance)) {
+                            form.setValue("amount", formattedUsdcL2Balance, {
                               shouldValidate: true,
                             })
                           }
                         }}
                       >
                         <div className="font-mono text-sm">
-                          {baseToken
-                            ? `${usdcBalanceLabel} ${baseToken.ticker}`
+                          {USDC_L2_TOKEN
+                            ? `${formattedUsdcL2BalanceLabel} ${USDC_L2_TOKEN.ticker}`
                             : "--"}
                         </div>
                       </Button>
@@ -693,7 +655,7 @@ export function USDCForm({
                       side="right"
                       sideOffset={10}
                     >
-                      {`${formattedUsdcBalance} ${baseToken?.ticker}`}
+                      {`${formattedUsdcL2Balance} ${USDC_L2_TOKEN?.ticker}`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
                 </div>
@@ -718,7 +680,7 @@ export function USDCForm({
                       }}
                     >
                       <div className="font-mono text-sm">
-                        {`${usdceBalanceLabel}`}&nbsp;USDC.e
+                        {`${usdceL2BalanceLabel}`}&nbsp;USDC.e
                       </div>
                     </Button>
                   </ResponsiveTooltipTrigger>
@@ -726,7 +688,7 @@ export function USDCForm({
                     side="right"
                     sideOffset={10}
                   >
-                    {`${formattedUsdceBalance} USDC.e`}
+                    {`${formattedUsdceL2Balance} USDC.e`}
                   </ResponsiveTooltipContent>
                 </ResponsiveTooltip>
               </div>
@@ -734,7 +696,7 @@ export function USDCForm({
 
             <div
               className={cn("flex justify-between", {
-                hidden: !userHasL1Balance,
+                hidden: !userHasUsdcL1Balance,
               })}
             >
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -754,12 +716,12 @@ export function USDCForm({
                     variant="link"
                   >
                     <a
-                      href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                      href={constructArbitrumBridgeUrl(formattedUsdcL1Balance)}
                       rel="noopener noreferrer"
                       target="_blank"
                     >
-                      {baseToken
-                        ? `${l1BalanceLabel} ${baseToken.ticker}`
+                      {USDC_L2_TOKEN
+                        ? `${usdcL1BalanceLabel} ${USDC_L2_TOKEN.ticker}`
                         : "--"}
                     </a>
                   </Button>
@@ -775,12 +737,12 @@ export function USDCForm({
 
             <div
               className={cn({
-                hidden: !userHasL1Balance,
+                hidden: !userHasUsdcL1Balance,
               })}
             >
               <BridgePrompt
-                formattedL1Balance={formattedL1Balance}
-                token={l1Token}
+                formattedL1Balance={formattedUsdcL1Balance}
+                token={USDC_L1_TOKEN}
               />
             </div>
 
