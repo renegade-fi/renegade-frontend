@@ -3,12 +3,12 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
+import { UpdateType } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatUnits } from "viem"
+import { mainnet } from "viem/chains"
 import { useAccount } from "wagmi"
 import { z } from "zod"
 
@@ -22,6 +22,9 @@ import {
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
+import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
+import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import {
   Step,
@@ -62,8 +65,6 @@ import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { usePriceQuery } from "@/hooks/use-price-query"
-import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
@@ -75,12 +76,14 @@ import {
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
-import { formatNumber } from "@/lib/format"
-import { useReadErc20BalanceOf, useWriteErc20Approve } from "@/lib/generated"
-import { ETHEREUM_TOKENS } from "@/lib/token"
+import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
-import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
+
+const catchError = (error: Error, message: string) => {
+  console.error("Error in USDC form", error)
+  catchErrorWithToast(error, message)
+}
 
 export function DefaultForm({
   className,
@@ -106,88 +109,50 @@ export function DefaultForm({
   const [steps, setSteps] = React.useState<string[]>([])
   const isDeposit = direction === ExternalTransferDirection.Deposit
 
+  const amount = useWatch({
+    control: form.control,
+    name: "amount",
+  })
   const mint = useWatch({
     control: form.control,
     name: "mint",
   })
   const isMaxBalances = useIsMaxBalances(mint)
-  const baseToken = mint
-    ? Token.findByAddress(mint as `0x${string}`)
-    : undefined
-  // Ensure price is loaded
-  usePriceQuery(baseToken?.address || "0x")
-
-  const { data: renegadeBalance } = useBackOfQueueWallet({
-    query: {
-      select: (data) =>
-        data.balances.find((balance) => balance.mint === mint)?.amount,
-    },
+  const l2Token = useToken({
+    mint,
+  })
+  const l1Token = useToken({
+    mint: l2Token?.address,
+    chainId: mainnet.id,
   })
 
-  const formattedRenegadeBalance = baseToken
-    ? formatUnits(renegadeBalance ?? BigInt(0), baseToken.decimals)
-    : ""
-  const renegadeBalanceLabel = baseToken
-    ? formatNumber(renegadeBalance ?? BigInt(0), baseToken.decimals, true)
-    : ""
-
-  const { data: l2Balance, queryKey } = useReadErc20BalanceOf({
-    address: baseToken?.address,
-    args: [address ?? "0x"],
-    query: {
-      enabled: isDeposit && !!baseToken && !!address,
-      staleTime: 0,
-    },
-  })
-
-  const l1Token =
-    baseToken && baseToken.ticker in ETHEREUM_TOKENS
-      ? ETHEREUM_TOKENS[baseToken.ticker as keyof typeof ETHEREUM_TOKENS]
-      : undefined
-
-  // L1 Balance
   const {
-    data: l1Balance,
-    queryKey: l1QueryKey,
-    status: l1Status,
-  } = useReadErc20BalanceOf({
-    address: l1Token?.address,
-    args: [address ?? "0x"],
-    config: mainnetConfig,
-    query: {
-      enabled: isDeposit && !!baseToken && !!address && !!l1Token?.address,
-      staleTime: 0,
-    },
+    bigint: renegadeBalance,
+    string: formattedRenegadeBalance,
+    formatted: renegadeBalanceLabel,
+  } = useRenegadeBalance(mint)
+
+  const {
+    bigint: l2Balance,
+    string: formattedL2Balance,
+    formatted: l2BalanceLabel,
+  } = useChainBalance({
+    mint,
+    enabled: isDeposit,
   })
-  const formattedL1Balance = baseToken
-    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
-    : ""
-  const l1BalanceLabel = baseToken
-    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
-    : ""
-  const userHasL1Balance = Boolean(l1Status === "success" && l1Balance)
 
-  useRefreshOnBlock({ queryKey })
-
-  const formattedL2Balance = baseToken
-    ? formatUnits(l2Balance ?? BigInt(0), baseToken.decimals)
-    : ""
-  const l2BalanceLabel = baseToken
-    ? formatNumber(l2Balance ?? BigInt(0), baseToken.decimals, true)
-    : ""
+  const {
+    string: formattedL1Balance,
+    formatted: l1BalanceLabel,
+    nonZero: userHasL1Balance,
+  } = useChainBalance({
+    chainId: mainnet.id,
+    mint,
+    enabled: isDeposit,
+  })
 
   const balance = isDeposit ? formattedL2Balance : formattedRenegadeBalance
   const balanceLabel = isDeposit ? l2BalanceLabel : renegadeBalanceLabel
-
-  const amount = useWatch({
-    control: form.control,
-    name: "amount",
-  })
-
-  const catchError = (error: Error, message: string) => {
-    console.error("Error in USDC form", error)
-    catchErrorWithToast(error, message)
-  }
 
   // Approve
   const { data: allowanceRequired, queryKey: allowanceQueryKey } =
@@ -195,7 +160,7 @@ export function DefaultForm({
       amount: amount.toString(),
       mint,
       spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-      decimals: baseToken?.decimals ?? 0,
+      decimals: l2Token?.decimals ?? 0,
     })
 
   const {
@@ -237,10 +202,10 @@ export function DefaultForm({
     toast.loading(message, {
       id: data.taskId,
     })
-    setSide(baseToken?.ticker === "USDC" ? Side.BUY : Side.SELL)
+    setSide(l2Token?.ticker === "USDC" ? Side.BUY : Side.SELL)
     // TODO: Automatically closes dialog
-    // if (isTradePage && baseToken?.ticker !== "USDC") {
-    //   router.push(`/trade/${baseToken?.ticker}`)
+    // if (isTradePage && l2Token?.ticker !== "USDC") {
+    //   router.push(`/trade/${l2Token?.ticker}`)
     // }
   }
 
@@ -261,11 +226,7 @@ export function DefaultForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const isAmountSufficient = checkAmount(
-      queryClient,
-      values.amount,
-      baseToken,
-    )
+    const isAmountSufficient = checkAmount(queryClient, values.amount, l2Token)
 
     if (isDeposit) {
       if (!isAmountSufficient) {
@@ -298,9 +259,9 @@ export function DefaultForm({
       })
       setCurrentStep(0)
 
-      if (allowanceRequired && baseToken?.address) {
+      if (allowanceRequired && l2Token?.address) {
         await handleApprove({
-          address: baseToken.address,
+          address: l2Token.address,
           args: [
             process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
             UNLIMITED_ALLOWANCE,
@@ -370,14 +331,14 @@ export function DefaultForm({
             type: "task",
             mutationStatus: depositStatus,
             taskStatus: depositTaskStatus,
-            label: `Deposit ${baseToken?.ticker}`,
+            label: `Deposit ${l2Token?.ticker}`,
           }
         case "Withdraw":
           return {
             type: "task",
             mutationStatus: withdrawStatus,
             taskStatus: withdrawTaskStatus,
-            label: `Withdraw ${baseToken?.ticker}`,
+            label: `Withdraw ${l2Token?.ticker}`,
           }
         default:
           return
@@ -387,7 +348,7 @@ export function DefaultForm({
     approveConfirmationStatus,
     approveHash,
     approveStatus,
-    baseToken?.ticker,
+    l2Token?.ticker,
     depositStatus,
     depositTaskStatus,
     steps,
@@ -398,9 +359,9 @@ export function DefaultForm({
   const execution = React.useMemo(() => {
     return {
       steps: stepList,
-      baseToken,
+      l2Token,
     }
-  }, [stepList, baseToken])
+  }, [stepList, l2Token])
 
   let buttonText = ""
   if (isDeposit) {
@@ -426,7 +387,7 @@ export function DefaultForm({
       Icon = <Check className="h-6 w-6" />
     }
 
-    let title = `${isDeposit ? "Depositing" : "Withdrawing"} ${baseToken?.ticker}`
+    let title = `${isDeposit ? "Depositing" : "Withdrawing"} ${l2Token?.ticker}`
     if (
       isDeposit &&
       stepList.some((step) => step?.mutationStatus === "pending")
@@ -437,7 +398,7 @@ export function DefaultForm({
     ) {
       title = "Waiting for confirmation"
     } else if (stepList.some((step) => step?.mutationStatus === "error")) {
-      title = `Failed to ${isDeposit ? "deposit" : "withdraw"} ${baseToken?.ticker}`
+      title = `Failed to ${isDeposit ? "deposit" : "withdraw"} ${l2Token?.ticker}`
     } else if (
       (isDeposit && depositTaskStatus === "Completed") ||
       (!isDeposit && withdrawTaskStatus === "Completed")
@@ -455,8 +416,8 @@ export function DefaultForm({
           <VisuallyHidden>
             <DialogDescription>
               {isDeposit
-                ? `Depositing ${baseToken?.ticker}`
-                : `Withdrawing ${baseToken?.ticker}`}
+                ? `Depositing ${l2Token?.ticker}`
+                : `Withdrawing ${l2Token?.ticker}`}
             </DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
@@ -577,9 +538,7 @@ export function DefaultForm({
                       }}
                     >
                       <div className="font-mono text-sm">
-                        {baseToken
-                          ? `${balanceLabel} ${baseToken.ticker}`
-                          : "--"}
+                        {l2Token ? `${balanceLabel} ${l2Token.ticker}` : "--"}
                       </div>
                     </Button>
                   </ResponsiveTooltipTrigger>
@@ -587,7 +546,7 @@ export function DefaultForm({
                     side="right"
                     sideOffset={10}
                   >
-                    {`${balance} ${baseToken?.ticker}`}
+                    {`${balance} ${l2Token?.ticker}`}
                   </ResponsiveTooltipContent>
                 </ResponsiveTooltip>
               </div>
