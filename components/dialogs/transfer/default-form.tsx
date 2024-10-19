@@ -9,7 +9,6 @@ import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { mainnet } from "viem/chains"
-import { useAccount } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -27,6 +26,7 @@ import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-rene
 import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import {
+  Execution,
   Step,
   getSteps,
 } from "@/components/dialogs/transfer/transfer-details-page"
@@ -97,7 +97,6 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const { address } = useAccount()
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { data: maintenanceMode } = useMaintenanceMode()
@@ -359,8 +358,8 @@ export function DefaultForm({
   const execution = React.useMemo(() => {
     return {
       steps: stepList,
-      l2Token,
-    }
+      token: l2Token,
+    } satisfies Execution
   }, [stepList, l2Token])
 
   let buttonText = ""

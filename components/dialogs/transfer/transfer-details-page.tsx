@@ -15,27 +15,27 @@ import { viemClient } from "@/lib/viem"
 
 export function getSteps(execution: Execution, currentStep: number) {
   return execution.steps.map((step, i) => {
-    if (!step || !execution.baseToken) return null
+    if (!step || !execution.token) return null
     if (step.type === "transaction") {
       return (
         <TransactionStep
           key={i}
-          baseToken={execution.baseToken}
           currentStep={currentStep}
           index={i}
           step={step}
           stepCount={execution.steps.length}
+          token={execution.token}
         />
       )
     } else {
       return (
         <TaskStep
           key={i}
-          baseToken={execution.baseToken}
           currentStep={currentStep}
           index={i}
           step={step}
           stepCount={execution.steps.length}
+          token={execution.token}
         />
       )
     }
@@ -44,7 +44,7 @@ export function getSteps(execution: Execution, currentStep: number) {
 
 export type Execution = {
   steps: (Step | undefined)[]
-  baseToken?: Token
+  token?: Token
 }
 
 export type Step = {
@@ -61,7 +61,7 @@ type StepProps = {
   currentStep: number
   index: number
   step: Step
-  baseToken: Token
+  token: Token
   stepCount: number
 }
 
