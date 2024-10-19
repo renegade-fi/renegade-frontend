@@ -3,12 +3,13 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token, UpdateType } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatEther, formatUnits, parseEther } from "viem"
+import { formatEther, parseEther } from "viem"
+import { mainnet } from "viem/chains"
 import { useAccount, useBalance } from "wagmi"
 import { z } from "zod"
 
@@ -22,8 +23,11 @@ import {
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
+import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import {
+  Execution,
   Step,
   getSteps,
 } from "@/components/dialogs/transfer/transfer-details-page"
@@ -66,8 +70,6 @@ import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { usePriceQuery } from "@/hooks/use-price-query"
-import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
@@ -81,7 +83,6 @@ import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber } from "@/lib/format"
 import {
-  useReadErc20BalanceOf,
   useWriteErc20Approve,
   useWriteWethDeposit,
   useWriteWethWithdraw,
@@ -93,8 +94,9 @@ import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
 import { WrapEthWarning } from "./wrap-eth-warning"
 
+const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 // Assume mint is WETH
-const baseToken = Token.findByTicker("WETH")
+const WETH_L2_TOKEN = Token.findByTicker("WETH")
 
 export function WETHForm({
   className,
@@ -110,7 +112,7 @@ export function WETHForm({
 }) {
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
-  const isMaxBalances = useIsMaxBalances(baseToken.address)
+  const isMaxBalances = useIsMaxBalances(WETH_L2_TOKEN.address)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { data: maintenanceMode } = useMaintenanceMode()
   const isTradePage = usePathname().includes("/trade")
@@ -129,103 +131,78 @@ export function WETHForm({
   })
   const isDeposit = direction === ExternalTransferDirection.Deposit
 
-  const { data: renegadeBalance } = useBackOfQueueWallet({
-    query: {
-      select: (data) =>
-        data.balances.find((balance) => balance.mint === mint)?.amount,
-    },
+  const {
+    bigint: renegadeBalance,
+    string: formattedRenegadeBalance,
+    formatted: renegadeBalanceLabel,
+  } = useRenegadeBalance(mint)
+
+  const {
+    bigint: l2Balance,
+    string: formattedL2Balance,
+    formatted: l2BalanceLabel,
+    queryKey: l2BalanceQueryKey,
+  } = useChainBalance({
+    token: WETH_L2_TOKEN,
+    enabled: isDeposit,
   })
-  const formattedRenegadeBalance = formatEther(renegadeBalance ?? BigInt(0))
-  const renegadeBalanceLabel = formatNumber(
-    renegadeBalance ?? BigInt(0),
-    baseToken.decimals,
-    true,
-  )
 
-  const { data: l2Balance, queryKey: l2BalanceQueryKey } =
-    useReadErc20BalanceOf({
-      address: baseToken.address,
-      args: [address ?? "0x"],
-      query: {
-        staleTime: 0,
-        enabled: isDeposit && !!address,
-      },
-    })
-
-  useRefreshOnBlock({ queryKey: l2BalanceQueryKey })
-
-  const formattedL2Balance = formatEther(l2Balance ?? BigInt(0))
-  const l2BalanceLabel = formatNumber(
-    l2Balance ?? BigInt(0),
-    baseToken.decimals,
-    true,
-  )
+  const {
+    string: formattedWethL1Balance,
+    formatted: wethL1BalanceLabel,
+    nonZero: userHasWethL1Balance,
+  } = useChainBalance({
+    token: WETH_L1_TOKEN,
+    chainId: mainnet.id,
+    enabled: isDeposit,
+  })
 
   const balance = isDeposit ? formattedL2Balance : formattedRenegadeBalance
   const balanceLabel = isDeposit ? l2BalanceLabel : renegadeBalanceLabel
 
   // ETH-specific logic
-  const { data: ethBalance, queryKey: ethBalanceQueryKey } = useBalance({
+  const { data: ethL2Balance, queryKey: ethL2BalanceQueryKey } = useBalance({
     address,
   })
-  const formattedEthBalance = formatEther(ethBalance?.value ?? BigInt(0))
-  const ethBalanceLabel = formatNumber(ethBalance?.value ?? BigInt(0), 18, true)
-  const basePerQuotePrice = useBasePerQuotePrice(baseToken.address)
-
-  const { data: l1EthBalance, queryKey: l1EthBalanceQueryKey } = useBalance({
-    address,
-    config: mainnetConfig,
-  })
-  const formattedL1EthBalance = formatEther(l1EthBalance?.value ?? BigInt(0))
-  const l1EthBalanceLabel = formatNumber(
-    l1EthBalance?.value ?? BigInt(0),
+  const formattedEthL2Balance = formatEther(ethL2Balance?.value ?? BigInt(0))
+  const ethL2BalanceLabel = formatNumber(
+    ethL2Balance?.value ?? BigInt(0),
     18,
     true,
   )
+  const basePerQuotePrice = useBasePerQuotePrice(WETH_L2_TOKEN.address)
 
-  const l1Token = ETHEREUM_TOKENS["WETH"]
-  // L1 WETH Balance
-  const {
-    data: l1Balance,
-    queryKey: l1QueryKey,
-    status: l1Status,
-  } = useReadErc20BalanceOf({
-    address: l1Token?.address,
-    args: [address ?? "0x"],
+  const { data: ethL1Balance, status: ethL1BalanceStatus } = useBalance({
+    address,
     config: mainnetConfig,
-    query: {
-      enabled: isDeposit && !!baseToken && !!address && !!l1Token?.address,
-      staleTime: 0,
-    },
   })
-  const formattedL1Balance = baseToken
-    ? formatUnits(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0)
-    : ""
-  const l1BalanceLabel = baseToken
-    ? formatNumber(l1Balance ?? BigInt(0), l1Token?.decimals ?? 0, true)
-    : ""
-  const userHasL1WETHBalance = Boolean(l1Status === "success" && l1Balance)
-  const userHasL1ETHBalance = Boolean(l1Status === "success" && l1EthBalance)
+  const formattedEthL1Balance = formatEther(ethL1Balance?.value ?? BigInt(0))
+  const ethL1BalanceLabel = formatNumber(
+    ethL1Balance?.value ?? BigInt(0),
+    18,
+    true,
+  )
+  const userHasEthL1Balance = Boolean(
+    ethL1BalanceStatus === "success" && ethL1Balance,
+  )
 
   // Calculate the minimum ETH to keep unwrapped for gas fees
   const minEthToKeepUnwrapped = basePerQuotePrice ?? BigInt(4e15)
 
   const combinedBalance =
-    (l2Balance ?? BigInt(0)) + (ethBalance?.value ?? BigInt(0))
+    (l2Balance ?? BigInt(0)) + (ethL2Balance?.value ?? BigInt(0))
   const maxAmountToWrap = combinedBalance - minEthToKeepUnwrapped
   const formattedMaxAmountToWrap = formatEther(maxAmountToWrap)
 
   const remainingEthBalance =
     parseEther(amount) > (l2Balance ?? BigInt(0))
       ? combinedBalance - parseEther(amount)
-      : ethBalance?.value ?? BigInt(0)
+      : ethL2Balance?.value ?? BigInt(0)
 
   // If the amount is greater than the WETH balance, we need to wrap ETH
   const wrapRequired =
     parseEther(amount) > (l2Balance ?? BigInt(0)) &&
     parseEther(amount) <= combinedBalance
-  // Ensure price is loaded
-  usePriceQuery(baseToken.address)
   const { setSide } = useSide()
 
   const catchError = (error: Error, message: string) => {
@@ -247,12 +224,12 @@ export function WETHForm({
   const wrapConfirmationStatus = useTransactionConfirmation(
     wrapHash,
     async () => {
-      queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: ethL2BalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         handleApprove({
-          address: baseToken.address,
+          address: WETH_L2_TOKEN.address,
           args: [
             process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
             UNLIMITED_ALLOWANCE,
@@ -274,7 +251,7 @@ export function WETHForm({
       amount: amount.toString(),
       mint,
       spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-      decimals: baseToken.decimals,
+      decimals: WETH_L2_TOKEN.decimals,
     })
 
   const {
@@ -330,7 +307,7 @@ export function WETHForm({
         // Wait to prevent contract error
         await new Promise((resolve) => setTimeout(resolve, 1000))
         unwrapWeth({
-          address: baseToken.address,
+          address: WETH_L2_TOKEN.address,
           args: [parseEther(amount)],
         })
       }
@@ -359,7 +336,7 @@ export function WETHForm({
     unwrapHash,
     async () => {
       queryClient.invalidateQueries({ queryKey: l2BalanceQueryKey })
-      queryClient.invalidateQueries({ queryKey: ethBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: ethL2BalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: combinedBalancesQueryKey })
       onSuccess?.()
     },
@@ -369,7 +346,7 @@ export function WETHForm({
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
-      baseToken,
+      WETH_L2_TOKEN,
     )
 
     if (isDeposit) {
@@ -409,12 +386,12 @@ export function WETHForm({
       if (wrapRequired) {
         const ethAmount = parseEther(values.amount) - (l2Balance ?? BigInt(0))
         wrapEth({
-          address: baseToken.address,
+          address: WETH_L2_TOKEN.address,
           value: ethAmount,
         })
       } else if (allowanceRequired) {
         handleApprove({
-          address: baseToken.address,
+          address: WETH_L2_TOKEN.address,
           args: [
             process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
             UNLIMITED_ALLOWANCE,
@@ -534,10 +511,11 @@ export function WETHForm({
   ])
 
   const execution = React.useMemo(
-    () => ({
-      steps: stepList,
-      baseToken,
-    }),
+    () =>
+      ({
+        steps: stepList,
+        token: WETH_L2_TOKEN,
+      }) satisfies Execution,
     [stepList],
   )
 
@@ -741,8 +719,8 @@ export function WETHForm({
                         }}
                       >
                         <div className="font-mono text-sm">
-                          {baseToken
-                            ? `${balanceLabel} ${baseToken.ticker}`
+                          {WETH_L2_TOKEN
+                            ? `${balanceLabel} ${WETH_L2_TOKEN.ticker}`
                             : "--"}
                         </div>
                       </Button>
@@ -751,7 +729,7 @@ export function WETHForm({
                       side="right"
                       sideOffset={10}
                     >
-                      {`${balance} ${baseToken.ticker}`}
+                      {`${balance} ${WETH_L2_TOKEN.ticker}`}
                     </ResponsiveTooltipContent>
                   </ResponsiveTooltip>
                 </div>
@@ -779,7 +757,7 @@ export function WETHForm({
                       }}
                     >
                       <div className="font-mono text-sm">
-                        {`${ethBalanceLabel}`}&nbsp;ETH
+                        {`${ethL2BalanceLabel}`}&nbsp;ETH
                       </div>
                     </Button>
                   </ResponsiveTooltipTrigger>
@@ -789,7 +767,7 @@ export function WETHForm({
                   >
                     {maxAmountToWrap < BigInt(0)
                       ? "Not enough ETH to wrap"
-                      : `${formattedEthBalance} ETH`}
+                      : `${formattedEthL2Balance} ETH`}
                   </ResponsiveTooltipContent>
                 </ResponsiveTooltip>
               </div>
@@ -798,7 +776,7 @@ export function WETHForm({
             <div
               className={cn("flex items-start justify-between", {
                 hidden:
-                  (!userHasL1WETHBalance && !userHasL1ETHBalance) || !isDeposit,
+                  (!userHasWethL1Balance && !userHasEthL1Balance) || !isDeposit,
               })}
             >
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -814,7 +792,7 @@ export function WETHForm({
                   <TooltipTrigger
                     asChild
                     className={cn({
-                      hidden: !userHasL1WETHBalance,
+                      hidden: !userHasWethL1Balance,
                     })}
                   >
                     <Button
@@ -824,12 +802,14 @@ export function WETHForm({
                       variant="link"
                     >
                       <a
-                        href={constructArbitrumBridgeUrl(formattedL1Balance)}
+                        href={constructArbitrumBridgeUrl(
+                          formattedWethL1Balance,
+                        )}
                         rel="noopener noreferrer"
                         target="_blank"
                       >
-                        {baseToken
-                          ? `${l1BalanceLabel} ${baseToken.ticker}`
+                        {WETH_L2_TOKEN
+                          ? `${wethL1BalanceLabel} ${WETH_L2_TOKEN.ticker}`
                           : "--"}
                       </a>
                     </Button>
@@ -846,7 +826,7 @@ export function WETHForm({
                   <TooltipTrigger
                     asChild
                     className={cn({
-                      hidden: !userHasL1ETHBalance,
+                      hidden: !userHasEthL1Balance,
                     })}
                   >
                     <Button
@@ -856,11 +836,11 @@ export function WETHForm({
                       variant="link"
                     >
                       <a
-                        href={constructArbitrumBridgeUrl(formattedL1EthBalance)}
+                        href={constructArbitrumBridgeUrl(formattedEthL1Balance)}
                         rel="noopener noreferrer"
                         target="_blank"
                       >
-                        {`${l1EthBalanceLabel}`}&nbsp;ETH
+                        {`${ethL1BalanceLabel}`}&nbsp;ETH
                       </a>
                     </Button>
                   </TooltipTrigger>
@@ -877,12 +857,12 @@ export function WETHForm({
             <div
               className={cn({
                 hidden:
-                  !isDeposit || (!userHasL1WETHBalance && !userHasL1ETHBalance),
+                  !isDeposit || (!userHasWethL1Balance && !userHasEthL1Balance),
               })}
             >
               <BridgePrompt
-                formattedL1Balance={formattedL1Balance}
-                token={l1Token}
+                formattedL1Balance={formattedWethL1Balance}
+                token={WETH_L1_TOKEN}
               />
             </div>
 

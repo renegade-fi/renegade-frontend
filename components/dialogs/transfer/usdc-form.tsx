@@ -25,6 +25,7 @@ import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { SwapWarning } from "@/components/dialogs/transfer/swap-warning"
 import {
+  Execution,
   Step,
   getSteps,
 } from "@/components/dialogs/transfer/transfer-details-page"
@@ -465,10 +466,11 @@ export function USDCForm({
   ])
 
   const execution = React.useMemo(
-    () => ({
-      steps: stepList,
-      baseToken: USDC_L2_TOKEN,
-    }),
+    () =>
+      ({
+        steps: stepList,
+        token: USDC_L2_TOKEN,
+      }) satisfies Execution,
     [stepList],
   )
   let buttonText = ""
