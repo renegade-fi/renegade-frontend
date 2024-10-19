@@ -22,10 +22,11 @@ export async function getPriceFromPriceReporter(
     return price
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      console.error(`Fetch aborted due to timeout for topic: ${topic}`)
+      console.warn(`Fetch aborted due to timeout for topic: ${topic}`)
       throw new Error(`Fetch request timed out for topic: ${topic}`)
+    } else {
+      console.warn("Error fetching price:", error)
     }
-    console.error("Error fetching price:", error)
     throw error
   } finally {
     clearTimeout(timeoutId)

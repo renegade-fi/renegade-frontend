@@ -33,5 +33,6 @@ export function usePriceQuery(
     queryFn: () => getPriceFromPriceReporter(topic),
     initialData: 0,
     staleTime: Infinity,
+    retry: false,
   })
 }

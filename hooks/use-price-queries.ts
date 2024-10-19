@@ -49,6 +49,7 @@ export function usePriceQueries(
         getPriceFromPriceReporter(createPriceTopic(exchange, token.address)),
       initialData: 0,
       staleTime: Infinity,
+      retry: false,
     })),
   })
 }
