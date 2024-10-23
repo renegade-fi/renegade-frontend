@@ -22,7 +22,7 @@ export async function GET() {
       `Calculating net flow from ${new Date(twentyFourHoursAgo).toISOString()} to ${new Date(now).toISOString()}`,
     )
 
-    const transactionHashes = await getAllSetMembers(kv, INFLOWS_SET_KEY)
+    const transactionHashes = await getAllSetMembers(INFLOWS_SET_KEY)
     console.log(`Retrieved ${transactionHashes.length} transaction hashes`)
 
     // Use fetch pipeline to get all data in a single round-trip

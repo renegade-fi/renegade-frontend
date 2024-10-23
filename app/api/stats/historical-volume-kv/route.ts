@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server"
 
-import { kv } from "@vercel/kv"
-
 import { HISTORICAL_VOLUME_SET_KEY } from "@/app/api/stats/constants"
 import { getAllSetMembers } from "@/app/lib/kv-utils"
 
@@ -22,7 +20,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   try {
-    const allKeys = await getAllSetMembers(kv, HISTORICAL_VOLUME_SET_KEY)
+    const allKeys = await getAllSetMembers(HISTORICAL_VOLUME_SET_KEY)
 
     const pipelineBody = JSON.stringify(allKeys.map((key) => ["GET", key]))
 
