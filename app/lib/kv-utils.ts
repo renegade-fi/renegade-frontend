@@ -1,11 +1,21 @@
-import { VercelKV } from "@vercel/kv"
+export async function getAllSetMembers(key: string): Promise<string[]> {
+  const response = await fetch(
+    `${process.env.KV_REST_API_URL}/smembers/${key}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+      },
+      cache: "no-store",
+    },
+  )
 
-export async function getAllSetMembers(
-  kv: VercelKV,
-  key: string,
-): Promise<string[]> {
-  const members = await kv.smembers(key)
-  return members.filter(
-    (member): member is string => typeof member === "string",
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+
+  const data = await response.json()
+  return data.result.filter(
+    (member: unknown): member is string => typeof member === "string",
   )
 }

@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server"
 
-import { kv } from "@vercel/kv"
-
 import {
   BucketData,
   ExternalTransferData,
@@ -23,7 +21,7 @@ export async function GET(req: NextRequest) {
       req.nextUrl.searchParams.get("interval") || "86400000",
     )
 
-    const transactionHashes = await getAllSetMembers(kv, INFLOWS_SET_KEY)
+    const transactionHashes = await getAllSetMembers(INFLOWS_SET_KEY)
 
     // Use fetch pipeline to get all data in a single round-trip
     const pipelineBody = JSON.stringify(
