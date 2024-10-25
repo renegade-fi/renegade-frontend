@@ -8,9 +8,9 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
-import { useCheckInsufficientBalancesForOrder } from "@/hooks/use-check-insufficient-balances-for-order"
+import { useIsOrderUndercapitalized } from "@/hooks/use-is-order-undercapitalized"
 import { Side } from "@/lib/constants/protocol"
-import { INSUFFICIENT_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
+import { UNDERCAPITALIZED_ORDER_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
 
 export function InsufficientWarning({
@@ -30,14 +30,14 @@ export function InsufficientWarning({
   side: Side
   withDialog?: boolean
 }) {
-  const { isInsufficient, token } = useCheckInsufficientBalancesForOrder({
+  const { isUndercapitalized, token } = useIsOrderUndercapitalized({
     amount,
     baseMint,
     quoteMint,
     side,
   })
 
-  if (!isInsufficient) return null
+  if (!isUndercapitalized) return null
 
   const warningContent = (
     <div className={cn("flex items-center gap-2", className)}>
@@ -66,7 +66,7 @@ export function InsufficientWarning({
         </ResponsiveTooltipTrigger>
         <ResponsiveTooltipContent>
           <p>
-            {INSUFFICIENT_BALANCE_TOOLTIP({
+            {UNDERCAPITALIZED_ORDER_TOOLTIP({
               ticker: token.ticker,
             })}
           </p>

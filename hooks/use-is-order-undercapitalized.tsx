@@ -4,19 +4,17 @@ import { formatUnits } from "viem/utils"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
 
-interface CheckInsufficientBalancesProps {
-  amount: bigint
-  baseMint: `0x${string}`
-  quoteMint: `0x${string}`
-  side: Side
-}
-
-export function useCheckInsufficientBalancesForOrder({
+export function useIsOrderUndercapitalized({
   amount,
   baseMint,
   quoteMint,
   side,
-}: CheckInsufficientBalancesProps) {
+}: {
+  amount: bigint
+  baseMint: `0x${string}`
+  quoteMint: `0x${string}`
+  side: Side
+}) {
   const baseToken = Token.findByAddress(baseMint)
   const quoteToken = Token.findByAddress(quoteMint)
   const token = side === Side.BUY ? quoteToken : baseToken
@@ -30,7 +28,7 @@ export function useCheckInsufficientBalancesForOrder({
 
   const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount)
 
-  const isInsufficient = (() => {
+  const isUndercapitalized = (() => {
     if (side === Side.BUY) {
       const formattedUsdPrice = formatUnits(
         usdPrice,
@@ -46,7 +44,7 @@ export function useCheckInsufficientBalancesForOrder({
   })()
 
   return {
-    isInsufficient,
+    isUndercapitalized,
     token,
   }
 }
