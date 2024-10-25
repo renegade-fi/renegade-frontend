@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token, useStatus } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -9,6 +9,7 @@ import { z } from "zod"
 import { setBase, setIsUSDCDenominated } from "@/app/trade/[base]/actions"
 import { ConnectButton } from "@/app/trade/[base]/components/connect-button"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
+import { DepositWarning } from "@/app/trade/[base]/components/new-order/deposit-warning"
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections"
 import { MaxOrdersWarning } from "@/app/trade/[base]/components/new-order/max-orders-warning"
 import { NoBalanceSlotWarning } from "@/app/trade/[base]/components/new-order/no-balance-slot-warning"
@@ -136,6 +137,21 @@ export function NewOrderForm({
 
     return unbind
   }, [form])
+
+  const { data: hasBalances } = useBackOfQueueWallet({
+    query: {
+      select: (data) => {
+        const baseToken = Token.findByTicker(base)
+        const quoteToken = Token.findByTicker("USDC")
+        return data.balances.some(
+          (balance) =>
+            balance.amount > BigInt(0) &&
+            (balance.mint === baseToken.address ||
+              balance.mint === quoteToken.address),
+        )
+      },
+    },
+  })
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
     if (parseFloat(priceInUsd) < 1) {
@@ -280,6 +296,13 @@ export function NewOrderForm({
           isSell={form.getValues("isSell")}
           ticker={base}
         />
+        <div>
+          <DepositWarning
+            className="text-sm text-orange-400"
+            ticker={base}
+          />
+        </div>
+
         {status === "in relayer" ? (
           <div className="hidden lg:block">
             <ResponsiveTooltip>
@@ -287,6 +310,7 @@ export function NewOrderForm({
                 <Button
                   className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
                   disabled={
+                    !hasBalances ||
                     !form.formState.isValid ||
                     isMaxOrders ||
                     (maintenanceMode?.enabled &&
@@ -352,6 +376,7 @@ export function NewOrderForm({
           <Button
             className="flex-1 font-extended text-lg"
             disabled={
+              !hasBalances ||
               !form.formState.isValid ||
               isMaxOrders ||
               (maintenanceMode?.enabled &&

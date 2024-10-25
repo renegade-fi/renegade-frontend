@@ -27,3 +27,5 @@ export const TRANSFER_DIALOG_BRIDGE_TOOLTIP =
   "Renegade only supports deposits on the Arbitrum network."
 export const TRANSFER_DIALOG_L1_BALANCE_TOOLTIP =
   "Bridge to Arbitrum to deposit."
+export const ORDER_FORM_DEPOSIT_WARNING = ({ ticker }: { ticker: string }) =>
+  `Deposit ${ticker} or USDC to your wallet to place an order.`
