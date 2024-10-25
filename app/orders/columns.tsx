@@ -106,7 +106,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     accessorKey: "state",
     header: () => <div>Status</div>,
     cell: function Cell({ row }) {
-      const { data: isCapitalized } = useBackOfQueueWallet({
+      const { data: isUndercapitalized } = useBackOfQueueWallet({
         query: {
           select: (data) =>
             data.balances.some(
@@ -115,12 +115,12 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                   (row.original.data.side === "Buy"
                     ? row.original.data.quote_mint
                     : row.original.data.base_mint) &&
-                balance.amount > BigInt(0),
+                balance.amount > row.original.data.amount,
             ),
         },
       })
       let status: string = formatOrderState[row.getValue<OrderState>("status")]
-      if (!isCapitalized && status === "Open") {
+      if (!isUndercapitalized && status === "Open") {
         status = "Undercapitalized"
       }
       return <div className="whitespace-nowrap">{status}</div>
