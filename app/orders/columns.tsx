@@ -14,11 +14,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { useCheckInsufficientBalancesForOrder } from "@/hooks/use-check-insufficient-balances-for-order"
+import { useIsOrderUndercapitalized } from "@/hooks/use-is-order-undercapitalized"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import { Side } from "@/lib/constants/protocol"
-import { INSUFFICIENT_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
+import { UNDERCAPITALIZED_ORDER_TOOLTIP } from "@/lib/constants/tooltips"
 import {
   formatCurrency,
   formatNumber,
@@ -63,7 +63,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
       const remainingAmount =
         row.original.data.amount -
         row.original.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
-      const { isInsufficient } = useCheckInsufficientBalancesForOrder({
+      const { isUndercapitalized } = useIsOrderUndercapitalized({
         amount: remainingAmount,
         baseMint: row.original.data.base_mint,
         quoteMint: row.original.data.quote_mint,
@@ -81,7 +81,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
           OrderState.Matching,
           OrderState.SettlingMatch,
         ].includes(row.original.state) &&
-        isInsufficient
+        isUndercapitalized
       ) {
         return (
           <div className="flex items-center justify-center">
@@ -91,7 +91,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
               </TooltipTrigger>
               <TooltipContent>
                 <p className="font-sans">
-                  {INSUFFICIENT_BALANCE_TOOLTIP({ ticker: token.ticker })}
+                  {UNDERCAPITALIZED_ORDER_TOOLTIP({ ticker: token.ticker })}
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -106,21 +106,17 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     accessorKey: "state",
     header: () => <div>Status</div>,
     cell: function Cell({ row }) {
-      const { data: isUndercapitalized } = useBackOfQueueWallet({
-        query: {
-          select: (data) =>
-            data.balances.some(
-              (balance) =>
-                balance.mint ===
-                  (row.original.data.side === "Buy"
-                    ? row.original.data.quote_mint
-                    : row.original.data.base_mint) &&
-                balance.amount > row.original.data.amount,
-            ),
-        },
+      const remainingAmount =
+        row.original.data.amount -
+        row.original.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0))
+      const { isUndercapitalized } = useIsOrderUndercapitalized({
+        amount: remainingAmount,
+        baseMint: row.original.data.base_mint,
+        quoteMint: row.original.data.quote_mint,
+        side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
       })
       let status: string = formatOrderState[row.getValue<OrderState>("status")]
-      if (!isUndercapitalized && status === "Open") {
+      if (isUndercapitalized && status === "Open") {
         status = "Undercapitalized"
       }
       return <div className="whitespace-nowrap">{status}</div>
@@ -285,7 +281,8 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
         Number(filledAmount),
         Number(totalAmount),
       )
-      const { data: isCapitalized } = useBackOfQueueWallet({
+      // TODO: Check if amount > MIN_FILL_SIZE
+      const { data: isMatchable } = useBackOfQueueWallet({
         query: {
           select: (data) =>
             data.balances.some(
@@ -314,7 +311,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             </div>
           </div>
         )
-      } else if (isCapitalized) {
+      } else if (isMatchable) {
         return (
           <div className="whitespace-nowrap">
             Finding counterparties
