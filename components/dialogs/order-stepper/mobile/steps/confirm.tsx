@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { ConfirmOrderDisplay } from "@/components/dialogs/order-stepper/desktop/steps/default"
+import { IOISection } from "@/components/dialogs/order-stepper/ioi-section"
 import { useStepper } from "@/components/dialogs/order-stepper/mobile/new-order-stepper"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,7 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
@@ -22,6 +22,7 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { decimalCorrectPrice } from "@/lib/utils"
 
 export function ConfirmStep(props: NewOrderConfirmationProps) {
+  const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   const { onNext, setTaskId } = useStepper()
 
   const baseToken = Token.findByTicker(props.base)
@@ -40,6 +41,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
+    allowExternalMatches,
   })
 
   const { createOrder } = useCreateOrder({
@@ -59,11 +61,18 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
 
   return (
     <>
-      <DialogHeader className="p-6 text-left">
+      <DialogHeader className="px-6 pt-6 text-left">
         <DialogTitle className="font-extended">Review Order</DialogTitle>
       </DialogHeader>
-      <div className="space-y-6 overflow-y-auto px-6">
+      <div className="flex flex-col gap-6 overflow-y-auto p-6">
         <ConfirmOrderDisplay {...props} />
+        <div className="space-y-6 border p-6">
+          <IOISection
+            {...props}
+            allowExternalMatches={allowExternalMatches}
+            setAllowExternalMatches={setAllowExternalMatches}
+          />
+        </div>
       </div>
       <DialogFooter className="mt-auto flex-row p-6 pt-0">
         <DialogClose asChild>

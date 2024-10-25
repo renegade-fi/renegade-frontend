@@ -37,7 +37,7 @@ export function FeesSection({
           <TooltipTrigger asChild>
             <Button
               asChild
-              className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
+              className="h-5 cursor-pointer p-0 text-muted-foreground"
               type="button"
               variant="link"
             >
@@ -61,7 +61,7 @@ export function FeesSection({
           <TooltipTrigger>
             <Button
               asChild
-              className="h-5 cursor-pointer p-0 text-sm text-muted-foreground"
+              className="h-5 cursor-pointer p-0 text-muted-foreground"
               type="button"
               variant="link"
             >
