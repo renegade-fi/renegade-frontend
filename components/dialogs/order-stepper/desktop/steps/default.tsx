@@ -14,6 +14,7 @@ import {
   NewOrderConfirmationProps,
   useStepper,
 } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
+import { IOISection } from "@/components/dialogs/order-stepper/ioi-section"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,7 +40,12 @@ import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatNumber, safeParseUnits } from "@/lib/format"
 import { decimalCorrectPrice } from "@/lib/utils"
 
-export function DefaultStep(props: NewOrderConfirmationProps) {
+export function DefaultStep(
+  props: NewOrderConfirmationProps & {
+    allowExternalMatches: boolean
+    setAllowExternalMatches: (allowExternalMatches: boolean) => void
+  },
+) {
   const { onNext, setTaskId } = useStepper()
 
   const baseToken = Token.findByTicker(props.base)
@@ -58,6 +64,7 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
+    allowExternalMatches: props.allowExternalMatches,
   })
 
   const { createOrder } = useCreateOrder({
@@ -89,6 +96,13 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
       <ScrollArea className="max-h-[70vh]">
         <div className="space-y-6 p-6">
           <ConfirmOrderDisplay {...props} />
+          <div className="space-y-6 border p-6 lg:hidden">
+            <IOISection
+              {...props}
+              allowExternalMatches={props.allowExternalMatches}
+              setAllowExternalMatches={props.setAllowExternalMatches}
+            />
+          </div>
         </div>
       </ScrollArea>
       <DialogFooter>
@@ -167,10 +181,12 @@ export function ConfirmOrderDisplay({
             <ResponsiveTooltipTrigger
               onClick={(e) => isDesktop && e.preventDefault()}
             >
-              <span className="text-muted-foreground">Network costs</span>
+              <span className="text-sm text-muted-foreground">
+                Network costs
+              </span>
             </ResponsiveTooltipTrigger>
             <ResponsiveTooltipContent>
-              <p>{GAS_FEE_TOOLTIP}</p>
+              {GAS_FEE_TOOLTIP}
             </ResponsiveTooltipContent>
           </ResponsiveTooltip>
           <div>$0.00</div>

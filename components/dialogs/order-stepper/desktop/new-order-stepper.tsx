@@ -1,19 +1,13 @@
 import * as React from "react"
 
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { DefaultStep } from "@/components/dialogs/order-stepper/desktop/steps/default"
 import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/desktop/steps/success-without-savings"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { IOISection } from "@/components/dialogs/order-stepper/ioi-section"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+
+import { cn } from "@/lib/utils"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void
@@ -27,20 +21,50 @@ export function NewOrderStepperInner({
   ...props
 }: React.PropsWithChildren<NewOrderConfirmationProps>) {
   const { step, open, setOpen } = useStepper()
+  const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   return (
     <Dialog
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(open) => {
+        setAllowExternalMatches(false)
+        setOpen(open)
+      }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="gap-0 p-0 sm:max-w-[425px]"
+        className="max-w-none border-none bg-transparent p-0 sm:max-w-[425px]"
         onOpenAutoFocus={(e) => {
           e.preventDefault()
         }}
       >
-        {step === Step.DEFAULT && <DefaultStep {...props} />}
-        {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
+        <div className="flex gap-4">
+          <div className="min-w-[425px] flex-1 border bg-background">
+            {step === Step.DEFAULT && (
+              <DefaultStep
+                {...props}
+                allowExternalMatches={allowExternalMatches}
+                setAllowExternalMatches={setAllowExternalMatches}
+              />
+            )}
+            {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
+          </div>
+          <div
+            className={cn(
+              "relative hidden max-h-fit whitespace-nowrap border bg-background lg:block",
+              {
+                hidden: step !== Step.DEFAULT,
+              },
+            )}
+          >
+            <div className="space-y-6 p-6">
+              <IOISection
+                {...props}
+                allowExternalMatches={allowExternalMatches}
+                setAllowExternalMatches={setAllowExternalMatches}
+              />
+            </div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )
