@@ -69,6 +69,10 @@ export const ADDITIONAL_TOKENS = {
   ),
 } as const
 
+export const SOLANA_TOKENS = {
+  USDC: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+} as const
+
 // Ethereum Mainnet tokens
 export const ETHEREUM_TOKENS = {
   USDC: new Token(
