@@ -24,6 +24,7 @@ import { isTestnet } from "@/lib/viem"
 import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { SideProvider } from "@/providers/side-provider"
+import { SolanaProvider } from "@/providers/solana-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 
@@ -98,33 +99,35 @@ export default async function RootLayout({
           defaultTheme="dark"
         >
           <RenegadeProvider initialState={renegadeInitialState}>
-            <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
-              <TailwindIndicator />
-              <TooltipProvider
-                delayDuration={0}
-                skipDelayDuration={0}
-              >
-                <SideProvider cookie={headers().get("cookie")}>
-                  <div className="select-none">{children}</div>
-                </SideProvider>
-              </TooltipProvider>
-              <Toaster
-                className="pointer-events-auto"
-                theme="light"
-                toastOptions={{ duration: 5000 }}
-                visibleToasts={MAX_ORDERS}
-              />
-              <InvalidateQueries />
-              <OrderToaster />
-              <TaskToaster />
-              <ReactQueryDevtools
-                buttonPosition="bottom-left"
-                initialIsOpen={false}
-              />
-              <Faucet />
-              <LazyDatadog />
-              <ClearCookie />
-            </WagmiProvider>
+            <SolanaProvider>
+              <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
+                <TailwindIndicator />
+                <TooltipProvider
+                  delayDuration={0}
+                  skipDelayDuration={0}
+                >
+                  <SideProvider cookie={headers().get("cookie")}>
+                    <div className="select-none">{children}</div>
+                  </SideProvider>
+                </TooltipProvider>
+                <Toaster
+                  className="pointer-events-auto"
+                  theme="light"
+                  toastOptions={{ duration: 5000 }}
+                  visibleToasts={MAX_ORDERS}
+                />
+                <InvalidateQueries />
+                <OrderToaster />
+                <TaskToaster />
+                <ReactQueryDevtools
+                  buttonPosition="bottom-left"
+                  initialIsOpen={false}
+                />
+                <Faucet />
+                <LazyDatadog />
+                <ClearCookie />
+              </WagmiProvider>
+            </SolanaProvider>
           </RenegadeProvider>
         </ThemeProvider>
         <Analytics />
