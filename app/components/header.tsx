@@ -10,6 +10,7 @@ import { mainnet } from "viem/chains"
 import { createConfig, http, useAccount, useEnsName } from "wagmi"
 
 import { AccountDropdown } from "@/app/components/account-menu"
+import { ConnectSolanaWallet } from "@/app/components/connect-solana-wallet"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 import { MobileNavSheet } from "@/app/components/mobile-nav-sheet"
 import { SettingsDropdown } from "@/app/trade/[base]/components/settings-dropdown"
@@ -151,6 +152,7 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end">
+          <ConnectSolanaWallet />
           {status === "in relayer" && (
             <>
               {/* <TaskHistorySheet>

@@ -19,10 +19,11 @@ import {
   checkAmount,
   checkBalance,
   formSchema,
-  getChainName,
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useSendSolanaTransaction } from "@/components/dialogs/transfer/hooks/use-send-solana-transaction"
+import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { NetworkSelect } from "@/components/dialogs/transfer/network-select"
 import { ReviewBridge } from "@/components/dialogs/transfer/review-bridge"
@@ -32,8 +33,8 @@ import { useBridgeQuote } from "@/components/dialogs/transfer/use-bridge-quote"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
+import { NetworkDisplay } from "@/components/network-display"
 import { NumberInput } from "@/components/number-input"
-import { TokenIcon } from "@/components/token-icon"
 import { TooltipButton } from "@/components/tooltip-button"
 import { Button } from "@/components/ui/button"
 import {
@@ -66,6 +67,7 @@ import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useSolanaTransactionConfirmation } from "@/hooks/use-solana-transaction-confirmation"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -78,15 +80,18 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
-import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS } from "@/lib/token"
+import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-import { chain } from "@/lib/viem"
+import { chain, getFormattedChainName, solana } from "@/lib/viem"
 import { useSide } from "@/providers/side-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
+
+import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
+const USDC_SOLANA_TOKEN = SOLANA_TOKENS["USDC"]
 
 const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
@@ -108,7 +113,7 @@ export function USDCForm({
   const queryClient = useQueryClient()
   const { setSide } = useSide()
   const [network, setNetwork] = React.useState<number>(chain.id)
-  const [steps, setSteps] = React.useState<string[]>([])
+  const [steps, setSteps] = React.useState<TransferStep[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
     null,
@@ -166,6 +171,16 @@ export function USDCForm({
     token: USDCE_L2_TOKEN,
   })
 
+  const {
+    bigint: usdcSolanaBalance,
+    string: formattedUsdcSolanaBalance,
+    formatted: usdcSolanaBalanceLabel,
+    nonZero: userHasUsdcSolanaBalance,
+    queryKey: usdcSolanaBalanceQueryKey,
+  } = useSolanaChainBalance({
+    ticker: "USDC",
+  })
+
   const combinedBalance =
     (usdcL2Balance ?? BigInt(0)) + (usdceL2Balance ?? BigInt(0))
   const formattedCombinedBalance = formatUnits(
@@ -197,10 +212,10 @@ export function USDCForm({
 
   // Fetch bridge quote
   const bridgeRequired = Boolean(
-    currentStep === 0 && network === mainnet.id && amount && Number(amount) > 0,
+    currentStep === 0 && network !== chain.id && amount && Number(amount) > 0,
   )
   const [debouncedAmount] = useDebounceValue(() => {
-    if (network === mainnet.id) return amount
+    if (network !== chain.id) return amount
     return ""
   }, 1000)
   const {
@@ -211,7 +226,8 @@ export function USDCForm({
     error: bridgeQuoteError,
   } = useBridgeQuote({
     fromChain: network,
-    fromMint: USDC_L1_TOKEN.address,
+    fromMint:
+      network === mainnet.id ? USDC_L1_TOKEN.address : USDC_SOLANA_TOKEN,
     toChain: chain.id,
     toMint: USDC_L2_TOKEN.address,
     amount: debouncedAmount.toString(),
@@ -266,7 +282,7 @@ export function USDCForm({
         await queryClient.refetchQueries({ queryKey: bridgeQuoteQueryKey })
       }
       await switchChainAndInvoke(mainnet.id, () =>
-        handleBridge(
+        handleEVMBridge(
           // @ts-ignore
           {
             // TODO: Maybe unsafe
@@ -279,10 +295,62 @@ export function USDCForm({
     mainnetConfig,
   )
 
-  // Bridge
+  // Solana Bridge
+  const {
+    mutateAsync: handleSolanaBridge,
+    data: solanaBridgeHash,
+    status: solanaBridgeStatus,
+  } = useSendSolanaTransaction((error) => {
+    catchError(error, "Couldn't bridge")
+  })
+
+  const solanaConfirmationStatus = useSolanaTransactionConfirmation(
+    solanaBridgeHash,
+    async () => {
+      queryClient.invalidateQueries({ queryKey: usdcSolanaBalanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
+    },
+  )
+
+  // useBridgeConfirmation for solana bridge action
+  const { data: solanaBridgeExecutionStatus } = useBridgeConfirmation(
+    solanaBridgeHash,
+    async (bridge) => {
+      queryClient.invalidateQueries({ queryKey: usdcSolanaBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
+      if (allowanceRequired) {
+        await switchChainAndInvoke(chain.id, () =>
+          handleApprove({
+            address: USDC_L2_TOKEN.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              UNLIMITED_ALLOWANCE,
+            ],
+          }),
+        )
+      } else {
+        await switchChainAndInvoke(chain.id, () =>
+          handleDeposit({
+            amount:
+              network !== chain.id
+                ? formatUnits(
+                    BigInt(bridge.receivedAmount ?? 0),
+                    USDC_L2_TOKEN.decimals,
+                  )
+                : amount,
+            mint,
+            onSuccess: handleDepositSuccess,
+          }),
+        )
+      }
+    },
+  )
+
+  // EVM Bridge
   const {
     data: bridgeHash,
-    sendTransaction: handleBridge,
+    sendTransaction: handleEVMBridge,
     status: bridgeStatus,
   } = useSendTransaction({
     mutation: {
@@ -532,36 +600,41 @@ export function USDCForm({
       balance:
         network === mainnet.id
           ? usdcL1Balance
-          : swapRequired
-            ? combinedBalance
-            : usdcL2Balance,
+          : network === solana.id
+            ? usdcSolanaBalance
+            : swapRequired
+              ? combinedBalance
+              : usdcL2Balance,
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
-        message: `Insufficient ${getChainName(network)} balance`,
+        message: `Insufficient ${getFormattedChainName(network)} balance`,
       })
       return
     }
 
     // Calculate and set initial steps
     setSteps(() => {
-      const steps = []
+      const steps: TransferStep[] = []
       if (network === mainnet.id) {
         if (bridgeAllowanceRequired) {
-          steps.push("Approve Bridge")
+          steps.push(EVMStep.APPROVE_BRIDGE)
         }
-        steps.push("Source bridge")
-        steps.push("Destination bridge")
+        steps.push(EVMStep.SOURCE_BRIDGE)
+        steps.push(EVMStep.DESTINATION_BRIDGE)
+      } else if (network === solana.id) {
+        steps.push(SVMStep.SOURCE_BRIDGE)
+        steps.push(SVMStep.DESTINATION_BRIDGE)
       } else if (swapRequired) {
         if (swapAllowanceRequired) {
-          steps.push("Approve Swap")
+          steps.push(EVMStep.APPROVE_SWAP)
         }
-        steps.push("Swap USDC.e to USDC")
+        steps.push(EVMStep.SWAP)
       }
       if (allowanceRequired) {
-        steps.push("Approve Deposit")
+        steps.push(EVMStep.APPROVE_DEPOSIT)
       }
-      steps.push("Deposit USDC")
+      steps.push(EVMStep.DEPOSIT)
       return steps
     })
     setCurrentStep(0)
@@ -587,7 +660,7 @@ export function USDCForm({
         )
       } else {
         await switchChainAndInvoke(mainnet.id, async () =>
-          handleBridge(
+          handleEVMBridge(
             // @ts-ignore
             {
               ...bridgeQuote?.transactionRequest,
@@ -595,6 +668,15 @@ export function USDCForm({
             },
           ),
         )
+      }
+    } else if (network === solana.id) {
+      if (!bridgeQuote) {
+        form.setError("root", {
+          message: "Couldn't fetch bridge quote",
+        })
+        return
+      } else {
+        handleSolanaBridge(bridgeQuote.transactionRequest)
       }
     }
     // await queryClient.refetchQueries({ queryKey: quoteQueryKey })
@@ -650,62 +732,79 @@ export function USDCForm({
   const stepList: (Step | undefined)[] = React.useMemo(() => {
     return steps.map((step) => {
       switch (step) {
-        case "Approve Bridge":
+        case EVMStep.APPROVE_BRIDGE:
           return {
             type: "transaction",
             txHash: approveBridgeHash,
             mutationStatus: approveBridgeStatus,
             txStatus: approveBridgeConfirmationStatus,
-            label: step,
-            chainId: mainnet.id,
+            label: STEP_CONFIGS[EVMStep.APPROVE_BRIDGE].label,
+            chainId: STEP_CONFIGS[EVMStep.APPROVE_BRIDGE].chainId,
           }
-        case "Source bridge":
+        case SVMStep.SOURCE_BRIDGE:
+          return {
+            type: "transaction",
+            txHash: solanaBridgeHash as `0x${string}`,
+            mutationStatus: solanaBridgeStatus,
+            txStatus: solanaConfirmationStatus,
+            label: STEP_CONFIGS[SVMStep.SOURCE_BRIDGE].label,
+            chainId: STEP_CONFIGS[SVMStep.SOURCE_BRIDGE].chainId,
+          }
+        case SVMStep.DESTINATION_BRIDGE:
+          return {
+            type: "lifi",
+            lifiExplorerLink: solanaBridgeExecutionStatus?.lifiExplorerLink,
+            txHash: solanaBridgeExecutionStatus?.receiveHash as `0x${string}`,
+            txStatus: normalizeStatus(solanaBridgeExecutionStatus?.status),
+            label: STEP_CONFIGS[SVMStep.DESTINATION_BRIDGE].label,
+          }
+        case EVMStep.SOURCE_BRIDGE:
           return {
             type: "transaction",
             txHash: bridgeHash,
             mutationStatus: bridgeStatus,
             txStatus: sendBridgeConfirmationStatus,
-            label: `Source chain transaction`,
-            chainId: mainnet.id,
+            label: STEP_CONFIGS[EVMStep.SOURCE_BRIDGE].label,
+            chainId: STEP_CONFIGS[EVMStep.SOURCE_BRIDGE].chainId,
           }
-        case "Destination bridge":
+        case EVMStep.DESTINATION_BRIDGE:
           return {
             type: "lifi",
             lifiExplorerLink: bridgeExecutionStatus?.lifiExplorerLink,
             txHash: bridgeExecutionStatus?.receiveHash as `0x${string}`,
             txStatus: normalizeStatus(bridgeExecutionStatus?.status),
-            label: `Destination chain transaction`,
+            label: STEP_CONFIGS[EVMStep.DESTINATION_BRIDGE].label,
           }
-        case "Approve Swap":
+        case EVMStep.APPROVE_SWAP:
           return {
             type: "transaction",
             txHash: approveSwapHash,
             mutationStatus: approveSwapStatus,
             txStatus: approveSwapConfirmationStatus,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.APPROVE_SWAP].label,
           }
-        case "Swap USDC.e to USDC":
+        case EVMStep.SWAP:
           return {
             type: "transaction",
             txHash: swapHash,
             mutationStatus: swapStatus,
             txStatus: swapConfirmationStatus?.status,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.SWAP].label,
           }
-        case "Approve Deposit":
+        case EVMStep.APPROVE_DEPOSIT:
           return {
             type: "transaction",
             txHash: approveHash,
             mutationStatus: approveStatus,
             txStatus: approveConfirmationStatus,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.APPROVE_DEPOSIT].label,
           }
-        case "Deposit USDC":
+        case EVMStep.DEPOSIT:
           return {
             type: "task",
             mutationStatus: depositStatus,
             taskStatus: depositTaskStatus,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.DEPOSIT].label,
           }
         default:
           return undefined
@@ -729,11 +828,41 @@ export function USDCForm({
     depositStatus,
     depositTaskStatus,
     sendBridgeConfirmationStatus,
+    solanaBridgeExecutionStatus?.lifiExplorerLink,
+    solanaBridgeExecutionStatus?.receiveHash,
+    solanaBridgeExecutionStatus?.status,
+    solanaBridgeHash,
+    solanaBridgeStatus,
+    solanaConfirmationStatus,
     steps,
     swapConfirmationStatus?.status,
     swapHash,
     swapStatus,
   ])
+
+  // Debug formatted step list
+  console.log(
+    "Step List Status:\n" +
+      stepList
+        .map((step, index) => {
+          if (!step) return `${index}. undefined step`
+          return [
+            `${index + 1}. ${step.label}`,
+            `  txHash: ${step.type === "task" ? "N/A" : step.txHash}`,
+            `  mutationStatus: ${step.mutationStatus}`,
+            `  ${step.type === "task" ? "taskStatus" : "txStatus"}: ${
+              step.type === "task" ? step.taskStatus : step.txStatus
+            }`,
+            step.type === "lifi"
+              ? `  explorerLink: ${step.lifiExplorerLink ?? "none"}`
+              : "",
+            step.chainId ? `  chainId: ${step.chainId}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n")
+        })
+        .join("\n\n"),
+  )
 
   const execution = React.useMemo(
     () =>
@@ -858,7 +987,7 @@ export function USDCForm({
             <div className={cn("flex flex-col gap-6", className)}>
               <div
                 className={cn("flex flex-col space-y-2", {
-                  hidden: !userHasUsdcL1Balance,
+                  hidden: !userHasUsdcL1Balance && !userHasUsdcSolanaBalance,
                 })}
               >
                 <Label>Network</Label>
@@ -927,11 +1056,7 @@ export function USDCForm({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     Balance on&nbsp;
-                    <TokenIcon
-                      size={16}
-                      ticker="ARB"
-                    />
-                    Arbitrum
+                    <NetworkDisplay chainId={chain.id} />
                   </div>
                   <div className="flex items-center">
                     <TooltipButton
@@ -976,16 +1101,41 @@ export function USDCForm({
 
               <div
                 className={cn("flex justify-between", {
+                  hidden: !userHasUsdcSolanaBalance,
+                })}
+              >
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance on&nbsp;
+                  <NetworkDisplay chainId={solana.id} />
+                </div>
+                <div className="flex items-center">
+                  <TooltipButton
+                    className="h-5 p-0 font-mono text-sm"
+                    tooltipContent={`${usdcSolanaBalanceLabel} USDC`}
+                    variant="link"
+                    onClick={() => {
+                      if (Number(formattedUsdcSolanaBalance)) {
+                        setNetwork(solana.id)
+                        form.setValue("amount", formattedUsdcSolanaBalance, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    }}
+                  >
+                    {`${usdcSolanaBalanceLabel} USDC`}
+                  </TooltipButton>
+                </div>
+              </div>
+
+              <div
+                className={cn("flex justify-between", {
                   hidden: !userHasUsdcL1Balance,
                 })}
               >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
-                  <TokenIcon
-                    size={16}
-                    ticker="WETH"
-                  />
-                  Ethereum
+                  <NetworkDisplay chainId={mainnet.id} />
                 </div>
                 <TooltipButton
                   className="h-5 p-0 font-mono text-sm"
@@ -1016,7 +1166,7 @@ export function USDCForm({
                 </>
               ) : !swapRequired ? (
                 <BridgePromptUSDC
-                  hasUSDC={userHasUsdcL1Balance}
+                  hasUSDC={userHasUsdcL1Balance || userHasUsdcSolanaBalance}
                   onClick={() => {
                     if (Number(formattedUsdcL1Balance)) {
                       setNetwork(mainnet.id)

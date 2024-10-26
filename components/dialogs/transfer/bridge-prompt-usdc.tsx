@@ -25,9 +25,8 @@ export function BridgePromptUSDC({
     >
       <div className="space-y-0.5">
         <div className="text-sm font-medium">
-          Bridge and deposit USDC from Ethereum with 1-click.
+          Bridge and deposit USDC from Ethereum or Solana with 1-click.
         </div>
-        <div className="text-[0.8rem]">{`Powered by Across`}</div>
       </div>
     </div>
   )
@@ -39,7 +38,9 @@ export function BridgePromptUSDC({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{content}</TooltipTrigger>
-      <TooltipContent>You need USDC on Ethereum to bridge.</TooltipContent>
+      <TooltipContent>
+        You need USDC on Ethereum or Solana to bridge.
+      </TooltipContent>
     </Tooltip>
   )
 }
