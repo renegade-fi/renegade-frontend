@@ -12,7 +12,9 @@ import {
 import { motion } from "framer-motion"
 import { formatUnits } from "viem/utils"
 
-import { getChainName } from "@/components/dialogs/transfer/helpers"
+import { allowBridges } from "@/components/dialogs/transfer/use-bridge-quote"
+
+import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem"
 
 function Layout({
   children,
@@ -88,10 +90,10 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   } = quote
 
   // Only support Across for now
-  if (toolKey !== "across") {
+  if (!allowBridges.includes(toolKey)) {
     return (
       <div className="text-center text-muted-foreground">
-        Bridging is currently unavailable, please try again later.
+        {`${toolKey} not in allowed bridges`}
       </div>
     )
   }
@@ -115,7 +117,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
             <div className="space-y-3 text-left">
               <div className="flex items-center gap-2">
                 <InfoCircledIcon className="h-4 w-4" />
-                <span>{`Review bridge from ${getChainName(fromChainId)} to ${getChainName(toChainId)}`}</span>
+                <span>{`Review bridge from ${getFormattedChainName(fromChainId)} to ${getFormattedChainName(toChainId)}`}</span>
               </div>
               <div className="accordion-label text-muted-foreground transition-all">{`Bridge ${fromAmountFormatted} ${fromSymbol} using ${toolName}`}</div>
             </div>
@@ -135,14 +137,14 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
               value={toAmountFormatted}
             />
             <Row
-              imageUri="/tokens/weth.png"
+              imageUri={`/tokens/${getChainLogoTicker(fromChainId)}.png`}
               label="From"
-              value={getChainName(fromChainId)}
+              value={getFormattedChainName(fromChainId)}
             />
             <Row
-              imageUri="/tokens/arb.png"
+              imageUri={`/tokens/${getChainLogoTicker(toChainId)}.png`}
               label="To"
-              value={getChainName(toChainId)}
+              value={getFormattedChainName(toChainId)}
             />
             <Row
               imageUri={toolLogoURI}

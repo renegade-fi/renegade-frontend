@@ -22,12 +22,20 @@ function hasReceiving(
 // Type guard to check if the status response has a 'lifiExplorerLink' property
 function hasLifiExplorerLink(
   data: StatusResponse,
-): data is StatusResponse & { lifiExplorerLink: string } {
-  return "lifiExplorerLink" in data
+): data is StatusResponse & { bridgeExplorerLink: string } {
+  return "bridgeExplorerLink" in data
+}
+
+const defaultValues = {
+  status: "NOT_FOUND" as StatusMessage,
+  sendHash: "",
+  lifiExplorerLink: "",
+  receivedAmount: "0",
+  receiveHash: "",
 }
 
 export function useBridgeConfirmation(
-  hash?: `0x${string}`,
+  hash?: string,
   onConfirm?: (data: typeof processedData) => Promise<void>,
 ) {
   const { data, status } = useQuery({
@@ -45,19 +53,14 @@ export function useBridgeConfirmation(
   // TODO: Test this
   // Previous issue was this step was transitioning to pending too soon
   const processedData = React.useMemo(() => {
-    const defaultValues = {
-      status: "NOT_FOUND" as StatusMessage,
-      sendHash: "",
-      lifiExplorerLink: "",
-      receivedAmount: "0",
-      receiveHash: "",
-    }
     if (!data) return defaultValues
 
     return {
       status: data.status,
       sendHash: data.sending?.txHash ?? "",
-      lifiExplorerLink: hasLifiExplorerLink(data) ? data.lifiExplorerLink : "",
+      lifiExplorerLink: hasLifiExplorerLink(data)
+        ? data.bridgeExplorerLink
+        : "",
       receivedAmount: hasReceiving(data) ? data.receiving.amount ?? "0" : "0",
       receiveHash: hasReceiving(data) ? data.receiving.txHash ?? "" : "",
     }
@@ -83,12 +86,6 @@ export function useBridgeConfirmation(
   }, [hash])
 
   return {
-    data: processedData ?? {
-      status: "NOT_FOUND" as StatusMessage,
-      sendHash: "",
-      lifiExplorerLink: "",
-      receivedAmount: "0",
-      receiveHash: "",
-    },
+    data: processedData ?? defaultValues,
   }
 }
