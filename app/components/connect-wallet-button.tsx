@@ -1,4 +1,4 @@
-import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
+import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 import { Button } from "@/components/ui/button"
 
 import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"
