@@ -20,7 +20,7 @@ export function DepositBanner() {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 
   React.useEffect(() => {
-    let timeoutId: NodeJS.Timeout
+    let timeoutId: ReturnType<typeof setTimeout>
     if (data === 0) {
       timeoutId = setTimeout(() => setIsVisible(true), 100)
     } else {
