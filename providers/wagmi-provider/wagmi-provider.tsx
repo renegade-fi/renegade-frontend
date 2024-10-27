@@ -16,7 +16,7 @@ import {
   useAccountEffect,
 } from "wagmi"
 
-import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
+import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
 import { cookieStorage } from "@/lib/cookie"
 import { getURL } from "@/lib/utils"
@@ -109,11 +109,12 @@ export function WagmiProvider({
         >
           {children}
           <SyncRenegadeWagmiState />
+          {/* TODO: Any issues with this? */}
+          <SignInDialog
+            open={open}
+            onOpenChange={setOpen}
+          />
         </ConnectKitProvider>
-        <SignInDialog
-          open={open}
-          onOpenChange={setOpen}
-        />
       </QueryProvider>
     </Provider>
   )

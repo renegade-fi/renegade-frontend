@@ -1,6 +1,6 @@
 import { useStatus } from "@renegade-fi/react"
 
-import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
+import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 import { TableCell, TableRow } from "@/components/ui/table"
 
 import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"

@@ -2,8 +2,8 @@
 
 import { useStatus } from "@renegade-fi/react"
 
+import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 import { NewOrderStepper } from "@/components/dialogs/order-stepper/mobile/new-order-stepper"
-import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 
