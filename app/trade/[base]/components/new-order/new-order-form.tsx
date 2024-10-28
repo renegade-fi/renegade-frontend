@@ -306,7 +306,10 @@ export function NewOrderForm({
         {status === "in relayer" ? (
           <div className="hidden lg:block">
             <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger className="!pointer-events-auto w-full">
+              <ResponsiveTooltipTrigger
+                asChild
+                className="!pointer-events-auto w-full"
+              >
                 <Button
                   className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
                   disabled={

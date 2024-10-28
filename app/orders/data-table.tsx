@@ -212,7 +212,10 @@ export function DataTable<TData, TValue>({
           </Button>
         ) : null}
         <ResponsiveTooltip>
-          <ResponsiveTooltipTrigger className="sm:ml-auto">
+          <ResponsiveTooltipTrigger
+            asChild
+            className="sm:ml-auto"
+          >
             <Button
               className="text-muted-foreground"
               disabled={
