@@ -28,7 +28,10 @@ export function CancelButton({
   const { data: maintenanceMode } = useMaintenanceMode()
   return (
     <ResponsiveTooltip>
-      <ResponsiveTooltipTrigger className="!pointer-events-auto w-full">
+      <ResponsiveTooltipTrigger
+        asChild
+        className="!pointer-events-auto w-full"
+      >
         <Button
           autoFocus
           className={cn("w-full flex-1", className)}
