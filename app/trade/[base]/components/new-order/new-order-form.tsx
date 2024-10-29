@@ -320,6 +320,7 @@ export function NewOrderForm({
                       maintenanceMode.severity === "critical")
                   }
                   size="xl"
+                  type="submit"
                   variant="default"
                 >
                   {form.getValues("isSell") ? "Sell" : "Buy"} {base}
