@@ -18,9 +18,6 @@ import {
 export function ConnectSolanaWallet() {
   const wallets = useWallets()
   const { select, disconnect, connected } = useWallet()
-  const { connection } = useConnection()
-  console.log("🚀 ~ ConnectSolanaWallet ~ connection:", connection)
-  console.log("🚀 ~ ConnectSolanaWallet ~ connected:", connected)
 
   const connect = async (wallet: Wallet) => {
     console.log("connecting", wallet.adapter.name)

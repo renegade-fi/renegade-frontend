@@ -1,5 +1,6 @@
 import { QuoteRequest, getQuote, getStatus } from "@lifi/sdk"
 import { Token } from "@renegade-fi/react"
+import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
 import { useAccount } from "wagmi"
 
@@ -7,7 +8,7 @@ import { safeParseUnits } from "@/lib/format"
 
 export interface UseBridgeParams {
   fromChain: number
-  fromMint: `0x${string}`
+  fromMint: string
   toChain: number
   toMint: `0x${string}`
   amount: string
@@ -52,7 +53,13 @@ function useParams({
   toChain,
 }: UseBridgeParams): QuoteRequest | undefined {
   const { address } = useAccount()
-  if (!address || !toMint || !Number(amount)) {
+  const { publicKey: solanaWallet } = useSolanaWallet()
+  const fromAddress = [1, 42161, 421614].includes(fromChain)
+    ? address
+    : fromChain === 1151111081099710 && solanaWallet
+      ? solanaWallet.toString()
+      : undefined
+  if (!fromAddress || !toMint || !Number(amount)) {
     return undefined
   }
 
@@ -65,13 +72,14 @@ function useParams({
   return {
     fromChain,
     fromToken: fromMint,
-    fromAddress: address,
+    fromAddress,
     fromAmount: parsedAmount.toString(),
+    toAddress: address,
     toChain,
     toToken: toMint,
     order: "FASTEST",
     slippage: 0.005,
-    allowBridges: ["across"],
+    // allowBridges: ["across"],
     allowExchanges: [],
   }
 }
