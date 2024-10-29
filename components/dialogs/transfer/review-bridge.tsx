@@ -13,6 +13,7 @@ import { motion } from "framer-motion"
 import { formatUnits } from "viem/utils"
 
 import { getChainName } from "@/components/dialogs/transfer/helpers"
+import { allowBridges } from "@/components/dialogs/transfer/use-bridge-quote"
 
 function Layout({
   children,
@@ -88,10 +89,10 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   } = quote
 
   // Only support Across for now
-  if (toolKey !== "across") {
+  if (!allowBridges.includes(toolKey)) {
     return (
       <div className="text-center text-muted-foreground">
-        Bridging is currently unavailable, please try again later.
+        {`${toolKey} not in allowed bridges`}
       </div>
     )
   }
