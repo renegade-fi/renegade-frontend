@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useAccount } from "wagmi"
 
 import { safeParseUnits } from "@/lib/format"
+import { solana } from "@/lib/viem"
 
 export interface UseBridgeParams {
   fromChain: number
@@ -45,6 +46,8 @@ export function useBridgeQuote({
   }
 }
 
+export const allowBridges = ["across", "mayan"]
+
 function useParams({
   fromMint,
   toMint,
@@ -56,8 +59,8 @@ function useParams({
   const { publicKey: solanaWallet } = useSolanaWallet()
   const fromAddress = [1, 42161, 421614].includes(fromChain)
     ? address
-    : fromChain === 1151111081099710 && solanaWallet
-      ? solanaWallet.toString()
+    : fromChain === solana.id
+      ? solanaWallet?.toString()
       : undefined
   if (!fromAddress || !toMint || !Number(amount)) {
     return undefined
@@ -79,7 +82,7 @@ function useParams({
     toToken: toMint,
     order: "FASTEST",
     slippage: 0.005,
-    // allowBridges: ["across"],
+    allowBridges,
     allowExchanges: [],
   }
 }
