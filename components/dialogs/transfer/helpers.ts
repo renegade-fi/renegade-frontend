@@ -7,7 +7,7 @@ import { z } from "zod"
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
-import { chain } from "@/lib/viem"
+import { chain, solana } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -130,12 +130,13 @@ export const CHAIN_NAME_MAP = {
   "Arbitrum One": "Arbitrum",
   "Arbitrum Sepolia": "Arbitrum",
   Ethereum: "Ethereum",
+  Solana: "Solana",
 } as const
 
 export function getChainName(chainId: number) {
   const _chain = extractChain({
-    chains: [mainnet, chain],
-    id: chainId as 1 | 421614 | 42161,
+    chains: [mainnet, chain, solana],
+    id: chainId as 1 | 421614 | 42161 | 1151111081099710,
   })
   return CHAIN_NAME_MAP[_chain.name]
 }

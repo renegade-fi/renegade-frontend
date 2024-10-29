@@ -20,7 +20,7 @@ import {
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
-import { chain } from "@/lib/viem"
+import { chain, solana } from "@/lib/viem"
 
 const networks = [
   {
@@ -33,7 +33,7 @@ const networks = [
   },
   {
     label: "Solana",
-    value: 1151111081099710, // Solana Mainnet according to LI.FI
+    value: solana.id,
   },
 ]
 

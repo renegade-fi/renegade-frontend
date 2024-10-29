@@ -82,7 +82,7 @@ import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-import { chain } from "@/lib/viem"
+import { chain, solana } from "@/lib/viem"
 import { useSide } from "@/providers/side-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
@@ -113,7 +113,6 @@ export function USDCForm({
   const [network, setNetwork] = React.useState<number>(chain.id)
   const [steps, setSteps] = React.useState<string[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
-  const { publicKey: solanaWallet } = useSolanaWallet()
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
     null,
   )
@@ -1003,7 +1002,7 @@ export function USDCForm({
                     variant="link"
                     onClick={() => {
                       if (Number(formattedUsdcSolanaBalance)) {
-                        setNetwork(1151111081099710) // Solana Mainnet
+                        setNetwork(solana.id)
                         form.setValue("amount", formattedUsdcSolanaBalance, {
                           shouldValidate: true,
                           shouldDirty: true,

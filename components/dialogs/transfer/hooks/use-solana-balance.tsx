@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 
 import { formatNumber } from "@/lib/format"
 import { SOLANA_TOKENS } from "@/lib/token"
+import { solana } from "@/lib/viem"
 
 function useSolanaToken(ticker: string) {
   if (!(ticker in SOLANA_TOKENS)) {
@@ -19,7 +20,7 @@ export function useTokenAccount(ticker: string) {
   const params = {
     ownerAddress: publicKey?.toString(),
     args: [mint.toString()],
-    chainId: 1151111081099710, // Solana Mainnet
+    chainId: solana.id,
     functionName: "getTokenAccountsByOwner",
   }
   return useQuery({
@@ -46,7 +47,7 @@ export function useSolanaBalance({
   const params = {
     tokenAddress: tokenAccountAddress?.toString(),
     args: [publicKey?.toString()],
-    chainId: 1151111081099710, // Solana Mainnet
+    chainId: solana.id,
     functionName: "getTokenAccountBalance",
   }
   const queryKey = ["readContract", params]
