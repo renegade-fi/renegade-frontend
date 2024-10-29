@@ -279,7 +279,7 @@ export function USDCForm({
         await queryClient.refetchQueries({ queryKey: bridgeQuoteQueryKey })
       }
       await switchChainAndInvoke(mainnet.id, () =>
-        handleBridge(
+        handleEVMBridge(
           // @ts-ignore
           {
             // TODO: Maybe unsafe
@@ -295,7 +295,7 @@ export function USDCForm({
   // Bridge
   const {
     data: bridgeHash,
-    sendTransaction: handleBridge,
+    sendTransaction: handleEVMBridge,
     status: bridgeStatus,
   } = useSendTransaction({
     mutation: {
@@ -600,7 +600,7 @@ export function USDCForm({
         )
       } else {
         await switchChainAndInvoke(mainnet.id, async () =>
-          handleBridge(
+          handleEVMBridge(
             // @ts-ignore
             {
               ...bridgeQuote?.transactionRequest,
