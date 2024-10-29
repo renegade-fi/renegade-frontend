@@ -2,7 +2,10 @@ import { Wallet, useConnection, useWallet } from "@solana/wallet-adapter-react"
 
 import { useWallets } from "@/app/hooks/use-solana-wallets"
 
-import { useSolanaBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
+import {
+  useSolanaBalance,
+  useSolanaChainBalance,
+} from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -31,14 +34,14 @@ export function ConnectSolanaWallet() {
       console.log("connected", publicKey.toString())
     })
   }
-  const { data: balance } = useSolanaBalance({ ticker: "USDC" })
+  const { formatted: balance } = useSolanaChainBalance({ ticker: "USDC" })
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button>
           {connected ? "Disconnect Solana Wallet" : "Connect Solana Wallet"}
-          {balance && <span>{balance.value.amount} USDC</span>}
+          &nbsp;{balance && <span>{balance} USDC</span>}
         </Button>
       </DialogTrigger>
       <DialogContent>
