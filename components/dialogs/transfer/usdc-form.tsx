@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType } from "@renegade-fi/react"
+import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -23,6 +24,7 @@ import {
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { NetworkSelect } from "@/components/dialogs/transfer/network-select"
 import { ReviewBridge } from "@/components/dialogs/transfer/review-bridge"
@@ -78,7 +80,7 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
-import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS } from "@/lib/token"
+import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 import { useSide } from "@/providers/side-provider"
@@ -87,6 +89,7 @@ import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
+const SOLANA_USDC_TOKEN = SOLANA_TOKENS["USDC"]
 
 const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
@@ -110,6 +113,7 @@ export function USDCForm({
   const [network, setNetwork] = React.useState<number>(chain.id)
   const [steps, setSteps] = React.useState<string[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
+  const { publicKey: solanaWallet } = useSolanaWallet()
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
     null,
   )
@@ -166,6 +170,14 @@ export function USDCForm({
     token: USDCE_L2_TOKEN,
   })
 
+  const {
+    string: formattedUsdcSolanaBalance,
+    formatted: usdcSolanaBalanceLabel,
+    nonZero: userHasUsdcSolanaBalance,
+  } = useSolanaChainBalance({
+    ticker: "USDC",
+  })
+
   const combinedBalance =
     (usdcL2Balance ?? BigInt(0)) + (usdceL2Balance ?? BigInt(0))
   const formattedCombinedBalance = formatUnits(
@@ -197,10 +209,10 @@ export function USDCForm({
 
   // Fetch bridge quote
   const bridgeRequired = Boolean(
-    currentStep === 0 && network === mainnet.id && amount && Number(amount) > 0,
+    currentStep === 0 && network !== chain.id && amount && Number(amount) > 0,
   )
   const [debouncedAmount] = useDebounceValue(() => {
-    if (network === mainnet.id) return amount
+    if (network !== chain.id) return amount
     return ""
   }, 1000)
   const {
@@ -211,12 +223,14 @@ export function USDCForm({
     error: bridgeQuoteError,
   } = useBridgeQuote({
     fromChain: network,
-    fromMint: USDC_L1_TOKEN.address,
+    fromMint:
+      network === mainnet.id ? USDC_L1_TOKEN.address : SOLANA_USDC_TOKEN,
     toChain: chain.id,
     toMint: USDC_L2_TOKEN.address,
     amount: debouncedAmount.toString(),
     enabled: bridgeRequired,
   })
+  console.log("🚀 ~ bridgeRequired:", bridgeRequired)
 
   // Check if bridge allowance is required
   const {
@@ -858,7 +872,7 @@ export function USDCForm({
             <div className={cn("flex flex-col gap-6", className)}>
               <div
                 className={cn("flex flex-col space-y-2", {
-                  hidden: !userHasUsdcL1Balance,
+                  hidden: !userHasUsdcL1Balance && !userHasUsdcSolanaBalance,
                 })}
               >
                 <Label>Network</Label>
@@ -970,6 +984,34 @@ export function USDCForm({
                     }}
                   >
                     {`${usdceL2BalanceLabel} USDC.e`}
+                  </TooltipButton>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance on&nbsp;
+                  <TokenIcon
+                    size={16}
+                    ticker="ARB"
+                  />
+                  Solana
+                </div>
+                <div className="flex items-center">
+                  <TooltipButton
+                    className="h-5 p-0 font-mono text-sm"
+                    tooltipContent={`${usdcSolanaBalanceLabel} USDC`}
+                    variant="link"
+                    onClick={() => {
+                      if (Number(formattedUsdcSolanaBalance)) {
+                        setNetwork(1151111081099710) // Solana Mainnet
+                        form.setValue("amount", formattedUsdcSolanaBalance, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    }}
+                  >
+                    {`${usdcSolanaBalanceLabel} USDC`}
                   </TooltipButton>
                 </div>
               </div>

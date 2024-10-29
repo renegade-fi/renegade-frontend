@@ -31,6 +31,10 @@ const networks = [
     label: "Ethereum",
     value: mainnet.id,
   },
+  {
+    label: "Solana",
+    value: 1151111081099710, // Solana Mainnet according to LI.FI
+  },
 ]
 
 export function NetworkSelect({

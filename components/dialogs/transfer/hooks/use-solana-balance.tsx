@@ -19,7 +19,7 @@ export function useTokenAccount(ticker: string) {
   const params = {
     ownerAddress: publicKey?.toString(),
     args: [mint.toString()],
-    chainId: 900, // Solana Mainnet
+    chainId: 1151111081099710, // Solana Mainnet
     functionName: "getTokenAccountsByOwner",
   }
   return useQuery({
@@ -46,7 +46,7 @@ export function useSolanaBalance({
   const params = {
     tokenAddress: tokenAccountAddress?.toString(),
     args: [publicKey?.toString()],
-    chainId: 900, // Solana Mainnet
+    chainId: 1151111081099710, // Solana Mainnet
     functionName: "getTokenAccountBalance",
   }
   const queryKey = ["readContract", params]
@@ -69,13 +69,16 @@ export function useSolanaChainBalance({
 }) {
   const { data: balance, queryKey } = useSolanaBalance({ ticker, enabled })
   const balanceValue = BigInt(balance?.value.amount ?? "0")
+  const formattedBalance = balance?.value.uiAmountString ?? ""
+  const formattedBalanceLabel = balance?.value.decimals
+    ? formatNumber(balanceValue, balance?.value.decimals, true)
+    : "--"
 
   return {
     bigint: balanceValue,
-    string: balance?.value.uiAmountString,
-    formatted:
-      balance?.value.decimals &&
-      formatNumber(balanceValue, balance?.value.decimals, true),
+    string: formattedBalance,
+    formatted: formattedBalanceLabel,
     queryKey,
+    nonZero: Boolean(balanceValue && balanceValue !== BigInt(0)),
   }
 }
