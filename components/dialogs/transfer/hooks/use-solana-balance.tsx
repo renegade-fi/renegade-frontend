@@ -2,7 +2,36 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { useQuery } from "@tanstack/react-query"
 
+import { formatNumber } from "@/lib/format"
 import { SOLANA_TOKENS } from "@/lib/token"
+
+function useSolanaToken(ticker: string) {
+  if (!(ticker in SOLANA_TOKENS)) {
+    throw new Error(`Invalid ticker: ${ticker}`)
+  }
+  return new PublicKey(SOLANA_TOKENS[ticker as keyof typeof SOLANA_TOKENS])
+}
+
+export function useTokenAccount(ticker: string) {
+  const { connection } = useConnection()
+  const { publicKey } = useWallet()
+  const mint = useSolanaToken(ticker)
+  const params = {
+    ownerAddress: publicKey?.toString(),
+    args: [mint.toString()],
+    chainId: 900, // Solana Mainnet
+    functionName: "getTokenAccountsByOwner",
+  }
+  return useQuery({
+    queryKey: ["readContract", params],
+    queryFn: () =>
+      connection.getTokenAccountsByOwner(publicKey!, {
+        mint,
+      }),
+    select: (data) => data.value[0]?.pubkey,
+    enabled: !!mint && !!publicKey,
+  })
+}
 
 export function useSolanaBalance({
   ticker,
@@ -13,20 +42,40 @@ export function useSolanaBalance({
 }) {
   const { connection } = useConnection()
   const { publicKey } = useWallet()
-  const token =
-    ticker in SOLANA_TOKENS
-      ? new PublicKey(SOLANA_TOKENS[ticker as keyof typeof SOLANA_TOKENS])
-      : undefined
+  const { data: tokenAccountAddress } = useTokenAccount(ticker)
   const params = {
-    address: token?.toString(),
+    tokenAddress: tokenAccountAddress?.toString(),
     args: [publicKey?.toString()],
     chainId: 900, // Solana Mainnet
     functionName: "getTokenAccountBalance",
   }
   const queryKey = ["readContract", params]
-  return useQuery({
+  return {
     queryKey,
-    queryFn: () => connection.getTokenAccountBalance(token!),
-    enabled: !!token && !!publicKey,
-  })
+    ...useQuery({
+      queryKey,
+      queryFn: () => connection.getTokenAccountBalance(tokenAccountAddress!),
+      enabled: !!tokenAccountAddress && !!publicKey && enabled,
+    }),
+  }
+}
+
+export function useSolanaChainBalance({
+  ticker,
+  enabled = true,
+}: {
+  ticker: string
+  enabled?: boolean
+}) {
+  const { data: balance, queryKey } = useSolanaBalance({ ticker, enabled })
+  const balanceValue = BigInt(balance?.value.amount ?? "0")
+
+  return {
+    bigint: balanceValue,
+    string: balance?.value.uiAmountString,
+    formatted:
+      balance?.value.decimals &&
+      formatNumber(balanceValue, balance?.value.decimals, true),
+    queryKey,
+  }
 }

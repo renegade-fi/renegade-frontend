@@ -27,10 +27,12 @@ const wallets: Adapter[] = []
 
 export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider
+      endpoint={process.env.NEXT_PUBLIC_RPC_URL_SOLANA_MAINNET!}
+    >
       <WalletProvider
-        wallets={wallets}
         autoConnect
+        wallets={wallets}
       >
         {children}
       </WalletProvider>
