@@ -18,32 +18,12 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/sign-in-dialog"
 
+import { useMediaQuery } from "@/hooks/use-media-query"
 import { cookieStorage } from "@/lib/cookie"
 import { getURL } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
-
-export const config = createConfig(
-  getDefaultConfig({
-    // TODO: Ensure user never signs message for mainnet
-    chains: [chain, mainnet],
-    transports: {
-      [chain.id]: http(),
-      [mainnet.id]: http("/api/proxy/mainnet"),
-    },
-    ssr: true,
-    storage: createStorage({
-      storage: cookieStorage,
-    }),
-
-    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
-
-    appName: "Renegade",
-    appDescription: "On-chain dark pool",
-    appUrl: "https://trade.renegade.fi",
-    appIcon: `${getURL()}/glyph_light.svg`,
-  }),
-)
+import { getConfig } from "@/providers/wagmi-provider/config"
 
 export const mainnetConfig = createConfig({
   chains: [mainnet],
@@ -89,12 +69,15 @@ export function WagmiProvider({
   children: React.ReactNode
   cookie?: string
 }) {
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
   const [open, setOpen] = React.useState(false)
-  const initialState = cookieToInitialState(config, cookie)
+  const initialState = cookieToInitialState(getConfig(isDesktop), cookie)
+  const [config] = React.useState(() => getConfig(isDesktop))
+
   return (
     <Provider
       config={config}
-      initialState={initialState}
+      initialState={isDesktop ? initialState : undefined}
     >
       <QueryProvider>
         <ConnectKitProvider
