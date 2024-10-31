@@ -24,6 +24,7 @@ import {
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useSendSolanaTransaction } from "@/components/dialogs/transfer/hooks/use-send-solana-transaction"
 import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { NetworkSelect } from "@/components/dialogs/transfer/network-select"
@@ -89,7 +90,7 @@ import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
-const SOLANA_USDC_TOKEN = SOLANA_TOKENS["USDC"]
+const USDC_SOLANA_TOKEN = SOLANA_TOKENS["USDC"]
 
 const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
@@ -170,6 +171,7 @@ export function USDCForm({
   })
 
   const {
+    bigint: usdcSolanaBalance,
     string: formattedUsdcSolanaBalance,
     formatted: usdcSolanaBalanceLabel,
     nonZero: userHasUsdcSolanaBalance,
@@ -223,7 +225,7 @@ export function USDCForm({
   } = useBridgeQuote({
     fromChain: network,
     fromMint:
-      network === mainnet.id ? USDC_L1_TOKEN.address : SOLANA_USDC_TOKEN,
+      network === mainnet.id ? USDC_L1_TOKEN.address : USDC_SOLANA_TOKEN,
     toChain: chain.id,
     toMint: USDC_L2_TOKEN.address,
     amount: debouncedAmount.toString(),
@@ -292,7 +294,7 @@ export function USDCForm({
     mainnetConfig,
   )
 
-  // Bridge
+  // EVM Bridge
   const {
     data: bridgeHash,
     sendTransaction: handleEVMBridge,
@@ -302,6 +304,9 @@ export function USDCForm({
       onError: (error) => catchError(error, "Couldn't bridge"),
     },
   })
+
+  // Solana Bridge
+  const { mutateAsync: handleSolanaBridge } = useSendSolanaTransaction()
 
   const sendBridgeConfirmationStatus = useTransactionConfirmation(
     bridgeHash,
@@ -545,9 +550,11 @@ export function USDCForm({
       balance:
         network === mainnet.id
           ? usdcL1Balance
-          : swapRequired
-            ? combinedBalance
-            : usdcL2Balance,
+          : network === solana.id
+            ? usdcSolanaBalance
+            : swapRequired
+              ? combinedBalance
+              : usdcL2Balance,
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
@@ -608,6 +615,15 @@ export function USDCForm({
             },
           ),
         )
+      }
+    } else if (network === solana.id) {
+      if (!bridgeQuote) {
+        form.setError("root", {
+          message: "Couldn't fetch bridge quote",
+        })
+        return
+      } else {
+        handleSolanaBridge(bridgeQuote.transactionRequest)
       }
     }
     // await queryClient.refetchQueries({ queryKey: quoteQueryKey })
@@ -672,6 +688,15 @@ export function USDCForm({
             label: step,
             chainId: mainnet.id,
           }
+        // case "Solana Bridge":
+        //   return {
+        //     type: "transaction",
+        //     txHash: bridgeHash,
+        //     mutationStatus: bridgeStatus,
+        //     txStatus: sendBridgeConfirmationStatus,
+        //     label: step,
+        //     chainId: solana.id,
+        //   }
         case "Source bridge":
           return {
             type: "transaction",
