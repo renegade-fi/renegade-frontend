@@ -24,4 +24,10 @@ export const solana = defineChain({
       http: ["https://api.mainnet-beta.solana.com"],
     },
   },
+  blockExplorers: {
+    default: {
+      name: "Solana Explorer",
+      url: "https://explorer.solana.com",
+    },
+  },
 })

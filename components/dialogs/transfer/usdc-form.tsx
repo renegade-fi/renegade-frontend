@@ -316,8 +316,8 @@ export function USDCForm({
 
   const solanaConfirmationStatus = useSolanaTransactionConfirmation(
     solanaBridgeHash,
-    async (confirmation) => {
-      queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey })
+    async () => {
+      queryClient.invalidateQueries({ queryKey: usdcSolanaBalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
     },
   )
