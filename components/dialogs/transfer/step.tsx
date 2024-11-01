@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { TASK_STATES } from "@/lib/constants/protocol"
 import { formatTaskState } from "@/lib/constants/task"
 import { cn } from "@/lib/utils"
-import { chain } from "@/lib/viem"
+import { chain, solana } from "@/lib/viem"
 
 export function getSteps(execution: Execution, currentStep: number) {
   return execution.steps.map((step, i) => {
@@ -229,7 +229,9 @@ export function TransactionStep(props: StepProps<TransactionStep>) {
           isPending={!!isPending}
           isSuccess={!!isSuccess}
           link={
-            step.txHash ? getExplorerLink(step.txHash, step.chainId) : undefined
+            step.txHash && step.chainId !== solana.id
+              ? getExplorerLink(step.txHash, step.chainId)
+              : undefined
           }
         />
       )
