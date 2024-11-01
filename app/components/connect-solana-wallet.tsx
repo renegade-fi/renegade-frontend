@@ -1,11 +1,8 @@
-import { Wallet, useConnection, useWallet } from "@solana/wallet-adapter-react"
+import { Wallet, useWallet } from "@solana/wallet-adapter-react"
 
 import { useWallets } from "@/app/hooks/use-solana-wallets"
 
-import {
-  useSolanaBalance,
-  useSolanaChainBalance,
-} from "@/components/dialogs/transfer/hooks/use-solana-balance"
+import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

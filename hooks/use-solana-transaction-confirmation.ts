@@ -1,40 +1,31 @@
 import React from "react"
 
 import { useConnection } from "@solana/wallet-adapter-react"
-import { BlockheightBasedTransactionConfirmationStrategy } from "@solana/web3.js"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, QueryStatus } from "@tanstack/react-query"
 
-export function useSolanaTransactionConfirmation(
-  txid?: string,
-  onConfirm?: (confirmation: { signature: string }) => Promise<void>,
-) {
+function useWaitForTransactionReceipt(txid?: string) {
   const { connection } = useConnection()
-  const [isConfirmationHandled, setIsConfirmationHandled] =
-    React.useState(false)
 
-  const { data, status } = useQuery({
-    queryKey: ["solana-transaction-confirmation", txid],
+  const { data: confirmationStatus, status: queryStatus } = useQuery({
+    queryKey: ["solana-transaction-receipt", txid],
     queryFn: async () => {
       if (!txid) throw new Error("Transaction ID is required")
 
-      const confirmation = await connection.confirmTransaction(
-        {
-          signature: txid,
-        } as BlockheightBasedTransactionConfirmationStrategy,
-        "confirmed",
-      )
-      if (confirmation.value.err) {
-        throw new Error(`Transaction failed: ${confirmation.value.err}`)
+      const status = await connection.getSignatureStatus(txid, {
+        searchTransactionHistory: true,
+      })
+
+      if (status.value?.err) {
+        throw new Error(`Transaction failed: ${status.value.err}`)
       }
 
-      return confirmation
+      return status.value?.confirmationStatus
     },
     enabled: !!txid,
     refetchInterval: (query) => {
-      // Stop polling once confirmed or if there's an error
-      if (query.state.data?.value.err) {
-        return false
-      } else if (query.state.data?.context.slot) {
+      const status = query.state.data
+      // Stop polling if confirmed/finalized or if there's an error
+      if (status === "confirmed" || status === "finalized") {
         return false
       }
       return 1000 // 1 second polling interval
@@ -42,12 +33,37 @@ export function useSolanaTransactionConfirmation(
     retry: false,
   })
 
+  const isSuccess =
+    confirmationStatus === "confirmed" || confirmationStatus === "finalized"
+
+  const status: QueryStatus = React.useMemo(() => {
+    if (!txid) return "pending"
+    if (queryStatus === "error") return "error"
+    if (isSuccess) return "success"
+    return "pending"
+  }, [txid, queryStatus, isSuccess])
+
+  return {
+    isSuccess,
+    status,
+    confirmationStatus,
+  }
+}
+
+export function useSolanaTransactionConfirmation(
+  txid?: string,
+  onConfirm?: () => Promise<void>,
+) {
+  const { isSuccess, status } = useWaitForTransactionReceipt(txid)
+  const [isConfirmationHandled, setIsConfirmationHandled] =
+    React.useState(false)
+
   React.useEffect(() => {
-    if (data?.context.slot && txid && !isConfirmationHandled) {
-      onConfirm?.({ signature: txid })
+    if (isSuccess && txid && !isConfirmationHandled) {
+      onConfirm?.()
       setIsConfirmationHandled(true)
     }
-  }, [data, txid, isConfirmationHandled, onConfirm])
+  }, [txid, isSuccess, onConfirm, isConfirmationHandled])
 
   React.useEffect(() => {
     setIsConfirmationHandled(false)

@@ -229,9 +229,7 @@ export function TransactionStep(props: StepProps<TransactionStep>) {
           isPending={!!isPending}
           isSuccess={!!isSuccess}
           link={
-            step.txHash && step.chainId !== solana.id
-              ? getExplorerLink(step.txHash, step.chainId)
-              : undefined
+            step.txHash ? getExplorerLink(step.txHash, step.chainId) : undefined
           }
         />
       )
@@ -316,12 +314,12 @@ export function TaskStep(props: StepProps<TaskStep>) {
 }
 
 export function getExplorerLink(
-  txHash: `0x${string}`,
+  txHash: string,
   chainId: number = chain.id,
 ): string {
   const _chain = extractChain({
-    chains: [mainnet, chain],
-    id: chainId as 1 | 421614 | 42161,
+    chains: [mainnet, chain, solana],
+    id: chainId as 1 | 421614 | 42161 | 1151111081099710,
   })
 
   const explorerUrl = _chain.blockExplorers?.default.url
