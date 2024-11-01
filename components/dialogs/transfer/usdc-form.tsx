@@ -69,6 +69,7 @@ import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useSolanaTransactionConfirmation } from "@/hooks/use-solana-transaction-confirmation"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -175,6 +176,7 @@ export function USDCForm({
     string: formattedUsdcSolanaBalance,
     formatted: usdcSolanaBalanceLabel,
     nonZero: userHasUsdcSolanaBalance,
+    queryKey: usdcSolanaBalanceQueryKey,
   } = useSolanaChainBalance({
     ticker: "USDC",
   })
@@ -306,7 +308,54 @@ export function USDCForm({
   })
 
   // Solana Bridge
-  const { mutateAsync: handleSolanaBridge } = useSendSolanaTransaction()
+  const {
+    mutateAsync: handleSolanaBridge,
+    data: solanaBridgeHash,
+    status: solanaBridgeStatus,
+  } = useSendSolanaTransaction()
+
+  const solanaConfirmationStatus = useSolanaTransactionConfirmation(
+    solanaBridgeHash,
+    async (confirmation) => {
+      queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
+    },
+  )
+
+  // useBridgeConfirmation for solana bridge action
+  const { data: solanaBridgeExecutionStatus } = useBridgeConfirmation(
+    solanaBridgeHash,
+    async (bridge) => {
+      queryClient.invalidateQueries({ queryKey: usdcSolanaBalanceQueryKey })
+      queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
+      if (allowanceRequired) {
+        await switchChainAndInvoke(chain.id, () =>
+          handleApprove({
+            address: USDC_L2_TOKEN.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              UNLIMITED_ALLOWANCE,
+            ],
+          }),
+        )
+      } else {
+        await switchChainAndInvoke(chain.id, () =>
+          handleDeposit({
+            amount:
+              network !== chain.id
+                ? formatUnits(
+                    BigInt(bridge.receivedAmount ?? 0),
+                    USDC_L2_TOKEN.decimals,
+                  )
+                : amount,
+            mint,
+            onSuccess: handleDepositSuccess,
+          }),
+        )
+      }
+    },
+  )
 
   const sendBridgeConfirmationStatus = useTransactionConfirmation(
     bridgeHash,
@@ -572,6 +621,9 @@ export function USDCForm({
         }
         steps.push("Source bridge")
         steps.push("Destination bridge")
+      } else if (network === solana.id) {
+        steps.push("Send solana bridge")
+        steps.push("Receive solana bridge")
       } else if (swapRequired) {
         if (swapAllowanceRequired) {
           steps.push("Approve Swap")
@@ -688,15 +740,23 @@ export function USDCForm({
             label: step,
             chainId: mainnet.id,
           }
-        // case "Solana Bridge":
-        //   return {
-        //     type: "transaction",
-        //     txHash: bridgeHash,
-        //     mutationStatus: bridgeStatus,
-        //     txStatus: sendBridgeConfirmationStatus,
-        //     label: step,
-        //     chainId: solana.id,
-        //   }
+        case "Send solana bridge":
+          return {
+            type: "transaction",
+            txHash: solanaBridgeHash as `0x${string}`, // TODO: Change this
+            mutationStatus: solanaBridgeStatus,
+            txStatus: solanaConfirmationStatus,
+            label: step,
+            chainId: solana.id,
+          }
+        case "Receive solana bridge":
+          return {
+            type: "lifi",
+            lifiExplorerLink: solanaBridgeExecutionStatus?.lifiExplorerLink,
+            txHash: solanaBridgeExecutionStatus?.receiveHash as `0x${string}`,
+            txStatus: normalizeStatus(solanaBridgeExecutionStatus?.status),
+            label: `Destination chain transaction`,
+          }
         case "Source bridge":
           return {
             type: "transaction",

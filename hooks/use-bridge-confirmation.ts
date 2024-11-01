@@ -27,7 +27,7 @@ function hasLifiExplorerLink(
 }
 
 export function useBridgeConfirmation(
-  hash?: `0x${string}`,
+  hash?: string,
   onConfirm?: (data: typeof processedData) => Promise<void>,
 ) {
   const { data, status } = useQuery({
