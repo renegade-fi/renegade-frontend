@@ -195,7 +195,11 @@ export function LiFiStep(props: StepProps<LiFiStep>) {
           isCurrentStep={isCurrentStep}
           isPending={isPending}
           isSuccess={isSuccess}
-          link={step.lifiExplorerLink}
+          link={
+            step.txHash
+              ? getExplorerLink(step.txHash, step.chainId)
+              : step.lifiExplorerLink
+          }
         />
       )
     }
@@ -217,7 +221,7 @@ export function LiFiStep(props: StepProps<LiFiStep>) {
         <StepIcon
           isCurrentStep={isCurrentStep}
           isError={isError}
-          isPending={isPending}
+          isPending={isPending || isCurrentStep}
           isSuccess={isSuccess}
         />
       </div>
