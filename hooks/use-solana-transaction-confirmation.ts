@@ -6,35 +6,37 @@ import { useQuery, QueryStatus } from "@tanstack/react-query"
 function useWaitForTransactionReceipt(txid?: string) {
   const { connection } = useConnection()
 
-  const { data: confirmationStatus, status: queryStatus } = useQuery({
+  const { data: isSuccess, status: queryStatus } = useQuery({
     queryKey: ["solana-transaction-receipt", txid],
     queryFn: async () => {
-      if (!txid) throw new Error("Transaction ID is required")
+      if (!txid) return false
 
       const status = await connection.getSignatureStatus(txid, {
         searchTransactionHistory: true,
       })
 
-      if (status.value?.err) {
+      if (!status.value) return false
+
+      if (status.value.err) {
         throw new Error(`Transaction failed: ${status.value.err}`)
       }
 
-      return status.value?.confirmationStatus
+      return status.value.confirmationStatus
+    },
+    select: (confirmationStatus): boolean => {
+      return (
+        confirmationStatus === "confirmed" || confirmationStatus === "finalized"
+      )
     },
     enabled: !!txid,
     refetchInterval: (query) => {
-      const status = query.state.data
-      // Stop polling if confirmed/finalized or if there's an error
-      if (status === "confirmed" || status === "finalized") {
+      if (query.state.data || query.state.error) {
         return false
       }
       return 1000 // 1 second polling interval
     },
     retry: false,
   })
-
-  const isSuccess =
-    confirmationStatus === "confirmed" || confirmationStatus === "finalized"
 
   const status: QueryStatus = React.useMemo(() => {
     if (!txid) return "pending"
@@ -46,7 +48,6 @@ function useWaitForTransactionReceipt(txid?: string) {
   return {
     isSuccess,
     status,
-    confirmationStatus,
   }
 }
 
