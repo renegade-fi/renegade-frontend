@@ -27,7 +27,7 @@ export const solana = defineChain({
   blockExplorers: {
     default: {
       name: "Solana Explorer",
-      url: "https://explorer.solana.com",
+      url: "https://solscan.io",
     },
   },
 })

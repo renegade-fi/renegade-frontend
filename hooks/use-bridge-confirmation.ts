@@ -22,8 +22,8 @@ function hasReceiving(
 // Type guard to check if the status response has a 'lifiExplorerLink' property
 function hasLifiExplorerLink(
   data: StatusResponse,
-): data is StatusResponse & { lifiExplorerLink: string } {
-  return "lifiExplorerLink" in data
+): data is StatusResponse & { bridgeExplorerLink: string } {
+  return "bridgeExplorerLink" in data
 }
 
 export function useBridgeConfirmation(
@@ -57,7 +57,9 @@ export function useBridgeConfirmation(
     return {
       status: data.status,
       sendHash: data.sending?.txHash ?? "",
-      lifiExplorerLink: hasLifiExplorerLink(data) ? data.lifiExplorerLink : "",
+      lifiExplorerLink: hasLifiExplorerLink(data)
+        ? data.bridgeExplorerLink
+        : "",
       receivedAmount: hasReceiving(data) ? data.receiving.amount ?? "0" : "0",
       receiveHash: hasReceiving(data) ? data.receiving.txHash ?? "" : "",
     }
