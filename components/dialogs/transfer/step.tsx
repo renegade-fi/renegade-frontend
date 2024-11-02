@@ -214,9 +214,8 @@ export function TransactionStep(props: StepProps<TransactionStep>) {
     step.mutationStatus === "pending" ||
     (step.txHash && step.txStatus === "pending")
   const isSuccess =
-    step.mutationStatus === "success" &&
-    step.txHash &&
-    step.txStatus === "success"
+    step.mutationStatus === "success" ||
+    (step.txHash && step.txStatus === "success")
   const isError =
     step.mutationStatus === "error" ||
     (step.txHash && step.txStatus === "error")

@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType } from "@renegade-fi/react"
-import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -296,17 +295,6 @@ export function USDCForm({
     mainnetConfig,
   )
 
-  // EVM Bridge
-  const {
-    data: bridgeHash,
-    sendTransaction: handleEVMBridge,
-    status: bridgeStatus,
-  } = useSendTransaction({
-    mutation: {
-      onError: (error) => catchError(error, "Couldn't bridge"),
-    },
-  })
-
   // Solana Bridge
   const {
     mutateAsync: handleSolanaBridge,
@@ -356,6 +344,17 @@ export function USDCForm({
       }
     },
   )
+
+  // EVM Bridge
+  const {
+    data: bridgeHash,
+    sendTransaction: handleEVMBridge,
+    status: bridgeStatus,
+  } = useSendTransaction({
+    mutation: {
+      onError: (error) => catchError(error, "Couldn't bridge"),
+    },
+  })
 
   const sendBridgeConfirmationStatus = useTransactionConfirmation(
     bridgeHash,
@@ -827,12 +826,19 @@ export function USDCForm({
     depositStatus,
     depositTaskStatus,
     sendBridgeConfirmationStatus,
+    solanaBridgeExecutionStatus?.lifiExplorerLink,
+    solanaBridgeExecutionStatus?.receiveHash,
+    solanaBridgeExecutionStatus?.status,
+    solanaBridgeHash,
+    solanaBridgeStatus,
+    solanaConfirmationStatus,
     steps,
     swapConfirmationStatus?.status,
     swapHash,
     swapStatus,
   ])
 
+  console.log("🚀 ~ conststepList: ~ stepList:", stepList)
   const execution = React.useMemo(
     () =>
       ({
