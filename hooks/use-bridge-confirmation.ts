@@ -26,6 +26,14 @@ function hasLifiExplorerLink(
   return "bridgeExplorerLink" in data
 }
 
+const defaultValues = {
+  status: "NOT_FOUND" as StatusMessage,
+  sendHash: "",
+  lifiExplorerLink: "",
+  receivedAmount: "0",
+  receiveHash: "",
+}
+
 export function useBridgeConfirmation(
   hash?: string,
   onConfirm?: (data: typeof processedData) => Promise<void>,
@@ -45,13 +53,6 @@ export function useBridgeConfirmation(
   // TODO: Test this
   // Previous issue was this step was transitioning to pending too soon
   const processedData = React.useMemo(() => {
-    const defaultValues = {
-      status: "NOT_FOUND" as StatusMessage,
-      sendHash: "",
-      lifiExplorerLink: "",
-      receivedAmount: "0",
-      receiveHash: "",
-    }
     if (!data) return defaultValues
 
     return {
@@ -85,12 +86,6 @@ export function useBridgeConfirmation(
   }, [hash])
 
   return {
-    data: processedData ?? {
-      status: "NOT_FOUND" as StatusMessage,
-      sendHash: "",
-      lifiExplorerLink: "",
-      receivedAmount: "0",
-      receiveHash: "",
-    },
+    data: processedData ?? defaultValues,
   }
 }

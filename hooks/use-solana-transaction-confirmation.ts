@@ -21,11 +21,9 @@ function useWaitForTransactionReceipt(txid?: string) {
         throw new Error(`Transaction failed: ${status.value.err}`)
       }
 
-      return status.value.confirmationStatus
-    },
-    select: (confirmationStatus): boolean => {
-      return (
-        confirmationStatus === "confirmed" || confirmationStatus === "finalized"
+      return Boolean(
+        status.value.confirmationStatus === "confirmed" ||
+          status.value.confirmationStatus === "finalized",
       )
     },
     enabled: !!txid,
