@@ -21,7 +21,7 @@ export const useWallets = () => {
     const installedWallets = [...svmInstalled]
 
     return installedWallets
-  }, [])
+  }, [solanaWallets])
 
   return wallets
 }
