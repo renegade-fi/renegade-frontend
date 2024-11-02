@@ -15,6 +15,29 @@ import { formatTaskState } from "@/lib/constants/task"
 import { cn } from "@/lib/utils"
 import { chain, solana } from "@/lib/viem"
 
+function StepIcon({
+  isCurrentStep,
+  isPending,
+  isSuccess,
+  isError,
+}: {
+  isCurrentStep: boolean
+  isPending: boolean
+  isSuccess: boolean
+  isError: boolean
+}) {
+  if (isCurrentStep && isPending) {
+    return <Loader2 className="h-4 w-4 animate-spin" />
+  }
+  if (isSuccess) {
+    return <Check className="h-4 w-4 text-green-price" />
+  }
+  if (isError) {
+    return <X className="h-4 w-4 text-red-price" />
+  }
+  return null
+}
+
 export function getSteps(execution: Execution, currentStep: number) {
   return execution.steps.map((step, i) => {
     if (!step || !execution.token) return null
@@ -172,13 +195,7 @@ export function LiFiStep(props: StepProps<LiFiStep>) {
           isCurrentStep={isCurrentStep}
           isPending={isPending}
           isSuccess={isSuccess}
-          link={
-            isPending
-              ? step.lifiExplorerLink
-              : step.txHash
-                ? getExplorerLink(step.txHash, step.chainId)
-                : undefined
-          }
+          link={step.lifiExplorerLink}
         />
       )
     }
@@ -197,10 +214,12 @@ export function LiFiStep(props: StepProps<LiFiStep>) {
           {props.stepCount > 1 ? `${index + 1}. ` : ""}
           {props.step.label}
         </span>
-        {/* Remove isPending check because LiFi status returns Completed almost immediately (for Across) */}
-        {isCurrentStep && <Loader2 className="h-4 w-4 animate-spin" />}
-        {isSuccess && <Check className="h-4 w-4 text-green-price" />}
-        {isError && <X className="h-4 w-4 text-red-price" />}
+        <StepIcon
+          isCurrentStep={isCurrentStep}
+          isError={isError}
+          isPending={isPending}
+          isSuccess={isSuccess}
+        />
       </div>
       {getStatus()}
     </div>
@@ -210,15 +229,18 @@ export function LiFiStep(props: StepProps<LiFiStep>) {
 export function TransactionStep(props: StepProps<TransactionStep>) {
   const { currentStep, index, step } = props
   const isCurrentStep = currentStep === index
-  const isPending =
+  const isPending = Boolean(
     step.mutationStatus === "pending" ||
-    (step.txHash && step.txStatus === "pending")
-  const isSuccess =
+      (step.txHash && step.txStatus === "pending"),
+  )
+  const isSuccess = Boolean(
     step.mutationStatus === "success" ||
-    (step.txHash && step.txStatus === "success")
-  const isError =
+      (step.txHash && step.txStatus === "success"),
+  )
+  const isError = Boolean(
     step.mutationStatus === "error" ||
-    (step.txHash && step.txStatus === "error")
+      (step.txHash && step.txStatus === "error"),
+  )
 
   const getStatus = () => {
     if (isPending || isSuccess) {
@@ -248,11 +270,12 @@ export function TransactionStep(props: StepProps<TransactionStep>) {
           {props.stepCount > 1 ? `${index + 1}. ` : ""}
           {props.step.label}
         </span>
-        {isCurrentStep && isPending && (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        )}
-        {isSuccess && <Check className="h-4 w-4 text-green-price" />}
-        {isError && <X className="h-4 w-4 text-red-price" />}
+        <StepIcon
+          isCurrentStep={isCurrentStep}
+          isError={isError}
+          isPending={isPending}
+          isSuccess={isSuccess}
+        />
       </div>
       {getStatus()}
     </div>
@@ -262,11 +285,12 @@ export function TransactionStep(props: StepProps<TransactionStep>) {
 export function TaskStep(props: StepProps<TaskStep>) {
   const { currentStep, index, step } = props
   const isCurrentStep = currentStep === index
-  const isPending =
+  const isPending = Boolean(
     step.mutationStatus === "pending" ||
-    (step.taskStatus &&
-      step.taskStatus !== "Completed" &&
-      step.taskStatus !== "Failed")
+      (step.taskStatus &&
+        step.taskStatus !== "Completed" &&
+        step.taskStatus !== "Failed"),
+  )
   const isSuccess = step.taskStatus === "Completed"
   const isError =
     step.taskStatus === "Failed" || step.mutationStatus === "error"
@@ -301,11 +325,12 @@ export function TaskStep(props: StepProps<TaskStep>) {
           {props.stepCount > 1 ? `${index + 1}. ` : ""}
           {props.step.label}
         </span>
-        {isCurrentStep && isPending && (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        )}
-        {isSuccess && <Check className="h-4 w-4 text-green-price" />}
-        {isError && <X className="h-4 w-4 text-red-price" />}
+        <StepIcon
+          isCurrentStep={isCurrentStep}
+          isError={isError}
+          isPending={isPending}
+          isSuccess={isSuccess}
+        />
       </div>
       {getStatus()}
     </div>
