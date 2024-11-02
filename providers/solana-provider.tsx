@@ -10,7 +10,6 @@ import {
 } from "@solana/wallet-adapter-react"
 import { clusterApiUrl } from "@solana/web3.js"
 
-const endpoint = clusterApiUrl(WalletAdapterNetwork.Mainnet)
 /**
  * Wallets that implement either of these standards will be available automatically.
  *
@@ -25,11 +24,14 @@ const endpoint = clusterApiUrl(WalletAdapterNetwork.Mainnet)
  */
 const wallets: Adapter[] = []
 
+const endpoint =
+  typeof window !== "undefined"
+    ? new URL("/api/proxy/solana", window.location.origin).toString()
+    : clusterApiUrl(WalletAdapterNetwork.Mainnet)
+
 export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
   return (
-    <ConnectionProvider
-      endpoint={process.env.NEXT_PUBLIC_RPC_URL_SOLANA_MAINNET!}
-    >
+    <ConnectionProvider endpoint={endpoint}>
       <WalletProvider
         autoConnect
         wallets={wallets}
