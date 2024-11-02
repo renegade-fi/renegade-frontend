@@ -33,7 +33,7 @@ function useWaitForTransactionReceipt(txid?: string) {
       if (query.state.data || query.state.error) {
         return false
       }
-      return 1000 // 1 second polling interval
+      return 500 // 0.5 second polling interval
     },
     retry: false,
   })

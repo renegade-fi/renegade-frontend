@@ -232,7 +232,6 @@ export function USDCForm({
     amount: debouncedAmount.toString(),
     enabled: bridgeRequired,
   })
-  console.log("🚀 ~ bridgeRequired:", bridgeRequired)
 
   // Check if bridge allowance is required
   const {
@@ -838,7 +837,30 @@ export function USDCForm({
     swapStatus,
   ])
 
-  console.log("🚀 ~ conststepList: ~ stepList:", stepList)
+  // Debug formatted step list
+  console.log(
+    "Step List Status:\n" +
+      stepList
+        .map((step, index) => {
+          if (!step) return `${index}. undefined step`
+          return [
+            `${index + 1}. ${step.label}`,
+            `  txHash: ${step.type === "task" ? "N/A" : step.txHash}`,
+            `  mutationStatus: ${step.mutationStatus}`,
+            `  ${step.type === "task" ? "taskStatus" : "txStatus"}: ${
+              step.type === "task" ? step.taskStatus : step.txStatus
+            }`,
+            step.type === "lifi"
+              ? `  explorerLink: ${step.lifiExplorerLink ?? "none"}`
+              : "",
+            step.chainId ? `  chainId: ${step.chainId}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n")
+        })
+        .join("\n\n"),
+  )
+
   const execution = React.useMemo(
     () =>
       ({
