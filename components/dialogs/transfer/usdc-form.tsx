@@ -87,6 +87,8 @@ import { chain, solana } from "@/lib/viem"
 import { useSide } from "@/providers/side-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
+import { EVMStep, SVMStep, TransferStep, STEP_CONFIGS } from "./types"
+
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
@@ -112,7 +114,7 @@ export function USDCForm({
   const queryClient = useQueryClient()
   const { setSide } = useSide()
   const [network, setNetwork] = React.useState<number>(chain.id)
-  const [steps, setSteps] = React.useState<string[]>([])
+  const [steps, setSteps] = React.useState<TransferStep[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
     null,
@@ -612,26 +614,26 @@ export function USDCForm({
 
     // Calculate and set initial steps
     setSteps(() => {
-      const steps = []
+      const steps: TransferStep[] = []
       if (network === mainnet.id) {
         if (bridgeAllowanceRequired) {
-          steps.push("Approve Bridge")
+          steps.push(EVMStep.APPROVE_BRIDGE)
         }
-        steps.push("Source bridge")
-        steps.push("Destination bridge")
+        steps.push(EVMStep.SOURCE_BRIDGE)
+        steps.push(EVMStep.DESTINATION_BRIDGE)
       } else if (network === solana.id) {
-        steps.push("Send solana bridge")
-        steps.push("Receive solana bridge")
+        steps.push(SVMStep.SOURCE_BRIDGE)
+        steps.push(SVMStep.DESTINATION_BRIDGE)
       } else if (swapRequired) {
         if (swapAllowanceRequired) {
-          steps.push("Approve Swap")
+          steps.push(EVMStep.APPROVE_SWAP)
         }
-        steps.push("Swap USDC.e to USDC")
+        steps.push(EVMStep.SWAP)
       }
       if (allowanceRequired) {
-        steps.push("Approve Deposit")
+        steps.push(EVMStep.APPROVE_DEPOSIT)
       }
-      steps.push("Deposit USDC")
+      steps.push(EVMStep.DEPOSIT)
       return steps
     })
     setCurrentStep(0)
@@ -729,79 +731,79 @@ export function USDCForm({
   const stepList: (Step | undefined)[] = React.useMemo(() => {
     return steps.map((step) => {
       switch (step) {
-        case "Approve Bridge":
+        case EVMStep.APPROVE_BRIDGE:
           return {
             type: "transaction",
             txHash: approveBridgeHash,
             mutationStatus: approveBridgeStatus,
             txStatus: approveBridgeConfirmationStatus,
-            label: step,
-            chainId: mainnet.id,
+            label: STEP_CONFIGS[EVMStep.APPROVE_BRIDGE].label,
+            chainId: STEP_CONFIGS[EVMStep.APPROVE_BRIDGE].chainId,
           }
-        case "Send solana bridge":
+        case SVMStep.SOURCE_BRIDGE:
           return {
             type: "transaction",
-            txHash: solanaBridgeHash as `0x${string}`, // TODO: Change this
+            txHash: solanaBridgeHash as `0x${string}`,
             mutationStatus: solanaBridgeStatus,
             txStatus: solanaConfirmationStatus,
-            label: step,
-            chainId: solana.id,
+            label: STEP_CONFIGS[SVMStep.SOURCE_BRIDGE].label,
+            chainId: STEP_CONFIGS[SVMStep.SOURCE_BRIDGE].chainId,
           }
-        case "Receive solana bridge":
+        case SVMStep.DESTINATION_BRIDGE:
           return {
             type: "lifi",
             lifiExplorerLink: solanaBridgeExecutionStatus?.lifiExplorerLink,
             txHash: solanaBridgeExecutionStatus?.receiveHash as `0x${string}`,
             txStatus: normalizeStatus(solanaBridgeExecutionStatus?.status),
-            label: `Destination chain transaction`,
+            label: STEP_CONFIGS[SVMStep.DESTINATION_BRIDGE].label,
           }
-        case "Source bridge":
+        case EVMStep.SOURCE_BRIDGE:
           return {
             type: "transaction",
             txHash: bridgeHash,
             mutationStatus: bridgeStatus,
             txStatus: sendBridgeConfirmationStatus,
-            label: `Source chain transaction`,
-            chainId: mainnet.id,
+            label: STEP_CONFIGS[EVMStep.SOURCE_BRIDGE].label,
+            chainId: STEP_CONFIGS[EVMStep.SOURCE_BRIDGE].chainId,
           }
-        case "Destination bridge":
+        case EVMStep.DESTINATION_BRIDGE:
           return {
             type: "lifi",
             lifiExplorerLink: bridgeExecutionStatus?.lifiExplorerLink,
             txHash: bridgeExecutionStatus?.receiveHash as `0x${string}`,
             txStatus: normalizeStatus(bridgeExecutionStatus?.status),
-            label: `Destination chain transaction`,
+            label: STEP_CONFIGS[EVMStep.DESTINATION_BRIDGE].label,
           }
-        case "Approve Swap":
+        case EVMStep.APPROVE_SWAP:
           return {
             type: "transaction",
             txHash: approveSwapHash,
             mutationStatus: approveSwapStatus,
             txStatus: approveSwapConfirmationStatus,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.APPROVE_SWAP].label,
           }
-        case "Swap USDC.e to USDC":
+        case EVMStep.SWAP:
           return {
             type: "transaction",
             txHash: swapHash,
             mutationStatus: swapStatus,
             txStatus: swapConfirmationStatus?.status,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.SWAP].label,
           }
-        case "Approve Deposit":
+        case EVMStep.APPROVE_DEPOSIT:
           return {
             type: "transaction",
             txHash: approveHash,
             mutationStatus: approveStatus,
             txStatus: approveConfirmationStatus,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.APPROVE_DEPOSIT].label,
           }
-        case "Deposit USDC":
+        case EVMStep.DEPOSIT:
           return {
             type: "task",
             mutationStatus: depositStatus,
             taskStatus: depositTaskStatus,
-            label: step,
+            label: STEP_CONFIGS[EVMStep.DEPOSIT].label,
           }
         default:
           return undefined
