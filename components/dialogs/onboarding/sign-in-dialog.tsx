@@ -4,6 +4,7 @@ import { useConfig } from "@renegade-fi/react"
 import {
   createWallet,
   getWalletFromRelayer,
+  getWalletId,
   lookupWallet,
 } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
@@ -115,6 +116,8 @@ export function SignInDialog({
     mutationFn: async (variables: { signature: `0x${string}` }) => {
       const seed = variables.signature
       config.setState((x) => ({ ...x, seed }))
+      const id = getWalletId(config)
+      config.setState((x) => ({ ...x, id }))
 
       try {
         // GET wallet from relayer
