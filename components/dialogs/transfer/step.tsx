@@ -16,17 +16,15 @@ import { cn } from "@/lib/utils"
 import { chain, solana } from "@/lib/viem"
 
 function StepIcon({
-  isCurrentStep,
   isPending,
   isSuccess,
   isError,
 }: {
-  isCurrentStep: boolean
   isPending: boolean
   isSuccess: boolean
   isError: boolean
 }) {
-  if (isCurrentStep && isPending) {
+  if (isPending) {
     return <Loader2 className="h-4 w-4 animate-spin" />
   }
   if (isSuccess) {
@@ -181,30 +179,30 @@ const StepStatus: React.FC<{
   )
 }
 
-export function LiFiStep(props: StepProps<LiFiStep>) {
-  const { currentStep, index, step } = props
-  const isCurrentStep = currentStep === index
-  const isPending = step.txStatus === "pending"
-  const isSuccess = step.txStatus === "success"
-  const isError = step.txStatus === "error"
+type BaseStepProps = {
+  currentStep: number
+  index: number
+  stepCount: number
+  token: Token
+}
 
-  const getStatus = () => {
-    if (isPending || isSuccess) {
-      return (
-        <StepStatus
-          isCurrentStep={isCurrentStep}
-          isPending={isPending}
-          isSuccess={isSuccess}
-          link={
-            step.txHash
-              ? getExplorerLink(step.txHash, step.chainId)
-              : step.lifiExplorerLink
-          }
-        />
-      )
-    }
-    return null
+function BaseStep({
+  currentStep,
+  index,
+  step,
+  status,
+  statusComponent,
+  stepCount,
+}: BaseStepProps & {
+  step: Step
+  status: {
+    isPending: boolean
+    isSuccess: boolean
+    isError: boolean
   }
+  statusComponent: React.ReactNode
+}) {
+  const isCurrentStep = currentStep === index
 
   return (
     <div
@@ -215,129 +213,128 @@ export function LiFiStep(props: StepProps<LiFiStep>) {
     >
       <div className="flex items-center justify-between transition-colors group-hover:text-primary">
         <span>
-          {props.stepCount > 1 ? `${index + 1}. ` : ""}
-          {props.step.label}
+          {stepCount > 1 ? `${index + 1}. ` : ""}
+          {step.label}
         </span>
         <StepIcon
-          isCurrentStep={isCurrentStep}
-          isError={isError}
-          isPending={isPending || isCurrentStep}
-          isSuccess={isSuccess}
+          isError={status.isError}
+          isPending={status.isPending && isCurrentStep}
+          isSuccess={status.isSuccess}
         />
       </div>
-      {getStatus()}
+      {statusComponent}
     </div>
+  )
+}
+
+export function LiFiStep(props: StepProps<LiFiStep>) {
+  const { currentStep, index, step } = props
+  const isCurrentStep = currentStep === index
+  const status = {
+    isPending: step.txStatus === "pending" || isCurrentStep,
+    isSuccess: step.txStatus === "success",
+    isError: step.txStatus === "error",
+  }
+
+  const statusComponent = (
+    <StepStatus
+      isCurrentStep={isCurrentStep}
+      isPending={status.isPending}
+      isSuccess={status.isSuccess}
+      link={
+        step.txHash
+          ? getExplorerLink(step.txHash, step.chainId)
+          : step.lifiExplorerLink
+      }
+    />
+  )
+
+  return (
+    <BaseStep
+      {...props}
+      status={status}
+      statusComponent={
+        status.isPending || status.isSuccess ? statusComponent : null
+      }
+    />
   )
 }
 
 export function TransactionStep(props: StepProps<TransactionStep>) {
   const { currentStep, index, step } = props
   const isCurrentStep = currentStep === index
-  const isPending = Boolean(
-    step.mutationStatus === "pending" ||
-      (step.txHash && step.txStatus === "pending"),
-  )
-  const isSuccess = Boolean(
-    step.mutationStatus === "success" ||
-      (step.txHash && step.txStatus === "success"),
-  )
-  const isError = Boolean(
-    step.mutationStatus === "error" ||
-      (step.txHash && step.txStatus === "error"),
-  )
-
-  const getStatus = () => {
-    if (isPending || isSuccess) {
-      return (
-        <StepStatus
-          isCurrentStep={isCurrentStep}
-          isPending={!!isPending}
-          isSuccess={!!isSuccess}
-          link={
-            step.txHash ? getExplorerLink(step.txHash, step.chainId) : undefined
-          }
-        />
-      )
-    }
-    return null
+  const status = {
+    isPending: Boolean(
+      step.mutationStatus === "pending" ||
+        (step.txHash && step.txStatus === "pending"),
+    ),
+    isSuccess: Boolean(
+      step.mutationStatus === "success" ||
+        (step.txHash && step.txStatus === "success"),
+    ),
+    isError: Boolean(
+      step.mutationStatus === "error" ||
+        (step.txHash && step.txStatus === "error"),
+    ),
   }
 
+  const statusComponent = (
+    <StepStatus
+      isCurrentStep={isCurrentStep}
+      isPending={status.isPending}
+      isSuccess={status.isSuccess}
+      link={
+        step.txHash ? getExplorerLink(step.txHash, step.chainId) : undefined
+      }
+    />
+  )
+
   return (
-    <div
-      className={cn("", {
-        "text-muted": !isCurrentStep,
-        group: currentStep > index,
-      })}
-    >
-      <div className="flex items-center justify-between transition-colors group-hover:text-primary">
-        <span>
-          {props.stepCount > 1 ? `${index + 1}. ` : ""}
-          {props.step.label}
-        </span>
-        <StepIcon
-          isCurrentStep={isCurrentStep}
-          isError={isError}
-          isPending={isPending}
-          isSuccess={isSuccess}
-        />
-      </div>
-      {getStatus()}
-    </div>
+    <BaseStep
+      {...props}
+      status={status}
+      statusComponent={
+        status.isPending || status.isSuccess ? statusComponent : null
+      }
+    />
   )
 }
 
 export function TaskStep(props: StepProps<TaskStep>) {
   const { currentStep, index, step } = props
   const isCurrentStep = currentStep === index
-  const isPending = Boolean(
-    step.mutationStatus === "pending" ||
-      (step.taskStatus &&
-        step.taskStatus !== "Completed" &&
-        step.taskStatus !== "Failed"),
-  )
-  const isSuccess = step.taskStatus === "Completed"
-  const isError =
-    step.taskStatus === "Failed" || step.mutationStatus === "error"
-
-  const getStatus = () => {
-    if (currentStep < index) {
-      return null
-    }
-    return (
-      <div className="text-muted">
-        {TASK_STATES.map((state) => (
-          <div
-            key={state}
-            className={cn("transition-colors hover:text-primary", {
-              "text-primary": step.taskStatus === state && isCurrentStep,
-            })}
-          >{`${state === "Completed" || state === "Failed" ? "└─" : "├─"} ${formatTaskState(state)}`}</div>
-        ))}
-      </div>
-    )
+  const status = {
+    isPending: Boolean(
+      step.mutationStatus === "pending" ||
+        (step.taskStatus &&
+          step.taskStatus !== "Completed" &&
+          step.taskStatus !== "Failed"),
+    ),
+    isSuccess: step.taskStatus === "Completed",
+    isError: step.taskStatus === "Failed" || step.mutationStatus === "error",
   }
 
-  return (
-    <div
-      className={cn("", {
-        "text-muted": !isCurrentStep,
-        group: currentStep > index,
-      })}
-    >
-      <div className="flex items-center justify-between transition-colors group-hover:text-primary">
-        <span>
-          {props.stepCount > 1 ? `${index + 1}. ` : ""}
-          {props.step.label}
-        </span>
-        <StepIcon
-          isCurrentStep={isCurrentStep}
-          isError={isError}
-          isPending={isPending}
-          isSuccess={isSuccess}
-        />
-      </div>
-      {getStatus()}
+  const statusComponent = (
+    <div className="text-muted">
+      {TASK_STATES.map((state) => (
+        <div
+          key={state}
+          className={cn("transition-colors hover:text-primary", {
+            "text-primary": step.taskStatus === state && isCurrentStep,
+          })}
+        >
+          {`${state === "Completed" || state === "Failed" ? "└─" : "├─"} ${formatTaskState(state)}`}
+        </div>
+      ))}
     </div>
+  )
+
+  return (
+    <BaseStep
+      {...props}
+      status={status}
+      statusComponent={currentStep >= index ? statusComponent : null}
+    />
   )
 }
 
