@@ -1,6 +1,14 @@
 #!/bin/bash
 
-PACKAGE_NAME="@renegade-fi/tradingview-charts"
+SUBMODULE_PATH="./lib/charts"
+
+# Check if submodule exists
+if [ ! -d "$SUBMODULE_PATH" ]; then
+    echo "Error: TradingView submodule not found at $SUBMODULE_PATH"
+    echo "Please ensure you've initialized the submodule with:"
+    echo "git submodule update --init --recursive"
+    exit 1
+fi
 
 # Create necessary directories
 mkdir -p ./public/static/datafeeds/udf/dist
@@ -11,9 +19,9 @@ rm -rf ./public/static/datafeeds/udf/dist/bundle.js
 rm -rf ./public/static/charting_library
 
 # Copy the bundle.js file
-cp ./node_modules/$PACKAGE_NAME/datafeeds/udf/dist/bundle.js ./public/static/datafeeds/udf/dist/bundle.js
+cp $SUBMODULE_PATH/datafeeds/udf/dist/bundle.js ./public/static/datafeeds/udf/dist/bundle.js
 
 # Copy the entire charting_library folder
-cp -r ./node_modules/$PACKAGE_NAME/charting_library ./public/static/charting_library
+cp -r $SUBMODULE_PATH/charting_library ./public/static/charting_library
 
 echo "TradingView files copied successfully."
