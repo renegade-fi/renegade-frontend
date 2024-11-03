@@ -3,17 +3,15 @@ import React from "react"
 import { TaskState, Token } from "@renegade-fi/react"
 import { MutationStatus } from "@tanstack/react-query"
 import { Check, ExternalLink, Loader2, X } from "lucide-react"
-import { extractChain } from "viem"
-import { mainnet } from "viem/chains"
 
 import { AnimatedEllipsis } from "@/app/components/animated-ellipsis"
 
+import { getExplorerLink } from "@/components/dialogs/transfer/helpers"
 import { Button } from "@/components/ui/button"
 
 import { TASK_STATES } from "@/lib/constants/protocol"
 import { formatTaskState } from "@/lib/constants/task"
 import { cn } from "@/lib/utils"
-import { chain, solana } from "@/lib/viem"
 
 function StepIcon({
   isPending,
@@ -336,20 +334,4 @@ export function TaskStep(props: StepProps<TaskStep>) {
       statusComponent={currentStep >= index ? statusComponent : null}
     />
   )
-}
-
-export function getExplorerLink(
-  txHash: string,
-  chainId: number = chain.id,
-): string {
-  const _chain = extractChain({
-    chains: [mainnet, chain, solana],
-    id: chainId as 1 | 421614 | 42161 | 1151111081099710,
-  })
-
-  const explorerUrl = _chain.blockExplorers?.default.url
-  if (!explorerUrl) {
-    throw new Error(`No block explorer URL found for chain ${_chain.name}`)
-  }
-  return `${explorerUrl}/tx/${txHash}`
 }
