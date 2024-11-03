@@ -2,10 +2,11 @@ import { QuoteRequest, getQuote, getStatus } from "@lifi/sdk"
 import { Token } from "@renegade-fi/react"
 import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
+import { mainnet } from "viem/chains"
 import { useAccount } from "wagmi"
 
 import { safeParseUnits } from "@/lib/format"
-import { solana } from "@/lib/viem"
+import { chain, solana } from "@/lib/viem"
 
 export interface UseBridgeParams {
   fromChain: number
@@ -57,7 +58,8 @@ function useParams({
 }: UseBridgeParams): QuoteRequest | undefined {
   const { address } = useAccount()
   const { publicKey: solanaWallet } = useSolanaWallet()
-  const fromAddress = [1, 42161, 421614].includes(fromChain)
+  // @ts-ignore
+  const fromAddress = [mainnet.id, chain.id].includes(fromChain)
     ? address
     : fromChain === solana.id
       ? solanaWallet?.toString()
