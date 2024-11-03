@@ -12,12 +12,19 @@ export function TokenIcon({
   size?: number
 }) {
   return (
-    <Image
-      alt={ticker}
-      className={cn(className)}
-      height={size}
-      src={`/tokens/${ticker.toLowerCase()}.png`}
-      width={size}
-    />
+    <div
+      className={cn("overflow-hidden rounded-full", className)}
+      style={{
+        width: size,
+        height: size,
+      }}
+    >
+      <Image
+        alt={ticker}
+        height={size}
+        src={`/tokens/${ticker.toLowerCase()}.png`}
+        width={size}
+      />
+    </div>
   )
 }

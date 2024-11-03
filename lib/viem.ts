@@ -1,5 +1,5 @@
-import { createPublicClient, defineChain, http } from "viem"
-import { arbitrumSepolia, arbitrum } from "viem/chains"
+import { createPublicClient, defineChain, http, extractChain } from "viem"
+import { arbitrumSepolia, arbitrum, mainnet } from "viem/chains"
 
 export const isTestnet =
   Number(process.env.NEXT_PUBLIC_CHAIN_ID) === arbitrumSepolia.id
@@ -31,3 +31,45 @@ export const solana = defineChain({
     },
   },
 })
+
+export type SupportedChainId =
+  | typeof mainnet.id
+  | typeof chain.id
+  | typeof solana.id
+
+const supportedChains = [mainnet, chain, solana] as const
+
+export function extractSupportedChain(chainId: number) {
+  return extractChain({
+    chains: supportedChains,
+    id: chainId as SupportedChainId,
+  })
+}
+
+export function getFormattedChainName(chainId: number): string {
+  const _chain = extractSupportedChain(chainId)
+  switch (_chain.id) {
+    case mainnet.id:
+      return "Ethereum"
+    case chain.id:
+      return "Arbitrum"
+    case solana.id:
+      return "Solana"
+    default:
+      return _chain.name
+  }
+}
+
+export function getChainLogoTicker(chainId: number): string {
+  const _chain = extractSupportedChain(chainId)
+  switch (_chain.id) {
+    case mainnet.id:
+      return "WETH"
+    case chain.id:
+      return "ARB"
+    case solana.id:
+      return "SOL"
+    default:
+      return _chain.nativeCurrency.symbol
+  }
+}

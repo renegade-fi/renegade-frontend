@@ -1,13 +1,12 @@
 import { Token } from "@renegade-fi/react"
 import { QueryClient } from "@tanstack/react-query"
-import { extractChain, formatUnits } from "viem"
-import { mainnet } from "viem/chains"
+import { formatUnits } from "viem"
 import { z } from "zod"
 
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
-import { chain, solana } from "@/lib/viem"
+import { chain, extractSupportedChain } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -126,17 +125,15 @@ export function normalizeStatus(
   }
 }
 
-export const CHAIN_NAME_MAP = {
-  "Arbitrum One": "Arbitrum",
-  "Arbitrum Sepolia": "Arbitrum",
-  Ethereum: "Ethereum",
-  Solana: "Solana",
-} as const
+export function getExplorerLink(
+  txHash: string,
+  chainId: number = chain.id,
+): string {
+  const _chain = extractSupportedChain(chainId)
 
-export function getChainName(chainId: number) {
-  const _chain = extractChain({
-    chains: [mainnet, chain, solana],
-    id: chainId as 1 | 421614 | 42161 | 1151111081099710,
-  })
-  return CHAIN_NAME_MAP[_chain.name]
+  const explorerUrl = _chain.blockExplorers?.default.url
+  if (!explorerUrl) {
+    throw new Error(`No block explorer URL found for chain ${_chain.name}`)
+  }
+  return `${explorerUrl}/tx/${txHash}`
 }

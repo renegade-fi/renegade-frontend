@@ -19,7 +19,6 @@ import {
   checkAmount,
   checkBalance,
   formSchema,
-  getChainName,
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
@@ -34,8 +33,8 @@ import { useBridgeQuote } from "@/components/dialogs/transfer/use-bridge-quote"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
+import { NetworkDisplay } from "@/components/network-display"
 import { NumberInput } from "@/components/number-input"
-import { TokenIcon } from "@/components/token-icon"
 import { TooltipButton } from "@/components/tooltip-button"
 import { Button } from "@/components/ui/button"
 import {
@@ -83,11 +82,11 @@ import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-import { chain, solana } from "@/lib/viem"
+import { chain, getFormattedChainName, solana } from "@/lib/viem"
 import { useSide } from "@/providers/side-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
-import { EVMStep, SVMStep, TransferStep, STEP_CONFIGS } from "./types"
+import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
@@ -607,7 +606,7 @@ export function USDCForm({
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
-        message: `Insufficient ${getChainName(network)} balance`,
+        message: `Insufficient ${getFormattedChainName(network)} balance`,
       })
       return
     }
@@ -1055,11 +1054,7 @@ export function USDCForm({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     Balance on&nbsp;
-                    <TokenIcon
-                      size={16}
-                      ticker="ARB"
-                    />
-                    Arbitrum
+                    <NetworkDisplay chainId={chain.id} />
                   </div>
                   <div className="flex items-center">
                     <TooltipButton
@@ -1104,11 +1099,7 @@ export function USDCForm({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
-                  <TokenIcon
-                    size={16}
-                    ticker="ARB"
-                  />
-                  Solana
+                  <NetworkDisplay chainId={solana.id} />
                 </div>
                 <div className="flex items-center">
                   <TooltipButton
@@ -1137,11 +1128,7 @@ export function USDCForm({
               >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
-                  <TokenIcon
-                    size={16}
-                    ticker="WETH"
-                  />
-                  Ethereum
+                  <NetworkDisplay chainId={mainnet.id} />
                 </div>
                 <TooltipButton
                   className="h-5 p-0 font-mono text-sm"
