@@ -1,9 +1,21 @@
 import { Token } from "@renegade-fi/react"
+import { useWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
 
-async function fetchCombinedBalances(address: `0x${string}`) {
+async function fetchCombinedBalances(
+  address: `0x${string}`,
+  solanaAddress?: string,
+) {
+  const params = new URLSearchParams({
+    address: address,
+  })
+
+  if (solanaAddress) {
+    params.append("solanaAddress", solanaAddress)
+  }
+
   const response = await fetch(
-    `/api/tokens/get-combined-balances?address=${address}`,
+    `/api/tokens/get-combined-balances?${params.toString()}`,
     {
       cache: "no-store",
     },
@@ -15,13 +27,15 @@ async function fetchCombinedBalances(address: `0x${string}`) {
 }
 
 export function useCombinedBalances(address?: `0x${string}`) {
-  const queryKey = ["combinedBalances", address]
+  const { publicKey } = useWallet()
+  const solanaAddress = publicKey?.toBase58()
+  const queryKey = ["combinedBalances", address, solanaAddress]
 
   return {
     queryKey,
     ...useQuery<Map<`0x${string}`, bigint>, Error>({
       queryKey,
-      queryFn: () => fetchCombinedBalances(address!),
+      queryFn: () => fetchCombinedBalances(address!, solanaAddress),
       enabled: !!address,
       select: (data) =>
         Object.entries(data).reduce((acc, [key, value]) => {
