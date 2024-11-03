@@ -1099,7 +1099,7 @@ export function USDCForm({
 
               <div
                 className={cn("flex justify-between", {
-                  hidden: !userHasUsdcL1Balance,
+                  hidden: !userHasUsdcSolanaBalance,
                 })}
               >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -1164,7 +1164,7 @@ export function USDCForm({
                 </>
               ) : !swapRequired ? (
                 <BridgePromptUSDC
-                  hasUSDC={userHasUsdcL1Balance}
+                  hasUSDC={userHasUsdcL1Balance || userHasUsdcSolanaBalance}
                   onClick={() => {
                     if (Number(formattedUsdcL1Balance)) {
                       setNetwork(mainnet.id)
