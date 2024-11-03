@@ -1,4 +1,4 @@
-import { Bar } from "@renegade-fi/tradingview-charts"
+import { Bar } from "@/lib/charts"
 
 // Amberdata API URL
 const BASE_URL = "https://api.amberdata.com"

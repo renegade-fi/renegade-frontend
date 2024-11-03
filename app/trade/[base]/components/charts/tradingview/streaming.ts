@@ -3,7 +3,7 @@ import {
   LibrarySymbolInfo,
   ResolutionString,
   SubscribeBarsCallback,
-} from "@renegade-fi/tradingview-charts"
+} from "@/lib/charts"
 
 interface SubscriptionItem {
   subscriberUID: string

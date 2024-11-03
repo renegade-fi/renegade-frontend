@@ -1,4 +1,4 @@
-import { Bar } from "@renegade-fi/tradingview-charts"
+import { Bar } from "@/lib/charts"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import { fetchBars } from "@/lib/amberdata"

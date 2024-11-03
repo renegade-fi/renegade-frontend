@@ -7,7 +7,7 @@ import {
   DatafeedConfiguration,
   Favorites,
   ResolutionString,
-} from "@renegade-fi/tradingview-charts"
+} from "@/lib/charts"
 
 export const datafeedConfig = {
   supported_resolutions: [

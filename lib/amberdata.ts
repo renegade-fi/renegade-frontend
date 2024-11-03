@@ -1,4 +1,4 @@
-import { Bar } from "@renegade-fi/tradingview-charts"
+import { Bar } from "@/lib/charts"
 import invariant from "tiny-invariant"
 
 import { makeAmberApiRequest } from "@/app/trade/[base]/components/charts/tradingview/helpers"

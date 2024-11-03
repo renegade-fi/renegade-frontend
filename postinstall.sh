@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the package name
-PACKAGE_NAME="@renegade-fi/tradingview-charts"
+PACKAGE_NAME="@/lib/charts"
 
 # Create necessary directories
 mkdir -p ./public/static/datafeeds/udf/dist

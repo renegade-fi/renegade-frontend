@@ -7,7 +7,7 @@ import {
   LanguageCode,
   ResolutionString,
   widget,
-} from "@renegade-fi/tradingview-charts"
+} from "@/lib/charts"
 
 import { config } from "@/app/trade/[base]/components/charts/tradingview/config"
 

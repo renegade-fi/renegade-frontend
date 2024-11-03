@@ -2,7 +2,7 @@ import React from "react"
 
 import Script from "next/script"
 
-import { ChartingLibraryWidgetOptions } from "@renegade-fi/tradingview-charts"
+import { ChartingLibraryWidgetOptions } from "@/lib/charts"
 
 import TradingViewChart from "@/app/trade/[base]/components/charts/tradingview"
 

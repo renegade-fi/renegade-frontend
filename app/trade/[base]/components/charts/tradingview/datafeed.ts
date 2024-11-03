@@ -2,7 +2,7 @@ import {
   Bar,
   IBasicDataFeed,
   LibrarySymbolInfo,
-} from "@renegade-fi/tradingview-charts"
+} from "@/lib/charts"
 
 import {
   subscribeOnStream,
