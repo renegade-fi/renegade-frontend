@@ -300,7 +300,9 @@ export function USDCForm({
     mutateAsync: handleSolanaBridge,
     data: solanaBridgeHash,
     status: solanaBridgeStatus,
-  } = useSendSolanaTransaction()
+  } = useSendSolanaTransaction((error) => {
+    catchError(error, "Couldn't bridge")
+  })
 
   const solanaConfirmationStatus = useSolanaTransactionConfirmation(
     solanaBridgeHash,

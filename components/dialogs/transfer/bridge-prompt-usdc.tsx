@@ -27,7 +27,6 @@ export function BridgePromptUSDC({
         <div className="text-sm font-medium">
           Bridge and deposit USDC from Ethereum or Solana with 1-click.
         </div>
-        {/* <div className="text-[0.8rem]">{`Powered by Across`}</div> */}
       </div>
     </div>
   )

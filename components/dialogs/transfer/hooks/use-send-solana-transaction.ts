@@ -3,7 +3,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { VersionedTransaction } from "@solana/web3.js"
 import { useMutation } from "@tanstack/react-query"
 
-export function useSendSolanaTransaction() {
+export function useSendSolanaTransaction(onError?: (error: Error) => void) {
   const { connection } = useConnection()
   const { signTransaction } = useWallet()
   return {
@@ -32,17 +32,10 @@ export function useSendSolanaTransaction() {
         const signature = await connection.sendRawTransaction(
           signedTx.serialize(),
         )
-        console.log("Sent transaction", signature)
-
-        // Wait for transaction confirmation
-        // const confirmation = await connection.confirmTransaction(signature)
-
-        // if (confirmation.value.err) {
-        //   throw new Error(`Transaction failed: ${confirmation.value.err}`)
-        // }
 
         return signature
       },
+      onError,
     }),
   }
 }
