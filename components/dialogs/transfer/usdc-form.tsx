@@ -1096,7 +1096,12 @@ export function USDCForm({
                   </TooltipButton>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+
+              <div
+                className={cn("flex justify-between", {
+                  hidden: !userHasUsdcL1Balance,
+                })}
+              >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
                   <NetworkDisplay chainId={solana.id} />
