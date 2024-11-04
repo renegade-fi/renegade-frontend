@@ -4,16 +4,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import { useStatus } from "@renegade-fi/react"
-import { ChevronDown, Ellipsis, Menu } from "lucide-react"
-import { mainnet } from "viem/chains"
-import { createConfig, http, useAccount, useEnsName } from "wagmi"
+import { Menu } from "lucide-react"
 
-import { AccountDropdown } from "@/app/components/account-menu"
-import { ConnectSolanaWallet } from "@/app/components/connect-solana-wallet"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 import { MobileNavSheet } from "@/app/components/mobile-nav-sheet"
-import { SettingsDropdown } from "@/app/trade/[base]/components/settings-dropdown"
+import { SidebarTrigger } from "@/app/components/wallet-sidebar/trigger"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
@@ -24,26 +19,15 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 
+import { useWallets } from "@/hooks/use-wallets"
 import { cn } from "@/lib/utils"
 
 export function Header() {
   const pathname = usePathname()
-  const status = useStatus()
-  const { address } = useAccount()
+  const { isWalletsSynced } = useWallets()
 
-  // Fetch ENS name from mainnet
-  const config = createConfig({
-    chains: [mainnet],
-    transports: {
-      [mainnet.id]: http(),
-    },
-  })
-  const { data: ensName } = useEnsName({
-    address,
-    config,
-  })
   return (
-    <header className="fixed top-0 z-10 min-w-full border-b bg-background">
+    <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
       <div className="flex min-h-20 items-center justify-between pl-2 pr-4 lg:hidden">
         <div className="flex items-center gap-2">
           <MobileNavSheet>
@@ -64,27 +48,10 @@ export function Header() {
           />
         </div>
         <div className="flex items-center gap-2">
-          {address ? (
-            <AccountDropdown>
-              <Button variant="outline">
-                {ensName
-                  ? ensName
-                  : `${address.slice(0, 6)}...${address.slice(-2)}`}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </AccountDropdown>
+          {isWalletsSynced ? (
+            <SidebarTrigger />
           ) : (
             <ConnectWalletButton className="text-sm" />
-          )}
-          {status === "in relayer" && (
-            <SettingsDropdown>
-              <Button
-                size="icon"
-                variant="outline"
-              >
-                <Ellipsis className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </SettingsDropdown>
           )}
         </div>
       </div>
@@ -152,18 +119,8 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end">
-          <ConnectSolanaWallet />
-          {status === "in relayer" && (
+          {isWalletsSynced ? (
             <>
-              {/* <TaskHistorySheet>
-                <Button
-                  variant="ghost"
-                  className="flex h-8 w-8 rounded-none p-0 data-[state=open]:bg-muted"
-                >
-                  <Bell className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </TaskHistorySheet> */}
               <TransferDialog>
                 <Button
                   className="font-extended"
@@ -172,29 +129,10 @@ export function Header() {
                   Deposit
                 </Button>
               </TransferDialog>
+              <SidebarTrigger />
             </>
-          )}
-          {address ? (
-            <AccountDropdown>
-              <Button variant="outline">
-                {ensName
-                  ? ensName
-                  : `${address.slice(0, 6)}...${address.slice(-4)}`}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </AccountDropdown>
           ) : (
             <ConnectWalletButton />
-          )}
-          {status === "in relayer" && (
-            <SettingsDropdown>
-              <Button
-                size="icon"
-                variant="outline"
-              >
-                <Ellipsis className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </SettingsDropdown>
           )}
         </div>
       </div>

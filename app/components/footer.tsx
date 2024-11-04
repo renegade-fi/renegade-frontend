@@ -13,6 +13,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import { useSidebar } from "@/components/ui/sidebar"
 import {
   Tooltip,
   TooltipContent,
@@ -25,8 +26,10 @@ import { isTestnet } from "@/lib/viem"
 
 export function Footer() {
   const { address } = useAccount()
+  const { state } = useSidebar()
+
   return (
-    <footer className="z-10 hidden min-w-full border-t bg-background lg:fixed lg:bottom-0 lg:block">
+    <footer className="relative z-10 hidden h-20 min-w-full bg-background before:absolute before:left-0 before:right-0 before:top-0 before:h-[1px] before:bg-border lg:block">
       <div className="grid min-h-20 grid-cols-2 items-center">
         <div className="hidden items-center pl-6 lg:flex">
           <ContextMenu>
@@ -90,7 +93,11 @@ export function Footer() {
             </Tooltip>
           )}
         </div>
-        <div className="ml-2 flex text-xs lg:ml-auto lg:pr-[140px]">
+        <div
+          className={`ml-2 flex text-xs transition-[padding] duration-200 ease-linear lg:ml-auto ${
+            state === "collapsed" ? "lg:pr-[140px]" : "lg:pr-4"
+          }`}
+        >
           <Button
             asChild
             size="icon"

@@ -12,7 +12,11 @@ import { PriceChart } from "@/app/trade/[base]/components/charts/price-chart"
 import { MobileAssetPriceAccordion } from "@/app/trade/[base]/components/mobile-asset-price-accordion"
 import { NewOrderPanel } from "@/app/trade/[base]/components/new-order/new-order-panel"
 
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
 import { Separator } from "@/components/ui/separator"
 
 import { useOrderTableData } from "@/hooks/use-order-table-data"
@@ -35,7 +39,7 @@ export function PageClient({
   const data = useOrderTableData()
 
   return (
-    <div>
+    <>
       <MaintenanceBanner />
       <DepositBanner />
       <BBOMarquee base={base} />
@@ -56,12 +60,7 @@ export function PageClient({
             isUSDCDenominated={isUSDCDenominated}
           />
         </ResizablePanel>
-        {/* <ResizableHandle /> */}
-
-        <Separator
-          className="hidden lg:block"
-          orientation="vertical"
-        />
+        <ResizableHandle />
         <ResizablePanel
           defaultSize={defaultLayout[1]}
           order={2}
@@ -89,6 +88,6 @@ export function PageClient({
         base={base}
         isUSDCDenominated={isUSDCDenominated}
       />
-    </div>
+    </>
   )
 }
