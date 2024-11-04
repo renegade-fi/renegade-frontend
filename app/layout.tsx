@@ -1,5 +1,5 @@
 import localFont from "next/font/local"
-import { headers } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { Viewport } from "next/types"
 
 import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
@@ -10,12 +10,17 @@ import { Analytics } from "@vercel/analytics/react"
 import { ClearCookie } from "@/app/components/clear-cookie"
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
+import { Footer } from "@/app/components/footer"
+import { Header } from "@/app/components/header"
 import { InvalidateQueries } from "@/app/components/invalidate-queries"
 import { OrderToaster } from "@/app/components/order-toaster"
 import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
+import { AppSidebar } from "@/app/components/wallet-sidebar"
+import { WalletSidebarSync } from "@/app/components/wallet-sidebar-sync"
 import { Zendesk } from "@/app/components/zendesk"
 
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -87,6 +92,9 @@ export default async function RootLayout({
     renegadeConfig,
     headers().get("cookie"),
   )
+  const cookieStore = cookies()
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+
   return (
     <html lang="en">
       <body
@@ -101,31 +109,39 @@ export default async function RootLayout({
           <RenegadeProvider initialState={renegadeInitialState}>
             <SolanaProvider>
               <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
-                <TailwindIndicator />
-                <TooltipProvider
-                  delayDuration={0}
-                  skipDelayDuration={0}
-                >
-                  <SideProvider cookie={headers().get("cookie")}>
-                    <div className="select-none">{children}</div>
-                  </SideProvider>
-                </TooltipProvider>
-                <Toaster
-                  className="pointer-events-auto"
-                  theme="light"
-                  toastOptions={{ duration: 5000 }}
-                  visibleToasts={MAX_ORDERS}
-                />
-                <InvalidateQueries />
-                <OrderToaster />
-                <TaskToaster />
-                <ReactQueryDevtools
-                  buttonPosition="bottom-left"
-                  initialIsOpen={false}
-                />
-                <Faucet />
-                <LazyDatadog />
-                <ClearCookie />
+                <SidebarProvider defaultOpen={defaultOpen}>
+                  <WalletSidebarSync />
+                  <TailwindIndicator />
+                  <TooltipProvider
+                    delayDuration={0}
+                    skipDelayDuration={0}
+                  >
+                    <SideProvider cookie={headers().get("cookie")}>
+                      <SidebarInset className="max-w-full">
+                        <Header />
+                        {children}
+                        <Footer />
+                      </SidebarInset>
+                    </SideProvider>
+                  </TooltipProvider>
+                  <Toaster
+                    className="pointer-events-auto"
+                    theme="light"
+                    toastOptions={{ duration: 5000 }}
+                    visibleToasts={MAX_ORDERS}
+                  />
+                  <InvalidateQueries />
+                  <OrderToaster />
+                  <TaskToaster />
+                  <ReactQueryDevtools
+                    buttonPosition="bottom-left"
+                    initialIsOpen={false}
+                  />
+                  <Faucet />
+                  <LazyDatadog />
+                  <ClearCookie />
+                  <AppSidebar side="right" />
+                </SidebarProvider>
               </WagmiProvider>
             </SolanaProvider>
           </RenegadeProvider>

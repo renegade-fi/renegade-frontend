@@ -185,3 +185,6 @@ export function formatTimestampReadable(ms: number): string {
 export function formatStat(volume: number) {
   return numeral(volume).format("$0,0.00a")
 }
+
+export const formatAddress = (address: string) =>
+  `${address.slice(0, 6)}...${address.slice(-4)}`

@@ -19,33 +19,35 @@ export function FavoritesBanner() {
   })
   if (!favorites || !favorites.length) return null
   return (
-    <ScrollArea className="w-full whitespace-nowrap border-y bg-background font-extended text-sm">
-      <div className="flex w-max items-center gap-8 p-2 pl-16">
-        <div className="fixed bottom-20 left-3 inline-flex h-9 w-9 items-center justify-center text-muted-foreground">
-          <Star className="h-3 w-3" />
+    <div className="hidden min-h-marquee overflow-hidden lg:block">
+      <ScrollArea className="w-full whitespace-nowrap border-t bg-background font-extended text-sm">
+        <div className="flex w-max items-center gap-8 p-2">
+          <div className="pl-4 text-muted-foreground">
+            <Star className="h-3 w-3" />
+          </div>
+          {favorites.map((address, index) => {
+            if (!isAddress(address)) return null
+            const token = Token.findByAddress(address)
+            return (
+              <div
+                key={address}
+                className="flex items-center gap-8"
+              >
+                <Link href={`/trade/${token.ticker}`}>
+                  <span className="space-x-4">
+                    <span>{token.ticker}</span>
+                    <AnimatedPrice mint={token.address} />
+                  </span>
+                </Link>
+                {index < favorites.length - 1 && (
+                  <span className="text-xs">•</span>
+                )}
+              </div>
+            )
+          })}
         </div>
-        {favorites.map((address, index) => {
-          if (!isAddress(address)) return null
-          const token = Token.findByAddress(address)
-          return (
-            <div
-              key={address}
-              className="flex items-center gap-8"
-            >
-              <Link href={`/trade/${token.ticker}`}>
-                <span className="space-x-4">
-                  <span>{token.ticker}</span>
-                  <AnimatedPrice mint={token.address} />
-                </span>
-              </Link>
-              {index < favorites.length - 1 && (
-                <span className="text-xs">•</span>
-              )}
-            </div>
-          )
-        })}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div>
   )
 }

@@ -8,9 +8,6 @@ import {
 } from "@tanstack/react-query"
 
 import { prefetchPrice } from "@/app/actions"
-import { Footer } from "@/app/components/footer"
-import { Header } from "@/app/components/header"
-import { FavoritesBanner } from "@/app/trade/[base]/components/favorites-banner"
 import { PageClient } from "@/app/trade/[base]/page-client"
 
 import { Side } from "@/lib/constants/protocol"
@@ -53,23 +50,12 @@ export default async function Page({ params }: { params: { base: string } }) {
     : false
 
   return (
-    <div className="grid min-h-screen max-w-full grid-cols-1 grid-rows-[auto_1fr_auto_auto]">
-      <div className="min-h-20">
-        <Header />
-      </div>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <PageClient
-          base={params.base}
-          defaultLayout={defaultLayout}
-          isUSDCDenominated={defaultUseUSDC}
-        />
-      </HydrationBoundary>
-      <div className="sticky bottom-20 hidden min-h-marquee overflow-hidden lg:block">
-        <FavoritesBanner />
-      </div>
-      <div className="min-h-20">
-        <Footer />
-      </div>
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PageClient
+        base={params.base}
+        defaultLayout={defaultLayout}
+        isUSDCDenominated={defaultUseUSDC}
+      />
+    </HydrationBoundary>
   )
 }

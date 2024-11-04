@@ -64,11 +64,11 @@ export function getChainLogoTicker(chainId: number): string {
   const _chain = extractSupportedChain(chainId)
   switch (_chain.id) {
     case mainnet.id:
-      return "WETH"
+      return "weth"
     case chain.id:
-      return "ARB"
+      return "arb"
     case solana.id:
-      return "SOL"
+      return "sol"
     default:
       return _chain.nativeCurrency.symbol
   }
