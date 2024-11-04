@@ -36,7 +36,6 @@ const config = {
         sansLight: ["var(--font-sans-light)"],
       },
       colors: {
-        // border: 'hsl(var(--border))',
         border: {
           DEFAULT: "hsl(var(--border))",
           brand: "hsl(var(--border-brand))",
@@ -81,6 +80,16 @@ const config = {
         },
         yellow: "hsl(var(--chart-yellow))",
         blue: "hsl(var(--chart-blue))",
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar-background))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -89,33 +98,63 @@ const config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
         "price-green": {
-          "0%": { color: "#43e043" },
-          "100%": { color: "inherit" },
+          "0%": {
+            color: "#43e043",
+          },
+          "100%": {
+            color: "inherit",
+          },
         },
         "price-red": {
-          "0%": { color: "#e04343" },
-          "100%": { color: "inherit" },
+          "0%": {
+            color: "#e04343",
+          },
+          "100%": {
+            color: "inherit",
+          },
         },
         "shimmer-button": {
-          "0%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
-          "100%": { backgroundPosition: "0% 50%" },
+          "0%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+          "100%": {
+            backgroundPosition: "0% 50%",
+          },
         },
         marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(calc(-100% - var(--gap)))" },
+          from: {
+            transform: "translateX(0)",
+          },
+          to: {
+            transform: "translateX(calc(-100% - var(--gap)))",
+          },
         },
         ellipsis: {
-          "0%, 100%": { opacity: "0" },
-          "50%": { opacity: "1" },
+          "0%, 100%": {
+            opacity: "0",
+          },
+          "50%": {
+            opacity: "1",
+          },
         },
       },
       animation: {

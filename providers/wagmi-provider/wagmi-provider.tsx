@@ -5,6 +5,7 @@ import React from "react"
 import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
 import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
+import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider, getDefaultConfig } from "connectkit"
 import { arbitrum, arbitrumSepolia, mainnet } from "viem/chains"
 import {
@@ -13,14 +14,18 @@ import {
   createConfig,
   createStorage,
   http,
-  useAccountEffect,
+  useAccount,
+  useConnections,
+  useDisconnect,
+  useConfig as useWagmiConfig,
 } from "wagmi"
+import { injected, walletConnect } from "wagmi/connectors"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
 import { cookieStorage } from "@/lib/cookie"
 import { getURL } from "@/lib/utils"
-import { chain } from "@/lib/viem"
+import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
 export const config = createConfig(
@@ -122,11 +127,66 @@ export function WagmiProvider({
 
 function SyncRenegadeWagmiState() {
   const config = useConfig()
-  useAccountEffect({
-    onDisconnect() {
-      console.log("disconnecting because onDisconnect")
-      disconnect(config)
-    },
-  })
+  const wagmiConfig = useWagmiConfig()
+  const { connector, chainId, isConnected } = useAccount()
+  const connections = useConnections()
+  const { disconnectAsync: disconnectWagmi } = useDisconnect()
+
+  // Some wallets auto-connect to wagmi but don't support the required chain (Arbitrum).
+  // This effect detects those cases and cleans up the invalid connection by:
+  // 1. Checking if the wallet's provider is accessible
+  // 2. Attempting to switch to Arbitrum if on wrong chain
+  // 3. Disconnecting (or forcefully clearing state) if either step fails
+  React.useEffect(() => {
+    const checkConnections = async () => {
+      if (!isConnected || !connector) return
+
+      connector
+        .getProvider()
+        .then(() => {
+          if (chainId !== chain.id) {
+            return connector.switchChain?.({
+              chainId: chain.id,
+            })
+          }
+        })
+        .catch(() => {
+          return disconnectWagmi().catch(() => {
+            wagmiConfig.setState((state) => ({
+              ...state,
+              connections: new Map(),
+            }))
+          })
+        })
+    }
+
+    checkConnections()
+  }, [chainId, connector, isConnected, wagmiConfig, disconnectWagmi])
+
+  // When switching accounts in a wallet, we need to ensure the new account
+  // is the one that originally generated the seed in storage. This effect:
+  // 1. Verifies the current account can sign the stored seed
+  // 2. Disconnects both wagmi and renegade if verification fails
+  React.useEffect(() => {
+    if (!connections.length || !config.state.seed) return
+
+    viemClient
+      .verifyMessage({
+        address: connections[0].accounts[0],
+        message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+        signature: config.state.seed,
+      })
+      .then((verified) => {
+        if (!verified) {
+          disconnectWagmi()
+          disconnect(config)
+        }
+      })
+      .catch(() => {
+        disconnectWagmi()
+        disconnect(config)
+      })
+  }, [config, config.state.seed, connections, disconnectWagmi])
+
   return null
 }
