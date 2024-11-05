@@ -12,10 +12,5 @@
       "path": "/api/stats/set-net-flow-kv",
       "schedule": "0 5 * * *"
     }
-  ],
-  "git": {
-    "deploymentEnabled": {
-      "main": false
-    }
-  }
+  ]
 }
