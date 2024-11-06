@@ -2,7 +2,7 @@ import { Wallet, useWallet } from "@solana/wallet-adapter-react"
 import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 
-import { useWallets } from "@/app/hooks/use-solana-wallets"
+import { useSolanaWallets } from "@/app/hooks/use-solana-wallets"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 
 export function SolanaConnectDialog() {
-  const wallets = useWallets()
+  const wallets = useSolanaWallets()
   const { select } = useWallet()
 
   const connectMutation = useMutation({
