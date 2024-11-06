@@ -16,7 +16,7 @@ import { InvalidateQueries } from "@/app/components/invalidate-queries"
 import { OrderToaster } from "@/app/components/order-toaster"
 import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
-import { AppSidebar } from "@/app/components/wallet-sidebar"
+import { WalletSidebar } from "@/app/components/wallet-sidebar"
 import { WalletSidebarSync } from "@/app/components/wallet-sidebar-sync"
 import { Zendesk } from "@/app/components/zendesk"
 
@@ -140,7 +140,7 @@ export default async function RootLayout({
                   <Faucet />
                   <LazyDatadog />
                   <ClearCookie />
-                  <AppSidebar side="right" />
+                  <WalletSidebar side="right" />
                 </SidebarProvider>
               </WagmiProvider>
             </SolanaProvider>

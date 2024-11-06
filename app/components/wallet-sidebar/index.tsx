@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { useConfig } from "@renegade-fi/react"
 import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
-import { PanelRightClose, Smartphone, X } from "lucide-react"
+import { PanelRightClose, Smartphone } from "lucide-react"
 import { useDisconnect } from "wagmi"
 
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
@@ -33,22 +33,18 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { WalletReadyState, useWallets } from "@/hooks/use-wallets"
 import { cn } from "@/lib/utils"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function WalletSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const config = useConfig()
   const { disconnect } = useDisconnect()
   const { toggleSidebar } = useSidebar()
   const { renegadeWallet, arbitrumWallet, walletReadyState } = useWallets()
   const isPWA = useMediaQuery("(display-mode: standalone)")
 
-  const handleDisconnect = () => {
-    disconnectRenegade(config)
-    disconnect()
-  }
-
   return (
     <Sidebar
       {...props}
-      // Align with footer
       className="pb-[79px]"
     >
       <SidebarHeader className="border-b border-sidebar-border">
@@ -66,24 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               }
               wallet={arbitrumWallet}
             />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  size="lg"
-                  onClick={handleDisconnect}
-                >
-                  <Avatar className="h-8 w-8 rounded-lg border-[1px] border-muted-foreground/50 bg-muted/50">
-                    <AvatarFallback className="rounded-lg bg-transparent">
-                      <X className="h-4 w-4 text-muted-foreground/50" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="text-muted-foreground">Sign out</span>
-                  </div>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
           </>
         ) : (
           <ConnectWalletButton />
