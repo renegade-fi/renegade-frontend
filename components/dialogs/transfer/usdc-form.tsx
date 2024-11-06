@@ -21,10 +21,13 @@ import {
   formSchema,
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
+import { useBridgeConfirmation } from "@/components/dialogs/transfer/hooks/use-bridge-confirmation"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
 import { useSendSolanaTransaction } from "@/components/dialogs/transfer/hooks/use-send-solana-transaction"
 import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
+import { useSolanaTransactionConfirmation } from "@/components/dialogs/transfer/hooks/use-solana-transaction-confirmation"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { NetworkLabel } from "@/components/dialogs/transfer/network-display"
 import { NetworkSelect } from "@/components/dialogs/transfer/network-select"
 import { ReviewBridge } from "@/components/dialogs/transfer/review-bridge"
 import { ReviewSwap } from "@/components/dialogs/transfer/review-swap"
@@ -33,7 +36,6 @@ import { useBridgeQuote } from "@/components/dialogs/transfer/use-bridge-quote"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
 import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
-import { NetworkDisplay } from "@/components/network-display"
 import { NumberInput } from "@/components/number-input"
 import { TooltipButton } from "@/components/tooltip-button"
 import { Button } from "@/components/ui/button"
@@ -62,12 +64,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
-import { useBridgeConfirmation } from "@/hooks/use-bridge-confirmation"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { useSolanaTransactionConfirmation } from "@/hooks/use-solana-transaction-confirmation"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -1056,7 +1056,7 @@ export function USDCForm({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     Balance on&nbsp;
-                    <NetworkDisplay chainId={chain.id} />
+                    <NetworkLabel chainId={chain.id} />
                   </div>
                   <div className="flex items-center">
                     <TooltipButton
@@ -1106,7 +1106,7 @@ export function USDCForm({
               >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
-                  <NetworkDisplay chainId={solana.id} />
+                  <NetworkLabel chainId={solana.id} />
                 </div>
                 <div className="flex items-center">
                   <TooltipButton
@@ -1135,7 +1135,7 @@ export function USDCForm({
               >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance on&nbsp;
-                  <NetworkDisplay chainId={mainnet.id} />
+                  <NetworkLabel chainId={mainnet.id} />
                 </div>
                 <TooltipButton
                   className="h-5 p-0 font-mono text-sm"
