@@ -2,16 +2,9 @@
 
 import React from "react"
 
-import {
-  TaskType,
-  Token,
-  UpdateType,
-  useBackOfQueueWallet,
-  useTaskHistory,
-} from "@renegade-fi/react"
+import { TaskType, Token, UpdateType, useTaskHistory } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
-import { useAccount } from "wagmi"
 
 import { DataTable as AssetTable } from "@/app/assets/assets-table/data-table"
 import { DataTable as TransferHistoryTable } from "@/app/assets/history-table/data-table"
@@ -22,25 +15,12 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
-import { useCombinedBalances } from "@/hooks/use-combined-balances"
-import { usePriceQueries } from "@/hooks/use-price-queries"
-import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
-import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
-
-export type BalanceData = {
-  mint: `0x${string}`
-  rawRenegadeBalance: bigint
-  renegadeBalance: number
-  rawOnChainBalance: bigint
-  onChainBalance: number
-  onChainUsdValue: string
-  renegadeUsdValue: string
-}
 
 export type HistoryData = {
   status: string
@@ -52,63 +32,23 @@ export type HistoryData = {
 }
 
 export function PageClient() {
-  const { data: renegadeBalances } = useBackOfQueueWallet({
-    query: {
-      select: (data) =>
-        new Map(data.balances.map((balance) => [balance.mint, balance.amount])),
-    },
-  })
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
     React.useState(true)
   const [showZeroOnChainBalance, setShowZeroOnChainBalance] =
     React.useState(true)
 
-  const { address } = useAccount()
-  const { data: combinedBalances, queryKey } = useCombinedBalances(address)
+  const rawTableData = useAssetsTableData({
+    mints: DISPLAY_TOKENS().map((token) => token.address),
+  })
 
-  useRefreshOnBlock({ queryKey })
-
-  const priceResults = usePriceQueries(DISPLAY_TOKENS())
-
-  const balances: BalanceData[] = React.useMemo(() => {
-    return DISPLAY_TOKENS()
-      .map((token, i) => {
-        const t = Token.findByAddress(token.address)
-
-        const renegadeBalance =
-          renegadeBalances?.get(token.address) ?? BigInt(0)
-
-        const price = priceResults[i]?.data ?? 0
-        const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price)
-        const renegadeUsdValue = formatUnits(renegadeUsdValueBigInt, t.decimals)
-
-        const onChainBalance = combinedBalances?.get(token.address) ?? BigInt(0)
-        const onChainUsdValueBigInt = amountTimesPrice(onChainBalance, price)
-        const onChainUsdValue = formatUnits(onChainUsdValueBigInt, t.decimals)
-
-        return {
-          mint: token.address,
-          rawRenegadeBalance: renegadeBalance,
-          renegadeBalance: Number(formatUnits(renegadeBalance, t.decimals)),
-          renegadeUsdValue,
-          rawOnChainBalance: onChainBalance,
-          onChainBalance: Number(formatUnits(onChainBalance, t.decimals)),
-          onChainUsdValue,
-        }
-      })
-      .filter((balance) => {
-        if (!showZeroOnChainBalance && !showZeroRenegadeBalance) {
-          return balance.onChainBalance !== 0 || balance.renegadeBalance !== 0
-        }
-        return true
-      })
-  }, [
-    combinedBalances,
-    priceResults,
-    renegadeBalances,
-    showZeroOnChainBalance,
-    showZeroRenegadeBalance,
-  ])
+  const filteredTableData = React.useMemo(() => {
+    if (showZeroOnChainBalance && showZeroRenegadeBalance) {
+      return rawTableData
+    }
+    return rawTableData.filter((row) => {
+      return row.onChainBalance !== 0 || row.renegadeBalance !== 0
+    })
+  }, [rawTableData, showZeroOnChainBalance, showZeroRenegadeBalance])
 
   // Transfer History Table Data
   const { data: transferHistory } = useTaskHistory({
@@ -147,7 +87,7 @@ export function PageClient() {
         </h1>
         <AssetTable
           columns={assetColumns}
-          data={balances}
+          data={filteredTableData}
           setShowZeroOnChainBalance={setShowZeroOnChainBalance}
           setShowZeroRenegadeBalance={setShowZeroRenegadeBalance}
           showZeroOnChainBalance={showZeroOnChainBalance}
