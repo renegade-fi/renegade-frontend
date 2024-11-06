@@ -9,19 +9,19 @@ import {
   getFormattedChainName,
 } from "@/lib/viem"
 
-interface NetworkDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
+interface NetworkLabelProps extends React.HTMLAttributes<HTMLDivElement> {
   chainId: number
   showIcon?: boolean
   iconSize?: number
 }
 
-export function NetworkDisplay({
+export function NetworkLabel({
   chainId,
   showIcon = true,
   iconSize = 16,
   className,
   ...props
-}: NetworkDisplayProps) {
+}: NetworkLabelProps) {
   const _chain = extractSupportedChain(chainId)
 
   return (

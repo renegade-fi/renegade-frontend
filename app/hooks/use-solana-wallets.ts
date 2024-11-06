@@ -3,7 +3,7 @@ import { useMemo } from "react"
 import { WalletReadyState } from "@solana/wallet-adapter-base"
 import { useWallet } from "@solana/wallet-adapter-react"
 
-export const useWallets = () => {
+export const useSolanaWallets = () => {
   const { wallets: solanaWallets } = useWallet()
 
   const wallets = useMemo(() => {
