@@ -3,8 +3,6 @@ import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
-import { BalanceData } from "@/app/assets/page-client"
-
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { AssetsTableRow } from "@/hooks/use-assets-table-data"
 import { ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 
@@ -22,7 +21,7 @@ declare module "@tanstack/react-table" {
   }
 }
 
-export const columns: ColumnDef<BalanceData>[] = [
+export const columns: ColumnDef<AssetsTableRow>[] = [
   {
     accessorKey: "mint",
     header: () => <div>Token</div>,
