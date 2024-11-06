@@ -1,7 +1,11 @@
 import { useConfig, useStatus } from "@renegade-fi/react"
-import { refreshWallet } from "@renegade-fi/react/actions"
-import { Clipboard, RefreshCw, UserCheck } from "lucide-react"
+import {
+  disconnect as disconnectRenegade,
+  refreshWallet,
+} from "@renegade-fi/react/actions"
+import { Clipboard, RefreshCw, UserCheck, SquareX } from "lucide-react"
 import { useLocalStorage } from "usehooks-ts"
+import { useDisconnect } from "wagmi"
 
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -24,6 +28,7 @@ export function RenegadeWalletActionsDropdown({
 }: RenegadeWalletActionsDropdownProps) {
   const config = useConfig()
   const status = useStatus()
+  const { disconnect } = useDisconnect()
   const [rememberMe, setRememberMe] = useLocalStorage(
     STORAGE_REMEMBER_ME,
     false,
@@ -42,6 +47,11 @@ export function RenegadeWalletActionsDropdown({
     if (wallet.isConnected) {
       navigator.clipboard.writeText(wallet.id)
     }
+  }
+
+  const handleDisconnect = () => {
+    disconnectRenegade(config)
+    disconnect()
   }
 
   return (
@@ -82,6 +92,16 @@ export function RenegadeWalletActionsDropdown({
               }
             }}
           />
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem
+          disabled={!wallet.isConnected}
+          onSelect={handleDisconnect}
+        >
+          <SquareX />
+          Disconnect
         </DropdownMenuItem>
       </DropdownMenuGroup>
     </>

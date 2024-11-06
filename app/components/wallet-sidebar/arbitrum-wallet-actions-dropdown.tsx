@@ -1,4 +1,7 @@
-import { Clipboard, ExternalLink } from "lucide-react"
+import { useConfig } from "@renegade-fi/react"
+import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
+import { Clipboard, ExternalLink, SquareX } from "lucide-react"
+import { useDisconnect } from "wagmi"
 
 import {
   DropdownMenuGroup,
@@ -17,6 +20,9 @@ interface ArbitrumWalletActionsDropdownProps {
 export function ArbitrumWalletActionsDropdown({
   wallet,
 }: ArbitrumWalletActionsDropdownProps) {
+  const config = useConfig()
+  const { disconnect } = useDisconnect()
+
   const handleCopyAddress = () => {
     if (wallet.isConnected) {
       navigator.clipboard.writeText(wallet.id)
@@ -28,6 +34,11 @@ export function ArbitrumWalletActionsDropdown({
       const explorerUrl = `${chain.blockExplorers.default.url}/address/${wallet.id}`
       window.open(explorerUrl, "_blank")
     }
+  }
+
+  const handleDisconnect = () => {
+    disconnectRenegade(config)
+    disconnect()
   }
 
   return (
@@ -50,6 +61,16 @@ export function ArbitrumWalletActionsDropdown({
         >
           <ExternalLink />
           View on Explorer
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem
+          disabled={!wallet.isConnected}
+          onSelect={handleDisconnect}
+        >
+          <SquareX />
+          Disconnect
         </DropdownMenuItem>
       </DropdownMenuGroup>
     </>
