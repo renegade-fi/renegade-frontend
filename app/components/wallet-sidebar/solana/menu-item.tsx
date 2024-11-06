@@ -3,10 +3,10 @@ import { WalletButton } from "@/app/components/wallet-sidebar/wallet-button"
 
 import { useWallets } from "@/hooks/use-wallets"
 
-import { ConnectButton } from "./connect-button"
-import { SolanaConnectDialog } from "./connect-dialog"
+import { ConnectContent } from "./connect-content"
+import { ConnectDialog } from "./connect-dialog"
 
-export function SolanaWalletButton() {
+export function SolanaMenuItem() {
   const { solanaWallet } = useWallets()
 
   if (solanaWallet.isConnected) {
@@ -19,8 +19,8 @@ export function SolanaWalletButton() {
   }
 
   return (
-    <ConnectButton>
-      <SolanaConnectDialog />
-    </ConnectButton>
+    <ConnectDialog>
+      <ConnectContent />
+    </ConnectDialog>
   )
 }

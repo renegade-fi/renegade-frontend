@@ -21,6 +21,7 @@ import {
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { formatCurrency, formatCurrencyFromString } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { cn } from "@/lib/utils"
 
 export function AssetsMenu() {
   const tokenData = useAssetsTableData({
@@ -43,7 +44,12 @@ export function AssetsMenu() {
           <SidebarMenuButton tooltip="Assets">
             <PieChart />
             Assets
-            <span className="ml-auto">
+            <span
+              className={cn(
+                "ml-auto",
+                totalRenegadeBalanceUsd === 0 && "invisible",
+              )}
+            >
               {formatCurrency(totalRenegadeBalanceUsd)}
             </span>
             <ChevronRight className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

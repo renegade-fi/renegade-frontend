@@ -9,7 +9,7 @@ import { ArbitrumWalletActionsDropdown } from "@/app/components/wallet-sidebar/a
 import { AssetsMenu } from "@/app/components/wallet-sidebar/assets-menu"
 import { PWADialog } from "@/app/components/wallet-sidebar/pwa-dialog"
 import { RenegadeWalletActionsDropdown } from "@/app/components/wallet-sidebar/renegade-wallet-actions-dropdown"
-import { SolanaWalletButton } from "@/app/components/wallet-sidebar/solana/wallet-button"
+import { SolanaMenuItem } from "@/app/components/wallet-sidebar/solana/menu-item"
 import { WalletButton } from "@/app/components/wallet-sidebar/wallet-button"
 
 import {
@@ -68,7 +68,8 @@ export function WalletSidebar({
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup className="mt-auto">
-          <SolanaWalletButton />
+          <SidebarGroupLabel>Bridge & Deposit</SidebarGroupLabel>
+          <SolanaMenuItem />
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className={cn("lg:hidden", isPWA && "hidden")}>

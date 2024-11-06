@@ -140,6 +140,10 @@ function SyncRenegadeWagmiState() {
   React.useEffect(() => {
     const checkConnections = async () => {
       if (!isConnected || !connector) return
+      if (typeof connector.getProvider !== "function") {
+        // May not be available on initial page load
+        return
+      }
 
       connector
         .getProvider()
