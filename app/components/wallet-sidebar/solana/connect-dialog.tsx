@@ -1,110 +1,45 @@
-import { Wallet, useWallet } from "@solana/wallet-adapter-react"
-import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Plus } from "lucide-react"
 
-import { useSolanaWallets } from "@/app/hooks/use-solana-wallets"
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
 
-export function SolanaConnectDialog() {
-  const wallets = useSolanaWallets()
-  const { select } = useWallet()
+interface ConnectDialogProps {
+  children: React.ReactNode
+}
 
-  const connectMutation = useMutation({
-    mutationFn: async (wallet: Wallet) => {
-      select(wallet.adapter.name)
-      return new Promise<string>((resolve, reject) => {
-        wallet.adapter.once("connect", (publicKey) => {
-          resolve(publicKey.toString())
-        })
-        wallet.adapter.once("error", (error) => {
-          reject(error)
-        })
-        setTimeout(() => reject(new Error("Connection timeout")), 30000)
-      })
-    },
-    onSuccess: (publicKey) => {
-      console.log("Connected successfully:", publicKey)
-    },
-    onError: (error) => {
-      console.error("Failed to connect:", error)
-    },
-  })
-
-  if (connectMutation.isPending) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="relative">
-          <Avatar className="h-24 w-24">
-            {connectMutation.variables?.adapter.icon && (
-              <AvatarImage
-                alt={`${connectMutation.variables.adapter.name} icon`}
-                className="animate-pulse"
-                src={connectMutation.variables.adapter.icon}
-              />
-            )}
-            <AvatarFallback className="text-2xl">
-              {connectMutation.variables?.adapter.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="absolute -bottom-2 -right-2 rounded-full bg-background p-1">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        </div>
-        <p className="mt-6 text-sm text-muted-foreground">
-          Connecting to {connectMutation.variables?.adapter.name}...
-        </p>
-      </div>
-    )
-  }
-
+export function ConnectDialog({ children }: ConnectDialogProps) {
   return (
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle className="text-xl font-semibold">
-          Bridge USDC from Solana
-        </DialogTitle>
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Connect a Solana wallet to bridge USDC to your Arbitrum wallet,
-            which can then be deposited into Renegade.
-          </p>
-          <p className="text-xs italic text-muted-foreground/75">
-            Note: This Solana wallet can only be used for bridging funds. It
-            cannot directly interact with the Renegade protocol.
-          </p>
-        </div>
-      </DialogHeader>
-      <div className="grid gap-3 py-4">
-        {wallets?.map((wallet) => (
-          <Button
-            key={wallet.adapter.name}
-            className="flex w-full justify-between px-5 py-8 text-base font-normal"
-            disabled={connectMutation.isPending}
-            variant="outline"
-            onClick={() => connectMutation.mutate(wallet)}
-          >
-            <span className="font-extended font-bold">
-              {wallet.adapter.name}
-            </span>
-            <Avatar className="h-8 w-8">
-              {wallet.adapter.icon && (
-                <AvatarImage
-                  alt={`${wallet.adapter.name} icon`}
-                  src={wallet.adapter.icon}
-                />
-              )}
-              <AvatarFallback>{wallet.adapter.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-          </Button>
-        ))}
-      </div>
-    </DialogContent>
+    <Dialog>
+      <DialogTrigger asChild>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              size="lg"
+            >
+              <Avatar className="h-8 w-8 rounded-lg border-[1px] border-dashed border-muted-foreground/50 bg-muted/50">
+                <AvatarFallback className="rounded-lg bg-transparent">
+                  <Plus className="h-4 w-4 text-muted-foreground/50" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold text-muted-foreground">
+                  Connect Solana Wallet
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  To bridge & deposit USDC
+                </span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </DialogTrigger>
+      {children}
+    </Dialog>
   )
 }
