@@ -2,12 +2,8 @@
 
 import { useWallet } from "@solana/wallet-adapter-react"
 import { Clipboard, ExternalLink, SquareX } from "lucide-react"
-import { formatUnits } from "viem"
 
-import {
-  useSolanaBalance,
-  useSolanaChainBalance,
-} from "@/components/dialogs/transfer/hooks/use-solana-balance"
+import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -47,7 +43,7 @@ export function SolanaWalletActionsDropdown({
   return (
     <>
       <DropdownMenuLabel className="break-words text-xs font-normal">
-        {wallet.label}
+        {wallet.id}
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 
 import { WalletReadyState, useWallets } from "@/hooks/use-wallets"
-import { formatAddress } from "@/lib/format"
 
 export function SidebarTrigger() {
   const { toggleSidebar } = useSidebar()
@@ -21,7 +20,7 @@ export function SidebarTrigger() {
       onClick={toggleSidebar}
     >
       <PanelRight className="h-4 w-4" />
-      <span>{formatAddress(arbitrumWallet.label)}</span>
+      <span>{arbitrumWallet.label}</span>
     </Button>
   )
 }

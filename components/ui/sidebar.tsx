@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { sidebarEvents } from "@/lib/events"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -128,6 +129,13 @@ const SidebarProvider = React.forwardRef<
       }),
       [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
     )
+
+    React.useEffect(() => {
+      const unbind = sidebarEvents.on("open", () => {
+        setOpen(true)
+      })
+      return unbind
+    }, [setOpen])
 
     return (
       <SidebarContext.Provider value={contextValue}>

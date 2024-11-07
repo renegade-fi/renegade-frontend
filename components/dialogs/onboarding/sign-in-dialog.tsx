@@ -47,6 +47,7 @@ import {
   LOOKUP_WALLET_START,
   LOOKUP_WALLET_SUCCESS,
 } from "@/lib/constants/toast"
+import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 
@@ -161,6 +162,7 @@ export function SignInDialog({
       toast.success(message)
       reset()
       onOpenChange(false)
+      sidebarEvents.emit("open")
     },
   })
 
