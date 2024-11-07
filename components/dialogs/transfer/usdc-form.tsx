@@ -671,6 +671,7 @@ export function USDCForm({
         )
       }
     } else if (network === solana.id) {
+      await queryClient.refetchQueries({ queryKey: bridgeQuoteQueryKey })
       if (!bridgeQuote) {
         form.setError("root", {
           message: "Couldn't fetch bridge quote",
@@ -679,9 +680,7 @@ export function USDCForm({
       } else {
         handleSolanaBridge(bridgeQuote.transactionRequest)
       }
-    }
-    // await queryClient.refetchQueries({ queryKey: quoteQueryKey })
-    else if (swapRequired) {
+    } else if (swapRequired) {
       if (!swapQuote) {
         form.setError("root", {
           message: "Couldn't fetch quote",

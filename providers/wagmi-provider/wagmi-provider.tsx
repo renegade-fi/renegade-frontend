@@ -19,7 +19,6 @@ import {
   useDisconnect,
   useConfig as useWagmiConfig,
 } from "wagmi"
-import { injected, walletConnect } from "wagmi/connectors"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 

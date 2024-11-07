@@ -28,9 +28,14 @@ export function useSendSolanaTransaction(onError?: (error: Error) => void) {
         // Sign the transaction
         const signedTx = await signTransaction(tx)
 
-        // Send the signed transaction
+        // Send the signed transaction with specific options
         const signature = await connection.sendRawTransaction(
           signedTx.serialize(),
+          {
+            skipPreflight: true,
+            preflightCommitment: "confirmed",
+            maxRetries: 5,
+          },
         )
 
         return signature

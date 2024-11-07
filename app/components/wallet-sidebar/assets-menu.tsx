@@ -44,12 +44,7 @@ export function AssetsMenu() {
           <SidebarMenuButton tooltip="Assets">
             <PieChart />
             Assets
-            <span
-              className={cn(
-                "ml-auto",
-                totalRenegadeBalanceUsd === 0 && "invisible",
-              )}
-            >
+            <span className="ml-auto">
               {formatCurrency(totalRenegadeBalanceUsd)}
             </span>
             <ChevronRight className="transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
