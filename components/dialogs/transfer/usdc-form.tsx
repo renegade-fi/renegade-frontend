@@ -13,7 +13,8 @@ import { useAccount, useSendTransaction, useSwitchChain } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
-import { BridgePromptUSDC } from "@/components/dialogs/transfer/bridge-prompt-usdc"
+import { BridgePromptEthereum } from "@/components/dialogs/transfer/bridge-prompt-ethereum"
+import { BridgePromptSolana } from "@/components/dialogs/transfer/bridge-prompt-solana"
 import {
   ExternalTransferDirection,
   checkAmount,
@@ -840,30 +841,6 @@ export function USDCForm({
     swapStatus,
   ])
 
-  // Debug formatted step list
-  console.log(
-    "Step List Status:\n" +
-      stepList
-        .map((step, index) => {
-          if (!step) return `${index}. undefined step`
-          return [
-            `${index + 1}. ${step.label}`,
-            `  txHash: ${step.type === "task" ? "N/A" : step.txHash}`,
-            `  mutationStatus: ${step.mutationStatus}`,
-            `  ${step.type === "task" ? "taskStatus" : "txStatus"}: ${
-              step.type === "task" ? step.taskStatus : step.txStatus
-            }`,
-            step.type === "lifi"
-              ? `  explorerLink: ${step.lifiExplorerLink ?? "none"}`
-              : "",
-            step.chainId ? `  chainId: ${step.chainId}` : "",
-          ]
-            .filter(Boolean)
-            .join("\n")
-        })
-        .join("\n\n"),
-  )
-
   const execution = React.useMemo(
     () =>
       ({
@@ -872,6 +849,60 @@ export function USDCForm({
       }) satisfies Execution,
     [stepList],
   )
+
+  const renderTransferOptions = () => {
+    if (bridgeRequired) {
+      return (
+        <>
+          <Separator />
+          <ReviewBridge
+            error={bridgeQuoteError}
+            quote={bridgeQuote}
+          />
+        </>
+      )
+    }
+
+    if (swapRequired) {
+      return (
+        <>
+          <Separator />
+          <ReviewSwap
+            error={swapQuoteError}
+            quote={swapQuote}
+          />
+        </>
+      )
+    }
+
+    return userHasUsdcL1Balance ? (
+      <BridgePromptEthereum
+        hasBalance={userHasUsdcL1Balance}
+        onClick={() => {
+          if (Number(formattedUsdcL1Balance)) {
+            setNetwork(mainnet.id)
+            form.setValue("amount", formattedUsdcL1Balance, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        }}
+      />
+    ) : (
+      <BridgePromptSolana
+        hasUSDC={userHasUsdcSolanaBalance}
+        onClick={() => {
+          if (Number(formattedUsdcSolanaBalance)) {
+            setNetwork(solana.id)
+            form.setValue("amount", formattedUsdcSolanaBalance, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        }}
+      />
+    )
+  }
 
   let buttonText = ""
   if (bridgeRequired) {
@@ -1156,42 +1187,13 @@ export function USDCForm({
                     : "--"}
                 </TooltipButton>
               </div>
-              {bridgeRequired ? (
-                <>
-                  <Separator />
-                  <ReviewBridge
-                    error={bridgeQuoteError}
-                    quote={bridgeQuote}
-                  />
-                </>
-              ) : !swapRequired ? (
-                <BridgePromptUSDC
-                  hasUSDC={userHasUsdcL1Balance || userHasUsdcSolanaBalance}
-                  onClick={() => {
-                    if (Number(formattedUsdcL1Balance)) {
-                      setNetwork(mainnet.id)
-                      form.setValue("amount", formattedUsdcL1Balance, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      })
-                    }
-                  }}
-                />
-              ) : null}
+
+              {renderTransferOptions()}
 
               <MaxBalancesWarning
                 className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
                 mint={mint}
               />
-              {swapRequired ? (
-                <>
-                  <Separator />
-                  <ReviewSwap
-                    error={swapQuoteError}
-                    quote={swapQuote}
-                  />
-                </>
-              ) : null}
             </div>
           </ScrollArea>
           {isDesktop ? (
