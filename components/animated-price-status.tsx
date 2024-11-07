@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 
 import { Exchange } from "@renegade-fi/react"

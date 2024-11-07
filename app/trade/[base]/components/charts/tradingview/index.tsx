@@ -19,8 +19,9 @@ export default function TradingViewChart(
   props: Partial<ChartingLibraryWidgetOptions>,
 ) {
   const [isReady, setIsReady] = React.useState(false)
-  const chartContainerRef =
-    React.useRef<HTMLDivElement>(undefined) as React.MutableRefObject<HTMLInputElement>
+  const chartContainerRef = React.useRef<HTMLDivElement>(
+    undefined,
+  ) as React.MutableRefObject<HTMLInputElement>
 
   React.useEffect(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {

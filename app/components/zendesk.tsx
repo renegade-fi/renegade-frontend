@@ -6,7 +6,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 
 export function Zendesk() {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  if (!isDesktop) return <></>
+  if (!isDesktop) return null
   return (
     <Script
       id="ze-snippet"
