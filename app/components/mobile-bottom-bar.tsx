@@ -1,5 +1,3 @@
-"use client"
-
 import { useStatus } from "@renegade-fi/react"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"

@@ -30,6 +30,5 @@ export function InvalidateQueries() {
       }
     },
   })
-
   return null
 }
