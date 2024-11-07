@@ -8,8 +8,9 @@ import {
   STORAGE_SIDE,
 } from "@/lib/constants/storage"
 
-function setCookie(key: string, value: string) {
-  cookies().set(key, value, {
+async function setCookie(key: string, value: string) {
+  const cookieStore = await cookies()
+  cookieStore.set(key, value, {
     path: "/",
     sameSite: "strict",
     // Disable secure flag in development

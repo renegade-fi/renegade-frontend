@@ -7,7 +7,6 @@ import {
   dehydrate,
 } from "@tanstack/react-query"
 
-import { prefetchPrice } from "@/app/actions"
 import { PageClient } from "@/app/trade/[base]/page-client"
 
 import { Side } from "@/lib/constants/protocol"
@@ -17,6 +16,8 @@ import {
 } from "@/lib/constants/storage"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
+import { prefetchPrice } from "./utils"
+
 export async function generateStaticParams() {
   const tokens = DISPLAY_TOKENS({ hideStables: true, hideHidden: true })
   return tokens.map((token) => ({
@@ -24,7 +25,10 @@ export async function generateStaticParams() {
   }))
 }
 
-export default async function Page({ params }: { params: { base: string } }) {
+export default async function Page(props: {
+  params: Promise<{ base: string }>
+}) {
+  const params = await props.params
   const queryClient = new QueryClient()
   const baseToken = Token.findByTicker(params.base.toUpperCase())
   const baseMint = baseToken.address
@@ -35,9 +39,9 @@ export default async function Page({ params }: { params: { base: string } }) {
       [prefetchPrice(queryClient, baseMint, "binance")],
     ),
     Promise.all([
-      cookies().get("react-resizable-panels:layout"),
-      cookies().get(STORAGE_SIDE),
-      cookies().get(STORAGE_IS_USDC_DENOMINATED),
+      (await cookies()).get("react-resizable-panels:layout"),
+      (await cookies()).get(STORAGE_SIDE),
+      (await cookies()).get(STORAGE_IS_USDC_DENOMINATED),
     ]),
   ])
 
