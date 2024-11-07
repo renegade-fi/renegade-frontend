@@ -52,9 +52,7 @@ export async function getCumulativeVolume({ from, to }: VolumeParams) {
   if (to) searchParams.append("to", to.toString())
 
   const url = `/api/stats/cumulative-volume?${searchParams.toString()}`
-  const res = await fetch(url, { cache: "force-cache" }).then((res) =>
-    res.json(),
-  )
+  const res = await fetch(url).then((res) => res.json())
   if (res.error) {
     throw new Error(res.error)
   }

@@ -1,7 +1,6 @@
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
   try {

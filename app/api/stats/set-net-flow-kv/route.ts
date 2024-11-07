@@ -11,7 +11,6 @@ import { getAllSetMembers } from "@/app/lib/kv-utils"
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
 
 export const maxDuration = 300
-export const dynamic = "force-dynamic"
 
 export async function GET() {
   console.log("Starting net flow calculation cron job")
@@ -38,7 +37,6 @@ export async function GET() {
           Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
         },
         body: pipelineBody,
-        cache: "no-store",
       },
     )
 

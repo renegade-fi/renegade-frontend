@@ -3,7 +3,6 @@ import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
@@ -68,7 +67,6 @@ async function fetchTvl(
       method: "eth_call",
       params: [{ to: tokenAddress, data }, "latest"],
     }),
-    cache: "no-store",
   })
 
   if (!response.ok) {

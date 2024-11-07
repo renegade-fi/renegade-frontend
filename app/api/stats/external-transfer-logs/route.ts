@@ -9,7 +9,6 @@ import {
 import { getAllSetMembers } from "@/app/lib/kv-utils"
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 function startOfPeriod(timestamp: number, intervalMs: number): number {
   return Math.floor(timestamp / intervalMs) * intervalMs
@@ -36,7 +35,6 @@ export async function GET(req: NextRequest) {
           Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
         },
         body: pipelineBody,
-        cache: "no-store",
       },
     )
 
