@@ -2,6 +2,8 @@
 
 import React from "react"
 
+import { deleteCookie } from "@/app/actions"
+
 import { STORAGE_STORE, STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 
 export function ClearCookie() {
@@ -11,7 +13,7 @@ export function ClearCookie() {
 
       if (rememberMe !== "true") {
         document.cookie = `${STORAGE_STORE}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
-        navigator.sendBeacon("/api/delete-cookie", STORAGE_STORE)
+        deleteCookie(STORAGE_STORE)
       }
     }
 

@@ -88,11 +88,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const headersList = await headers()
   const renegadeInitialState = renegadeCookieToInitialState(
     renegadeConfig,
-    headers().get("cookie"),
+    headersList.get("cookie"),
   )
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
 
   return (
@@ -108,7 +109,7 @@ export default async function RootLayout({
         >
           <RenegadeProvider initialState={renegadeInitialState}>
             <SolanaProvider>
-              <WagmiProvider cookie={headers().get("cookie") ?? undefined}>
+              <WagmiProvider cookie={headersList.get("cookie") ?? undefined}>
                 <SidebarProvider defaultOpen={defaultOpen}>
                   <WalletSidebarSync />
                   <TailwindIndicator />
@@ -116,7 +117,7 @@ export default async function RootLayout({
                     delayDuration={0}
                     skipDelayDuration={0}
                   >
-                    <SideProvider cookie={headers().get("cookie")}>
+                    <SideProvider cookie={headersList.get("cookie")}>
                       <SidebarInset className="max-w-full">
                         <Header />
                         {children}
