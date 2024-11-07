@@ -20,7 +20,7 @@ export default function TradingViewChart(
 ) {
   const [isReady, setIsReady] = React.useState(false)
   const chartContainerRef =
-    React.useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>
+    React.useRef<HTMLDivElement>(undefined) as React.MutableRefObject<HTMLInputElement>
 
   React.useEffect(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
