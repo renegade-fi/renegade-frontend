@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import { useIsMobile } from "@/hooks/use-mobile"
-import { formatAddress } from "@/lib/format"
+import { truncateAddress } from "@/lib/format"
 
 interface ConnectContentProps {
   className?: string
@@ -45,7 +45,7 @@ export function ConnectContent({ className }: ConnectContentProps) {
       toast.success("Ready to deposit USDC", {
         id: `connect-${wallet.adapter.name}`,
         icon: undefined,
-        description: `Connected to ${formatAddress(publicKey)}`,
+        description: `Connected to ${truncateAddress(publicKey)}`,
       })
     },
     onError: (error, wallet) => {

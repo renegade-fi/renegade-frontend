@@ -186,7 +186,7 @@ export function formatStat(volume: number) {
   return numeral(volume).format("$0,0.00a")
 }
 
-export const formatAddress = (address: string, chars: number = 4) => {
+export const truncateAddress = (address: string, chars: number = 4) => {
   if (!address || address.length <= chars * 2) return address
   return `${address.slice(0, chars)}...${address.slice(-chars)}`
 }

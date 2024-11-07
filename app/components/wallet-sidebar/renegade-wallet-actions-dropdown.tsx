@@ -57,7 +57,7 @@ export function RenegadeWalletActionsDropdown({
   return (
     <>
       <DropdownMenuLabel className="text-xs font-normal">
-        {wallet.label}
+        {wallet.id}
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>

@@ -30,11 +30,11 @@ export const STEP_CONFIGS: Record<TransferStep, StepConfig> = {
     chainId: mainnet.id,
   },
   [EVMStep.SOURCE_BRIDGE]: {
-    label: "Source chain transaction",
+    label: "Ethereum Mainnet transaction",
     chainId: mainnet.id,
   },
   [EVMStep.DESTINATION_BRIDGE]: {
-    label: "Destination chain transaction",
+    label: "Arbitrum transaction",
   },
   [EVMStep.APPROVE_SWAP]: {
     label: "Approve Swap",
@@ -49,10 +49,10 @@ export const STEP_CONFIGS: Record<TransferStep, StepConfig> = {
     label: "Deposit USDC",
   },
   [SVMStep.SOURCE_BRIDGE]: {
-    label: "Source chain transaction",
+    label: "Solana transaction",
     chainId: solana.id,
   },
   [SVMStep.DESTINATION_BRIDGE]: {
-    label: "Destination chain transaction",
+    label: "Arbitrum transaction",
   },
 }

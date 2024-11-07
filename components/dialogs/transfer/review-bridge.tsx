@@ -19,7 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { formatAddress } from "@/lib/format"
+import { truncateAddress } from "@/lib/format"
 import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem"
 
 function Layout({
@@ -151,7 +151,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
                   value={
                     <Tooltip>
                       <TooltipTrigger>
-                        {formatAddress(fromAddress)}
+                        {truncateAddress(fromAddress)}
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>{fromAddress}</p>
@@ -164,7 +164,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
                   value={
                     <Tooltip>
                       <TooltipTrigger>
-                        {formatAddress(toAddress)}
+                        {truncateAddress(toAddress)}
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>{toAddress}</p>

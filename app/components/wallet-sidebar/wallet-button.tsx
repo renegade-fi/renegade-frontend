@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/sidebar"
 
 import type { Wallet } from "@/hooks/use-wallets"
-import { formatAddress } from "@/lib/format"
 
 interface WalletButtonProps {
   wallet: Wallet
@@ -48,9 +47,7 @@ export function WalletButton({ wallet, dropdownContent }: WalletButtonProps) {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{wallet.name}</span>
-                <span className="truncate text-xs">
-                  {formatAddress(wallet.label)}
-                </span>
+                <span className="truncate text-xs">{wallet.label}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>

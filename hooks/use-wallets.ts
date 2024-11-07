@@ -4,6 +4,7 @@ import { useStatus, useWalletId } from "@renegade-fi/react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useAccount, useEnsName } from "wagmi"
 
+import { truncateAddress } from "@/lib/format"
 import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
 
 export interface ConnectedWallet {
@@ -45,7 +46,7 @@ export function useWallets() {
         name: "Renegade Wallet ID",
         icon: "/glyph_light.png",
         id: walletId,
-        label: walletId,
+        label: truncateAddress(walletId),
         isConnected: true,
       }
     : {
@@ -62,7 +63,7 @@ export function useWallets() {
           name: "Arbitrum Address",
           icon: connector.icon ?? "",
           id: address,
-          label: ensName || address,
+          label: ensName || truncateAddress(address),
           isConnected: true,
         }
       : {
@@ -78,7 +79,7 @@ export function useWallets() {
           name: "Solana Address",
           icon: wallet.adapter.icon ?? "",
           id: publicKey.toString(),
-          label: publicKey.toString(),
+          label: truncateAddress(publicKey.toString()),
           isConnected: true,
         }
       : {

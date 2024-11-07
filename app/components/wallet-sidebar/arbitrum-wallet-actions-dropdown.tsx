@@ -44,7 +44,7 @@ export function ArbitrumWalletActionsDropdown({
   return (
     <>
       <DropdownMenuLabel className="break-words text-xs font-normal">
-        {wallet.label}
+        {wallet.id}
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
