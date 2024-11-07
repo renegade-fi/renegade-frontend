@@ -16,9 +16,6 @@ async function fetchCombinedBalances(
 
   const response = await fetch(
     `/api/tokens/get-combined-balances?${params.toString()}`,
-    {
-      cache: "no-store",
-    },
   )
   if (!response.ok) {
     throw new Error("Failed to fetch combined balances")

@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from "next/server"
 const AMBERDATA_BASE_URL = "https://api.amberdata.com"
 const API_KEY_HEADER = "x-api-key"
 
-export const dynamic = "force-dynamic"
-
 export async function GET(request: NextRequest) {
   try {
     // Get the path and search params from the request

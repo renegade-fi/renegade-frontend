@@ -26,7 +26,6 @@ export async function readErc20BalanceOf(
         method: "eth_call",
         params: [{ to: mint, data }, "latest"],
       }),
-      cache: "no-store",
     })
 
     const result = await response.json()

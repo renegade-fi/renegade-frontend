@@ -6,7 +6,6 @@ export interface NetFlowResponse {
 }
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
@@ -17,7 +16,6 @@ export async function GET() {
         headers: {
           Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
         },
-        cache: "no-store",
       },
     )
 

@@ -16,7 +16,6 @@ export interface HistoricalVolumeResponse {
 }
 
 export const runtime = "edge"
-export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,7 +32,6 @@ export async function GET(req: NextRequest) {
           Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
         },
         body: pipelineBody,
-        cache: "no-store",
       },
     )
 
