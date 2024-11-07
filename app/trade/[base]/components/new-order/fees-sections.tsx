@@ -78,21 +78,24 @@ export function FeesSection({
             <p>{FEES_SECTION_TOTAL_SAVINGS}</p>
           </TooltipContent>
         </Tooltip>
-        <MotionNumber
+        <div
           className={cn("text-green-price transition-opacity", {
             "opacity-0": !predictedSavings || !amount,
           })}
-          format={{
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits:
-              predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
-            maximumFractionDigits:
-              predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
-          }}
-          locales="en-US"
-          value={predictedSavings}
-        />
+        >
+          <MotionNumber
+            format={{
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits:
+                predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
+              maximumFractionDigits:
+                predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
+            }}
+            locales="en-US"
+            value={predictedSavings}
+          />
+        </div>
         <span
           className={cn("absolute right-0 transition-opacity", {
             "opacity-0": predictedSavings && amount,

@@ -33,7 +33,6 @@ function Layout({
     <motion.div
       key={animationKey}
       animate={{ opacity: 1 }}
-      className="text-sm"
       initial={{ opacity: 0 }}
       transition={{
         duration: 0.5,
@@ -62,7 +61,7 @@ export function ReviewBridge({
   if (error) {
     return (
       <Layout animationKey="error">
-        <div className="text-center text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground">
           Bridging is currently unavailable, please try again later.
         </div>
       </Layout>
@@ -70,7 +69,7 @@ export function ReviewBridge({
   }
   return (
     <Layout animationKey="loading">
-      <div className="text-center text-muted-foreground">
+      <div className="text-center text-sm text-muted-foreground">
         Fetching bridge info for review...
       </div>
     </Layout>
@@ -100,7 +99,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   // Only support Across for now
   if (!allowBridges.includes(toolKey)) {
     return (
-      <div className="text-center text-muted-foreground">
+      <div className="text-center text-sm text-muted-foreground">
         {`${toolKey} is not supported.`}
       </div>
     )
@@ -114,7 +113,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   return (
     <AccordionPrimitive.Root
       collapsible
-      className="border p-3"
+      className="border p-3 text-sm"
       type="single"
       value={value}
       onValueChange={setValue}
@@ -132,7 +131,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
             <ChevronDownIcon className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
           </AccordionPrimitive.Trigger>
         </AccordionPrimitive.Header>
-        <AccordionPrimitive.Content className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+        <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
           <div className="flex flex-col gap-2">
             <Row
               imageUri={fromLogoURI}
