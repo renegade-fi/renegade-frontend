@@ -29,7 +29,6 @@ const viemClient = createPublicClient({
 })
 
 export const maxDuration = 300
-export const dynamic = "force-dynamic"
 
 async function getBlockTimestamps(
   blockNumbers: bigint[],

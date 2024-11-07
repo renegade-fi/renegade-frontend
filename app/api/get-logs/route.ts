@@ -40,7 +40,6 @@ export async function GET(req: NextRequest) {
           },
         ],
       }),
-      cache: "no-store",
     })
 
     if (!response.ok) {

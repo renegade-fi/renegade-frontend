@@ -6,7 +6,6 @@ export async function getAllSetMembers(key: string): Promise<string[]> {
       headers: {
         Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
       },
-      cache: "no-store",
     },
   )
 

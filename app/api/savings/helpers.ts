@@ -207,7 +207,7 @@ async function fetchBinanceOrderbookSnapshot(
     endDate,
   )
 
-  const res = await fetch(req, { cache: "no-store" })
+  const res = await fetch(req)
   const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json()
 
   // The Amberdata response contains snapshots in ascending order of timestamp,
@@ -231,7 +231,7 @@ async function fetchBinanceOrderbookUpdates(
     desiredTimestamp,
   )
 
-  const res = await fetch(req, { cache: "no-store" })
+  const res = await fetch(req)
   const updatesRes: AmberdataOrderbookUpdateResponse = await res.json()
   return updatesRes.payload.data
 }

@@ -19,9 +19,7 @@ export function useTokenPrices() {
 const fetchTokenPrices = async (): Promise<
   { ticker: string; price: number }[]
 > => {
-  const response = await fetch("/api/amberdata/token-prices", {
-    cache: "no-cache",
-  })
+  const response = await fetch("/api/amberdata/token-prices")
   if (!response.ok) {
     throw new Error("Failed to fetch token prices")
   }

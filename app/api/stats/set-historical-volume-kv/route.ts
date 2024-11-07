@@ -26,7 +26,6 @@ const DEFAULT_PARAMS: SearchParams = {
 }
 
 export const maxDuration = 300
-export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
