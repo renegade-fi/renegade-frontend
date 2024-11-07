@@ -27,9 +27,7 @@ export function BridgePromptEthereum({
         <div className="text-sm font-medium">
           Bridge and deposit from Ethereum with 1-click.
         </div>
-        <div className="text-[0.8rem] text-muted-foreground">
-          Powered by Across
-        </div>
+        <div className="text-[0.8rem]">Powered by Across</div>
       </div>
     </div>
   )

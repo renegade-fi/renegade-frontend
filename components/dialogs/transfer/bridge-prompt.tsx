@@ -32,10 +32,10 @@ export function BridgePrompt({
           target="_blank"
         >
           <div className="space-y-0.5">
-            <Label className="text-base">Arbitrum Bridge</Label>
-            <div className="text-[0.8rem]">
+            <div className="text-sm font-medium">
               {`Bridge ${token.ticker} to Arbitrum to deposit`}
             </div>
+            <div className="text-[0.8rem]">Powered by Arbitrum Bridge</div>
           </div>
           <div className="flex flex-1 justify-end">
             <ExternalLink className="h-3 w-3" />
