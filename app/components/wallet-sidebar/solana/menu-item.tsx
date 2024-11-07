@@ -4,19 +4,21 @@ import { SolanaWalletActionsDropdown } from "@/app/components/wallet-sidebar/sol
 import { WalletButton } from "@/app/components/wallet-sidebar/wallet-button"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { useWallets } from "@/hooks/use-wallets"
 
 import { ConnectContent } from "./connect-content"
 
 export function SolanaMenuItem() {
   const { solanaWallet } = useWallets()
+  const isMobile = useIsMobile()
 
   if (solanaWallet.isConnected) {
     return (
@@ -53,7 +55,9 @@ export function SolanaMenuItem() {
           </SidebarMenuItem>
         </SidebarMenu>
       </DialogTrigger>
-      <ConnectContent />
+      <DialogContent className={isMobile ? "h-full w-full" : "w-[343px]"}>
+        <ConnectContent />
+      </DialogContent>
     </Dialog>
   )
 }

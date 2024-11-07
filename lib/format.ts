@@ -87,8 +87,8 @@ export const formatCurrency = (n: number) => {
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: n > 10_000 ? 0 : n < 10 ? 4 : 2,
-    maximumFractionDigits: n > 10_000 ? 0 : n < 10 ? 4 : 2,
+    minimumFractionDigits: n > 10_000 ? 0 : !n ? 2 : n < 10 ? 4 : 2,
+    maximumFractionDigits: n > 10_000 ? 0 : !n ? 2 : n < 10 ? 4 : 2,
   }).format(n)
 }
 
@@ -186,5 +186,7 @@ export function formatStat(volume: number) {
   return numeral(volume).format("$0,0.00a")
 }
 
-export const formatAddress = (address: string) =>
-  `${address.slice(0, 6)}...${address.slice(-4)}`
+export const formatAddress = (address: string, chars: number = 4) => {
+  if (!address || address.length <= chars * 2) return address
+  return `${address.slice(0, chars)}...${address.slice(-chars)}`
+}

@@ -13,7 +13,13 @@ import { motion } from "framer-motion"
 import { formatUnits } from "viem/utils"
 
 import { allowBridges } from "@/components/dialogs/transfer/use-bridge-quote"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
+import { formatAddress } from "@/lib/format"
 import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem"
 
 function Layout({
@@ -77,6 +83,8 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
     action: {
       fromChainId,
       toChainId,
+      fromAddress,
+      toAddress,
       fromAmount,
       fromToken: {
         decimals: fromDecimals,
@@ -93,7 +101,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   if (!allowBridges.includes(toolKey)) {
     return (
       <div className="text-center text-muted-foreground">
-        {`${toolKey} not in allowed bridges`}
+        {`${toolKey} is not supported.`}
       </div>
     )
   }
@@ -136,6 +144,36 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
               label={`Receive ${toSymbol}`}
               value={toAmountFormatted}
             />
+            {fromAddress && toAddress && fromAddress !== toAddress && (
+              <>
+                <Row
+                  label="From Address"
+                  value={
+                    <Tooltip>
+                      <TooltipTrigger>
+                        {formatAddress(fromAddress)}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{fromAddress}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  }
+                />
+                <Row
+                  label="To Address"
+                  value={
+                    <Tooltip>
+                      <TooltipTrigger>
+                        {formatAddress(toAddress)}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{toAddress}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  }
+                />
+              </>
+            )}
             <Row
               imageUri={`/tokens/${getChainLogoTicker(fromChainId)}.png`}
               label="From"
@@ -173,7 +211,7 @@ function Row({
   url,
 }: {
   label: string
-  value: string
+  value: string | React.ReactNode
   imageUri?: string
   url?: string
 }) {
@@ -190,7 +228,7 @@ function Row({
             width={16}
           />
         )}
-        <span>{value}</span>
+        {typeof value === "string" ? <span>{value}</span> : value}
         {url && <ExternalLinkIcon className="h-4 w-4" />}
       </div>
     </div>

@@ -1,8 +1,9 @@
 import { ConnectContent } from "@/app/components/wallet-sidebar/solana/connect-content"
 
-import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { useWallets } from "@/hooks/use-wallets"
 import { cn } from "@/lib/utils"
 
@@ -16,6 +17,7 @@ export function BridgePromptSolana({
   onClick,
 }: BridgePromptSolanaProps) {
   const { solanaWallet } = useWallets()
+  const isMobile = useIsMobile()
 
   const content = (
     <div
@@ -25,10 +27,10 @@ export function BridgePromptSolana({
       onClick={hasUSDC ? onClick : undefined}
     >
       <div className="space-y-0.5">
-        <Label className="cursor-inherit text-sm">
+        <Label className="cursor-pointer text-sm">
           {hasUSDC
             ? "Bridge and deposit USDC from Solana with 1-click."
-            : "Connect Solana wallet to bridge and deposit USDC."}
+            : "Connect your Solana wallet to bridge and deposit USDC."}
         </Label>
         {hasUSDC && (
           <div className="text-[0.8rem] text-muted-foreground">
@@ -48,7 +50,9 @@ export function BridgePromptSolana({
   return (
     <Dialog>
       <DialogTrigger asChild>{content}</DialogTrigger>
-      <ConnectContent />
+      <DialogContent className={isMobile ? "h-full w-full" : "w-[343px]"}>
+        <ConnectContent />
+      </DialogContent>
     </Dialog>
   )
 }
