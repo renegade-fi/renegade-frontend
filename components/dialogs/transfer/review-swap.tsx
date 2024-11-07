@@ -23,7 +23,6 @@ function Layout({
     <motion.div
       key={animationKey}
       animate={{ opacity: 1 }}
-      className="text-sm"
       initial={{ opacity: 0 }}
       transition={{
         duration: 0.5,
@@ -52,7 +51,7 @@ export function ReviewSwap({
   if (error) {
     return (
       <Layout animationKey="error">
-        <div className="text-center text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground">
           Swapping is currently unavailable, please try again later.
         </div>
       </Layout>
@@ -60,7 +59,7 @@ export function ReviewSwap({
   }
   return (
     <Layout animationKey="loading">
-      <div className="text-center text-muted-foreground">
+      <div className="text-center text-sm text-muted-foreground">
         Fetching swap info for review...
       </div>
     </Layout>
@@ -92,7 +91,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   return (
     <AccordionPrimitive.Root
       collapsible
-      className="border p-3"
+      className="border p-3 text-sm"
       type="single"
       value={value}
       onValueChange={setValue}

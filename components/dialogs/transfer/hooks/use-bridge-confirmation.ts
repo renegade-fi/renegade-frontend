@@ -36,7 +36,7 @@ const defaultValues = {
 
 export function useBridgeConfirmation(
   hash?: string,
-  onConfirm?: (data: typeof processedData) => Promise<void>,
+  onConfirm?: (data: typeof defaultValues) => Promise<void>,
 ) {
   const { data, status } = useQuery({
     queryKey: ["bridge", "status", hash],
