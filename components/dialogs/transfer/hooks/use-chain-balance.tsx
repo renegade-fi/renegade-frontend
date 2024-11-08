@@ -6,7 +6,7 @@ import { useAccount } from "wagmi"
 import { formatNumber } from "@/lib/format"
 import { useReadErc20BalanceOf } from "@/lib/generated"
 import { chain } from "@/lib/viem"
-import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 export function useChainBalance({
   chainId = chain.id,

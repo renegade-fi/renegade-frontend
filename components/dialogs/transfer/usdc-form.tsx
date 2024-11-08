@@ -86,7 +86,7 @@ import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { chain, getFormattedChainName, solana } from "@/lib/viem"
 import { useSide } from "@/providers/side-provider"
-import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
 

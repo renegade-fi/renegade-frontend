@@ -6,14 +6,10 @@ import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
 import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { ConnectKitProvider, getDefaultConfig } from "connectkit"
-import { arbitrum, arbitrumSepolia, mainnet } from "viem/chains"
+import { ConnectKitProvider } from "connectkit"
 import {
   WagmiProvider as Provider,
   cookieToInitialState,
-  createConfig,
-  createStorage,
-  http,
   useAccount,
   useConnections,
   useDisconnect,
@@ -22,47 +18,10 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
-import { cookieStorage } from "@/lib/cookie"
-import { getURL } from "@/lib/utils"
 import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
-export const config = createConfig(
-  getDefaultConfig({
-    // TODO: Ensure user never signs message for mainnet
-    chains: [chain, mainnet],
-    transports: {
-      [chain.id]: http(),
-      [mainnet.id]: http("/api/proxy/mainnet"),
-    },
-    ssr: true,
-    storage: createStorage({
-      storage: cookieStorage,
-    }),
-
-    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
-
-    appName: "Renegade",
-    appDescription: "On-chain dark pool",
-    appUrl: "https://trade.renegade.fi",
-    appIcon: `${getURL()}/glyph_light.svg`,
-  }),
-)
-
-export const mainnetConfig = createConfig({
-  chains: [mainnet],
-  transports: {
-    [mainnet.id]: http("/api/proxy/mainnet"),
-  },
-})
-
-export const arbitrumConfig = createConfig({
-  chains: [chain],
-  transports: {
-    [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
-  },
-})
+import { wagmiConfig } from "./config"
 
 createLifiConfig({
   integrator: "renegade.fi",
@@ -94,10 +53,10 @@ export function WagmiProvider({
   cookie?: string
 }) {
   const [open, setOpen] = React.useState(false)
-  const initialState = cookieToInitialState(config, cookie)
+  const initialState = cookieToInitialState(wagmiConfig, cookie)
   return (
     <Provider
-      config={config}
+      config={wagmiConfig}
       initialState={initialState}
     >
       <QueryProvider>

@@ -63,7 +63,6 @@ import {
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
 import { useCheckChain } from "@/hooks/use-check-chain"
-import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -88,7 +87,10 @@ import {
 import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useSide } from "@/providers/side-provider"
-import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
+import {
+  arbitrumConfig,
+  mainnetConfig,
+} from "@/providers/wagmi-provider/config"
 
 import { WrapEthWarning } from "./wrap-eth-warning"
 
@@ -161,6 +163,7 @@ export function WETHForm({
   // ETH-specific logic
   const { data: ethL2Balance, queryKey: ethL2BalanceQueryKey } = useBalance({
     address,
+    config: arbitrumConfig,
   })
   const formattedEthL2Balance = formatEther(ethL2Balance?.value ?? BigInt(0))
   const ethL2BalanceLabel = formatNumber(

@@ -5,7 +5,7 @@ import { useWallet } from "@solana/wallet-adapter-react"
 import { useAccount, useEnsName } from "wagmi"
 
 import { truncateAddress } from "@/lib/format"
-import { mainnetConfig } from "@/providers/wagmi-provider/wagmi-provider"
+import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 export interface ConnectedWallet {
   name: string
