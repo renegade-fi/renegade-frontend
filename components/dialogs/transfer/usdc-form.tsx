@@ -72,6 +72,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
+import { useWallets } from "@/hooks/use-wallets"
 import {
   MIN_DEPOSIT_AMOUNT,
   Side,
@@ -124,6 +125,7 @@ export function USDCForm({
       onError: (error) => setSwitchChainError(error),
     },
   })
+  const { solanaWallet } = useWallets()
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -212,13 +214,22 @@ export function USDCForm({
       .catch((error) => catchError(error, "Couldn't switch chain"))
 
   // Fetch bridge quote
-  const bridgeRequired = Boolean(
-    currentStep === 0 && network !== chain.id && amount && Number(amount) > 0,
-  )
+  const bridgeRequired = React.useMemo(() => {
+    const isFirstStep = currentStep === 0
+    const isCrosschainTransfer = network !== chain.id
+    const hasValidAmount = Boolean(amount && Number(amount) > 0)
+    const hasSolanaWallet = network !== solana.id || solanaWallet.isConnected
+
+    return (
+      isFirstStep && isCrosschainTransfer && hasValidAmount && hasSolanaWallet
+    )
+  }, [currentStep, network, chain.id, amount, solanaWallet.isConnected])
+
   const [debouncedAmount] = useDebounceValue(() => {
     if (network !== chain.id) return amount
     return ""
   }, 1000)
+
   const {
     data: bridgeQuote,
     queryKey: bridgeQuoteQueryKey,
