@@ -120,12 +120,12 @@ export function USDCForm({
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
     null,
   )
+  const { solanaWallet } = useWallets()
   const { switchChainAsync } = useSwitchChain({
     mutation: {
       onError: (error) => setSwitchChainError(error),
     },
   })
-  const { solanaWallet } = useWallets()
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -244,6 +244,7 @@ export function USDCForm({
     toMint: USDC_L2_TOKEN.address,
     amount: debouncedAmount.toString(),
     enabled: bridgeRequired,
+    // enabled: bridgeRequired && (network !== solana.id || solanaWallet.isConnected)
   })
 
   // Check if bridge allowance is required
@@ -1033,6 +1034,8 @@ export function USDCForm({
               >
                 <Label>Network</Label>
                 <NetworkSelect
+                  hasEthereumBalance={userHasUsdcL1Balance}
+                  hasSolanaBalance={userHasUsdcSolanaBalance}
                   value={network}
                   onChange={(value) => setNetwork(value)}
                 />

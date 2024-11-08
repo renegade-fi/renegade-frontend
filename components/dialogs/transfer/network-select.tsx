@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { mainnet } from "viem/chains"
-import { useAccount } from "wagmi"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -22,32 +21,37 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 import { chain, solana } from "@/lib/viem"
 
-const networks = [
-  {
-    label: "Arbitrum",
-    value: chain.id,
-  },
-  {
-    label: "Ethereum",
-    value: mainnet.id,
-  },
-  {
-    label: "Solana",
-    value: solana.id,
-  },
-]
+interface NetworkSelectProps {
+  value: number
+  onChange: (value: number) => void
+  hasEthereumBalance: boolean
+  hasSolanaBalance: boolean
+}
 
 export function NetworkSelect({
   value,
   onChange,
-}: {
-  value: number
-  onChange: (value: number) => void
-}) {
+  hasEthereumBalance,
+  hasSolanaBalance,
+}: NetworkSelectProps) {
   const [open, setOpen] = React.useState(false)
-  const { address } = useAccount()
-
   const isDesktop = useMediaQuery("(min-width: 1024px)")
+
+  const networks = React.useMemo(() => {
+    const availableNetworks: Array<{ label: string; value: number }> = [
+      { label: "Arbitrum", value: chain.id },
+    ]
+
+    if (hasEthereumBalance) {
+      availableNetworks.push({ label: "Ethereum", value: mainnet.id })
+    }
+
+    if (hasSolanaBalance) {
+      availableNetworks.push({ label: "Solana", value: solana.id })
+    }
+
+    return availableNetworks
+  }, [hasEthereumBalance, hasSolanaBalance])
 
   return (
     <Popover
@@ -80,10 +84,10 @@ export function NetworkSelect({
           <CommandList>
             <CommandEmpty>No network found.</CommandEmpty>
             <CommandGroup>
-              {networks.map((t) => (
+              {networks.map((network) => (
                 <CommandItem
-                  key={t.value}
-                  value={t.value.toString()}
+                  key={network.value}
+                  value={network.value.toString()}
                   onSelect={(currentValue) => {
                     onChange(
                       Number(currentValue) === value
@@ -93,11 +97,11 @@ export function NetworkSelect({
                     setOpen(false)
                   }}
                 >
-                  <span className="flex-1">{t.label}</span>
+                  <span className="flex-1">{network.label}</span>
                   <CheckIcon
                     className={cn(
                       "ml-auto h-4 w-4",
-                      value === t.value ? "opacity-100" : "opacity-0",
+                      value === network.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
