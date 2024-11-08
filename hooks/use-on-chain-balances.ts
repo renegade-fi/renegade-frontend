@@ -5,7 +5,7 @@ import { useQueries } from "@tanstack/react-query"
 import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { readErc20BalanceOf } from "@/lib/generated"
 import { isTestnet } from "@/lib/viem"
-import { config } from "@/providers/wagmi-provider/wagmi-provider"
+import { arbitrumConfig } from "@/providers/wagmi-provider/config"
 
 interface UseOnChainBalancesOptions {
   address?: `0x${string}`
@@ -25,13 +25,13 @@ export function useOnChainBalances({
         {
           address: mint,
           args: [address],
-          chainId: config.chains[0].id,
+          chainId: arbitrumConfig.chains[0].id,
           functionName: "balanceOf",
         },
       ],
       queryFn: async () => {
         if (!address) return BigInt(0)
-        return readErc20BalanceOf(config, {
+        return readErc20BalanceOf(arbitrumConfig, {
           address: mint,
           args: [address],
         })
