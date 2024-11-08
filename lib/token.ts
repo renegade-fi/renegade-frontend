@@ -2,8 +2,6 @@ import { Exchange, Token } from "@renegade-fi/react"
 import { tokenMapping } from "@renegade-fi/react/constants"
 import { getAddress } from "viem"
 
-import { isTestnet } from "@/lib/viem"
-
 export const HIDDEN_TICKERS = ["USDT", "REN"]
 export const STABLECOINS = ["USDC", "USDT"]
 

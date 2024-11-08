@@ -13,6 +13,8 @@ import {
 import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
+import { isTestnet } from "@/lib/viem"
+
 export function TransferForm({
   className,
   direction,
@@ -32,6 +34,18 @@ export function TransferForm({
       mint: initialMint ?? "",
     },
   })
+  if (isTestnet) {
+    return (
+      <DefaultForm
+        className={className}
+        direction={direction}
+        form={form}
+        header={header}
+        onSuccess={onSuccess}
+      />
+    )
+  }
+
   if (form.watch("mint") === Token.findByTicker("WETH").address) {
     return (
       <WETHForm
