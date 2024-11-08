@@ -4,7 +4,7 @@ import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 import { useAccount } from "wagmi"
 
-import { useCombinedBalances } from "@/hooks/use-combined-balances"
+import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 
@@ -24,6 +24,7 @@ interface UseAssetsTableDataOptions {
 }
 
 export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
+  const { address } = useAccount()
   const { data: renegadeBalances } = useBackOfQueueWallet({
     query: {
       select: (data) =>
@@ -31,8 +32,11 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
     },
   })
 
-  const { address } = useAccount()
-  const { data: combinedBalances } = useCombinedBalances(address)
+  const { data: onChainBalances } = useOnChainBalances({
+    address,
+    mints,
+  })
+
   const priceResults = usePriceQueries(
     mints.map((mint) => {
       const token = Token.findByAddress(mint)
@@ -48,7 +52,6 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
   const tableData = useMemo(() => {
     return mints.map((mint, i) => {
       const token = Token.findByAddress(mint)
-
       const renegadeBalance = renegadeBalances?.get(mint) ?? BigInt(0)
       const price = priceResults[i]?.data ?? 0
       const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price)
@@ -57,7 +60,7 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
         token.decimals,
       )
 
-      const onChainBalance = combinedBalances?.get(mint) ?? BigInt(0)
+      const onChainBalance = onChainBalances?.get(mint) ?? BigInt(0)
       const onChainUsdValueBigInt = amountTimesPrice(onChainBalance, price)
       const onChainUsdValue = formatUnits(onChainUsdValueBigInt, token.decimals)
 
@@ -71,7 +74,7 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
         onChainUsdValue,
       }
     })
-  }, [mints, combinedBalances, priceResults, renegadeBalances])
+  }, [mints, onChainBalances, priceResults, renegadeBalances])
 
   return tableData
 }

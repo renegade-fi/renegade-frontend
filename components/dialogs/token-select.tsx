@@ -21,8 +21,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
@@ -45,7 +45,10 @@ export function TokenSelect({
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
 
-  const { data: l2Balances, queryKey } = useCombinedBalances(address)
+  const { data: l2Balances, queryKey } = useOnChainBalances({
+    address,
+    mints: tokens.map((t) => t.value as `0x${string}`),
+  })
 
   useRefreshOnBlock({ queryKey })
 
@@ -121,7 +124,8 @@ export function TokenSelect({
                   <span className="flex-1">{t.label}</span>
                   <span className="flex-1 pr-2 text-right">
                     {formatNumber(
-                      displayBalances?.get(t.value) ?? BigInt(0),
+                      displayBalances?.get(t.value as `0x${string}`) ??
+                        BigInt(0),
                       Token.findByAddress(t.value).decimals,
                     )}
                   </span>

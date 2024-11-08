@@ -1,10 +1,12 @@
 import { createPublicClient, defineChain, http, extractChain } from "viem"
 import { arbitrumSepolia, arbitrum, mainnet } from "viem/chains"
 
-export const isTestnet =
-  Number(process.env.NEXT_PUBLIC_CHAIN_ID) === arbitrumSepolia.id
+export const chain = extractChain({
+  chains: [arbitrum, arbitrumSepolia],
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) as 42161 | 421614,
+})
 
-export const chain = isTestnet ? arbitrumSepolia : arbitrum
+export const isTestnet = chain.id === arbitrumSepolia.id
 
 export const viemClient = createPublicClient({
   chain,

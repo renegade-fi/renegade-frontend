@@ -23,7 +23,13 @@ async function fetchCombinedBalances(
   return response.json()
 }
 
-export function useCombinedBalances(address?: `0x${string}`) {
+export function useCombinedBalances({
+  address,
+  enabled = true,
+}: {
+  address?: `0x${string}`
+  enabled?: boolean
+}) {
   const { publicKey } = useWallet()
   const solanaAddress = publicKey?.toBase58()
   const queryKey = ["combinedBalances", address, solanaAddress]
@@ -33,7 +39,7 @@ export function useCombinedBalances(address?: `0x${string}`) {
     ...useQuery<Map<`0x${string}`, bigint>, Error>({
       queryKey,
       queryFn: () => fetchCombinedBalances(address!, solanaAddress),
-      enabled: !!address,
+      enabled: !!address && enabled,
       select: (data) =>
         Object.entries(data).reduce((acc, [key, value]) => {
           const address = Token.findByTicker(key).address

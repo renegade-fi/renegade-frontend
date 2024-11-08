@@ -67,6 +67,7 @@ import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
@@ -327,7 +328,10 @@ export function WETHForm({
     },
   })
 
-  const { queryKey: combinedBalancesQueryKey } = useCombinedBalances()
+  const { queryKey: combinedBalancesQueryKey } = useOnChainBalances({
+    address,
+    mints: [WETH_L2_TOKEN.address],
+  })
 
   const unwrapConfirmationStatus = useTransactionConfirmation(
     unwrapHash,
