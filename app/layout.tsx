@@ -97,7 +97,10 @@ export default async function RootLayout({
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
 
   return (
-    <html lang="en">
+    <html
+      suppressHydrationWarning
+      lang="en"
+    >
       <body
         className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
       >

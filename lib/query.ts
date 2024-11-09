@@ -1,5 +1,7 @@
 import { Exchange, Token } from "@renegade-fi/react"
 
+import { remapToken } from "@/lib/token"
+
 export async function getPriceFromPriceReporter(
   topic: string,
 ): Promise<number> {
@@ -21,12 +23,25 @@ export async function getPriceFromPriceReporter(
     if (isNaN(price)) throw new Error("Invalid price data")
     return price
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.warn(`Fetch aborted due to timeout for topic: ${topic}`)
-      throw new Error(`Fetch request timed out for topic: ${topic}`)
-    } else {
-      console.warn("Error fetching price:", error)
+    console.warn(
+      "Primary price fetch failed, falling back to secondary source:",
+      error,
+    )
+
+    // Parse the topic to get exchange and token information
+    const [exchange, baseMint] = topic.split("-") as [Exchange, `0x${string}`]
+
+    // Only handle binance fallback for now
+    if (exchange === "binance") {
+      const ticker = remapToken(Token.findByAddress(baseMint).ticker)
+      const url = `/api/proxy/amberdata?path=/market/spot/prices/pairs/${ticker}_usdt/latest&exchange=binance`
+
+      const fallbackRes = await fetch(url)
+      const data = await fallbackRes.json()
+      return data.payload.price
     }
+
+    // If we can't handle the fallback, throw the original error
     throw error
   } finally {
     clearTimeout(timeoutId)
