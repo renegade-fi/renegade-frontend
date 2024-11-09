@@ -110,9 +110,11 @@ export function NewOrderForm({
       if (name === "isUSDCDenominated") {
         setIsUSDCDenominated(value.isUSDCDenominated ?? false)
         if (value.isUSDCDenominated) {
-          form.setValue("amount", priceInUsd)
+          if (Number(priceInUsd) > 0) {
+            form.setValue("amount", priceInUsd)
+          }
         } else {
-          if (price !== 0) {
+          if (Number(priceInBase) > 0) {
             form.setValue("amount", priceInBase)
           }
         }
