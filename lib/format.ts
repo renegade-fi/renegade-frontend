@@ -12,91 +12,54 @@ export const formatRelativeTimestamp = (timestamp: number) => {
   return dayjs(timestamp).fromNow()
 }
 
+export const precisionFormatter = new Intl.NumberFormat("en", {
+  notation: "standard",
+  // @ts-ignore
+  roundingPriority: "morePrecision",
+  maximumSignificantDigits: 2,
+  maximumFractionDigits: 2,
+  useGrouping: false,
+})
+
+export const longPrecisionFormatter = new Intl.NumberFormat("en", {
+  notation: "standard",
+  // @ts-ignore
+  roundingPriority: "morePrecision",
+  maximumSignificantDigits: 4,
+  maximumFractionDigits: 4,
+  useGrouping: false,
+})
+
 export const formatNumber = (
-  balance: bigint,
+  amount: bigint = BigInt(0),
   decimals: number,
   long: boolean = false,
 ) => {
-  const balanceValue = Number(formatUnits(balance, decimals))
-  const tempNumeral = numeral(balanceValue)
-
-  if (balanceValue.toString().indexOf("e") !== -1) {
-    if (long) {
-      return formatScientificToDecimal(balanceValue)
-    } else {
-      return tempNumeral.format("0[.]00e+0")
-    }
+  const formattedAmount = amount ? formatUnits(amount, decimals) : "0"
+  const parsedAmount = parseFloat(formattedAmount)
+  if (parsedAmount === 0 || isNaN(Number(formattedAmount))) {
+    return "0"
   }
 
-  let formatStr = ""
-  if (balanceValue > 10000000) {
-    formatStr = long ? "0,0[.]00" : "0.00a"
-  } else if (balanceValue > 1000000) {
-    formatStr = long ? "0.[00]" : "0[.]00a"
-  } else if (balanceValue > 10000) {
-    formatStr = long ? "0.[00]" : "0[.]00a"
-  } else if (balanceValue > 100) {
-    formatStr = `0[.]00${long ? "00" : ""}`
-  } else if (balanceValue >= 1) {
-    formatStr = `0.[00${long ? "00" : ""}]`
-  } else {
-    formatStr = getFormat(balanceValue, long)
-  }
-
-  if (Number(balance.toString())) return tempNumeral.format(formatStr)
-  return tempNumeral.format("0")
+  return long
+    ? longPrecisionFormatter.format(parsedAmount)
+    : precisionFormatter.format(parsedAmount)
 }
 
-export const formatScientificToDecimal = (price: number) => {
-  let priceStr = price.toString()
-  const decimalPos = priceStr.indexOf(".")
-  const exponentPos = priceStr.indexOf("e")
-
-  if (decimalPos === -1) {
-    priceStr =
-      priceStr.substring(0, exponentPos) + "." + priceStr.substring(exponentPos)
-  }
-
-  const integerPart = priceStr.split(".")[0]
-  const fractionalPart = priceStr.split(".")[1].split("e")[0]
-  const exponentValue = Math.abs(Number(priceStr.split("e")[1]))
-
-  return `0.${"0".repeat(
-    exponentValue - 1,
-  )}${integerPart}${fractionalPart.substring(0, 3)}`
-}
-
-export const getFormat = (price: number, long: boolean = false) => {
-  let format = "0."
-  const fraction = price.toString().split(".")[1]
-
-  if (fraction) {
-    for (let digit of fraction) {
-      if (digit === "0") {
-        format += 0
-      } else {
-        break
-      }
-    }
-  }
-
-  return format + (long ? "0000" : "0")
-}
-
-export const formatCurrency = (n: number) => {
-  return Intl.NumberFormat("en-US", {
+export const formatCurrency = (value: number): string => {
+  const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: n > 10_000 ? 0 : !n ? 2 : n < 10 ? 4 : 2,
-    maximumFractionDigits: n > 10_000 ? 0 : !n ? 2 : n < 10 ? 4 : 2,
-  }).format(n)
+  })
+
+  if (value > 0 && value < 0.01) {
+    return `<${formatter.format(0.01)}`
+  }
+  return formatter.format(value)
 }
 
-export const formatCurrencyFromString = (n: string) => {
-  return Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(Number(n))
+export const formatCurrencyFromString = (n: string): string => {
+  return formatCurrency(Number(n))
 }
 
 export const formatTimestamp = (
@@ -112,17 +75,26 @@ export const formatTimestamp = (
   })
 }
 
+export const percentageFormatter = new Intl.NumberFormat("en", {
+  style: "percent",
+  maximumFractionDigits: 2,
+  useGrouping: false,
+})
+
 export const formatPercentage = (
   numerator: number,
   denominator: number,
   precision: number = 2,
   includeSymbol: boolean = true,
 ): string => {
-  if (denominator === 0 || numerator === 0)
-    return `0${includeSymbol ? "%" : ""}`
-  return `${((numerator / denominator) * 100).toFixed(precision)}${
-    includeSymbol ? "%" : ""
-  }`
+  if (denominator === 0 || numerator === 0) {
+    return includeSymbol ? percentageFormatter.format(0) : "0"
+  }
+
+  const value = numerator / denominator
+  return includeSymbol
+    ? percentageFormatter.format(value)
+    : percentageFormatter.format(value).replace("%", "")
 }
 
 export const formatOrderState = {
