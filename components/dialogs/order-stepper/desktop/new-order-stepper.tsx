@@ -34,7 +34,7 @@ export function NewOrderStepperInner({
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="p-0 sm:max-w-[425px]"
+        className="gap-0 p-0 sm:max-w-[425px]"
         onOpenAutoFocus={(e) => {
           e.preventDefault()
         }}

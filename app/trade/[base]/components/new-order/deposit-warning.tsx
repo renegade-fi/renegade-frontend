@@ -34,23 +34,23 @@ export function DepositWarning({
       },
     },
   })
-  if (hasBalances || status !== "in relayer") return null
-
-  return (
-    <div className="flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center">
-      <ResponsiveTooltip>
-        <ResponsiveTooltipTrigger
-          onClick={(e) => isDesktop && e.preventDefault()}
-        >
-          <div className={cn("flex items-center gap-2", className)}>
-            <AlertTriangle className="h-4 w-4" />
-            <span>Insufficient funds to place orders</span>
-          </div>
-        </ResponsiveTooltipTrigger>
-        <ResponsiveTooltipContent>
-          <p>{ORDER_FORM_DEPOSIT_WARNING({ ticker })}</p>
-        </ResponsiveTooltipContent>
-      </ResponsiveTooltip>
-    </div>
-  )
+  if (hasBalances === false) {
+    return (
+      <div className="flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center">
+        <ResponsiveTooltip>
+          <ResponsiveTooltipTrigger
+            onClick={(e) => isDesktop && e.preventDefault()}
+          >
+            <div className={cn("flex items-center gap-2", className)}>
+              <AlertTriangle className="h-4 w-4" />
+              <span>Insufficient funds to place orders</span>
+            </div>
+          </ResponsiveTooltipTrigger>
+          <ResponsiveTooltipContent>
+            <p>{ORDER_FORM_DEPOSIT_WARNING({ ticker })}</p>
+          </ResponsiveTooltipContent>
+        </ResponsiveTooltip>
+      </div>
+    )
+  }
 }
