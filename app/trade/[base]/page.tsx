@@ -33,7 +33,7 @@ export default async function Page(props: {
   const baseToken = Token.findByTicker(params.base.toUpperCase())
   const baseMint = baseToken.address
 
-  const [, cookieData] = await Promise.all([
+  const [prices, cookieData] = await Promise.all([
     Promise.all(
       // TODO: [PERFORMANCE] Price reporter prefetch disabled due to slow response times
       [prefetchPrice(queryClient, baseMint, "binance")],
