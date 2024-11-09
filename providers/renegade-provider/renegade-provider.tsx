@@ -1,16 +1,21 @@
 "use client"
 
 import { RenegadeProvider as Provider } from "@renegade-fi/react"
+import { cookieToInitialState } from "@renegade-fi/react"
 
-import { config } from "@/providers/renegade-provider/config"
+import { config } from "./config"
+
+interface RenegadeProviderProps {
+  children: React.ReactNode
+  cookieString?: string
+}
 
 export function RenegadeProvider({
   children,
-  initialState,
-}: {
-  children: React.ReactNode
-  initialState: any
-}) {
+  cookieString,
+}: RenegadeProviderProps) {
+  const initialState = cookieToInitialState(config, cookieString)
+
   return (
     <Provider
       config={config}

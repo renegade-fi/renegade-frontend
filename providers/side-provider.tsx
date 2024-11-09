@@ -16,16 +16,15 @@ type SideContextType = {
 
 const SideContext = React.createContext<SideContextType | undefined>(undefined)
 
-export function SideProvider({
-  children,
-  cookie,
-}: {
+interface SideProviderProps {
   children: React.ReactNode
-  cookie: string | null
-}) {
+  cookieString?: string
+}
+
+export function SideProvider({ children, cookieString }: SideProviderProps) {
   const [side, setSideState] = React.useState<Side>(() => {
-    if (cookie) {
-      const parsed = parseCookie(cookie, STORAGE_SIDE)
+    if (cookieString) {
+      const parsed = parseCookie(cookieString, STORAGE_SIDE)
       return parsed === Side.BUY ? Side.BUY : Side.SELL
     }
     const randomSide = Math.random() < 0.5 ? Side.BUY : Side.SELL

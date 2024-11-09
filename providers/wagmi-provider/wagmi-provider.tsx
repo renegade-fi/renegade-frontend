@@ -45,15 +45,15 @@ const connectKitTheme = {
   "--ck-overlay-background": "rgba(0,0,0,.8)",
 }
 
-export function WagmiProvider({
-  children,
-  cookie,
-}: {
+interface WagmiProviderProps {
   children: React.ReactNode
-  cookie?: string
-}) {
+  cookieString?: string
+}
+
+export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
   const [open, setOpen] = React.useState(false)
-  const initialState = cookieToInitialState(wagmiConfig, cookie)
+  const initialState = cookieToInitialState(wagmiConfig, cookieString)
+
   return (
     <Provider
       config={wagmiConfig}
@@ -72,7 +72,6 @@ export function WagmiProvider({
         >
           {children}
           <SyncRenegadeWagmiState />
-          {/* TODO: Any issues with this? */}
           <SignInDialog
             open={open}
             onOpenChange={setOpen}

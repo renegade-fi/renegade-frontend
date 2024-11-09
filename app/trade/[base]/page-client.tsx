@@ -40,6 +40,16 @@ export function PageClient({
 }) {
   const data = useOrderTableData()
 
+  React.useEffect(() => {
+    const updateBase = async () => {
+      await fetch("/api/cookie/set-base", {
+        method: "POST",
+        body: base.toUpperCase(),
+      })
+    }
+    updateBase()
+  }, [base])
+
   return (
     <>
       <MaintenanceBanner />
