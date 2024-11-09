@@ -4,7 +4,7 @@ import { Bar } from "@renegade-fi/tradingview-charts"
 const BASE_URL = "https://api.amberdata.com"
 
 export async function makeAmberApiRequest(url: URL) {
-  const proxyUrl = new URL("/api/amberdata", window.location.origin)
+  const proxyUrl = new URL("/api/proxy/amberdata", window.location.origin)
   proxyUrl.searchParams.set("path", url.pathname + url.search)
 
   try {
