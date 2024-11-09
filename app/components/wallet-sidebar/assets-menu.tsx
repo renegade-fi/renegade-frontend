@@ -78,7 +78,7 @@ export function AssetsMenu() {
                 className="text-sidebar-foreground/70"
               >
                 <Link href="/assets">
-                  <span>View All</span>
+                  <span>Go to Assets</span>
                 </Link>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
