@@ -3,24 +3,49 @@ import React from "react"
 import { Token } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
+import { usePriceQueries } from "@/hooks/use-price-queries"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 
-import { useTokenPrices } from "./use-token-prices"
 import { useTvl } from "./use-tvl"
 
 export function useTvlData() {
   const { data: tvlData } = useTvl()
-  const { data: tokenPrices } = useTokenPrices()
+
+  const mints = React.useMemo(() => {
+    if (!tvlData) return []
+    return tvlData.map((tvl) => {
+      const token = Token.findByTicker(tvl.ticker)
+      return token.address
+    })
+  }, [tvlData])
+
+  const priceQueries = usePriceQueries(
+    mints.map((mint) => {
+      const token = Token.findByAddress(mint)
+      return {
+        address: mint,
+        name: token.name,
+        ticker: token.ticker,
+        decimals: token.decimals,
+      }
+    }),
+  )
 
   const { cumulativeTvlUsd, tvlUsd } = React.useMemo(() => {
-    if (!tvlData || !tokenPrices) return { cumulativeTvlUsd: 0, tvlUsd: [] }
+    if (!tvlData || !priceQueries.every((query) => query.data !== undefined)) {
+      return { cumulativeTvlUsd: 0, tvlUsd: [] }
+    }
 
     let totalTvlUsd = 0
-    const tvlUsd = []
-    for (const tvl of tvlData) {
-      const price = tokenPrices.find((tp) => tp.ticker === tvl.ticker)?.price
+    const tvlUsd: { name: string; data: number; fill: string }[] = []
+
+    tvlData.forEach((tvl, i) => {
       const token = Token.findByTicker(tvl.ticker)
-      if (price && token) {
+      if (!token) return
+
+      const price = priceQueries[i]?.data
+
+      if (price) {
         const usd = amountTimesPrice(tvl.tvl, price)
         const formatted = Number(formatUnits(usd, token.decimals))
         totalTvlUsd += formatted
@@ -32,9 +57,10 @@ export function useTvlData() {
       } else {
         console.error(`Price not found for token: ${tvl.ticker}`)
       }
-    }
+    })
 
     return { cumulativeTvlUsd: totalTvlUsd, tvlUsd }
-  }, [tokenPrices, tvlData])
+  }, [priceQueries, tvlData])
+
   return { cumulativeTvlUsd, tvlUsd }
 }
