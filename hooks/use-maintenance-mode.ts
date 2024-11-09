@@ -14,6 +14,9 @@ export function useMaintenanceMode() {
   return useQuery<MaintenanceMode, Error>({
     queryKey: ["maintenanceMode"],
     queryFn: fetchMaintenanceMode,
+    select: (data) => ({
+      ...data,
+    }),
     staleTime: 0,
   })
 }

@@ -1,20 +1,33 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 
 import { AlertCircle, AlertTriangle, Info } from "lucide-react"
 
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+
 export function MaintenanceBanner() {
   const { data: maintenanceMode, isLoading } = useMaintenanceMode()
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = React.useState(false)
 
-  useEffect(() => {
-    if (!isLoading && maintenanceMode?.enabled) {
+  React.useEffect(() => {
+    const isCriticalMaintenance =
+      isProduction &&
+      maintenanceMode?.enabled &&
+      maintenanceMode.severity === "critical"
+    console.log("debug", {
+      isCriticalMaintenance,
+      maintenanceMode: maintenanceMode?.bannerMessage,
+      enabled: maintenanceMode?.enabled,
+      severity: maintenanceMode?.severity,
+      isProduction,
+    })
+    if (isCriticalMaintenance) {
       setTimeout(() => setIsVisible(true), 100)
     } else {
       setIsVisible(false)
     }
-  }, [isLoading, maintenanceMode?.enabled])
+  }, [maintenanceMode])
 
   const getBgColor = () => {
     switch (maintenanceMode?.severity) {

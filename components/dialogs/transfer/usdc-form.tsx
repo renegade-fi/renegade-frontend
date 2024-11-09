@@ -56,18 +56,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
-import {
-  ResponsiveTooltip,
-  ResponsiveTooltipContent,
-  ResponsiveTooltipTrigger,
-} from "@/components/ui/responsive-tooltip"
+import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
-import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
@@ -110,7 +105,6 @@ export function USDCForm({
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
   const isMaxBalances = useIsMaxBalances(USDC_L2_TOKEN.address)
-  const { data: maintenanceMode } = useMaintenanceMode()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
   const { setSide } = useSide()
@@ -223,7 +217,7 @@ export function USDCForm({
     return (
       isFirstStep && isCrosschainTransfer && hasValidAmount && hasSolanaWallet
     )
-  }, [currentStep, network, chain.id, amount, solanaWallet.isConnected])
+  }, [amount, currentStep, network, solanaWallet.isConnected])
 
   const [debouncedAmount] = useDebounceValue(() => {
     if (network !== chain.id) return amount
@@ -938,7 +932,6 @@ export function USDCForm({
   const isSubmitDisabled =
     !form.formState.isValid ||
     isMaxBalances ||
-    (maintenanceMode?.enabled && maintenanceMode.severity === "critical") ||
     (swapRequired && (isQuoteFetching || !swapQuote)) ||
     (bridgeRequired &&
       (bridgeQuoteFetchStatus === "fetching" || !bridgeQuote)) ||
@@ -1211,32 +1204,19 @@ export function USDCForm({
           </ScrollArea>
           {isDesktop ? (
             <DialogFooter>
-              <ResponsiveTooltip>
-                <ResponsiveTooltipTrigger
-                  asChild
-                  className="!pointer-events-auto"
-                  type="submit"
+              <MaintenanceButtonWrapper
+                messageKey="transfer"
+                triggerClassName="flex-1"
+              >
+                <Button
+                  className="flex-1 border-0 border-t font-extended text-2xl"
+                  disabled={isSubmitDisabled}
+                  size="xl"
+                  variant="outline"
                 >
-                  <Button
-                    className="flex-1 border-0 border-t font-extended text-2xl"
-                    disabled={isSubmitDisabled}
-                    size="xl"
-                    variant="outline"
-                  >
-                    {buttonText}
-                  </Button>
-                </ResponsiveTooltipTrigger>
-                <ResponsiveTooltipContent
-                  className={
-                    maintenanceMode?.enabled &&
-                    maintenanceMode.severity === "critical"
-                      ? "visible"
-                      : "invisible"
-                  }
-                >
-                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-                </ResponsiveTooltipContent>
-              </ResponsiveTooltip>
+                  {buttonText}
+                </Button>
+              </MaintenanceButtonWrapper>
             </DialogFooter>
           ) : (
             <DialogFooter className="mt-auto flex-row">
@@ -1249,28 +1229,19 @@ export function USDCForm({
                   Close
                 </Button>
               </DialogClose>
-              <ResponsiveTooltip>
-                <ResponsiveTooltipTrigger className="flex-1">
-                  <Button
-                    className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
-                    disabled={isSubmitDisabled}
-                    size="xl"
-                    variant="outline"
-                  >
-                    {buttonText}
-                  </Button>
-                </ResponsiveTooltipTrigger>
-                <ResponsiveTooltipContent
-                  className={
-                    maintenanceMode?.enabled &&
-                    maintenanceMode.severity === "critical"
-                      ? "visible"
-                      : "invisible"
-                  }
+              <MaintenanceButtonWrapper
+                messageKey="transfer"
+                triggerClassName="flex-1"
+              >
+                <Button
+                  className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
+                  disabled={isSubmitDisabled}
+                  size="xl"
+                  variant="outline"
                 >
-                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-                </ResponsiveTooltipContent>
-              </ResponsiveTooltip>
+                  {buttonText}
+                </Button>
+              </MaintenanceButtonWrapper>
             </DialogFooter>
           )}
         </form>

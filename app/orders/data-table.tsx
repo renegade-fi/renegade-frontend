@@ -21,11 +21,7 @@ import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details/o
 import { TableEmptyState } from "@/components/table-empty-state"
 import { TableSelect } from "@/components/table-select"
 import { Button } from "@/components/ui/button"
-import {
-  ResponsiveTooltip,
-  ResponsiveTooltipContent,
-  ResponsiveTooltipTrigger,
-} from "@/components/ui/responsive-tooltip"
+import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 import {
   Table,
   TableBody,
@@ -42,7 +38,6 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useCancelAllOrders } from "@/hooks/use-cancel-all-orders"
-import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
@@ -173,8 +168,6 @@ export function DataTable<TData, TValue>({
     table.getColumn("mint")?.setFilterValue(mint)
   }, [mint, table])
 
-  const { data: maintenanceMode } = useMaintenanceMode()
-
   return (
     <>
       <div className="flex flex-wrap items-center gap-2 lg:gap-4">
@@ -211,36 +204,17 @@ export function DataTable<TData, TValue>({
             Clear
           </Button>
         ) : null}
-        <ResponsiveTooltip>
-          <ResponsiveTooltipTrigger
-            asChild
-            className="sm:ml-auto"
+        <MaintenanceButtonWrapper messageKey="cancel">
+          <Button
+            className="text-muted-foreground sm:ml-auto"
+            disabled={isDisabled}
+            size="sm"
+            variant="outline"
+            onClick={handleCancelAllOrders}
           >
-            <Button
-              className="text-muted-foreground"
-              disabled={
-                isDisabled ||
-                (maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical")
-              }
-              size="sm"
-              variant="outline"
-              onClick={handleCancelAllOrders}
-            >
-              Cancel all open orders
-            </Button>
-          </ResponsiveTooltipTrigger>
-          <ResponsiveTooltipContent
-            className={
-              maintenanceMode?.enabled &&
-              maintenanceMode.severity === "critical"
-                ? "visible"
-                : "invisible"
-            }
-          >
-            {`Cancelling orders is temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-          </ResponsiveTooltipContent>
-        </ResponsiveTooltip>
+            Cancel all open orders
+          </Button>
+        </MaintenanceButtonWrapper>
         <Tooltip>
           <TooltipTrigger asChild>
             <Toggle

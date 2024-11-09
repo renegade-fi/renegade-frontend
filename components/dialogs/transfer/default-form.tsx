@@ -45,6 +45,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
@@ -59,7 +60,6 @@ import {
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
-import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -95,7 +95,6 @@ export function DefaultForm({
 }) {
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const { data: maintenanceMode } = useMaintenanceMode()
   const isTradePage = usePathname().includes("/trade")
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -609,37 +608,21 @@ export function DefaultForm({
           </div>
           {isDesktop ? (
             <DialogFooter>
-              <ResponsiveTooltip>
-                <ResponsiveTooltipTrigger
-                  asChild
-                  className="!pointer-events-auto"
-                  type="submit"
-                >
-                  <Button
-                    className="flex-1 border-0 border-t font-extended text-2xl"
-                    disabled={
-                      !form.formState.isValid ||
-                      (isDeposit && isMaxBalances) ||
-                      (maintenanceMode?.enabled &&
-                        maintenanceMode.severity === "critical")
-                    }
-                    size="xl"
-                    variant="outline"
-                  >
-                    {buttonText}
-                  </Button>
-                </ResponsiveTooltipTrigger>
-                <ResponsiveTooltipContent
-                  className={
-                    maintenanceMode?.enabled &&
-                    maintenanceMode.severity === "critical"
-                      ? "visible"
-                      : "invisible"
+              <MaintenanceButtonWrapper
+                messageKey="transfer"
+                triggerClassName="flex-1"
+              >
+                <Button
+                  className="flex-1 border-0 border-t font-extended text-2xl"
+                  disabled={
+                    !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
+                  size="xl"
+                  variant="outline"
                 >
-                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-                </ResponsiveTooltipContent>
-              </ResponsiveTooltip>
+                  {buttonText}
+                </Button>
+              </MaintenanceButtonWrapper>
             </DialogFooter>
           ) : (
             <DialogFooter className="mt-auto flex-row">
@@ -652,33 +635,21 @@ export function DefaultForm({
                   Close
                 </Button>
               </DialogClose>
-              <ResponsiveTooltip>
-                <ResponsiveTooltipTrigger className="flex-1">
-                  <Button
-                    className="w-full whitespace-normal border-l-0 font-extended text-lg"
-                    disabled={
-                      !form.formState.isValid ||
-                      (isDeposit && isMaxBalances) ||
-                      (maintenanceMode?.enabled &&
-                        maintenanceMode.severity === "critical")
-                    }
-                    size="xl"
-                    variant="outline"
-                  >
-                    {buttonText}
-                  </Button>
-                </ResponsiveTooltipTrigger>
-                <ResponsiveTooltipContent
-                  className={
-                    maintenanceMode?.enabled &&
-                    maintenanceMode.severity === "critical"
-                      ? "visible"
-                      : "invisible"
+              <MaintenanceButtonWrapper
+                messageKey="transfer"
+                triggerClassName="flex-1"
+              >
+                <Button
+                  className="w-full whitespace-normal border-l-0 font-extended text-lg"
+                  disabled={
+                    !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
+                  size="xl"
+                  variant="outline"
                 >
-                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-                </ResponsiveTooltipContent>
-              </ResponsiveTooltip>
+                  {buttonText}
+                </Button>
+              </MaintenanceButtonWrapper>
             </DialogFooter>
           )}
         </form>
