@@ -313,7 +313,7 @@ export function NewOrderForm({
                 <Button
                   className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
                   disabled={
-                    !hasBalances ||
+                    hasBalances === false ||
                     !form.formState.isValid ||
                     isMaxOrders ||
                     (maintenanceMode?.enabled &&
@@ -380,7 +380,7 @@ export function NewOrderForm({
           <Button
             className="flex-1 font-extended text-lg"
             disabled={
-              !hasBalances ||
+              hasBalances === false ||
               !form.formState.isValid ||
               isMaxOrders ||
               (maintenanceMode?.enabled &&
