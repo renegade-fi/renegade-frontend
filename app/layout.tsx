@@ -2,7 +2,6 @@ import localFont from "next/font/local"
 import { cookies, headers } from "next/headers"
 import { Viewport } from "next/types"
 
-import { cookieToInitialState as renegadeCookieToInitialState } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
@@ -24,9 +23,9 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
+import { STORAGE_BASE } from "@/lib/constants/storage"
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
-import { config as renegadeConfig } from "@/providers/renegade-provider/config"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { SideProvider } from "@/providers/side-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
@@ -89,12 +88,13 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const headersList = await headers()
-  const renegadeInitialState = renegadeCookieToInitialState(
-    renegadeConfig,
-    headersList.get("cookie"),
-  )
+  const cookieString = headersList.get("cookie")
+    ? decodeURIComponent(headersList.get("cookie") ?? "")
+    : ""
+
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+  const defaultBase = cookieStore.get(STORAGE_BASE)?.value || "WETH"
 
   return (
     <html
@@ -110,9 +110,9 @@ export default async function RootLayout({
           attribute="class"
           defaultTheme="dark"
         >
-          <RenegadeProvider initialState={renegadeInitialState}>
+          <RenegadeProvider cookieString={cookieString}>
             <SolanaProvider>
-              <WagmiProvider cookie={headersList.get("cookie") ?? undefined}>
+              <WagmiProvider cookieString={cookieString}>
                 <SidebarProvider defaultOpen={defaultOpen}>
                   <WalletSidebarSync />
                   <TailwindIndicator />
@@ -120,9 +120,9 @@ export default async function RootLayout({
                     delayDuration={0}
                     skipDelayDuration={0}
                   >
-                    <SideProvider cookie={headersList.get("cookie")}>
+                    <SideProvider cookieString={cookieString}>
                       <SidebarInset className="max-w-full">
-                        <Header />
+                        <Header defaultBase={defaultBase} />
                         {children}
                         <Footer />
                       </SidebarInset>

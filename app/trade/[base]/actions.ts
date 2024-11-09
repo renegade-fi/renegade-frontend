@@ -26,7 +26,3 @@ export async function setSide(side: "buy" | "sell") {
 export async function setIsUSDCDenominated(isUSDCDenominated: boolean) {
   setCookie(STORAGE_IS_USDC_DENOMINATED, isUSDCDenominated ? "true" : "false")
 }
-
-export async function setBase(base: string) {
-  setCookie(STORAGE_BASE, base)
-}

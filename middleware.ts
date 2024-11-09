@@ -1,25 +1,38 @@
-import { NextRequest, NextResponse, userAgent } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+
+import { STORAGE_BASE } from "@/lib/constants/storage"
 
 export function middleware(request: NextRequest) {
+  // Redirect root and /trade paths
   if (
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname === "/trade"
   ) {
-    let defaultBase = "WETH"
-    // let cookie = request.cookies.get(STORAGE_BASE)
-    // if (cookie?.value) {
-    //   defaultBase = cookie.value
-    // }
-    return NextResponse.redirect(new URL(`/trade/${defaultBase}`, request.url))
+    const currentBase = request.cookies.get(STORAGE_BASE)?.value || "WETH"
+    return NextResponse.redirect(new URL(`/trade/${currentBase}`, request.url))
   }
 
-  if (request.nextUrl.pathname === "/trade/USDC") {
-    return NextResponse.redirect(new URL("/trade/WETH/", request.url))
+  // Extract BASE from /trade/{BASE} path and handle USDC case
+  const baseMatch = request.nextUrl.pathname.match(/^\/trade\/([^\/]+)/)
+  if (baseMatch) {
+    const base = baseMatch[1]
+    if (base === "USDC") {
+      const currentBase = request.cookies.get(STORAGE_BASE)?.value || "WETH"
+      return NextResponse.redirect(
+        new URL(`/trade/${currentBase}`, request.url),
+      )
+    }
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/", "/trade", "/trade/:path*"],
+  matcher: [
+    "/",
+    "/trade",
+    "/trade/:path*",
+    // exclude api routes, static files, etc
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 }

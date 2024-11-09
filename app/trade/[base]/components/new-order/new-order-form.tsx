@@ -6,7 +6,7 @@ import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { setBase, setIsUSDCDenominated } from "@/app/trade/[base]/actions"
+import { setIsUSDCDenominated } from "@/app/trade/[base]/actions"
 import { ConnectButton } from "@/app/trade/[base]/components/connect-button"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { DepositWarning } from "@/app/trade/[base]/components/new-order/deposit-warning"
@@ -125,12 +125,6 @@ export function NewOrderForm({
     })
     return () => subscription.unsubscribe()
   }, [form, price, priceInBase, priceInUsd, setSide])
-
-  React.useEffect(() => {
-    if (form.getValues("base")) {
-      setBase(form.getValues("base"))
-    }
-  }, [form])
 
   React.useEffect(() => {
     const unbind = orderFormEvents.on("reset", () => {

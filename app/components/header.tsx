@@ -1,11 +1,14 @@
 "use client"
 
+import React from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { Menu } from "lucide-react"
 
+import { getBase } from "@/app/actions"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 import { MobileNavSheet } from "@/app/components/mobile-nav-sheet"
 import { SidebarTrigger } from "@/app/components/wallet-sidebar/trigger"
@@ -22,9 +25,22 @@ import {
 import { WalletReadyState, useWallets } from "@/hooks/use-wallets"
 import { cn } from "@/lib/utils"
 
-export function Header() {
+interface HeaderProps {
+  defaultBase: string
+}
+
+export function Header({ defaultBase }: HeaderProps) {
   const pathname = usePathname()
   const { walletReadyState } = useWallets()
+  const [latestBase, setLatestBase] = React.useState(defaultBase)
+
+  React.useEffect(() => {
+    const getCurrentBase = async () => {
+      const base = await getBase()
+      setLatestBase(base)
+    }
+    getCurrentBase()
+  }, [pathname])
 
   return (
     <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
@@ -86,10 +102,11 @@ export function Header() {
         </div>
         <nav className="flex space-x-5 justify-self-center font-extended text-muted-foreground">
           <Link
-            className={cn("hover:underline", {
-              "text-primary": pathname === "/" || pathname.includes("/trade"),
-            })}
-            href="/trade"
+            className={cn(
+              "flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground",
+              pathname.startsWith("/trade") && "text-foreground",
+            )}
+            href={`/trade/${latestBase}`}
           >
             Trade
           </Link>
