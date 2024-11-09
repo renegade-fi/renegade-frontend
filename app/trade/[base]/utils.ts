@@ -18,7 +18,7 @@ export async function prefetchPrice(
       const ticker = remapToken(Token.findByAddress(baseMint).ticker)
 
       if (exchange === "binance") {
-        const url = `http://localhost:3000/api/proxy/amberdata?path=/market/spot/prices/pairs/${ticker}_usdt/latest&exchange=binance`
+        const url = `${getURL()}/api/proxy/amberdata?path=/market/spot/prices/pairs/${ticker}_usdt/latest&exchange=binance`
 
         const res = await fetch(url)
         const data = await res.json()

@@ -31,8 +31,6 @@ export function usePriceQuery(
   return useQuery<number>({
     queryKey,
     queryFn: () => getPriceFromPriceReporter(topic),
-    initialData: 0,
-    staleTime: Infinity,
-    retry: false,
+    initialData: 0, // Triggers initial HTTP request
   })
 }
