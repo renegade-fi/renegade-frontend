@@ -29,18 +29,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
-import {
-  ResponsiveTooltip,
-  ResponsiveTooltipContent,
-  ResponsiveTooltipTrigger,
-} from "@/components/ui/responsive-tooltip"
+import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { usePriceQuery } from "@/hooks/use-price-query"
@@ -81,7 +76,6 @@ export function NewOrderForm({
   closeButton?: React.ReactNode
 }) {
   const { side, setSide } = useSide()
-  const { data: maintenanceMode } = useMaintenanceMode()
 
   const isMaxOrders = useIsMaxOrders()
   const { walletReadyState } = useWallets()
@@ -303,38 +297,21 @@ export function NewOrderForm({
 
         {walletReadyState === "READY" ? (
           <div className="hidden lg:block">
-            <ResponsiveTooltip>
-              <ResponsiveTooltipTrigger
-                asChild
-                className="!pointer-events-auto w-full"
-              >
-                <Button
-                  className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-                  disabled={
-                    hasBalances === false ||
-                    !form.formState.isValid ||
-                    isMaxOrders ||
-                    (maintenanceMode?.enabled &&
-                      maintenanceMode.severity === "critical")
-                  }
-                  size="xl"
-                  type="submit"
-                  variant="default"
-                >
-                  {form.getValues("isSell") ? "Sell" : "Buy"} {base}
-                </Button>
-              </ResponsiveTooltipTrigger>
-              <ResponsiveTooltipContent
-                className={
-                  maintenanceMode?.enabled &&
-                  maintenanceMode.severity === "critical"
-                    ? "visible"
-                    : "invisible"
+            <MaintenanceButtonWrapper messageKey="place">
+              <Button
+                className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
+                disabled={
+                  hasBalances === false ||
+                  !form.formState.isValid ||
+                  isMaxOrders
                 }
+                size="xl"
+                type="submit"
+                variant="default"
               >
-                {`Placing orders is temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-              </ResponsiveTooltipContent>
-            </ResponsiveTooltip>
+                {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+              </Button>
+            </MaintenanceButtonWrapper>
           </div>
         ) : (
           <ConnectButton className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal" />
@@ -375,20 +352,22 @@ export function NewOrderForm({
         </div>
         <div className="mt-auto flex flex-row lg:hidden">
           {closeButton}
-          <Button
-            className="flex-1 font-extended text-lg"
-            disabled={
-              hasBalances === false ||
-              !form.formState.isValid ||
-              isMaxOrders ||
-              (maintenanceMode?.enabled &&
-                maintenanceMode.severity === "critical")
-            }
-            size="xl"
-            variant="default"
+          <MaintenanceButtonWrapper
+            messageKey="place"
+            triggerClassName="flex-1"
           >
-            {form.getValues("isSell") ? "Sell" : "Buy"} {base}
-          </Button>
+            <Button
+              className="w-full font-extended text-lg"
+              disabled={
+                hasBalances === false || !form.formState.isValid || isMaxOrders
+              }
+              size="xl"
+              type="submit"
+              variant="default"
+            >
+              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+            </Button>
+          </MaintenanceButtonWrapper>
         </div>
       </form>
     </Form>

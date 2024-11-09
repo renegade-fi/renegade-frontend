@@ -47,6 +47,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
+import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
@@ -64,7 +65,6 @@ import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
-import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
@@ -114,7 +114,6 @@ export function WETHForm({
   const { checkChain } = useCheckChain()
   const isMaxBalances = useIsMaxBalances(WETH_L2_TOKEN.address)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const { data: maintenanceMode } = useMaintenanceMode()
   const isTradePage = usePathname().includes("/trade")
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -915,37 +914,21 @@ export function WETHForm({
           </ScrollArea>
           {isDesktop ? (
             <DialogFooter>
-              <ResponsiveTooltip>
-                <ResponsiveTooltipTrigger
-                  asChild
-                  className="!pointer-events-auto"
-                  type="submit"
-                >
-                  <Button
-                    className="flex-1 border-0 border-t font-extended text-2xl"
-                    disabled={
-                      !form.formState.isValid ||
-                      (isDeposit && isMaxBalances) ||
-                      (maintenanceMode?.enabled &&
-                        maintenanceMode.severity === "critical")
-                    }
-                    size="xl"
-                    variant="outline"
-                  >
-                    {buttonText}
-                  </Button>
-                </ResponsiveTooltipTrigger>
-                <ResponsiveTooltipContent
-                  className={
-                    maintenanceMode?.enabled &&
-                    maintenanceMode.severity === "critical"
-                      ? "visible"
-                      : "invisible"
+              <MaintenanceButtonWrapper
+                messageKey="transfer"
+                triggerClassName="flex-1"
+              >
+                <Button
+                  className="flex-1 border-0 border-t font-extended text-2xl"
+                  disabled={
+                    !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
+                  size="xl"
+                  variant="outline"
                 >
-                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-                </ResponsiveTooltipContent>
-              </ResponsiveTooltip>
+                  {buttonText}
+                </Button>
+              </MaintenanceButtonWrapper>
             </DialogFooter>
           ) : (
             <DialogFooter className="mt-auto flex-row">
@@ -958,33 +941,21 @@ export function WETHForm({
                   Close
                 </Button>
               </DialogClose>
-              <ResponsiveTooltip>
-                <ResponsiveTooltipTrigger className="flex-1">
-                  <Button
-                    className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
-                    disabled={
-                      !form.formState.isValid ||
-                      (isDeposit && isMaxBalances) ||
-                      (maintenanceMode?.enabled &&
-                        maintenanceMode.severity === "critical")
-                    }
-                    size="xl"
-                    variant="outline"
-                  >
-                    {buttonText}
-                  </Button>
-                </ResponsiveTooltipTrigger>
-                <ResponsiveTooltipContent
-                  className={
-                    maintenanceMode?.enabled &&
-                    maintenanceMode.severity === "critical"
-                      ? "visible"
-                      : "invisible"
+              <MaintenanceButtonWrapper
+                messageKey="transfer"
+                triggerClassName="flex-1"
+              >
+                <Button
+                  className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
+                  disabled={
+                    !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
+                  size="xl"
+                  variant="outline"
                 >
-                  {`Transfers are temporarily disabled${maintenanceMode?.reason ? ` ${maintenanceMode.reason}` : ""}.`}
-                </ResponsiveTooltipContent>
-              </ResponsiveTooltip>
+                  {buttonText}
+                </Button>
+              </MaintenanceButtonWrapper>
             </DialogFooter>
           )}
         </form>
