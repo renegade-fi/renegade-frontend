@@ -41,6 +41,12 @@ const devWalletClient = createWalletClient({
 })
 
 export async function POST(request: Request) {
+  if (chain.id === arbitrum.id) {
+    return new Response("Faucet is not available on mainnet", {
+      status: 403,
+    })
+  }
+
   if (!process.env.DEV_PRIVATE_KEY) {
     return new Response("DEV_PRIVATE_KEY is required", {
       status: 500,
