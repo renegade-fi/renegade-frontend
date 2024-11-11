@@ -9,14 +9,8 @@ import {
 
 import { PageClient } from "@/app/trade/[base]/page-client"
 
-import { Side } from "@/lib/constants/protocol"
-import {
-  STORAGE_IS_USDC_DENOMINATED,
-  STORAGE_SIDE,
-} from "@/lib/constants/storage"
+import { STORAGE_IS_USDC_DENOMINATED } from "@/lib/constants/storage"
 import { DISPLAY_TOKENS } from "@/lib/token"
-
-import { prefetchPrice } from "./utils"
 
 export async function generateStaticParams() {
   const tokens = DISPLAY_TOKENS({ hideStables: true, hideHidden: true })
@@ -25,40 +19,34 @@ export async function generateStaticParams() {
   }))
 }
 
-export default async function Page(props: {
+export default async function Page({
+  params,
+}: {
   params: Promise<{ base: string }>
 }) {
-  const params = await props.params
   const queryClient = new QueryClient()
-  const baseToken = Token.findByTicker(params.base.toUpperCase())
-  const baseMint = baseToken.address
 
-  const [prices, cookieData] = await Promise.all([
-    Promise.all(
-      // TODO: [PERFORMANCE] Price reporter prefetch disabled due to slow response times
-      [prefetchPrice(queryClient, baseMint, "binance")],
+  const [[base, mint], { layout, denomination }] = await Promise.all([
+    params.then(
+      ({ base }) =>
+        [base, Token.findByTicker(base.toUpperCase()).address] as const,
     ),
-    Promise.all([
-      (await cookies()).get("react-resizable-panels:layout"),
-      (await cookies()).get(STORAGE_SIDE),
-      (await cookies()).get(STORAGE_IS_USDC_DENOMINATED),
-    ]),
+    cookies().then((store) => ({
+      layout: store.get("react-resizable-panels:layout"),
+      denomination: store.get(STORAGE_IS_USDC_DENOMINATED),
+    })),
   ])
 
-  const [layout, side, isUSDCDenominated] = cookieData
-
-  const defaultLayout = layout ? JSON.parse(layout.value) : undefined
-  const defaultSide = side ? (side.value as Side) : undefined
-  const defaultUseUSDC = isUSDCDenominated
-    ? isUSDCDenominated.value === "true"
-    : false
+  // Parse user preferences with defaults
+  const defaultLayout = layout?.value ? JSON.parse(layout.value) : undefined
+  const isUSDCDenominated = denomination?.value === "true"
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <PageClient
-        base={params.base}
+        base={base}
         defaultLayout={defaultLayout}
-        isUSDCDenominated={defaultUseUSDC}
+        isUSDCDenominated={isUSDCDenominated}
       />
     </HydrationBoundary>
   )

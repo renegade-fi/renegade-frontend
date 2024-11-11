@@ -3,12 +3,12 @@ import { Bar } from "@renegade-fi/tradingview-charts"
 // Amberdata API URL
 const BASE_URL = "https://api.amberdata.com"
 
-export async function makeAmberApiRequest(url: URL) {
+export async function makeAmberApiRequest(url: URL, options?: RequestInit) {
   const proxyUrl = new URL("/api/proxy/amberdata", window.location.origin)
   proxyUrl.searchParams.set("path", url.pathname + url.search)
 
   try {
-    const response = await fetch(proxyUrl.toString())
+    const response = await fetch(proxyUrl.toString(), options)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -36,7 +36,9 @@ export async function fetchSymbolReferenceInfo(pair: string) {
     const url = new URL(`${BASE_URL}/markets/spot/exchanges/reference`)
     url.searchParams.set("exchange", "binance")
     url.searchParams.set("instrument", pair)
-    const res = await makeAmberApiRequest(url)
+    const res = await makeAmberApiRequest(url, {
+      cache: "force-cache",
+    })
     if (res.status !== 200) {
       throw new Error(res.statusText)
     } else if (!res.payload.data || !res.payload.data.length) {
@@ -167,7 +169,9 @@ async function fetchBarsForTwoYearsOrLess(
   let nextUrl: string | null = url.toString()
 
   while (nextUrl && allBars.length < countBack) {
-    const response = await makeAmberApiRequest(new URL(nextUrl))
+    const response = await makeAmberApiRequest(new URL(nextUrl), {
+      cache: "force-cache",
+    })
 
     if (!response.payload || !Array.isArray(response.payload.data)) {
       throw new Error("Invalid response from Amber API")
