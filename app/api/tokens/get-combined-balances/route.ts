@@ -15,9 +15,9 @@ import {
   SOLANA_TOKENS,
 } from "@/lib/token"
 
-const tokens = DISPLAY_TOKENS()
-
 export const runtime = "edge"
+
+const tokens = DISPLAY_TOKENS()
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)

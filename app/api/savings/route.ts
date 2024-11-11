@@ -8,6 +8,8 @@ import {
 import { Orderbook } from "@/lib/price-simulation"
 import { remapToken } from "@/lib/token"
 
+export const runtime = "edge"
+
 export async function POST(request: Request) {
   try {
     const res = await request.json()

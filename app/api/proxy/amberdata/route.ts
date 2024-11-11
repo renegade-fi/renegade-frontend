@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
+export const runtime = "edge"
+
 const AMBERDATA_BASE_URL = "https://api.amberdata.com"
 const API_KEY_HEADER = "x-api-key"
 
