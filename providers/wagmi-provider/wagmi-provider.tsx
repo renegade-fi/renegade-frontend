@@ -68,10 +68,10 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
             enforceSupportedChains: true,
           }}
           theme="midnight"
-          onConnect={() => setOpen(true)}
+          // onConnect={() => setOpen(true)}
         >
           {children}
-          <SyncRenegadeWagmiState />
+          {/* <SyncRenegadeWagmiState /> */}
           <SignInDialog
             open={open}
             onOpenChange={setOpen}
