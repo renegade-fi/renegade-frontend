@@ -52,7 +52,7 @@ function WalletOption({
             {connector.name.charAt(0)}
           </AvatarFallback>
         </Avatar>
-        <span className="text-lg font-bold">{connector.name}</span>
+        <span className="text-lg font-bold">{`${connector.name}${connector.id.includes("SDK") ? " (SDK)" : ""}`}</span>
       </div>
     </Button>
   )
@@ -61,6 +61,14 @@ function WalletOption({
 export function SelectWalletPage() {
   const { connectors } = useConnect()
   const { setLastConnector, connect } = useWagmiMutation()
+
+  const sortedConnectors = React.useMemo(() => {
+    return [...connectors].sort((a, b) => {
+      if (!!a.icon === !!b.icon) return 0
+      if (a.icon && !b.icon) return -1
+      return 1
+    })
+  }, [connectors])
 
   const handleConnect = async (connector: Connector) => {
     setLastConnector(connector.uid)
@@ -79,11 +87,11 @@ export function SelectWalletPage() {
       </DialogHeader>
 
       <ScrollArea
-        type="always"
         className="max-h-[calc(56vh)]"
+        type="always"
       >
         <div className="flex flex-col gap-2 px-6 pb-6">
-          {connectors.map((connector) => (
+          {sortedConnectors.map((connector) => (
             <WalletOption
               key={connector.uid}
               connector={connector}

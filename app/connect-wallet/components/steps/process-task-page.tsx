@@ -50,8 +50,8 @@ export function ProcessingPage() {
 
       <div className="flex flex-col items-center justify-center gap-8 p-8">
         <Image
-          className={cn(isPending && "animate-pulse")}
           alt="Renegade Logo"
+          className={cn(isPending && "animate-pulse")}
           height={64}
           src="/glyph_light.png"
           width={64}

@@ -5,6 +5,7 @@ import { MutationStatus } from "@tanstack/react-query"
 import { Check, Loader2, X } from "lucide-react"
 import { useLocalStorage } from "usehooks-ts"
 
+import { ErrorWarning } from "@/app/connect-wallet/components/error-warning"
 import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
 
 import { Button } from "@/components/ui/button"
@@ -75,7 +76,7 @@ export function SignMessagesPage() {
         error,
       },
     ]
-  }, [currentStep, error, signMessage1Status, signMessage2Status])
+  }, [error, signMessage1Status, signMessage2Status])
   console.log(steps.map((step) => step.status))
 
   const isDisabled = steps.some((step) => step.status === "pending")
@@ -118,7 +119,7 @@ export function SignMessagesPage() {
             </div>
           ))}
         </div>
-        <ErrorWarning steps={steps} />
+        {error && <ErrorWarning error={error} />}
         <RememberMe />
       </div>
       <DialogFooter>
@@ -166,17 +167,17 @@ function RememberMe() {
   )
 }
 
-function ErrorWarning({ steps }: { steps: Step[] }) {
-  if (!steps.some((step) => step.status === "error")) return null
-  return (
-    <div className="flex items-center justify-center space-x-2 rounded-md bg-[#2A0000] p-3 text-sm text-red-500">
-      <X className="h-4 w-4 text-red-500" />
-      <div className="text-red-500">
-        {steps.find((step) => step.status === "error")?.error}
-      </div>
-    </div>
-  )
-}
+// function ErrorWarning({ steps }: { steps: Step[] }) {
+//   if (!steps.some((step) => step.status === "error")) return null
+//   return (
+//     <div className="flex items-center justify-center space-x-2 rounded-md bg-[#2A0000] p-3 text-sm text-red-500">
+//       <X className="h-4 w-4 text-red-500" />
+//       <div className="text-red-500">
+//         {steps.find((step) => step.status === "error")?.error}
+//       </div>
+//     </div>
+//   )
+// }
 
 function getStepIcon(
   status: "idle" | "pending" | "success" | "error",

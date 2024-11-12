@@ -2,8 +2,6 @@ import Image from "next/image"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
-import { useWalletOnboarding } from "@/app/connect-wallet/context/wallet-onboarding-context"
-
 import {
   DialogDescription,
   DialogHeader,
@@ -11,15 +9,13 @@ import {
 } from "@/components/ui/dialog"
 
 export function CompletionPage() {
-  const { setIsOpen } = useWalletOnboarding()
-
   return (
     <>
       <DialogHeader>
         <VisuallyHidden>
           <DialogTitle>Success</DialogTitle>
           <DialogDescription>
-            You've successfully connected your wallet.
+            You&apos;ve successfully connected your wallet.
           </DialogDescription>
         </VisuallyHidden>
       </DialogHeader>

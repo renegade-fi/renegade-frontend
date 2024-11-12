@@ -1,6 +1,7 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { useAccount } from "wagmi"
 
+import { ErrorWarning } from "@/app/connect-wallet/components/error-warning"
 import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
 
 import { TokenIcon } from "@/components/token-icon"
@@ -45,9 +46,10 @@ export function SwitchNetworkPage() {
           </h2>
           <p className="text-center text-sm text-muted-foreground">
             {error
-              ? "You cancelled the request. Click above to try again."
+              ? "Couldn't switch chains, check your wallet or try again."
               : `Open the ${connector?.name} browser extension to switch your network to ${chain.name}.`}
           </p>
+          {error && <ErrorWarning error={error} />}
         </div>
       </div>
       <DialogFooter className={cn(isPending && "hidden")}>
