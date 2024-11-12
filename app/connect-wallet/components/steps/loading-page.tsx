@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -18,25 +19,18 @@ import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
 
 export function LoadingPage() {
   const { error, setError, setStep, lastConnector } = useWalletOnboarding()
-  const { switchChain } = useSwitchChain({
-    mutation: {
-      onError: (error) => {
-        setError(error.message)
-      },
-      onSuccess: () => {
-        setStep("SIGN_MESSAGES")
-      },
-    },
-  })
 
-  const { connect, connectors, status } = useConnect({
+  const {
+    connectors,
+    connect,
+    status: connectionStatus,
+  } = useConnect({
     mutation: {
       onSuccess: (data) => {
-        console.log("🚀 ~ LoadingPage ~ data:", data)
         if (data.chainId === chain.id) {
           setStep("SIGN_MESSAGES")
         } else {
-          switchChain({ chainId: chain.id })
+          // switchChain({ chainId: chain.id })
           setStep("SWITCH_NETWORK")
         }
       },
@@ -51,11 +45,22 @@ export function LoadingPage() {
     [connectors, lastConnector],
   )
 
+  const nonce = React.useRef(0)
+  React.useEffect(() => {
+    if (!connector) return
+    if (!nonce.current) {
+      nonce.current += 1
+      connect({ connector })
+    }
+  }, [connect, connector])
+
   const handleRetry = async () => {
     if (!lastConnector || !connector) return
     setError(null)
     connect({ connector })
   }
+
+  const isPending = connectionStatus === "pending"
 
   return (
     <>
@@ -72,16 +77,13 @@ export function LoadingPage() {
         <Button
           className={cn(
             "aspect-square h-24",
-            status === "pending" && "pointer-events-none",
+            isPending && "pointer-events-none",
           )}
           variant="ghost"
           onClick={handleRetry}
         >
           <Avatar
-            className={cn(
-              "h-16 w-16 rounded-lg",
-              status === "pending" && "animate-pulse",
-            )}
+            className={cn("h-16 w-16 rounded-lg", isPending && "animate-pulse")}
           >
             {connector?.icon && (
               <AvatarImage
@@ -101,11 +103,21 @@ export function LoadingPage() {
           </h2>
           <p className="text-center text-sm text-muted-foreground">
             {error
-              ? "You cancelled the request. Click above to try again."
+              ? "You cancelled the request."
               : `Open the ${connector?.name} browser extension to connect your wallet.`}
           </p>
         </div>
       </div>
+      <DialogFooter className={cn(isPending && "hidden")}>
+        <Button
+          className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+          size="xl"
+          variant="outline"
+          onClick={handleRetry}
+        >
+          Try again
+        </Button>
+      </DialogFooter>
     </>
   )
 }

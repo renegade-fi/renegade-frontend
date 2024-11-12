@@ -1,9 +1,8 @@
 "use client"
 
-import React, { ReactNode, createContext, useContext, useReducer } from "react"
+import { ReactNode, createContext, useContext, useReducer } from "react"
 
-import { useStatus } from "@renegade-fi/react"
-import { useConfig } from "@renegade-fi/react"
+import { useConfig, useStatus } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import {
   useAccount,

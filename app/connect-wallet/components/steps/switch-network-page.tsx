@@ -1,7 +1,6 @@
 import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { RotateCw } from "lucide-react"
 import { useAccount, useSwitchChain } from "wagmi"
 
 import { TokenIcon } from "@/components/token-icon"
@@ -19,11 +18,10 @@ import { chain, getChainLogoTicker } from "@/lib/viem"
 import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
 
 export function SwitchNetworkPage() {
-  const { error, setError, setStep, lastConnector, startOver } =
-    useWalletOnboarding()
+  const { error, setError, setStep, startOver } = useWalletOnboarding()
   const { connector, chainId } = useAccount()
 
-  const { switchChain, status } = useSwitchChain({
+  const { switchChain, status: switchChainStatus } = useSwitchChain({
     mutation: {
       onError: (error) => {
         setError(error.message)
@@ -34,13 +32,22 @@ export function SwitchNetworkPage() {
     },
   })
 
+  const nonce = React.useRef(0)
   React.useEffect(() => {
-    if (chainId === chain.id) {
-      setStep("SIGN_MESSAGES")
+    if (!nonce.current) {
+      nonce.current += 1
+      switchChain({ chainId: chain.id })
     }
-  }, [chainId, setStep])
+  }, [switchChain])
+
+  React.useEffect(() => {}, [chainId, setStep])
 
   const handleSwitchNetwork = async () => {
+    setError(null)
+    switchChain({ chainId: chain.id })
+  }
+
+  const handleRetry = async () => {
     setError(null)
     switchChain({ chainId: chain.id })
   }
@@ -48,6 +55,8 @@ export function SwitchNetworkPage() {
   const handleStartOver = () => {
     startOver()
   }
+
+  const isPending = switchChainStatus === "pending"
 
   return (
     <>
@@ -64,7 +73,7 @@ export function SwitchNetworkPage() {
         <Button
           className={cn(
             "aspect-square h-24",
-            status === "pending" && "pointer-events-none",
+            isPending && "pointer-events-none",
           )}
           variant="ghost"
           onClick={handleSwitchNetwork}
@@ -86,13 +95,14 @@ export function SwitchNetworkPage() {
           </p>
         </div>
       </div>
-      <DialogFooter className="pb-4 sm:justify-center">
+      <DialogFooter className={cn(isPending && "hidden")}>
         <Button
-          className=""
-          variant="ghost"
-          onClick={handleStartOver}
+          className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
+          size="xl"
+          variant="outline"
+          onClick={handleRetry}
         >
-          <RotateCw className="mr-2 size-4" /> Start Over
+          Switch Network
         </Button>
       </DialogFooter>
     </>

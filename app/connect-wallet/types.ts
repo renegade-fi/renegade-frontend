@@ -14,7 +14,6 @@ export interface WalletOnboardingState {
   initialStep?: OnboardingStep
 }
 
-// Base context type (what's provided to the context)
 export interface WalletOnboardingContextType extends WalletOnboardingState {
   setStep: (step: OnboardingStep) => void
   setError: (error: string | null) => void
@@ -24,7 +23,6 @@ export interface WalletOnboardingContextType extends WalletOnboardingState {
   setIsOpen: (open: boolean, initialStep?: OnboardingStep) => void
 }
 
-// Extended hook return type (what useWalletOnboarding returns)
 export interface WalletOnboardingHookReturn
   extends WalletOnboardingContextType {
   isConnected: boolean

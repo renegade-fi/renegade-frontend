@@ -58,39 +58,13 @@ function WalletOption({
 
 export function SelectWalletPage() {
   const { setStep, setError, setLastConnector } = useWalletOnboarding()
-  const { switchChain } = useSwitchChain({
-    mutation: {
-      onError: (error) => {
-        setError(error.message)
-      },
-      onSuccess: () => {
-        setStep("SIGN_MESSAGES")
-      },
-    },
-  })
-  const { connect, connectors, status } = useConnect({
-    mutation: {
-      onSuccess: (data) => {
-        console.log("🚀 ~ LoadingPage ~ data:", data)
-        if (data.chainId === chain.id) {
-          setStep("SIGN_MESSAGES")
-        } else {
-          switchChain({ chainId: chain.id })
-          setStep("SWITCH_NETWORK")
-        }
-      },
-      onError: (error) => {
-        setError(error.message)
-      },
-    },
-  })
+  const { connectors } = useConnect()
 
   const handleConnect = async (connector: Connector) => {
     try {
       setError(null)
       setLastConnector(connector.uid)
       setStep("LOADING")
-      connect({ connector })
     } catch (error) {
       console.error(error)
     }
