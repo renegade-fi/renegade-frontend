@@ -1,6 +1,7 @@
 "use client"
 
 import { LoadingPage } from "@/app/connect-wallet/components/steps/loading-page"
+import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
@@ -13,6 +14,7 @@ import { SwitchNetworkPage } from "./steps/switch-network-page"
 
 export function WalletOnboardingDialog() {
   const { currentStep, isOpen, setIsOpen } = useWalletOnboarding()
+  const { resetMutations } = useWagmiMutation()
 
   const StepComponent = {
     SELECT_WALLET: SelectWalletPage,
@@ -26,10 +28,12 @@ export function WalletOnboardingDialog() {
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={setIsOpen}
+      onOpenChange={(open) => {
+        if (open) resetMutations()
+        setIsOpen(open)
+      }}
     >
       <DialogContent className="max-w-sm gap-0 p-0">
-        {/* {error && <div className="">{error}</div>} */}
         <StepComponent />
       </DialogContent>
     </Dialog>

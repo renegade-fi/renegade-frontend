@@ -12,6 +12,7 @@ import { getWalletFromRelayer } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { BaseError } from "viem"
 import { useConnect, useSignMessage, useSwitchChain } from "wagmi"
 
 import { useWalletOnboarding } from "@/app/connect-wallet/context/wallet-onboarding-context"
@@ -38,7 +39,11 @@ export function WagmiMutationProvider({
   const { setStep, setIsOpen } = useWalletOnboarding()
   const config = useConfig()
 
-  const { connect, status: connectionStatus } = useConnect({
+  const {
+    connect,
+    status: connectionStatus,
+    reset: resetConnect,
+  } = useConnect({
     mutation: {
       onMutate: () => {
         setError(null)
@@ -54,12 +59,16 @@ export function WagmiMutationProvider({
         }
       },
       onError: (error) => {
-        setError(error.message)
+        setError((error as BaseError).shortMessage ?? error.message)
       },
     },
   })
 
-  const { switchChain, status: switchChainStatus } = useSwitchChain({
+  const {
+    switchChain,
+    status: switchChainStatus,
+    reset: resetSwitchChain,
+  } = useSwitchChain({
     mutation: {
       onMutate: () => {
         setError(null)
@@ -69,7 +78,7 @@ export function WagmiMutationProvider({
         signMessage1({ message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}` })
       },
       onError: (error) => {
-        setError(error.message)
+        setError((error as BaseError).shortMessage ?? error.message)
       },
     },
   })
@@ -91,10 +100,11 @@ export function WagmiMutationProvider({
         })
       },
       onError: (error) => {
-        setError(error.message)
+        setError((error as BaseError).shortMessage ?? error.message)
       },
     },
   })
+
   const {
     signMessage: signMessage2,
     status: signMessage2Status,
@@ -130,11 +140,6 @@ export function WagmiMutationProvider({
             return
           }
         } catch (error) {}
-        // finally {
-        //   resetSignMessage2()
-        // }
-
-        // Wallet does not exist, create or lookup
 
         const blinderShare = config.utils.derive_blinder_share(seed)
         const res = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
@@ -148,87 +153,91 @@ export function WagmiMutationProvider({
         }
       },
       onError: (error) => {
-        setError(error.message)
+        setError((error as BaseError).shortMessage ?? error.message)
       },
     },
   })
 
   // TODO: Must reset on close
-  const resetSignMessages = () => {
+  const resetMutations = () => {
+    resetConnect()
+    resetSwitchChain()
     resetSignMessage1()
     resetSignMessage2()
+    resetCreateWallet()
+    resetLookupWallet()
   }
 
   const id = useId()
 
-  const { mutate: createWalletMutation, status: createWalletStatus } =
-    useMutation({
-      mutationFn: () => createWallet(config),
-      onMutate() {
-        setError(null)
-        toast.loading(CREATE_WALLET_START, { id })
-        setStep("PROCESSING")
-      },
-      onSuccess() {
-        toast.success(CREATE_WALLET_SUCCESS, { id })
-        setIsOpen(false)
-      },
-      onError(error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to create wallet"
-        toast.error(message, { id })
-        setError(message)
-      },
-    })
+  const {
+    mutate: createWalletMutation,
+    status: createWalletStatus,
+    reset: resetCreateWallet,
+  } = useMutation({
+    mutationFn: () => createWallet(config),
+    onMutate() {
+      setError(null)
+      toast.loading(CREATE_WALLET_START, { id })
+      setStep("PROCESSING")
+    },
+    onSuccess() {
+      toast.success(CREATE_WALLET_SUCCESS, { id })
+      setIsOpen(false)
+    },
+    onError(error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create wallet"
+      toast.error(message, { id })
+      setError((error as BaseError).shortMessage ?? error.message)
+    },
+  })
 
-  const { mutate: lookupWalletMutation, status: lookupWalletStatus } =
-    useMutation({
-      mutationFn: () => lookupWallet(config),
-      onMutate() {
-        setError(null)
-        toast.loading(LOOKUP_WALLET_START, { id })
-        setStep("PROCESSING")
-      },
-      onSuccess() {
-        toast.success(LOOKUP_WALLET_SUCCESS, { id })
-        setIsOpen(false)
-      },
-      onError(error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to lookup wallet"
-        toast.error(message, { id })
-        setError(message)
-      },
-    })
+  const {
+    mutate: lookupWalletMutation,
+    status: lookupWalletStatus,
+    reset: resetLookupWallet,
+  } = useMutation({
+    mutationFn: () => lookupWallet(config),
+    onMutate() {
+      setError(null)
+      toast.loading(LOOKUP_WALLET_START, { id })
+      setStep("PROCESSING")
+    },
+    onSuccess() {
+      toast.success(LOOKUP_WALLET_SUCCESS, { id })
+      setIsOpen(false)
+    },
+    onError(error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to lookup wallet"
+      toast.error(message, { id })
+      setError((error as BaseError).shortMessage ?? error.message)
+    },
+  })
 
   const [lastConnector, setLastConnector] = useState<string | undefined>(
     undefined,
   )
   const [error, setError] = useState<string | null>(null)
+  console.log("🚀 ~ error:", error)
 
   const value: WagmiMutationValue = {
-    error,
-    setError,
-    lastConnector,
-    setLastConnector,
-    connectionStatus,
-    switchChainStatus,
-    signMessage1Status,
-    signMessage2Status,
-    createWalletStatus,
-    lookupWalletStatus,
     connect,
-    switchChain,
+    connectionStatus,
+    createWalletStatus,
+    error,
+    lastConnector,
+    lookupWalletStatus,
+    resetMutations,
+    setError,
+    setLastConnector,
     signMessage1,
+    signMessage1Status,
     signMessage2,
-    resetSignMessages,
-    isLoading:
-      connectionStatus === "pending" ||
-      switchChainStatus === "pending" ||
-      signMessage1Status === "pending" ||
-      signMessage2Status === "pending" ||
-      createWalletStatus === "pending" ||
-      lookupWalletStatus === "pending",
+    signMessage2Status,
+    switchChain,
+    switchChainStatus,
   }
 
   return (

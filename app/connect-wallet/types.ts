@@ -1,9 +1,8 @@
 import { MutationStatus } from "@tanstack/react-query"
-import { SignMessageErrorType, SwitchChainErrorType } from "viem"
 import {
   UseConnectReturnType,
-  UseSwitchChainReturnType,
   UseSignMessageReturnType,
+  UseSwitchChainReturnType,
 } from "wagmi"
 
 export type OnboardingStep =
@@ -14,7 +13,6 @@ export type OnboardingStep =
   | "PROCESSING"
   | "COMPLETION"
 
-type ErrorType = SignMessageErrorType | SwitchChainErrorType
 // Wallet Connection (Wagmi Mutations) Types
 export interface WagmiMutationState {
   setError: (error: string | null) => void
@@ -26,7 +24,6 @@ export interface WagmiMutationState {
   signMessage2Status: MutationStatus
   createWalletStatus: MutationStatus
   lookupWalletStatus: MutationStatus
-  isLoading: boolean
 }
 
 export interface WagmiMutationActions {
@@ -34,7 +31,7 @@ export interface WagmiMutationActions {
   switchChain: UseSwitchChainReturnType["switchChain"]
   signMessage1: UseSignMessageReturnType["signMessage"]
   signMessage2: UseSignMessageReturnType["signMessage"]
-  resetSignMessages: () => void
+  resetMutations: () => void
   setLastConnector: (connectorId: string) => void
 }
 

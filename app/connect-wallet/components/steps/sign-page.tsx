@@ -1,6 +1,5 @@
 import React from "react"
 
-import { useConfig } from "@renegade-fi/react"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { MutationStatus } from "@tanstack/react-query"
 import { Check, Loader2, X } from "lucide-react"
@@ -22,8 +21,6 @@ import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 import { cn } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 
-import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
-
 type Step = {
   label: string
   status: MutationStatus
@@ -32,7 +29,7 @@ type Step = {
 
 export function SignMessagesPage() {
   const {
-    resetSignMessages,
+    resetMutations,
     signMessage1,
     signMessage1Status,
     signMessage2Status,
@@ -42,10 +39,10 @@ export function SignMessagesPage() {
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
-  const config = useConfig()
+  console.log("🚀 ~ SignMessagesPage ~ currentStep:", currentStep)
 
   const reset = () => {
-    resetSignMessages()
+    resetMutations()
     setCurrentStep(undefined)
     setError(null)
   }
@@ -70,15 +67,16 @@ export function SignMessagesPage() {
       {
         label: "Generate your Renegade wallet",
         status: signMessage1Status,
-        error: currentStep === 0 ? error : undefined,
+        error,
       },
       {
         label: "Verify wallet compatibility",
         status: signMessage2Status,
-        error: currentStep === 1 ? error : undefined,
+        error,
       },
     ]
   }, [currentStep, error, signMessage1Status, signMessage2Status])
+  console.log(steps.map((step) => step.status))
 
   const isDisabled = steps.some((step) => step.status === "pending")
 
@@ -87,7 +85,7 @@ export function SignMessagesPage() {
     if (steps.some((step) => step.status === "error")) {
       return "Try again"
     }
-    return "Sign messages"
+    return "Sign message"
   }, [isDisabled, steps])
 
   return (
@@ -121,7 +119,7 @@ export function SignMessagesPage() {
           ))}
         </div>
         <ErrorWarning steps={steps} />
-        <SignInContent />
+        <RememberMe />
       </div>
       <DialogFooter>
         <Button
@@ -138,7 +136,7 @@ export function SignMessagesPage() {
   )
 }
 
-function SignInContent() {
+function RememberMe() {
   const [rememberMe, setRememberMe] = useLocalStorage(
     STORAGE_REMEMBER_ME,
     false,

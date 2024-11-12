@@ -28,7 +28,7 @@ export function LoadingPage() {
   )
 
   const handleRetry = async () => {
-    if (!lastConnector || !connector) return
+    if (!connector) return
     connect({ connector, chainId: chain.id })
   }
 

@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useReducer,
-} from "react"
+import { ReactNode, createContext, useContext, useReducer } from "react"
 
 import { useConfig, useStatus } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
@@ -17,14 +11,14 @@ import {
   useConfig as useWagmiConfig,
 } from "wagmi"
 
-import { chain } from "@/lib/viem"
-
+import { WagmiMutationProvider } from "@/app/connect-wallet/context/wagmi-mutation-context"
 import {
   OnboardingContextValue,
   OnboardingState,
   OnboardingStep,
-} from "../types"
-import { WagmiMutationProvider } from "./wagmi-mutation-context"
+} from "@/app/connect-wallet/types"
+
+import { chain } from "@/lib/viem"
 
 const initialState: OnboardingState = {
   currentStep: "SELECT_WALLET",

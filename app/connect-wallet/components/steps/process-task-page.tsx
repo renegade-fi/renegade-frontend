@@ -2,6 +2,8 @@ import Image from "next/image"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
+import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
+
 import {
   DialogDescription,
   DialogHeader,
@@ -9,8 +11,6 @@ import {
 } from "@/components/ui/dialog"
 
 import { cn } from "@/lib/utils"
-
-import { useWagmiMutation } from "../../context/wagmi-mutation-context"
 
 export function ProcessingPage() {
   const { createWalletStatus, lookupWalletStatus, error } = useWagmiMutation()

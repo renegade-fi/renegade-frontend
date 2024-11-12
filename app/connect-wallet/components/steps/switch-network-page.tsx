@@ -15,8 +15,6 @@ import {
 import { cn } from "@/lib/utils"
 import { chain, getChainLogoTicker } from "@/lib/viem"
 
-import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
-
 // May not navigate to this page because of programmatic chain set on connect
 export function SwitchNetworkPage() {
   const { connector } = useAccount()

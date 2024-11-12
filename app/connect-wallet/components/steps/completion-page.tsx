@@ -2,13 +2,13 @@ import Image from "next/image"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
+import { useWalletOnboarding } from "@/app/connect-wallet/context/wallet-onboarding-context"
+
 import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-
-import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
 
 export function CompletionPage() {
   const { setIsOpen } = useWalletOnboarding()
