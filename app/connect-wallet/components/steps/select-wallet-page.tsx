@@ -1,7 +1,9 @@
 import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Connector, useAccount, useConnect, useSwitchChain } from "wagmi"
+import { Connector, useConnect } from "wagmi"
+
+import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -12,8 +14,6 @@ import {
 } from "@/components/ui/dialog"
 
 import { chain } from "@/lib/viem"
-
-import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
 
 function WalletOption({
   connector,
@@ -57,17 +57,12 @@ function WalletOption({
 }
 
 export function SelectWalletPage() {
-  const { setStep, setError, setLastConnector } = useWalletOnboarding()
   const { connectors } = useConnect()
+  const { setLastConnector, connect } = useWagmiMutation()
 
   const handleConnect = async (connector: Connector) => {
-    try {
-      setError(null)
-      setLastConnector(connector.uid)
-      setStep("LOADING")
-    } catch (error) {
-      console.error(error)
-    }
+    setLastConnector(connector.uid)
+    connect({ connector, chainId: chain.id })
   }
 
   return (

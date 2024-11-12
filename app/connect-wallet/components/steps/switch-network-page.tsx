@@ -1,7 +1,7 @@
-import React from "react"
-
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { useAccount, useSwitchChain } from "wagmi"
+import { useAccount } from "wagmi"
+
+import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -17,44 +17,10 @@ import { chain, getChainLogoTicker } from "@/lib/viem"
 
 import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
 
+// May not navigate to this page because of programmatic chain set on connect
 export function SwitchNetworkPage() {
-  const { error, setError, setStep, startOver } = useWalletOnboarding()
-  const { connector, chainId } = useAccount()
-
-  const { switchChain, status: switchChainStatus } = useSwitchChain({
-    mutation: {
-      onError: (error) => {
-        setError(error.message)
-      },
-      onSuccess: () => {
-        setStep("SIGN_MESSAGES")
-      },
-    },
-  })
-
-  const nonce = React.useRef(0)
-  React.useEffect(() => {
-    if (!nonce.current) {
-      nonce.current += 1
-      switchChain({ chainId: chain.id })
-    }
-  }, [switchChain])
-
-  React.useEffect(() => {}, [chainId, setStep])
-
-  const handleSwitchNetwork = async () => {
-    setError(null)
-    switchChain({ chainId: chain.id })
-  }
-
-  const handleRetry = async () => {
-    setError(null)
-    switchChain({ chainId: chain.id })
-  }
-
-  const handleStartOver = () => {
-    startOver()
-  }
+  const { connector } = useAccount()
+  const { switchChain, switchChainStatus, error } = useWagmiMutation()
 
   const isPending = switchChainStatus === "pending"
 
@@ -70,19 +36,10 @@ export function SwitchNetworkPage() {
       </DialogHeader>
 
       <div className="flex flex-col items-center justify-center gap-2 p-8">
-        <Button
-          className={cn(
-            "aspect-square h-24",
-            isPending && "pointer-events-none",
-          )}
-          variant="ghost"
-          onClick={handleSwitchNetwork}
-        >
-          <TokenIcon
-            size={64}
-            ticker={getChainLogoTicker(chain.id)}
-          />
-        </Button>
+        <TokenIcon
+          size={64}
+          ticker={getChainLogoTicker(chain.id)}
+        />
 
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-xl font-semibold">
@@ -100,7 +57,7 @@ export function SwitchNetworkPage() {
           className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
           size="xl"
           variant="outline"
-          onClick={handleRetry}
+          onClick={() => switchChain({ chainId: chain.id })}
         >
           Switch Network
         </Button>

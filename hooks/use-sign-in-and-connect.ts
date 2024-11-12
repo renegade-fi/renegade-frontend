@@ -9,7 +9,7 @@ export function useSignInAndConnect() {
   const { address } = useAccount()
   const config = useConfig()
   const { disconnect } = useDisconnect()
-  const { setOpen } = useModal()
+  // const { setOpen } = useModal()
   const [open, setOpenSignIn] = useState(false)
 
   const renegadeStatus = useStatus()
@@ -23,7 +23,7 @@ export function useSignInAndConnect() {
         setOpenSignIn(true)
       }
     } else {
-      setOpen(true)
+      // setOpen(true)
     }
   }
 

@@ -60,7 +60,7 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
       initialState={initialState}
     >
       <QueryProvider>
-        <ConnectKitProvider
+        {/* <ConnectKitProvider
           customTheme={connectKitTheme}
           options={{
             hideQuestionMarkCTA: true,
@@ -69,14 +69,14 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
           }}
           theme="midnight"
           // onConnect={() => setOpen(true)}
-        >
-          {children}
-          {/* <SyncRenegadeWagmiState /> */}
-          <SignInDialog
-            open={open}
-            onOpenChange={setOpen}
-          />
-        </ConnectKitProvider>
+        > */}
+        {children}
+        {/* <SyncRenegadeWagmiState /> */}
+        <SignInDialog
+          open={open}
+          onOpenChange={setOpen}
+        />
+        {/* </ConnectKitProvider> */}
       </QueryProvider>
     </Provider>
   )

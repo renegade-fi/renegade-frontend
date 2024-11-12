@@ -1,6 +1,12 @@
 "use client"
 
-import { ReactNode, createContext, useContext, useReducer } from "react"
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useReducer,
+} from "react"
 
 import { useConfig, useStatus } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
@@ -14,23 +20,19 @@ import {
 import { chain } from "@/lib/viem"
 
 import {
+  OnboardingContextValue,
+  OnboardingState,
   OnboardingStep,
-  WalletOnboardingContextType,
-  WalletOnboardingHookReturn,
-  WalletOnboardingState,
 } from "../types"
+import { WagmiMutationProvider } from "./wagmi-mutation-context"
 
-const initialState: WalletOnboardingState = {
+const initialState: OnboardingState = {
   currentStep: "SELECT_WALLET",
-  error: null,
-  lastConnector: undefined,
   isOpen: false,
 }
 
 type Action =
   | { type: "SET_STEP"; payload: OnboardingStep }
-  | { type: "SET_ERROR"; payload: string | null }
-  | { type: "SET_LAST_CONNECTOR"; payload: string }
   | {
       type: "SET_IS_OPEN"
       payload: { isOpen: boolean; step?: OnboardingStep }
@@ -39,22 +41,20 @@ type Action =
   | { type: "START_OVER" }
 
 const WalletOnboardingContext = createContext<
-  WalletOnboardingContextType | undefined
+  OnboardingContextValue | undefined
 >(undefined)
 
 function walletOnboardingReducer(
-  state: WalletOnboardingState,
+  state: OnboardingState,
   action: Action,
-): WalletOnboardingState {
+): OnboardingState {
+  console.log("REDUCER", action)
   switch (action.type) {
     case "SET_STEP":
       return { ...state, currentStep: action.payload }
-    case "SET_ERROR":
-      return { ...state, error: action.payload }
-    case "SET_LAST_CONNECTOR":
-      return { ...state, lastConnector: action.payload }
     case "SET_IS_OPEN":
       if (action.payload.isOpen) {
+        // TODO: Reset mutation states
         return {
           ...initialState,
           isOpen: true,
@@ -85,52 +85,12 @@ export function WalletOnboardingProvider({
   const [state, dispatch] = useReducer(walletOnboardingReducer, initialState)
   const config = useConfig()
   const wagmiConfig = useWagmiConfig()
-  const { disconnectAsync: disconnectWagmi } = useDisconnect()
-
-  const value: WalletOnboardingContextType = {
-    ...state,
-    setStep: (step) => dispatch({ type: "SET_STEP", payload: step }),
-    setError: (error) => dispatch({ type: "SET_ERROR", payload: error }),
-    resetState: () => dispatch({ type: "RESET" }),
-    startOver: async () => {
-      dispatch({ type: "START_OVER" })
-      try {
-        await disconnectWagmi()
-      } catch {
-        wagmiConfig.setState((state) => ({
-          ...state,
-          connections: new Map(),
-        }))
-      }
-      disconnect(config)
-    },
-    setLastConnector: (connectorId) =>
-      dispatch({ type: "SET_LAST_CONNECTOR", payload: connectorId }),
-    setIsOpen: (open: boolean, step?: OnboardingStep) => {
-      dispatch({ type: "SET_IS_OPEN", payload: { isOpen: open, step } })
-    },
-  }
-
-  return (
-    <WalletOnboardingContext.Provider value={value}>
-      {children}
-    </WalletOnboardingContext.Provider>
-  )
-}
-
-export function useWalletOnboarding(): WalletOnboardingHookReturn {
-  const context = useContext(WalletOnboardingContext)
-  if (!context) {
-    throw new Error(
-      "useWalletOnboarding must be used within a WalletOnboardingProvider",
-    )
-  }
+  const { disconnect: disconnectWagmi } = useDisconnect()
 
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const renegadeStatus = useStatus()
   const isInRelayer = renegadeStatus === "in relayer"
-
   const isWrongChain = chainId !== chain.id
 
   const requiredStep: OnboardingStep = !isConnected
@@ -141,11 +101,45 @@ export function useWalletOnboarding(): WalletOnboardingHookReturn {
         ? "SIGN_MESSAGES"
         : "COMPLETION"
 
-  return {
-    ...context,
+  const value: OnboardingContextValue = {
+    ...state,
+    setStep: (step: OnboardingStep) =>
+      dispatch({ type: "SET_STEP", payload: step }),
+    resetState: () => dispatch({ type: "RESET" }),
+    startOver: async () => {
+      dispatch({ type: "START_OVER" })
+      try {
+        disconnectWagmi()
+      } catch {
+        wagmiConfig.setState((state) => ({
+          ...state,
+          connections: new Map(),
+        }))
+      }
+      disconnect(config)
+    },
+    setIsOpen: (open: boolean, step?: OnboardingStep) => {
+      dispatch({ type: "SET_IS_OPEN", payload: { isOpen: open, step } })
+    },
     isConnected,
     isWrongChain,
     isInRelayer,
     requiredStep,
   }
+
+  return (
+    <WalletOnboardingContext.Provider value={value}>
+      <WagmiMutationProvider>{children}</WagmiMutationProvider>
+    </WalletOnboardingContext.Provider>
+  )
+}
+
+export function useWalletOnboarding(): OnboardingContextValue {
+  const context = useContext(WalletOnboardingContext)
+  if (!context) {
+    throw new Error(
+      "useWalletOnboarding must be used within a WalletOnboardingProvider",
+    )
+  }
+  return context
 }

@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import { LoadingPage } from "@/app/connect-wallet/components/steps/loading-page"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -14,11 +12,7 @@ import { SignMessagesPage } from "./steps/sign-page"
 import { SwitchNetworkPage } from "./steps/switch-network-page"
 
 export function WalletOnboardingDialog() {
-  const { currentStep, error, isOpen, setIsOpen } = useWalletOnboarding()
-
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open)
-  }
+  const { currentStep, isOpen, setIsOpen } = useWalletOnboarding()
 
   const StepComponent = {
     SELECT_WALLET: SelectWalletPage,
@@ -32,7 +26,7 @@ export function WalletOnboardingDialog() {
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={handleOpenChange}
+      onOpenChange={setIsOpen}
     >
       <DialogContent className="max-w-sm gap-0 p-0">
         {/* {error && <div className="">{error}</div>} */}

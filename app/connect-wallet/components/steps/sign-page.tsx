@@ -1,13 +1,12 @@
 import React from "react"
 
 import { useConfig } from "@renegade-fi/react"
-import { getWalletFromRelayer, getWalletId } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { MutationStatus } from "@tanstack/react-query"
 import { Check, Loader2, X } from "lucide-react"
 import { useLocalStorage } from "usehooks-ts"
-import { BaseError } from "viem"
-import { useSignMessage } from "wagmi"
+
+import { useWagmiMutation } from "@/app/connect-wallet/context/wagmi-mutation-context"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -28,89 +27,25 @@ import { useWalletOnboarding } from "../../context/wallet-onboarding-context"
 type Step = {
   label: string
   status: MutationStatus
-  error?: string
+  error?: string | null
 }
 
 export function SignMessagesPage() {
-  const { setStep, setError } = useWalletOnboarding()
+  const {
+    resetSignMessages,
+    signMessage1,
+    signMessage1Status,
+    signMessage2Status,
+    error,
+    setError,
+  } = useWagmiMutation()
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
   const config = useConfig()
 
-  const {
-    data: signMessage1Data,
-    signMessage: signMessage1,
-    status: signStatus1,
-    reset: reset1,
-    error: signMessage1Error,
-  } = useSignMessage({
-    mutation: {
-      onMutate() {
-        setCurrentStep(0)
-      },
-      onSuccess() {
-        signMessage2({
-          message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
-        })
-      },
-      onError(error) {
-        setError(error.message)
-      },
-    },
-  })
-
-  const {
-    signMessage: signMessage2,
-    status: signStatus2,
-    reset: reset2,
-    error: signMessage2Error,
-  } = useSignMessage({
-    mutation: {
-      onMutate() {
-        setCurrentStep(1)
-      },
-      async onSuccess(data) {
-        if (!data || !signMessage1Data) {
-          setError("Missing signature")
-          return
-        }
-        if (data !== signMessage1Data) {
-          setError(
-            "Signatures do not match. Please try again with a different wallet.",
-          )
-          return
-        }
-        const seed = data
-        config.setState((x) => ({ ...x, seed }))
-        const id = getWalletId(config)
-        config.setState((x) => ({ ...x, id }))
-
-        // Check if wallet exists in relayer
-        try {
-          const wallet = await getWalletFromRelayer(config)
-          if (wallet) {
-            // Wallet exists, no processing needed
-            config.setState((x) => ({ ...x, status: "in relayer" }))
-            setStep("COMPLETION")
-          } else {
-            // Wallet needs processing
-            setStep("PROCESSING")
-          }
-        } catch (error) {
-          // If fetch fails, assume processing is needed
-          setStep("PROCESSING")
-        }
-      },
-      onError(error) {
-        setError(error.message)
-      },
-    },
-  })
-
   const reset = () => {
-    reset1()
-    reset2()
+    resetSignMessages()
     setCurrentStep(undefined)
     setError(null)
   }
@@ -119,25 +54,31 @@ export function SignMessagesPage() {
     if (steps.some((step) => step.status === "error")) {
       reset()
     }
-    signMessage1({ message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}` })
+    setCurrentStep(0)
+    signMessage1(
+      { message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}` },
+      {
+        onSuccess() {
+          setCurrentStep(1)
+        },
+      },
+    )
   }
 
   const steps = React.useMemo(() => {
     return [
       {
         label: "Generate your Renegade wallet",
-        status: signStatus1,
-        error: (signMessage1Error as BaseError)?.shortMessage,
+        status: signMessage1Status,
+        error: currentStep === 0 ? error : undefined,
       },
       {
         label: "Verify wallet compatibility",
-        status: signStatus2,
-        error:
-          (signMessage2Error as BaseError)?.shortMessage ??
-          signMessage2Error?.message,
+        status: signMessage2Status,
+        error: currentStep === 1 ? error : undefined,
       },
     ]
-  }, [signMessage1Error, signMessage2Error, signStatus1, signStatus2])
+  }, [currentStep, error, signMessage1Status, signMessage2Status])
 
   const isDisabled = steps.some((step) => step.status === "pending")
 

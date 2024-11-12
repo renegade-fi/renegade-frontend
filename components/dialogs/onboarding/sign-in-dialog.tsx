@@ -67,7 +67,7 @@ export function SignInDialog({
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
-  const { setOpen } = useModal()
+  // const { setOpen } = useModal()
 
   const {
     data: signMessage1Data,
