@@ -19,6 +19,7 @@ export interface WalletOnboardingContextType extends WalletOnboardingState {
   setStep: (step: OnboardingStep) => void
   setError: (error: string | null) => void
   resetState: () => void
+  startOver: () => Promise<void>
   setLastConnector: (connectorId: string) => void
   setIsOpen: (open: boolean, initialStep?: OnboardingStep) => void
 }

@@ -9,7 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { useWalletOnboarding } from "../context/wallet-onboarding-context"
 import { CompletionPage } from "./steps/completion-page"
 import { ProcessingPage } from "./steps/process-task-page"
-import { SelectWalletPage } from "./steps/select-wallet"
+import { SelectWalletPage } from "./steps/select-wallet-page"
 import { SignMessagesPage } from "./steps/sign-page"
 import { SwitchNetworkPage } from "./steps/switch-network-page"
 
@@ -34,8 +34,8 @@ export function WalletOnboardingDialog() {
       open={isOpen}
       onOpenChange={handleOpenChange}
     >
-      <DialogContent>
-        {error && <div className="">{error}</div>}
+      <DialogContent className="max-w-sm gap-0 p-0">
+        {/* {error && <div className="">{error}</div>} */}
         <StepComponent />
       </DialogContent>
     </Dialog>

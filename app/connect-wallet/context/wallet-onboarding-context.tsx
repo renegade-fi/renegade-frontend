@@ -3,7 +3,14 @@
 import React, { ReactNode, createContext, useContext, useReducer } from "react"
 
 import { useStatus } from "@renegade-fi/react"
-import { useAccount, useChainId } from "wagmi"
+import { useConfig } from "@renegade-fi/react"
+import { disconnect } from "@renegade-fi/react/actions"
+import {
+  useAccount,
+  useChainId,
+  useDisconnect,
+  useConfig as useWagmiConfig,
+} from "wagmi"
 
 import { chain } from "@/lib/viem"
 
@@ -30,6 +37,7 @@ type Action =
       payload: { isOpen: boolean; step?: OnboardingStep }
     }
   | { type: "RESET" }
+  | { type: "START_OVER" }
 
 const WalletOnboardingContext = createContext<
   WalletOnboardingContextType | undefined
@@ -60,6 +68,11 @@ function walletOnboardingReducer(
       }
     case "RESET":
       return initialState
+    case "START_OVER":
+      return {
+        ...initialState,
+        isOpen: true,
+      }
     default:
       return state
   }
@@ -71,12 +84,27 @@ export function WalletOnboardingProvider({
   children: ReactNode
 }) {
   const [state, dispatch] = useReducer(walletOnboardingReducer, initialState)
+  const config = useConfig()
+  const wagmiConfig = useWagmiConfig()
+  const { disconnectAsync: disconnectWagmi } = useDisconnect()
 
   const value: WalletOnboardingContextType = {
     ...state,
     setStep: (step) => dispatch({ type: "SET_STEP", payload: step }),
     setError: (error) => dispatch({ type: "SET_ERROR", payload: error }),
     resetState: () => dispatch({ type: "RESET" }),
+    startOver: async () => {
+      dispatch({ type: "START_OVER" })
+      try {
+        await disconnectWagmi()
+      } catch {
+        wagmiConfig.setState((state) => ({
+          ...state,
+          connections: new Map(),
+        }))
+      }
+      disconnect(config)
+    },
     setLastConnector: (connectorId) =>
       dispatch({ type: "SET_LAST_CONNECTOR", payload: connectorId }),
     setIsOpen: (open: boolean, step?: OnboardingStep) => {
