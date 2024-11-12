@@ -33,7 +33,7 @@ export function WalletOnboardingDialog() {
         setIsOpen(open)
       }}
     >
-      <DialogContent className="max-w-sm gap-0 p-0">
+      <DialogContent className="max-h-dvh max-w-sm gap-0 p-0 lg:max-h-[70vh]">
         <StepComponent />
       </DialogContent>
     </Dialog>

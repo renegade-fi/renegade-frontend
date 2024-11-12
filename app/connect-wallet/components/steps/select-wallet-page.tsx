@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { chain } from "@/lib/viem"
 
@@ -30,6 +31,7 @@ function WalletOption({
       setReady(!!provider)
     })()
   }, [connector])
+  if (!ready || connector.name === "Phantom") return null
 
   return (
     <Button
@@ -67,7 +69,7 @@ export function SelectWalletPage() {
 
   return (
     <>
-      <DialogHeader className="px-6 pt-6">
+      <DialogHeader className="p-6 px-6">
         <DialogTitle>Connect</DialogTitle>
         <VisuallyHidden>
           <DialogDescription>
@@ -76,15 +78,20 @@ export function SelectWalletPage() {
         </VisuallyHidden>
       </DialogHeader>
 
-      <div className="flex flex-col gap-2 p-6">
-        {connectors.map((connector) => (
-          <WalletOption
-            key={connector.uid}
-            connector={connector}
-            onClick={() => handleConnect(connector)}
-          />
-        ))}
-      </div>
+      <ScrollArea
+        type="always"
+        className="max-h-[calc(56vh)]"
+      >
+        <div className="flex flex-col gap-2 px-6 pb-6">
+          {connectors.map((connector) => (
+            <WalletOption
+              key={connector.uid}
+              connector={connector}
+              onClick={() => handleConnect(connector)}
+            />
+          ))}
+        </div>
+      </ScrollArea>
     </>
   )
 }
