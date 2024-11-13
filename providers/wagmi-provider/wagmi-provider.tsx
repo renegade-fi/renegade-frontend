@@ -18,6 +18,7 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
+import { sidebarEvents } from "@/lib/events"
 import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
@@ -68,7 +69,10 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
             enforceSupportedChains: true,
           }}
           theme="midnight"
-          onConnect={() => setOpen(true)}
+          onConnect={() => {
+            sidebarEvents.emit("open")
+            setOpen(true)
+          }}
         >
           {children}
           <SyncRenegadeWagmiState />

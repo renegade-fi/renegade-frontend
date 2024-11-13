@@ -31,7 +31,7 @@ interface HeaderProps {
 
 export function Header({ defaultBase }: HeaderProps) {
   const pathname = usePathname()
-  const { walletReadyState } = useWallets()
+  const { walletReadyState, arbitrumWallet } = useWallets()
   const [latestBase, setLatestBase] = React.useState(defaultBase)
 
   React.useEffect(() => {
@@ -65,9 +65,21 @@ export function Header({ defaultBase }: HeaderProps) {
         </div>
         <div className="flex items-center gap-2">
           {walletReadyState === WalletReadyState.READY ? (
+            <>
+              <TransferDialog>
+                <Button
+                  className="font-extended"
+                  variant="outline"
+                >
+                  Deposit
+                </Button>
+              </TransferDialog>
+            </>
+          ) : null}
+          {arbitrumWallet.isConnected ? (
             <SidebarTrigger />
           ) : (
-            <ConnectWalletButton className="text-sm" />
+            <ConnectWalletButton />
           )}
         </div>
       </div>
@@ -146,8 +158,10 @@ export function Header({ defaultBase }: HeaderProps) {
                   Deposit
                 </Button>
               </TransferDialog>
-              <SidebarTrigger />
             </>
+          ) : null}
+          {arbitrumWallet.isConnected ? (
+            <SidebarTrigger />
           ) : (
             <ConnectWalletButton />
           )}
