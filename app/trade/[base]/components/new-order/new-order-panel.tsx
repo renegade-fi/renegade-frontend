@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
+import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
+
 export function NewOrderPanel({
   base,
   isUSDCDenominated,
@@ -53,7 +55,7 @@ export function NewOrderPanel({
           variant="link"
         >
           <a
-            href="https://help.renegade.fi/hc/en-us/articles/32760870056723-What-is-pre-trade-and-post-trade-privacy"
+            href={HELP_CENTER_ARTICLES.PRIVACY.url}
             rel="noreferrer"
             target="_blank"
           >

@@ -4,18 +4,20 @@ import { Repeat } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
+import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
+
 const DID_YOU_KNOW_CONTENT = [
   {
     text: "All trades are pre-trade and post-trade private.",
-    link: "https://help.renegade.fi/hc/en-us/articles/32760870056723-What-is-pre-trade-and-post-trade-privacy",
+    link: HELP_CENTER_ARTICLES.PRIVACY.url,
   },
   {
     text: "All trades clear at the midpoint of the Binance bid-ask spread.",
-    link: "https://help.renegade.fi/hc/en-us/articles/32530574872211-What-is-a-midpoint-peg",
+    link: HELP_CENTER_ARTICLES.MIDPOINT_PRICING.url,
   },
   {
     text: "Trading in Renegade has zero MEV, slippage, or price impact.",
-    link: "https://help.renegade.fi/hc/en-us/articles/32762213393043-Does-Renegade-really-have-zero-MEV-copy-trading-slippage-or-price-impact",
+    link: HELP_CENTER_ARTICLES.ZERO_MEV.url,
   },
 ] as const
 
@@ -56,15 +58,6 @@ export function DidYouKnowContent() {
           {randomContent.text}
         </a>
       </div>
-      {/* <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-        <Checkbox id="donot-show-again" />
-        <label
-          htmlFor="donot-show-again"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Don&apos;t show again
-        </label>
-      </div> */}
     </>
   )
 }
