@@ -4,15 +4,15 @@ import React from "react"
 
 import { useSidebar } from "@/components/ui/sidebar"
 
-import { WalletReadyState, useWallets } from "@/hooks/use-wallets"
+import { useWallets } from "@/hooks/use-wallets"
 
 export function WalletSidebarSync() {
-  const { walletReadyState } = useWallets()
+  const { renegadeWallet, arbitrumWallet } = useWallets()
   const { setOpen } = useSidebar()
   React.useEffect(() => {
-    if (walletReadyState !== WalletReadyState.READY) {
+    if (!renegadeWallet.isConnected && !arbitrumWallet.isConnected) {
       setOpen(false)
     }
-  }, [walletReadyState, setOpen])
+  }, [arbitrumWallet.isConnected, renegadeWallet.isConnected, setOpen])
   return null
 }

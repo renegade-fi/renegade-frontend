@@ -305,7 +305,7 @@ export function SignInDialog({
             {buttonText}
           </Button>
           <div className="mb-6 space-y-6">
-            <div className="space-y-3 border p-4 font-mono">
+            <div className="space-y-3 border p-4">
               {getSteps(steps, currentStep)}
             </div>
             <ErrorWarning steps={steps} />

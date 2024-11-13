@@ -3,13 +3,11 @@ import { PanelRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 
-import { WalletReadyState, useWallets } from "@/hooks/use-wallets"
+import { useWallets } from "@/hooks/use-wallets"
 
 export function SidebarTrigger() {
   const { toggleSidebar } = useSidebar()
-  const { arbitrumWallet, walletReadyState } = useWallets()
-
-  if (walletReadyState !== WalletReadyState.READY) return null
+  const { arbitrumWallet } = useWallets()
 
   return (
     <Button
