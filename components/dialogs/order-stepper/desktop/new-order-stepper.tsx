@@ -48,22 +48,21 @@ export function NewOrderStepperInner({
             )}
             {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
           </div>
-          <div
-            className={cn(
-              "relative hidden max-h-fit whitespace-nowrap border bg-background lg:block",
-              {
-                hidden: step !== Step.DEFAULT,
-              },
-            )}
-          >
-            <div className="space-y-6 p-6">
-              <IOISection
-                {...props}
-                allowExternalMatches={allowExternalMatches}
-                setAllowExternalMatches={setAllowExternalMatches}
-              />
+          {step === Step.DEFAULT && (
+            <div
+              className={cn(
+                "relative hidden max-h-fit whitespace-nowrap border bg-background lg:block",
+              )}
+            >
+              <div className="space-y-6 p-6">
+                <IOISection
+                  {...props}
+                  allowExternalMatches={allowExternalMatches}
+                  setAllowExternalMatches={setAllowExternalMatches}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
