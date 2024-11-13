@@ -18,6 +18,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
+import { HELP_CENTER_BASE_URL } from "@/lib/constants/articles"
+
 export function MobileNavSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
@@ -87,7 +89,7 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
             Stats
           </Link>
           <a
-            href="https://help.renegade.fi/hc/en-us"
+            href={HELP_CENTER_BASE_URL}
             rel="noreferrer"
             target="_blank"
           >

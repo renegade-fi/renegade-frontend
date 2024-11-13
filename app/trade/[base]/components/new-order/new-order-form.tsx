@@ -44,6 +44,7 @@ import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { usePriceQuery } from "@/hooks/use-price-query"
+import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
@@ -348,7 +349,7 @@ export function NewOrderForm({
                   variant="link"
                 >
                   <a
-                    href={`https://help.renegade.fi/hc/en-us/articles/32530574872211-How-does-Renegade-s-midpoint-peg-pricing-work`}
+                    href={HELP_CENTER_ARTICLES.MIDPOINT_PRICING.url}
                     rel="noreferrer"
                     target="_blank"
                   >

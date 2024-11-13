@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import {
   FEES_SECTION_FEES,
   FEES_SECTION_TOTAL_SAVINGS,
@@ -42,7 +43,7 @@ export function FeesSection({
               variant="link"
             >
               <a
-                href={`https://help.renegade.fi/hc/en-us/articles/32530643173651-What-are-the-fees`}
+                href={HELP_CENTER_ARTICLES.FEES.url}
                 rel="noreferrer"
                 target="_blank"
               >
@@ -66,7 +67,7 @@ export function FeesSection({
               variant="link"
             >
               <a
-                href={`https://help.renegade.fi/hc/en-us/articles/33044476688531-How-are-the-savings-versus-Binance-calculated`}
+                href={HELP_CENTER_ARTICLES.SAVINGS_VS_BINANCE.url}
                 rel="noreferrer"
                 target="_blank"
               >

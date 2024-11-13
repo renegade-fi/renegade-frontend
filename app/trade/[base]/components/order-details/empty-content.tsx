@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/responsive-tooltip"
 import { Separator } from "@/components/ui/separator"
 
+import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { formatNumber, formatOrderState } from "@/lib/format"
 
@@ -106,7 +107,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
             variant="link"
           >
             <a
-              href={`https://help.renegade.fi/hc/en-us/articles/32759851318931-Why-is-my-order-still-open`}
+              href={HELP_CENTER_ARTICLES.ORDER_FILLING.url}
               rel="noreferrer"
               target="_blank"
             >
