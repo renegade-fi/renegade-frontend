@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token, useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -44,6 +44,7 @@ import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { usePriceQuery } from "@/hooks/use-price-query"
+import { useWallets } from "@/hooks/use-wallets"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
@@ -83,7 +84,7 @@ export function NewOrderForm({
   const { data: maintenanceMode } = useMaintenanceMode()
 
   const isMaxOrders = useIsMaxOrders()
-  const status = useStatus()
+  const { walletReadyState } = useWallets()
   const defaultValues = {
     amount: "",
     base,
@@ -300,7 +301,7 @@ export function NewOrderForm({
           />
         </div>
 
-        {status === "in relayer" ? (
+        {walletReadyState === "READY" ? (
           <div className="hidden lg:block">
             <ResponsiveTooltip>
               <ResponsiveTooltipTrigger

@@ -2,7 +2,7 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { Star } from "lucide-react"
 import { useDebounceValue, useLocalStorage } from "usehooks-ts"
 import { fromHex } from "viem/utils"
@@ -128,7 +128,6 @@ function TokenList({
   onClose: () => void
   ticker: string
 }) {
-  const renegadeStatus = useStatus()
   const { data, status } = useBackOfQueueWallet({
     query: {
       select: (data) =>
@@ -182,7 +181,7 @@ function TokenList({
         processedTokens.map((token, index) => {
           const balance = data?.get(token.address)
           const formattedBalance =
-            status === "pending" || renegadeStatus !== "in relayer"
+            status === "pending"
               ? "--"
               : formatNumber(balance ?? BigInt(0), token.decimals, true)
           return (

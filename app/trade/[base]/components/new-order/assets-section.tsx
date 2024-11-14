@@ -1,4 +1,4 @@
-import { Token, useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/responsive-tooltip"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
+import { useWallets } from "@/hooks/use-wallets"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 
 export function AssetsSectionWithDepositButton({
@@ -64,8 +65,7 @@ export function AssetsSection({
 }) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker(quote)
-
-  const renegadeStatus = useStatus()
+  const { walletReadyState } = useWallets()
 
   const { data, status } = useBackOfQueueWallet({
     query: {
@@ -80,7 +80,7 @@ export function AssetsSection({
     },
   })
 
-  const isLoading = status === "pending" || renegadeStatus !== "in relayer"
+  const isLoading = status === "pending"
 
   const baseBalance = data?.[baseToken.address] ?? BigInt(0)
   const formattedBaseBalance = isLoading
@@ -115,11 +115,10 @@ export function AssetsSection({
           <TransferDialog mint={baseToken.address}>
             <Button
               className="text-md h-fit p-0 text-muted-foreground"
-              disabled={renegadeStatus !== "in relayer"}
+              disabled={walletReadyState !== "READY"}
               variant="link"
               onClick={(e) => {
-                if (renegadeStatus !== "in relayer" || disabled)
-                  e.preventDefault()
+                if (walletReadyState !== "READY" || disabled) e.preventDefault()
               }}
             >
               {base}
@@ -144,11 +143,10 @@ export function AssetsSection({
           <TransferDialog mint={quoteToken.address}>
             <Button
               className="text-md h-fit p-0 text-muted-foreground"
-              disabled={renegadeStatus !== "in relayer"}
+              disabled={walletReadyState !== "READY"}
               variant="link"
               onClick={(e) => {
-                if (renegadeStatus !== "in relayer" || disabled)
-                  e.preventDefault()
+                if (walletReadyState !== "READY" || disabled) e.preventDefault()
               }}
             >
               {quote}

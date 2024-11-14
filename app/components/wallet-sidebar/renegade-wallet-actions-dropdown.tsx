@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 
-import type { Wallet } from "@/hooks/use-wallets"
+import { useWallets, type Wallet } from "@/hooks/use-wallets"
 import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 
 interface RenegadeWalletActionsDropdownProps {
@@ -27,7 +27,6 @@ export function RenegadeWalletActionsDropdown({
   wallet,
 }: RenegadeWalletActionsDropdownProps) {
   const config = useConfig()
-  const status = useStatus()
   const { disconnect } = useDisconnect()
   const [rememberMe, setRememberMe] = useLocalStorage(
     STORAGE_REMEMBER_ME,
@@ -38,7 +37,7 @@ export function RenegadeWalletActionsDropdown({
   )
 
   const handleRefreshWallet = async () => {
-    if (status === "in relayer" && wallet.isConnected) {
+    if (wallet.isConnected) {
       await refreshWallet(config)
     }
   }

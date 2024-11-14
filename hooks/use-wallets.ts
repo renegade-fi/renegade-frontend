@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useStatus, useWalletId } from "@renegade-fi/react"
+import { useConfig, useWalletId } from "@renegade-fi/react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useAccount, useEnsName } from "wagmi"
 
@@ -32,8 +32,9 @@ export enum WalletReadyState {
 }
 
 export function useWallets() {
-  const renegadeStatus = useStatus()
-  const walletId = useWalletId()
+  // Wagmi
+  // Using address && connector because initialState loads these from cookies
+  // status is "reconnecting" usually, so avoid usign it on page load
   const { address, connector, status } = useAccount()
   const { publicKey, wallet, connected } = useWallet()
   const { data: ensName } = useEnsName({
@@ -41,21 +42,27 @@ export function useWallets() {
     config: mainnetConfig,
   })
 
-  const renegadeWallet: Wallet = walletId
-    ? {
-        name: "Renegade Wallet ID",
-        icon: "/glyph_light.png",
-        id: walletId,
-        label: truncateAddress(walletId),
-        isConnected: true,
-      }
-    : {
-        name: "Renegade Wallet ID",
-        icon: "/glyph_light.png",
-        id: null,
-        label: "Not Connected",
-        isConnected: false,
-      }
+  // Renegade
+  // Using config.state.seed && walletId because initialState loads these from cookies
+  const config = useConfig()
+  const walletId = useWalletId()
+
+  const renegadeWallet: Wallet =
+    config.state.seed && walletId
+      ? {
+          name: "Renegade Wallet ID",
+          icon: "/glyph_light.png",
+          id: walletId,
+          label: truncateAddress(walletId),
+          isConnected: true,
+        }
+      : {
+          name: "Renegade Wallet ID",
+          icon: "/glyph_light.png",
+          id: null,
+          label: "Not Connected",
+          isConnected: false,
+        }
 
   const arbitrumWallet: Wallet =
     address && connector
@@ -90,24 +97,26 @@ export function useWallets() {
           isConnected: false,
         }
 
-  const walletReadyState = React.useMemo((): WalletReadyState => {
+  // More specifically, wallet ready state on page load (may update after hydration)
+  const walletReadyState = React.useMemo(():
+    | "READY"
+    | "CONNECTING"
+    | "NOT_READY" => {
     switch (status) {
       case "connecting":
       case "reconnecting":
-        return renegadeStatus === "in relayer" && address && connector
-          ? WalletReadyState.READY
-          : WalletReadyState.CONNECTING
+        return config.state.seed && address && connector
+          ? "READY"
+          : "CONNECTING"
 
       case "connected":
-        return renegadeStatus === "in relayer" && address && connector
-          ? WalletReadyState.READY
-          : WalletReadyState.NOT_READY
+        return config.state.seed && address && connector ? "READY" : "NOT_READY"
 
       case "disconnected":
       default:
-        return WalletReadyState.NOT_READY
+        return "NOT_READY"
     }
-  }, [renegadeStatus, status, address, connector])
+  }, [address, config.state.seed, connector, status])
 
   return {
     renegadeWallet,

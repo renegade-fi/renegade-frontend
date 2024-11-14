@@ -64,7 +64,7 @@ export function Header({ defaultBase }: HeaderProps) {
           />
         </div>
         <div className="flex items-center gap-2">
-          {walletReadyState === WalletReadyState.READY ? (
+          {walletReadyState === "READY" ? (
             <>
               <TransferDialog>
                 <Button
@@ -148,7 +148,7 @@ export function Header({ defaultBase }: HeaderProps) {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end">
-          {walletReadyState === WalletReadyState.READY ? (
+          {walletReadyState === "READY" ? (
             <>
               <TransferDialog>
                 <Button
