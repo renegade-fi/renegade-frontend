@@ -1,6 +1,5 @@
 import React from "react"
 
-import { useStatus } from "@renegade-fi/react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -31,6 +30,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useWallets } from "@/hooks/use-wallets"
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -48,7 +49,7 @@ export function DataTable<TData, TValue>({
   showZeroOnChainBalance,
   showZeroRenegadeBalance,
 }: DataTableProps<TData, TValue>) {
-  const status = useStatus()
+  const { walletReadyState } = useWallets()
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   )
@@ -189,7 +190,8 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {status !== "in relayer" ? (
+            {/* row.length is always non-zero so check walletReadyState first */}
+            {walletReadyState !== "READY" ? (
               <TableEmptyState
                 colSpan={columns.length}
                 type="assets"

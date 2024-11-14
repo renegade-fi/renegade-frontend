@@ -1,4 +1,4 @@
-import { Token, useBackOfQueueWallet, useStatus } from "@renegade-fi/react"
+import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
 import {
@@ -18,7 +18,6 @@ export function DepositWarning({
   className?: string
   ticker: string
 }) {
-  const status = useStatus()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { data: hasBalances } = useBackOfQueueWallet({
     query: {
