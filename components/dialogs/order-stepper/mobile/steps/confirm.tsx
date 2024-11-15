@@ -6,7 +6,6 @@ import { toast } from "sonner"
 
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { ConfirmOrderDisplay } from "@/components/dialogs/order-stepper/desktop/steps/default"
-import { IOISection } from "@/components/dialogs/order-stepper/ioi-section"
 import { useStepper } from "@/components/dialogs/order-stepper/mobile/new-order-stepper"
 import { Button } from "@/components/ui/button"
 import {
@@ -65,14 +64,11 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
         <DialogTitle className="font-extended">Review Order</DialogTitle>
       </DialogHeader>
       <div className="flex flex-col gap-6 overflow-y-auto p-6">
-        <ConfirmOrderDisplay {...props} />
-        <div className="space-y-6 border p-6">
-          <IOISection
-            {...props}
-            allowExternalMatches={allowExternalMatches}
-            setAllowExternalMatches={setAllowExternalMatches}
-          />
-        </div>
+        <ConfirmOrderDisplay
+          {...props}
+          allowExternalMatches={allowExternalMatches}
+          setAllowExternalMatches={setAllowExternalMatches}
+        />
       </div>
       <DialogFooter className="mt-auto flex-row p-6 pt-0">
         <DialogClose asChild>

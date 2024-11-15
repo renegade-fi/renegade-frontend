@@ -4,10 +4,7 @@ import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-o
 
 import { DefaultStep } from "@/components/dialogs/order-stepper/desktop/steps/default"
 import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/desktop/steps/success-without-savings"
-import { IOISection } from "@/components/dialogs/order-stepper/ioi-section"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-
-import { cn } from "@/lib/utils"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void
@@ -48,21 +45,6 @@ export function NewOrderStepperInner({
             )}
             {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
           </div>
-          {step === Step.DEFAULT && (
-            <div
-              className={cn(
-                "relative hidden max-h-fit whitespace-nowrap border bg-background lg:block",
-              )}
-            >
-              <div className="space-y-6 p-6">
-                <IOISection
-                  {...props}
-                  allowExternalMatches={allowExternalMatches}
-                  setAllowExternalMatches={setAllowExternalMatches}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>
