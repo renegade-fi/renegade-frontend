@@ -14,7 +14,7 @@ import {
   NewOrderConfirmationProps,
   useStepper,
 } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
-import { IOISection } from "@/components/dialogs/order-stepper/ioi-section"
+import { ExternalMatchesSection } from "@/components/dialogs/order-stepper/external-matches-section"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 import {
@@ -95,14 +95,11 @@ export function DefaultStep(
       </DialogHeader>
       <ScrollArea className="max-h-[70vh]">
         <div className="space-y-6 p-6">
-          <ConfirmOrderDisplay {...props} />
-          <div className="space-y-6 border p-6 lg:hidden">
-            <IOISection
-              {...props}
-              allowExternalMatches={props.allowExternalMatches}
-              setAllowExternalMatches={props.setAllowExternalMatches}
-            />
-          </div>
+          <ConfirmOrderDisplay
+            {...props}
+            allowExternalMatches={props.allowExternalMatches}
+            setAllowExternalMatches={props.setAllowExternalMatches}
+          />
         </div>
       </ScrollArea>
       <DialogFooter>
@@ -126,16 +123,15 @@ export function DefaultStep(
   )
 }
 
-export function ConfirmOrderDisplay({
-  base,
-  isSell,
-  amount,
-  onSuccess,
-  ...fees
-}: NewOrderConfirmationProps) {
+export function ConfirmOrderDisplay(
+  props: NewOrderConfirmationProps & {
+    allowExternalMatches: boolean
+    setAllowExternalMatches: (allowExternalMatches: boolean) => void
+  },
+) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const token = Token.findByTicker(base)
-  const parsedAmount = safeParseUnits(amount, token.decimals)
+  const token = Token.findByTicker(props.base)
+  const parsedAmount = safeParseUnits(props.amount, token.decimals)
   const formattedAmount = formatNumber(
     parsedAmount instanceof Error ? BigInt(0) : parsedAmount,
     token.decimals,
@@ -144,16 +140,20 @@ export function ConfirmOrderDisplay({
   return (
     <>
       <div className="space-y-3">
-        <div className="text-muted-foreground">{isSell ? "Sell" : "Buy"}</div>
+        <div className="text-muted-foreground">
+          {props.isSell ? "Sell" : "Buy"}
+        </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">
-            {formattedAmount} {base}
+            {formattedAmount} {props.base}
           </div>
-          <TokenIcon ticker={base} />
+          <TokenIcon ticker={props.base} />
         </div>
       </div>
       <div className="space-y-3">
-        <div className="text-muted-foreground">{isSell ? "For" : "With"}</div>
+        <div className="text-muted-foreground">
+          {props.isSell ? "For" : "With"}
+        </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">USDC</div>
           <TokenIcon ticker="USDC" />
@@ -191,15 +191,19 @@ export function ConfirmOrderDisplay({
           </ResponsiveTooltip>
           <div>$0.00</div>
         </div>
-        <FeesSection
-          amount={amount}
-          {...fees}
+        <FeesSection {...props} />
+      </div>
+      <div>
+        <ExternalMatchesSection
+          {...props}
+          allowExternalMatches={props.allowExternalMatches}
+          setAllowExternalMatches={props.setAllowExternalMatches}
         />
       </div>
       <NoBalanceSlotWarning
         className="text-sm text-orange-400"
-        isSell={isSell}
-        ticker={base}
+        isSell={props.isSell}
+        ticker={props.base}
       />
       <InsufficientWarning
         richColors
@@ -207,7 +211,7 @@ export function ConfirmOrderDisplay({
         baseMint={token.address}
         className="text-sm text-orange-400"
         quoteMint={Token.findByTicker("USDC").address}
-        side={isSell ? Side.SELL : Side.BUY}
+        side={props.isSell ? Side.SELL : Side.BUY}
       />
     </>
   )
