@@ -15,6 +15,7 @@ import { InvalidateQueries } from "@/app/components/invalidate-queries"
 import { OrderToaster } from "@/app/components/order-toaster"
 import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
+import { TrackLastVisit } from "@/app/components/track-last-visit"
 import { WalletSidebar } from "@/app/components/wallet-sidebar"
 import { WalletSidebarSync } from "@/app/components/wallet-sidebar-sync"
 import { Zendesk } from "@/app/components/zendesk"
@@ -114,6 +115,7 @@ export default async function RootLayout({
             <SolanaProvider>
               <WagmiProvider cookieString={cookieString}>
                 <SidebarProvider defaultOpen={defaultOpen}>
+                  <TrackLastVisit />
                   <WalletSidebarSync />
                   <TailwindIndicator />
                   <TooltipProvider

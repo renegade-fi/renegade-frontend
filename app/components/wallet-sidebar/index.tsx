@@ -5,9 +5,10 @@ import * as React from "react"
 import { Smartphone } from "lucide-react"
 
 import { ArbitrumWalletActionsDropdown } from "@/app/components/wallet-sidebar/arbitrum-wallet-actions-dropdown"
-import { AssetsMenu } from "@/app/components/wallet-sidebar/assets-menu"
+import { AssetsMenuItem } from "@/app/components/wallet-sidebar/assets-menu-item"
 import { ConnectWalletMenuItem } from "@/app/components/wallet-sidebar/connect-wallet-menu-item"
 import { PWADialog } from "@/app/components/wallet-sidebar/pwa-dialog"
+import { RecentFillsMenuItem } from "@/app/components/wallet-sidebar/recent-fills-menu-item"
 import { RenegadeWalletActionsDropdown } from "@/app/components/wallet-sidebar/renegade-wallet-actions-dropdown"
 import { SolanaWalletActionsDropdown } from "@/app/components/wallet-sidebar/solana-wallet-actions-dropdown"
 import { ConnectContent } from "@/app/components/wallet-sidebar/solana/connect-content"
@@ -81,9 +82,10 @@ export function WalletSidebar({
         </SidebarHeader>
         <SidebarContent className="border-b">
           <SidebarGroup>
-            <SidebarGroupLabel>Renegade</SidebarGroupLabel>
+            {/* <SidebarGroupLabel>Renegade</SidebarGroupLabel> */}
             <SidebarMenu>
-              <AssetsMenu />
+              <AssetsMenuItem />
+              <RecentFillsMenuItem />
             </SidebarMenu>
           </SidebarGroup>
           <SidebarGroup className="mt-auto">
