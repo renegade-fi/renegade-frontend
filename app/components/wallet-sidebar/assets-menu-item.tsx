@@ -21,9 +21,8 @@ import {
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { formatCurrency, formatCurrencyFromString } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { cn } from "@/lib/utils"
 
-export function AssetsMenu() {
+export function AssetsMenuItem() {
   const tokenData = useAssetsTableData({
     mints: DISPLAY_TOKENS().map((token) => token.address),
   })
@@ -42,7 +41,7 @@ export function AssetsMenu() {
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip="Assets">
-            <PieChart />
+            {/* <PieChart /> */}
             Assets
             <span className="ml-auto">
               {formatCurrency(totalRenegadeBalanceUsd)}
