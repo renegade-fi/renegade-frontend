@@ -23,7 +23,6 @@ export function ExternalMatchesSection(
   return (
     <>
       <HoverCard
-        open
         closeDelay={0}
         openDelay={0}
       >
@@ -72,31 +71,29 @@ export function ExternalMatchesSection(
           className="space-y-2 rounded-none p-0 text-sm"
           side="right"
         >
-          <>
-            <div className="grid h-20 place-items-center p-3">
-              <AnimatedProgress />
+          <div className="grid h-20 place-items-center p-3">
+            <AnimatedProgress />
+          </div>
+          <Separator />
+          <div className="space-y-2 p-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-lg font-semibold text-primary">
+              <Zap className="h-5 w-5" />
+              Get faster fills
             </div>
-            <Separator />
-            <div className="space-y-2 p-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2 text-lg font-semibold text-primary">
-                <Zap className="h-5 w-5" />
-                Get faster fills
-              </div>
-              <div className="">
-                {`Enabling external matches exposes your order to more potential counterparties, increasing the chances of a faster fill.`}
-              </div>
-              <div className="">
-                {`While the full details of your order remain private, the specifics of each executed match—such as the trading pair, side, and match size—become publicly visible on-chain.`}
-              </div>
-              <Button
-                className="p-0"
-                variant="link"
-              >
-                Learn more
-                <ExternalLink className="ml-1 size-3" />
-              </Button>
+            <div className="">
+              {`Enabling external matches exposes your order to more potential counterparties, increasing the chances of a faster fill.`}
             </div>
-          </>
+            <div className="">
+              {`While the full details of your order remain private, the specifics of each executed match—such as the trading pair, side, and match size—become publicly visible on-chain.`}
+            </div>
+            <Button
+              className="p-0"
+              variant="link"
+            >
+              Learn more
+              <ExternalLink className="ml-1 size-3" />
+            </Button>
+          </div>
         </HoverCardContent>
       </HoverCard>
     </>
