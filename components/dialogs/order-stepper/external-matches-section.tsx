@@ -1,8 +1,7 @@
-import { ExternalLink, Eye, Info, Lock, Zap } from "lucide-react"
+import { ExternalLink, Info, Zap } from "lucide-react"
 
 import { AnimatedProgress } from "@/components/animated-progress"
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
-import { IconText } from "@/components/icon-text"
 import { Button } from "@/components/ui/button"
 import {
   HoverCard,
@@ -84,25 +83,10 @@ export function ExternalMatchesSection(
                 Get faster fills
               </div>
               <div className="">
-                {`Enabling external matches exposes your order to more potential counterparties, increasing the chances of a `}
-                <IconText
-                  icon={Zap}
-                  word="faster"
-                />
-                {` fill.`}
+                {`Enabling external matches exposes your order to more potential counterparties, increasing the chances of a faster fill.`}
               </div>
               <div className="">
-                {`While the full details of your order remain `}
-                <IconText
-                  icon={Lock}
-                  word="private"
-                />
-                {` , the specifics of each executed match—such as the trading pair, side, and match size—become publicly `}
-                <IconText
-                  icon={Eye}
-                  word="visible"
-                />
-                {` on-chain.`}
+                {`While the full details of your order remain private, the specifics of each executed match—such as the trading pair, side, and match size—become publicly visible on-chain.`}
               </div>
               <Button
                 className="p-0"
