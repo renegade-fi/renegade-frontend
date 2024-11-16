@@ -1,11 +1,9 @@
 import React from "react"
 
 import { Token } from "@renegade-fi/react"
-import { useQueryClient } from "@tanstack/react-query"
 import { ChevronRight } from "lucide-react"
 import { formatUnits } from "viem"
 
-import { useViewedFills } from "@/app/components/wallet-sidebar/hooks/use-viewed-fills"
 import { OrderDetailsSheet } from "@/app/trade/[base]/components/order-details/order-details-sheet"
 
 import {
@@ -20,18 +18,21 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { formatCurrencyFromString } from "@/lib/format"
-import { createPriceQueryKey } from "@/lib/query"
+import { formatCurrencyFromString, formatRelativeTimestamp } from "@/lib/format"
+import { decimalNormalizePrice } from "@/lib/utils"
 
-import { useFilteredFills } from "./hooks/use-filtered-fills"
+import { useRecentUnviewedFills } from "./hooks/use-unviewed-fills"
 import { generateFillIdentifier } from "./hooks/use-viewed-fills"
 
 export function RecentFillsMenuItem() {
-  const { filteredOrders, totalUnviewedFills } = useFilteredFills()
-  const { markFillAsViewed } = useViewedFills()
-  const queryClient = useQueryClient()
+  const { filteredOrders, totalUnviewedFills } = useRecentUnviewedFills()
 
   if (!totalUnviewedFills) {
     return null
@@ -54,40 +55,46 @@ export function RecentFillsMenuItem() {
           <SidebarMenuSub>
             {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
-                {order.fills.map((fill, index) => {
+                {order.fills.map((fill) => {
                   const isBuy = order.data.side === "Buy"
                   const token = Token.findByAddress(order.data.base_mint)
+                  const quoteToken = Token.findByAddress(order.data.quote_mint)
                   const fillId = generateFillIdentifier(
                     order.id,
                     fill.price.timestamp,
                   )
 
-                  const priceKey = createPriceQueryKey(
-                    "binance",
-                    order.data.base_mint,
+                  const value = amountTimesPrice(
+                    fill.amount,
+                    decimalNormalizePrice(
+                      fill.price.price,
+                      token.decimals,
+                      quoteToken.decimals,
+                    ),
                   )
-                  const price = queryClient.getQueryData<number>(priceKey) ?? 0
-
-                  const usdValue = amountTimesPrice(fill.amount, price)
-                  const formattedUsdValue = formatCurrencyFromString(
-                    formatUnits(usdValue, token.decimals),
-                  )
+                  const formattedValue = formatUnits(value, token.decimals)
+                  const formattedUsdValue =
+                    formatCurrencyFromString(formattedValue)
 
                   return (
                     <SidebarMenuSubItem key={fillId}>
-                      <OrderDetailsSheet
-                        key={fillId}
-                        order={order}
-                        onOpenChange={(isOpen) => {
-                          if (!isOpen) {
-                            markFillAsViewed(fillId)
-                          }
-                        }}
-                      >
-                        <SidebarMenuSubButton className="cursor-pointer">
-                          {`${isBuy ? "Bought" : "Sold"} ${formattedUsdValue} of ${token?.ticker}`}
-                        </SidebarMenuSubButton>
-                      </OrderDetailsSheet>
+                      <Tooltip>
+                        <OrderDetailsSheet
+                          key={fillId}
+                          order={order}
+                        >
+                          <TooltipTrigger asChild>
+                            <SidebarMenuSubButton className="cursor-default">
+                              {`${isBuy ? "Bought" : "Sold"} ${formattedUsdValue} of ${token?.ticker}`}
+                            </SidebarMenuSubButton>
+                          </TooltipTrigger>
+                        </OrderDetailsSheet>
+                        <TooltipContent>
+                          {formatRelativeTimestamp(
+                            Number(fill.price.timestamp),
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
                     </SidebarMenuSubItem>
                   )
                 })}
