@@ -82,7 +82,6 @@ export function WalletSidebar({
         </SidebarHeader>
         <SidebarContent className="border-b">
           <SidebarGroup>
-            {/* <SidebarGroupLabel>Renegade</SidebarGroupLabel> */}
             <SidebarMenu>
               <AssetsMenuItem />
               <RecentFillsMenuItem />

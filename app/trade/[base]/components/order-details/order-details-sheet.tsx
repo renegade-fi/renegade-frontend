@@ -27,21 +27,17 @@ import {
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 
-interface OrderDetailsSheetProps {
-  order: OrderMetadata
-  children: React.ReactNode
-  onOpenChange?: (open: boolean) => void
-}
-
 export function OrderDetailsSheet({
   children,
   order,
-  onOpenChange,
-}: OrderDetailsSheetProps) {
+}: {
+  children: React.ReactNode
+  order: OrderMetadata
+}) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   if (isDesktop) {
     return (
-      <Sheet onOpenChange={onOpenChange}>
+      <Sheet>
         <SheetTrigger asChild>{children}</SheetTrigger>
         <SheetContent
           hideCloseButton

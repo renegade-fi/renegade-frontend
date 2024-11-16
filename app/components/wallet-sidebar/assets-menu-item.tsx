@@ -41,7 +41,6 @@ export function AssetsMenuItem() {
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip="Assets">
-            {/* <PieChart /> */}
             Assets
             <span className="ml-auto">
               {formatCurrency(totalRenegadeBalanceUsd)}

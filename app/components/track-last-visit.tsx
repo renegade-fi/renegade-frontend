@@ -1,28 +1,28 @@
 "use client"
 
-import { useEffect } from "react"
+import React from "react"
 
 import { useLocalStorage } from "usehooks-ts"
 
 import { STORAGE_LAST_VISIT } from "@/lib/constants/storage"
 
 export function useLastVisit() {
-  const [lastVisit, setLastVisit] = useLocalStorage<number>(
+  const [lastVisitTs, setLastVisitTs] = useLocalStorage<number>(
     STORAGE_LAST_VISIT,
     Date.now(),
     {
       initializeWithValue: false,
     },
   )
-  return { lastVisit, setLastVisit }
+  return { lastVisitTs, setLastVisitTs }
 }
 
 export function TrackLastVisit() {
-  const { setLastVisit } = useLastVisit()
+  const { setLastVisitTs } = useLastVisit()
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleBeforeUnload = () => {
-      //   setLastVisit(Date.now())
+      setLastVisitTs(Date.now())
     }
 
     window.addEventListener("beforeunload", handleBeforeUnload)
@@ -30,7 +30,7 @@ export function TrackLastVisit() {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
-  }, [setLastVisit])
+  }, [setLastVisitTs])
 
   return null
 }
