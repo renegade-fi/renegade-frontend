@@ -1,5 +1,6 @@
-import { LucideIcon } from "lucide-react"
 import { ReactNode } from "react"
+
+import { LucideIcon } from "lucide-react"
 
 interface IconTextProps {
   className?: string
@@ -17,13 +18,11 @@ export function IconText({
   word,
 }: IconTextProps) {
   const iconElement = (
-    <Icon 
-      className={`relative top-[0.3em]  inline-block ${iconClassName}`} 
-    />
+    <Icon className={`relative top-[0.3em] inline-block ${iconClassName}`} />
   )
-  
+
   return (
-    <span className={`inline-flex hover:text-blue items-baseline ${className}`}>
+    <span className={`inline-flex items-baseline hover:text-blue ${className}`}>
       {iconPosition === "left" ? (
         <>
           {iconElement}
@@ -37,4 +36,4 @@ export function IconText({
       )}
     </span>
   )
-} 
+}
