@@ -2,14 +2,15 @@ import React from "react"
 
 import { OrderMetadata, useOrderHistory } from "@renegade-fi/react"
 
-import { useLastVisit } from "@/app/components/track-last-visit"
 import {
-  useViewedFills,
   generateFillIdentifier,
+  useViewedFills,
 } from "@/app/components/wallet-sidebar/hooks/use-viewed-fills"
 
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+
 export function useRecentUnviewedFills() {
-  const { lastVisitTs } = useLastVisit()
+  const { lastVisitTs } = useClientStore((state) => state)
   const lastVisitBigInt = React.useMemo(
     () => (lastVisitTs ? BigInt(lastVisitTs) : null),
     [lastVisitTs],

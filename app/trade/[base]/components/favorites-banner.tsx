@@ -2,19 +2,15 @@ import Link from "next/link"
 
 import { Token } from "@renegade-fi/react"
 import { Star } from "lucide-react"
-import { useReadLocalStorage } from "usehooks-ts"
 import { isAddress } from "viem/utils"
 
 import { AnimatedPrice } from "@/components/animated-price"
-import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
-import { STORAGE_FAVORITES } from "@/lib/constants/storage"
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export function FavoritesBanner() {
-  const favorites = useReadLocalStorage<string[]>(STORAGE_FAVORITES, {
-    initializeWithValue: false,
-  })
+  const { favorites } = useClientStore((state) => state)
   if (!favorites || !favorites.length) return null
   return (
     <div className="hidden min-h-marquee overflow-hidden lg:block">

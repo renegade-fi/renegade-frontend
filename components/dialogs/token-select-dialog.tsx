@@ -4,7 +4,7 @@ import Link from "next/link"
 
 import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { Star } from "lucide-react"
-import { useDebounceValue, useLocalStorage } from "usehooks-ts"
+import { useDebounceValue } from "usehooks-ts"
 import { fromHex } from "viem/utils"
 
 import { TokenIcon } from "@/components/token-icon"
@@ -23,9 +23,9 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { STORAGE_FAVORITES } from "@/lib/constants/storage"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export function TokenSelectDialog({
   children,
@@ -140,11 +140,7 @@ function TokenList({
     },
   })
 
-  const [favorites, setFavorites] = useLocalStorage<string[]>(
-    STORAGE_FAVORITES,
-    [],
-    { initializeWithValue: false },
-  )
+  const { favorites, setFavorites } = useClientStore((state) => state)
 
   const processedTokens = React.useMemo(() => {
     return DISPLAY_TOKENS({
@@ -212,14 +208,13 @@ function TokenList({
                 size="icon"
                 variant="ghost"
                 onClick={() => {
-                  setFavorites((favorites) => {
-                    if (favorites.includes(token.address)) {
-                      return favorites.filter(
-                        (address) => address !== token.address,
-                      )
-                    }
-                    return [...favorites, token.address]
-                  })
+                  if (favorites.includes(token.address)) {
+                    setFavorites(
+                      favorites.filter((address) => address !== token.address),
+                    )
+                  } else {
+                    setFavorites([...favorites, token.address])
+                  }
                 }}
               >
                 <Star

@@ -1,6 +1,4 @@
-import { useLocalStorage } from "usehooks-ts"
-
-import { STORAGE_VIEWED_FILLS } from "@/lib/constants/storage"
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export type FillIdentifier = string
 
@@ -12,10 +10,7 @@ export function generateFillIdentifier(
 }
 
 export function useViewedFills() {
-  const [viewedFills, setViewedFills] = useLocalStorage<FillIdentifier[]>(
-    STORAGE_VIEWED_FILLS,
-    [],
-  )
+  const { viewedFills, setViewedFills } = useClientStore((state) => state)
 
   const markFillAsViewed = (fillId: FillIdentifier) => {
     if (!viewedFills.includes(fillId)) {

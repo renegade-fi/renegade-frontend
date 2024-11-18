@@ -16,13 +16,9 @@ const ClientStoreContext = createContext<ClientStoreApi | undefined>(undefined)
 
 export interface ClientStoreProviderProps {
   children: ReactNode
-  cookieString?: string
 }
 
-export function ClientStoreProvider({
-  children,
-  cookieString,
-}: ClientStoreProviderProps) {
+export function ClientStoreProvider({ children }: ClientStoreProviderProps) {
   const storeRef = useRef<ClientStoreApi>(undefined)
 
   if (!storeRef.current) {

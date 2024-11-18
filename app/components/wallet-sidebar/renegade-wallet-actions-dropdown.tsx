@@ -1,10 +1,9 @@
-import { useConfig, useStatus } from "@renegade-fi/react"
+import { useConfig } from "@renegade-fi/react"
 import {
   disconnect as disconnectRenegade,
   refreshWallet,
 } from "@renegade-fi/react/actions"
-import { Clipboard, RefreshCw, UserCheck, SquareX } from "lucide-react"
-import { useLocalStorage } from "usehooks-ts"
+import { Clipboard, RefreshCw, SquareX, UserCheck } from "lucide-react"
 import { useDisconnect } from "wagmi"
 
 import { Checkbox } from "@/components/ui/checkbox"
@@ -16,8 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 
-import { useWallets, type Wallet } from "@/hooks/use-wallets"
-import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
+import { type Wallet } from "@/hooks/use-wallets"
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 interface RenegadeWalletActionsDropdownProps {
   wallet: Wallet
@@ -28,13 +27,7 @@ export function RenegadeWalletActionsDropdown({
 }: RenegadeWalletActionsDropdownProps) {
   const config = useConfig()
   const { disconnect } = useDisconnect()
-  const [rememberMe, setRememberMe] = useLocalStorage(
-    STORAGE_REMEMBER_ME,
-    false,
-    {
-      initializeWithValue: false,
-    },
-  )
+  const { rememberMe, setRememberMe } = useClientStore((state) => state)
 
   const handleRefreshWallet = async () => {
     if (wallet.isConnected) {

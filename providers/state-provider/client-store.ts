@@ -1,4 +1,4 @@
-import { createJSONStorage, persist } from "zustand/middleware"
+import { persist } from "zustand/middleware"
 import { createStore } from "zustand/vanilla"
 
 import { STORAGE_CLIENT_STORE } from "@/lib/constants/storage"

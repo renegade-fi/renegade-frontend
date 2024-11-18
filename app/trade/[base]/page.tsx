@@ -22,7 +22,7 @@ export default async function Page({
 }) {
   const queryClient = new QueryClient()
 
-  const [base] = await Promise.all([params.then(({ base }) => base)])
+  const base = await params.then(({ base }) => base)
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <PageClient base={base} />
