@@ -30,6 +30,7 @@ import { isTestnet } from "@/lib/viem"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { SideProvider } from "@/providers/side-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
+import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 
@@ -111,46 +112,48 @@ export default async function RootLayout({
           attribute="class"
           defaultTheme="dark"
         >
-          <RenegadeProvider cookieString={cookieString}>
-            <SolanaProvider>
-              <WagmiProvider cookieString={cookieString}>
-                <SidebarProvider defaultOpen={defaultOpen}>
-                  <TrackLastVisit />
-                  <WalletSidebarSync />
-                  <TailwindIndicator />
-                  <TooltipProvider
-                    delayDuration={0}
-                    skipDelayDuration={0}
-                  >
-                    <SideProvider cookieString={cookieString}>
-                      <SidebarInset className="max-w-full">
-                        <Header defaultBase={defaultBase} />
-                        {children}
-                        <Footer />
-                      </SidebarInset>
-                    </SideProvider>
-                  </TooltipProvider>
-                  <Toaster
-                    className="pointer-events-auto"
-                    theme="light"
-                    toastOptions={{ duration: 5000 }}
-                    visibleToasts={MAX_ORDERS}
-                  />
-                  <InvalidateQueries />
-                  <OrderToaster />
-                  <TaskToaster />
-                  <ReactQueryDevtools
-                    buttonPosition="bottom-left"
-                    initialIsOpen={false}
-                  />
-                  <Faucet />
-                  <LazyDatadog />
-                  <ClearCookie />
-                  <WalletSidebar side="right" />
-                </SidebarProvider>
-              </WagmiProvider>
-            </SolanaProvider>
-          </RenegadeProvider>
+          <ServerStoreProvider cookieString={cookieString}>
+            <RenegadeProvider cookieString={cookieString}>
+              <SolanaProvider>
+                <WagmiProvider cookieString={cookieString}>
+                  <SidebarProvider defaultOpen={defaultOpen}>
+                    <TrackLastVisit />
+                    <WalletSidebarSync />
+                    <TailwindIndicator />
+                    <TooltipProvider
+                      delayDuration={0}
+                      skipDelayDuration={0}
+                    >
+                      <SideProvider cookieString={cookieString}>
+                        <SidebarInset className="max-w-full">
+                          <Header defaultBase={defaultBase} />
+                          {children}
+                          <Footer />
+                        </SidebarInset>
+                      </SideProvider>
+                    </TooltipProvider>
+                    <Toaster
+                      className="pointer-events-auto"
+                      theme="light"
+                      toastOptions={{ duration: 5000 }}
+                      visibleToasts={MAX_ORDERS}
+                    />
+                    <InvalidateQueries />
+                    <OrderToaster />
+                    <TaskToaster />
+                    <ReactQueryDevtools
+                      buttonPosition="bottom-left"
+                      initialIsOpen={false}
+                    />
+                    <Faucet />
+                    <LazyDatadog />
+                    <ClearCookie />
+                    <WalletSidebar side="right" />
+                  </SidebarProvider>
+                </WagmiProvider>
+              </SolanaProvider>
+            </RenegadeProvider>
+          </ServerStoreProvider>
         </ThemeProvider>
         <Analytics />
         <Zendesk />

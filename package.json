@@ -76,7 +76,8 @@
     "vaul": "0.9.1",
     "viem": "~2.15.1",
     "wagmi": "~2.12.11",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "5.29.2",
@@ -103,7 +104,6 @@
       "@types/react": "npm:types-react@19.0.0-rc.1",
       "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
       "react-is": "^19.0.0-beta-26f2496093-20240514"
-
     }
   }
 }
