@@ -28,6 +28,7 @@ import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
+import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider.tsx"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
@@ -110,44 +111,46 @@ export default async function RootLayout({
           defaultTheme="dark"
         >
           <ServerStoreProvider cookieString={cookieString}>
-            <RenegadeProvider cookieString={cookieString}>
-              <SolanaProvider>
-                <WagmiProvider cookieString={cookieString}>
-                  <SidebarProvider defaultOpen={defaultOpen}>
-                    <TrackLastVisit />
-                    <WalletSidebarSync />
-                    <TailwindIndicator />
-                    <TooltipProvider
-                      delayDuration={0}
-                      skipDelayDuration={0}
-                    >
-                      <SidebarInset className="max-w-full">
-                        <Header />
-                        {children}
-                        <Footer />
-                      </SidebarInset>
-                    </TooltipProvider>
-                    <Toaster
-                      className="pointer-events-auto"
-                      theme="light"
-                      toastOptions={{ duration: 5000 }}
-                      visibleToasts={MAX_ORDERS}
-                    />
-                    <InvalidateQueries />
-                    <OrderToaster />
-                    <TaskToaster />
-                    <ReactQueryDevtools
-                      buttonPosition="bottom-left"
-                      initialIsOpen={false}
-                    />
-                    <Faucet />
-                    <LazyDatadog />
-                    <ClearCookie />
-                    <WalletSidebar side="right" />
-                  </SidebarProvider>
-                </WagmiProvider>
-              </SolanaProvider>
-            </RenegadeProvider>
+            <ClientStoreProvider>
+              <RenegadeProvider cookieString={cookieString}>
+                <SolanaProvider>
+                  <WagmiProvider cookieString={cookieString}>
+                    <SidebarProvider defaultOpen={defaultOpen}>
+                      <TrackLastVisit />
+                      <WalletSidebarSync />
+                      <TailwindIndicator />
+                      <TooltipProvider
+                        delayDuration={0}
+                        skipDelayDuration={0}
+                      >
+                        <SidebarInset className="max-w-full">
+                          <Header />
+                          {children}
+                          <Footer />
+                        </SidebarInset>
+                      </TooltipProvider>
+                      <Toaster
+                        className="pointer-events-auto"
+                        theme="light"
+                        toastOptions={{ duration: 5000 }}
+                        visibleToasts={MAX_ORDERS}
+                      />
+                      <InvalidateQueries />
+                      <OrderToaster />
+                      <TaskToaster />
+                      <ReactQueryDevtools
+                        buttonPosition="bottom-left"
+                        initialIsOpen={false}
+                      />
+                      <Faucet />
+                      <LazyDatadog />
+                      <ClearCookie />
+                      <WalletSidebar side="right" />
+                    </SidebarProvider>
+                  </WagmiProvider>
+                </SolanaProvider>
+              </RenegadeProvider>
+            </ClientStoreProvider>
           </ServerStoreProvider>
         </ThemeProvider>
         <Analytics />
