@@ -2,27 +2,14 @@
 
 import React from "react"
 
-import { useLocalStorage } from "usehooks-ts"
-
-import { STORAGE_LAST_VISIT } from "@/lib/constants/storage"
-
-export function useLastVisit() {
-  const [lastVisitTs, setLastVisitTs] = useLocalStorage<number>(
-    STORAGE_LAST_VISIT,
-    Date.now(),
-    {
-      initializeWithValue: false,
-    },
-  )
-  return { lastVisitTs, setLastVisitTs }
-}
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export function TrackLastVisit() {
-  const { setLastVisitTs } = useLastVisit()
+  const { setLastVisitTs } = useClientStore((state) => state)
 
   React.useEffect(() => {
     const handleBeforeUnload = () => {
-      setLastVisitTs(Date.now())
+      setLastVisitTs(Date.now().toString())
     }
 
     window.addEventListener("beforeunload", handleBeforeUnload)

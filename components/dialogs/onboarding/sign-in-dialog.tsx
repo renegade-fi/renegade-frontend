@@ -12,7 +12,6 @@ import { MutationStatus, useMutation } from "@tanstack/react-query"
 import { useModal } from "connectkit"
 import { Check, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
-import { useLocalStorage } from "usehooks-ts"
 import { BaseError } from "viem"
 import {
   useChainId,
@@ -40,7 +39,6 @@ import {
 import { Label } from "@/components/ui/label"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
 import {
   CREATE_WALLET_START,
   CREATE_WALLET_SUCCESS,
@@ -50,6 +48,7 @@ import {
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { chain } from "@/lib/viem"
+import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export function SignInDialog({
   open,
@@ -261,7 +260,7 @@ export function SignInDialog({
               {getSteps(steps, currentStep)}
             </div>
             <ErrorWarning steps={steps} />
-            <SignInContent />
+            <RememberMe />
           </div>
           <DialogFooter>
             <Button
@@ -309,7 +308,7 @@ export function SignInDialog({
               {getSteps(steps, currentStep)}
             </div>
             <ErrorWarning steps={steps} />
-            <SignInContent />
+            <RememberMe />
           </div>
         </DialogFooter>
       </DialogContent>
@@ -329,14 +328,8 @@ function ErrorWarning({ steps }: { steps: Step[] }) {
   )
 }
 
-function SignInContent() {
-  const [rememberMe, setRememberMe] = useLocalStorage(
-    STORAGE_REMEMBER_ME,
-    false,
-    {
-      initializeWithValue: false,
-    },
-  )
+function RememberMe() {
+  const { rememberMe, setRememberMe } = useClientStore((state) => state)
 
   return (
     <div className="flex items-center space-x-2">
