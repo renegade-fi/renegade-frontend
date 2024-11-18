@@ -1,14 +1,11 @@
 "use client"
 
-import React from "react"
-
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { Menu } from "lucide-react"
 
-import { getBase } from "@/app/actions"
 import { ConnectWalletButton } from "@/app/components/connect-wallet-button"
 import { MobileNavSheet } from "@/app/components/mobile-nav-sheet"
 import { SidebarTrigger } from "@/app/components/wallet-sidebar/trigger"
@@ -22,25 +19,16 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 
-import { WalletReadyState, useWallets } from "@/hooks/use-wallets"
+import { useWallets } from "@/hooks/use-wallets"
 import { cn } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
-interface HeaderProps {
-  defaultBase: string
-}
-
-export function Header({ defaultBase }: HeaderProps) {
+export function Header() {
   const pathname = usePathname()
   const { walletReadyState, arbitrumWallet } = useWallets()
-  const [latestBase, setLatestBase] = React.useState(defaultBase)
-
-  React.useEffect(() => {
-    const getCurrentBase = async () => {
-      const base = await getBase()
-      setLatestBase(base)
-    }
-    getCurrentBase()
-  }, [pathname])
+  const {
+    order: { base },
+  } = useServerStore((state) => state)
 
   return (
     <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
@@ -118,7 +106,7 @@ export function Header({ defaultBase }: HeaderProps) {
               "flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground",
               pathname.startsWith("/trade") && "text-foreground",
             )}
-            href={`/trade/${latestBase}`}
+            href={`/trade/${base}`}
           >
             Trade
           </Link>

@@ -32,7 +32,7 @@ export function AmountShortcutButton({
   onSetAmount,
   percentage,
   isSell,
-  isUSDCDenominated,
+  isQuoteCurrency,
 }: AmountShortcutButtonProps) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker("USDC")
@@ -58,7 +58,7 @@ export function AmountShortcutButton({
     if (priceBigInt instanceof Error) return BigInt(0)
 
     if (isSell) {
-      if (isUSDCDenominated) {
+      if (isQuoteCurrency) {
         // Selling base token: calculate USDC equivalent of base balance
         const usdcValue =
           (baseBalance * priceBigInt) /
@@ -78,7 +78,7 @@ export function AmountShortcutButton({
           10 ** (baseToken.decimals + PRICE_DECIMALS - quoteToken.decimals),
         )
       const baseAmount = numerator / priceBigInt
-      if (isUSDCDenominated) {
+      if (isQuoteCurrency) {
         // Convert base amount back to USDC
         return quoteBalance
       } else {
@@ -90,7 +90,7 @@ export function AmountShortcutButton({
     baseToken.decimals,
     data,
     isSell,
-    isUSDCDenominated,
+    isQuoteCurrency,
     price,
     quoteToken.address,
     quoteToken.decimals,
@@ -105,7 +105,7 @@ export function AmountShortcutButton({
   const usdPrice = useUSDPrice(baseToken, shortcut)
 
   const formattedShortcut = React.useMemo(() => {
-    if (isUSDCDenominated && shortcut < MIN_FILL_SIZE) {
+    if (isQuoteCurrency && shortcut < MIN_FILL_SIZE) {
       return 0
     }
     const formattedUsdPrice = parseFloat(
@@ -114,18 +114,18 @@ export function AmountShortcutButton({
     const minFillSize = parseFloat(
       formatUnits(MIN_FILL_SIZE, quoteToken.decimals),
     )
-    if (!isUSDCDenominated && formattedUsdPrice < minFillSize) {
+    if (!isQuoteCurrency && formattedUsdPrice < minFillSize) {
       return 0
     }
     // Adjust by # of other token's decimals
     const value = formatUnits(
       shortcut,
-      isUSDCDenominated ? quoteToken.decimals : baseToken.decimals,
+      isQuoteCurrency ? quoteToken.decimals : baseToken.decimals,
     )
     return value
   }, [
     baseToken.decimals,
-    isUSDCDenominated,
+    isQuoteCurrency,
     quoteToken.decimals,
     shortcut,
     usdPrice,
@@ -133,7 +133,7 @@ export function AmountShortcutButton({
 
   const isDisabled = !formattedShortcut
 
-  let tooltip = `${formattedShortcut} ${isUSDCDenominated ? quoteToken.ticker : baseToken.ticker}`
+  let tooltip = `${formattedShortcut} ${isQuoteCurrency ? quoteToken.ticker : baseToken.ticker}`
 
   return (
     <Tooltip>

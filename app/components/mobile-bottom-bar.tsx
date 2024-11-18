@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"
 import { useWallets } from "@/hooks/use-wallets"
 
-export function MobileBottomBar({
-  base,
-  isUSDCDenominated,
-}: {
-  base: string
-  isUSDCDenominated?: boolean
-}) {
+export function MobileBottomBar({ base }: { base: string }) {
   const { walletReadyState } = useWallets()
   const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
   return (
@@ -20,10 +14,7 @@ export function MobileBottomBar({
       <div className="flex gap-2">
         {walletReadyState === "READY" ? (
           <>
-            <NewOrderStepper
-              base={base}
-              isUSDCDenominated={isUSDCDenominated}
-            >
+            <NewOrderStepper base={base}>
               <Button
                 className="font-extended"
                 variant="default"
