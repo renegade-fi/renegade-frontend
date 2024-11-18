@@ -16,7 +16,6 @@ import { Separator } from "@/components/ui/separator"
 
 export function DefaultStep(props: {
   base: string
-  isUSDCDenominated?: boolean
   onSubmit: (values: NewOrderConfirmationProps) => void
 }) {
   return (

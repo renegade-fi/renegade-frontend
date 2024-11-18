@@ -22,33 +22,19 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useOrderTableData } from "@/hooks/use-order-table-data"
-import { STORAGE_LAYOUT } from "@/lib/constants/storage"
-
-const DEFAULT_LAYOUT = [22, 78]
+import { defaultInitState } from "@/providers/state-provider/server-store"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart)
 
-export function PageClient({
-  defaultLayout = DEFAULT_LAYOUT,
-  base,
-  isUSDCDenominated,
-}: {
-  defaultLayout?: number[]
-  base: string
-  isUSDCDenominated?: boolean
-}) {
+export function PageClient({ base }: { base: string }) {
   const data = useOrderTableData()
+  const { setBase, panels, setPanels } = useServerStore((state) => state)
 
   React.useEffect(() => {
-    const updateBase = async () => {
-      await fetch("/api/cookie/set-base", {
-        method: "POST",
-        body: base.toUpperCase(),
-      })
-    }
-    updateBase()
-  }, [base])
+    setBase(base)
+  }, [base, setBase])
 
   return (
     <>
@@ -58,24 +44,23 @@ export function PageClient({
       <MobileAssetPriceAccordion base={base} />
       <ScrollArea className="flex-grow">
         <ResizablePanelGroup
-          autoSaveId={STORAGE_LAYOUT}
           direction="horizontal"
+          onLayout={(layout) => {
+            setPanels(layout)
+          }}
         >
           <ResizablePanel
             className="hidden lg:block"
-            defaultSize={defaultLayout[0]}
+            defaultSize={panels.layout[0]}
             maxSize={50}
-            minSize={DEFAULT_LAYOUT[0]}
+            minSize={defaultInitState.panels.layout[0]}
             order={1}
           >
-            <NewOrderPanel
-              base={base}
-              isUSDCDenominated={isUSDCDenominated}
-            />
+            <NewOrderPanel base={base} />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel
-            defaultSize={defaultLayout[1]}
+            defaultSize={panels.layout[1]}
             order={2}
           >
             <main>
@@ -99,10 +84,7 @@ export function PageClient({
         </ResizablePanelGroup>
       </ScrollArea>
       <FavoritesBanner />
-      <MobileBottomBar
-        base={base}
-        isUSDCDenominated={isUSDCDenominated}
-      />
+      <MobileBottomBar base={base} />
     </>
   )
 }

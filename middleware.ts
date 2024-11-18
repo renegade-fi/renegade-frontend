@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { STORAGE_BASE } from "@/lib/constants/storage"
+import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
+import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
 
 export function middleware(request: NextRequest) {
+  const cookieString = request.cookies.toString()
+  const serverState = cookieToInitialState(STORAGE_SERVER_STORE, cookieString)
+  const currentBase = serverState?.order.base || "WETH"
+
   // Redirect root and /trade paths
   if (
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname === "/trade"
   ) {
-    const currentBase = request.cookies.get(STORAGE_BASE)?.value || "WETH"
     return NextResponse.redirect(new URL(`/trade/${currentBase}`, request.url))
   }
 
@@ -17,7 +21,6 @@ export function middleware(request: NextRequest) {
   if (baseMatch) {
     const base = baseMatch[1]
     if (base === "USDC") {
-      const currentBase = request.cookies.get(STORAGE_BASE)?.value || "WETH"
       return NextResponse.redirect(
         new URL(`/trade/${currentBase}`, request.url),
       )

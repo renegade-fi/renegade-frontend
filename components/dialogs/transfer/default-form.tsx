@@ -74,7 +74,7 @@ import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
-import { useSide } from "@/providers/side-provider"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const catchError = (error: Error, message: string) => {
   console.error("Error in USDC form", error)
@@ -98,7 +98,7 @@ export function DefaultForm({
   const isTradePage = usePathname().includes("/trade")
   const queryClient = useQueryClient()
   const router = useRouter()
-  const { setSide } = useSide()
+  const { setSide } = useServerStore((state) => state)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
   const isDeposit = direction === ExternalTransferDirection.Deposit

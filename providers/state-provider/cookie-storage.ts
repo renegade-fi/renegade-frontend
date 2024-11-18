@@ -8,7 +8,6 @@ import {
 } from "@/providers/state-provider/cookie-actions"
 import { ServerState } from "@/providers/state-provider/server-store"
 
-// Create a storage object that uses server actions
 export const createCookieStorage = (): StateStorage => {
   return {
     getItem: async (name: string): Promise<string | null> => {
@@ -40,7 +39,7 @@ export const createCookieStorage = (): StateStorage => {
 
 export function cookieToInitialState(key: string, cookie?: string | null) {
   if (!cookie) return undefined
-  const parsed = parseCookie(cookie, key)
+  const parsed = parseCookie(decodeURIComponent(cookie), key)
   if (!parsed) return undefined
   return deserialize<{ state: ServerState }>(parsed).state
 }

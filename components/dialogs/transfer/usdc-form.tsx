@@ -80,7 +80,7 @@ import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { chain, getFormattedChainName, solana } from "@/lib/viem"
-import { useSide } from "@/providers/side-provider"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
@@ -107,7 +107,7 @@ export function USDCForm({
   const isMaxBalances = useIsMaxBalances(USDC_L2_TOKEN.address)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
-  const { setSide } = useSide()
+  const { setSide } = useServerStore((state) => state)
   const [network, setNetwork] = React.useState<number>(chain.id)
   const [steps, setSteps] = React.useState<TransferStep[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)

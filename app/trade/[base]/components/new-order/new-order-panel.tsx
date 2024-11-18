@@ -14,13 +14,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 
-export function NewOrderPanel({
-  base,
-  isUSDCDenominated,
-}: {
-  base: string
-  isUSDCDenominated?: boolean
-}) {
+export function NewOrderPanel({ base }: { base: string }) {
   const [open, setOpen] = React.useState(false)
   const [lockedFormValues, setLockedFormValues] =
     React.useState<NewOrderConfirmationProps | null>(null)
@@ -38,7 +32,6 @@ export function NewOrderPanel({
       <Separator />
       <NewOrderForm
         base={base}
-        isUSDCDenominated={isUSDCDenominated}
         onSubmit={handleSubmit}
       />
       {lockedFormValues && (
