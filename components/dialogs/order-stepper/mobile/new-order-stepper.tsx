@@ -11,7 +11,6 @@ export function NewOrderStepperInner({
   ...props
 }: React.PropsWithChildren<{
   base: string
-  isUSDCDenominated?: boolean
 }>) {
   const { step, onNext, setStep, setTaskId } = useStepper()
   const [lockedFormValues, setLockedFormValues] =
@@ -103,7 +102,6 @@ export function NewOrderStepper({
   ...props
 }: React.PropsWithChildren<{
   base: string
-  isUSDCDenominated?: boolean
 }>) {
   return (
     <StepperProvider>

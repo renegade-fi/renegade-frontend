@@ -6,7 +6,6 @@ import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { setIsUSDCDenominated } from "@/app/trade/[base]/actions"
 import { ConnectButton } from "@/app/trade/[base]/components/connect-button"
 import { AmountShortcutButton } from "@/app/trade/[base]/components/new-order/amount-shortcut-button"
 import { DepositWarning } from "@/app/trade/[base]/components/new-order/deposit-warning"
@@ -44,7 +43,7 @@ import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
-import { useSide } from "@/providers/side-provider"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const formSchema = z.object({
   amount: z
@@ -59,23 +58,27 @@ const formSchema = z.object({
     ),
   base: z.string(),
   isSell: z.boolean(),
-  isUSDCDenominated: z.boolean(),
+  isQuoteCurrency: z.boolean(),
 })
 
 export type NewOrderFormProps = z.infer<typeof formSchema>
 
 export function NewOrderForm({
   base,
-  isUSDCDenominated,
+  isQuoteCurrency,
   onSubmit,
   closeButton,
 }: {
   base: string
-  isUSDCDenominated?: boolean
+  isQuoteCurrency?: boolean
   onSubmit: (values: NewOrderConfirmationProps) => void
   closeButton?: React.ReactNode
 }) {
-  const { side, setSide } = useSide()
+  const {
+    order: { side, currency },
+    setSide,
+    setCurrency,
+  } = useServerStore((state) => state)
 
   const isMaxOrders = useIsMaxOrders()
   const { walletReadyState } = useWallets()
@@ -83,7 +86,7 @@ export function NewOrderForm({
     amount: "",
     base,
     isSell: side === Side.SELL,
-    isUSDCDenominated: isUSDCDenominated ?? false,
+    isQuoteCurrency: isQuoteCurrency ?? false,
   }
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -103,9 +106,9 @@ export function NewOrderForm({
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
-      if (name === "isUSDCDenominated") {
-        setIsUSDCDenominated(value.isUSDCDenominated ?? false)
-        if (value.isUSDCDenominated) {
+      if (name === "isQuoteCurrency") {
+        setCurrency(value.isQuoteCurrency ? "quote" : "base")
+        if (value.isQuoteCurrency) {
           if (Number(priceInUsd) > 0) {
             form.setValue("amount", priceInUsd)
           }
@@ -120,7 +123,7 @@ export function NewOrderForm({
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, price, priceInBase, priceInUsd, setSide])
+  }, [form, priceInBase, priceInUsd, setCurrency, setSide])
 
   React.useEffect(() => {
     const unbind = orderFormEvents.on("reset", () => {
@@ -158,7 +161,7 @@ export function NewOrderForm({
         onSubmit({
           ...values,
           ...fees,
-          amount: values.isUSDCDenominated ? priceInBase : values.amount,
+          amount: values.isQuoteCurrency ? priceInBase : values.amount,
         })
       }
     })
@@ -233,7 +236,7 @@ export function NewOrderForm({
             />
             <FormField
               control={form.control}
-              name="isUSDCDenominated"
+              name="isQuoteCurrency"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

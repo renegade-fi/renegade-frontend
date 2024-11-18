@@ -12,7 +12,7 @@ import { safeParseUnits } from "@/lib/format"
 export function useOrderValue({
   amount,
   base,
-  isUSDCDenominated,
+  isQuoteCurrency,
 }: NewOrderFormProps) {
   const baseToken = Token.findByTicker(base)
   const quoteToken = Token.findByTicker("USDC")
@@ -24,7 +24,7 @@ export function useOrderValue({
 
   const priceInUsd = React.useMemo(() => {
     if (!usdPerBase) return ""
-    if (isUSDCDenominated) {
+    if (isQuoteCurrency) {
       return amount
     }
     const parsedAmount = safeParseUnits(amount, baseToken.decimals)
@@ -35,11 +35,11 @@ export function useOrderValue({
       amountTimesPrice(parsedAmount, usdPerBase),
       baseToken.decimals,
     )
-  }, [amount, baseToken.decimals, isUSDCDenominated, usdPerBase])
+  }, [amount, baseToken.decimals, isQuoteCurrency, usdPerBase])
 
   const priceInBase = React.useMemo(() => {
     if (!basePerUsd) return ""
-    if (!isUSDCDenominated) {
+    if (!isQuoteCurrency) {
       return amount
     }
     const parsedAmount = safeParseUnits(amount, quoteToken.decimals)
@@ -50,7 +50,7 @@ export function useOrderValue({
       amountTimesPrice(parsedAmount, basePerUsd),
       quoteToken.decimals,
     )
-  }, [amount, basePerUsd, isUSDCDenominated, quoteToken.decimals])
+  }, [amount, basePerUsd, isQuoteCurrency, quoteToken.decimals])
 
   return {
     priceInUsd,

@@ -2,9 +2,8 @@
 
 import React from "react"
 
-import { deleteCookie } from "@/app/actions"
-
 import { STORAGE_STORE, STORAGE_REMEMBER_ME } from "@/lib/constants/storage"
+import { removeCookie } from "@/providers/state-provider/cookie-actions"
 
 export function ClearCookie() {
   React.useEffect(() => {
@@ -12,7 +11,7 @@ export function ClearCookie() {
       const rememberMe = localStorage.getItem(STORAGE_REMEMBER_ME)
       if (rememberMe !== "true") {
         document.cookie = `${STORAGE_STORE}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
-        deleteCookie(STORAGE_STORE)
+        removeCookie(STORAGE_STORE)
       }
     }
     window.addEventListener("beforeunload", handleBeforeUnload)

@@ -24,11 +24,9 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
-import { STORAGE_BASE } from "@/lib/constants/storage"
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
 import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
-import { SideProvider } from "@/providers/side-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
@@ -96,7 +94,6 @@ export default async function RootLayout({
 
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
-  const defaultBase = cookieStore.get(STORAGE_BASE)?.value || "WETH"
 
   return (
     <html
@@ -124,13 +121,11 @@ export default async function RootLayout({
                       delayDuration={0}
                       skipDelayDuration={0}
                     >
-                      <SideProvider cookieString={cookieString}>
-                        <SidebarInset className="max-w-full">
-                          <Header defaultBase={defaultBase} />
-                          {children}
-                          <Footer />
-                        </SidebarInset>
-                      </SideProvider>
+                      <SidebarInset className="max-w-full">
+                        <Header />
+                        {children}
+                        <Footer />
+                      </SidebarInset>
                     </TooltipProvider>
                     <Toaster
                       className="pointer-events-auto"

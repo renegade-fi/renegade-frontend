@@ -86,7 +86,7 @@ import {
 } from "@/lib/generated"
 import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-import { useSide } from "@/providers/side-provider"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
   arbitrumConfig,
   mainnetConfig,
@@ -203,7 +203,7 @@ export function WETHForm({
   const wrapRequired =
     parseEther(amount) > (l2Balance ?? BigInt(0)) &&
     parseEther(amount) <= combinedBalance
-  const { setSide } = useSide()
+  const { setSide } = useServerStore((state) => state)
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in WETH form", error)
