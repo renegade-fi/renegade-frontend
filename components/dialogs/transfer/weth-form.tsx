@@ -8,9 +8,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { formatEther, parseEther } from "viem"
+import { encodeFunctionData, formatEther, parseEther } from "viem"
 import { mainnet } from "viem/chains"
-import { useAccount, useBalance } from "wagmi"
+import { useAccount, useBalance, useEstimateGas } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -26,6 +26,7 @@ import {
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
 import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
+import { ReviewWrap } from "@/components/dialogs/transfer/review-wrap"
 import { Execution, Step, getSteps } from "@/components/dialogs/transfer/step"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
@@ -54,6 +55,7 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import {
   Tooltip,
@@ -83,6 +85,7 @@ import {
   useWriteErc20Approve,
   useWriteWethDeposit,
   useWriteWethWithdraw,
+  wethAbi,
 } from "@/lib/generated"
 import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
@@ -91,8 +94,6 @@ import {
   arbitrumConfig,
   mainnetConfig,
 } from "@/providers/wagmi-provider/config"
-
-import { WrapEthWarning } from "./wrap-eth-warning"
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 // Assume mint is WETH
@@ -219,6 +220,16 @@ export function WETHForm({
     mutation: {
       onError: (error) => catchError(error, "Couldn't wrap ETH"),
     },
+  })
+
+  const ethAmount = parseEther(amount) - (l2Balance ?? BigInt(0))
+  const { data: gasEstimate } = useEstimateGas({
+    to: WETH_L2_TOKEN.address,
+    value: ethAmount,
+    data: encodeFunctionData({
+      abi: wethAbi,
+      functionName: "deposit",
+    }),
   })
 
   const wrapConfirmationStatus = useTransactionConfirmation(
@@ -538,6 +549,36 @@ export function WETHForm({
   const maxValue = isDeposit
     ? formattedMaxAmountToWrap
     : formattedRenegadeBalance
+
+  const renderPrompts = () => {
+    if (!isDeposit) {
+      return null
+    }
+    if (wrapRequired) {
+      return (
+        <>
+          <Separator />
+          <ReviewWrap
+            gasEstimate={gasEstimate}
+            minEthToKeepUnwrapped={minEthToKeepUnwrapped}
+            remainingEthBalance={remainingEthBalance}
+            wrapAmount={
+              parseEther(form.getValues("amount")) - (l2Balance ?? BigInt(0))
+            }
+          />
+        </>
+      )
+    }
+
+    if (userHasWethL1Balance || userHasEthL1Balance) {
+      return (
+        <BridgePrompt
+          formattedL1Balance={formattedWethL1Balance}
+          token={WETH_L1_TOKEN}
+        />
+      )
+    }
+  }
 
   const hideMaxButton =
     !mint ||
@@ -859,19 +900,6 @@ export function WETHForm({
               </div>
 
               <div
-                className={cn({
-                  hidden:
-                    !isDeposit ||
-                    (!userHasWethL1Balance && !userHasEthL1Balance),
-                })}
-              >
-                <BridgePrompt
-                  formattedL1Balance={formattedWethL1Balance}
-                  token={WETH_L1_TOKEN}
-                />
-              </div>
-
-              <div
                 className={cn(
                   "items-center justify-between border p-3",
                   !isDeposit ? "flex" : "hidden",
@@ -904,12 +932,7 @@ export function WETHForm({
                   mint={mint}
                 />
               )}
-              {isDeposit && wrapRequired && (
-                <WrapEthWarning
-                  minEthToKeepUnwrapped={minEthToKeepUnwrapped}
-                  remainingEthBalance={remainingEthBalance}
-                />
-              )}
+              <div className="space-y-6">{renderPrompts()}</div>
             </div>
           </ScrollArea>
           {isDesktop ? (
