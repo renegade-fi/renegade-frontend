@@ -1,7 +1,7 @@
 import { Token } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
-import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
+import { useIsMaxBalances } from "@/components/dialogs/transfer/hooks/use-is-max-balances"
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,

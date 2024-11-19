@@ -12,7 +12,7 @@ import {
 import { motion } from "framer-motion"
 import { formatUnits } from "viem/utils"
 
-import { allowBridges } from "@/components/dialogs/transfer/use-bridge-quote"
+import { allowBridges } from "@/components/dialogs/transfer/hooks/use-bridge-quote"
 import {
   Tooltip,
   TooltipContent,

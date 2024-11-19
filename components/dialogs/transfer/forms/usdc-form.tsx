@@ -13,30 +13,30 @@ import { useAccount, useSendTransaction, useSwitchChain } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
-import { BridgePromptEthereum } from "@/components/dialogs/transfer/bridge-prompt-ethereum"
-import { BridgePromptSolana } from "@/components/dialogs/transfer/bridge-prompt-solana"
+import { BridgePromptEthereum } from "@/components/dialogs/transfer/components/bridge-prompt-ethereum"
+import { BridgePromptSolana } from "@/components/dialogs/transfer/components/bridge-prompt-solana"
+import { MaxBalancesWarning } from "@/components/dialogs/transfer/components/max-balances-warning"
+import { NetworkLabel } from "@/components/dialogs/transfer/components/network-display"
+import { NetworkSelect } from "@/components/dialogs/transfer/components/network-select"
+import { ReviewBridge } from "@/components/dialogs/transfer/components/review-bridge"
+import { ReviewSwap } from "@/components/dialogs/transfer/components/review-swap"
 import {
   ExternalTransferDirection,
-  checkAmount,
-  checkBalance,
+  isValidTransferAmount,
+  isBalanceSufficient,
   formSchema,
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useBridgeConfirmation } from "@/components/dialogs/transfer/hooks/use-bridge-confirmation"
+import { useBridgeQuote } from "@/components/dialogs/transfer/hooks/use-bridge-quote"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useIsMaxBalances } from "@/components/dialogs/transfer/hooks/use-is-max-balances"
 import { useSendSolanaTransaction } from "@/components/dialogs/transfer/hooks/use-send-solana-transaction"
 import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance"
 import { useSolanaTransactionConfirmation } from "@/components/dialogs/transfer/hooks/use-solana-transaction-confirmation"
-import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
-import { NetworkLabel } from "@/components/dialogs/transfer/network-display"
-import { NetworkSelect } from "@/components/dialogs/transfer/network-select"
-import { ReviewBridge } from "@/components/dialogs/transfer/review-bridge"
-import { ReviewSwap } from "@/components/dialogs/transfer/review-swap"
+import { useSwapQuote } from "@/components/dialogs/transfer/hooks/use-swap-quote"
+import { useSwapState } from "@/components/dialogs/transfer/hooks/use-swap-state"
 import { Execution, Step, getSteps } from "@/components/dialogs/transfer/step"
-import { useBridgeQuote } from "@/components/dialogs/transfer/use-bridge-quote"
-import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
-import { useSwapQuote } from "@/components/dialogs/transfer/use-swap-quote"
-import { useSwapState } from "@/components/dialogs/transfer/use-swap-state"
 import { NumberInput } from "@/components/number-input"
 import { TooltipButton } from "@/components/tooltip-button"
 import { Button } from "@/components/ui/button"
@@ -83,7 +83,7 @@ import { chain, getFormattedChainName, solana } from "@/lib/viem"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
-import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
+import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "../types"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
@@ -582,38 +582,39 @@ export function USDCForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const isAmountSufficient = checkAmount(
-      queryClient,
-      swapRequired
-        ? formatUnits(
-            BigInt(swapQuote?.estimate.toAmountMin ?? 0) +
-              (usdcL2Balance ?? BigInt(0)),
-            USDCE_L2_TOKEN.decimals,
-          )
-        : values.amount,
-      USDC_L2_TOKEN,
-    )
-
-    if (!isAmountSufficient) {
+    if (
+      !isValidTransferAmount(
+        queryClient,
+        swapRequired
+          ? formatUnits(
+              BigInt(swapQuote?.estimate.toAmountMin ?? 0) +
+                (usdcL2Balance ?? BigInt(0)),
+              USDCE_L2_TOKEN.decimals,
+            )
+          : values.amount,
+        USDC_L2_TOKEN,
+      )
+    ) {
       form.setError("amount", {
         message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
       })
       return
     }
     await checkChain()
-    const isBalanceSufficient = checkBalance({
-      amount: values.amount,
-      mint: values.mint,
-      balance:
-        network === mainnet.id
-          ? usdcL1Balance
-          : network === solana.id
-            ? usdcSolanaBalance
-            : swapRequired
-              ? combinedBalance
-              : usdcL2Balance,
-    })
-    if (!isBalanceSufficient) {
+    if (
+      !isBalanceSufficient({
+        amount: values.amount,
+        mint: values.mint,
+        balance:
+          network === mainnet.id
+            ? usdcL1Balance
+            : network === solana.id
+              ? usdcSolanaBalance
+              : swapRequired
+                ? combinedBalance
+                : usdcL2Balance,
+      })
+    ) {
       form.setError("amount", {
         message: `Insufficient ${getFormattedChainName(network)} balance`,
       })

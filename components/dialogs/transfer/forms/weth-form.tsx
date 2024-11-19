@@ -14,20 +14,20 @@ import { useAccount, useBalance } from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
-import { BridgePrompt } from "@/components/dialogs/transfer/bridge-prompt"
+import { BridgePrompt } from "@/components/dialogs/transfer/components/bridge-prompt"
+import { MaxBalancesWarning } from "@/components/dialogs/transfer/components/max-balances-warning"
 import {
   ExternalTransferDirection,
-  checkAmount,
-  checkBalance,
+  isValidTransferAmount,
+  isBalanceSufficient,
   constructArbitrumBridgeUrl,
   formSchema,
   isMaxBalance,
 } from "@/components/dialogs/transfer/helpers"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
+import { useIsMaxBalances } from "@/components/dialogs/transfer/hooks/use-is-max-balances"
 import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
-import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { Execution, Step, getSteps } from "@/components/dialogs/transfer/step"
-import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
 import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -92,7 +92,7 @@ import {
   mainnetConfig,
 } from "@/providers/wagmi-provider/config"
 
-import { WrapEthWarning } from "./wrap-eth-warning"
+import { WrapEthWarning } from "../components/wrap-eth-warning"
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 // Assume mint is WETH
@@ -346,26 +346,21 @@ export function WETHForm({
   )
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const isAmountSufficient = checkAmount(
-      queryClient,
-      values.amount,
-      WETH_L2_TOKEN,
-    )
-
     if (isDeposit) {
-      if (!isAmountSufficient) {
+      if (!isValidTransferAmount(queryClient, values.amount, WETH_L2_TOKEN)) {
         form.setError("amount", {
           message: `Amount must be greater than or equal to ${MIN_DEPOSIT_AMOUNT} USDC`,
         })
         return
       }
       await checkChain()
-      const isBalanceSufficient = checkBalance({
-        amount: values.amount,
-        mint: values.mint,
-        balance: wrapRequired ? combinedBalance : l2Balance,
-      })
-      if (!isBalanceSufficient) {
+      if (
+        !isBalanceSufficient({
+          amount: values.amount,
+          mint: values.mint,
+          balance: wrapRequired ? combinedBalance : l2Balance,
+        })
+      ) {
         form.setError("amount", {
           message: "Insufficient Arbitrum balance",
         })
@@ -410,7 +405,7 @@ export function WETHForm({
     } else {
       // User is allowed to withdraw whole balance even if amount is < MIN_TRANSFER_AMOUNT
       if (
-        !isAmountSufficient &&
+        !isValidTransferAmount(queryClient, values.amount, WETH_L2_TOKEN) &&
         !isMaxBalance({
           amount: values.amount,
           mint: values.mint,
@@ -422,12 +417,13 @@ export function WETHForm({
         })
         return
       }
-      const isBalanceSufficient = checkBalance({
-        amount: values.amount,
-        mint: values.mint,
-        balance: renegadeBalance,
-      })
-      if (!isBalanceSufficient) {
+      if (
+        !isBalanceSufficient({
+          amount: values.amount,
+          mint: values.mint,
+          balance: renegadeBalance,
+        })
+      ) {
         form.setError("amount", {
           message: "Insufficient Renegade balance",
         })

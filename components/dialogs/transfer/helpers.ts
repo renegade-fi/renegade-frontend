@@ -29,8 +29,19 @@ export const formSchema = z.object({
   }),
 })
 
-// Return true if the amount is greater than or equal to the minimum deposit amount (1 USDC)
-export function checkAmount(
+/**
+ * Checks if the transfer amount is above the spam prevention threshold.
+ *
+ * This function determines whether a given transfer amount meets or exceeds
+ * the minimum threshold set to prevent spam transactions (e.g., 1 USDC).
+ * It uses the current price of the token to perform the conversion.
+ *
+ * @param queryClient - The query client used to fetch the current token price.
+ * @param amount - The transfer amount as a string.
+ * @param baseToken - The token being transferred, which includes its address for price lookup.
+ * @returns true if amount is greater than or equal to the spam threshold, false otherwise
+ */
+export function isValidTransferAmount(
   queryClient: QueryClient,
   amount: string,
   baseToken?: Token,
@@ -48,9 +59,17 @@ export function checkAmount(
   return amountInUsd >= MIN_DEPOSIT_AMOUNT
 }
 
-// Returns true if the amount is less than or equal to the balance
-// Returns false if the amount is greater than the balance or if the amount is invalid
-export function checkBalance({
+/**
+ * Validates if user's balance is sufficient for a transfer.
+ *
+ * @param params - Transfer parameters
+ * @param params.amount - Transfer amount (string)
+ * @param params.mint - Token contract address
+ * @param params.balance - User's current balance (optional bigint)
+ * @returns false if balance is insufficient/undefined or if validation fails,
+ *          true if amount <= balance
+ */
+export function isBalanceSufficient({
   amount,
   mint,
   balance,
@@ -75,7 +94,14 @@ export function checkBalance({
   }
 }
 
-// Returns true iff the amount is equal to the balance
+/**
+ * Checks if the transfer amount equals the entire balance.
+ *
+ * @param amount - Transfer amount as string
+ * @param mint - Token contract address
+ * @param balance - User's current balance in bigint
+ * @returns true if amount matches formatted balance, false otherwise
+ */
 export function isMaxBalance({
   amount,
   mint,

@@ -5,7 +5,7 @@ import { UseFormReturn, useWatch } from "react-hook-form"
 import { parseUnits } from "viem"
 import { z } from "zod"
 
-import { formSchema } from "./helpers"
+import { formSchema } from "../helpers"
 
 interface SwapState {
   swapRequired: boolean

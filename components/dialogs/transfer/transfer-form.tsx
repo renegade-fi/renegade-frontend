@@ -5,13 +5,13 @@ import { Token } from "@renegade-fi/react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { DefaultForm } from "@/components/dialogs/transfer/default-form"
+import { DefaultForm } from "@/components/dialogs/transfer/forms/default-form"
+import { USDCForm } from "@/components/dialogs/transfer/forms/usdc-form"
+import { WETHForm } from "@/components/dialogs/transfer/forms/weth-form"
 import {
   ExternalTransferDirection,
   formSchema,
 } from "@/components/dialogs/transfer/helpers"
-import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
-import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
 import { isTestnet } from "@/lib/viem"
 
