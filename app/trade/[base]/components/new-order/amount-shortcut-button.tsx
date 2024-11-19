@@ -25,7 +25,7 @@ interface AmountShortcutButtonProps extends NewOrderFormProps {
   percentage: number
 }
 
-// Percentage should be <= 1
+// Percentage should be 25, 50, 100, etc.
 export function AmountShortcutButton({
   base,
   className,
@@ -157,7 +157,7 @@ export function AmountShortcutButton({
               }
             }}
           >
-            {percentage}%
+            {percentage === 100 ? "MAX" : `${percentage}%`}
           </Button>
         </span>
       </TooltipTrigger>
