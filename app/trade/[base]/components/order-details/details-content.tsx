@@ -135,8 +135,8 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         <div className="w-full flex-1 px-6 py-4 lg:w-auto lg:border-r">
           <div>{formatOrderState[order.state]}</div>
           <ResponsiveTooltip>
-            <ResponsiveTooltipTrigger>
-              <div>{title}</div>
+            <ResponsiveTooltipTrigger className="cursor-default">
+              {title}
             </ResponsiveTooltipTrigger>
             <ResponsiveTooltipContent>{titleLong}</ResponsiveTooltipContent>
           </ResponsiveTooltip>
@@ -146,8 +146,8 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         <div className="w-full flex-1 px-6 py-4 lg:w-auto">
           <div>Filled</div>
           <ResponsiveTooltip>
-            <ResponsiveTooltipTrigger>
-              <span className="flex justify-center">{filledLabel}</span>
+            <ResponsiveTooltipTrigger className="cursor-default">
+              {filledLabel}
             </ResponsiveTooltipTrigger>
             <ResponsiveTooltipContent>
               {filledLabelLong}

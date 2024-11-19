@@ -84,7 +84,7 @@ export function RecentFillsMenuItem() {
                           order={order}
                         >
                           <TooltipTrigger asChild>
-                            <SidebarMenuSubButton className="cursor-default">
+                            <SidebarMenuSubButton className="cursor-pointer">
                               {`${isBuy ? "Bought" : "Sold"} ${formattedUsdValue} of ${token?.ticker}`}
                             </SidebarMenuSubButton>
                           </TooltipTrigger>

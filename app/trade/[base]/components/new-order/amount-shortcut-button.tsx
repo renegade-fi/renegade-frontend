@@ -131,45 +131,37 @@ export function AmountShortcutButton({
     usdPrice,
   ])
 
-  const isDisabled = !formattedShortcut
+  const isDisabled = !formattedShortcut || parseFloat(formattedShortcut) === 0
 
   let tooltip = `${formattedShortcut} ${isQuoteCurrency ? quoteToken.ticker : baseToken.ticker}`
+  if (isDisabled) {
+    tooltip = "<1 USDC"
+  }
 
   return (
     <Tooltip>
-      {isDisabled ? (
-        <TooltipTrigger asChild>
-          <span tabIndex={0}>
-            <Button
-              disabled
-              className={cn(className, "w-full")}
-              size="sm"
-              type="button"
-              variant="outline"
-            >
-              {percentage === 100 ? "MAX" : `${percentage}%`}
-            </Button>
-          </span>
-        </TooltipTrigger>
-      ) : (
-        <TooltipTrigger asChild>
+      <TooltipTrigger
+        asChild
+        className={cn(isDisabled && "cursor-not-allowed")}
+      >
+        <span>
           <Button
-            className={cn(className)}
+            className={cn("w-full", className)}
+            disabled={isDisabled}
             size="sm"
             type="button"
             variant="outline"
-            onClick={(e) => {
-              e.preventDefault()
-              if (formattedShortcut) {
+            onClick={() => {
+              if (!isDisabled && formattedShortcut) {
                 onSetAmount(formattedShortcut)
               }
             }}
           >
-            {percentage === 100 ? "MAX" : `${percentage}%`}
+            {percentage}%
           </Button>
-        </TooltipTrigger>
-      )}
-      <TooltipContent>{isDisabled ? "<1 USDC" : tooltip}</TooltipContent>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
   )
 }

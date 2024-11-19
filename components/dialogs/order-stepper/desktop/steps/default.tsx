@@ -175,15 +175,14 @@ export function ConfirmOrderDisplay(
         </div>
       </div> */}
       <Separator />
-      <div className="space-y-3">
+      <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <ResponsiveTooltip>
             <ResponsiveTooltipTrigger
+              className="cursor-default text-muted-foreground"
               onClick={(e) => isDesktop && e.preventDefault()}
             >
-              <span className="text-sm text-muted-foreground">
-                Network costs
-              </span>
+              Network costs
             </ResponsiveTooltipTrigger>
             <ResponsiveTooltipContent>
               {GAS_FEE_TOOLTIP}

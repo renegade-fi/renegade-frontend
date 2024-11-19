@@ -57,7 +57,7 @@ export function InsufficientWarning({
 
   return (
     <ResponsiveTooltip>
-      <ResponsiveTooltipTrigger>
+      <ResponsiveTooltipTrigger className={withDialog ? "" : "cursor-default"}>
         {withDialog ? (
           <TransferDialog mint={side === Side.BUY ? quoteMint : baseMint}>
             <Button variant="ghost">{warningContent}</Button>
