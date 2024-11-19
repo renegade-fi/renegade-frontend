@@ -130,7 +130,7 @@ export function AssetsSection({
             <span>{formattedBaseUsdPriceLabel}</span>
           </ResponsiveTooltipTrigger>
           <ResponsiveTooltipContent side="right">
-            <p>{`${formattedBaseBalance} ${base}`}</p>
+            {`${formattedBaseBalance} ${base}`}
           </ResponsiveTooltipContent>
         </ResponsiveTooltip>
       </div>
@@ -157,9 +157,7 @@ export function AssetsSection({
           <ResponsiveTooltipTrigger>
             <span>{formattedQuoteUsdPriceLabel}</span>
           </ResponsiveTooltipTrigger>
-          <ResponsiveTooltipContent side="right">
-            <p>{`${formattedQuoteBalance} ${quote}`}</p>
-          </ResponsiveTooltipContent>
+          <ResponsiveTooltipContent side="right">{`${formattedQuoteBalance} ${quote}`}</ResponsiveTooltipContent>
         </ResponsiveTooltip>
       </div>
     </>

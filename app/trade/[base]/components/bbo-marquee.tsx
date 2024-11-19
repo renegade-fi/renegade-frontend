@@ -22,9 +22,7 @@ export function BBOMarquee({ base }: { base: string }) {
         <TooltipTrigger>
           <span className="flex justify-center">BBO Feeds</span>
         </TooltipTrigger>
-        <TooltipContent>
-          <p className="font-sans">{BBO_TOOLTIP}</p>
-        </TooltipContent>
+        <TooltipContent className="font-sans">{BBO_TOOLTIP}</TooltipContent>
       </Tooltip>
       {EXCHANGES.map((exchange) => (
         <Fragment key={exchange}>

@@ -293,12 +293,10 @@ export function NewOrderForm({
           isSell={form.getValues("isSell")}
           ticker={base}
         />
-        <div>
-          <DepositWarning
-            className="text-sm text-orange-400"
-            ticker={base}
-          />
-        </div>
+        <DepositWarning
+          className="text-sm text-orange-400"
+          ticker={base}
+        />
 
         {walletReadyState === "READY" ? (
           <div className="hidden lg:block">
@@ -340,9 +338,7 @@ export function NewOrderForm({
                   </a>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>{MIDPOINT_TOOLTIP}</p>
-              </TooltipContent>
+              <TooltipContent>{MIDPOINT_TOOLTIP}</TooltipContent>
             </Tooltip>
             <div>Midpoint</div>
           </div>

@@ -168,9 +168,7 @@ export function DataTable<TData, TValue>({
                 .00
               </Toggle>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Toggle decimals</p>
-            </TooltipContent>
+            <TooltipContent>Toggle decimals</TooltipContent>
           </Tooltip>
         </div>
       </div>

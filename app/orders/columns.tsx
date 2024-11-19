@@ -90,9 +90,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
               </TooltipTrigger>
               <TooltipContent>
-                <p className="font-sans">
-                  {UNDERCAPITALIZED_ORDER_TOOLTIP({ ticker: token.ticker })}
-                </p>
+                {UNDERCAPITALIZED_ORDER_TOOLTIP({ ticker: token.ticker })}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -253,10 +251,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             <div className="pr-4 text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-sans">
-              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
-              {token.ticker}
-            </p>
+            {`${table.options.meta?.isLongFormat ? unformatted : formattedLong} ${token.ticker}`}
           </TooltipContent>
         </Tooltip>
       )

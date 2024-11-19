@@ -94,7 +94,7 @@ export function DefaultStep(
         </VisuallyHidden>
       </DialogHeader>
       <ScrollArea className="max-h-[70vh]">
-        <div className="space-y-6 p-6">
+        <div className="flex flex-col gap-6 p-6">
           <ConfirmOrderDisplay
             {...props}
             allowExternalMatches={props.allowExternalMatches}

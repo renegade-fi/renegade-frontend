@@ -100,9 +100,7 @@ export function PageClient() {
               Where are my assets?
             </span>
           </ResponsiveTooltipTrigger>
-          <ResponsiveTooltipContent>
-            <p className="font-sans">{ASSETS_TOOLTIP}</p>
-          </ResponsiveTooltipContent>
+          <ResponsiveTooltipContent>{ASSETS_TOOLTIP}</ResponsiveTooltipContent>
         </ResponsiveTooltip>
       </div>
       <div className="mt-20">

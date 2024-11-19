@@ -29,21 +29,24 @@ export function NoBalanceSlotWarning({
 
   if (isMaxBalances) {
     return (
-      <div className="flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center">
-        <ResponsiveTooltip>
-          <ResponsiveTooltipTrigger
-            onClick={(e) => isDesktop && e.preventDefault()}
+      <ResponsiveTooltip>
+        <ResponsiveTooltipTrigger
+          onClick={(e) => isDesktop && e.preventDefault()}
+        >
+          <div
+            className={cn(
+              "flex w-full items-center justify-center gap-2 rounded-md bg-[#2A1700] p-3 text-center",
+              className,
+            )}
           >
-            <div className={cn("flex items-center gap-2", className)}>
-              <AlertTriangle className="h-4 w-4" />
-              <span>No balance slot available.</span>
-            </div>
-          </ResponsiveTooltipTrigger>
-          <ResponsiveTooltipContent>
-            <p>{MAX_BALANCES_PLACE_ORDER_TOOLTIP}</p>
-          </ResponsiveTooltipContent>
-        </ResponsiveTooltip>
-      </div>
+            <AlertTriangle className="h-4 w-4" />
+            <span>No balance slot available</span>
+          </div>
+        </ResponsiveTooltipTrigger>
+        <ResponsiveTooltipContent>
+          {MAX_BALANCES_PLACE_ORDER_TOOLTIP}
+        </ResponsiveTooltipContent>
+      </ResponsiveTooltip>
     )
   }
 

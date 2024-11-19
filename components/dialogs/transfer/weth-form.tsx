@@ -669,7 +669,7 @@ export function WETHForm({
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <ScrollArea className="max-h-[70vh]">
-            <div className={cn("space-y-6", className)}>
+            <div className={cn("flex flex-col gap-6", className)}>
               <FormField
                 control={form.control}
                 name="mint"
@@ -932,7 +932,7 @@ export function WETHForm({
                   mint={mint}
                 />
               )}
-              <div className="space-y-6">{renderPrompts()}</div>
+              {renderPrompts()}
             </div>
           </ScrollArea>
           {isDesktop ? (

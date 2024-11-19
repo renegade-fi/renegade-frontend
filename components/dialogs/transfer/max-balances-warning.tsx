@@ -30,7 +30,7 @@ export function MaxBalancesWarning({
             </div>
           </ResponsiveTooltipTrigger>
           <ResponsiveTooltipContent>
-            <p>{MAX_BALANCES_TOOLTIP}</p>
+            {MAX_BALANCES_TOOLTIP}
           </ResponsiveTooltipContent>
         </ResponsiveTooltip>
       </div>

@@ -40,38 +40,37 @@ export function InsufficientWarning({
   if (!isUndercapitalized) return null
 
   const warningContent = (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div
+      className={cn(
+        "flex items-center gap-2",
+        {
+          "w-full justify-center rounded-md bg-[#2A1700] p-3 text-center":
+            richColors,
+        },
+        className,
+      )}
+    >
       <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
       <span>Only part of the order will be filled.</span>
     </div>
   )
 
   return (
-    <div
-      className={cn({
-        "flex w-full items-center justify-center rounded-md bg-[#2A1700] p-3 text-center":
-          richColors,
-        "flex items-center": !richColors,
-      })}
-    >
-      <ResponsiveTooltip>
-        <ResponsiveTooltipTrigger>
-          {withDialog ? (
-            <TransferDialog mint={side === Side.BUY ? quoteMint : baseMint}>
-              <Button variant="ghost">{warningContent}</Button>
-            </TransferDialog>
-          ) : (
-            warningContent
-          )}
-        </ResponsiveTooltipTrigger>
-        <ResponsiveTooltipContent>
-          <p>
-            {UNDERCAPITALIZED_ORDER_TOOLTIP({
-              ticker: token.ticker,
-            })}
-          </p>
-        </ResponsiveTooltipContent>
-      </ResponsiveTooltip>
-    </div>
+    <ResponsiveTooltip>
+      <ResponsiveTooltipTrigger>
+        {withDialog ? (
+          <TransferDialog mint={side === Side.BUY ? quoteMint : baseMint}>
+            <Button variant="ghost">{warningContent}</Button>
+          </TransferDialog>
+        ) : (
+          warningContent
+        )}
+      </ResponsiveTooltipTrigger>
+      <ResponsiveTooltipContent>
+        {UNDERCAPITALIZED_ORDER_TOOLTIP({
+          ticker: token.ticker,
+        })}
+      </ResponsiveTooltipContent>
+    </ResponsiveTooltip>
   )
 }

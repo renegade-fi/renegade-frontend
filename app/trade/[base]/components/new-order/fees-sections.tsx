@@ -51,9 +51,7 @@ export function FeesSection({
               </a>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>{FEES_SECTION_FEES}</p>
-          </TooltipContent>
+          <TooltipContent>{FEES_SECTION_FEES}</TooltipContent>
         </Tooltip>
         <span>{amount ? feeLabel : "--"}</span>
       </div>
@@ -75,9 +73,7 @@ export function FeesSection({
               </a>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>{FEES_SECTION_TOTAL_SAVINGS}</p>
-          </TooltipContent>
+          <TooltipContent>{FEES_SECTION_TOTAL_SAVINGS}</TooltipContent>
         </Tooltip>
         <div
           className={cn("text-green-price transition-opacity", {

@@ -127,9 +127,7 @@ export function DataTable<TData, TValue>({
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </Toggle>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>USD Value</p>
-            </TooltipContent>
+            <TooltipContent>USD Value</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -146,9 +144,7 @@ export function DataTable<TData, TValue>({
                 <EyeOff className="h-4 w-4 text-muted-foreground" />
               </Toggle>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Hide zero balances</p>
-            </TooltipContent>
+            <TooltipContent>Hide zero balances</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -163,9 +159,7 @@ export function DataTable<TData, TValue>({
                 .00
               </Toggle>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Show decimals</p>
-            </TooltipContent>
+            <TooltipContent>Show decimals</TooltipContent>
           </Tooltip>
         </div>
       </div>

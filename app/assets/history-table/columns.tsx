@@ -93,10 +93,7 @@ export const columns: ColumnDef<HistoryData>[] = [
             side="right"
             sideOffset={15}
           >
-            <p className="font-sans">
-              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
-              {token.ticker}
-            </p>
+            {`${table.options.meta?.isLongFormat ? unformatted : formattedLong} ${token.ticker}`}
           </TooltipContent>
         </Tooltip>
       )

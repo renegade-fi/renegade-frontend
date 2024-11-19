@@ -169,9 +169,7 @@ export function AmountShortcutButton({
           </Button>
         </TooltipTrigger>
       )}
-      <TooltipContent>
-        <p className="font-sans">{isDisabled ? "< 1 USDC" : tooltip}</p>
-      </TooltipContent>
+      <TooltipContent>{isDisabled ? "<1 USDC" : tooltip}</TooltipContent>
     </Tooltip>
   )
 }

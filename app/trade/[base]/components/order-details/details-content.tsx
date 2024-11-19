@@ -138,9 +138,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
             <ResponsiveTooltipTrigger>
               <div>{title}</div>
             </ResponsiveTooltipTrigger>
-            <ResponsiveTooltipContent>
-              <p className="font-sans">{titleLong}</p>
-            </ResponsiveTooltipContent>
+            <ResponsiveTooltipContent>{titleLong}</ResponsiveTooltipContent>
           </ResponsiveTooltip>
           <div>Midpoint Peg</div>
         </div>
@@ -152,7 +150,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
               <span className="flex justify-center">{filledLabel}</span>
             </ResponsiveTooltipTrigger>
             <ResponsiveTooltipContent>
-              <p className="font-sans">{filledLabelLong}</p>
+              {filledLabelLong}
             </ResponsiveTooltipContent>
           </ResponsiveTooltip>
           <div className="flex items-center gap-2">
