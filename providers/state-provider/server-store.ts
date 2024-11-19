@@ -60,6 +60,7 @@ export const createServerStore = (
       }),
       {
         name: STORAGE_SERVER_STORE,
+        skipHydration: true,
         storage: createJSONStorage(() => createCookieStorage()),
       },
     ),
