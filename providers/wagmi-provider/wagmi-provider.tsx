@@ -125,7 +125,8 @@ function SyncRenegadeWagmiState() {
         })
     }
 
-    checkConnections()
+    // TODO: Disabled because it prevents switching to Mainnet when bridging
+    // checkConnections()
   }, [chainId, connector, isConnected, wagmiConfig, disconnectWagmi])
 
   // When switching accounts in a wallet, we need to ensure the new account

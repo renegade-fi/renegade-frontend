@@ -924,6 +924,7 @@ export function WETHForm({
                     !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
                   size="xl"
+                  type="submit"
                   variant="outline"
                 >
                   {buttonText}
@@ -951,6 +952,7 @@ export function WETHForm({
                     !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
                   size="xl"
+                  type="submit"
                   variant="outline"
                 >
                   {buttonText}
