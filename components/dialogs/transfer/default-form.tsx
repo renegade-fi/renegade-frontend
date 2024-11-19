@@ -618,6 +618,7 @@ export function DefaultForm({
                     !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
                   size="xl"
+                  type="submit"
                   variant="outline"
                 >
                   {buttonText}
@@ -645,6 +646,7 @@ export function DefaultForm({
                     !form.formState.isValid || (isDeposit && isMaxBalances)
                   }
                   size="xl"
+                  type="submit"
                   variant="outline"
                 >
                   {buttonText}

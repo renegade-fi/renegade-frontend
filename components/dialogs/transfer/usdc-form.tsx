@@ -658,6 +658,7 @@ export function USDCForm({
       if (bridgeAllowanceRequired) {
         await switchChainAndInvoke(mainnet.id, async () =>
           handleApproveBridge({
+            chainId: mainnet.id,
             address: USDC_L1_TOKEN.address,
             args: [
               bridgeQuote?.estimate.approvalAddress as `0x${string}`,
@@ -1212,6 +1213,7 @@ export function USDCForm({
                   className="flex-1 border-0 border-t font-extended text-2xl"
                   disabled={isSubmitDisabled}
                   size="xl"
+                  type="submit"
                   variant="outline"
                 >
                   {buttonText}
@@ -1237,6 +1239,7 @@ export function USDCForm({
                   className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
                   disabled={isSubmitDisabled}
                   size="xl"
+                  type="submit"
                   variant="outline"
                 >
                   {buttonText}
