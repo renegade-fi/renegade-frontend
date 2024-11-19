@@ -88,7 +88,7 @@ export function ReviewWrap({
         }
       />
       <Row
-        imageUri={`/tokens/wrapped-eth.png`}
+        imageUri={`/tokens/weth.png`}
         label={`Receive WETH`}
         value={
           <Tooltip>
