@@ -1,16 +1,12 @@
 import React from "react"
 
-import Image from "next/image"
-
 import { LiFiStep } from "@lifi/sdk"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import {
-  ChevronDownIcon,
-  ExternalLinkIcon,
-  InfoCircledIcon,
-} from "@radix-ui/react-icons"
+import { ChevronDownIcon, InfoCircledIcon } from "@radix-ui/react-icons"
 import { motion } from "framer-motion"
 import { formatUnits } from "viem/utils"
+
+import { Row } from "@/components/dialogs/transfer/row"
 
 function Layout({
   children,
@@ -138,36 +134,5 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
         </AccordionPrimitive.Content>
       </AccordionPrimitive.Item>
     </AccordionPrimitive.Root>
-  )
-}
-
-function Row({
-  label,
-  value,
-  imageUri,
-  url,
-}: {
-  label: string
-  value: string
-  imageUri?: string
-  url?: string
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-1">
-        {imageUri && (
-          <Image
-            alt=""
-            className="flex-shrink-0"
-            height={16}
-            src={imageUri}
-            width={16}
-          />
-        )}
-        <span>{value}</span>
-        {url && <ExternalLinkIcon className="h-4 w-4" />}
-      </div>
-    </div>
   )
 }
