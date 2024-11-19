@@ -1139,35 +1139,6 @@ export function USDCForm({
 
               <div
                 className={cn("flex justify-between", {
-                  hidden: !userHasUsdcSolanaBalance,
-                })}
-              >
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  Balance on&nbsp;
-                  <NetworkLabel chainId={solana.id} />
-                </div>
-                <div className="flex items-center">
-                  <TooltipButton
-                    className="h-5 p-0 font-mono text-sm"
-                    tooltipContent={`${usdcSolanaBalanceLabel} USDC`}
-                    variant="link"
-                    onClick={() => {
-                      if (Number(formattedUsdcSolanaBalance)) {
-                        setNetwork(solana.id)
-                        form.setValue("amount", formattedUsdcSolanaBalance, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        })
-                      }
-                    }}
-                  >
-                    {`${usdcSolanaBalanceLabel} USDC`}
-                  </TooltipButton>
-                </div>
-              </div>
-
-              <div
-                className={cn("flex justify-between", {
                   hidden: !userHasUsdcL1Balance,
                 })}
               >
@@ -1193,6 +1164,35 @@ export function USDCForm({
                     ? `${usdcL1BalanceLabel} ${USDC_L1_TOKEN.ticker}`
                     : "--"}
                 </TooltipButton>
+              </div>
+
+              <div
+                className={cn("flex justify-between", {
+                  hidden: !userHasUsdcSolanaBalance,
+                })}
+              >
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  Balance on&nbsp;
+                  <NetworkLabel chainId={solana.id} />
+                </div>
+                <div className="flex items-center">
+                  <TooltipButton
+                    className="h-5 p-0 font-mono text-sm"
+                    tooltipContent={`${usdcSolanaBalanceLabel} USDC`}
+                    variant="link"
+                    onClick={() => {
+                      if (Number(formattedUsdcSolanaBalance)) {
+                        setNetwork(solana.id)
+                        form.setValue("amount", formattedUsdcSolanaBalance, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    }}
+                  >
+                    {`${usdcSolanaBalanceLabel} USDC`}
+                  </TooltipButton>
+                </div>
               </div>
 
               {renderTransferOptions()}
