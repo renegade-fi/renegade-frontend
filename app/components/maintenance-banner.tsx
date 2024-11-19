@@ -15,13 +15,6 @@ export function MaintenanceBanner() {
       isProduction &&
       maintenanceMode?.enabled &&
       maintenanceMode.severity === "critical"
-    console.log("debug", {
-      isCriticalMaintenance,
-      maintenanceMode: maintenanceMode?.bannerMessage,
-      enabled: maintenanceMode?.enabled,
-      severity: maintenanceMode?.severity,
-      isProduction,
-    })
     if (isCriticalMaintenance) {
       setTimeout(() => setIsVisible(true), 100)
     } else {

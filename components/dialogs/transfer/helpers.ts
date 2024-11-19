@@ -35,10 +35,6 @@ export function checkAmount(
   amount: string,
   baseToken?: Token,
 ) {
-  console.log("check amount debug: ", {
-    amount,
-    baseToken,
-  })
   if (!baseToken) return false
   const usdPrice = queryClient.getQueryData<number>(
     createPriceQueryKey("binance", baseToken.address),
@@ -55,11 +51,6 @@ export function checkBalance({
   mint,
   balance,
 }: z.infer<typeof formSchema> & { balance?: bigint }) {
-  console.log("check balance debug: ", {
-    amount,
-    mint,
-    balance,
-  })
   if (!balance) {
     return false
   }
