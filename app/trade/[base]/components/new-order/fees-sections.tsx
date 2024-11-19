@@ -1,4 +1,4 @@
-import MotionNumber from "motion-number"
+import NumberFlow from "@number-flow/react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -80,7 +80,7 @@ export function FeesSection({
             "opacity-0": !predictedSavings || !amount,
           })}
         >
-          <MotionNumber
+          <NumberFlow
             format={{
               style: "currency",
               currency: "USD",
