@@ -126,8 +126,8 @@ export function AssetsSection({
           </TransferDialog>
         </div>
         <ResponsiveTooltip>
-          <ResponsiveTooltipTrigger>
-            <span>{formattedBaseUsdPriceLabel}</span>
+          <ResponsiveTooltipTrigger className="cursor-default">
+            {formattedBaseUsdPriceLabel}
           </ResponsiveTooltipTrigger>
           <ResponsiveTooltipContent side="right">
             {`${formattedBaseBalance} ${base}`}
@@ -154,8 +154,8 @@ export function AssetsSection({
           </TransferDialog>
         </div>
         <ResponsiveTooltip>
-          <ResponsiveTooltipTrigger>
-            <span>{formattedQuoteUsdPriceLabel}</span>
+          <ResponsiveTooltipTrigger className="cursor-default">
+            {formattedQuoteUsdPriceLabel}
           </ResponsiveTooltipTrigger>
           <ResponsiveTooltipContent side="right">{`${formattedQuoteBalance} ${quote}`}</ResponsiveTooltipContent>
         </ResponsiveTooltip>

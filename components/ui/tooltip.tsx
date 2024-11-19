@@ -15,7 +15,7 @@ const TooltipTrigger = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TooltipPrimitive.Trigger
     ref={ref}
-    className={cn('cursor-default', className)}
+    className={cn(className)}
     {...props}
   />
 ))

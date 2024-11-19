@@ -57,7 +57,7 @@ export function FeesSection({
       </div>
       <div className={cn("relative flex justify-between transition-colors")}>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Button
               asChild
               className="h-5 cursor-pointer p-0 text-muted-foreground"
