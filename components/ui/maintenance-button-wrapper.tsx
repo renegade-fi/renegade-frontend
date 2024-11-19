@@ -1,22 +1,27 @@
 import * as React from "react"
+
 import {
   ResponsiveTooltip,
   ResponsiveTooltipContent,
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
+
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { MAINTENANCE_MESSAGES, MaintenanceMessageKey } from "@/lib/constants/maintenance"
+import {
+  MAINTENANCE_MESSAGES,
+  MaintenanceMessageKey,
+} from "@/lib/constants/maintenance"
 import { cn } from "@/lib/utils"
 
 interface MaintenanceButtonWrapperProps {
-  children: React.ReactElement<React.ButtonHTMLAttributes<HTMLButtonElement>>;
-  messageKey?: MaintenanceMessageKey;
-  message?: string;
-  triggerClassName?: string;
+  children: React.ReactElement<React.ButtonHTMLAttributes<HTMLButtonElement>>
+  messageKey?: MaintenanceMessageKey
+  message?: string
+  triggerClassName?: string
 }
 
-  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production" 
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
 
 export function MaintenanceButtonWrapper({
   children,
@@ -27,7 +32,10 @@ export function MaintenanceButtonWrapper({
   const { data: maintenanceMode } = useMaintenanceMode()
   const isMobile = useIsMobile()
 
-  const isCriticalMaintenance = isProduction && maintenanceMode?.enabled && maintenanceMode.severity === "critical"
+  const isCriticalMaintenance =
+    isProduction &&
+    maintenanceMode?.enabled &&
+    maintenanceMode.severity === "critical"
 
   const maintenanceMessage = React.useMemo(() => {
     const baseMessage = message ?? MAINTENANCE_MESSAGES[messageKey]
@@ -41,7 +49,7 @@ export function MaintenanceButtonWrapper({
 
   return (
     <ResponsiveTooltip>
-      <ResponsiveTooltipTrigger 
+      <ResponsiveTooltipTrigger
         asChild={!isMobile}
         className={cn("!pointer-events-auto", triggerClassName)}
       >
@@ -54,4 +62,4 @@ export function MaintenanceButtonWrapper({
       </ResponsiveTooltipContent>
     </ResponsiveTooltip>
   )
-} 
+}
