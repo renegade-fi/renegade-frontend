@@ -39,9 +39,7 @@ export const columns: ColumnDef<FillTableData>[] = [
             <div className="text-right">{amount}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-sans">
-              {row.original.amountLong} {row.original.ticker}
-            </p>
+            {`${row.original.amountLong} ${row.original.ticker}`}
           </TooltipContent>
         </Tooltip>
       )
@@ -88,9 +86,7 @@ export const columns: ColumnDef<FillTableData>[] = [
           <TooltipTrigger asChild>
             <div className="text-right font-medium">{formatted}</div>
           </TooltipTrigger>
-          <TooltipContent side="right">
-            <p className="font-sans">{diffLabel}</p>
-          </TooltipContent>
+          <TooltipContent side="right">{diffLabel}</TooltipContent>
         </Tooltip>
       )
     },

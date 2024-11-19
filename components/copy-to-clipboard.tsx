@@ -33,9 +33,7 @@ export function CopyToClipboard({
             {text}
           </p>
         </TooltipTrigger>
-        <TooltipContent>
-          <p>Click to copy</p>
-        </TooltipContent>
+        <TooltipContent>Click to copy</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )

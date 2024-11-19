@@ -228,9 +228,7 @@ export function DataTable<TData, TValue>({
               .00
             </Toggle>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Show decimals</p>
-          </TooltipContent>
+          <TooltipContent>Show decimals</TooltipContent>
         </Tooltip>
       </div>
       <div className="mt-2 border lg:mt-4">

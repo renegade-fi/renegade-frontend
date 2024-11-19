@@ -86,9 +86,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
             </div>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-sans">
-              {formatted} {token.ticker}
-            </p>
+            {`${formatted} ${token.ticker}`}
           </TooltipContent>
         </Tooltip>
       )
@@ -120,10 +118,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
             <div className="pr-4 text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-sans">
-              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
-              {token.ticker}
-            </p>
+            {`${table.options.meta?.isLongFormat ? unformatted : formattedLong} ${token.ticker}`}
           </TooltipContent>
         </Tooltip>
       )
@@ -171,9 +166,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
             </div>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-sans">
-              {formatted} {token.ticker}
-            </p>
+            {`${formatted} ${token.ticker}`}
           </TooltipContent>
         </Tooltip>
       )
@@ -198,10 +191,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
             <div className="pr-4 text-right">{formatted}</div>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-sans">
-              {table.options.meta?.isLongFormat ? unformatted : formattedLong}{" "}
-              {token.ticker}
-            </p>
+            {`${table.options.meta?.isLongFormat ? unformatted : formattedLong} ${token.ticker}`}
           </TooltipContent>
         </Tooltip>
       )

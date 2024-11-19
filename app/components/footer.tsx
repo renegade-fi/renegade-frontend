@@ -87,9 +87,7 @@ export function Footer() {
                   Faucet
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p className="font-sans">{FAUCET_TOOLTIP}</p>
-              </TooltipContent>
+              <TooltipContent>{FAUCET_TOOLTIP}</TooltipContent>
             </Tooltip>
           )}
         </div>

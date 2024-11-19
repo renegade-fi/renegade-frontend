@@ -82,7 +82,7 @@ export function ReviewWrap({
               {formatNumber(wrapAmount, 18, true)}
             </TooltipTrigger>
             <TooltipContent side="right">
-              <p>{formattedAmountUSDValue}</p>
+              {formattedAmountUSDValue}
             </TooltipContent>
           </Tooltip>
         }
@@ -96,7 +96,7 @@ export function ReviewWrap({
               {formatNumber(wrapAmount, 18, true)}
             </TooltipTrigger>
             <TooltipContent side="right">
-              <p>{formattedAmountUSDValue}</p>
+              {formattedAmountUSDValue}
             </TooltipContent>
           </Tooltip>
         }
@@ -119,9 +119,7 @@ export function ReviewWrap({
                 <AlertTriangle className={cn("size-4", warningColor)} />
               )}
             </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>{tooltipWarningText}</p>
-            </TooltipContent>
+            <TooltipContent side="right">{tooltipWarningText}</TooltipContent>
           </Tooltip>
         }
       />

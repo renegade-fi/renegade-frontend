@@ -72,9 +72,7 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
             <ResponsiveTooltipTrigger>
               <div>{title}</div>
             </ResponsiveTooltipTrigger>
-            <ResponsiveTooltipContent>
-              <p className="font-sans">{titleLong}</p>
-            </ResponsiveTooltipContent>
+            <ResponsiveTooltipContent>{titleLong}</ResponsiveTooltipContent>
           </ResponsiveTooltip>
           <div>Midpoint Peg</div>
         </div>

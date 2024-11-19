@@ -148,7 +148,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
                         {truncateAddress(fromAddress)}
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>{fromAddress}</p>
+                        {fromAddress}
                       </TooltipContent>
                     </Tooltip>
                   }
@@ -160,9 +160,7 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
                       <TooltipTrigger type="button">
                         {truncateAddress(toAddress)}
                       </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>{toAddress}</p>
-                      </TooltipContent>
+                      <TooltipContent side="right">{toAddress}</TooltipContent>
                     </Tooltip>
                   }
                 />
