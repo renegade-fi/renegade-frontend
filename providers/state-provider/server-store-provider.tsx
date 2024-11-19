@@ -1,6 +1,12 @@
 "use client"
 
-import { createContext, useContext, useRef, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react"
 
 import { useStore } from "zustand"
 
@@ -34,6 +40,19 @@ export function ServerStoreProvider({
     )
     storeRef.current = createServerStore(initialState ?? initServerStore())
   }
+
+  const active = useRef(true)
+
+  useEffect(() => {
+    ;(async () => {
+      if (storeRef.current) {
+        await storeRef.current.persist.rehydrate()
+      }
+    })()
+    return () => {
+      active.current = false
+    }
+  }, [])
 
   return (
     <ServerStoreContext.Provider value={storeRef.current}>
