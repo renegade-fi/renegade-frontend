@@ -63,6 +63,7 @@ import { Separator } from "@/components/ui/separator"
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { EventNames, useEventTracker } from "@/hooks/use-event-tracker"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
@@ -296,6 +297,35 @@ export function USDCForm({
             ...bridgeQuote?.transactionRequest,
             type: "legacy",
           },
+          {
+            onSettled(_, error) {
+              const context = {
+                fromChainId: bridgeQuote?.action.fromChainId,
+                fromTokenMint: bridgeQuote?.action.fromToken.address,
+                fromTokenTicker: bridgeQuote?.action.fromToken.symbol,
+                fromTokenAmount: formatUnits(
+                  BigInt(bridgeQuote?.estimate.fromAmount ?? 0),
+                  bridgeQuote?.action.fromToken.decimals ?? 0,
+                ),
+                toChainId: bridgeQuote?.action.toChainId,
+                toTokenMint: bridgeQuote?.action.toToken.address,
+                toTokenTicker: bridgeQuote?.action.toToken.symbol,
+                toTokenAmount: formatUnits(
+                  BigInt(bridgeQuote?.estimate.toAmount ?? 0),
+                  bridgeQuote?.action.toToken.decimals ?? 0,
+                ),
+                tool: bridgeQuote?.tool,
+              }
+              if (error?.name) {
+                track(EventNames.BRIDGE_ERROR, {
+                  ...context,
+                  ...error,
+                })
+              } else {
+                track(EventNames.BRIDGE_COMPLETED, context)
+              }
+            },
+          },
         ),
       )
     },
@@ -328,13 +358,37 @@ export function USDCForm({
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         await switchChainAndInvoke(chain.id, () =>
-          handleApprove({
-            address: USDC_L2_TOKEN.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              UNLIMITED_ALLOWANCE,
-            ],
-          }),
+          handleApprove(
+            {
+              address: USDC_L2_TOKEN.address,
+              args: [
+                process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+                UNLIMITED_ALLOWANCE,
+              ],
+            },
+            {
+              onSettled(_, error) {
+                const context = {
+                  mint: USDC_L2_TOKEN.address,
+                  amount:
+                    network !== chain.id
+                      ? formatUnits(
+                          BigInt(bridge.receivedAmount ?? 0),
+                          USDC_L2_TOKEN.decimals,
+                        )
+                      : amount,
+                }
+                if (error?.name) {
+                  track(EventNames.APPROVE_DARKPOOL_ERROR, {
+                    ...context,
+                    ...error,
+                  })
+                } else {
+                  track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
+                }
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(chain.id, () =>
@@ -382,13 +436,37 @@ export function USDCForm({
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         await switchChainAndInvoke(chain.id, () =>
-          handleApprove({
-            address: USDC_L2_TOKEN.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              UNLIMITED_ALLOWANCE,
-            ],
-          }),
+          handleApprove(
+            {
+              address: USDC_L2_TOKEN.address,
+              args: [
+                process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+                UNLIMITED_ALLOWANCE,
+              ],
+            },
+            {
+              onSettled(_, error) {
+                const context = {
+                  mint: USDC_L2_TOKEN.address,
+                  amount:
+                    network !== chain.id
+                      ? formatUnits(
+                          BigInt(bridge.receivedAmount ?? 0),
+                          USDC_L2_TOKEN.decimals,
+                        )
+                      : amount,
+                }
+                if (error?.name) {
+                  track(EventNames.APPROVE_DARKPOOL_ERROR, {
+                    ...context,
+                    ...error,
+                  })
+                } else {
+                  track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
+                }
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(chain.id, () =>
@@ -436,6 +514,7 @@ export function USDCForm({
       decimals: USDCE_L2_TOKEN.decimals,
     })
 
+  const { track } = useEventTracker()
   const {
     writeContract: handleApproveSwap,
     status: approveSwapStatus,
@@ -462,6 +541,34 @@ export function USDCForm({
             ...swapQuote?.transactionRequest,
             type: "legacy",
           },
+          {
+            onSettled(_, error, variables) {
+              const context = {
+                chainId: variables.chainId,
+                fromTokenMint: swapQuote?.action.fromToken.address,
+                fromTokenTicker: swapQuote?.action.fromToken.symbol,
+                fromTokenAmount: formatUnits(
+                  BigInt(swapQuote?.estimate.fromAmount ?? 0),
+                  swapQuote?.action.fromToken.decimals ?? 0,
+                ),
+                toTokenMint: swapQuote?.action.toToken.address,
+                toTokenTicker: swapQuote?.action.toToken.symbol,
+                toTokenAmount: formatUnits(
+                  BigInt(swapQuote?.estimate.toAmount ?? 0),
+                  swapQuote?.action.toToken.decimals ?? 0,
+                ),
+                tool: swapQuote?.tool,
+              }
+              if (error?.name) {
+                track(EventNames.SWAP_ERROR, {
+                  ...context,
+                  ...error,
+                })
+              } else {
+                track(EventNames.SWAP_COMPLETED, context)
+              }
+            },
+          },
         ),
       )
     },
@@ -484,13 +591,37 @@ export function USDCForm({
     setCurrentStep((prev) => prev + 1)
     if (allowanceRequired) {
       await switchChainAndInvoke(chain.id, () =>
-        handleApprove({
-          address: USDC_L2_TOKEN.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            UNLIMITED_ALLOWANCE,
-          ],
-        }),
+        handleApprove(
+          {
+            address: USDC_L2_TOKEN.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              UNLIMITED_ALLOWANCE,
+            ],
+          },
+          {
+            onSettled(_, error) {
+              const context = {
+                mint: USDC_L2_TOKEN.address,
+                amount:
+                  network !== chain.id
+                    ? formatUnits(
+                        BigInt(swap.receivedAmount ?? 0),
+                        USDC_L2_TOKEN.decimals,
+                      )
+                    : amount,
+              }
+              if (error?.name) {
+                track(EventNames.APPROVE_DARKPOOL_ERROR, {
+                  ...context,
+                  ...error,
+                })
+              } else {
+                track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
+              }
+            },
+          },
+        ),
       )
     } else {
       await switchChainAndInvoke(chain.id, () =>
@@ -573,6 +704,13 @@ export function USDCForm({
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)
     // form.reset()
+    track(EventNames.DEPOSIT_TASK_STARTED, {
+      amount,
+      chainId: chain.id,
+      mint,
+      taskId: data.taskId,
+      ticker: USDC_L2_TOKEN.ticker,
+    })
     onSuccess?.()
     const message = constructStartToastMessage(UpdateType.Deposit)
     toast.loading(message, {
@@ -657,14 +795,37 @@ export function USDCForm({
       }
       if (bridgeAllowanceRequired) {
         await switchChainAndInvoke(mainnet.id, async () =>
-          handleApproveBridge({
-            chainId: mainnet.id,
-            address: USDC_L1_TOKEN.address,
-            args: [
-              bridgeQuote?.estimate.approvalAddress as `0x${string}`,
-              BigInt(bridgeQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
-            ],
-          }),
+          handleApproveBridge(
+            {
+              chainId: mainnet.id,
+              address: USDC_L1_TOKEN.address,
+              args: [
+                bridgeQuote?.estimate.approvalAddress as `0x${string}`,
+                BigInt(bridgeQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
+              ],
+            },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  mint: USDC_L1_TOKEN.address,
+                  ticker: USDC_L1_TOKEN.ticker,
+                  amount: formatUnits(
+                    variables.args[1],
+                    USDC_L1_TOKEN.decimals,
+                  ),
+                }
+                if (error?.name) {
+                  track(EventNames.APPROVE_BRIDGE_ERROR, {
+                    ...context,
+                    ...error,
+                  })
+                } else {
+                  track(EventNames.APPROVE_BRIDGE_COMPLETED, context)
+                }
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(mainnet.id, async () =>
@@ -673,6 +834,35 @@ export function USDCForm({
             {
               ...bridgeQuote?.transactionRequest,
               type: "legacy",
+            },
+            {
+              onSettled(_, error) {
+                const context = {
+                  fromChainId: bridgeQuote?.action.fromChainId,
+                  fromTokenMint: bridgeQuote?.action.fromToken.address,
+                  fromTokenTicker: bridgeQuote?.action.fromToken.symbol,
+                  fromTokenAmount: formatUnits(
+                    BigInt(bridgeQuote?.estimate.fromAmount ?? 0),
+                    bridgeQuote?.action.fromToken.decimals ?? 0,
+                  ),
+                  toChainId: bridgeQuote?.action.toChainId,
+                  toTokenMint: bridgeQuote?.action.toToken.address,
+                  toTokenTicker: bridgeQuote?.action.toToken.symbol,
+                  toTokenAmount: formatUnits(
+                    BigInt(bridgeQuote?.estimate.toAmount ?? 0),
+                    bridgeQuote?.action.toToken.decimals ?? 0,
+                  ),
+                  tool: bridgeQuote?.tool,
+                }
+                if (error?.name) {
+                  track(EventNames.BRIDGE_ERROR, {
+                    ...context,
+                    ...error,
+                  })
+                } else {
+                  track(EventNames.BRIDGE_COMPLETED, context)
+                }
+              },
             },
           ),
         )
@@ -685,7 +875,35 @@ export function USDCForm({
         })
         return
       } else {
-        handleSolanaBridge(bridgeQuote.transactionRequest)
+        handleSolanaBridge(bridgeQuote.transactionRequest, {
+          onSettled(_, error) {
+            const context = {
+              fromChainId: bridgeQuote.action.fromChainId,
+              fromTokenMint: bridgeQuote.action.fromToken.address,
+              fromTokenTicker: bridgeQuote.action.fromToken.symbol,
+              fromTokenAmount: formatUnits(
+                BigInt(bridgeQuote.action.fromAmount ?? 0),
+                bridgeQuote.action.fromToken.decimals ?? 0,
+              ),
+              toChainId: bridgeQuote.action.toChainId,
+              toTokenMint: bridgeQuote.action.toToken.address,
+              toTokenTicker: bridgeQuote.action.toToken.symbol,
+              toTokenAmount: formatUnits(
+                BigInt(bridgeQuote.estimate.toAmount ?? 0),
+                bridgeQuote.action.toToken.decimals ?? 0,
+              ),
+              tool: bridgeQuote.tool,
+            }
+            if (error?.name) {
+              track(EventNames.BRIDGE_ERROR, {
+                ...context,
+                ...error,
+              })
+            } else {
+              track(EventNames.BRIDGE_COMPLETED, context)
+            }
+          },
+        })
       }
     } else if (swapRequired) {
       if (!swapQuote) {
@@ -696,13 +914,36 @@ export function USDCForm({
       }
       if (swapAllowanceRequired) {
         await switchChainAndInvoke(chain.id, () =>
-          handleApproveSwap({
-            address: USDCE_L2_TOKEN.address,
-            args: [
-              swapQuote.estimate.approvalAddress as `0x${string}`,
-              BigInt(swapQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
-            ],
-          }),
+          handleApproveSwap(
+            {
+              address: USDCE_L2_TOKEN.address,
+              args: [
+                swapQuote.estimate.approvalAddress as `0x${string}`,
+                BigInt(swapQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
+              ],
+            },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  mint: variables.address,
+                  ticker: USDCE_L2_TOKEN.ticker,
+                  amount: formatUnits(
+                    variables.args[1],
+                    USDCE_L2_TOKEN.decimals,
+                  ),
+                }
+                if (error?.name) {
+                  track(EventNames.APPROVE_SWAP_ERROR, {
+                    ...context,
+                    ...error,
+                  })
+                } else {
+                  track(EventNames.APPROVE_SWAP_COMPLETED, context)
+                }
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(chain.id, () =>
@@ -712,18 +953,64 @@ export function USDCForm({
               ...swapQuote.transactionRequest,
               type: "legacy",
             },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  fromTokenMint: swapQuote?.action.fromToken.address,
+                  fromTokenTicker: swapQuote?.action.fromToken.symbol,
+                  fromTokenAmount: formatUnits(
+                    BigInt(swapQuote?.estimate.fromAmount ?? 0),
+                    swapQuote?.action.fromToken.decimals ?? 0,
+                  ),
+                  toTokenMint: swapQuote?.action.toToken.address,
+                  toTokenTicker: swapQuote?.action.toToken.symbol,
+                  toTokenAmount: formatUnits(
+                    BigInt(swapQuote?.estimate.toAmount ?? 0),
+                    swapQuote?.action.toToken.decimals ?? 0,
+                  ),
+                  tool: swapQuote?.tool,
+                }
+                if (error?.name) {
+                  track(EventNames.SWAP_ERROR, {
+                    ...context,
+                    ...error,
+                  })
+                } else {
+                  track(EventNames.SWAP_COMPLETED, context)
+                }
+              },
+            },
           ),
         )
       }
     } else if (allowanceRequired) {
       await switchChainAndInvoke(chain.id, () =>
-        handleApprove({
-          address: USDC_L2_TOKEN.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            UNLIMITED_ALLOWANCE,
-          ],
-        }),
+        handleApprove(
+          {
+            address: USDC_L2_TOKEN.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              UNLIMITED_ALLOWANCE,
+            ],
+          },
+          {
+            onSettled(_, error) {
+              const context = {
+                mint: USDC_L2_TOKEN.address,
+                amount,
+              }
+              if (error?.name) {
+                track(EventNames.APPROVE_DARKPOOL_ERROR, {
+                  ...context,
+                  ...error,
+                })
+              } else {
+                track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
+              }
+            },
+          },
+        ),
       )
     } else {
       await switchChainAndInvoke(chain.id, () =>
