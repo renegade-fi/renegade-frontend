@@ -129,6 +129,14 @@ function SyncRenegadeWagmiState() {
     // checkConnections()
   }, [chainId, connector, isConnected, wagmiConfig, disconnectWagmi])
 
+  // Handles the case where Renegade wallet is connected, but wagmi wallet is not
+  // Required because effect below does not catch locked wallet case
+  React.useEffect(() => {
+    if (!isConnected && config.state.seed) {
+      disconnect(config)
+    }
+  }, [config, connector, isConnected])
+
   // When switching accounts in a wallet, we need to ensure the new account
   // is the one that originally generated the seed in storage. This effect:
   // 1. Verifies the current account can sign the stored seed
