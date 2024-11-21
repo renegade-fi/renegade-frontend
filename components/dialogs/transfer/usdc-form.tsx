@@ -348,9 +348,9 @@ export function USDCForm({
               ],
             },
             {
-              onSettled(_, error) {
+              onSettled(_, error, variables) {
                 const context = {
-                  chainId: chain.id,
+                  chainId: variables.chainId,
                   mint: USDC_L2_TOKEN.address,
                   amount:
                     network !== chain.id
@@ -420,9 +420,9 @@ export function USDCForm({
               ],
             },
             {
-              onSettled(_, error) {
+              onSettled(_, error, variables) {
                 const context = {
-                  chainId: chain.id,
+                  chainId: variables.chainId,
                   mint: USDC_L2_TOKEN.address,
                   amount:
                     network !== chain.id
@@ -550,9 +550,9 @@ export function USDCForm({
             ],
           },
           {
-            onSettled(_, error) {
+            onSettled(_, error, variables) {
               const context = {
-                chainId: chain.id,
+                chainId: variables.chainId,
                 mint: USDC_L2_TOKEN.address,
                 amount:
                   network !== chain.id
@@ -752,7 +752,7 @@ export function USDCForm({
               onSettled(_, error, variables) {
                 const context = {
                   chainId: variables.chainId,
-                  mint: USDC_L1_TOKEN.address,
+                  mint: variables.address,
                   ticker: USDC_L1_TOKEN.ticker,
                   amount: formatUnits(
                     variables.args[1],
