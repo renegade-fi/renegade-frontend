@@ -1,6 +1,6 @@
 import { datadogRum } from "@datadog/browser-rum"
 import { useWalletId } from "@renegade-fi/react"
-import { useAccount } from "wagmi"
+import { BaseError, useAccount } from "wagmi"
 
 export function useEventTracker() {
   const walletId = useWalletId()
@@ -16,20 +16,26 @@ export function useEventTracker() {
     datadogRum.addAction(event, context)
   }
 
-  return { track }
+  const trackMutation = (
+    name: string,
+    params: Record<string, any>,
+    error?: Error | null,
+  ) => {
+    if (error?.name) {
+      track(`${name}_error`, { ...params, ...error })
+    } else {
+      track(`${name}_completed`, params)
+    }
+  }
+
+  return { track, trackMutation }
 }
 
 export const EventNames = {
-  APPROVE_SWAP_COMPLETED: "approve_swap_completed",
-  SWAP_COMPLETED: "swap_completed",
+  APPROVE_SWAP: "approve_swap",
+  SWAP: "swap",
   DEPOSIT_TASK_STARTED: "deposit_task_started",
-  APPROVE_BRIDGE_COMPLETED: "approve_bridge_completed",
-  BRIDGE_COMPLETED: "bridge_completed",
-  APPROVE_DARKPOOL_COMPLETED: "approve_darkpool_completed",
-  APPROVE_SWAP_ERROR: "approve_swap_error",
-  SWAP_ERROR: "swap_error",
-  DEPOSIT_ERROR: "deposit_error",
-  APPROVE_BRIDGE_ERROR: "approve_bridge_error",
-  BRIDGE_ERROR: "bridge_error",
-  APPROVE_DARKPOOL_ERROR: "approve_darkpool_error",
+  APPROVE_BRIDGE: "approve_bridge",
+  BRIDGE: "bridge",
+  APPROVE_DARKPOOL: "approve_darkpool",
 } as const

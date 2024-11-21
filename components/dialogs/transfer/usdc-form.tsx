@@ -316,14 +316,7 @@ export function USDCForm({
                 ),
                 tool: bridgeQuote?.tool,
               }
-              if (error?.name) {
-                track(EventNames.BRIDGE_ERROR, {
-                  ...context,
-                  ...error,
-                })
-              } else {
-                track(EventNames.BRIDGE_COMPLETED, context)
-              }
+              trackMutation(EventNames.BRIDGE, context, error)
             },
           },
         ),
@@ -378,14 +371,7 @@ export function USDCForm({
                         )
                       : amount,
                 }
-                if (error?.name) {
-                  track(EventNames.APPROVE_DARKPOOL_ERROR, {
-                    ...context,
-                    ...error,
-                  })
-                } else {
-                  track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
-                }
+                trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
               },
             },
           ),
@@ -456,14 +442,7 @@ export function USDCForm({
                         )
                       : amount,
                 }
-                if (error?.name) {
-                  track(EventNames.APPROVE_DARKPOOL_ERROR, {
-                    ...context,
-                    ...error,
-                  })
-                } else {
-                  track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
-                }
+                trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
               },
             },
           ),
@@ -514,7 +493,7 @@ export function USDCForm({
       decimals: USDCE_L2_TOKEN.decimals,
     })
 
-  const { track } = useEventTracker()
+  const { track, trackMutation } = useEventTracker()
   const {
     writeContract: handleApproveSwap,
     status: approveSwapStatus,
@@ -559,14 +538,7 @@ export function USDCForm({
                 ),
                 tool: swapQuote?.tool,
               }
-              if (error?.name) {
-                track(EventNames.SWAP_ERROR, {
-                  ...context,
-                  ...error,
-                })
-              } else {
-                track(EventNames.SWAP_COMPLETED, context)
-              }
+              trackMutation(EventNames.SWAP, context, error)
             },
           },
         ),
@@ -611,14 +583,7 @@ export function USDCForm({
                       )
                     : amount,
               }
-              if (error?.name) {
-                track(EventNames.APPROVE_DARKPOOL_ERROR, {
-                  ...context,
-                  ...error,
-                })
-              } else {
-                track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
-              }
+              trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
             },
           },
         ),
@@ -815,14 +780,7 @@ export function USDCForm({
                     USDC_L1_TOKEN.decimals,
                   ),
                 }
-                if (error?.name) {
-                  track(EventNames.APPROVE_BRIDGE_ERROR, {
-                    ...context,
-                    ...error,
-                  })
-                } else {
-                  track(EventNames.APPROVE_BRIDGE_COMPLETED, context)
-                }
+                trackMutation(EventNames.APPROVE_BRIDGE, context, error)
               },
             },
           ),
@@ -854,14 +812,7 @@ export function USDCForm({
                   ),
                   tool: bridgeQuote?.tool,
                 }
-                if (error?.name) {
-                  track(EventNames.BRIDGE_ERROR, {
-                    ...context,
-                    ...error,
-                  })
-                } else {
-                  track(EventNames.BRIDGE_COMPLETED, context)
-                }
+                trackMutation(EventNames.BRIDGE, context, error)
               },
             },
           ),
@@ -894,14 +845,7 @@ export function USDCForm({
               ),
               tool: bridgeQuote.tool,
             }
-            if (error?.name) {
-              track(EventNames.BRIDGE_ERROR, {
-                ...context,
-                ...error,
-              })
-            } else {
-              track(EventNames.BRIDGE_COMPLETED, context)
-            }
+            trackMutation(EventNames.BRIDGE, context, error)
           },
         })
       }
@@ -933,14 +877,7 @@ export function USDCForm({
                     USDCE_L2_TOKEN.decimals,
                   ),
                 }
-                if (error?.name) {
-                  track(EventNames.APPROVE_SWAP_ERROR, {
-                    ...context,
-                    ...error,
-                  })
-                } else {
-                  track(EventNames.APPROVE_SWAP_COMPLETED, context)
-                }
+                trackMutation(EventNames.APPROVE_SWAP, context, error)
               },
             },
           ),
@@ -971,14 +908,7 @@ export function USDCForm({
                   ),
                   tool: swapQuote?.tool,
                 }
-                if (error?.name) {
-                  track(EventNames.SWAP_ERROR, {
-                    ...context,
-                    ...error,
-                  })
-                } else {
-                  track(EventNames.SWAP_COMPLETED, context)
-                }
+                trackMutation(EventNames.SWAP, context, error)
               },
             },
           ),
@@ -1000,14 +930,7 @@ export function USDCForm({
                 mint: USDC_L2_TOKEN.address,
                 amount,
               }
-              if (error?.name) {
-                track(EventNames.APPROVE_DARKPOOL_ERROR, {
-                  ...context,
-                  ...error,
-                })
-              } else {
-                track(EventNames.APPROVE_DARKPOOL_COMPLETED, context)
-              }
+              trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
             },
           },
         ),
