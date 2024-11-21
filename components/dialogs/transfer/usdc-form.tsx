@@ -122,6 +122,7 @@ export function USDCForm({
       onError: (error) => setSwitchChainError(error),
     },
   })
+  const { track, trackMutation } = useEventTracker()
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -285,6 +286,7 @@ export function USDCForm({
   const approveBridgeConfirmationStatus = useTransactionConfirmation(
     approveBridgeHash,
     async () => {
+      track(EventNames.APPROVE_BRIDGE_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: bridgeAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (Date.now() - bridgeQuoteUpdatedAt! > QUOTE_STALE_TIME) {
@@ -301,7 +303,7 @@ export function USDCForm({
           {
             onSettled(_, error) {
               trackMutation(
-                EventNames.BRIDGE,
+                EventNames.SOURCE_BRIDGE_TX_SENT,
                 formatQuoteToEventParams(bridgeQuote),
                 error,
               )
@@ -334,6 +336,7 @@ export function USDCForm({
   const { data: solanaBridgeExecutionStatus } = useBridgeConfirmation(
     solanaBridgeHash,
     async (bridge) => {
+      track(EventNames.DESTINATION_BRIDGE_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcSolanaBalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
@@ -360,7 +363,11 @@ export function USDCForm({
                         )
                       : amount,
                 }
-                trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
+                trackMutation(
+                  EventNames.APPROVE_DARKPOOL_TX_SENT,
+                  context,
+                  error,
+                )
               },
             },
           ),
@@ -397,6 +404,7 @@ export function USDCForm({
   const sendBridgeConfirmationStatus = useTransactionConfirmation(
     bridgeHash,
     async () => {
+      track(EventNames.SOURCE_BRIDGE_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
     },
@@ -406,6 +414,7 @@ export function USDCForm({
   const { data: bridgeExecutionStatus } = useBridgeConfirmation(
     bridgeHash,
     async (bridge) => {
+      track(EventNames.DESTINATION_BRIDGE_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
@@ -432,7 +441,11 @@ export function USDCForm({
                         )
                       : amount,
                 }
-                trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
+                trackMutation(
+                  EventNames.APPROVE_DARKPOOL_TX_SENT,
+                  context,
+                  error,
+                )
               },
             },
           ),
@@ -483,7 +496,6 @@ export function USDCForm({
       decimals: USDCE_L2_TOKEN.decimals,
     })
 
-  const { track, trackMutation } = useEventTracker()
   const {
     writeContract: handleApproveSwap,
     status: approveSwapStatus,
@@ -497,6 +509,7 @@ export function USDCForm({
   const approveSwapConfirmationStatus = useTransactionConfirmation(
     approveSwapHash,
     async () => {
+      track(EventNames.APPROVE_SWAP_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (Date.now() - quoteUpdatedAt! > QUOTE_STALE_TIME) {
@@ -513,7 +526,7 @@ export function USDCForm({
           {
             onSettled(_, error) {
               trackMutation(
-                EventNames.SWAP,
+                EventNames.SWAP_TX_SENT,
                 formatQuoteToEventParams(swapQuote),
                 error,
               )
@@ -562,7 +575,7 @@ export function USDCForm({
                       )
                     : amount,
               }
-              trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
+              trackMutation(EventNames.APPROVE_DARKPOOL_TX_SENT, context, error)
             },
           },
         ),
@@ -614,6 +627,7 @@ export function USDCForm({
   const approveConfirmationStatus = useTransactionConfirmation(
     approveHash,
     async () => {
+      track(EventNames.APPROVE_DARKPOOL_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcL2AllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       await switchChainAndInvoke(chain.id, () =>
@@ -759,7 +773,7 @@ export function USDCForm({
                     USDC_L1_TOKEN.decimals,
                   ),
                 }
-                trackMutation(EventNames.APPROVE_BRIDGE, context, error)
+                trackMutation(EventNames.APPROVE_BRIDGE_TX_SENT, context, error)
               },
             },
           ),
@@ -775,7 +789,7 @@ export function USDCForm({
             {
               onSettled(_, error) {
                 trackMutation(
-                  EventNames.BRIDGE,
+                  EventNames.SOURCE_BRIDGE_TX_SENT,
                   formatQuoteToEventParams(bridgeQuote),
                   error,
                 )
@@ -795,7 +809,7 @@ export function USDCForm({
         handleSolanaBridge(bridgeQuote.transactionRequest, {
           onSettled(_, error) {
             trackMutation(
-              EventNames.BRIDGE,
+              EventNames.SOURCE_BRIDGE_TX_SENT,
               formatQuoteToEventParams(bridgeQuote),
               error,
             )
@@ -830,7 +844,7 @@ export function USDCForm({
                     USDCE_L2_TOKEN.decimals,
                   ),
                 }
-                trackMutation(EventNames.APPROVE_SWAP, context, error)
+                trackMutation(EventNames.APPROVE_SWAP_TX_SENT, context, error)
               },
             },
           ),
@@ -846,7 +860,7 @@ export function USDCForm({
             {
               onSettled(_, error) {
                 trackMutation(
-                  EventNames.SWAP,
+                  EventNames.SWAP_TX_SENT,
                   formatQuoteToEventParams(swapQuote),
                   error,
                 )
@@ -871,7 +885,7 @@ export function USDCForm({
                 mint: USDC_L2_TOKEN.address,
                 amount,
               }
-              trackMutation(EventNames.APPROVE_DARKPOOL, context, error)
+              trackMutation(EventNames.APPROVE_DARKPOOL_TX_SENT, context, error)
             },
           },
         ),
