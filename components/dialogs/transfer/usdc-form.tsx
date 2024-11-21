@@ -20,6 +20,7 @@ import {
   checkAmount,
   checkBalance,
   formSchema,
+  formatQuoteToEventParams,
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useBridgeConfirmation } from "@/components/dialogs/transfer/hooks/use-bridge-confirmation"
@@ -299,24 +300,11 @@ export function USDCForm({
           },
           {
             onSettled(_, error) {
-              const context = {
-                fromChainId: bridgeQuote?.action.fromChainId,
-                fromTokenMint: bridgeQuote?.action.fromToken.address,
-                fromTokenTicker: bridgeQuote?.action.fromToken.symbol,
-                fromTokenAmount: formatUnits(
-                  BigInt(bridgeQuote?.estimate.fromAmount ?? 0),
-                  bridgeQuote?.action.fromToken.decimals ?? 0,
-                ),
-                toChainId: bridgeQuote?.action.toChainId,
-                toTokenMint: bridgeQuote?.action.toToken.address,
-                toTokenTicker: bridgeQuote?.action.toToken.symbol,
-                toTokenAmount: formatUnits(
-                  BigInt(bridgeQuote?.estimate.toAmount ?? 0),
-                  bridgeQuote?.action.toToken.decimals ?? 0,
-                ),
-                tool: bridgeQuote?.tool,
-              }
-              trackMutation(EventNames.BRIDGE, context, error)
+              trackMutation(
+                EventNames.BRIDGE,
+                formatQuoteToEventParams(bridgeQuote),
+                error,
+              )
             },
           },
         ),
@@ -362,6 +350,7 @@ export function USDCForm({
             {
               onSettled(_, error) {
                 const context = {
+                  chainId: chain.id,
                   mint: USDC_L2_TOKEN.address,
                   amount:
                     network !== chain.id
@@ -433,6 +422,7 @@ export function USDCForm({
             {
               onSettled(_, error) {
                 const context = {
+                  chainId: chain.id,
                   mint: USDC_L2_TOKEN.address,
                   amount:
                     network !== chain.id
@@ -521,24 +511,12 @@ export function USDCForm({
             type: "legacy",
           },
           {
-            onSettled(_, error, variables) {
-              const context = {
-                chainId: variables.chainId,
-                fromTokenMint: swapQuote?.action.fromToken.address,
-                fromTokenTicker: swapQuote?.action.fromToken.symbol,
-                fromTokenAmount: formatUnits(
-                  BigInt(swapQuote?.estimate.fromAmount ?? 0),
-                  swapQuote?.action.fromToken.decimals ?? 0,
-                ),
-                toTokenMint: swapQuote?.action.toToken.address,
-                toTokenTicker: swapQuote?.action.toToken.symbol,
-                toTokenAmount: formatUnits(
-                  BigInt(swapQuote?.estimate.toAmount ?? 0),
-                  swapQuote?.action.toToken.decimals ?? 0,
-                ),
-                tool: swapQuote?.tool,
-              }
-              trackMutation(EventNames.SWAP, context, error)
+            onSettled(_, error) {
+              trackMutation(
+                EventNames.SWAP,
+                formatQuoteToEventParams(swapQuote),
+                error,
+              )
             },
           },
         ),
@@ -574,6 +552,7 @@ export function USDCForm({
           {
             onSettled(_, error) {
               const context = {
+                chainId: chain.id,
                 mint: USDC_L2_TOKEN.address,
                 amount:
                   network !== chain.id
@@ -795,24 +774,11 @@ export function USDCForm({
             },
             {
               onSettled(_, error) {
-                const context = {
-                  fromChainId: bridgeQuote?.action.fromChainId,
-                  fromTokenMint: bridgeQuote?.action.fromToken.address,
-                  fromTokenTicker: bridgeQuote?.action.fromToken.symbol,
-                  fromTokenAmount: formatUnits(
-                    BigInt(bridgeQuote?.estimate.fromAmount ?? 0),
-                    bridgeQuote?.action.fromToken.decimals ?? 0,
-                  ),
-                  toChainId: bridgeQuote?.action.toChainId,
-                  toTokenMint: bridgeQuote?.action.toToken.address,
-                  toTokenTicker: bridgeQuote?.action.toToken.symbol,
-                  toTokenAmount: formatUnits(
-                    BigInt(bridgeQuote?.estimate.toAmount ?? 0),
-                    bridgeQuote?.action.toToken.decimals ?? 0,
-                  ),
-                  tool: bridgeQuote?.tool,
-                }
-                trackMutation(EventNames.BRIDGE, context, error)
+                trackMutation(
+                  EventNames.BRIDGE,
+                  formatQuoteToEventParams(bridgeQuote),
+                  error,
+                )
               },
             },
           ),
@@ -828,24 +794,11 @@ export function USDCForm({
       } else {
         handleSolanaBridge(bridgeQuote.transactionRequest, {
           onSettled(_, error) {
-            const context = {
-              fromChainId: bridgeQuote.action.fromChainId,
-              fromTokenMint: bridgeQuote.action.fromToken.address,
-              fromTokenTicker: bridgeQuote.action.fromToken.symbol,
-              fromTokenAmount: formatUnits(
-                BigInt(bridgeQuote.action.fromAmount ?? 0),
-                bridgeQuote.action.fromToken.decimals ?? 0,
-              ),
-              toChainId: bridgeQuote.action.toChainId,
-              toTokenMint: bridgeQuote.action.toToken.address,
-              toTokenTicker: bridgeQuote.action.toToken.symbol,
-              toTokenAmount: formatUnits(
-                BigInt(bridgeQuote.estimate.toAmount ?? 0),
-                bridgeQuote.action.toToken.decimals ?? 0,
-              ),
-              tool: bridgeQuote.tool,
-            }
-            trackMutation(EventNames.BRIDGE, context, error)
+            trackMutation(
+              EventNames.BRIDGE,
+              formatQuoteToEventParams(bridgeQuote),
+              error,
+            )
           },
         })
       }
@@ -891,24 +844,12 @@ export function USDCForm({
               type: "legacy",
             },
             {
-              onSettled(_, error, variables) {
-                const context = {
-                  chainId: variables.chainId,
-                  fromTokenMint: swapQuote?.action.fromToken.address,
-                  fromTokenTicker: swapQuote?.action.fromToken.symbol,
-                  fromTokenAmount: formatUnits(
-                    BigInt(swapQuote?.estimate.fromAmount ?? 0),
-                    swapQuote?.action.fromToken.decimals ?? 0,
-                  ),
-                  toTokenMint: swapQuote?.action.toToken.address,
-                  toTokenTicker: swapQuote?.action.toToken.symbol,
-                  toTokenAmount: formatUnits(
-                    BigInt(swapQuote?.estimate.toAmount ?? 0),
-                    swapQuote?.action.toToken.decimals ?? 0,
-                  ),
-                  tool: swapQuote?.tool,
-                }
-                trackMutation(EventNames.SWAP, context, error)
+              onSettled(_, error) {
+                trackMutation(
+                  EventNames.SWAP,
+                  formatQuoteToEventParams(swapQuote),
+                  error,
+                )
               },
             },
           ),
