@@ -39,7 +39,13 @@ export function useBridgeQuote({
     queryKey,
     ...useQuery({
       queryKey,
-      queryFn: () => getQuote(params!),
+      queryFn: () => {
+        // Temporarily disable Solana bridge
+        if (fromChain === solana.id) {
+          throw new Error("Solana bridge is temporarily disabled")
+        }
+        return getQuote(params!)
+      },
       enabled: Boolean(enabled && params),
       refetchOnWindowFocus: false,
       staleTime: Infinity,
