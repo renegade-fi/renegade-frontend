@@ -2,9 +2,9 @@ import { useMemo } from "react"
 
 interface TokenConfig {
   allocation: number // Quoter's allocation in USDC
-  firstFillAmount: number // Amount that can be filled instantly
+  firstFillValue: number // Amount that can be filled instantly
   rematchDelayMs: number // Delay between fill attempts
-  fillDurations: {
+  fillLatency: {
     first: number // Duration for first fills in ms
     normal: number // Duration for normal fills in ms
     priority: number // Duration for priority fills in ms
@@ -12,7 +12,7 @@ interface TokenConfig {
 }
 
 // Token allocations in USDC
-const TOKEN_ALLOCATIONS: Record<string, number> = {
+const ALLOCATIONS: Record<string, number> = {
   WBTC: 11000,
   WETH: 11000,
   ARB: 1000,
@@ -34,27 +34,27 @@ const TOKEN_ALLOCATIONS: Record<string, number> = {
 
 // Default configuration
 const DEFAULT_CONFIG: Omit<TokenConfig, "allocation"> = {
-  firstFillAmount: 1000, // Default first fill amount
+  firstFillValue: 1000, // Default first fill amount
   rematchDelayMs: 60_000, // 1 minute between fills
-  fillDurations: {
+  fillLatency: {
     first: 1_000, // 1 second
-    normal: 30_000, // 30 seconds
+    normal: 30_000, // TODO: Verify this
     priority: 54_000, // 54 seconds
   },
 }
 
 // Token-specific configurations (override defaults)
 const TOKEN_CONFIGS: Partial<
-  Record<string, Partial<Pick<TokenConfig, "firstFillAmount">>>
+  Record<string, Partial<Pick<TokenConfig, "firstFillValue">>>
 > = {
   WETH: {
-    firstFillAmount: 3000,
+    firstFillValue: 3000,
   },
   WBTC: {
-    firstFillAmount: 3000,
+    firstFillValue: 3000,
   },
   PENDLE: {
-    firstFillAmount: 1000,
+    firstFillValue: 1000,
   },
 }
 
@@ -66,10 +66,7 @@ interface TimeToFillParams {
 export function useTimeToFill({ amount, baseToken }: TimeToFillParams): number {
   return useMemo(() => {
     // Get token allocation or use minimum allocation as default
-    const allocation = baseToken
-      ? TOKEN_ALLOCATIONS[baseToken] ??
-        Math.min(...Object.values(TOKEN_ALLOCATIONS))
-      : Math.min(...Object.values(TOKEN_ALLOCATIONS))
+    const allocation = ALLOCATIONS[baseToken]
 
     // Get token-specific config overrides or use defaults
     const config = {
@@ -79,12 +76,12 @@ export function useTimeToFill({ amount, baseToken }: TimeToFillParams): number {
     }
 
     // If amount is less than or equal to first fill threshold, return first fill duration
-    if (amount <= config.firstFillAmount) {
-      return config.fillDurations.first
+    if (amount <= config.firstFillValue) {
+      return config.fillLatency.first
     }
 
     // Calculate remaining amount after first fill
-    const remainingAmount = amount - config.firstFillAmount
+    const remainingAmount = amount - config.firstFillValue
 
     // Determine if this is a priority fill (amount > 2x allocation)
     const isPriorityFill = amount > allocation * 2
@@ -98,14 +95,14 @@ export function useTimeToFill({ amount, baseToken }: TimeToFillParams): number {
     const intervalsNeeded = Math.ceil(remainingAmount / fillPerInterval)
 
     // Use appropriate fill duration based on priority
-    const fillDuration = isPriorityFill
-      ? config.fillDurations.priority
-      : config.fillDurations.normal
+    const fillLatency = isPriorityFill
+      ? config.fillLatency.priority
+      : config.fillLatency.normal
 
     // Return total time in milliseconds (including initial first fill duration)
     return (
-      config.fillDurations.first +
-      intervalsNeeded * (config.rematchDelayMs + fillDuration)
+      config.fillLatency.first +
+      intervalsNeeded * (config.rematchDelayMs + fillLatency)
     )
   }, [amount, baseToken])
 }
