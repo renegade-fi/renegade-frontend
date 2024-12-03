@@ -49,14 +49,12 @@ const connectKitTheme = {
 
 interface WagmiProviderProps {
   children: React.ReactNode
-  // cookieString?: string
   initialState?: State
 }
 
 export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
   const [open, setOpen] = React.useState(false)
   const [config] = React.useState(() => getConfig())
-  // const initialState = cookieToInitialState(wagmiConfig, cookieString)
 
   return (
     <Provider
