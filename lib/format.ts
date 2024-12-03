@@ -1,11 +1,13 @@
 import { OrderState, UseStatusReturnType } from "@renegade-fi/react"
 import dayjs from "dayjs"
+import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
 import numeral from "numeral"
 import { formatUnits, parseUnits } from "viem"
 
 import { oneMinute, oneHour } from "@/lib/constants/time"
 
+dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
 export const formatRelativeTimestamp = (timestamp: number) => {
@@ -161,4 +163,9 @@ export function formatStat(volume: number) {
 export const truncateAddress = (address: string, chars: number = 4) => {
   if (!address || address.length <= chars * 2) return address
   return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
+}
+
+export function formatDuration(ms: number | undefined): string | undefined {
+  if (!ms) return undefined
+  return dayjs.duration(ms, "milliseconds").humanize()
 }
