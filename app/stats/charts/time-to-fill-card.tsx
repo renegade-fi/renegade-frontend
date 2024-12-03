@@ -123,7 +123,6 @@ export function TimeToFillCard() {
     isQuoteCurrency,
     isSell: false,
   })
-  console.log("🚀 ~ TimeToFillCard ~ priceInBase:", priceInBase)
 
   // Calculate amount in USD
   const amountInUSD = useMemo(() => {
@@ -149,6 +148,7 @@ export function TimeToFillCard() {
   const timeToFillMs = useTimeToFill({
     amount: amountInUSD,
     baseToken: selectedToken,
+    includeVolumeLimit: true,
   })
 
   const displayValues = useMemo<TimeDisplayValues>(() => {

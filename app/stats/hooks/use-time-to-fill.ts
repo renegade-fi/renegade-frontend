@@ -9,6 +9,7 @@ interface TokenConfig {
     normal: number // Duration for normal fills in ms
     priority: number // Duration for priority fills in ms
   }
+  hourlyVolumeLimit: number
 }
 
 // Token allocations in USDC
@@ -41,29 +42,41 @@ const DEFAULT_CONFIG: Omit<TokenConfig, "allocation"> = {
     normal: 30_000, // TODO: Verify this
     priority: 54_000, // 54 seconds
   },
+  hourlyVolumeLimit: 10_000,
 }
 
 // Token-specific configurations (override defaults)
 const TOKEN_CONFIGS: Partial<
-  Record<string, Partial<Pick<TokenConfig, "firstFillValue">>>
+  Record<
+    string,
+    Partial<Pick<TokenConfig, "firstFillValue" | "hourlyVolumeLimit">>
+  >
 > = {
   WETH: {
     firstFillValue: 3000,
+    hourlyVolumeLimit: 200_000,
   },
   WBTC: {
     firstFillValue: 3000,
+    hourlyVolumeLimit: 200_000,
   },
   PENDLE: {
     firstFillValue: 1000,
+    hourlyVolumeLimit: 50_000,
   },
 }
 
 interface TimeToFillParams {
   amount: number // Amount in USDC
   baseToken: string // Base token identifier (e.g., "WETH")
+  includeVolumeLimit?: boolean
 }
 
-export function useTimeToFill({ amount, baseToken }: TimeToFillParams): number {
+export function useTimeToFill({
+  amount,
+  baseToken,
+  includeVolumeLimit = false,
+}: TimeToFillParams): number {
   return useMemo(() => {
     // Get token allocation or use minimum allocation as default
     const allocation = ALLOCATIONS[baseToken]
@@ -99,10 +112,18 @@ export function useTimeToFill({ amount, baseToken }: TimeToFillParams): number {
       ? config.fillLatency.priority
       : config.fillLatency.normal
 
-    // Return total time in milliseconds (including initial first fill duration)
-    return (
+    const baseDelay =
       config.fillLatency.first +
       intervalsNeeded * (config.rematchDelayMs + fillLatency)
-    )
-  }, [amount, baseToken])
+
+    if (includeVolumeLimit) {
+      // Calculate how many full hours are needed based on amount vs hourly limit
+      const hoursNeeded = Math.ceil(amount / config.hourlyVolumeLimit)
+      if (hoursNeeded > 1) {
+        return baseDelay + (hoursNeeded - 1) * 3600 * 1000
+      }
+    }
+
+    return baseDelay
+  }, [amount, baseToken, includeVolumeLimit])
 }
