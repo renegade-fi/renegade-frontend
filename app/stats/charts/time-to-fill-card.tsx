@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/popover"
 import { Slider } from "@/components/ui/slider"
 
+import { useOrderValue } from "@/hooks/use-order-value"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { safeParseUnits } from "@/lib/format"
@@ -116,6 +117,13 @@ export function TimeToFillCard() {
   const baseToken = Token.findByTicker(selectedToken)
   const { data: usdPerBase } = usePriceQuery(baseToken.address)
 
+  const { priceInBase } = useOrderValue({
+    amount: selectedAmount.toString(),
+    base: selectedToken,
+    isQuoteCurrency,
+    isSell: false,
+  })
+
   // Calculate amount in USD
   const amountInUSD = useMemo(() => {
     if (!usdPerBase) return selectedAmount
@@ -166,15 +174,30 @@ export function TimeToFillCard() {
     <NumberFlowGroup>
       <div className="container flex flex-1 flex-col items-center justify-center gap-4 border">
         <div className="text-lg leading-none text-muted-foreground">Fill</div>
-        <div className="font-serif text-2xl font-bold leading-none">
-          <NumberFlow
-            format={{
-              style: "currency",
-              currency: "USD",
-              minimumFractionDigits: 0,
-            }}
-            value={selectedAmount}
-          />
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-4">
+            <NumberFlow
+              className="font-serif text-2xl font-bold leading-none"
+              format={{
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 0,
+              }}
+              value={selectedAmount}
+            />
+            <NumberFlow
+              className={cn(
+                "text-sm text-muted-foreground",
+                !priceInBase && "hidden",
+              )}
+              format={{
+                maximumFractionDigits: 2,
+              }}
+              prefix="("
+              suffix={` ${selectedToken})`}
+              value={Number(priceInBase)}
+            />
+          </div>
         </div>
         <div className="w-full">
           <Slider
@@ -192,17 +215,16 @@ export function TimeToFillCard() {
           />
           <div className="text-lg leading-none text-muted-foreground">in</div>
         </div>
-        <div className="font-serif text-2xl font-bold leading-none">
-          <NumberFlow
-            format={{
-              maximumFractionDigits: 0,
-              minimumFractionDigits: 0,
-            }}
-            prefix={displayValues.prefix}
-            suffix={displayValues.suffix}
-            value={displayValues.value}
-          />
-        </div>
+        <NumberFlow
+          className="font-serif text-2xl font-bold leading-none"
+          format={{
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0,
+          }}
+          prefix={displayValues.prefix}
+          suffix={displayValues.suffix}
+          value={displayValues.value}
+        />
       </div>
     </NumberFlowGroup>
   )
