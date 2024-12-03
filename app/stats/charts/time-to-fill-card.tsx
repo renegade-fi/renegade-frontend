@@ -175,7 +175,7 @@ export function TimeToFillCard() {
       <div className="container flex flex-1 flex-col items-center justify-center gap-4 border">
         <div className="text-lg leading-none text-muted-foreground">Fill</div>
         <div className="flex flex-col items-center gap-1">
-          <div className="flex items-center gap-4">
+          <div className="flex items-baseline">
             <NumberFlow
               className="font-serif text-2xl font-bold leading-none"
               format={{
@@ -185,6 +185,7 @@ export function TimeToFillCard() {
               }}
               value={selectedAmount}
             />
+            &nbsp;
             <NumberFlow
               className={cn(
                 "text-sm text-muted-foreground",
