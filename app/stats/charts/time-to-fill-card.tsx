@@ -1,26 +1,14 @@
 import React, { useMemo } from "react"
 
+import NumberFlow, { NumberFlowGroup } from "@number-flow/react"
 import { Token } from "@renegade-fi/react"
-import {
-  ArrowRightLeft,
-  Check,
-  ChevronDown,
-  ChevronsUpDown,
-} from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
 import { useTimeToFill } from "@/app/stats/hooks/use-time-to-fill"
 
-import { NumberInput } from "@/components/number-input"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   Command,
   CommandEmpty,
@@ -29,17 +17,16 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Slider } from "@/components/ui/slider"
 
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { formatCurrency, formatDuration, safeParseUnits } from "@/lib/format"
+import { safeParseUnits } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
@@ -66,11 +53,11 @@ function TokenSelect({ value, onChange }: TokenSelectProps) {
       <PopoverTrigger asChild>
         <Button
           aria-expanded={open}
-          className="flex-1 font-serif text-2xl font-bold"
+          className="w-full font-serif text-2xl font-bold"
           role="combobox"
           size="xl"
           type="button"
-          variant="outline"
+          variant="ghost"
         >
           <TokenIcon
             className="mr-2"
@@ -125,11 +112,6 @@ export function TimeToFillCard() {
 
   // Calculate amount in USD
   const amountInUSD = useMemo(() => {
-    console.log("enter amount in usd debug", {
-      selectedAmount,
-      usdPerBase,
-      isQuoteCurrency,
-    })
     if (!usdPerBase) return selectedAmount
     if (isQuoteCurrency) {
       return selectedAmount
@@ -141,16 +123,6 @@ export function TimeToFillCard() {
     if (parsedAmount instanceof Error) {
       return selectedAmount
     }
-    console.log("amount in usd debug", {
-      amount: selectedAmount,
-      usdPerBase,
-      amountInUSD: Number(
-        formatUnits(
-          amountTimesPrice(parsedAmount, usdPerBase),
-          baseToken.decimals,
-        ),
-      ),
-    })
     return Number(
       formatUnits(
         amountTimesPrice(parsedAmount, usdPerBase),
@@ -161,109 +133,55 @@ export function TimeToFillCard() {
 
   const timeToFillMs = useTimeToFill({
     amount: amountInUSD,
+    baseToken: selectedToken,
   })
 
-  const humanizedDuration = useMemo(() => {
-    if (!timeToFillMs) return "0 minutes"
-    return formatDuration(timeToFillMs)
+  // Convert ms to minutes for display
+  const timeInMinutes = useMemo(() => {
+    return timeToFillMs / (1000 * 60)
   }, [timeToFillMs])
 
-  const formattedUSDAmount = formatCurrency(amountInUSD)
-
   return (
-    <div className="border p-4">
-      <div className="flex items-center gap-2">
-        <Button
-          className="h-12 rounded-none px-2 py-0 font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-          type="button"
-          variant="ghost"
-          onClick={() => setIsQuoteCurrency(!isQuoteCurrency)}
-        >
-          BUY
-          <ArrowRightLeft className="ml-2 h-5 w-5" />
-        </Button>
-        <NumberInput
-          className="h-12 w-fit rounded-none border font-mono text-xl focus-visible:ring-0"
-          placeholder="0.00"
-          type="number"
-          value={selectedAmount.toString()}
-          onChange={(e) => setSelectedAmount(Number(e.target.value))}
-        />
-        <Button
-          className="h-12 rounded-none px-2 py-0 font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-          type="button"
-          variant="ghost"
-          onClick={() => setIsQuoteCurrency(!isQuoteCurrency)}
-        >
-          WETH
-          <ChevronDown className="ml-2 h-5 w-5" />
-        </Button>
-        <span className="text-xl text-muted-foreground">with</span>
-        <Button
-          className="h-12 rounded-none px-2 py-0 font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-          type="button"
-          variant="ghost"
-        >
-          USDC
-        </Button>
+    <NumberFlowGroup>
+      <div className="container flex flex-1 flex-col items-center justify-center gap-4 border">
+        <div className="text-lg leading-none text-muted-foreground">Fill</div>
+        <div className="font-serif text-2xl font-bold leading-none">
+          <NumberFlow
+            format={{
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 0,
+            }}
+            value={selectedAmount}
+          />
+        </div>
+        <div className="w-full">
+          <Slider
+            max={1000000}
+            step={10000}
+            value={[selectedAmount]}
+            onValueChange={([value]) => setSelectedAmount(value)}
+          />
+        </div>
+        <div className="flex w-full flex-col items-center gap-1">
+          <div className="text-lg leading-none text-muted-foreground">of</div>
+          <TokenSelect
+            value={selectedToken}
+            onChange={setSelectedToken}
+          />
+          <div className="text-lg leading-none text-muted-foreground">in</div>
+        </div>
+        <div className="font-serif text-2xl font-bold leading-none">
+          <NumberFlow
+            format={{
+              maximumFractionDigits: 0,
+              minimumFractionDigits: 0,
+            }}
+            suffix={timeInMinutes === 1 ? " minute" : " minutes"}
+            value={timeInMinutes}
+          />
+        </div>
       </div>
-      {selectedAmount === 0 ? (
-        "Select an amount"
-      ) : timeToFillMs !== undefined ? (
-        humanizedDuration
-      ) : (
-        <Skeleton className="h-10 w-40" />
-      )}
-    </div>
+    </NumberFlowGroup>
   )
 }
-
-// <Card className="rounded-none">
-//   <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-//     <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-//       <div className="flex items-center gap-2">
-//         <CardTitle className="font-serif text-4xl font-bold tracking-tighter lg:tracking-normal">
-//           {selectedAmount === 0 ? (
-//             "Select an amount"
-//           ) : timeToFillMs !== undefined ? (
-//             humanizedDuration
-//           ) : (
-//             <Skeleton className="h-10 w-40" />
-//           )}
-//         </CardTitle>
-//       </div>
-//       <CardDescription>
-//         Estimated Time to Fill {formattedUSDAmount} of {selectedToken}
-//       </CardDescription>
-//     </div>
-//   </CardHeader>
-//   <CardContent className="space-y-6 p-6">
-//     <div className="flex">
-//       <TokenSelect
-//         value={selectedToken}
-//         onChange={setSelectedToken}
-//       />
-//     </div>
-//     <div>
-//       <Label className="font-sans text-muted-foreground">Amount</Label>
-//       <div className="flex">
-//         <NumberInput
-//           className="h-12 flex-1 rounded-none border-none px-0 text-right font-mono text-2xl placeholder:text-right focus-visible:ring-0"
-//           placeholder="0.00"
-//           type="number"
-//           value={selectedAmount.toString()}
-//           onChange={(e) => setSelectedAmount(Number(e.target.value))}
-//         />
-//         <Button
-//           className="h-12 rounded-none px-2 py-0 font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-//           type="button"
-//           variant="ghost"
-//           onClick={() => setIsQuoteCurrency(!isQuoteCurrency)}
-//         >
-//           {isQuoteCurrency ? "USDC" : selectedToken}
-//           <ArrowRightLeft className="ml-2 h-5 w-5" />
-//         </Button>
-//       </div>
-//     </div>
-//   </CardContent>
-// </Card>
