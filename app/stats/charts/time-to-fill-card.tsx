@@ -123,6 +123,7 @@ export function TimeToFillCard() {
     isQuoteCurrency,
     isSell: false,
   })
+  console.log("🚀 ~ TimeToFillCard ~ priceInBase:", priceInBase)
 
   // Calculate amount in USD
   const amountInUSD = useMemo(() => {
@@ -165,7 +166,7 @@ export function TimeToFillCard() {
 
     return {
       value: timeInMinutes < 1 ? 1 : timeInMinutes,
-      prefix: timeInMinutes < 1 ? "<" : "~",
+      prefix: timeInMinutes < 1 ? "< " : "~",
       suffix: timeInMinutes < 1 || timeInMinutes === 1 ? " minute" : " minutes",
     }
   }, [timeToFillMs])
@@ -187,10 +188,7 @@ export function TimeToFillCard() {
             />
             &nbsp;
             <NumberFlow
-              className={cn(
-                "text-sm text-muted-foreground",
-                !priceInBase && "hidden",
-              )}
+              className={cn("text-sm text-muted-foreground")}
               format={{
                 maximumFractionDigits: 2,
               }}

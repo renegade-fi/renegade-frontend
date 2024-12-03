@@ -102,17 +102,6 @@ export function useTimeToFill({ amount, baseToken }: TimeToFillParams): number {
       ? config.fillDurations.priority
       : config.fillDurations.normal
 
-    console.log("ttf debug: ", {
-      first: config.fillDurations.first,
-      fillDuration,
-      intervalsNeeded,
-      rematchDelayMs: config.rematchDelayMs,
-      fillPerInterval,
-      baseToken,
-      allocation,
-      isPriorityFill,
-    })
-
     // Return total time in milliseconds (including initial first fill duration)
     return (
       config.fillDurations.first +
