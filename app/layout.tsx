@@ -5,6 +5,7 @@ import { Viewport } from "next/types"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
+import { cookieToInitialState } from "wagmi"
 
 import { ClearCookie } from "@/app/components/clear-cookie"
 import { LazyDatadog } from "@/app/components/datadog"
@@ -31,6 +32,7 @@ import { SolanaProvider } from "@/providers/solana-provider"
 import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider.tsx"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
+import { getConfig } from "@/providers/wagmi-provider/config"
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider"
 
 import "./globals.css"
@@ -93,6 +95,8 @@ export default async function RootLayout({
     ? decodeURIComponent(headersList.get("cookie") ?? "")
     : ""
 
+  const initialState = cookieToInitialState(getConfig(), cookieString)
+
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
 
@@ -114,7 +118,7 @@ export default async function RootLayout({
             <ClientStoreProvider>
               <RenegadeProvider cookieString={cookieString}>
                 <SolanaProvider>
-                  <WagmiProvider cookieString={cookieString}>
+                  <WagmiProvider initialState={initialState}>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
                       <WalletSidebarSync />

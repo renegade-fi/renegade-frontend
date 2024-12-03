@@ -11,11 +11,10 @@ import { coinbaseWallet, injected, safe, walletConnect } from "wagmi/connectors"
 import { constructMetadata, getURL } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 
-const defaultConnectors = (): CreateConnectorFn[] => {
+export function getConfig() {
   const metadata = constructMetadata()
   const shouldUseSafeConnector =
     !(typeof window === "undefined") && window?.parent !== window
-
   const connectors: CreateConnectorFn[] = []
 
   // If we're in an iframe, include the SafeConnector
@@ -51,22 +50,26 @@ const defaultConnectors = (): CreateConnectorFn[] => {
     )
   }
 
-  return connectors
+  return createConfig({
+    chains: [chain, mainnet],
+    ssr: true,
+    storage: createStorage({
+      storage: cookieStorage,
+    }),
+    transports: {
+      [mainnet.id]: http(),
+      [arbitrum.id]: http(),
+      [arbitrumSepolia.id]: http(),
+    },
+    connectors,
+  })
 }
 
-export const wagmiConfig = createConfig({
-  chains: [chain, mainnet],
-  transports: {
-    [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [mainnet.id]: http(),
-  },
-  ssr: true,
-  storage: createStorage({
-    storage: cookieStorage,
-  }),
-  connectors: defaultConnectors(),
-})
+declare module "wagmi" {
+  interface Register {
+    config: ReturnType<typeof getConfig>
+  }
+}
 
 export const mainnetConfig = createConfig({
   chains: [mainnet],
