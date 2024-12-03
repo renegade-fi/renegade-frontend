@@ -102,6 +102,12 @@ function TokenSelect({ value, onChange }: TokenSelectProps) {
   )
 }
 
+interface TimeDisplayValues {
+  value: number
+  prefix: string
+  suffix: string
+}
+
 export function TimeToFillCard() {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
   const [selectedToken, setSelectedToken] = React.useState("WETH")
@@ -136,9 +142,24 @@ export function TimeToFillCard() {
     baseToken: selectedToken,
   })
 
-  // Convert ms to minutes for display
-  const timeInMinutes = useMemo(() => {
-    return timeToFillMs / (1000 * 60)
+  const displayValues = useMemo<TimeDisplayValues>(() => {
+    const timeInMinutes = timeToFillMs / (1000 * 60)
+
+    if (timeInMinutes >= 60) {
+      const timeInHours = timeInMinutes / 60
+      const roundedHours = Math.round(timeInHours)
+      return {
+        value: roundedHours,
+        prefix: "~",
+        suffix: roundedHours === 1 ? " hour" : " hours",
+      }
+    }
+
+    return {
+      value: timeInMinutes < 1 ? 1 : timeInMinutes,
+      prefix: timeInMinutes < 1 ? "<" : "~",
+      suffix: timeInMinutes < 1 || timeInMinutes === 1 ? " minute" : " minutes",
+    }
   }, [timeToFillMs])
 
   return (
@@ -177,8 +198,9 @@ export function TimeToFillCard() {
               maximumFractionDigits: 0,
               minimumFractionDigits: 0,
             }}
-            suffix={timeInMinutes === 1 ? " minute" : " minutes"}
-            value={timeInMinutes}
+            prefix={displayValues.prefix}
+            suffix={displayValues.suffix}
+            value={displayValues.value}
           />
         </div>
       </div>
