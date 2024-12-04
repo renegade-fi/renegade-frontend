@@ -7,7 +7,7 @@ import { formatUnits } from "viem/utils"
 import { TokenSelect } from "@/app/stats/charts/token-select"
 import { useTimeToFill } from "@/app/stats/hooks/use-time-to-fill"
 
-import { Slider } from "@/components/ui/slider"
+import { Slider } from "@/components/animated-slider"
 
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePriceQuery } from "@/hooks/use-price-query"
@@ -83,53 +83,47 @@ export function TimeToFillCard() {
   }, [timeToFillMs])
 
   return (
-    <div className="flex flex-col justify-evenly border px-20">
-      <NumberFlowGroup>
-        <div className="grid grid-cols-[1fr_auto_1fr] gap-4 text-2xl leading-none">
-          {/* <div className="font-serif font-bold">Fill</div> */}
-          <NumberFlow
-            className="text-right font-serif text-2xl font-bold"
-            format={{
-              maximumFractionDigits: 2,
-            }}
-            prefix="Fill  "
-            value={Number(priceInBase)}
-          />
-          <TokenSelect
-            value={selectedToken}
-            onChange={setSelectedToken}
-          />
-          <NumberFlow
-            className="font-serif font-bold"
-            format={{
-              maximumFractionDigits: 0,
-              minimumFractionDigits: 0,
-            }}
-            prefix={`in  ${displayValues.prefix}`}
-            suffix={displayValues.suffix}
-            value={displayValues.value}
-          />
-        </div>
-        <div className="grid grid-cols-[0.5fr_2fr] items-center gap-4">
-          <NumberFlow
-            className="text-right font-serif text-2xl font-bold"
-            format={{
-              style: "currency",
-              currency: "USD",
-              minimumFractionDigits: 0,
-            }}
-            value={selectedAmount}
-          />
-          <div className="w-full">
-            <Slider
-              max={1000000}
-              step={10000}
-              value={[selectedAmount]}
-              onValueChange={([value]) => setSelectedAmount(value)}
-            />
-          </div>
-        </div>
-      </NumberFlowGroup>
-    </div>
+    <NumberFlowGroup>
+      <div className="grid grid-cols-[1fr_auto_0.5fr_1fr_auto] items-center gap-4 pr-32 text-2xl leading-none">
+        <NumberFlow
+          className="text-right font-serif text-2xl font-bold"
+          format={{
+            maximumFractionDigits: 2,
+          }}
+          prefix="Fill  "
+          value={Number(priceInBase)}
+        />
+        <TokenSelect
+          value={selectedToken}
+          onChange={setSelectedToken}
+        />
+        <NumberFlow
+          className="font-serif font-bold"
+          format={{
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0,
+          }}
+          prefix={`in  ${displayValues.prefix}`}
+          suffix={displayValues.suffix}
+          value={displayValues.value}
+        />
+        <Slider
+          max={1000000}
+          numberFlowClassName="text-right font-serif text-2xl font-bold"
+          numberFlowFormat={{
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 0,
+          }}
+          step={10000}
+          value={[selectedAmount]}
+          onValueChange={([value]) => setSelectedAmount(value)}
+        />
+        {/* TODO: Implement when zustand persistent storage is merged in */}
+        {/* <Button variant="secondary">
+          Place Order <ArrowRightIcon className="ml-2 size-4" />
+        </Button> */}
+      </div>
+    </NumberFlowGroup>
   )
 }
