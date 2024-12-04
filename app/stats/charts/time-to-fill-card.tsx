@@ -54,7 +54,7 @@ function TokenSelect({ value, onChange }: TokenSelectProps) {
       <PopoverTrigger asChild>
         <Button
           aria-expanded={open}
-          className="w-full font-serif text-2xl font-bold"
+          className="px-2 font-serif text-2xl font-bold"
           role="combobox"
           size="xl"
           type="button"
@@ -172,13 +172,13 @@ export function TimeToFillCard() {
   }, [timeToFillMs])
 
   return (
-    <NumberFlowGroup>
-      <div className="container flex flex-1 flex-col items-center justify-center gap-4 border">
-        <div className="text-lg leading-none text-muted-foreground">Fill</div>
-        <div className="flex flex-col items-center gap-1">
-          <div className="flex items-baseline">
+    <div className="w-full border p-4">
+      <NumberFlowGroup>
+        <div className="mx-auto max-w-2xl">
+          <div className="grid grid-cols-[auto_1fr_auto_1fr_auto_1fr] place-items-center text-2xl leading-none">
+            <div className="text-muted-foreground">Fill</div>
             <NumberFlow
-              className="font-serif text-2xl font-bold leading-none"
+              className="font-serif font-bold"
               format={{
                 style: "currency",
                 currency: "USD",
@@ -186,45 +186,43 @@ export function TimeToFillCard() {
               }}
               value={selectedAmount}
             />
-            &nbsp;
+            <div className="text-muted-foreground">of</div>
+            <TokenSelect
+              value={selectedToken}
+              onChange={setSelectedToken}
+            />
+            <div className="text-muted-foreground">in</div>
             <NumberFlow
-              className={cn("text-sm text-muted-foreground")}
+              className="font-serif font-bold"
+              format={{
+                maximumFractionDigits: 0,
+                minimumFractionDigits: 0,
+              }}
+              prefix={displayValues.prefix}
+              suffix={displayValues.suffix}
+              value={displayValues.value}
+            />
+          </div>
+          <div className="grid grid-cols-[1fr_2fr] items-center">
+            <NumberFlow
+              className="font-serif text-2xl font-bold"
               format={{
                 maximumFractionDigits: 2,
               }}
-              prefix="("
-              suffix={` ${selectedToken})`}
+              suffix={` ${selectedToken}`}
               value={Number(priceInBase)}
             />
+            <div className="w-full">
+              <Slider
+                max={1000000}
+                step={10000}
+                value={[selectedAmount]}
+                onValueChange={([value]) => setSelectedAmount(value)}
+              />
+            </div>
           </div>
         </div>
-        <div className="w-full">
-          <Slider
-            max={1000000}
-            step={10000}
-            value={[selectedAmount]}
-            onValueChange={([value]) => setSelectedAmount(value)}
-          />
-        </div>
-        <div className="flex w-full flex-col items-center gap-1">
-          <div className="text-lg leading-none text-muted-foreground">of</div>
-          <TokenSelect
-            value={selectedToken}
-            onChange={setSelectedToken}
-          />
-          <div className="text-lg leading-none text-muted-foreground">in</div>
-        </div>
-        <NumberFlow
-          className="font-serif text-2xl font-bold leading-none"
-          format={{
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0,
-          }}
-          prefix={displayValues.prefix}
-          suffix={displayValues.suffix}
-          value={displayValues.value}
-        />
-      </div>
-    </NumberFlowGroup>
+      </NumberFlowGroup>
+    </div>
   )
 }

@@ -8,25 +8,25 @@ import { VolumeChart } from "@/app/stats/charts/volume-chart"
 export function PageClient() {
   return (
     <main className="container mb-8 mt-12 flex flex-col gap-12 px-4 lg:px-8">
-      {/* <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="col-span-1">
           <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
             Time to Fill
           </h1>
           <TimeToFillCard />
         </div>
-      </div> */}
+      </div>
 
       <div className="grid grid-cols-1 grid-rows-[1fr] gap-12 lg:grid-cols-3 lg:gap-4">
         <div className="col-span-1 flex flex-col">
-          {/* <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
+          <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
             Total Value Locked
           </h1>
-          <TvlChart /> */}
-          <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
+          <TvlChart />
+          {/* <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
             Time to Fill
           </h1>
-          <TimeToFillCard />
+          <TimeToFillCard /> */}
         </div>
         <div className="col-span-1 lg:col-span-2">
           <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
