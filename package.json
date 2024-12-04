@@ -40,7 +40,7 @@
     "@radix-ui/react-tooltip": "^1.1.0",
     "@radix-ui/react-visually-hidden": "^1.1.0",
     "@renegade-fi/internal-sdk": "0.0.0-canary-20240829175257",
-    "@renegade-fi/react": "0.4.3",
+    "@renegade-fi/react": "file:/Users/akirillo/code/sdk/packages/react",
     "@renegade-fi/tradingview-charts": "0.27.6",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",

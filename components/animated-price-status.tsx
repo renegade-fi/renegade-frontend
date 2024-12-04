@@ -15,11 +15,11 @@ export function AnimatedPriceStatus({
   mint: `0x${string}`
 }) {
   const { data: price, dataUpdatedAt } = usePriceQuery(mint, exchange)
-  const prev = React.useRef(price)
 
   const stale = Date.now() - dataUpdatedAt > 60000
   let content = "LIVE"
   if (!price) {
+    // TODO: Read exchange support from Token
     content = "N/A"
   } else if (stale) {
     content = "STALE"

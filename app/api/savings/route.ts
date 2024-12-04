@@ -30,7 +30,6 @@ export async function POST(request: Request) {
       return Response.json({ savings: 0 })
     }
 
-    // const instrument = `${remapToken(baseTicker)}_${remapToken(quoteTicker)}`
     const instrument = `${remapToken(baseTicker)}_usdt`
 
     const orderbookRes = await constructBinanceOrderbook(instrument, timestamp)

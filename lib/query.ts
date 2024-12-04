@@ -1,6 +1,6 @@
 import { Exchange, Token } from "@renegade-fi/react"
 
-import { remapToken } from "@/lib/token"
+import { DEFAULT_QUOTE, remapToken } from "@/lib/token"
 
 export async function getPriceFromPriceReporter(
   topic: string,
@@ -48,25 +48,18 @@ export async function getPriceFromPriceReporter(
   }
 }
 
-export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
-  binance: Token.findByTicker("USDT").address,
-  coinbase: Token.findByTicker("USDC").address,
-  kraken: "0x0000000000000000000000000000000000000000" as `0x${string}`,
-  okx: Token.findByTicker("USDT").address,
-}
-
 export function createPriceTopic(
   exchange: Exchange = "binance",
   baseMint: `0x${string}`,
 ): string {
-  return `${exchange}-${baseMint}-${DEFAULT_QUOTE[exchange]}`
+  return `${exchange}-${baseMint}-${DEFAULT_QUOTE[exchange].address}`
 }
 
 export function createPriceQueryKey(
   exchange: Exchange = "binance",
   baseMint: `0x${string}`,
 ): string[] {
-  return ["price", exchange, baseMint, DEFAULT_QUOTE[exchange]]
+  return ["price", exchange, baseMint, DEFAULT_QUOTE[exchange].address]
 }
 
 export function topicToQueryKey(topic: string): string[] {

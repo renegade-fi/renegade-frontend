@@ -1,11 +1,11 @@
 import { Metadata } from "next/types"
 
-import { Exchange } from "@renegade-fi/react"
+import { Exchange, Token } from "@renegade-fi/react"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { remapQuote, remapToken } from "@/lib/token"
 import { isTestnet } from "@/lib/viem"
+import { DEFAULT_QUOTE } from "./token"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -210,31 +210,26 @@ export function decimalCorrectPrice(
 }
 
 export function constructExchangeUrl(exchange: Exchange, base: string) {
-  const quote = remapQuote(exchange)
-  if (base.toLowerCase() === "wbtc") {
-    switch (exchange) {
-      case "binance":
-        return `https://www.binance.com/en/trade/WBTC_${quote}`
-      case "coinbase":
-        return `https://www.coinbase.com/advanced-trade/BTC-${quote}`
-      case "kraken":
-        return `https://pro.kraken.com/app/trade/BTC-${quote}`
-      case "okx":
-        return `https://www.okx.com/trade-spot/WBTC-${quote}`
-      default:
-        return ""
-    }
+  const remappedBase = Token.findByTicker(base.toUpperCase()).getExchangeTicker(exchange)
+  if (!remappedBase) {
+    throw new Error(`${exchange} does not support ${base} as base`)
   }
-  const remappedBase = remapToken(base)
+
+  const quote = DEFAULT_QUOTE[exchange]
+  const remappedQuote = quote.getExchangeTicker(exchange)
+  if (!remappedQuote) {
+    throw new Error(`${exchange} does not support ${quote} as quote`)
+  }
+
   switch (exchange) {
     case "binance":
-      return `https://www.binance.com/en/trade/${remappedBase}_${quote}`
+      return `https://www.binance.com/en/trade/${remappedBase}_${remappedQuote}`
     case "coinbase":
-      return `https://www.coinbase.com/advanced-trade/${remappedBase}-${quote}`
+      return `https://www.coinbase.com/advanced-trade/${remappedBase}-${remappedQuote}`
     case "kraken":
-      return `https://pro.kraken.com/app/trade/${remappedBase}-${quote}`
+      return `https://pro.kraken.com/app/trade/${remappedBase}-${remappedQuote}`
     case "okx":
-      return `https://www.okx.com/trade-spot/${remappedBase}-${quote}`
+      return `https://www.okx.com/trade-spot/${remappedBase}-${remappedQuote}`
     default:
       return ""
   }
