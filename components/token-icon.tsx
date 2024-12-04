@@ -1,5 +1,7 @@
 import Image from "next/image"
 
+import { Token } from "@renegade-fi/react"
+
 import { cn } from "@/lib/utils"
 
 export function TokenIcon({
@@ -11,6 +13,13 @@ export function TokenIcon({
   ticker: string
   size?: number
 }) {
+  let logoUrl
+  if (ticker === "SOL") {
+    logoUrl = "/tokens/sol.png"
+  } else {
+    logoUrl = Token.findByTicker(ticker).logoUrl
+  }
+
   return (
     <div
       className={cn("overflow-hidden rounded-full", className)}
@@ -22,7 +31,7 @@ export function TokenIcon({
       <Image
         alt={ticker}
         height={size}
-        src={`/tokens/${ticker.toLowerCase()}.png`}
+        src={logoUrl}
         width={size}
       />
     </div>

@@ -27,6 +27,9 @@ export function useTvlData() {
         name: token.name,
         ticker: token.ticker,
         decimals: token.decimals,
+        supported_exchanges: token.rawSupportedExchanges,
+        chain_addresses: token.chainAddresses,
+        logo_url: token.logoUrl,
       }
     }),
   )

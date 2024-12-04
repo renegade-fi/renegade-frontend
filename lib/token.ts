@@ -1,7 +1,8 @@
 import { Exchange, Token, tokenMapping } from "@renegade-fi/react"
 import { getAddress } from "viem"
-import { solana } from "./viem"
 import { mainnet } from "viem/chains"
+
+import { solana } from "./viem"
 
 export const HIDDEN_TICKERS = ["USDT", "REN"]
 
@@ -15,7 +16,9 @@ export const DISPLAY_TOKENS = (
   const { hideStables, hideHidden = true, hideTickers = [] } = options
   let tokens = tokenMapping.tokens
   if (hideStables) {
-    tokens = tokens.filter((token) => !Token.findByAddress(token.address).isStablecoin())
+    tokens = tokens.filter(
+      (token) => !Token.findByAddress(token.address).isStablecoin(),
+    )
   }
   if (hideHidden) {
     tokens = tokens.filter((token) => !HIDDEN_TICKERS.includes(token.ticker))
@@ -28,21 +31,8 @@ export const DISPLAY_TOKENS = (
 
 export const remapToken = (ticker: string) => {
   const token = Token.findByTicker(ticker.toUpperCase())
-  const remapped = token.getExchangeTicker('binance') || ticker
+  const remapped = token.getExchangeTicker("binance") || ticker
   return remapped.toLowerCase()
-}
-
-export const DEFAULT_QUOTE: Record<Exchange, Token> = {
-  binance: Token.findByTicker("USDT"),
-  coinbase: Token.findByTicker("USDC"),
-  kraken: Token.create(
-    "USD Coin",
-    "USDC",
-    "0x0000000000000000000000000000000000000000",
-    6,
-    { "Kraken": "USD" }
-  ),
-  okx: Token.findByTicker("USDT"),
 }
 
 // Arbitrum One tokens
@@ -57,19 +47,34 @@ export const ADDITIONAL_TOKENS = {
 
 // Solana tokens
 export const SOLANA_TOKENS = Object.fromEntries(
-  tokenMapping.tokens.filter((t) => {
-    return Object.keys(t.chain_addresses).some((chainId) => chainId === solana.id.toString())
-  }).map((t) => [t.ticker, t.chain_addresses[solana.id.toString()]])
+  tokenMapping.tokens
+    .filter((t) => {
+      if (!t.chain_addresses) return false
+
+      return Object.keys(t.chain_addresses).some(
+        (chainId) => chainId === solana.id.toString(),
+      )
+    })
+    .map((t) => [t.ticker, t.chain_addresses[solana.id.toString()]]),
 )
 
 // Ethereum Mainnet tokens
 export const ETHEREUM_TOKENS = Object.fromEntries(
-  tokenMapping.tokens.filter((t) => {
-    return Object.keys(t.chain_addresses).some((chainId) => chainId === mainnet.id.toString())
-  }).map((t) => [t.ticker, Token.create(
-    t.name,
-    t.ticker,
-    t.chain_addresses[mainnet.id.toString()] as `0x${string}`,
-    t.decimals
-  )])
+  tokenMapping.tokens
+    .filter((t) => {
+      if (!t.chain_addresses) return false
+
+      return Object.keys(t.chain_addresses).some(
+        (chainId) => chainId === mainnet.id.toString(),
+      )
+    })
+    .map((t) => [
+      t.ticker,
+      Token.create(
+        t.name,
+        t.ticker,
+        t.chain_addresses[mainnet.id.toString()] as `0x${string}`,
+        t.decimals,
+      ),
+    ]),
 )

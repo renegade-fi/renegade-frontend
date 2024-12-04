@@ -1,11 +1,10 @@
 import { Metadata } from "next/types"
 
-import { Exchange, Token } from "@renegade-fi/react"
+import { DEFAULT_QUOTE, Exchange, Token } from "@renegade-fi/react"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 import { isTestnet } from "@/lib/viem"
-import { DEFAULT_QUOTE } from "./token"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -210,16 +209,12 @@ export function decimalCorrectPrice(
 }
 
 export function constructExchangeUrl(exchange: Exchange, baseTicker: string) {
-  const base = Token.findByTicker(baseTicker.toUpperCase())
-  const remappedBase = base.getExchangeTicker(exchange)
-  if (!remappedBase) {
-    throw new Error(`${exchange} does not support ${base.name} as base`)
-  }
-
-  const quote = DEFAULT_QUOTE[exchange]
-  const remappedQuote = quote.getExchangeTicker(exchange)
-  if (!remappedQuote) {
-    throw new Error(`${exchange} does not support ${quote.name} as quote`)
+  const remappedBase = Token.findByTicker(
+    baseTicker.toUpperCase(),
+  ).getExchangeTicker(exchange)
+  const remappedQuote = DEFAULT_QUOTE[exchange].getExchangeTicker(exchange)
+  if (!(remappedBase && remappedQuote)) {
+    return undefined
   }
 
   switch (exchange) {

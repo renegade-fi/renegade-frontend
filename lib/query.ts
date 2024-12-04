@@ -1,6 +1,6 @@
-import { Exchange, Token } from "@renegade-fi/react"
+import { DEFAULT_QUOTE, Exchange, Token } from "@renegade-fi/react"
 
-import { DEFAULT_QUOTE, remapToken } from "@/lib/token"
+import { remapToken } from "@/lib/token"
 
 export async function getPriceFromPriceReporter(
   topic: string,
