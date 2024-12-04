@@ -46,7 +46,6 @@ export function TokenSelect({ value, onChange }: TokenSelectProps) {
           aria-expanded={open}
           className="px-2 font-serif text-2xl font-bold"
           role="combobox"
-          //   size="xl"
           type="button"
           variant="ghost"
         >

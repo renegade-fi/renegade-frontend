@@ -2,7 +2,6 @@ import React, { useMemo } from "react"
 
 import NumberFlow, { NumberFlowGroup } from "@number-flow/react"
 import { Token } from "@renegade-fi/react"
-import { formatUnits } from "viem/utils"
 
 import { TokenSelect } from "@/app/stats/charts/token-select"
 import { useTimeToFill } from "@/app/stats/hooks/use-time-to-fill"
@@ -11,8 +10,6 @@ import { Slider } from "@/components/animated-slider"
 
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePriceQuery } from "@/hooks/use-price-query"
-import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { safeParseUnits } from "@/lib/format"
 
 interface TimeDisplayValues {
   value: number
@@ -23,41 +20,19 @@ interface TimeDisplayValues {
 export function TimeToFillCard() {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
   const [selectedToken, setSelectedToken] = React.useState("WETH")
-  const [isQuoteCurrency, setIsQuoteCurrency] = React.useState(true)
+  const [isSell, setIsSell] = React.useState(true)
 
   const baseToken = Token.findByTicker(selectedToken)
-  const { data: usdPerBase } = usePriceQuery(baseToken.address)
 
-  const { priceInBase } = useOrderValue({
+  const { priceInBase, priceInUsd } = useOrderValue({
     amount: selectedAmount.toString(),
     base: selectedToken,
-    isQuoteCurrency,
-    isSell: false,
+    isQuoteCurrency: true,
+    isSell,
   })
 
-  // Calculate amount in USD
-  const amountInUSD = useMemo(() => {
-    if (!usdPerBase) return selectedAmount
-    if (isQuoteCurrency) {
-      return selectedAmount
-    }
-    const parsedAmount = safeParseUnits(
-      selectedAmount.toString(),
-      baseToken.decimals,
-    )
-    if (parsedAmount instanceof Error) {
-      return selectedAmount
-    }
-    return Number(
-      formatUnits(
-        amountTimesPrice(parsedAmount, usdPerBase),
-        baseToken.decimals,
-      ),
-    )
-  }, [selectedAmount, baseToken.decimals, isQuoteCurrency, usdPerBase])
-
   const timeToFillMs = useTimeToFill({
-    amount: amountInUSD,
+    amount: Number(priceInUsd),
     baseToken: selectedToken,
     includeVolumeLimit: true,
   })
@@ -84,14 +59,15 @@ export function TimeToFillCard() {
 
   return (
     <NumberFlowGroup>
-      <div className="grid grid-cols-[1fr_auto_0.5fr_1fr_auto] items-center gap-4 pr-32 text-2xl leading-none">
+      <div className="grid grid-cols-[1fr_auto_1fr_2fr_auto] items-center gap-4 pr-32 text-2xl leading-none">
         <NumberFlow
-          className="text-right font-serif text-2xl font-bold"
+          className="cursor-pointer text-right font-serif text-2xl font-bold"
           format={{
             maximumFractionDigits: 2,
           }}
-          prefix="Fill  "
+          prefix={`${isSell ? "Sell" : "Buy"}  `}
           value={Number(priceInBase)}
+          onClick={() => setIsSell((prev) => !prev)}
         />
         <TokenSelect
           value={selectedToken}

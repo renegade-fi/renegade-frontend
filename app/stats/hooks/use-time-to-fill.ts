@@ -78,10 +78,8 @@ export function useTimeToFill({
   includeVolumeLimit = false,
 }: TimeToFillParams): number {
   return useMemo(() => {
-    // Get token allocation or use minimum allocation as default
     const allocation = ALLOCATIONS[baseToken]
 
-    // Get token-specific config overrides or use defaults
     const config = {
       ...DEFAULT_CONFIG,
       ...(baseToken ? TOKEN_CONFIGS[baseToken] : {}),
@@ -117,7 +115,7 @@ export function useTimeToFill({
       intervalsNeeded * (config.rematchDelayMs + fillLatency)
 
     if (includeVolumeLimit) {
-      // Calculate how many full hours are needed based on amount vs hourly limit
+      // Conservatively calculate how many full hours are needed based on amount vs hourly limit
       const hoursNeeded = Math.ceil(amount / config.hourlyVolumeLimit)
       if (hoursNeeded > 1) {
         return baseDelay + (hoursNeeded - 1) * 3600 * 1000
