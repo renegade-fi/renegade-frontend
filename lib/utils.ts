@@ -209,16 +209,17 @@ export function decimalCorrectPrice(
   return correctedPrice
 }
 
-export function constructExchangeUrl(exchange: Exchange, base: string) {
-  const remappedBase = Token.findByTicker(base.toUpperCase()).getExchangeTicker(exchange)
+export function constructExchangeUrl(exchange: Exchange, baseTicker: string) {
+  const base = Token.findByTicker(baseTicker.toUpperCase())
+  const remappedBase = base.getExchangeTicker(exchange)
   if (!remappedBase) {
-    throw new Error(`${exchange} does not support ${base} as base`)
+    throw new Error(`${exchange} does not support ${base.name} as base`)
   }
 
   const quote = DEFAULT_QUOTE[exchange]
   const remappedQuote = quote.getExchangeTicker(exchange)
   if (!remappedQuote) {
-    throw new Error(`${exchange} does not support ${quote} as quote`)
+    throw new Error(`${exchange} does not support ${quote.name} as quote`)
   }
 
   switch (exchange) {

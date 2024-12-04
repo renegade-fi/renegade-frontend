@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { Exchange } from "@renegade-fi/react"
+import { Exchange, Token } from "@renegade-fi/react"
 
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { cn } from "@/lib/utils"
@@ -15,11 +15,13 @@ export function AnimatedPriceStatus({
   mint: `0x${string}`
 }) {
   const { data: price, dataUpdatedAt } = usePriceQuery(mint, exchange)
-
+  
   const stale = Date.now() - dataUpdatedAt > 60000
+
+  const token = Token.findByAddress(mint)
+  const tokenSupported = token.supportedExchanges.has(exchange)
   let content = "LIVE"
-  if (!price) {
-    // TODO: Read exchange support from Token
+  if (!tokenSupported) {
     content = "N/A"
   } else if (stale) {
     content = "STALE"
@@ -30,7 +32,7 @@ export function AnimatedPriceStatus({
       className={cn("transition-colors", className, {
         "text-green-price": price,
         "text-red-price": stale,
-        "text-muted": !price,
+        "text-muted": !tokenSupported,
       })}
     >
       {content}
