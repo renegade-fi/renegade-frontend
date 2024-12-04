@@ -1,5 +1,4 @@
 import { PriceLevel, TradeAmounts } from "@/lib/price-simulation"
-import { remapToken } from "@/lib/token"
 import { Direction } from "@/lib/types"
 
 // -------------

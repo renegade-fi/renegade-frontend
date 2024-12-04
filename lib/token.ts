@@ -1,9 +1,7 @@
-import { Exchange, Token } from "@renegade-fi/react"
-import { tokenMapping } from "@renegade-fi/react/constants"
+import { Exchange, Token, tokenMapping } from "@renegade-fi/react"
 import { getAddress } from "viem"
 
 export const HIDDEN_TICKERS = ["USDT", "REN"]
-export const STABLECOINS = ["USDC", "USDT"]
 
 export const DISPLAY_TOKENS = (
   options: {
@@ -15,7 +13,7 @@ export const DISPLAY_TOKENS = (
   const { hideStables, hideHidden = true, hideTickers = [] } = options
   let tokens = tokenMapping.tokens
   if (hideStables) {
-    tokens = tokens.filter((token) => !STABLECOINS.includes(token.ticker))
+    tokens = tokens.filter((token) => !Token.findByAddress(token.address).isStablecoin())
   }
   if (hideHidden) {
     tokens = tokens.filter((token) => !HIDDEN_TICKERS.includes(token.ticker))
@@ -26,40 +24,28 @@ export const DISPLAY_TOKENS = (
   return tokens
 }
 
-export const remapToken = (token: string) => {
-  switch (token.toLowerCase()) {
-    case "weth":
-      return "eth"
-    case "wbtc":
-      return "btc"
-    // case "usdc":
-    //   return "usdt"
-    default:
-      return token.toLowerCase()
-  }
+export const remapToken = (ticker: string) => {
+  const token = Token.findByTicker(ticker.toUpperCase())
+  const remapped = token.getExchangeTicker('binance') || ticker
+  return remapped.toLowerCase()
 }
 
-export function remapQuote(exchange: Exchange) {
-  switch (exchange) {
-    case "binance":
-    case "okx":
-      return "USDT"
-    case "coinbase":
-    case "kraken":
-      return "USD"
-  }
-}
-
-export const DEFAULT_QUOTE: Record<Exchange, `0x${string}`> = {
-  binance: Token.findByTicker("USDT").address,
-  coinbase: Token.findByTicker("USDC").address,
-  kraken: "0x0000000000000000000000000000000000000000" as `0x${string}`,
-  okx: Token.findByTicker("USDT").address,
+export const DEFAULT_QUOTE: Record<Exchange, Token> = {
+  binance: Token.findByTicker("USDT"),
+  coinbase: Token.findByTicker("USDC"),
+  kraken: Token.create(
+    "USD Coin",
+    "USDC",
+    "0x0000000000000000000000000000000000000000",
+    6,
+    { "Kraken": "USD" }
+  ),
+  okx: Token.findByTicker("USDT"),
 }
 
 // Arbitrum One tokens
 export const ADDITIONAL_TOKENS = {
-  "USDC.e": new Token(
+  "USDC.e": Token.create(
     "Bridged USDC",
     "USDC.e",
     getAddress("0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"),
@@ -67,6 +53,7 @@ export const ADDITIONAL_TOKENS = {
   ),
 } as const
 
+// Solana tokens
 export const SOLANA_TOKENS = {
   USDC: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 } as const

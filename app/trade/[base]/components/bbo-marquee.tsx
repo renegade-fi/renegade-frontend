@@ -12,7 +12,6 @@ import {
 
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol"
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips"
-import { remapToken } from "@/lib/token"
 import { constructExchangeUrl } from "@/lib/utils"
 
 export function BBOMarquee({ base }: { base: string }) {
