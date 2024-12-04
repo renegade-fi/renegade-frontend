@@ -25,24 +25,20 @@ export function ReviewWrap({
   remainingEthBalance: bigint
   wrapAmount: bigint
 }) {
+  const wethToken = Token.findByTicker("WETH")
+
   const bufferedMinEthToKeepUnwrapped = BigInt(
     Math.round(Number(minEthToKeepUnwrapped) * 0.9),
   )
 
-  const feeEstimate = useUSDPrice(
-    Token.findByTicker("WETH"),
-    gasEstimate ?? BigInt(0),
-  )
+  const feeEstimate = useUSDPrice(wethToken, gasEstimate ?? BigInt(0))
   const formattedFeeEstimate = formatEther(feeEstimate)
-  const amountUSDValue = useUSDPrice(Token.findByTicker("WETH"), wrapAmount)
+  const amountUSDValue = useUSDPrice(wethToken, wrapAmount)
   const formattedAmountUSDValue = formatCurrencyFromString(
     formatEther(amountUSDValue),
   )
 
-  const remainingUSDValue = useUSDPrice(
-    Token.findByTicker("WETH"),
-    remainingEthBalance,
-  )
+  const remainingUSDValue = useUSDPrice(wethToken, remainingEthBalance)
   const formattedRemainingUSDValue = formatCurrencyFromString(
     formatEther(remainingUSDValue),
   )
@@ -74,7 +70,7 @@ export function ReviewWrap({
         </div>
       </div>
       <Row
-        imageUri={`/tokens/weth.png`}
+        imageUri={wethToken.logoUrl}
         label={`Wrap ETH`}
         value={
           <Tooltip>
@@ -88,7 +84,7 @@ export function ReviewWrap({
         }
       />
       <Row
-        imageUri={`/tokens/weth.png`}
+        imageUri={wethToken.logoUrl}
         label={`Receive WETH`}
         value={
           <Tooltip>
@@ -106,7 +102,7 @@ export function ReviewWrap({
         value={formatCurrencyFromString(formattedFeeEstimate)}
       />
       <Row
-        imageUri={`/tokens/weth.png`}
+        imageUri={wethToken.logoUrl}
         label={`ETH Remaining`}
         value={
           <Tooltip>

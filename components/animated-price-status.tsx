@@ -15,7 +15,7 @@ export function AnimatedPriceStatus({
   mint: `0x${string}`
 }) {
   const { data: price, dataUpdatedAt } = usePriceQuery(mint, exchange)
-  
+
   const stale = Date.now() - dataUpdatedAt > 60000
 
   const token = Token.findByAddress(mint)

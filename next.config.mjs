@@ -35,6 +35,12 @@ const nextConfig = {
         port: "",
         pathname: "/lifinance/types/main/src/assets/icons/**",
       },
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        port: "",
+        pathname: "/renegade-fi/token-mappings/refs/heads/main/token-logos/**",
+      },
     ],
   },
 }
