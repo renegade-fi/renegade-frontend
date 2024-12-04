@@ -28,7 +28,7 @@ export function Slider({
       </RadixSlider.Track>
       <RadixSlider.Thumb
         aria-label="Volume"
-        className="relative block h-5 w-5 rounded-[1rem] bg-white shadow-md ring ring-black/10"
+        className="relative block h-5 w-5 cursor-grab rounded-[1rem] bg-white shadow-md ring ring-black/10 active:cursor-grabbing"
       >
         {value?.[0] != null && (
           <NumberFlow
