@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType } from "@renegade-fi/react"
+import { Token, UpdateType, useConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -21,6 +21,7 @@ import {
   checkBalance,
   formSchema,
   normalizeStatus,
+  verifyRecipientAddress,
 } from "@/components/dialogs/transfer/helpers"
 import { useBridgeConfirmation } from "@/components/dialogs/transfer/hooks/use-bridge-confirmation"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
@@ -120,6 +121,7 @@ export function USDCForm({
       onError: (error) => setSwitchChainError(error),
     },
   })
+  const renegadeConfig = useConfig()
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -135,6 +137,7 @@ export function USDCForm({
     control: form.control,
     name: "amount",
   })
+
   React.useEffect(() => {
     form.clearErrors()
   }, [form, network])
@@ -230,6 +233,7 @@ export function USDCForm({
     fetchStatus: bridgeQuoteFetchStatus,
     dataUpdatedAt: bridgeQuoteUpdatedAt,
     error: bridgeQuoteError,
+    refetch: refetchBridgeQuote,
   } = useBridgeQuote({
     fromChain: network,
     fromMint:
@@ -620,6 +624,19 @@ export function USDCForm({
       return
     }
 
+    if (bridgeRequired && bridgeQuote) {
+      const validRecipient = await verifyRecipientAddress(
+        renegadeConfig,
+        bridgeQuote?.action.toAddress,
+      )
+      if (!validRecipient) {
+        form.setError("root", {
+          message: "Recipient address does not match Renegade wallet",
+        })
+        return
+      }
+    }
+
     // Calculate and set initial steps
     setSteps(() => {
       const steps: TransferStep[] = []
@@ -684,9 +701,8 @@ export function USDCForm({
           message: "Couldn't fetch bridge quote",
         })
         return
-      } else {
-        handleSolanaBridge(bridgeQuote.transactionRequest)
       }
+      handleSolanaBridge(bridgeQuote.transactionRequest)
     } else if (swapRequired) {
       if (!swapQuote) {
         form.setError("root", {
@@ -1201,6 +1217,12 @@ export function USDCForm({
                 className="text-sm text-orange-400 transition-all duration-300 ease-in-out"
                 mint={mint}
               />
+
+              {form.formState.errors.root && (
+                <div className="text-pretty text-center text-sm text-destructive">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
             </div>
           </ScrollArea>
           {isDesktop ? (
