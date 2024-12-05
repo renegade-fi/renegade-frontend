@@ -1,12 +1,14 @@
-import { Token } from "@renegade-fi/react"
+import { Config, Token } from "@renegade-fi/react"
+import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { QueryClient } from "@tanstack/react-query"
-import { formatUnits } from "viem"
+import invariant from "tiny-invariant"
+import { formatUnits, isAddress } from "viem"
 import { z } from "zod"
 
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
-import { chain, extractSupportedChain } from "@/lib/viem"
+import { chain, extractSupportedChain, viemClient } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -127,4 +129,17 @@ export function getExplorerLink(
     throw new Error(`No block explorer URL found for chain ${_chain.name}`)
   }
   return `${explorerUrl}/tx/${txHash}`
+}
+
+export function verifyRecipientAddress(config: Config, recipient?: string) {
+  invariant(config.state.seed, "Seed is required")
+  invariant(
+    recipient && isAddress(recipient),
+    "Recipient is required and must be a valid address",
+  )
+  return viemClient.verifyMessage({
+    address: recipient,
+    message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+    signature: config.state.seed,
+  })
 }
