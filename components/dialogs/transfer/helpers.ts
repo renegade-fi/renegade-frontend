@@ -1,3 +1,4 @@
+import { LiFiStep } from "@lifi/sdk"
 import { Token } from "@renegade-fi/react"
 import { QueryClient } from "@tanstack/react-query"
 import { formatUnits } from "viem"
@@ -127,4 +128,26 @@ export function getExplorerLink(
     throw new Error(`No block explorer URL found for chain ${_chain.name}`)
   }
   return `${explorerUrl}/tx/${txHash}`
+}
+
+export function formatQuoteToEventParams(quote?: LiFiStep) {
+  if (!quote) return {}
+  const { action, estimate } = quote
+  return {
+    fromChainId: action.fromChainId,
+    fromTokenMint: action.fromToken.address,
+    fromTokenTicker: action.fromToken.symbol,
+    fromTokenAmount: formatUnits(
+      BigInt(estimate.fromAmount ?? 0),
+      action.fromToken.decimals ?? 0,
+    ),
+    toChainId: action.toChainId,
+    toTokenMint: action.toToken.address,
+    toTokenTicker: action.toToken.symbol,
+    toTokenAmount: formatUnits(
+      BigInt(estimate.toAmount ?? 0),
+      action.toToken.decimals ?? 0,
+    ),
+    tool: quote.tool,
+  }
 }

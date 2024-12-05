@@ -20,6 +20,7 @@ import {
   checkAmount,
   checkBalance,
   formSchema,
+  formatQuoteToEventParams,
   normalizeStatus,
 } from "@/components/dialogs/transfer/helpers"
 import { useBridgeConfirmation } from "@/components/dialogs/transfer/hooks/use-bridge-confirmation"
@@ -63,6 +64,7 @@ import { Separator } from "@/components/ui/separator"
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { EventNames, useEventTracker } from "@/hooks/use-event-tracker"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useSwapConfirmation } from "@/hooks/use-swap-confirmation"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
@@ -120,6 +122,7 @@ export function USDCForm({
       onError: (error) => setSwitchChainError(error),
     },
   })
+  const { track, trackMutation } = useEventTracker()
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -283,6 +286,7 @@ export function USDCForm({
   const approveBridgeConfirmationStatus = useTransactionConfirmation(
     approveBridgeHash,
     async () => {
+      track(EventNames.APPROVE_BRIDGE_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: bridgeAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (Date.now() - bridgeQuoteUpdatedAt! > QUOTE_STALE_TIME) {
@@ -295,6 +299,15 @@ export function USDCForm({
             // TODO: Maybe unsafe
             ...bridgeQuote?.transactionRequest,
             type: "legacy",
+          },
+          {
+            onSettled(_, error) {
+              trackMutation(
+                EventNames.SOURCE_BRIDGE_TX_SENT,
+                formatQuoteToEventParams(bridgeQuote),
+                error,
+              )
+            },
           },
         ),
       )
@@ -323,18 +336,41 @@ export function USDCForm({
   const { data: solanaBridgeExecutionStatus } = useBridgeConfirmation(
     solanaBridgeHash,
     async (bridge) => {
+      track(EventNames.DESTINATION_BRIDGE_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcSolanaBalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         await switchChainAndInvoke(chain.id, () =>
-          handleApprove({
-            address: USDC_L2_TOKEN.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              UNLIMITED_ALLOWANCE,
-            ],
-          }),
+          handleApprove(
+            {
+              address: USDC_L2_TOKEN.address,
+              args: [
+                process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+                UNLIMITED_ALLOWANCE,
+              ],
+            },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  mint: USDC_L2_TOKEN.address,
+                  amount:
+                    network !== chain.id
+                      ? formatUnits(
+                          BigInt(bridge.receivedAmount ?? 0),
+                          USDC_L2_TOKEN.decimals,
+                        )
+                      : amount,
+                }
+                trackMutation(
+                  EventNames.APPROVE_DARKPOOL_TX_SENT,
+                  context,
+                  error,
+                )
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(chain.id, () =>
@@ -368,6 +404,7 @@ export function USDCForm({
   const sendBridgeConfirmationStatus = useTransactionConfirmation(
     bridgeHash,
     async () => {
+      track(EventNames.SOURCE_BRIDGE_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
     },
@@ -377,18 +414,41 @@ export function USDCForm({
   const { data: bridgeExecutionStatus } = useBridgeConfirmation(
     bridgeHash,
     async (bridge) => {
+      track(EventNames.DESTINATION_BRIDGE_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey })
       queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
         await switchChainAndInvoke(chain.id, () =>
-          handleApprove({
-            address: USDC_L2_TOKEN.address,
-            args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-              UNLIMITED_ALLOWANCE,
-            ],
-          }),
+          handleApprove(
+            {
+              address: USDC_L2_TOKEN.address,
+              args: [
+                process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+                UNLIMITED_ALLOWANCE,
+              ],
+            },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  mint: USDC_L2_TOKEN.address,
+                  amount:
+                    network !== chain.id
+                      ? formatUnits(
+                          BigInt(bridge.receivedAmount ?? 0),
+                          USDC_L2_TOKEN.decimals,
+                        )
+                      : amount,
+                }
+                trackMutation(
+                  EventNames.APPROVE_DARKPOOL_TX_SENT,
+                  context,
+                  error,
+                )
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(chain.id, () =>
@@ -449,6 +509,7 @@ export function USDCForm({
   const approveSwapConfirmationStatus = useTransactionConfirmation(
     approveSwapHash,
     async () => {
+      track(EventNames.APPROVE_SWAP_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: swapAllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (Date.now() - quoteUpdatedAt! > QUOTE_STALE_TIME) {
@@ -461,6 +522,15 @@ export function USDCForm({
             // TODO: Maybe unsafe
             ...swapQuote?.transactionRequest,
             type: "legacy",
+          },
+          {
+            onSettled(_, error) {
+              trackMutation(
+                EventNames.SWAP_TX_SENT,
+                formatQuoteToEventParams(swapQuote),
+                error,
+              )
+            },
           },
         ),
       )
@@ -484,13 +554,31 @@ export function USDCForm({
     setCurrentStep((prev) => prev + 1)
     if (allowanceRequired) {
       await switchChainAndInvoke(chain.id, () =>
-        handleApprove({
-          address: USDC_L2_TOKEN.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            UNLIMITED_ALLOWANCE,
-          ],
-        }),
+        handleApprove(
+          {
+            address: USDC_L2_TOKEN.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              UNLIMITED_ALLOWANCE,
+            ],
+          },
+          {
+            onSettled(_, error, variables) {
+              const context = {
+                chainId: variables.chainId,
+                mint: USDC_L2_TOKEN.address,
+                amount:
+                  network !== chain.id
+                    ? formatUnits(
+                        BigInt(swap.receivedAmount ?? 0),
+                        USDC_L2_TOKEN.decimals,
+                      )
+                    : amount,
+              }
+              trackMutation(EventNames.APPROVE_DARKPOOL_TX_SENT, context, error)
+            },
+          },
+        ),
       )
     } else {
       await switchChainAndInvoke(chain.id, () =>
@@ -539,6 +627,7 @@ export function USDCForm({
   const approveConfirmationStatus = useTransactionConfirmation(
     approveHash,
     async () => {
+      track(EventNames.APPROVE_DARKPOOL_TX_CONFIRMED)
       queryClient.invalidateQueries({ queryKey: usdcL2AllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       await switchChainAndInvoke(chain.id, () =>
@@ -573,6 +662,13 @@ export function USDCForm({
   const handleDepositSuccess = (data: any) => {
     setTaskId(data.taskId)
     // form.reset()
+    track(EventNames.DEPOSIT_TASK_STARTED, {
+      amount,
+      chainId: chain.id,
+      mint,
+      taskId: data.taskId,
+      ticker: USDC_L2_TOKEN.ticker,
+    })
     onSuccess?.()
     const message = constructStartToastMessage(UpdateType.Deposit)
     toast.loading(message, {
@@ -657,14 +753,30 @@ export function USDCForm({
       }
       if (bridgeAllowanceRequired) {
         await switchChainAndInvoke(mainnet.id, async () =>
-          handleApproveBridge({
-            chainId: mainnet.id,
-            address: USDC_L1_TOKEN.address,
-            args: [
-              bridgeQuote?.estimate.approvalAddress as `0x${string}`,
-              BigInt(bridgeQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
-            ],
-          }),
+          handleApproveBridge(
+            {
+              chainId: mainnet.id,
+              address: USDC_L1_TOKEN.address,
+              args: [
+                bridgeQuote?.estimate.approvalAddress as `0x${string}`,
+                BigInt(bridgeQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
+              ],
+            },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  mint: variables.address,
+                  ticker: USDC_L1_TOKEN.ticker,
+                  amount: formatUnits(
+                    variables.args[1],
+                    USDC_L1_TOKEN.decimals,
+                  ),
+                }
+                trackMutation(EventNames.APPROVE_BRIDGE_TX_SENT, context, error)
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(mainnet.id, async () =>
@@ -673,6 +785,15 @@ export function USDCForm({
             {
               ...bridgeQuote?.transactionRequest,
               type: "legacy",
+            },
+            {
+              onSettled(_, error) {
+                trackMutation(
+                  EventNames.SOURCE_BRIDGE_TX_SENT,
+                  formatQuoteToEventParams(bridgeQuote),
+                  error,
+                )
+              },
             },
           ),
         )
@@ -685,7 +806,15 @@ export function USDCForm({
         })
         return
       } else {
-        handleSolanaBridge(bridgeQuote.transactionRequest)
+        handleSolanaBridge(bridgeQuote.transactionRequest, {
+          onSettled(_, error) {
+            trackMutation(
+              EventNames.SOURCE_BRIDGE_TX_SENT,
+              formatQuoteToEventParams(bridgeQuote),
+              error,
+            )
+          },
+        })
       }
     } else if (swapRequired) {
       if (!swapQuote) {
@@ -696,13 +825,29 @@ export function USDCForm({
       }
       if (swapAllowanceRequired) {
         await switchChainAndInvoke(chain.id, () =>
-          handleApproveSwap({
-            address: USDCE_L2_TOKEN.address,
-            args: [
-              swapQuote.estimate.approvalAddress as `0x${string}`,
-              BigInt(swapQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
-            ],
-          }),
+          handleApproveSwap(
+            {
+              address: USDCE_L2_TOKEN.address,
+              args: [
+                swapQuote.estimate.approvalAddress as `0x${string}`,
+                BigInt(swapQuote?.estimate.fromAmount ?? UNLIMITED_ALLOWANCE),
+              ],
+            },
+            {
+              onSettled(_, error, variables) {
+                const context = {
+                  chainId: variables.chainId,
+                  mint: variables.address,
+                  ticker: USDCE_L2_TOKEN.ticker,
+                  amount: formatUnits(
+                    variables.args[1],
+                    USDCE_L2_TOKEN.decimals,
+                  ),
+                }
+                trackMutation(EventNames.APPROVE_SWAP_TX_SENT, context, error)
+              },
+            },
+          ),
         )
       } else {
         await switchChainAndInvoke(chain.id, () =>
@@ -712,18 +857,38 @@ export function USDCForm({
               ...swapQuote.transactionRequest,
               type: "legacy",
             },
+            {
+              onSettled(_, error) {
+                trackMutation(
+                  EventNames.SWAP_TX_SENT,
+                  formatQuoteToEventParams(swapQuote),
+                  error,
+                )
+              },
+            },
           ),
         )
       }
     } else if (allowanceRequired) {
       await switchChainAndInvoke(chain.id, () =>
-        handleApprove({
-          address: USDC_L2_TOKEN.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            UNLIMITED_ALLOWANCE,
-          ],
-        }),
+        handleApprove(
+          {
+            address: USDC_L2_TOKEN.address,
+            args: [
+              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              UNLIMITED_ALLOWANCE,
+            ],
+          },
+          {
+            onSettled(_, error) {
+              const context = {
+                mint: USDC_L2_TOKEN.address,
+                amount,
+              }
+              trackMutation(EventNames.APPROVE_DARKPOOL_TX_SENT, context, error)
+            },
+          },
+        ),
       )
     } else {
       await switchChainAndInvoke(chain.id, () =>
