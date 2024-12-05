@@ -74,9 +74,13 @@ const config = {
         },
         green: {
           price: "#43e043",
+          400: "#4ade80",
+          500: "#22c55e",
         },
         red: {
           price: "#e04343",
+          400: "#f87171",
+          500: "#ef4444",
         },
         yellow: "hsl(var(--chart-yellow))",
         blue: "hsl(var(--chart-blue))",
@@ -156,6 +160,14 @@ const config = {
             opacity: "1",
           },
         },
+        "text-gradient": {
+          from: {
+            backgroundPosition: "200% center",
+          },
+          to: {
+            backgroundPosition: "0% center",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -165,6 +177,7 @@ const config = {
         "shimmer-button": "shimmer-button 45s ease infinite",
         marquee: "marquee var(--duration) linear infinite",
         ellipsis: "ellipsis 1.5s ease-in-out infinite",
+        "text-gradient": "text-gradient 1.3s linear infinite",
       },
     },
   },

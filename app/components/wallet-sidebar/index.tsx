@@ -10,6 +10,7 @@ import { ConnectWalletMenuItem } from "@/app/components/wallet-sidebar/connect-w
 import { PWADialog } from "@/app/components/wallet-sidebar/pwa-dialog"
 import { RecentFillsMenuItem } from "@/app/components/wallet-sidebar/recent-fills-menu-item"
 import { RenegadeWalletActionsDropdown } from "@/app/components/wallet-sidebar/renegade-wallet-actions-dropdown"
+import { RunningTaskCard } from "@/app/components/wallet-sidebar/running-task-card"
 import { SolanaWalletActionsDropdown } from "@/app/components/wallet-sidebar/solana-wallet-actions-dropdown"
 import { ConnectContent } from "@/app/components/wallet-sidebar/solana/connect-content"
 import { WalletButton } from "@/app/components/wallet-sidebar/wallet-button"
@@ -88,6 +89,7 @@ export function WalletSidebar({
             </SidebarMenu>
           </SidebarGroup>
           <SidebarGroup className="mt-auto">
+            <RunningTaskCard />
             <SidebarGroupLabel>Bridge & Deposit</SidebarGroupLabel>
             {solanaWallet.isConnected ? (
               <WalletButton
