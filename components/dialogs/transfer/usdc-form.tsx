@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
+import invariant from "tiny-invariant"
 import { useDebounceValue } from "usehooks-ts"
 import { formatUnits, isAddress, parseUnits } from "viem"
 import { mainnet } from "viem/chains"
@@ -202,10 +203,15 @@ export function USDCForm({
       ? combinedBalance - parseUnits(amount, USDC_L2_TOKEN.decimals)
       : usdceL2Balance ?? BigInt(0)
 
-  const switchChainAndInvoke = async (chainId: number, fn: () => void) =>
+  const switchChainAndInvoke = async (chainId: number, fn: () => void) => {
+    invariant(
+      chainId === 1 || chainId === 42161 || chainId === 421614,
+      "Invalid chainId",
+    )
     switchChainAsync({ chainId })
       .then(fn)
       .catch((error) => catchError(error, "Couldn't switch chain"))
+  }
 
   // Fetch bridge quote
   const bridgeRequired = React.useMemo(() => {

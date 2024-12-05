@@ -9,6 +9,7 @@ import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider } from "connectkit"
 import {
   WagmiProvider as Provider,
+  State,
   cookieToInitialState,
   useAccount,
   useConnections,
@@ -22,7 +23,7 @@ import { sidebarEvents } from "@/lib/events"
 import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
-import { wagmiConfig } from "./config"
+import { getConfig } from "./config"
 
 createLifiConfig({
   integrator: "renegade.fi",
@@ -48,17 +49,18 @@ const connectKitTheme = {
 
 interface WagmiProviderProps {
   children: React.ReactNode
-  cookieString?: string
+  initialState?: State
 }
 
-export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
+export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
   const [open, setOpen] = React.useState(false)
-  const initialState = cookieToInitialState(wagmiConfig, cookieString)
+  const [config] = React.useState(() => getConfig())
 
   return (
     <Provider
-      config={wagmiConfig}
+      config={config}
       initialState={initialState}
+      reconnectOnMount={true}
     >
       <QueryProvider>
         <ConnectKitProvider
@@ -75,7 +77,7 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
           }}
         >
           {children}
-          <SyncRenegadeWagmiState />
+          {/* <SyncRenegadeWagmiState /> */}
           <SignInDialog
             open={open}
             onOpenChange={setOpen}
