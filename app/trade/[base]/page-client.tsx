@@ -2,6 +2,8 @@
 
 import React from "react"
 
+import { useDebounceCallback } from "usehooks-ts"
+
 import { DepositBanner } from "@/app/components/deposit-banner"
 import { MaintenanceBanner } from "@/app/components/maintenance-banner"
 import { MobileBottomBar } from "@/app/components/mobile-bottom-bar"
@@ -31,6 +33,7 @@ const PriceChartMemo = React.memo(PriceChart)
 export function PageClient({ base }: { base: string }) {
   const data = useOrderTableData()
   const { setBase, panels, setPanels } = useServerStore((state) => state)
+  const debouncedSetPanels = useDebounceCallback(setPanels, 500)
 
   React.useEffect(() => {
     setBase(base)
@@ -45,9 +48,7 @@ export function PageClient({ base }: { base: string }) {
       <ScrollArea className="flex-grow">
         <ResizablePanelGroup
           direction="horizontal"
-          onLayout={(layout) => {
-            setPanels(layout)
-          }}
+          onLayout={(layout) => debouncedSetPanels(layout)}
         >
           <ResizablePanel
             className="hidden lg:block"
