@@ -12,6 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 
 import { PrivacySpeedSpectrum } from "./components/privacy-speed-spectrum"
@@ -23,6 +24,7 @@ export function ExternalMatchesSection(
   },
 ) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const isMobile = useIsMobile()
 
   const handleMouseEnter = () => {
     setIsOpen(true)
@@ -40,7 +42,6 @@ export function ExternalMatchesSection(
       <PopoverTrigger asChild>
         <div
           className="flex items-center justify-between border p-3 transition-colors hover:border-foreground"
-          onClick={(e) => e.preventDefault()}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -49,14 +50,7 @@ export function ExternalMatchesSection(
               <Label htmlFor="allow-external-matches">
                 Allow external matches
               </Label>
-              <a
-                href={HELP_CENTER_ARTICLES.EXTERNAL_MATCHES.url}
-                rel="noreferrer"
-                target="_blank"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Info className="size-4 text-muted-foreground transition-colors hover:text-foreground" />
-              </a>
+              <Info className="size-4 text-muted-foreground" />
             </div>
             <div className="text-[0.8rem] text-muted-foreground">
               Get faster fills by matching with whitelisted solvers
@@ -71,8 +65,8 @@ export function ExternalMatchesSection(
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="w-64 space-y-2 rounded-none p-0 text-sm"
-        side="right"
+        className="space-y-2 rounded-none p-0 text-sm md:w-64"
+        side={isMobile ? "bottom" : "right"}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
