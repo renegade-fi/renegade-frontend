@@ -1,4 +1,4 @@
-import { DEFAULT_QUOTE, Exchange, Token } from "@renegade-fi/react"
+import { Exchange, getDefaultQuoteToken, Token } from "@renegade-fi/react"
 
 import { remapToken } from "@/lib/token"
 
@@ -52,14 +52,14 @@ export function createPriceTopic(
   exchange: Exchange = "binance",
   baseMint: `0x${string}`,
 ): string {
-  return `${exchange}-${baseMint}-${DEFAULT_QUOTE[exchange].address}`
+  return `${exchange}-${baseMint}-${getDefaultQuoteToken(exchange).address}`
 }
 
 export function createPriceQueryKey(
   exchange: Exchange = "binance",
   baseMint: `0x${string}`,
 ): string[] {
-  return ["price", exchange, baseMint, DEFAULT_QUOTE[exchange].address]
+  return ["price", exchange, baseMint, getDefaultQuoteToken(exchange).address]
 }
 
 export function topicToQueryKey(topic: string): string[] {
