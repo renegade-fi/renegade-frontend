@@ -1,6 +1,6 @@
 import { Metadata } from "next/types"
 
-import { DEFAULT_QUOTE, Exchange, Token } from "@renegade-fi/react"
+import { Exchange, getDefaultQuoteToken, Token } from "@renegade-fi/react"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -212,7 +212,8 @@ export function constructExchangeUrl(exchange: Exchange, baseTicker: string) {
   const remappedBase = Token.findByTicker(
     baseTicker.toUpperCase(),
   ).getExchangeTicker(exchange)
-  const remappedQuote = DEFAULT_QUOTE[exchange].getExchangeTicker(exchange)
+  const remappedQuote =
+    getDefaultQuoteToken(exchange).getExchangeTicker(exchange)
   if (!(remappedBase && remappedQuote)) {
     return undefined
   }
