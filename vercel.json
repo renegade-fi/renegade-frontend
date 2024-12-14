@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/stats/set-inflow-kv",
+      "schedule": "0 * * * *"
+    },
+    {
       "path": "/api/stats/set-historical-volume-kv",
       "schedule": "0 * * * *"
     },
