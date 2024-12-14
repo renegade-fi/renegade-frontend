@@ -60,15 +60,15 @@
     "framer-motion": "^11.3.31",
     "lucide-react": "^0.383.0",
     "nanoevents": "^9.0.0",
-    "next": "15.0.3",
+    "next": "15.1.0",
     "next-themes": "^0.3.0",
     "numeral": "^2.0.6",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-hook-form": "^7.52.1",
     "react-resizable-panels": "^2.0.19",
     "react-use-websocket": "^4.8.1",
-    "recharts": "2.13.0-alpha.5",
+    "recharts": "2.15.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
@@ -85,12 +85,12 @@
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20",
     "@types/numeral": "^2.0.5",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.2",
     "@types/uuid": "^10.0.0",
     "@wagmi/cli": "^2.1.10",
     "eslint": "^8",
-    "eslint-config-next": "15.0.3",
+    "eslint-config-next": "15.1.0",
     "eslint-config-prettier": "^9.1.0",
     "postcss": "^8",
     "prettier": "^3.2.5",
@@ -102,9 +102,9 @@
   "prettier": "./prettier.mjs",
   "pnpm": {
     "overrides": {
-      "@types/react": "npm:types-react@19.0.0-rc.1",
-      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
-      "react-is": "^19.0.0-beta-26f2496093-20240514"
+      "@types/react": "19.0.1",
+      "@types/react-dom": "19.0.2",
+      "react-is": "19.0.0"
     }
   }
 }

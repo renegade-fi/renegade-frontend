@@ -36,7 +36,7 @@ function createWebSocket() {
   })
 
   socket.addEventListener("error", (event) => {
-    console.error("WebSocket error observed:", event)
+    console.warn("WebSocket error observed:", event)
   })
 
   socket.onmessage = (event) => {
