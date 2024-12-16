@@ -1,6 +1,6 @@
 import React from "react"
 
-import { ExternalLink, Info, Zap } from "lucide-react"
+import { CheckCircle, ExternalLink, Info, XCircle, Zap } from "lucide-react"
 
 import { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
 import { Label } from "@/components/ui/label"
@@ -80,10 +80,17 @@ export function ExternalMatchesSection(
             External matches
           </div>
           <div>
-            {`By allowing external matches, you increase your pool of counterparties to include whitelisted solvers, which may result in a faster fill.`}
+            {`External matches sacrifice some privacy for a faster fill: trades are visible on-chain after they execute.`}
           </div>
-          <div>
-            {`External matches are less private than fully internal matches, due to the specifics of each executed match—such as the trading pair, side, and match size—being publicly visible on-chain.`}
+          <div className="space-y-1">
+            <div className="flex items-center gap-1">
+              <span>Pre-trade Privacy:</span>
+              <CheckCircle className="size-4 text-green-500" />
+            </div>
+            <div className="flex items-center gap-1">
+              <span>Post-trade Privacy:</span>
+              <XCircle className="size-4 text-red-500" />
+            </div>
           </div>
           <a
             className="inline-flex items-center underline-offset-4 transition-colors hover:text-foreground hover:underline hover:decoration-foreground"
