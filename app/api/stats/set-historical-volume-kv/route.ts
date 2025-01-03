@@ -30,7 +30,12 @@ export const maxDuration = 300
 export async function GET(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
   try {
-    const ddog = new DDogClient()
+    const ddog = new DDogClient(
+      process.env.DD_API_KEY,
+      process.env.DD_APP_KEY,
+      process.env.DD_ENV,
+      process.env.DD_SERVICE,
+    )
     const { searchParams } = new URL(req.url)
     const params: SearchParams = {
       to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to)),

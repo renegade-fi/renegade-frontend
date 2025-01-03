@@ -6,12 +6,11 @@ import {
   OrderMetadata,
   OrderState,
   Token,
-  useBackOfQueueWallet,
-  useOrderHistory,
   useOrderHistoryWebSocket,
 } from "@renegade-fi/react"
 import { toast } from "sonner"
 
+import { useOrderHistory } from "@/hooks/use-order-history"
 import { formatNumber } from "@/lib/format"
 import { syncOrdersWithWalletState } from "@/lib/order"
 

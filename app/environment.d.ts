@@ -4,6 +4,10 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       AMBERDATA_API_KEY: string
+      DD_ENV: string
+      DD_SERVICE: string
+      DD_APP_KEY: string
+      DD_API_KEY: string
       NEXT_PUBLIC_AMBERDATA_PROXY_URL: string
       NEXT_PUBLIC_BOT_SECRETS: string
       NEXT_PUBLIC_DARKPOOL_CONTRACT: `0x${string}`
@@ -13,6 +17,7 @@ declare global {
       NEXT_PUBLIC_PERMIT2_CONTRACT: `0x${string}`
       NEXT_PUBLIC_PRICE_REPORTER_URL: string
       NEXT_PUBLIC_RENEGADE_RELAYER_HOSTNAME: string
+      NEXT_PUBLIC_HISTORICAL_STATE_URL: string
       NEXT_PUBLIC_RPC_URL: string
       NEXT_PUBLIC_TOKEN_MAPPING: string
       NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: string
