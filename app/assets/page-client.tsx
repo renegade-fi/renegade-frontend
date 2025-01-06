@@ -53,6 +53,7 @@ export function PageClient() {
 
   // Transfer History Table Data
   const { data: transferHistory } = useTaskHistory({
+    limit: 1000,
     query: {
       select: (data) => Array.from(data.values()),
     },
