@@ -6,6 +6,7 @@ import {
   OrderMetadata,
   OrderState,
   Token,
+  useBackOfQueueWallet,
   useOrderHistoryWebSocket,
 } from "@renegade-fi/react"
 import { toast } from "sonner"

@@ -1,4 +1,4 @@
-import { OrderMetadata, Token } from "@renegade-fi/react"
+import { OrderMetadata, Token, useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { getVWAP, syncOrdersWithWalletState } from "@/lib/order"

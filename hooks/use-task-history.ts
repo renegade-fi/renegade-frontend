@@ -9,6 +9,7 @@ import {
   UseTaskHistoryReturnType,
   useTaskHistoryWebSocket,
 } from "@renegade-fi/react"
+import { getTaskHistory } from "@renegade-fi/react/actions"
 import {
   GetTaskHistoryData,
   GetTaskHistoryQueryKey,
@@ -64,11 +65,17 @@ function getHistoricalStateTaskHistoryQueryFn(config: Config) {
   }) {
     const { scopeKey: _ } = queryKey[1]
 
-    const hseClient = new HistoricalStateClient(
-      process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL,
-      config,
-    )
-    const history = await hseClient.getTaskHistory()
+    let history
+    if (process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL) {
+      const hseClient = new HistoricalStateClient(
+        process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL,
+        config,
+      )
+
+      history = await hseClient.getTaskHistory()
+    } else {
+      history = await getTaskHistory(config)
+    }
 
     return history ?? null
   }

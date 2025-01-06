@@ -9,6 +9,7 @@ import {
   useStatus,
   useQuery,
 } from "@renegade-fi/react"
+import { getOrderHistory } from "@renegade-fi/react/actions"
 import {
   GetOrderHistoryData,
   GetOrderHistoryQueryKey,
@@ -64,11 +65,17 @@ function getHistoricalStateOrderHistoryQueryFn(config: Config) {
   }) {
     const { scopeKey: _ } = queryKey[1]
 
-    const hseClient = new HistoricalStateClient(
-      process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL,
-      config,
-    )
-    const history = await hseClient.getOrderHistory()
+    let history
+    if (process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL) {
+      const hseClient = new HistoricalStateClient(
+        process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL,
+        config,
+      )
+
+      history = await hseClient.getOrderHistory()
+    } else {
+      history = await getOrderHistory(config)
+    }
 
     return history ?? null
   }
