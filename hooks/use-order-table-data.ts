@@ -1,16 +1,32 @@
-import { OrderMetadata, Token, useOrderHistory } from "@renegade-fi/react"
+import {
+  OrderMetadata,
+  Token,
+  useBackOfQueueWallet,
+  useOrderHistory,
+} from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
-import { getVWAP } from "@/lib/order"
+import { getVWAP, syncOrdersWithWalletState } from "@/lib/order"
 
 export interface ExtendedOrderMetadata extends OrderMetadata {
   usdValue: number
 }
 
 export function useOrderTableData() {
+  const { data: orderIds } = useBackOfQueueWallet({
+    query: {
+      select: (data) => data.orders.map((order) => order.id),
+    },
+  })
   const { data } = useOrderHistory({
     query: {
-      select: (data) => Array.from(data?.values() || []),
+      select: (data) => {
+        const filtered = syncOrdersWithWalletState({
+          orders: data,
+          walletOrderIds: orderIds,
+        })
+        return Array.from(filtered.values())
+      },
     },
   })
 

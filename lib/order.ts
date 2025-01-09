@@ -35,3 +35,43 @@ export function getVWAP(order: OrderMetadata): number {
 
   return Number(totalValue) / Number(totalVolume)
 }
+
+interface SyncOrdersWithWalletStateParams {
+  /** The map of orders to filter */
+  orders: Map<string, OrderMetadata>
+  /** Optional array of order IDs that exist in the wallet's current state */
+  walletOrderIds?: string[]
+}
+
+/**
+ * Filters orders to maintain consistency with the wallet's current state.
+ *
+ * This enforces the invariant that non-terminal orders (orders that are not Filled or Cancelled)
+ * must exist in the wallet's current orders. Terminal orders are always included regardless
+ * of wallet state.
+ *
+ * This is necessary because the order history can fall out of sync with the wallet's
+ * current state.
+ *
+ * @example
+ * ```ts
+ * const walletOrderIds = useBackOfQueueWallet({
+ *   query: { select: (data) => data?.orders?.map(order => order.id) ?? [] }
+ * })
+ *
+ * const validOrders = syncOrdersWithWalletState({ orders: allOrders, walletOrderIds })
+ * ```
+ */
+export function syncOrdersWithWalletState({
+  orders,
+  walletOrderIds,
+}: SyncOrdersWithWalletStateParams): Map<string, OrderMetadata> {
+  return new Map(
+    Array.from(orders.entries()).filter(([_, order]) => {
+      const isTerminal = order.state === "Filled" || order.state === "Cancelled"
+      if (isTerminal) return true
+
+      return walletOrderIds?.includes(order.id) ?? false
+    }),
+  )
+}

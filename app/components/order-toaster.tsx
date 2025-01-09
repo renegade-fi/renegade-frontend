@@ -6,12 +6,14 @@ import {
   OrderMetadata,
   OrderState,
   Token,
+  useBackOfQueueWallet,
   useOrderHistory,
   useOrderHistoryWebSocket,
 } from "@renegade-fi/react"
 import { toast } from "sonner"
 
 import { formatNumber } from "@/lib/format"
+import { syncOrdersWithWalletState } from "@/lib/order"
 
 export function OrderToaster() {
   const [incomingOrder, setIncomingOrder] = React.useState<OrderMetadata>()
@@ -22,9 +24,16 @@ export function OrderToaster() {
   })
   const orderMetadataRef = React.useRef<Map<string, OrderMetadata>>(new Map())
 
+  const { data: orderIds } = useBackOfQueueWallet({
+    query: {
+      select: (data) => data.orders.map((order) => order.id),
+    },
+  })
   const { data } = useOrderHistory({
     query: {
       enabled: orderMetadataRef.current.size === 0,
+      select: (data) =>
+        syncOrdersWithWalletState({ orders: data, walletOrderIds: orderIds }),
     },
   })
 
