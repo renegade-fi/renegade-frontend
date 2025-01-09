@@ -100,8 +100,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(@types/react-dom@19.0.2(@types/react@19.0.1))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@renegade-fi/internal-sdk':
-        specifier: 0.0.16
-        version: 0.0.16(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)
+        specifier: 0.0.17
+        version: 0.0.17(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)
       '@renegade-fi/react':
         specifier: 0.4.16
         version: 0.4.16(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -2807,8 +2807,8 @@ packages:
       '@tanstack/query-core':
         optional: true
 
-  '@renegade-fi/internal-sdk@0.0.16':
-    resolution: {integrity: sha512-NcZ/nXrtPU+tPlhaxjrNDsM3Zli5hZJzFLoriBogu/rkfmayKwT4Wqgn43+qwawnJilfLqyUFgz9sQAowFcDQg==}
+  '@renegade-fi/internal-sdk@0.0.17':
+    resolution: {integrity: sha512-G9oDeOS3b0EPrhUSuHh+NKiPuF5ZJp0JsgezaXNZdmKX5VvmF1hsMoP7/vmiSlqkcK1/cs75o6+JGe4098zcaw==}
 
   '@renegade-fi/react@0.4.16':
     resolution: {integrity: sha512-jcZdEeR5CTG84LZYkHargTSPaKnl0nuSbPuQAH8ilH90gTt0YT1B5XB3URsUurm83JIiDGCyO++GW3eGzdl1Gw==}
@@ -11257,7 +11257,7 @@ snapshots:
       - react
       - ws
 
-  '@renegade-fi/internal-sdk@0.0.16(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)':
+  '@renegade-fi/internal-sdk@0.0.17(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)':
     dependencies:
       '@datadog/datadog-api-client': 1.27.0
       '@noble/hashes': 1.5.0

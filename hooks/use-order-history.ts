@@ -63,7 +63,7 @@ function getHistoricalStateOrderHistoryQueryFn(config: Config) {
   }: {
     queryKey: GetOrderHistoryQueryKey
   }) {
-    const { scopeKey: _ } = queryKey[1]
+    const { scopeKey: _, ...parameters } = queryKey[1]
 
     let history
     if (process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL) {
@@ -72,9 +72,9 @@ function getHistoricalStateOrderHistoryQueryFn(config: Config) {
         config,
       )
 
-      history = await hseClient.getOrderHistory()
+      history = await hseClient.getOrderHistory(parameters)
     } else {
-      history = await getOrderHistory(config)
+      history = await getOrderHistory(config, parameters)
     }
 
     return history ?? null

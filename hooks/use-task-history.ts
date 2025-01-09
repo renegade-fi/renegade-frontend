@@ -63,7 +63,7 @@ function getHistoricalStateTaskHistoryQueryFn(config: Config) {
   }: {
     queryKey: GetTaskHistoryQueryKey
   }) {
-    const { scopeKey: _ } = queryKey[1]
+    const { scopeKey: _, ...parameters } = queryKey[1]
 
     let history
     if (process.env.NEXT_PUBLIC_HISTORICAL_STATE_URL) {
@@ -72,9 +72,9 @@ function getHistoricalStateTaskHistoryQueryFn(config: Config) {
         config,
       )
 
-      history = await hseClient.getTaskHistory()
+      history = await hseClient.getTaskHistory(parameters)
     } else {
-      history = await getTaskHistory(config)
+      history = await getTaskHistory(config, parameters)
     }
 
     return history ?? null
