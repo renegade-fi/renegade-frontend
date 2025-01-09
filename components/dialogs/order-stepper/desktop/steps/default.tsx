@@ -58,7 +58,7 @@ export function DefaultStep(
     return decimalCorrectPrice(wcp, baseToken.decimals, quoteToken.decimals)
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
-  const { request } = usePrepareCreateOrder({
+  const { data: request } = usePrepareCreateOrder({
     base: baseToken.address,
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",

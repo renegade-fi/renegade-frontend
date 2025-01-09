@@ -18,7 +18,7 @@ export function CancelButton({
   id: string
   isDisabled?: boolean
 }) {
-  const { request } = usePrepareCancelOrder({ id })
+  const { data: request } = usePrepareCancelOrder({ id })
   const { cancelOrder } = useCancelOrder()
 
   return (
