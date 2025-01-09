@@ -9,7 +9,6 @@ import {
   TaskType,
   Token,
   UpdateType,
-  useTaskHistory,
 } from "@renegade-fi/react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -22,6 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
+import { useTaskHistory } from "@/hooks/use-task-history"
 import { formatNumber, formatRelativeTimestamp } from "@/lib/format"
 
 export function TaskHistorySheet({ children }: { children: React.ReactNode }) {

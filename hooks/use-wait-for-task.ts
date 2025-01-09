@@ -1,6 +1,6 @@
 import React from "react"
 
-import { TaskState, useTaskHistory } from "@renegade-fi/react"
+import { useTaskHistory } from "./use-task-history"
 
 export function useWaitForTask(onConfirm?: () => void) {
   // TODO: Refactor useDeposit to useMutation and declaratively pass taskId from { data }

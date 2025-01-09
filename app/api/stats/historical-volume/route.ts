@@ -3,7 +3,12 @@ import { DDogClient } from "@renegade-fi/internal-sdk"
 export const runtime = "edge"
 
 export async function GET(request: Request) {
-  const ddog = new DDogClient()
+  const ddog = new DDogClient(
+    process.env.DD_API_KEY,
+    process.env.DD_APP_KEY,
+    process.env.DD_ENV,
+    process.env.DD_SERVICE,
+  )
   try {
     const { searchParams } = new URL(request.url)
     const to = parseInt(searchParams.get("to") || "")

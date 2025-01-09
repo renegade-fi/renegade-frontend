@@ -8,6 +8,8 @@ overrides:
   '@types/react': 19.0.1
   '@types/react-dom': 19.0.2
   react-is: 19.0.0
+  '@renegade-fi/core': 0.4.15
+  viem: ~2.15.1
 
 importers:
 
@@ -98,11 +100,11 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(@types/react-dom@19.0.2(@types/react@19.0.1))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@renegade-fi/internal-sdk':
-        specifier: 0.0.0-canary-20240829175257
-        version: 0.0.0-canary-20240829175257(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+        specifier: 0.0.16
+        version: 0.0.16(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)
       '@renegade-fi/react':
-        specifier: 0.4.12
-        version: 0.4.12(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+        specifier: 0.4.16
+        version: 0.4.16(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@renegade-fi/tradingview-charts':
         specifier: 0.27.6
         version: 0.27.6
@@ -1041,7 +1043,7 @@ packages:
     peerDependencies:
       bitcoinjs-lib: ^7.0.0-rc.0
       bs58: ^6.0.0
-      viem: ^2.21.0
+      viem: ~2.15.1
 
   '@coinbase/wallet-sdk@3.9.3':
     resolution: {integrity: sha512-N/A2DRIf0Y3PHc1XAMvbBUu4zisna6qAdqABMZwBMNEfWrXpAwx16pZGkYCLGE+Rvv1edbcB2LYDRnACNcmCiw==}
@@ -1537,7 +1539,7 @@ packages:
     peerDependencies:
       '@solana/wallet-adapter-base': ^0.9.0
       '@solana/web3.js': ^1.93.0
-      viem: ^2.16.0
+      viem: ~2.15.1
 
   '@lifi/types@16.2.2':
     resolution: {integrity: sha512-pgnN5NBcfvz9o2tonrQS6zSrpwldsu/NJ7cE45veRc1p7bLHaaVI8LLcFvAQxRip4kv7yS0QLLwp+MOBJUsyPQ==}
@@ -1732,9 +1734,6 @@ packages:
 
   '@noble/curves@1.2.0':
     resolution: {integrity: sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==}
-
-  '@noble/curves@1.4.0':
-    resolution: {integrity: sha512-p+4cb332SFCrReJkCYe8Xzm0OWi4Jji5jVdIZRL/PmacmDkFNw6MrrV+gGpiPxLHbV+zKFRywUWbaseT+tZRXg==}
 
   '@noble/curves@1.4.2':
     resolution: {integrity: sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==}
@@ -2799,20 +2798,20 @@ packages:
       '@types/react':
         optional: true
 
-  '@renegade-fi/core@0.4.11':
-    resolution: {integrity: sha512-SyqmBjpcCvUC1LodLXzdPdI+o4z/FVeJhb1PLo9dgk0U6Ezen2BvxQ7s/QGxkC0zkNRhIRofTCiCckPM1ZZI3w==}
+  '@renegade-fi/core@0.4.15':
+    resolution: {integrity: sha512-32hutEQTO9Gd7KmKPKFteqqWPqOJ0XsWQixzUOxBH3VqLOMvCiSpMYQe19ByTT81twFY+O7SrGuunXhQGJZxXg==}
     peerDependencies:
       '@tanstack/query-core': '>=5.0.0'
-      viem: 2.x
+      viem: ~2.15.1
     peerDependenciesMeta:
       '@tanstack/query-core':
         optional: true
 
-  '@renegade-fi/internal-sdk@0.0.0-canary-20240829175257':
-    resolution: {integrity: sha512-6X8eG5EdSjJAMCR2MCx8LSML83QUaMefjWY2MxO5Gi9DUdzjDhItVfWVmZ62Gf6JLoIiHzHP+DVVabRyw2k3fw==}
+  '@renegade-fi/internal-sdk@0.0.16':
+    resolution: {integrity: sha512-NcZ/nXrtPU+tPlhaxjrNDsM3Zli5hZJzFLoriBogu/rkfmayKwT4Wqgn43+qwawnJilfLqyUFgz9sQAowFcDQg==}
 
-  '@renegade-fi/react@0.4.12':
-    resolution: {integrity: sha512-ZEJZHCDzgZS269FC+oRFBnMicnHyhv+EmymT+3xeRLPYS+vjaTOJBTUzDnfia9q96OYZtyKV7Y9wsxaTufxwHQ==}
+  '@renegade-fi/react@0.4.16':
+    resolution: {integrity: sha512-jcZdEeR5CTG84LZYkHargTSPaKnl0nuSbPuQAH8ilH90gTt0YT1B5XB3URsUurm83JIiDGCyO++GW3eGzdl1Gw==}
     peerDependencies:
       '@tanstack/react-query': '>=5.0.0'
       react: '>=18'
@@ -3680,7 +3679,7 @@ packages:
     peerDependencies:
       '@wagmi/core': 2.13.5
       typescript: '>=5.0.4'
-      viem: 2.x
+      viem: ~2.15.1
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -3690,7 +3689,7 @@ packages:
     peerDependencies:
       '@tanstack/query-core': '>=5.0.0'
       typescript: '>=5.0.4'
-      viem: 2.x
+      viem: ~2.15.1
     peerDependenciesMeta:
       '@tanstack/query-core':
         optional: true
@@ -3839,17 +3838,6 @@ packages:
 
   abitype@1.0.4:
     resolution: {integrity: sha512-UivtYZOGJGE8rsrM/N5vdRkUpqEZVmuTumfTuolm7m/6O09wprd958rx8kUBwVAAAhQDveGAgD0GJdBuR8s6tw==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.22.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-
-  abitype@1.0.5:
-    resolution: {integrity: sha512-YzDhti7cjlfaBhHutMaboYB21Ha3rXR9QTkNJFzYC4kC8YclaiwPBBBJY8ejFdu2wnJeZCVZSMlQJ7fi8S6hsw==}
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3 >=3.22.0
@@ -4466,7 +4454,7 @@ packages:
       '@tanstack/react-query': '>=5.0.0'
       react: 17.x || 18.x
       react-dom: 17.x || 18.x
-      viem: 2.x
+      viem: ~2.15.1
       wagmi: 2.x
 
   consola@3.2.3:
@@ -7942,14 +7930,6 @@ packages:
       typescript:
         optional: true
 
-  viem@2.20.1:
-    resolution: {integrity: sha512-a/BSe25TSfkc423GTSKYl1O0ON2J5huoQeOLkylHT1WS8wh3JFqb8nfAq7vg+aZ+W06BCTn36bbi47yp4D92Cg==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   vlq@1.0.1:
     resolution: {integrity: sha512-gQpnTgkubC6hQgdIcRdYGDSDc+SaujOdyesZQMv6JlfQee/9Mp0Qhnys6WxDWvQnL5WZdT7o2Ul187aSt0Rq+w==}
 
@@ -7959,7 +7939,7 @@ packages:
       '@tanstack/react-query': '>=5.0.0'
       react: '>=18'
       typescript: '>=5.0.4'
-      viem: 2.x
+      viem: ~2.15.1
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -7972,9 +7952,6 @@ packages:
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
-
-  webauthn-p256@0.0.5:
-    resolution: {integrity: sha512-drMGNWKdaixZNobeORVIqq7k5DsRC9FnG201K2QjeOoQLmtSDaSsVZdkg6n5jUALJKcAG++zBPJXmv6hy0nWFg==}
 
   webextension-polyfill@0.10.0:
     resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
@@ -10016,10 +9993,6 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.3.2
 
-  '@noble/curves@1.4.0':
-    dependencies:
-      '@noble/hashes': 1.4.0
-
   '@noble/curves@1.4.2':
     dependencies:
       '@noble/hashes': 1.4.0
@@ -11267,7 +11240,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.1
 
-  '@renegade-fi/core@0.4.11(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@renegade-fi/core@0.4.15(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
       axios: 1.7.5
       isomorphic-ws: 5.0.0(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -11284,24 +11257,31 @@ snapshots:
       - react
       - ws
 
-  '@renegade-fi/internal-sdk@0.0.0-canary-20240829175257(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)':
+  '@renegade-fi/internal-sdk@0.0.16(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)':
     dependencies:
       '@datadog/datadog-api-client': 1.27.0
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.5.0
+      '@renegade-fi/core': 0.4.15(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       axios: 1.7.5
+      json-bigint: 1.0.0
       tiny-invariant: 1.3.3
-      viem: 2.20.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+      viem: 2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
     transitivePeerDependencies:
+      - '@tanstack/query-core'
+      - '@types/react'
       - bufferutil
       - debug
       - encoding
+      - immer
+      - react
       - typescript
       - utf-8-validate
+      - ws
       - zod
 
-  '@renegade-fi/react@0.4.12(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@renegade-fi/react@0.4.16(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
-      '@renegade-fi/core': 0.4.11(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@renegade-fi/core': 0.4.15(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@tanstack/react-query': 5.45.1(react@19.0.0)
       json-bigint: 1.0.0
       react: 19.0.0
@@ -13027,11 +13007,6 @@ snapshots:
       typescript: 5.4.5
       zod: 3.23.8
 
-  abitype@1.0.5(typescript@5.4.5)(zod@3.23.8):
-    optionalDependencies:
-      typescript: 5.4.5
-      zod: 3.23.8
-
   abort-controller@3.0.0:
     dependencies:
       event-target-shim: 5.0.1
@@ -13457,7 +13432,7 @@ snapshots:
 
   bs58check@4.0.0:
     dependencies:
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.5.0
       bs58: 6.0.0
 
   bser@2.1.1:
@@ -17686,24 +17661,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.20.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8):
-    dependencies:
-      '@adraffy/ens-normalize': 1.10.0
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/bip32': 1.4.0
-      '@scure/bip39': 1.3.0
-      abitype: 1.0.5(typescript@5.4.5)(zod@3.23.8)
-      isows: 1.0.4(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
-      webauthn-p256: 0.0.5
-      ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-    optionalDependencies:
-      typescript: 5.4.5
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
   vlq@1.0.1: {}
 
   wagmi@2.12.11(@react-native-async-storage/async-storage@1.24.0(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(@upstash/redis@1.34.0)(@vercel/kv@2.0.0)(bufferutil@4.0.8)(react-dom@19.0.0(react@19.0.0))(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(utf-8-validate@5.0.10))(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(viem@2.15.1(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8):
@@ -17754,11 +17711,6 @@ snapshots:
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
-
-  webauthn-p256@0.0.5:
-    dependencies:
-      '@noble/curves': 1.4.2
-      '@noble/hashes': 1.4.0
 
   webextension-polyfill@0.10.0: {}
 
