@@ -91,9 +91,9 @@ export function NewOrderForm({
     defaultValues,
   })
   const fees = usePredictedFees(form.watch())
-  const { priceInUsd, priceInBase } = useOrderValue(form.watch())
-  const formattedOrderValue = Number(priceInUsd)
-    ? formatCurrencyFromString(priceInUsd)
+  const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue(form.watch())
+  const formattedOrderValue = Number(valueInQuoteCurrency)
+    ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
 
   const { data: price } = usePriceQuery(Token.findByTicker(base).address)
@@ -111,12 +111,12 @@ export function NewOrderForm({
       if (name === "isQuoteCurrency") {
         setCurrency(value.isQuoteCurrency ? "quote" : "base")
         if (value.isQuoteCurrency) {
-          if (Number(priceInUsd) > 0) {
-            form.setValue("amount", priceInUsd)
+          if (Number(valueInQuoteCurrency) > 0) {
+            form.setValue("amount", valueInQuoteCurrency)
           }
         } else {
-          if (Number(priceInBase) > 0) {
-            form.setValue("amount", priceInBase)
+          if (Number(valueInBaseCurrency) > 0) {
+            form.setValue("amount", valueInBaseCurrency)
           }
         }
       }
@@ -125,7 +125,7 @@ export function NewOrderForm({
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, priceInBase, priceInUsd, setCurrency, setSide])
+  }, [form, valueInBaseCurrency, valueInQuoteCurrency, setCurrency, setSide])
 
   React.useEffect(() => {
     const unbind = orderFormEvents.on("reset", () => {
@@ -151,7 +151,7 @@ export function NewOrderForm({
   })
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    if (parseFloat(priceInUsd) < 1) {
+    if (parseFloat(valueInQuoteCurrency) < 1) {
       form.setError("amount", {
         message: "Order value must be at least 1 USDC",
       })
@@ -163,7 +163,7 @@ export function NewOrderForm({
         onSubmit({
           ...values,
           ...fees,
-          amount: values.isQuoteCurrency ? priceInBase : values.amount,
+          amount: values.isQuoteCurrency ? valueInBaseCurrency : values.amount,
         })
       }
     })

@@ -23,14 +23,14 @@ export function TimeToFillCard() {
   const [selectedTicker, setSelectedToken] = React.useState("WETH")
   const [isSell, setIsSell] = React.useState(true)
 
-  const { priceInBase, priceInUsd } = useOrderValue({
+  const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue({
     amount: selectedAmount.toString(),
     base: selectedTicker,
     isQuoteCurrency: true,
     isSell,
   })
-  console.log("🚀 ~ TimeToFillCard ~ priceInBase:", priceInBase)
-  const [debouncedUsdValue] = useDebounceValue(priceInUsd, 500)
+
+  const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 500)
 
   const { data: timeToFillMs, isLoading } = useTimeToFill({
     amount: debouncedUsdValue,
@@ -105,14 +105,14 @@ export function TimeToFillCard() {
                 : "pointer-events-auto opacity-100",
             )}
           >
-            {Number(priceInBase) ? (
+            {Number(valueInBaseCurrency) ? (
               <NumberFlow
                 className="text-center font-serif text-2xl font-bold sm:text-right"
                 format={{
                   maximumFractionDigits: 2,
                 }}
                 prefix={`${isSell ? "Sell" : "Buy"}  `}
-                value={Number(priceInBase)}
+                value={Number(valueInBaseCurrency)}
                 onClick={() => setIsSell((prev) => !prev)}
               />
             ) : (

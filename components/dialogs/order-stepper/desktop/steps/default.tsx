@@ -32,12 +32,19 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useOrderValue } from "@/hooks/use-order-value"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
-import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
-import { formatNumber, safeParseUnits } from "@/lib/format"
+import {
+  GAS_FEE_TOOLTIP
+} from "@/lib/constants/tooltips"
+import {
+  formatCurrencyFromString,
+  formatNumber,
+  safeParseUnits,
+} from "@/lib/format"
 import { decimalCorrectPrice } from "@/lib/utils"
 
 export function DefaultStep(
@@ -137,6 +144,13 @@ export function ConfirmOrderDisplay(
     token.decimals,
     true,
   )
+  const { valueInQuoteCurrency } = useOrderValue({
+    ...props,
+    isQuoteCurrency: false,
+  })
+  const formattedValueInQuoteCurrency = Number(valueInQuoteCurrency)
+    ? formatCurrencyFromString(valueInQuoteCurrency)
+    : "--"
   return (
     <>
       <div className="space-y-3">
@@ -155,7 +169,9 @@ export function ConfirmOrderDisplay(
           {props.isSell ? "For" : "With"}
         </div>
         <div className="flex items-center justify-between">
-          <div className="font-serif text-3xl font-bold">USDC</div>
+          <div className="font-serif text-3xl font-bold">
+            ~{formattedValueInQuoteCurrency} USDC
+          </div>
           <TokenIcon ticker="USDC" />
         </div>
       </div>
