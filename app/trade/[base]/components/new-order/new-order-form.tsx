@@ -91,11 +91,13 @@ export function NewOrderForm({
     defaultValues,
   })
   const fees = usePredictedFees(form.watch())
-  const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue(form.watch())
+  const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue(
+    form.watch(),
+  )
   const formattedOrderValue = Number(valueInQuoteCurrency)
     ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
-
+  const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${base}`
   const { data: price } = usePriceQuery(Token.findByTicker(base).address)
 
   React.useEffect(() => {
@@ -320,6 +322,14 @@ export function NewOrderForm({
           <ConnectButton className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal" />
         )}
         <div className="space-y-3 whitespace-nowrap text-sm">
+          {form.getValues("isQuoteCurrency") ? (
+            <div className="flex items-center justify-between">
+              <div className="text-muted-foreground">Est. Receive</div>
+              <div>{receiveLabel}</div>
+            </div>
+          ) : (
+            <></>
+          )}
           <div className="flex items-center justify-between">
             <Tooltip>
               <TooltipTrigger asChild>

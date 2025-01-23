@@ -37,9 +37,7 @@ import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { Side } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
-import {
-  GAS_FEE_TOOLTIP
-} from "@/lib/constants/tooltips"
+import { GAS_FEE_TOOLTIP } from "@/lib/constants/tooltips"
 import {
   formatCurrencyFromString,
   formatNumber,
