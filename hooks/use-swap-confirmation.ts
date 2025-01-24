@@ -30,7 +30,7 @@ export function useSwapConfirmation(
         status,
         receivedAmount:
           "receiving" in data
-            ? (data.receiving as ExtendedTransactionInfo).amount ?? "0"
+            ? ((data.receiving as ExtendedTransactionInfo).amount ?? "0")
             : "0",
       }
     },
