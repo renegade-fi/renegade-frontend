@@ -14,6 +14,7 @@ import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
 import { isTestnet } from "@/lib/viem"
+import { WBTCForm } from "./wbtc-form"
 
 export function TransferForm({
   className,
@@ -61,6 +62,15 @@ export function TransferForm({
     if (form.watch("mint") === Token.findByTicker("USDC").address) {
       return (
         <USDCForm
+          className={className}
+          form={form}
+          header={header}
+          onSuccess={onSuccess}
+        />
+      )
+    } else if (form.watch("mint") === Token.findByTicker("WBTC").address) {
+      return (
+        <WBTCForm
           className={className}
           form={form}
           header={header}
