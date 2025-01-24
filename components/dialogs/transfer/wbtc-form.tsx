@@ -1,14 +1,12 @@
 import * as React from "react"
 
-import { usePathname, useRouter } from "next/navigation"
-
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Token, UpdateType, useConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
-import { useDebounceValue } from "usehooks-ts"
+import { useDebounceValue, useMediaQuery } from "usehooks-ts"
 import { formatUnits, isAddress } from "viem"
 import { mainnet } from "viem/chains"
 import { useAccount, useSendTransaction, useSwitchChain } from "wagmi"
@@ -19,15 +17,12 @@ import {
   ExternalTransferDirection,
   checkAmount,
   checkBalance,
-  constructArbitrumBridgeUrl,
   formSchema,
-  isMaxBalance,
   normalizeStatus,
   verifyRecipientAddress,
 } from "@/components/dialogs/transfer/helpers"
 import { useChainBalance } from "@/components/dialogs/transfer/hooks/use-chain-balance"
 import { useRenegadeBalance } from "@/components/dialogs/transfer/hooks/use-renegade-balance"
-import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 import { MaxBalancesWarning } from "@/components/dialogs/transfer/max-balances-warning"
 import { Execution, Step, getSteps } from "@/components/dialogs/transfer/step"
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"
@@ -58,16 +53,10 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 import { Separator } from "@/components/ui/separator"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
-import { useMediaQuery } from "@/hooks/use-media-query"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
 import { useWithdraw } from "@/hooks/use-withdraw"
@@ -78,7 +67,6 @@ import {
 } from "@/lib/constants/protocol"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
-import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { ETHEREUM_TOKENS } from "@/lib/token"
@@ -88,14 +76,13 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 import { BridgePromptEthereum } from "./bridge-prompt-ethereum"
+import { QUOTE_STALE_TIME } from "./constants"
 import { useBridgeConfirmation } from "./hooks/use-bridge-confirmation"
 import { NetworkLabel } from "./network-display"
 import { NetworkSelect } from "./network-select"
 import { ReviewBridge } from "./review-bridge"
 import { EVMStep, STEP_CONFIGS } from "./types"
 import { useBridgeQuote } from "./use-bridge-quote"
-
-const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
 const catchError = (error: Error, message: string) => {
   console.error(`Error in ${L2_TOKEN?.ticker} form`, error)
@@ -117,17 +104,14 @@ export function WBTCForm({
 }) {
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
-  const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const isTradePage = usePathname().includes("/trade")
   const queryClient = useQueryClient()
-  const router = useRouter()
   const { setSide } = useServerStore((state) => state)
+  const renegadeConfig = useConfig()
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
+
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
   const [network, setNetwork] = React.useState<number>(chain.id)
-  const renegadeConfig = useConfig()
-  // TODO: const
-  const isDeposit = true
 
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
     null,
@@ -165,7 +149,6 @@ export function WBTCForm({
     queryKey: l2BalanceQueryKey,
   } = useChainBalance({
     token: L2_TOKEN,
-    enabled: isDeposit,
   })
 
   const {
@@ -179,8 +162,8 @@ export function WBTCForm({
     token: L1_TOKEN,
   })
 
-  const balance = isDeposit ? formattedL2Balance : formattedRenegadeBalance
-  const balanceLabel = isDeposit ? l2BalanceLabel : renegadeBalanceLabel
+  const balance = formattedL2Balance
+  const balanceLabel = l2BalanceLabel
 
   // Approve
   const { data: allowanceRequired, queryKey: allowanceQueryKey } =
@@ -761,17 +744,11 @@ export function WBTCForm({
               <div className="flex justify-between">
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   Balance&nbsp;on&nbsp;
-                  {isDeposit ? (
-                    <>
-                      <TokenIcon
-                        size={16}
-                        ticker="ARB"
-                      />
-                      Arbitrum
-                    </>
-                  ) : (
-                    "Renegade"
-                  )}
+                  <TokenIcon
+                    size={16}
+                    ticker="ARB"
+                  />
+                  Arbitrum
                 </div>
                 <ResponsiveTooltip>
                   <ResponsiveTooltipTrigger
@@ -807,7 +784,7 @@ export function WBTCForm({
 
             <div
               className={cn("flex justify-between", {
-                hidden: !userHasL1Balance || !isDeposit,
+                hidden: !userHasL1Balance,
               })}
             >
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -834,12 +811,10 @@ export function WBTCForm({
 
             {renderTransferOptions()}
 
-            {isDeposit && (
-              <MaxBalancesWarning
-                className="text-sm text-orange-400"
-                mint={mint}
-              />
-            )}
+            <MaxBalancesWarning
+              className="text-sm text-orange-400"
+              mint={mint}
+            />
           </div>
           {isDesktop ? (
             <DialogFooter>

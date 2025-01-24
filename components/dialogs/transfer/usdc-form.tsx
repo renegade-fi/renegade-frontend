@@ -7,7 +7,7 @@ import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { useDebounceValue } from "usehooks-ts"
-import { formatUnits, isAddress, parseUnits } from "viem"
+import { formatUnits, isAddress } from "viem"
 import { mainnet } from "viem/chains"
 import { useAccount, useSendTransaction, useSwitchChain } from "wagmi"
 import { z } from "zod"
@@ -84,14 +84,13 @@ import { chain, getFormattedChainName, solana } from "@/lib/viem"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
+import { QUOTE_STALE_TIME } from "./constants"
 import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
 const USDC_SOLANA_TOKEN = SOLANA_TOKENS["USDC"]
-
-const QUOTE_STALE_TIME = 1000 * 60 * 1 // 1 minute
 
 export function USDCForm({
   className,
@@ -199,11 +198,6 @@ export function USDCForm({
   const swapRequired = React.useMemo(() => {
     return network === chain.id && snapshot.swapRequired
   }, [network, snapshot.swapRequired])
-
-  const remainingUsdceBalance =
-    parseUnits(amount, USDC_L2_TOKEN.decimals) > (usdcL2Balance ?? BigInt(0))
-      ? combinedBalance - parseUnits(amount, USDC_L2_TOKEN.decimals)
-      : usdceL2Balance ?? BigInt(0)
 
   const switchChainAndInvoke = async (chainId: number, fn: () => void) =>
     switchChainAsync({ chainId })
