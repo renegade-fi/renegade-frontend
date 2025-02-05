@@ -198,7 +198,7 @@ export function WETHForm({
   const remainingEthBalance =
     parseEther(amount) > (l2Balance ?? BigInt(0))
       ? combinedBalance - parseEther(amount)
-      : ethL2Balance?.value ?? BigInt(0)
+      : (ethL2Balance?.value ?? BigInt(0))
 
   // If the amount is greater than the WETH balance, we need to wrap ETH
   const wrapRequired =

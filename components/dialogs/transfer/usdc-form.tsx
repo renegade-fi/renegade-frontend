@@ -203,7 +203,7 @@ export function USDCForm({
   const remainingUsdceBalance =
     parseUnits(amount, USDC_L2_TOKEN.decimals) > (usdcL2Balance ?? BigInt(0))
       ? combinedBalance - parseUnits(amount, USDC_L2_TOKEN.decimals)
-      : usdceL2Balance ?? BigInt(0)
+      : (usdceL2Balance ?? BigInt(0))
 
   const switchChainAndInvoke = async (chainId: number, fn: () => void) =>
     switchChainAsync({ chainId })
