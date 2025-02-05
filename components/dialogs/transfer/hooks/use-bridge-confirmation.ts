@@ -61,8 +61,8 @@ export function useBridgeConfirmation(
       lifiExplorerLink: hasLifiExplorerLink(data)
         ? data.bridgeExplorerLink
         : "",
-      receivedAmount: hasReceiving(data) ? data.receiving.amount ?? "0" : "0",
-      receiveHash: hasReceiving(data) ? data.receiving.txHash ?? "" : "",
+      receivedAmount: hasReceiving(data) ? (data.receiving.amount ?? "0") : "0",
+      receiveHash: hasReceiving(data) ? (data.receiving.txHash ?? "") : "",
     }
   }, [data])
 
