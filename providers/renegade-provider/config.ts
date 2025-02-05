@@ -4,6 +4,7 @@ import { cookieStorage } from "@/lib/cookie"
 import { viemClient } from "@/lib/viem"
 
 export const config = createConfig({
+  chainId: viemClient.chain.id,
   darkPoolAddress: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
   priceReporterUrl: process.env.NEXT_PUBLIC_PRICE_REPORTER_URL,
   relayerUrl: process.env.NEXT_PUBLIC_RENEGADE_RELAYER_HOSTNAME,
