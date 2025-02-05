@@ -1,9 +1,12 @@
-import { OrderMetadata, Token, useBackOfQueueWallet } from "@renegade-fi/react"
+import {
+  OrderMetadata,
+  Token,
+  useBackOfQueueWallet,
+  useOrderHistory,
+} from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { getVWAP, syncOrdersWithWalletState } from "@/lib/order"
-
-import { useOrderHistory } from "./use-order-history"
 
 export interface ExtendedOrderMetadata extends OrderMetadata {
   usdValue: number

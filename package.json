@@ -41,7 +41,7 @@
     "@radix-ui/react-tooltip": "^1.1.0",
     "@radix-ui/react-visually-hidden": "^1.1.0",
     "@renegade-fi/internal-sdk": "0.0.18",
-    "@renegade-fi/react": "0.4.17",
+    "@renegade-fi/react": "0.5.0",
     "@renegade-fi/tradingview-charts": "0.27.6",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
@@ -102,10 +102,8 @@
   "prettier": "./prettier.mjs",
   "pnpm": {
     "overrides": {
-      "@types/react": "19.0.1",
-      "@types/react-dom": "19.0.2",
       "react-is": "19.0.0",
-      "@renegade-fi/core": "0.4.16",
+      "@renegade-fi/core": "0.5.0",
       "viem": "$viem"
     }
   }
