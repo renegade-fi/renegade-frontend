@@ -21,6 +21,12 @@ export function AnimatedPriceStatus({
   const token = Token.findByAddress(mint)
   const tokenSupported = token.supportedExchanges.has(exchange)
   let content = "LIVE"
+  // Temporary fix for Coinbase
+  if (exchange === "coinbase") {
+    return (
+      <span className={cn("!text-muted-foreground", className)}>NO DATA</span>
+    )
+  }
   if (!tokenSupported) {
     content = "N/A"
   } else if (stale) {
