@@ -222,7 +222,7 @@ export function constructExchangeUrl(exchange: Exchange, baseTicker: string) {
     case "binance":
       return `https://www.binance.com/en/trade/${remappedBase}_${remappedQuote}`
     case "coinbase":
-      return `https://www.coinbase.com/advanced-trade/${remappedBase}-${remappedQuote}`
+      return `https://www.coinbase.com/advanced-trade/spot/${remappedBase}-${remappedQuote}`
     case "kraken":
       return `https://pro.kraken.com/app/trade/${remappedBase}-${remappedQuote}`
     case "okx":

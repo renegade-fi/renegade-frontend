@@ -36,6 +36,10 @@ export function AnimatedPrice({
     }
   }, [price])
 
+  if (exchange === "coinbase") {
+    return <span className={cn("text-muted-foreground", className)}>--</span>
+  }
+
   return (
     <span
       key={animationKey}
