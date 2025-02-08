@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 
-import { usePrepareCancelOrder } from "@/hooks/usePrepareCancelOrder"
+import { usePrepareCancelOrder } from "@/hooks/use-prepare-cancel-order"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { cn } from "@/lib/utils"
 
