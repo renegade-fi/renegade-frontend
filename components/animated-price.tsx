@@ -1,11 +1,10 @@
-"use client"
-
 import * as React from "react"
 
-import { Exchange, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
 
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { formatCurrency } from "@/lib/format"
+import { getPriceStatus } from "@/lib/price-status"
 import { cn } from "@/lib/utils"
 
 export function AnimatedPrice({
@@ -17,12 +16,9 @@ export function AnimatedPrice({
   exchange?: Exchange
   mint: `0x${string}`
 }) {
-  const { data: price } = usePriceQuery(mint, exchange)
+  const { data: price, isStale } = usePriceQuery(mint, exchange)
   const prev = React.useRef(price)
   const [animationKey, setAnimationKey] = React.useState(0)
-
-  const token = Token.findByAddress(mint)
-  const tokenSupported = token.supportedExchanges.has(exchange)
 
   React.useEffect(() => {
     if (price !== prev.current) {
@@ -36,17 +32,19 @@ export function AnimatedPrice({
     }
   }, [price])
 
+  // Temporary fix for Coinbase
   if (exchange === "coinbase") {
     return <span className={cn("text-muted-foreground", className)}>--</span>
   }
 
+  const { priceColor } = getPriceStatus({ price, isStale, mint, exchange })
+
   return (
     <span
       key={animationKey}
-      className={cn("transition-colors", className, {
+      className={cn("transition-colors", className, priceColor, {
         "animate-price-green": price > prev.current,
         "animate-price-red": price < prev.current,
-        "text-muted": !tokenSupported,
       })}
     >
       {formatCurrency(price)}
