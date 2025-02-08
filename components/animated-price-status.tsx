@@ -14,14 +14,6 @@ export function AnimatedPriceStatus({
   mint: `0x${string}`
 }) {
   const { data: price, isStale } = usePriceQuery(mint, exchange)
-
-  // Temporary fix for Coinbase
-  if (exchange === "coinbase") {
-    return (
-      <span className={cn("!text-muted-foreground", className)}>NO DATA</span>
-    )
-  }
-
   const { text, statusColor } = getPriceStatus({
     price,
     isStale,
