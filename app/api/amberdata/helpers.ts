@@ -8,6 +8,7 @@ export async function fetchAssetPrice(
       headers: {
         accept: "application/json",
         "x-api-key": apiKey,
+        "Accept-Encoding": "gzip",
       },
     },
   )

@@ -258,6 +258,7 @@ async function amberdataRequest(
     API_KEY_HEADER,
     process.env.AMBERDATA_API_KEY as string,
   )
+  amberdataReq.headers.set("Accept-Encoding", "gzip")
 
   return amberdataReq
 }
