@@ -11,6 +11,8 @@ import {
 
 import { usePriceWebSocket } from "./use-price-websocket"
 
+const STALE_TIME_MS = 60_000
+
 export function usePriceQuery(
   baseMint: `0x${string}`,
   exchange: Exchange = "binance",
@@ -42,7 +44,7 @@ export function usePriceQuery(
       return getPriceFromPriceReporter(topic)
     },
     initialData: 0,
-    staleTime: Infinity,
+    staleTime: STALE_TIME_MS,
     retry: false,
   })
 }
