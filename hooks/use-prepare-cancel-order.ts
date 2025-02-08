@@ -29,7 +29,7 @@ export function usePrepareCancelOrder(
           id,
         )
       }
-      return undefined
+      return null
     },
     enabled: Boolean(config.state.seed),
   })
