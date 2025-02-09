@@ -4,11 +4,6 @@ import {
   LibrarySymbolInfo,
 } from "@renegade-fi/tradingview-charts"
 
-import {
-  subscribeOnStream,
-  unsubscribeFromStream,
-} from "@/app/trade/[base]/components/charts/tradingview/streaming"
-
 import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
 
 import { datafeedConfig } from "./config"
@@ -125,17 +120,10 @@ export const datafeed = {
     subscriberUID,
     onResetCacheNeededCallback,
   ) => {
-    subscribeOnStream(
-      symbolInfo,
-      resolution,
-      onRealtimeCallback,
-      subscriberUID,
-      onResetCacheNeededCallback,
-      lastBarsCache.get(symbolInfo.name),
-    )
+    // TODO: Fix Amberdata WS proxy
   },
 
   unsubscribeBars: (subscriberUID) => {
-    unsubscribeFromStream(subscriberUID)
+    // TODO: Fix Amberdata WS proxy
   },
 } satisfies IBasicDataFeed
