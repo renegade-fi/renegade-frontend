@@ -72,24 +72,33 @@ export function NewOrderForm({
   onSubmit: (values: NewOrderConfirmationProps) => void
   closeButton?: React.ReactNode
 }) {
+  // Form initializaiton
   const {
     order: { side, currency },
     setSide,
     setCurrency,
   } = useServerStore((state) => state)
-
-  const isMaxOrders = useIsMaxOrders()
-  const { walletReadyState } = useWallets()
-  const defaultValues = {
-    amount: "",
-    base,
-    isSell: side === Side.SELL,
-    isQuoteCurrency: currency === "quote",
-  }
+  const defaultValues = React.useMemo(
+    () => ({
+      amount: "",
+      base,
+      isSell: side === Side.SELL,
+      isQuoteCurrency: currency === "quote",
+    }),
+    [side, currency, base],
+  )
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  // Keep form in sync with server store
+  React.useEffect(() => {
+    form.setValue("isSell", side === Side.SELL)
+    form.setValue("isQuoteCurrency", currency === "quote")
+  }, [form, side, currency])
+
+  const isMaxOrders = useIsMaxOrders()
+  const { walletReadyState } = useWallets()
   const fees = usePredictedFees(form.watch())
   const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue(
     form.watch(),
@@ -101,15 +110,7 @@ export function NewOrderForm({
   const { data: price } = usePriceQuery(Token.findByTicker(base).address)
 
   React.useEffect(() => {
-    form.setValue("isSell", side === Side.SELL)
-  }, [form, side])
-
-  React.useEffect(() => {
-    form.setValue("isQuoteCurrency", currency === "quote")
-  }, [currency, form])
-
-  React.useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
+    const subscription = form.watch((value, { name }) => {
       if (name === "isQuoteCurrency") {
         setCurrency(value.isQuoteCurrency ? "quote" : "base")
         if (value.isQuoteCurrency) {
@@ -127,15 +128,14 @@ export function NewOrderForm({
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, valueInBaseCurrency, valueInQuoteCurrency, setCurrency, setSide])
+  }, [form, setCurrency, setSide, valueInBaseCurrency, valueInQuoteCurrency])
 
   React.useEffect(() => {
     const unbind = orderFormEvents.on("reset", () => {
-      form.reset()
+      form.reset({ ...defaultValues })
     })
-
     return unbind
-  }, [form])
+  }, [defaultValues, form])
 
   const { data: hasBalances } = useBackOfQueueWallet({
     query: {
