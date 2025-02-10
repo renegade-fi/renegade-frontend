@@ -8,6 +8,8 @@ import {
   Query,
 } from "@tanstack/react-query"
 
+import { shouldInvalidate } from "@/lib/query"
+
 function makeQueryClient(mutationCache?: MutationCache) {
   return new QueryClient({
     defaultOptions: {
@@ -38,29 +40,11 @@ function getQueryClient(mutationCache?: MutationCache) {
 }
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
-  // NOTE: Avoid useState when initializing the query client if you don't
-  //       have a suspense boundary between this and the code that may
-  //       suspend because React will throw away the client on the initial
-  //       render if it suspends and there is no boundary
   const queryClient = getQueryClient(
     new MutationCache({
       onSuccess: (_data, _variables, _context, mutation) => {
-        const nonStaticQueries = (query: Query) => {
-          const defaultStaleTime =
-            queryClient.getQueryDefaults(query.queryKey).staleTime ?? 0
-          const staleTimes = query.observers
-            .map((observer) => observer.options.staleTime ?? Infinity)
-            .filter((staleTime): staleTime is number => staleTime !== undefined)
-
-          const staleTime =
-            query.getObserversCount() > 0
-              ? Math.min(...staleTimes)
-              : defaultStaleTime
-
-          return staleTime !== Number.POSITIVE_INFINITY
-        }
         queryClient.invalidateQueries({
-          predicate: nonStaticQueries,
+          predicate: (query) => shouldInvalidate(query, queryClient),
         })
       },
       onError: (error, _variables, _context, mutation) => {
