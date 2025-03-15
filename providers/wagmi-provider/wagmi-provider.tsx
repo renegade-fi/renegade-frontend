@@ -30,26 +30,11 @@ createLifiConfig({
   preloadChains: false,
 })
 
-const connectKitTheme = {
-  "--ck-body-background": "hsl(var(--background))",
-  "--ck-border-radius": "0",
-  "--ck-font-family": "var(--font-sans-extended)",
-  "--ck-primary-button-background": "hsl(var(--background))",
-  "--ck-primary-button-border-radius": "0",
-  "--ck-body-color": "hsl(var(--foreground))",
-  "--ck-body-color-muted": "hsl(var(--muted-foreground))",
-  "--ck-body-color-muted-hover": "hsl(var(--foreground))",
-  "--ck-qr-dot-color": "hsl(var(--chart-blue))",
-  "--ck-secondary-button-background": "hsl(var(--background))",
-  "--ck-qr-border-color": "hsl(var(--border))",
-  "--ck-overlay-background": "rgba(0,0,0,.8)",
-}
-
 // Set up metadata
 const metadata = {
   name: "Renegade",
   description: "On-chain dark pool",
-  url: "https://trade.renegade.fi", // origin must match your domain & subdomain
+  url: getURL(), // origin must match your domain & subdomain
   icons: [`${getURL()}/glyph_light.svg`],
 }
 
@@ -63,6 +48,9 @@ const modal = createAppKit({
   features: {
     analytics: true, // Optional - defaults to your Cloud configuration
   },
+  excludeWalletIds: [
+    "a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393",
+  ],
 })
 
 interface WagmiProviderProps {
