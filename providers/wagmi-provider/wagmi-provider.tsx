@@ -9,7 +9,7 @@ import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider } from "connectkit"
 import {
   WagmiProvider as Provider,
-  cookieToInitialState,
+  State,
   useAccount,
   useConnections,
   useDisconnect,
@@ -21,7 +21,7 @@ import { sidebarEvents } from "@/lib/events"
 import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
-import { wagmiConfig } from "./config"
+import { getConfig } from "./config"
 
 createLifiConfig({
   integrator: "renegade.fi",
@@ -47,16 +47,16 @@ const connectKitTheme = {
 
 interface WagmiProviderProps {
   children: React.ReactNode
-  cookieString?: string
+  initialState?: State
 }
 
-export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
+export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
   const [open, setOpen] = React.useState(false)
-  const initialState = cookieToInitialState(wagmiConfig, cookieString)
+  const [config] = React.useState(() => getConfig())
 
   return (
     <Provider
-      config={wagmiConfig}
+      config={config}
       initialState={initialState}
     >
       <QueryProvider>
@@ -116,7 +116,7 @@ function SyncRenegadeWagmiState() {
       .then((verified) => {
         if (!verified) {
           console.log("Client disconnect reason: active account changed")
-          disconnectWagmi()
+          // disconnectWagmi()
           disconnect(config)
         }
       })
