@@ -32,6 +32,11 @@ export function AnimatedPrice({
     }
   }, [price])
 
+  // Temporary fix for Coinbase
+  if (exchange === "coinbase") {
+    return <span className={cn("text-muted-foreground", className)}>--</span>
+  }
+
   const { priceColor } = getPriceStatus({ price, isStale, mint, exchange })
 
   return (
