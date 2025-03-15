@@ -116,7 +116,7 @@ function SyncRenegadeWagmiState() {
       .then((verified) => {
         if (!verified) {
           console.log("Client disconnect reason: active account changed")
-          disconnectWagmi()
+          // disconnectWagmi()
           disconnect(config)
         }
       })
