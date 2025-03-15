@@ -7,6 +7,7 @@ settings:
 overrides:
   react-is: 19.0.0
   '@renegade-fi/core': 0.5.0
+  '@tanstack/react-query': 5.45.1
   viem: ~2.15.1
 
 importers:
@@ -119,7 +120,7 @@ importers:
         specifier: 1.95.4
         version: 1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@tanstack/react-query':
-        specifier: ^5.45.1
+        specifier: 5.45.1
         version: 5.45.1(react@19.0.0)
       '@tanstack/react-table':
         specifier: ^8.17.3
@@ -2811,7 +2812,7 @@ packages:
   '@renegade-fi/react@0.5.5':
     resolution: {integrity: sha512-bzS39cbiImZRwaOY+Y7yw8s5GLN9eb5Mk60Zp2sRxEkMdhd7Pa1i4dq+MhR5kNwq/Phekj+wJ7DTG0b+AKV+3g==}
     peerDependencies:
-      '@tanstack/react-query': '>=5.0.0'
+      '@tanstack/react-query': 5.45.1
       react: '>=18'
 
   '@renegade-fi/tradingview-charts@0.27.6':
@@ -3254,7 +3255,7 @@ packages:
   '@tanstack/react-query-devtools@5.29.2':
     resolution: {integrity: sha512-EmsaLNa8iFtReAW+5ftom0/TW78fIosVor517ak/+JFaoTBw8Yub3ao937JFE6AM3K/HXhteqvObetgt1ndLcw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.29.2
+      '@tanstack/react-query': 5.45.1
       react: ^18.0.0
 
   '@tanstack/react-query@5.45.1':
@@ -4446,7 +4447,7 @@ packages:
     resolution: {integrity: sha512-Za6jR5RtCimzSFqAH1OgUYES96ThTei6d/TvKWNU3GeZPPnwVojtfhFn9wUOam81RknxylvVpG727BPmjguzbA==}
     engines: {node: '>=12.4'}
     peerDependencies:
-      '@tanstack/react-query': '>=5.0.0'
+      '@tanstack/react-query': 5.45.1
       react: 17.x || 18.x
       react-dom: 17.x || 18.x
       viem: ~2.15.1
@@ -7931,7 +7932,7 @@ packages:
   wagmi@2.12.11:
     resolution: {integrity: sha512-CtK05Hl5nKVskiwvNEtxMIAMJwI8RF+6qwVqlhypDs+Y1c30gVnNnF7ivAuVs4xzJbAsZ5LUmsrVVxUMIC0KDg==}
     peerDependencies:
-      '@tanstack/react-query': '>=5.0.0'
+      '@tanstack/react-query': 5.45.1
       react: '>=18'
       typescript: '>=5.0.4'
       viem: ~2.15.1

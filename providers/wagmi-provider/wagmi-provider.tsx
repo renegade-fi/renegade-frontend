@@ -13,7 +13,6 @@ import {
   useAccount,
   useConnections,
   useDisconnect,
-  useConfig as useWagmiConfig,
 } from "wagmi"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
@@ -88,51 +87,15 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
 
 function SyncRenegadeWagmiState() {
   const config = useConfig()
-  const wagmiConfig = useWagmiConfig()
   const { connector, chainId, isConnected } = useAccount()
   const connections = useConnections()
   const { disconnectAsync: disconnectWagmi } = useDisconnect()
-
-  // Some wallets auto-connect to wagmi but don't support the required chain (Arbitrum).
-  // This effect detects those cases and cleans up the invalid connection by:
-  // 1. Checking if the wallet's provider is accessible
-  // 2. Attempting to switch to Arbitrum if on wrong chain
-  // 3. Disconnecting (or forcefully clearing state) if either step fails
-  React.useEffect(() => {
-    const checkConnections = async () => {
-      if (!isConnected || !connector) return
-      if (typeof connector.getProvider !== "function") {
-        // May not be available on initial page load
-        return
-      }
-
-      connector
-        .getProvider()
-        .then(() => {
-          if (chainId !== chain.id) {
-            return connector.switchChain?.({
-              chainId: chain.id,
-            })
-          }
-        })
-        .catch(() => {
-          return disconnectWagmi().catch(() => {
-            wagmiConfig.setState((state) => ({
-              ...state,
-              connections: new Map(),
-            }))
-          })
-        })
-    }
-
-    // TODO: Disabled because it prevents switching to Mainnet when bridging
-    // checkConnections()
-  }, [chainId, connector, isConnected, wagmiConfig, disconnectWagmi])
 
   // Handles the case where Renegade wallet is connected, but wagmi wallet is not
   // Required because effect below does not catch locked wallet case
   React.useEffect(() => {
     if (!isConnected && config.state.seed) {
+      console.log("Client disconnect reason: wallet not connected")
       disconnect(config)
     }
   }, [config, connector, isConnected])
@@ -152,11 +115,13 @@ function SyncRenegadeWagmiState() {
       })
       .then((verified) => {
         if (!verified) {
+          console.log("Client disconnect reason: active account changed")
           disconnectWagmi()
           disconnect(config)
         }
       })
       .catch(() => {
+        console.log("Client disconnect reason: failed to verify signature")
         disconnectWagmi()
         disconnect(config)
       })
