@@ -9,7 +9,6 @@ import {
 } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { MutationStatus, useMutation } from "@tanstack/react-query"
-import { useModal } from "connectkit"
 import { Check, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import { BaseError } from "viem"
@@ -66,7 +65,6 @@ export function SignInDialog({
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
-  const { setOpen } = useModal()
 
   const {
     data: signMessage1Data,

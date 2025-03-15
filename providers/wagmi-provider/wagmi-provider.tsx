@@ -6,7 +6,7 @@ import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
 import { useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { ConnectKitProvider } from "connectkit"
+import { createAppKit } from "@reown/appkit/react"
 import {
   WagmiProvider as Provider,
   cookieToInitialState,
@@ -17,11 +17,11 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
-import { sidebarEvents } from "@/lib/events"
+import { getURL } from "@/lib/utils"
 import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
-import { wagmiConfig } from "./config"
+import { wagmiAdapter } from "./config"
 
 createLifiConfig({
   integrator: "renegade.fi",
@@ -45,6 +45,26 @@ const connectKitTheme = {
   "--ck-overlay-background": "rgba(0,0,0,.8)",
 }
 
+// Set up metadata
+const metadata = {
+  name: "Renegade",
+  description: "On-chain dark pool",
+  url: "https://trade.renegade.fi", // origin must match your domain & subdomain
+  icons: [`${getURL()}/glyph_light.svg`],
+}
+
+// Create the modal
+const modal = createAppKit({
+  adapters: [wagmiAdapter],
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+  networks: [chain],
+  defaultNetwork: chain,
+  metadata: metadata,
+  features: {
+    analytics: true, // Optional - defaults to your Cloud configuration
+  },
+})
+
 interface WagmiProviderProps {
   children: React.ReactNode
   cookieString?: string
@@ -52,15 +72,18 @@ interface WagmiProviderProps {
 
 export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
   const [open, setOpen] = React.useState(false)
-  const initialState = cookieToInitialState(wagmiConfig, cookieString)
+  const initialState = cookieToInitialState(
+    wagmiAdapter.wagmiConfig,
+    cookieString,
+  )
 
   return (
     <Provider
-      config={wagmiConfig}
+      config={wagmiAdapter.wagmiConfig}
       initialState={initialState}
     >
       <QueryProvider>
-        <ConnectKitProvider
+        {/* <ConnectKitProvider
           customTheme={connectKitTheme}
           options={{
             hideQuestionMarkCTA: true,
@@ -72,14 +95,14 @@ export function WagmiProvider({ children, cookieString }: WagmiProviderProps) {
             sidebarEvents.emit("open")
             setOpen(true)
           }}
-        >
-          {children}
-          <SyncRenegadeWagmiState />
-          <SignInDialog
-            open={open}
-            onOpenChange={setOpen}
-          />
-        </ConnectKitProvider>
+        > */}
+        {children}
+        <SyncRenegadeWagmiState />
+        <SignInDialog
+          open={open}
+          onOpenChange={setOpen}
+        />
+        {/* </ConnectKitProvider> */}
       </QueryProvider>
     </Provider>
   )
