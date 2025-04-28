@@ -11,8 +11,10 @@ import {
   WagmiProvider as Provider,
   State,
   useAccount,
+  useConnect,
   useConnections,
   useDisconnect,
+  useReconnect,
 } from "wagmi"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
@@ -56,6 +58,7 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
 
   return (
     <Provider
+      reconnectOnMount
       config={config}
       initialState={initialState}
     >
@@ -87,18 +90,30 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
 
 function SyncRenegadeWagmiState() {
   const config = useConfig()
-  const { connector, chainId, isConnected } = useAccount()
+  const { connector, chainId, isDisconnected } = useAccount()
   const connections = useConnections()
+  const { connect: connectWagmi } = useConnect()
   const { disconnectAsync: disconnectWagmi } = useDisconnect()
+  const { reconnectAsync: reconnectWagmi } = useReconnect()
 
   // Handles the case where Renegade wallet is connected, but wagmi wallet is not
   // Required because effect below does not catch locked wallet case
   React.useEffect(() => {
-    if (!isConnected && config.state.seed) {
-      console.log("Client disconnect reason: wallet not connected")
-      disconnect(config)
+    if (isDisconnected && config.state.seed) {
+      console.log("Wallet disconnected: wallet not connected and seed exists")
+      console.log(
+        `Wallet disconnected: found ${connections.length} connections. Attempting to reconnect.`,
+      )
+      reconnectWagmi().then((conns) => {
+        if (conns.length === 0) {
+          console.log("Wallet disconnected: failed to reconnect")
+          disconnect(config)
+        } else {
+          console.log("Wallet disconnected: successfully reconnected")
+        }
+      })
     }
-  }, [config, connector, isConnected])
+  }, [config, connections.length, isDisconnected, reconnectWagmi])
 
   // When switching accounts in a wallet, we need to ensure the new account
   // is the one that originally generated the seed in storage. This effect:
