@@ -90,6 +90,7 @@ export function InflowsChart() {
         >
           <BarChart
             accessibilityLayer
+            barGap={0}
             data={chartData}
             margin={{
               left: 12,
