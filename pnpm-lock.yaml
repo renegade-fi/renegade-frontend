@@ -6,7 +6,6 @@ settings:
 
 overrides:
   react-is: 19.0.0
-  '@renegade-fi/core': 0.6.2
   viem: 2.23.11
 
 importers:
@@ -98,8 +97,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(@types/react-dom@19.0.2(@types/react@19.0.1))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@renegade-fi/internal-sdk':
-        specifier: 0.2.8
-        version: 0.2.8(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)
+        specifier: 0.4.7
+        version: 0.4.7(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(use-sync-external-store@1.4.0(react@19.0.0))(utf-8-validate@5.0.10)(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)
       '@renegade-fi/react':
         specifier: 0.5.6
         version: 0.5.6(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -1552,6 +1551,9 @@ packages:
   '@lifi/types@16.2.2':
     resolution: {integrity: sha512-pgnN5NBcfvz9o2tonrQS6zSrpwldsu/NJ7cE45veRc1p7bLHaaVI8LLcFvAQxRip4kv7yS0QLLwp+MOBJUsyPQ==}
 
+  '@lifi/types@17.13.0':
+    resolution: {integrity: sha512-nb1dh+azLKBi9TdNDop7BQ9QmAIrX+MGIFXmjsmh+b6C5ZgWbHJ/WJBrLXqKv7RO3/1TpxhFeEnXMetxCLXKMg==}
+
   '@lit-labs/ssr-dom-shim@1.2.0':
     resolution: {integrity: sha512-yWJKmpGE6lUURKAaIltoPIE/wrbY3TEkqQt+X0m+7fQNnAv0keydnYvbiJFP1PnMhizmIWRWOG5KLhYyc/xl+g==}
 
@@ -1719,6 +1721,10 @@ packages:
 
   '@ngraveio/bc-ur@1.1.13':
     resolution: {integrity: sha512-j73akJMV4+vLR2yQ4AphPIT5HZmxVjn/LxpL7YHoINnXoH6ccc90Zzck6/n6a3bCXOVZwBxq+YHwbAKRV+P8Zg==}
+
+  '@nktkas/hyperliquid@0.17.4':
+    resolution: {integrity: sha512-0jUfjV9sh3E/NONQPw00jlBL2s4oPnvLbaFAeGFRUQ1XhYU8eaUXOXKRvykXb+o2GwgEPadBmXhHYVaICQ0+lg==}
+    engines: {node: '>=22.4.0'}
 
   '@noble/ciphers@1.2.1':
     resolution: {integrity: sha512-rONPWMC7PeExE077uLE4oqWrZ1IvAfz3oH9LibVAcVCopJiA9R62uavnbEzdkVmJYI6M6Zgkbeb07+tWjlq2XA==}
@@ -2802,8 +2808,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@renegade-fi/core@0.6.2':
-    resolution: {integrity: sha512-x0qEqPSMkENZ7QvfjK544JnCRVpmeJGFzAoIckd65APTinZsTW3QbIgL4SB0vSOVchN+VHNcy0PyBkC2FDfcdQ==}
+  '@renegade-fi/core@0.6.3':
+    resolution: {integrity: sha512-0agoq42RekOW2bOkuHCOzY50xx/oJISCsKrxxFljtDxUOX4ahhM0K8XQ+436TMEm7eVayz0KkbdS6RXIWuK0Mw==}
     peerDependencies:
       '@tanstack/query-core': '>=5.0.0'
       viem: 2.23.11
@@ -2811,14 +2817,29 @@ packages:
       '@tanstack/query-core':
         optional: true
 
-  '@renegade-fi/internal-sdk@0.2.8':
-    resolution: {integrity: sha512-weT4eE3KlvM6MqCYCzTtT44efyxC9GAcvIhM1ze8lJysN4H2GVdD7qhQbN1sAPbEQd0FEaPdFzT+cD4c0p96vw==}
+  '@renegade-fi/core@0.7.3':
+    resolution: {integrity: sha512-Ua8MDb3p63eV2YkTcRsyexnWWuAD9wne3ZMb0HWNC645FYfedAr3o2FJa3KLujiH9NQhK5RHcH/WoohS3sZ+Ow==}
+    peerDependencies:
+      '@tanstack/query-core': '>=5.0.0'
+      viem: 2.23.11
+    peerDependenciesMeta:
+      '@tanstack/query-core':
+        optional: true
+
+  '@renegade-fi/internal-sdk@0.4.7':
+    resolution: {integrity: sha512-FsjYEST5R3chZMREDhN37SiHg0bKPpaeCiiVuOB+vq92ImMy2UuB/irMnu95p9yIc9IoRP9BgFEPTCUlcgfD0Q==}
+
+  '@renegade-fi/price-reporter@0.0.6':
+    resolution: {integrity: sha512-EK+qOR0XNI8/owjaQZjntHneRo1827IY4Cb4YVoyoOlntIKeYXepoIiMpJv1zrhrxzGweJIWCWuM8Ave/wbbmA==}
 
   '@renegade-fi/react@0.5.6':
     resolution: {integrity: sha512-lZJlqXSoQO2UBM7E7txUY+TrsWpglZqtVD/cktqS4+v6DSuPU1kkyR07lsVy13ww8coG1Ixk8z39ajDQdu696w==}
     peerDependencies:
       '@tanstack/react-query': '>=5.0.0'
       react: '>=18'
+
+  '@renegade-fi/token@0.0.6':
+    resolution: {integrity: sha512-GYXPTahVlT16Btmrn2jJHShkmO0l8UgD5Fnf2npJtOBwcTELvY1LKkKhtqO49k3Cj+/M7wu+frRUvYv8vmcSaQ==}
 
   '@renegade-fi/tradingview-charts@0.27.6':
     resolution: {integrity: sha512-G4hsbxxTDubarQsgp2j6oumKEi4vwk7YKf7+PulCBB2SBLMhinnbJ1OKzAlEx5BA1yc66CKtad/1kN07/8ESaQ==, tarball: https://npm.pkg.github.com/download/@renegade-fi/tradingview-charts/0.27.6/0d39f464ce268bec6cf2c0b1ff9303a51f4db26d}
@@ -3681,6 +3702,18 @@ packages:
       typescript: '>=5.0.4'
       viem: 2.23.11
     peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  '@wagmi/core@2.16.3':
+    resolution: {integrity: sha512-SVovoWHaQ2AIkmGf+ucNijT6AHXcTMffFcLmcFF6++y21x+ge7Gkh3UoJiU91SDDv8n08eTQ9jbyia3GEgU5jQ==}
+    peerDependencies:
+      '@tanstack/query-core': '>=5.0.0'
+      typescript: '>=5.0.4'
+      viem: 2.23.11
+    peerDependenciesMeta:
+      '@tanstack/query-core':
+        optional: true
       typescript:
         optional: true
 
@@ -9203,7 +9236,7 @@ snapshots:
 
   '@coinbase/wallet-sdk@4.3.0':
     dependencies:
-      '@noble/hashes': 1.5.0
+      '@noble/hashes': 1.7.1
       clsx: 1.2.1
       eventemitter3: 5.0.1
       preact: 10.26.4
@@ -9715,6 +9748,15 @@ snapshots:
 
   '@lifi/types@16.2.2': {}
 
+  '@lifi/types@17.13.0(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)':
+    dependencies:
+      viem: 2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
   '@lit-labs/ssr-dom-shim@1.2.0': {}
 
   '@lit/reactive-element@1.6.3':
@@ -9860,7 +9902,7 @@ snapshots:
     dependencies:
       '@ethereumjs/tx': 4.2.0
       '@metamask/superstruct': 3.1.0
-      '@noble/hashes': 1.5.0
+      '@noble/hashes': 1.7.1
       '@scure/base': 1.1.7
       '@types/debug': 4.1.12
       debug: 4.3.6(supports-color@5.5.0)
@@ -9874,7 +9916,7 @@ snapshots:
     dependencies:
       '@ethereumjs/tx': 4.2.0
       '@metamask/superstruct': 3.1.0
-      '@noble/hashes': 1.5.0
+      '@noble/hashes': 1.7.1
       '@scure/base': 1.1.7
       '@types/debug': 4.1.12
       debug: 4.3.6(supports-color@5.5.0)
@@ -9979,6 +10021,8 @@ snapshots:
       crc: 3.8.0
       jsbi: 3.2.5
       sha.js: 2.4.11
+
+  '@nktkas/hyperliquid@0.17.4': {}
 
   '@noble/ciphers@1.2.1': {}
 
@@ -11241,7 +11285,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.1
 
-  '@renegade-fi/core@0.6.2(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+  '@renegade-fi/core@0.6.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
       axios: 1.7.5
       isows: 1.0.6(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -11259,11 +11303,34 @@ snapshots:
       - react
       - ws
 
-  '@renegade-fi/internal-sdk@0.2.8(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(utf-8-validate@5.0.10)(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)':
+  '@renegade-fi/core@0.7.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+    dependencies:
+      axios: 1.7.5
+      isows: 1.0.6(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      json-bigint: 1.0.0
+      neverthrow: 8.2.0
+      tiny-invariant: 1.3.3
+      viem: 2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+      zustand: 4.5.5(@types/react@19.0.1)(react@19.0.0)
+    optionalDependencies:
+      '@tanstack/query-core': 5.45.0
+    transitivePeerDependencies:
+      - '@types/react'
+      - debug
+      - immer
+      - react
+      - ws
+
+  '@renegade-fi/internal-sdk@0.4.7(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.4.5)(use-sync-external-store@1.4.0(react@19.0.0))(utf-8-validate@5.0.10)(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(zod@3.23.8)':
     dependencies:
       '@datadog/datadog-api-client': 1.27.0
-      '@noble/hashes': 1.5.0
-      '@renegade-fi/core': 0.6.2(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@lifi/types': 17.13.0(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+      '@nktkas/hyperliquid': 0.17.4
+      '@noble/hashes': 1.7.1
+      '@renegade-fi/core': 0.7.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@renegade-fi/price-reporter': 0.0.6(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@renegade-fi/token': 0.0.6(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@wagmi/core': 2.16.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(typescript@5.4.5)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))
       axios: 1.7.5
       json-bigint: 1.0.0
       neverthrow: 8.2.0
@@ -11278,13 +11345,29 @@ snapshots:
       - immer
       - react
       - typescript
+      - use-sync-external-store
       - utf-8-validate
       - ws
       - zod
 
+  '@renegade-fi/price-reporter@0.0.6(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@renegade-fi/core': 0.7.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@renegade-fi/token': 0.0.6(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      axios: 1.7.5
+      neverthrow: 8.2.0
+    transitivePeerDependencies:
+      - '@tanstack/query-core'
+      - '@types/react'
+      - debug
+      - immer
+      - react
+      - viem
+      - ws
+
   '@renegade-fi/react@0.5.6(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.1(react@19.0.0))(@types/react@19.0.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
     dependencies:
-      '@renegade-fi/core': 0.6.2(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@renegade-fi/core': 0.6.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
       '@tanstack/react-query': 5.45.1(react@19.0.0)
       json-bigint: 1.0.0
       react: 19.0.0
@@ -11296,6 +11379,18 @@ snapshots:
       - debug
       - immer
       - react-dom
+      - viem
+      - ws
+
+  '@renegade-fi/token@0.0.6(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@renegade-fi/core': 0.7.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))(ws@8.18.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+    transitivePeerDependencies:
+      - '@tanstack/query-core'
+      - '@types/react'
+      - debug
+      - immer
+      - react
       - viem
       - ws
 
@@ -12600,6 +12695,21 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
       - zod
+
+  '@wagmi/core@2.16.3(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(typescript@5.4.5)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
+    dependencies:
+      eventemitter3: 5.0.1
+      mipd: 0.0.7(typescript@5.4.5)
+      viem: 2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8)
+      zustand: 5.0.0(@types/react@19.0.1)(react@19.0.0)(use-sync-external-store@1.4.0(react@19.0.0))
+    optionalDependencies:
+      '@tanstack/query-core': 5.45.0
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - react
+      - use-sync-external-store
 
   '@wagmi/core@2.16.5(@tanstack/query-core@5.45.0)(@types/react@19.0.1)(react@19.0.0)(typescript@5.4.5)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@3.23.8))':
     dependencies:
@@ -14201,7 +14311,7 @@ snapshots:
       '@ecies/ciphers': 0.2.3(@noble/ciphers@1.2.1)
       '@noble/ciphers': 1.2.1
       '@noble/curves': 1.6.0
-      '@noble/hashes': 1.5.0
+      '@noble/hashes': 1.7.1
 
   ee-first@1.1.1: {}
 
@@ -14418,8 +14528,8 @@ snapshots:
       '@typescript-eslint/parser': 7.2.0(eslint@8.57.0)(typescript@5.4.5)
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@8.57.0)
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.0)
       eslint-plugin-react: 7.37.2(eslint@8.57.0)
       eslint-plugin-react-hooks: 5.0.0(eslint@8.57.0)
@@ -14441,13 +14551,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@8.57.0):
+  eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       debug: 4.3.6(supports-color@5.5.0)
       enhanced-resolve: 5.16.1
       eslint: 8.57.0
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
       fast-glob: 3.3.2
       get-tsconfig: 4.7.5
       is-core-module: 2.15.1
@@ -14458,18 +14568,18 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 7.2.0(eslint@8.57.0)(typescript@5.4.5)
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@8.57.0)
+      eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
+  eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.8
@@ -14480,7 +14590,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0))(eslint@8.57.0))(eslint@8.57.0)
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
