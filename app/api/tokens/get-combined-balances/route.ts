@@ -17,6 +17,9 @@ import {
 
 export const runtime = "edge"
 
+// Sending an RPC request for each token can be expensive, so we cache the result for 60 seconds
+export const revalidate = 60
+
 const tokens = DISPLAY_TOKENS()
 
 export async function GET(req: Request) {
