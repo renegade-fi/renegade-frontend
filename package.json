@@ -60,11 +60,11 @@
     "framer-motion": "^11.3.31",
     "lucide-react": "^0.383.0",
     "nanoevents": "^9.0.0",
-    "next": "15.1.6",
+    "next": "15.3.2",
     "next-themes": "^0.3.0",
     "numeral": "^2.0.6",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-hook-form": "^7.52.1",
     "react-resizable-panels": "^2.0.19",
     "react-use-websocket": "^4.8.1",
@@ -85,12 +85,12 @@
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20",
     "@types/numeral": "^2.0.5",
-    "@types/react": "19.0.1",
-    "@types/react-dom": "19.0.2",
+    "@types/react": "19.1.4",
+    "@types/react-dom": "19.1.5",
     "@types/uuid": "^10.0.0",
     "@wagmi/cli": "^2.1.10",
     "eslint": "^8",
-    "eslint-config-next": "15.1.0",
+    "eslint-config-next": "15.3.2",
     "eslint-config-prettier": "^9.1.0",
     "postcss": "^8",
     "prettier": "^3.4.2",
@@ -102,8 +102,10 @@
   "prettier": "./prettier.mjs",
   "pnpm": {
     "overrides": {
-      "react-is": "19.0.0",
-      "viem": "$viem"
+      "react-is": "19.1.0",
+      "viem": "$viem",
+      "@types/react": "19.1.4",
+      "@types/react-dom": "19.1.5"
     }
   }
 }
