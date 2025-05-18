@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { kv } from "@vercel/kv"
 import {
   createPublicClient,

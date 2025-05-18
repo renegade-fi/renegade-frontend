@@ -1,4 +1,5 @@
-import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"

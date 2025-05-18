@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"

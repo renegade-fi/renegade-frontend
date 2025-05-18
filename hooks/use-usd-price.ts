@@ -1,13 +1,13 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { safeParseUnits } from "@/lib/format"
 
 export function useUSDPrice(
-  base: Token,
+  base: InstanceType<typeof Token>,
   amount: bigint, // amount in token decimals
 ) {
   const { data: price } = usePriceQuery(base.address)

@@ -1,6 +1,7 @@
 import React from "react"
 
-import { Token, UpdateType, useCreateOrder } from "@renegade-fi/react"
+import { UpdateType, useCreateOrder } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 

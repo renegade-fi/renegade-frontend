@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ExternalLink } from "lucide-react"
 
 import { constructArbitrumBridgeUrl } from "@/components/dialogs/transfer/helpers"
@@ -16,7 +16,7 @@ export function BridgePrompt({
   token,
   formattedL1Balance,
 }: {
-  token?: Token
+  token?: InstanceType<typeof Token>
   formattedL1Balance: string
 }) {
   if (!token) return null

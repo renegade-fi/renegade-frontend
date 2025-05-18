@@ -1,4 +1,4 @@
-import { Exchange, Token, tokenMapping } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { getAddress } from "viem"
 import { mainnet } from "viem/chains"
 
@@ -14,7 +14,7 @@ export const DISPLAY_TOKENS = (
   } = {},
 ) => {
   const { hideStables, hideHidden = true, hideTickers = [] } = options
-  let tokens = tokenMapping.tokens
+  let tokens = Token.getAllTokens()
   if (hideStables) {
     tokens = tokens.filter(
       (token) => !Token.findByAddress(token.address).isStablecoin(),
@@ -47,24 +47,24 @@ export const ADDITIONAL_TOKENS = {
 
 // Solana tokens
 export const SOLANA_TOKENS = Object.fromEntries(
-  tokenMapping.tokens
+  Token.getAllTokens()
     .filter((t) => {
-      if (!t.chain_addresses) return false
+      if (!t.chainAddresses) return false
 
-      return Object.keys(t.chain_addresses).some(
+      return Object.keys(t.chainAddresses).some(
         (chainId) => chainId === solana.id.toString(),
       )
     })
-    .map((t) => [t.ticker, t.chain_addresses[solana.id.toString()]]),
+    .map((t) => [t.ticker, t.chainAddresses[solana.id.toString()]]),
 )
 
 // Ethereum Mainnet tokens
 export const ETHEREUM_TOKENS = Object.fromEntries(
-  tokenMapping.tokens
+  Token.getAllTokens()
     .filter((t) => {
-      if (!t.chain_addresses) return false
+      if (!t.chainAddresses) return false
 
-      return Object.keys(t.chain_addresses).some(
+      return Object.keys(t.chainAddresses).some(
         (chainId) => chainId === mainnet.id.toString(),
       )
     })
@@ -73,7 +73,7 @@ export const ETHEREUM_TOKENS = Object.fromEntries(
       Token.create(
         t.name,
         t.ticker,
-        t.chain_addresses[mainnet.id.toString()] as `0x${string}`,
+        t.chainAddresses[mainnet.id.toString()] as `0x${string}`,
         t.decimals,
       ),
     ]),

@@ -1,4 +1,5 @@
-import { Config, Token } from "@renegade-fi/react"
+import { Config } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { QueryClient } from "@tanstack/react-query"
 import invariant from "tiny-invariant"
@@ -35,7 +36,7 @@ export const formSchema = z.object({
 export function checkAmount(
   queryClient: QueryClient,
   amount: string,
-  baseToken?: Token,
+  baseToken?: InstanceType<typeof Token>,
 ) {
   if (!baseToken) return false
   const usdPrice = queryClient.getQueryData<number>(

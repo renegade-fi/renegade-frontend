@@ -1,4 +1,5 @@
-import { Exchange, getDefaultQuoteToken, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
+import { Token, getDefaultQuoteToken } from "@renegade-fi/token-nextjs"
 import { Query, QueryClient } from "@tanstack/react-query"
 
 import { remapToken } from "@/lib/token"

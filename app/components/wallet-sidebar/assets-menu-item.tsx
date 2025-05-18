@@ -2,7 +2,7 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ChevronRight, PieChart } from "lucide-react"
 
 import {

@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { parseUnits } from "viem/utils"
 
 import { usePriceQuery } from "@/hooks/use-price-query"

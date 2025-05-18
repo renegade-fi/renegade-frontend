@@ -1,5 +1,6 @@
 // Constants
-import { Exchange, TaskState, Token } from "@renegade-fi/react"
+import { Exchange, TaskState } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { parseUnits } from "viem/utils"
 
 // Min fill size of the quote asset that the relayer will accept

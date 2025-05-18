@@ -1,4 +1,5 @@
-import { OrderState, Token, useBackOfQueueWallet } from "@renegade-fi/react"
+import { OrderState, useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"

@@ -1,4 +1,5 @@
-import { Exchange, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { QueryClient } from "@tanstack/react-query"
 
 import { createPriceQueryKey } from "@/lib/query"
