@@ -1,7 +1,8 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { Token, UpdateType, useConfig } from "@renegade-fi/react"
+import { UpdateType, useConfig } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"

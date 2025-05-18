@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 

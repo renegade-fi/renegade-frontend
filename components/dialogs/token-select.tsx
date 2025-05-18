@@ -1,7 +1,8 @@
 import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
 

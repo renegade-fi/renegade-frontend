@@ -1,5 +1,5 @@
 import { QuoteRequest, getQuote, getStatus } from "@lifi/sdk"
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 import { useAccount } from "wagmi"
 

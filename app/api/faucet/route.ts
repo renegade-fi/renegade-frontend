@@ -1,10 +1,11 @@
-import { Token, parseAmount } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import {
   createWalletClient,
   formatEther,
   http,
   parseAbi,
   parseEther,
+  parseUnits,
 } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
 import { arbitrum, arbitrumSepolia } from "viem/chains"
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
       await mintUpTo(
         recipient,
         Token.findByTicker(ticker).address,
-        parseAmount(amount, Token.findByTicker(ticker)),
+        parseUnits(amount, Token.findByTicker(ticker).decimals),
       )
     }
 

@@ -1,6 +1,7 @@
 import { useState } from "react"
 
-import { Token, useConfig, usePayFees } from "@renegade-fi/react"
+import { useConfig, usePayFees } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { withdraw } from "@renegade-fi/react/actions"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"

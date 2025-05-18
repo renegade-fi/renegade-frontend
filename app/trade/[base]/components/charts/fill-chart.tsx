@@ -1,6 +1,7 @@
 import React from "react"
 
-import { OrderMetadata, Token } from "@renegade-fi/react"
+import { OrderMetadata } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {

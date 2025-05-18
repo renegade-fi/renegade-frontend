@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ChevronRight } from "lucide-react"
 import { formatUnits } from "viem"
 

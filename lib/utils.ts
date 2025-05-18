@@ -1,6 +1,7 @@
 import { Metadata } from "next/types"
 
-import { Exchange, getDefaultQuoteToken, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
+import { getDefaultQuoteToken, Token } from "@renegade-fi/token-nextjs"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
