@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ColumnDef } from "@tanstack/react-table"
 import { formatUnits } from "viem/utils"
 

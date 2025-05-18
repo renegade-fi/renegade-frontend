@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { Star } from "lucide-react"
 import { isAddress } from "viem/utils"
 

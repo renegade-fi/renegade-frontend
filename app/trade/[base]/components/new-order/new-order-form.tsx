@@ -1,7 +1,8 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"

@@ -5,11 +5,11 @@ import React from "react"
 import {
   OrderMetadata,
   OrderState,
-  Token,
   useBackOfQueueWallet,
   useOrderHistoryWebSocket,
   useOrderHistory,
 } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { toast } from "sonner"
 
 import { formatNumber } from "@/lib/format"

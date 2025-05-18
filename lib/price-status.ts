@@ -1,4 +1,5 @@
-import { Exchange, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 
 /** Mapping of token price statuses with text, statusColor, and priceColor. */
 export const PRICE_STATUSES = {

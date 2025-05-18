@@ -1,4 +1,4 @@
-import { useBackOfQueueWallet, Token } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits, isAddress } from "viem/utils"
 
 import { useToken } from "@/components/dialogs/transfer/hooks/use-token"

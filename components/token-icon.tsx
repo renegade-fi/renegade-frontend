@@ -1,6 +1,6 @@
 import Image from "next/image"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 
 import { cn } from "@/lib/utils"
 

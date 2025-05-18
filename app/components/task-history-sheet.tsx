@@ -7,10 +7,10 @@ import {
   Task,
   TaskState,
   TaskType,
-  Token,
   UpdateType,
   useTaskHistory,
 } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {

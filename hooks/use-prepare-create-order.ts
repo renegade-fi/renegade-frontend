@@ -1,12 +1,12 @@
 "use client"
 
 import {
-  Token,
   stringifyForWasm,
   useBackOfQueueWallet,
   useConfig,
 } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 import { toHex } from "viem"
 

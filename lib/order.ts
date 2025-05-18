@@ -1,4 +1,5 @@
-import { OrderMetadata, Token } from "@renegade-fi/react"
+import { OrderMetadata } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { decimalNormalizePrice } from "@/lib/utils"

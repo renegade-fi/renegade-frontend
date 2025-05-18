@@ -3,13 +3,12 @@
 import React from "react"
 
 import {
-  Token,
-  parseAmount,
   stringifyForWasm,
   useBackOfQueueWallet,
   useConfig,
 } from "@renegade-fi/react"
-import { isAddress, isHex, toHex } from "viem"
+import { Token } from "@renegade-fi/token-nextjs"
+import { isAddress, isHex, parseUnits, toHex } from "viem"
 
 export type UsePrepareDepositParameters = {
   amount?: number | bigint
@@ -46,7 +45,7 @@ export function usePrepareDeposit(parameters: UsePrepareDepositParameters) {
     const token = Token.findByAddress(mint)
     let parsedAmount: bigint
     if (typeof amount === "number") {
-      parsedAmount = parseAmount(amount.toString(), token)
+      parsedAmount = parseUnits(amount.toString(), token.decimals)
     } else {
       parsedAmount = amount
     }

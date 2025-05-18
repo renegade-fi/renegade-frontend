@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
 
