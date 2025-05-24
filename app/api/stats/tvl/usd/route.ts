@@ -3,34 +3,23 @@ import { encodeFunctionData, formatUnits, hexToBigInt, parseAbi } from "viem"
 
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 
+import { env } from "@/env/server"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 export const runtime = "edge"
 
 export async function GET() {
   try {
     const tokens = DISPLAY_TOKENS()
-    const rpcUrl = process.env.RPC_URL
-    const darkpoolContract = process.env
-      .NEXT_PUBLIC_DARKPOOL_CONTRACT as `0x${string}`
-    const apiKey = process.env.AMBERDATA_API_KEY
-    if (!apiKey) {
-      throw new Error("AMBERDATA_API_KEY is not set")
-    }
-    if (!rpcUrl) {
-      throw new Error("RPC_URL is not set")
-    }
-    if (!darkpoolContract) {
-      throw new Error("NEXT_PUBLIC_DARKPOOL_CONTRACT is not set")
-    }
 
     // Fetch balance and price for each token in parallel with error handling
     const tokenData = await Promise.all(
       tokens.map(async (token) => {
         try {
           const [balance, price] = await Promise.all([
-            fetchTvl(token.address, rpcUrl, darkpoolContract),
-            fetchAssetPrice(remapToken(token.ticker), apiKey),
+            fetchTvl(token.address, env.RPC_URL, sdkConfig.darkpoolAddress),
+            fetchAssetPrice(remapToken(token.ticker), env.AMBERDATA_API_KEY),
           ])
           return {
             balance,

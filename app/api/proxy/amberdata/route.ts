@@ -1,3 +1,4 @@
+import { env } from "@/env/server"
 import { NextRequest, NextResponse } from "next/server"
 
 export const runtime = "edge"
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     })
     const response = await fetch(amberdataUrl, {
       headers: {
-        [API_KEY_HEADER]: process.env.AMBERDATA_API_KEY as string,
+        [API_KEY_HEADER]: env.AMBERDATA_API_KEY,
         "Accept-Encoding": "gzip",
       },
     })

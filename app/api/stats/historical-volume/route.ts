@@ -1,13 +1,15 @@
 import { DDogClient } from "@renegade-fi/internal-sdk"
 
+import { env } from "@/env/server"
+
 export const runtime = "edge"
 
 export async function GET(request: Request) {
   const ddog = new DDogClient(
-    process.env.DD_API_KEY,
-    process.env.DD_APP_KEY,
-    process.env.DD_ENV,
-    process.env.DD_SERVICE,
+    env.DD_API_KEY,
+    env.DD_APP_KEY,
+    env.DD_ENV,
+    env.DD_SERVICE,
   )
   try {
     const { searchParams } = new URL(request.url)

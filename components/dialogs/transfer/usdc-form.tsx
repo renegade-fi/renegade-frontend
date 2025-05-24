@@ -86,6 +86,7 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
 const USDC_L2_TOKEN = Token.findByTicker("USDC")
@@ -336,7 +337,7 @@ export function USDCForm({
           handleApprove({
             address: USDC_L2_TOKEN.address,
             args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              sdkConfig.permit2Address,
               UNLIMITED_ALLOWANCE,
             ],
           }),
@@ -390,7 +391,7 @@ export function USDCForm({
           handleApprove({
             address: USDC_L2_TOKEN.address,
             args: [
-              process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+              sdkConfig.permit2Address,
               UNLIMITED_ALLOWANCE,
             ],
           }),
@@ -492,7 +493,7 @@ export function USDCForm({
         handleApprove({
           address: USDC_L2_TOKEN.address,
           args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            sdkConfig.permit2Address,
             UNLIMITED_ALLOWANCE,
           ],
         }),
@@ -518,7 +519,7 @@ export function USDCForm({
       address: USDC_L2_TOKEN.address,
       args: [
         address ?? "0x",
-        process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+        sdkConfig.permit2Address,
       ],
       chainId: chain.id,
       query: {
@@ -737,7 +738,7 @@ export function USDCForm({
         handleApprove({
           address: USDC_L2_TOKEN.address,
           args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            sdkConfig.permit2Address,
             UNLIMITED_ALLOWANCE,
           ],
         }),

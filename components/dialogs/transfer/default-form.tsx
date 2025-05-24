@@ -75,6 +75,7 @@ import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 const catchError = (error: Error, message: string) => {
   console.error("Error in USDC form", error)
@@ -153,7 +154,7 @@ export function DefaultForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+      spender: sdkConfig.permit2Address,
       decimals: l2Token?.decimals ?? 0,
     })
 
@@ -257,7 +258,7 @@ export function DefaultForm({
         await handleApprove({
           address: l2Token.address,
           args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            sdkConfig.permit2Address,
             UNLIMITED_ALLOWANCE,
           ],
         })

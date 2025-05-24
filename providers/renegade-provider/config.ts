@@ -1,9 +1,10 @@
 import { createConfig, createStorage, getSDKConfig } from "@renegade-fi/react"
 
+import { env } from "@/env/client"
 import { cookieStorage } from "@/lib/cookie"
 import { viemClient } from "@/lib/viem"
 
-export const sdkConfig = getSDKConfig(Number(process.env.NEXT_PUBLIC_CHAIN_ID))
+export const sdkConfig = getSDKConfig(env.NEXT_PUBLIC_CHAIN_ID)
 
 export const config = createConfig({
   chainId: sdkConfig.id,
@@ -14,5 +15,6 @@ export const config = createConfig({
   storage: createStorage({
     storage: cookieStorage,
   }),
-  viemClient,
+  // @sehyunc TODO: remove public client from config instantiation
+  viemClient: viemClient as any,
 })

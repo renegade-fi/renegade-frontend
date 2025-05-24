@@ -3,6 +3,7 @@ import React from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
+import { env } from "@/env/client"
 import { formatCurrency } from "@/lib/format"
 import { topicToQueryKey } from "@/lib/query"
 
@@ -10,7 +11,7 @@ export function usePriceWebSocket() {
   const queryClient = useQueryClient()
 
   const { sendMessage, readyState } = useWebSocket(
-    `wss://${process.env.NEXT_PUBLIC_PRICE_REPORTER_URL}:4000`,
+    `wss://${env.NEXT_PUBLIC_PRICE_REPORTER_URL}:4000`,
     {
       share: true,
       filter: () => false,

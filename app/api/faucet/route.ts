@@ -8,9 +8,10 @@ import {
   parseUnits,
 } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
-import { arbitrum, arbitrumSepolia } from "viem/chains"
+import { arbitrum, arbitrumSepolia, baseSepolia } from "viem/chains"
 import { createConfig } from "wagmi"
 
+import { env } from "@/env/server"
 import { readErc20BalanceOf } from "@/lib/generated"
 import { chain, viemClient } from "@/lib/viem"
 
@@ -28,13 +29,12 @@ const viemConfig = createConfig({
   transports: {
     [arbitrum.id]: http(),
     [arbitrumSepolia.id]: http(),
+    [baseSepolia.id]: http(),
   },
 })
 
 // Account to fund ETH from
-const devAccount = privateKeyToAccount(
-  process.env.DEV_PRIVATE_KEY as `0x${string}`,
-)
+const devAccount = privateKeyToAccount(env.DEV_PRIVATE_KEY!)
 const devWalletClient = createWalletClient({
   account: devAccount,
   chain,
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     })
   }
 
-  if (!process.env.DEV_PRIVATE_KEY) {
+  if (!env.DEV_PRIVATE_KEY) {
     return new Response("DEV_PRIVATE_KEY is required", {
       status: 500,
     })

@@ -3,6 +3,8 @@ import { NextRequest } from "next/server"
 import { HISTORICAL_VOLUME_SET_KEY } from "@/app/api/stats/constants"
 import { getAllSetMembers } from "@/app/lib/kv-utils"
 
+import { env } from "@/env/server"
+
 export interface VolumeDataPoint {
   timestamp: number
   volume: number
@@ -24,16 +26,13 @@ export async function GET(req: NextRequest) {
     const pipelineBody = JSON.stringify(allKeys.map((key) => ["GET", key]))
 
     // Fetch all values for the keys using a single pipeline request
-    const pipelineResponse = await fetch(
-      `${process.env.KV_REST_API_URL}/pipeline`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
-        },
-        body: pipelineBody,
+    const pipelineResponse = await fetch(`${env.KV_REST_API_URL}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.KV_REST_API_TOKEN}`,
       },
-    )
+      body: pipelineBody,
+    })
 
     if (!pipelineResponse.ok) {
       throw new Error(`HTTP error! status: ${pipelineResponse.status}`)

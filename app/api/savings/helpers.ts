@@ -1,3 +1,4 @@
+import { env } from "@/env/server"
 import { PriceLevel, TradeAmounts } from "@/lib/price-simulation"
 import { Direction } from "@/lib/types"
 
@@ -254,10 +255,7 @@ async function amberdataRequest(
   amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString())
 
   let amberdataReq = new Request(amberdataUrl)
-  amberdataReq.headers.set(
-    API_KEY_HEADER,
-    process.env.AMBERDATA_API_KEY as string,
-  )
+  amberdataReq.headers.set(API_KEY_HEADER, env.AMBERDATA_API_KEY)
   amberdataReq.headers.set("Accept-Encoding", "gzip")
 
   return amberdataReq

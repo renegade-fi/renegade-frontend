@@ -1,9 +1,10 @@
+import { env } from "@/env/server"
 import { NextRequest, NextResponse } from "next/server"
 
 export const runtime = "edge"
 
 const MAINNET_RPC_URL =
-  process.env.RPC_URL_MAINNET || "https://cloudflare-eth.com/"
+  env.RPC_URL_MAINNET
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {

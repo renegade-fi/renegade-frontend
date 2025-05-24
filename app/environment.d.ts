@@ -3,7 +3,6 @@ import Next from "next"
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      AMBERDATA_API_KEY: string
       DD_ENV: string
       DD_SERVICE: string
       DD_APP_KEY: string

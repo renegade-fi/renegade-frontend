@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 
-export const runtime = "edge"
+import { env } from "@/env/server"
 
-const RPC_URL =
-  process.env.RPC_URL_SOLANA || "https://api.mainnet-beta.solana.com"
+export const runtime = "edge"
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.text()
 
-    const response = await fetch(RPC_URL, {
+    const response = await fetch(env.RPC_URL_SOLANA, {
       method: "POST",
       body: body,
     })

@@ -95,6 +95,7 @@ import {
   arbitrumConfig,
   mainnetConfig,
 } from "@/providers/wagmi-provider/config"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 // Assume mint is WETH
@@ -243,7 +244,7 @@ export function WETHForm({
         handleApprove({
           address: WETH_L2_TOKEN.address,
           args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            sdkConfig.permit2Address,
             UNLIMITED_ALLOWANCE,
           ],
         })
@@ -262,7 +263,7 @@ export function WETHForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+      spender: sdkConfig.permit2Address,
       decimals: WETH_L2_TOKEN.decimals,
     })
 
@@ -408,7 +409,7 @@ export function WETHForm({
         handleApprove({
           address: WETH_L2_TOKEN.address,
           args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+            sdkConfig.permit2Address,
             UNLIMITED_ALLOWANCE,
           ],
         })

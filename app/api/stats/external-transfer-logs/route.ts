@@ -8,6 +8,8 @@ import {
 } from "@/app/api/stats/constants"
 import { getAllSetMembers } from "@/app/lib/kv-utils"
 
+import { env } from "@/env/server"
+
 export const runtime = "edge"
 
 function startOfPeriod(timestamp: number, intervalMs: number): number {
@@ -27,16 +29,13 @@ export async function GET(req: NextRequest) {
       transactionHashes.map((hash) => ["GET", `${INFLOWS_KEY}:${hash}`]),
     )
 
-    const pipelineResponse = await fetch(
-      `${process.env.KV_REST_API_URL}/pipeline`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
-        },
-        body: pipelineBody,
+    const pipelineResponse = await fetch(`${env.KV_REST_API_URL}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.KV_REST_API_TOKEN}`,
       },
-    )
+      body: pipelineBody,
+    })
 
     if (!pipelineResponse.ok) {
       throw new Error(`HTTP error! status: ${pipelineResponse.status}`)
