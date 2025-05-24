@@ -12,6 +12,7 @@ import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 export function useDeposit() {
   const config = useConfig()
@@ -49,7 +50,7 @@ export function useDeposit() {
     const { signature, nonce, deadline } = await signPermit2({
       amount: parsedAmount,
       chainId: chain.id,
-      spender: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
+      spender: sdkConfig.darkpoolAddress,
       permit2Address: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT,
       token,
       walletClient,
