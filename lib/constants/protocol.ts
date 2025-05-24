@@ -39,6 +39,7 @@ export const TASK_STATES: TaskState[] = [
 export const EXCHANGES = ["binance", "coinbase", "kraken", "okx"] as const
 
 export const exchangeToName: Record<Exchange, string> = {
+  renegade: "Renegade",
   binance: "Binance",
   coinbase: "Coinbase",
   kraken: "Kraken",
