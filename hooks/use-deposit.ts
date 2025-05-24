@@ -51,7 +51,7 @@ export function useDeposit() {
       amount: parsedAmount,
       chainId: chain.id,
       spender: sdkConfig.darkpoolAddress,
-      permit2Address: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT,
+      permit2Address: sdkConfig.permit2Address,
       token,
       walletClient,
       pkRoot,
