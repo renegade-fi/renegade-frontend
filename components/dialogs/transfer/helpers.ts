@@ -1,6 +1,6 @@
 import { Config } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { Token } from "@renegade-fi/token-nextjs"
 import { QueryClient } from "@tanstack/react-query"
 import invariant from "tiny-invariant"
 import { formatUnits, isAddress } from "viem"

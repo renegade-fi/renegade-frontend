@@ -12,11 +12,15 @@ import { formatNumber } from "@/lib/format"
 export const WITHDRAW_TOAST_ID = (mint: `0x${string}`, amount: bigint) =>
   `withdraw-${mint}-${amount}`
 
-export const START_DEPOSIT_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
-  `Depositing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`
+export const START_DEPOSIT_MSG = (
+  mint: InstanceType<typeof Token>,
+  amount: bigint,
+) => `Depositing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`
 
-export const START_WITHDRAWAL_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
-  `Withdrawing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`
+export const START_WITHDRAWAL_MSG = (
+  mint: InstanceType<typeof Token>,
+  amount: bigint,
+) => `Withdrawing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`
 
 export const START_PLACE_ORDER_MSG = (
   base: InstanceType<typeof Token>,
@@ -51,7 +55,10 @@ export const FAILED_DEPOSIT_MSG = (
     reason ?? "Please try again"
   }`
 
-export const FAILED_WITHDRAWAL_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
+export const FAILED_WITHDRAWAL_MSG = (
+  mint: InstanceType<typeof Token>,
+  amount: bigint,
+) =>
   `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${
     mint.ticker
   }. Please try again.`
