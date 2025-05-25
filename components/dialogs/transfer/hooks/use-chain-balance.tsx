@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { mainnet } from "viem/chains"
 import { formatUnits } from "viem/utils"
 import { useAccount } from "wagmi"
@@ -14,7 +14,7 @@ export function useChainBalance({
   enabled = true,
 }: {
   chainId?: number
-  token?: Token
+  token?: InstanceType<typeof Token>
   enabled?: boolean
 }) {
   const { address } = useAccount()

@@ -1,5 +1,5 @@
 import { InfoCircledIcon } from "@radix-ui/react-icons"
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { AlertTriangle } from "lucide-react"
 import { formatEther } from "viem"
 

@@ -1,7 +1,8 @@
 import React from "react"
 
-import { Token, useBackOfQueueWallet } from "@renegade-fi/react"
-import { formatUnits, parseUnits } from "viem"
+import { useBackOfQueueWallet } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
+import { formatUnits } from "viem"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 

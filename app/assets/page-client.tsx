@@ -2,7 +2,8 @@
 
 import React from "react"
 
-import { TaskType, Token, UpdateType, useTaskHistory } from "@renegade-fi/react"
+import { TaskType, UpdateType, useTaskHistory } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
 

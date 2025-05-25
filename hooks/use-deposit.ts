@@ -1,7 +1,8 @@
 import React from "react"
 
-import { Token, useBackOfQueueWallet, useConfig } from "@renegade-fi/react"
+import { useBackOfQueueWallet, useConfig } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
+import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"

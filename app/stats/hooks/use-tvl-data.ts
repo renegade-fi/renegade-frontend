@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { usePriceQueries } from "@/hooks/use-price-queries"
@@ -22,15 +22,15 @@ export function useTvlData() {
   const priceQueries = usePriceQueries(
     mints.map((mint) => {
       const token = Token.findByAddress(mint)
-      return {
-        address: mint,
-        name: token.name,
-        ticker: token.ticker,
-        decimals: token.decimals,
-        supported_exchanges: token.rawSupportedExchanges,
-        chain_addresses: token.chainAddresses,
-        logo_url: token.logoUrl,
-      }
+      return Token.create(
+        token.name,
+        token.ticker,
+        mint,
+        token.decimals,
+        token.rawSupportedExchanges,
+        token.chainAddresses,
+        token.logoUrl,
+      )
     }),
   )
 

@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import {
   TypedDataDomain,
   WalletClient,
@@ -58,7 +58,7 @@ export async function signPermit2({
   chainId: number
   spender: `0x${string}`
   permit2Address: `0x${string}`
-  token: Token
+  token: InstanceType<typeof Token>
   walletClient: WalletClient
   pkRoot: bigint[]
 }) {

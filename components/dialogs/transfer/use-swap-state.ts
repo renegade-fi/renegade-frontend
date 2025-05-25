@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { parseUnits } from "viem"
 import { z } from "zod"

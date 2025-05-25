@@ -1,6 +1,7 @@
 import Image from "next/image"
 
-import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
+import { OrderMetadata, OrderState } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button"

@@ -1,6 +1,7 @@
 import React from "react"
 
-import { TaskState, Token } from "@renegade-fi/react"
+import { TaskState } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
 import { Check, ExternalLink, Loader2, X } from "lucide-react"
 
@@ -77,7 +78,7 @@ export function getSteps(execution: Execution, currentStep: number) {
 
 export type Execution = {
   steps: (Step | undefined)[]
-  token?: Token
+  token?: InstanceType<typeof Token>
 }
 
 type StepBase = {
@@ -113,7 +114,7 @@ type StepProps<T extends Step> = {
   currentStep: number
   index: number
   step: T
-  token: Token
+  token: InstanceType<typeof Token>
   stepCount: number
 }
 
@@ -181,7 +182,7 @@ type BaseStepProps = {
   currentStep: number
   index: number
   stepCount: number
-  token: Token
+  token: InstanceType<typeof Token>
 }
 
 function BaseStep({

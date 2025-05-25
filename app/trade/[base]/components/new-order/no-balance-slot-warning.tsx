@@ -1,4 +1,4 @@
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { AlertTriangle } from "lucide-react"
 
 import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances"

@@ -1,6 +1,7 @@
 import React from "react"
 
-import { Exchange, Token } from "@renegade-fi/react"
+import { Exchange } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 
 import {

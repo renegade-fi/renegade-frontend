@@ -1,7 +1,7 @@
 import React from "react"
 
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { ChevronDown } from "lucide-react"
 
 import { AnimatedPrice } from "@/components/animated-price"

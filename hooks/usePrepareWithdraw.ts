@@ -3,13 +3,12 @@
 import React from "react"
 
 import {
-  Token,
-  parseAmount,
   stringifyForWasm,
   useBackOfQueueWallet,
   useConfig,
 } from "@renegade-fi/react"
-import { isAddress, toHex } from "viem/utils"
+import { Token } from "@renegade-fi/token-nextjs"
+import { isAddress, parseUnits, toHex } from "viem/utils"
 
 export type UsePrepareWithdrawParameters = {
   mint?: string
@@ -40,7 +39,7 @@ export function usePrepareWithdraw(
     const token = Token.findByAddress(mint)
     let parsedAmount: bigint
     if (typeof amount === "number") {
-      parsedAmount = parseAmount(amount.toString(), token)
+      parsedAmount = parseUnits(amount.toString(), token.decimals)
     } else {
       parsedAmount = amount
     }

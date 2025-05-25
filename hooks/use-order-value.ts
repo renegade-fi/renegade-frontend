@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"

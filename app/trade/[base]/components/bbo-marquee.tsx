@@ -1,6 +1,6 @@
 import { Fragment } from "react"
 
-import { Exchange, Token } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 
 import { AnimatedPrice } from "@/components/animated-price"
 import { AnimatedPriceStatus } from "@/components/animated-price-status"

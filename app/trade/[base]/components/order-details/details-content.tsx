@@ -1,4 +1,5 @@
-import { OrderMetadata, OrderState, Token } from "@renegade-fi/react"
+import { OrderMetadata, OrderState } from "@renegade-fi/react"
+import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
