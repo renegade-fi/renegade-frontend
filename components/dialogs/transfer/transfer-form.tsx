@@ -13,7 +13,7 @@ import {
 import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
-import { isTestnet } from "@/lib/viem"
+import { isBase, isTestnet } from "@/lib/viem"
 
 export function TransferForm({
   className,
@@ -34,7 +34,8 @@ export function TransferForm({
       mint: initialMint ?? "",
     },
   })
-  if (isTestnet) {
+  // @sehyunc TODO: enable bridge/swap/wrap for Base when implemented
+  if (isTestnet || isBase) {
     return (
       <DefaultForm
         className={className}

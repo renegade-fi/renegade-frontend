@@ -1,5 +1,12 @@
+import { chainIdToEnv } from "@renegade-fi/react"
 import { createPublicClient, defineChain, extractChain, http } from "viem"
-import { arbitrumSepolia, arbitrum, mainnet, baseSepolia } from "viem/chains"
+import {
+  arbitrumSepolia,
+  arbitrum,
+  mainnet,
+  baseSepolia,
+  base,
+} from "viem/chains"
 
 import { env } from "@/env/client"
 
@@ -8,7 +15,8 @@ export const chain = extractChain({
   id: env.NEXT_PUBLIC_CHAIN_ID,
 })
 
-export const isTestnet = chain.id === arbitrumSepolia.id
+export const isTestnet = chainIdToEnv(chain.id) === "testnet"
+export const isBase = chain.id in [baseSepolia.id, base.id]
 
 export const viemClient = createPublicClient({
   chain,

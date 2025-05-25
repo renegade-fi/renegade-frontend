@@ -28,7 +28,7 @@ export const env = createEnv({
     NEXT_PUBLIC_CHAIN_ID: zChainId,
 
     /** Primary RPC URL */
-    NEXT_PUBLIC_RPC_URL: z.url().default("https://arb1.arbitrum.io/rpc"),
+    NEXT_PUBLIC_RPC_URL: z.string().optional(),
 
     // ================================
     // External Services
