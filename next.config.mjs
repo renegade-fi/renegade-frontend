@@ -1,11 +1,12 @@
 import createJiti from "jiti"
 import { fileURLToPath } from "node:url"
 
-const jiti = createJiti(fileURLToPath(import.meta.url))
-
-// Import env here to validate during build. Using jiti@^1 we can import .ts files :)
-jiti("./env/server")
-jiti("./env/client")
+// Only validaate env during build if not in CI
+if (process.env.CI !== "true") {
+  const jiti = createJiti(fileURLToPath(import.meta.url))
+  jiti("./env/server")
+  jiti("./env/client")
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
