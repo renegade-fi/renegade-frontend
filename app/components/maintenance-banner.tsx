@@ -2,9 +2,10 @@ import React from "react"
 
 import { AlertCircle, AlertTriangle, Info } from "lucide-react"
 
+import { env } from "@/env/client"
 import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 
-const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+const isProduction = env.NEXT_PUBLIC_VERCEL_ENV === "production"
 
 export function MaintenanceBanner() {
   const { data: maintenanceMode, isLoading } = useMaintenanceMode()

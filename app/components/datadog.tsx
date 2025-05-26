@@ -2,11 +2,13 @@
 
 import React from "react"
 
+import { env } from "@/env/client"
+
 export function LazyDatadog() {
   React.useEffect(() => {
     if (
       process.env.NODE_ENV === "development" ||
-      process.env.NEXT_PUBLIC_VERCEL_ENV === "development"
+      env.NEXT_PUBLIC_VERCEL_ENV === "development"
     ) {
       return
     }
@@ -22,8 +24,8 @@ export function LazyDatadog() {
       datadogLogs = datadogLogsModule.datadogLogs
 
       datadogRum.init({
-        applicationId: process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
-        clientToken: process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
+        applicationId: env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
+        clientToken: env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
         site: "us5.datadoghq.com",
         service: "testnet-interface",
         env: "testnet",
@@ -38,7 +40,7 @@ export function LazyDatadog() {
       })
 
       datadogLogs.init({
-        clientToken: process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
+        clientToken: env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
         site: "us5.datadoghq.com",
         service: "testnet-interface",
         env: "testnet",

@@ -2,6 +2,9 @@ import { NextRequest } from "next/server"
 
 import { encodeEventTopics, numberToHex, parseAbiItem, toHex } from "viem"
 
+import { env } from "@/env/server"
+import { sdkConfig } from "@/providers/renegade-provider/config"
+
 export const runtime = "edge"
 
 export async function GET(req: NextRequest) {
@@ -25,7 +28,7 @@ export async function GET(req: NextRequest) {
     })
 
     // Make raw JSON-RPC call
-    const response = await fetch(process.env.RPC_URL!, {
+    const response = await fetch(env.RPC_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -34,9 +37,9 @@ export async function GET(req: NextRequest) {
         method: "eth_getLogs",
         params: [
           {
-            address: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
+            address: sdkConfig.darkpoolAddress,
             topics,
-            fromBlock: toHex(process.env.FROM_BLOCK ?? 0),
+            fromBlock: toHex(env.ARBITRUM_DEPLOY_BLOCK),
           },
         ],
       }),

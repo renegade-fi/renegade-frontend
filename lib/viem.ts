@@ -1,16 +1,18 @@
-import { createPublicClient, defineChain, http, extractChain } from "viem"
-import { arbitrumSepolia, arbitrum, mainnet } from "viem/chains"
+import { createPublicClient, defineChain, extractChain, http } from "viem"
+import { arbitrumSepolia, arbitrum, mainnet, baseSepolia } from "viem/chains"
+
+import { env } from "@/env/client"
 
 export const chain = extractChain({
-  chains: [arbitrum, arbitrumSepolia],
-  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) as 42161 | 421614,
+  chains: [arbitrum, arbitrumSepolia, baseSepolia],
+  id: env.NEXT_PUBLIC_CHAIN_ID,
 })
 
 export const isTestnet = chain.id === arbitrumSepolia.id
 
 export const viemClient = createPublicClient({
   chain,
-  transport: http(process.env.NEXT_PUBLIC_RPC_URL),
+  transport: http(env.NEXT_PUBLIC_RPC_URL),
 })
 
 export const solana = defineChain({

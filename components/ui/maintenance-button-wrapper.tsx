@@ -13,6 +13,7 @@ import {
   MaintenanceMessageKey,
 } from "@/lib/constants/maintenance"
 import { cn } from "@/lib/utils"
+import { env } from "@/env/client"
 
 interface MaintenanceButtonWrapperProps {
   children: React.ReactElement<React.ButtonHTMLAttributes<HTMLButtonElement>>
@@ -21,7 +22,7 @@ interface MaintenanceButtonWrapperProps {
   triggerClassName?: string
 }
 
-const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+const isProduction = env.NEXT_PUBLIC_VERCEL_ENV === "production"
 
 export function MaintenanceButtonWrapper({
   children,

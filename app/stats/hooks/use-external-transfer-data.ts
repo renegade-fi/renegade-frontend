@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query"
 import { BucketData } from "@/app/api/stats/constants"
 import { ExternalTransferLogsResponse } from "@/app/api/stats/external-transfer-logs/route"
 
+import { env } from "@/env/client"
+
 export function useExternalTransferLogs(intervalMs: number = 86400000) {
   const queryKey = ["stats", "externalTransferLogs", intervalMs]
 
@@ -11,6 +13,7 @@ export function useExternalTransferLogs(intervalMs: number = 86400000) {
       queryKey,
       queryFn: () => fetchExternalTransferLogs(intervalMs),
       staleTime: Infinity,
+      enabled: env.NEXT_PUBLIC_VERCEL_ENV === "production",
     }),
     queryKey,
   }

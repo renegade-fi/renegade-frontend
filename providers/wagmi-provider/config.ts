@@ -1,7 +1,8 @@
 import { http } from "viem"
-import { mainnet, arbitrum, arbitrumSepolia } from "viem/chains"
+import { mainnet, arbitrum, arbitrumSepolia, baseSepolia } from "viem/chains"
 import { createConfig, createStorage, cookieStorage } from "wagmi"
 
+import { env } from "@/env/client"
 import { getURL } from "@/lib/utils"
 import { chain } from "@/lib/viem"
 
@@ -20,7 +21,7 @@ export function getConfig() {
         storage: cookieStorage,
       }),
 
-      walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+      walletConnectProjectId: env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
 
       appName: "Renegade",
       appDescription: "On-chain dark pool",
@@ -37,11 +38,13 @@ export const mainnetConfig = createConfig({
   },
 })
 
+// @sehyunc TODO: generalize wagmi config
 export const arbitrumConfig = createConfig({
   chains: [chain],
   transports: {
     [arbitrum.id]: http(),
     [arbitrumSepolia.id]: http(),
+    [baseSepolia.id]: http(),
   },
 })
 

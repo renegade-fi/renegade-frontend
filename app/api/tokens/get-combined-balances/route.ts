@@ -8,6 +8,7 @@ import {
   readSplBalanceOf,
 } from "@/app/api/utils"
 
+import { env } from "@/env/server"
 import {
   ADDITIONAL_TOKENS,
   DISPLAY_TOKENS,
@@ -43,11 +44,7 @@ export async function GET(req: Request) {
     Promise.all(
       tokens.map(async (token) => ({
         ticker: token.ticker,
-        balance: await readErc20BalanceOf(
-          process.env.RPC_URL!,
-          token.address,
-          address,
-        ),
+        balance: await readErc20BalanceOf(env.RPC_URL, token.address, address),
       })),
     ),
 
@@ -56,7 +53,7 @@ export async function GET(req: Request) {
       Object.values(ETHEREUM_TOKENS).map(async (token) => ({
         ticker: token.ticker,
         balance: await readErc20BalanceOf(
-          process.env.RPC_URL_MAINNET!,
+          env.RPC_URL_MAINNET,
           token.address,
           address,
         ),
@@ -65,13 +62,13 @@ export async function GET(req: Request) {
 
     // Native ETH balances
     Promise.all([
-      readEthBalance(process.env.RPC_URL_MAINNET!, address),
-      readEthBalance(process.env.RPC_URL!, address),
+      readEthBalance(env.RPC_URL_MAINNET, address),
+      readEthBalance(env.RPC_URL, address),
     ]),
 
     // USDC.e balance
     readErc20BalanceOf(
-      process.env.RPC_URL!,
+      env.RPC_URL,
       ADDITIONAL_TOKENS["USDC.e"].address,
       address,
     ),
@@ -79,7 +76,7 @@ export async function GET(req: Request) {
     // Solana USDC balance
     solanaAddress
       ? readSplBalanceOf(
-          process.env.RPC_URL_SOLANA!,
+          env.RPC_URL_SOLANA,
           SOLANA_TOKENS.USDC,
           solanaAddress,
         ).catch(() => BigInt(0))

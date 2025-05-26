@@ -2,6 +2,7 @@ import { Exchange } from "@renegade-fi/react"
 import { Token, getDefaultQuoteToken } from "@renegade-fi/token-nextjs"
 import { Query, QueryClient } from "@tanstack/react-query"
 
+import { env } from "@/env/client"
 import { remapToken } from "@/lib/token"
 
 // Helper function defining a global rule for invalidating queries
@@ -39,7 +40,7 @@ export async function getPriceFromPriceReporter(
 
   try {
     const res = await fetch(
-      `https://${process.env.NEXT_PUBLIC_PRICE_REPORTER_URL}:3000/price/${topic}`,
+      `https://${env.NEXT_PUBLIC_PRICE_REPORTER_URL}:3000/price/${topic}`,
       {
         signal: controller.signal,
       },

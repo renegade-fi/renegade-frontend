@@ -19,6 +19,7 @@ import {
   INFLOWS_SET_KEY,
 } from "@/app/api/stats/constants"
 
+import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
 import { chain } from "@/lib/viem"
@@ -26,7 +27,7 @@ import { sdkConfig } from "@/providers/renegade-provider/config"
 
 const viemClient = createPublicClient({
   chain,
-  transport: http(process.env.RPC_URL),
+  transport: http(env.RPC_URL),
 })
 
 export const maxDuration = 300
@@ -54,13 +55,9 @@ export async function GET(req: NextRequest) {
     // Get all token prices
     console.log("Fetching token prices")
     const tokens = DISPLAY_TOKENS()
-    const apiKey = process.env.AMBERDATA_API_KEY
-    if (!apiKey) {
-      throw new Error("AMBERDATA_API_KEY is not set")
-    }
 
     const pricePromises = tokens.map((token) =>
-      fetchAssetPrice(remapToken(token.ticker), apiKey),
+      fetchAssetPrice(remapToken(token.ticker), env.AMBERDATA_API_KEY),
     )
     const priceResults = await Promise.all(pricePromises)
 
@@ -72,7 +69,7 @@ export async function GET(req: NextRequest) {
 
     // Get the last processed block number
     let fromBlock = BigInt(
-      (await kv.get(LAST_PROCESSED_BLOCK_KEY)) || process.env.FROM_BLOCK || 0,
+      (await kv.get(LAST_PROCESSED_BLOCK_KEY)) || env.ARBITRUM_DEPLOY_BLOCK,
     )
     console.log(`Starting from block: ${fromBlock}`)
 

@@ -1,27 +1,23 @@
 import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
 
+import { env } from "@/env/server"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 export const runtime = "edge"
 
 export async function GET() {
   try {
     const tokens = DISPLAY_TOKENS()
-    const rpcUrl = process.env.RPC_URL
-    const darkpoolContract = process.env
-      .NEXT_PUBLIC_DARKPOOL_CONTRACT as `0x${string}`
-
-    if (!rpcUrl) {
-      throw new Error("RPC_URL is not set")
-    }
-    if (!darkpoolContract) {
-      throw new Error("NEXT_PUBLIC_DARKPOOL_CONTRACT is not set")
-    }
 
     const tvlData = await Promise.all(
       tokens.map(async (token) => {
         try {
-          const tvl = await fetchTvl(token.address, rpcUrl, darkpoolContract)
+          const tvl = await fetchTvl(
+            token.address,
+            env.RPC_URL,
+            sdkConfig.darkpoolAddress,
+          )
           return { ticker: token.ticker, tvl: tvl.toString() }
         } catch (error) {
           console.error(`Error fetching TVL for ${token.ticker}:`, error)

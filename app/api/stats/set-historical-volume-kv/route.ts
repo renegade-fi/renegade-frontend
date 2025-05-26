@@ -8,6 +8,8 @@ import {
   HISTORICAL_VOLUME_SET_KEY,
 } from "@/app/api/stats/constants"
 
+import { env } from "@/env/server"
+
 interface VolumeData {
   timestamp: number
   volume: number
@@ -31,10 +33,10 @@ export async function GET(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
   try {
     const ddog = new DDogClient(
-      process.env.DD_API_KEY,
-      process.env.DD_APP_KEY,
-      process.env.DD_ENV,
-      process.env.DD_SERVICE,
+      env.DD_API_KEY,
+      env.DD_APP_KEY,
+      env.DD_ENV,
+      env.DD_SERVICE,
     )
     const { searchParams } = new URL(req.url)
     const params: SearchParams = {

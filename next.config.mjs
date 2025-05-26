@@ -1,3 +1,13 @@
+import createJiti from "jiti"
+import { fileURLToPath } from "node:url"
+
+// Only validaate env during build if not in CI
+if (process.env.CI !== "true") {
+  const jiti = createJiti(fileURLToPath(import.meta.url))
+  jiti("./env/server")
+  jiti("./env/client")
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,

@@ -90,6 +90,7 @@ import {
 } from "@/lib/generated"
 import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
   arbitrumConfig,
@@ -242,10 +243,7 @@ export function WETHForm({
       if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({
@@ -262,7 +260,7 @@ export function WETHForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
+      spender: sdkConfig.permit2Address,
       decimals: WETH_L2_TOKEN.decimals,
     })
 
@@ -407,10 +405,7 @@ export function WETHForm({
       } else if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [
-            process.env.NEXT_PUBLIC_PERMIT2_CONTRACT as `0x${string}`,
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({

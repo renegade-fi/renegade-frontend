@@ -1,5 +1,7 @@
 import invariant from "tiny-invariant"
 
+import { env } from "@/env/server"
+
 export const runtime = "edge"
 
 const TIME_TO_FILL_PATH = "time-to-fill"
@@ -17,11 +19,6 @@ interface BotServerResponse {
 
 export async function GET(request: Request) {
   try {
-    const BOT_SERVER_URL = process.env.BOT_SERVER_URL
-    invariant(BOT_SERVER_URL, "BOT_SERVER_URL is not set")
-    const BOT_SERVER_API_KEY = process.env.BOT_SERVER_API_KEY
-    invariant(BOT_SERVER_API_KEY, "BOT_SERVER_API_KEY is not set")
-
     const { searchParams } = new URL(request.url)
     const amount = searchParams.get("amount")
     const baseTicker = searchParams.get("baseTicker")
@@ -35,12 +32,12 @@ export async function GET(request: Request) {
       )
     }
 
-    const url = new URL(`${BOT_SERVER_URL}/${TIME_TO_FILL_PATH}`)
+    const url = new URL(`${env.BOT_SERVER_URL}/${TIME_TO_FILL_PATH}`)
     url.searchParams.set("amount", amount)
     url.searchParams.set("baseTicker", baseTicker)
 
     const res = await fetch(url, {
-      headers: { "x-api-key": BOT_SERVER_API_KEY },
+      headers: { "x-api-key": env.BOT_SERVER_API_KEY },
     })
 
     if (!res.ok) {

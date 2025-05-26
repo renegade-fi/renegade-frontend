@@ -5,6 +5,8 @@ import type {
   VolumeDataPoint,
 } from "@/app/api/stats/historical-volume-kv/route"
 
+import { env } from "@/env/client"
+
 type UseHistoricalVolumeResult = UseQueryResult<VolumeDataPoint[], Error> & {
   queryKey: readonly ["stats", "historical-volume"]
 }
@@ -20,6 +22,7 @@ export function useVolumeData(): UseHistoricalVolumeResult {
       queryKey,
       queryFn: getHistoricalVolume,
       staleTime: Infinity,
+      enabled: env.NEXT_PUBLIC_VERCEL_ENV === "production",
     }),
     queryKey,
   }
