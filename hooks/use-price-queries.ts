@@ -1,21 +1,21 @@
 import React from "react"
 
+import { PriceReporterClient } from "@renegade-fi/price-reporter"
 import { Exchange } from "@renegade-fi/react"
 import { useQueries } from "@tanstack/react-query"
 import { ReadyState } from "react-use-websocket"
 
-import {
-  createPriceTopic,
-  createPriceQueryKey,
-  getPriceFromPriceReporter,
-} from "@/lib/query"
+import { createPriceQueryKey, createPriceTopic } from "@/lib/query"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { environment } from "@/lib/viem"
 
 import { usePriceWebSocket } from "./use-price-websocket"
 
+const client = PriceReporterClient.new(environment)
+
 export function usePriceQueries(
   tokens: ReturnType<typeof DISPLAY_TOKENS> = DISPLAY_TOKENS(),
-  exchange: Exchange = "binance",
+  exchange: Exchange = "renegade",
 ) {
   const subscribedTopics = React.useRef<Set<string>>(new Set())
   const { subscribeToTopic, unsubscribeFromTopic, readyState } =
@@ -45,8 +45,7 @@ export function usePriceQueries(
   return useQueries({
     queries: tokens.map((token) => ({
       queryKey: createPriceQueryKey(exchange, token.address),
-      queryFn: () =>
-        getPriceFromPriceReporter(createPriceTopic(exchange, token.address)),
+      queryFn: () => client.getPrice(token.address),
       initialData: 0,
       staleTime: Infinity,
       retry: false,
