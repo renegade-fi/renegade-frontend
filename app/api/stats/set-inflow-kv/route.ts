@@ -22,6 +22,7 @@ import {
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
 import { chain } from "@/lib/viem"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 const viemClient = createPublicClient({
   chain,
@@ -78,7 +79,7 @@ export async function GET(req: NextRequest) {
     // Get all external transfer logs
     console.log("Fetching external transfer logs")
     const logs = await viemClient.getLogs({
-      address: process.env.NEXT_PUBLIC_DARKPOOL_CONTRACT,
+      address: sdkConfig.darkpoolAddress,
       event: parseAbiItem(
         "event ExternalTransfer(address indexed account, address indexed mint, bool indexed is_withdrawal, uint256 amount)",
       ),
