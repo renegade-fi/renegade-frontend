@@ -1,5 +1,6 @@
-import { env } from "@/env/server"
 import { NextRequest, NextResponse } from "next/server"
+
+import { env } from "@/env/server"
 
 export const runtime = "edge"
 

@@ -74,8 +74,8 @@ import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
-import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { sdkConfig } from "@/providers/renegade-provider/config"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const catchError = (error: Error, message: string) => {
   console.error("Error in USDC form", error)
@@ -257,10 +257,7 @@ export function DefaultForm({
       if (allowanceRequired && l2Token?.address) {
         await handleApprove({
           address: l2Token.address,
-          args: [
-            sdkConfig.permit2Address,
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({

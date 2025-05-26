@@ -1,7 +1,8 @@
 "use client"
 
-import { env } from "@/env/client"
 import React from "react"
+
+import { env } from "@/env/client"
 
 export function LazyDatadog() {
   React.useEffect(() => {

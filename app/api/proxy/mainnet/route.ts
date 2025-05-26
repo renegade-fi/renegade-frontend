@@ -1,10 +1,10 @@
-import { env } from "@/env/server"
 import { NextRequest, NextResponse } from "next/server"
+
+import { env } from "@/env/server"
 
 export const runtime = "edge"
 
-const MAINNET_RPC_URL =
-  env.RPC_URL_MAINNET
+const MAINNET_RPC_URL = env.RPC_URL_MAINNET
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {

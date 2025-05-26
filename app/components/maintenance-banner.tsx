@@ -2,8 +2,8 @@ import React from "react"
 
 import { AlertCircle, AlertTriangle, Info } from "lucide-react"
 
-import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 import { env } from "@/env/client"
+import { useMaintenanceMode } from "@/hooks/use-maintenance-mode"
 
 const isProduction = env.NEXT_PUBLIC_VERCEL_ENV === "production"
 

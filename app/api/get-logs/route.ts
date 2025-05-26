@@ -1,8 +1,9 @@
-import { env } from "@/env/server"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 import { NextRequest } from "next/server"
 
 import { encodeEventTopics, numberToHex, parseAbiItem, toHex } from "viem"
+
+import { env } from "@/env/server"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 
 export const runtime = "edge"
 

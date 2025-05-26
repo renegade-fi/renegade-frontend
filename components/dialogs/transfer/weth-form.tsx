@@ -90,12 +90,12 @@ import {
 } from "@/lib/generated"
 import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { sdkConfig } from "@/providers/renegade-provider/config"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
   arbitrumConfig,
   mainnetConfig,
 } from "@/providers/wagmi-provider/config"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 // Assume mint is WETH
@@ -243,10 +243,7 @@ export function WETHForm({
       if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [
-            sdkConfig.permit2Address,
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({
@@ -408,10 +405,7 @@ export function WETHForm({
       } else if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [
-            sdkConfig.permit2Address,
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({
