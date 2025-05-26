@@ -15,7 +15,8 @@ export const chain = extractChain({
   id: env.NEXT_PUBLIC_CHAIN_ID,
 })
 
-export const isTestnet = chainIdToEnv(chain.id) === "testnet"
+export const environment = chainIdToEnv(chain.id)
+export const isTestnet = environment === "testnet"
 export const isBase = chain.id in [baseSepolia.id, base.id]
 
 export const viemClient = createPublicClient({
