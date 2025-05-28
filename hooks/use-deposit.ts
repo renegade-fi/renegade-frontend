@@ -34,7 +34,13 @@ export function useDeposit() {
     amount: string
     onSuccess?: ({ taskId }: { taskId: string }) => void
   }) {
-    if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
+    if (
+      !walletClient ||
+      !mint ||
+      !isAddress(mint, { strict: false }) ||
+      !config
+    )
+      return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)
     if (parsedAmount instanceof Error) {

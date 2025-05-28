@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  ConfigRequiredError,
   stringifyForWasm,
   useBackOfQueueWallet,
   useConfig,
@@ -40,6 +41,7 @@ export function usePrepareCreateOrder(
   return useQuery({
     queryKey: ["prepare", "create-order", parameters],
     queryFn: async () => {
+      if (!config) throw new ConfigRequiredError("usePrepareCreateOrder")
       if (!config.state.seed) throw new Error("Seed is required")
       if (!isSuccess) throw new Error("Failed to fetch wallet.")
       if (wallet.orders.filter((order) => order.amount).length >= MAX_ORDERS)
@@ -66,6 +68,6 @@ export function usePrepareCreateOrder(
         allowExternalMatches,
       )
     },
-    enabled: isSuccess && Boolean(config.state.seed),
+    enabled: isSuccess && Boolean(config?.state.seed),
   })
 }

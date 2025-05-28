@@ -13,7 +13,7 @@ export function useCancelAllOrders() {
   })
 
   async function handleCancelAllOrders() {
-    if (!data) return
+    if (!data || !config) return
 
     for (const orderId of data) {
       try {

@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  ConfigRequiredError,
   stringifyForWasm,
   useBackOfQueueWallet,
   useConfig,
@@ -20,6 +21,7 @@ export function usePrepareCancelOrder(
   return useQuery({
     queryKey: ["prepare", "cancel-order", parameters],
     queryFn: async () => {
+      if (!config) throw new ConfigRequiredError("usePrepareCancelOrder")
       if (!config.state.seed) throw new Error("Seed is required")
       if (!isSuccess) return undefined
       if (wallet.orders.find((order) => order.id === id)) {
@@ -31,6 +33,6 @@ export function usePrepareCancelOrder(
       }
       return null
     },
-    enabled: Boolean(config.state.seed),
+    enabled: Boolean(config?.state.seed),
   })
 }

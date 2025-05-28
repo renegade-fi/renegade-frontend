@@ -37,7 +37,9 @@ export function ArbitrumWalletActionsDropdown({
   }
 
   const handleDisconnect = () => {
-    disconnectRenegade(config)
+    if (config) {
+      disconnectRenegade(config)
+    }
     disconnect()
   }
 

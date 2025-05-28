@@ -3,6 +3,7 @@
 import React from "react"
 
 import {
+  ConfigRequiredError,
   stringifyForWasm,
   useBackOfQueueWallet,
   useConfig,
@@ -29,6 +30,7 @@ export function usePrepareDeposit(parameters: UsePrepareDepositParameters) {
   const config = useConfig()
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
   const request = React.useMemo(() => {
+    if (!config) throw new ConfigRequiredError("usePrepareDeposit")
     if (!isSuccess) return undefined
     if (
       !amount ||

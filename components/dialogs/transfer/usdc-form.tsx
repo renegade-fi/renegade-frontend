@@ -616,7 +616,7 @@ export function USDCForm({
 
     if (bridgeRequired && bridgeQuote) {
       const validRecipient = await verifyRecipientAddress(
-        renegadeConfig,
+        renegadeConfig?.state.seed,
         bridgeQuote?.action.toAddress,
       )
       if (!validRecipient) {
