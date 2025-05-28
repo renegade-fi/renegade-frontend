@@ -115,6 +115,7 @@ export function SignInDialog({
   } = useMutation({
     mutationFn: async (variables: { signature: `0x${string}` }) => {
       const seed = variables.signature
+      if (!config) return
       config.setState((x) => ({ ...x, seed }))
       const id = getWalletId(config)
       config.setState((x) => ({ ...x, id }))
