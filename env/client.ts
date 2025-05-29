@@ -30,16 +30,6 @@ export const env = createEnv({
     NEXT_PUBLIC_BASE_TOKEN_MAPPING: zTokenMappingJson,
 
     // ================================
-    // Chain & RPC Configuration
-    // ================================
-
-    /** Chain ID */
-    NEXT_PUBLIC_CHAIN_ID: zChainId,
-
-    /** Primary RPC URL */
-    NEXT_PUBLIC_RPC_URL: z.string().optional(),
-
-    // ================================
     // Monitoring
     // ================================
 
@@ -64,13 +54,11 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_ARBITRUM_TOKEN_MAPPING,
     NEXT_PUBLIC_BASE_TOKEN_MAPPING: process.env.NEXT_PUBLIC_BASE_TOKEN_MAPPING,
     NEXT_PUBLIC_CHAIN_ENVIRONMENT: process.env.NEXT_PUBLIC_CHAIN_ENVIRONMENT,
-    NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
     NEXT_PUBLIC_DATADOG_APPLICATION_ID:
       process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
     NEXT_PUBLIC_DATADOG_CLIENT_TOKEN:
       process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
     NEXT_PUBLIC_DD_ENV: process.env.NEXT_PUBLIC_DD_ENV,
-    NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
     NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
