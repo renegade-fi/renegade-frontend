@@ -17,13 +17,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useChain } from "@/hooks/use-chain"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
-import { chain, solana } from "@/lib/viem"
+import { solana } from "@/lib/viem"
 
 interface NetworkSelectProps {
-  value: number
-  onChange: (value: number) => void
+  value: number | undefined
+  onChange: (value: number | undefined) => void
   hasEthereumBalance: boolean
   hasSolanaBalance: boolean
 }
@@ -36,11 +37,14 @@ export function NetworkSelect({
 }: NetworkSelectProps) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const chain = useChain()
 
   const networks = React.useMemo(() => {
-    const availableNetworks: Array<{ label: string; value: number }> = [
-      { label: "Arbitrum", value: chain.id },
-    ]
+    const availableNetworks: Array<{ label: string; value: number }> = []
+
+    if (chain) {
+      availableNetworks.push({ label: chain.name, value: chain.id })
+    }
 
     if (hasEthereumBalance) {
       availableNetworks.push({ label: "Ethereum", value: mainnet.id })
@@ -51,7 +55,7 @@ export function NetworkSelect({
     }
 
     return availableNetworks
-  }, [hasEthereumBalance, hasSolanaBalance])
+  }, [hasEthereumBalance, hasSolanaBalance, chain])
 
   return (
     <Popover
@@ -72,7 +76,7 @@ export function NetworkSelect({
         >
           {value
             ? networks.find((network) => network.value === value)?.label
-            : "Select network"}
+            : chain?.name}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -91,7 +95,7 @@ export function NetworkSelect({
                   onSelect={(currentValue) => {
                     onChange(
                       Number(currentValue) === value
-                        ? chain.id
+                        ? undefined
                         : Number(currentValue),
                     )
                     setOpen(false)

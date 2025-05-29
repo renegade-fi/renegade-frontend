@@ -1,25 +1,27 @@
 import { http } from "viem"
 import {
-  mainnet,
   arbitrum,
   arbitrumSepolia,
-  baseSepolia,
   base,
+  baseSepolia,
+  mainnet,
 } from "viem/chains"
-import { createConfig, createStorage, cookieStorage } from "wagmi"
+import { cookieStorage, createConfig, createStorage } from "wagmi"
 
 import { env } from "@/env/client"
 import { getURL } from "@/lib/utils"
-import { chain } from "@/lib/viem"
 
 import getDefaultConfig from "./defaultConfig"
 
 export function getConfig() {
   return createConfig(
     getDefaultConfig({
-      chains: [chain, mainnet],
+      chains: [arbitrum, arbitrumSepolia, baseSepolia, base, mainnet],
       transports: {
-        [chain.id]: http(),
+        [arbitrum.id]: http(),
+        [arbitrumSepolia.id]: http(),
+        [baseSepolia.id]: http(),
+        [base.id]: http(),
         [mainnet.id]: http("/api/proxy/mainnet"),
       },
       ssr: true,
@@ -46,7 +48,7 @@ export const mainnetConfig = createConfig({
 
 // @sehyunc TODO: generalize wagmi config
 export const arbitrumConfig = createConfig({
-  chains: [chain],
+  chains: [arbitrum, arbitrumSepolia, baseSepolia, base],
   transports: {
     [arbitrum.id]: http(),
     [arbitrumSepolia.id]: http(),

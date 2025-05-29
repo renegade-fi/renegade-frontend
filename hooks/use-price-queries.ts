@@ -1,17 +1,14 @@
 import React from "react"
 
-import { PriceReporterClient } from "@renegade-fi/price-reporter"
 import { Exchange } from "@renegade-fi/react"
 import { useQueries } from "@tanstack/react-query"
 import { ReadyState } from "react-use-websocket"
 
+import { client } from "@/lib/clients/price-reporter"
 import { createPriceQueryKey, createPriceTopic } from "@/lib/query"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { environment } from "@/lib/viem"
 
 import { usePriceWebSocket } from "./use-price-websocket"
-
-const client = PriceReporterClient.new(environment)
 
 export function usePriceQueries(
   tokens: ReturnType<typeof DISPLAY_TOKENS> = DISPLAY_TOKENS(),

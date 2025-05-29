@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 
+import { useChain } from "@/hooks/use-chain"
 import type { Wallet } from "@/hooks/use-wallets"
-import { chain } from "@/lib/viem"
 
 interface ArbitrumWalletActionsDropdownProps {
   wallet: Wallet
@@ -21,6 +21,7 @@ export function ArbitrumWalletActionsDropdown({
   wallet,
 }: ArbitrumWalletActionsDropdownProps) {
   const config = useConfig()
+  const chain = useChain()
   const { disconnect } = useDisconnect()
 
   const handleCopyAddress = () => {
@@ -31,7 +32,7 @@ export function ArbitrumWalletActionsDropdown({
 
   const handleViewExplorer = () => {
     if (wallet.isConnected) {
-      const explorerUrl = `${chain.blockExplorers.default.url}/address/${wallet.id}`
+      const explorerUrl = `${chain?.blockExplorers?.default?.url}/address/${wallet.id}`
       window.open(explorerUrl, "_blank")
     }
   }

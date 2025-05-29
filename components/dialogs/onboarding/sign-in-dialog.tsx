@@ -47,7 +47,6 @@ import {
 } from "@/lib/constants/toast"
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
-import { chain } from "@/lib/viem"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export function SignInDialog({
@@ -81,7 +80,7 @@ export function SignInDialog({
       },
       onSuccess() {
         signMessage2({
-          message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+          message: `${ROOT_KEY_MESSAGE_PREFIX} ${currentChainId}`,
         })
       },
     },
@@ -176,9 +175,6 @@ export function SignInDialog({
   }
 
   const onSubmit = async () => {
-    if (currentChainId !== chain.id) {
-      await switchChainAsync({ chainId: chain.id })
-    }
     if (steps.some((step) => step.status === "error")) {
       const error = steps.find((step) => step.status === "error")
       if (isNonDeterministicWalletError(error?.error)) {
@@ -192,7 +188,7 @@ export function SignInDialog({
     }
     reset()
     signMessage1({
-      message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+      message: `${ROOT_KEY_MESSAGE_PREFIX} ${currentChainId}`,
     })
   }
 

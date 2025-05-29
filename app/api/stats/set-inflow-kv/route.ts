@@ -9,6 +9,7 @@ import {
   isAddress,
   parseAbiItem,
 } from "viem"
+import { arbitrum } from "viem/chains"
 
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 import {
@@ -22,10 +23,10 @@ import {
 import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
-import { arbitrumSDKConfig, chain } from "@/lib/viem"
+import { arbitrumSDKConfig } from "@/lib/viem"
 
 const viemClient = createPublicClient({
-  chain,
+  chain: arbitrum,
   transport: http(env.RPC_URL),
 })
 

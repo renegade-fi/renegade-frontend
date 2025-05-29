@@ -1,17 +1,14 @@
 import React from "react"
 
-import { PriceReporterClient } from "@renegade-fi/price-reporter"
 import { Exchange } from "@renegade-fi/react"
 import { useQuery } from "@tanstack/react-query"
 
+import { client } from "@/lib/clients/price-reporter"
 import { createPriceQueryKey, createPriceTopic } from "@/lib/query"
-import { environment } from "@/lib/viem"
 
 import { usePriceWebSocket } from "./use-price-websocket"
 
 const STALE_TIME_MS = 60_000
-
-const client = PriceReporterClient.new(environment)
 
 export function usePriceQuery(
   baseMint: `0x${string}`,
