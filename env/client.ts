@@ -9,6 +9,9 @@ export const env = createEnv({
     // Deployment Environment
     // ================================
 
+    /** Chain environment */
+    NEXT_PUBLIC_CHAIN_ENVIRONMENT: z.enum(["testnet", "mainnet"]),
+
     /** Vercel deployment environment */
     NEXT_PUBLIC_VERCEL_ENV: z
       .enum(["development", "preview", "production"])
@@ -58,6 +61,7 @@ export const env = createEnv({
     NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: z.string().min(1),
   },
   runtimeEnv: {
+    NEXT_PUBLIC_CHAIN_ENVIRONMENT: process.env.NEXT_PUBLIC_CHAIN_ENVIRONMENT,
     NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,

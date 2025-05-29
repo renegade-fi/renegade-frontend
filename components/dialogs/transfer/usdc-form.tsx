@@ -10,7 +10,12 @@ import { toast } from "sonner"
 import { useDebounceValue } from "usehooks-ts"
 import { formatUnits, isAddress, parseUnits } from "viem"
 import { mainnet } from "viem/chains"
-import { useAccount, useSendTransaction, useSwitchChain } from "wagmi"
+import {
+  useAccount,
+  usePublicClient,
+  useSendTransaction,
+  useSwitchChain,
+} from "wagmi"
 import { z } from "zod"
 
 import { TokenSelect } from "@/components/dialogs/token-select"
@@ -63,6 +68,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
+import { useChain } from "@/hooks/use-chain"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -81,7 +87,7 @@ import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-import { chain, getFormattedChainName, solana } from "@/lib/viem"
+import { getFormattedChainName, solana } from "@/lib/viem"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
@@ -105,12 +111,14 @@ export function USDCForm({
   header: React.ReactNode
 }) {
   const { address } = useAccount()
+  const chain = useChain()
   const { checkChain } = useCheckChain()
   const isMaxBalances = useIsMaxBalances(USDC_L2_TOKEN.address)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
   const { setSide } = useServerStore((state) => state)
-  const [network, setNetwork] = React.useState<number>(chain.id)
+  // undefined network is equivalent to the Renegade chain
+  const [network, setNetwork] = React.useState<number | undefined>()
   const [steps, setSteps] = React.useState<TransferStep[]>([])
   const [currentStep, setCurrentStep] = React.useState(0)
   const [switchChainError, setSwitchChainError] = React.useState<Error | null>(
@@ -123,12 +131,15 @@ export function USDCForm({
     },
   })
   const renegadeConfig = useConfig()
-  const chainId = renegadeConfig?.state.chainId
+  const chainId = useChain()?.id
+  const publicClient = usePublicClient()
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
     catchErrorWithToast(error, message)
-    switchChainAsync({ chainId: chain.id })
+    if (chain) {
+      switchChainAsync({ chainId: chain.id })
+    }
   }
 
   const mint = useWatch({
@@ -199,33 +210,44 @@ export function USDCForm({
   )
   // TODO: Rework this to isolate to this component
   const swapRequired = React.useMemo(() => {
-    return network === chain.id && snapshot.swapRequired
-  }, [network, snapshot.swapRequired])
+    if (network) {
+      return network === chain?.id && snapshot.swapRequired
+    }
+    return snapshot.swapRequired
+  }, [network, snapshot.swapRequired, chain])
 
   const remainingUsdceBalance =
     parseUnits(amount, USDC_L2_TOKEN.decimals) > (usdcL2Balance ?? BigInt(0))
       ? combinedBalance - parseUnits(amount, USDC_L2_TOKEN.decimals)
       : (usdceL2Balance ?? BigInt(0))
 
-  const switchChainAndInvoke = async (chainId: number, fn: () => void) =>
-    switchChainAsync({ chainId })
-      .then(fn)
-      .catch((error) => catchError(error, "Couldn't switch chain"))
+  const switchChainAndInvoke = async (
+    chainId: number | undefined,
+    fn: () => void,
+  ) => {
+    if (chainId) {
+      switchChainAsync({ chainId })
+        .then(fn)
+        .catch((error) => catchError(error, "Couldn't switch chain"))
+    } else {
+      fn()
+    }
+  }
 
   // Fetch bridge quote
   const bridgeRequired = React.useMemo(() => {
     const isFirstStep = currentStep === 0
-    const isCrosschainTransfer = network !== chain.id
+    const isCrosschainTransfer = network && network !== chain?.id
     const hasValidAmount = Boolean(amount && Number(amount) > 0)
     const hasSolanaWallet = network !== solana.id || solanaWallet.isConnected
 
     return (
       isFirstStep && isCrosschainTransfer && hasValidAmount && hasSolanaWallet
     )
-  }, [amount, currentStep, network, solanaWallet.isConnected])
+  }, [amount, currentStep, network, solanaWallet.isConnected, chain])
 
   const [debouncedAmount] = useDebounceValue(() => {
-    if (network !== chain.id) return amount
+    if (network && network !== chain?.id) return amount
     return ""
   }, 1000)
 
@@ -235,15 +257,14 @@ export function USDCForm({
     fetchStatus: bridgeQuoteFetchStatus,
     dataUpdatedAt: bridgeQuoteUpdatedAt,
     error: bridgeQuoteError,
-    refetch: refetchBridgeQuote,
   } = useBridgeQuote({
-    fromChain: network,
+    fromChain: network ?? chain?.id,
     fromMint:
       network === mainnet.id ? USDC_L1_TOKEN.address : USDC_SOLANA_TOKEN,
-    toChain: chain.id,
+    toChain: chain?.id,
     toMint: USDC_L2_TOKEN.address,
     amount: debouncedAmount.toString(),
-    enabled: bridgeRequired,
+    enabled: Boolean(bridgeRequired && chain),
     // enabled: bridgeRequired && (network !== solana.id || solanaWallet.isConnected)
   })
 
@@ -333,7 +354,7 @@ export function USDCForm({
       queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
-        await switchChainAndInvoke(chain.id, () =>
+        await switchChainAndInvoke(chain?.id, () =>
           handleApprove({
             address: USDC_L2_TOKEN.address,
             args: [
@@ -343,10 +364,10 @@ export function USDCForm({
           }),
         )
       } else {
-        await switchChainAndInvoke(chain.id, () =>
+        await switchChainAndInvoke(chain?.id, () =>
           handleDeposit({
             amount:
-              network !== chain.id
+              network && network !== chain?.id
                 ? formatUnits(
                     BigInt(bridge.receivedAmount ?? 0),
                     USDC_L2_TOKEN.decimals,
@@ -387,7 +408,7 @@ export function USDCForm({
       queryClient.invalidateQueries({ queryKey: usdcL2BalanceQueryKey })
       setCurrentStep((prev) => prev + 1)
       if (allowanceRequired) {
-        await switchChainAndInvoke(chain.id, () =>
+        await switchChainAndInvoke(chain?.id, () =>
           handleApprove({
             address: USDC_L2_TOKEN.address,
             args: [
@@ -397,10 +418,10 @@ export function USDCForm({
           }),
         )
       } else {
-        await switchChainAndInvoke(chain.id, () =>
+        await switchChainAndInvoke(chain?.id, () =>
           handleDeposit({
             amount:
-              network === mainnet.id
+              network && network === mainnet.id
                 ? formatUnits(
                     BigInt(bridge.receivedAmount ?? 0),
                     USDC_L2_TOKEN.decimals,
@@ -427,7 +448,7 @@ export function USDCForm({
     amount:
       snapshot.usdceToSwap ??
       (parseFloat(amount) - parseFloat(formattedUsdcL2Balance)).toFixed(6),
-    enabled: currentStep === 0 && swapRequired && network === chain.id,
+    enabled: currentStep === 0 && swapRequired && !network,
   })
 
   // Approve swap
@@ -460,7 +481,7 @@ export function USDCForm({
       if (Date.now() - quoteUpdatedAt! > QUOTE_STALE_TIME) {
         await queryClient.refetchQueries({ queryKey: quoteQueryKey })
       }
-      await switchChainAndInvoke(chain.id, () =>
+      await switchChainAndInvoke(chain?.id, () =>
         handleSwap(
           // @ts-ignore
           {
@@ -489,7 +510,7 @@ export function USDCForm({
     queryClient.invalidateQueries({ queryKey: usdceL2BalanceQueryKey })
     setCurrentStep((prev) => prev + 1)
     if (allowanceRequired) {
-      await switchChainAndInvoke(chain.id, () =>
+      await switchChainAndInvoke(chain?.id, () =>
         handleApprove({
           address: USDC_L2_TOKEN.address,
           args: [
@@ -499,7 +520,7 @@ export function USDCForm({
         }),
       )
     } else {
-      await switchChainAndInvoke(chain.id, () =>
+      await switchChainAndInvoke(chain?.id, () =>
         handleDeposit({
           amount: swapRequired
             ? formatUnits(
@@ -521,7 +542,7 @@ export function USDCForm({
         address ?? "0x",
         chainId ? getSDKConfig(chainId).permit2Address : "0x",
       ],
-      chainId: chain.id,
+      chainId: chain?.id,
       query: {
         select: (data) => {
           const parsedAmount = safeParseUnits(amount, USDC_L2_TOKEN.decimals)
@@ -547,7 +568,7 @@ export function USDCForm({
     async () => {
       queryClient.invalidateQueries({ queryKey: usdcL2AllowanceQueryKey })
       setCurrentStep((prev) => prev + 1)
-      await switchChainAndInvoke(chain.id, () =>
+      await switchChainAndInvoke(chain?.id, () =>
         handleDeposit({
           amount:
             network === mainnet.id
@@ -621,15 +642,19 @@ export function USDCForm({
     })
     if (!isBalanceSufficient) {
       form.setError("amount", {
-        message: `Insufficient ${getFormattedChainName(network)} balance`,
+        message: `Insufficient ${
+          network ? getFormattedChainName(network) : chain?.name
+        } balance`,
       })
       return
     }
 
     if (bridgeRequired && bridgeQuote) {
       const validRecipient = await verifyRecipientAddress(
+        publicClient,
         renegadeConfig?.state.seed,
         bridgeQuote?.action.toAddress,
+        chainId,
       )
       if (!validRecipient) {
         form.setError("root", {
@@ -713,7 +738,7 @@ export function USDCForm({
         return
       }
       if (swapAllowanceRequired) {
-        await switchChainAndInvoke(chain.id, () =>
+        await switchChainAndInvoke(chain?.id, () =>
           handleApproveSwap({
             address: USDCE_L2_TOKEN.address,
             args: [
@@ -723,7 +748,7 @@ export function USDCForm({
           }),
         )
       } else {
-        await switchChainAndInvoke(chain.id, () =>
+        await switchChainAndInvoke(chain?.id, () =>
           handleSwap(
             // @ts-ignore
             {
@@ -734,7 +759,7 @@ export function USDCForm({
         )
       }
     } else if (allowanceRequired) {
-      await switchChainAndInvoke(chain.id, () =>
+      await switchChainAndInvoke(chain?.id, () =>
         handleApprove({
           address: USDC_L2_TOKEN.address,
           args: [
@@ -744,7 +769,7 @@ export function USDCForm({
         }),
       )
     } else {
-      await switchChainAndInvoke(chain.id, () =>
+      await switchChainAndInvoke(chain?.id, () =>
         handleDeposit({
           amount,
           mint,
@@ -1112,7 +1137,7 @@ export function USDCForm({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     Balance on&nbsp;
-                    <NetworkLabel chainId={chain.id} />
+                    <NetworkLabel chainId={chain?.id} />
                   </div>
                   <div className="flex items-center">
                     <TooltipButton
@@ -1121,7 +1146,7 @@ export function USDCForm({
                       variant="link"
                       onClick={() => {
                         if (Number(formattedUsdcL2Balance)) {
-                          setNetwork(chain.id)
+                          setNetwork(undefined)
                           form.setValue("amount", formattedUsdcL2Balance, {
                             shouldValidate: true,
                             shouldDirty: true,
@@ -1142,7 +1167,7 @@ export function USDCForm({
                     variant="link"
                     onClick={() => {
                       if (Number(formattedCombinedBalance)) {
-                        setNetwork(chain.id)
+                        setNetwork(undefined)
                         form.setValue("amount", formattedCombinedBalance, {
                           shouldValidate: true,
                           shouldDirty: true,
@@ -1235,7 +1260,7 @@ export function USDCForm({
               >
                 <Button
                   className="flex-1 border-0 border-t font-extended text-2xl"
-                  disabled={isSubmitDisabled}
+                  disabled={!!isSubmitDisabled}
                   size="xl"
                   type="submit"
                   variant="outline"
@@ -1261,7 +1286,7 @@ export function USDCForm({
               >
                 <Button
                   className="flex w-full flex-col items-center justify-center whitespace-normal text-pretty border-l-0 font-extended text-lg"
-                  disabled={isSubmitDisabled}
+                  disabled={!!isSubmitDisabled}
                   size="xl"
                   type="submit"
                   variant="outline"

@@ -3,7 +3,6 @@
 import React, { useMemo } from "react"
 
 import {
-  Config,
   cookieToInitialState,
   RenegadeProvider as Provider,
   useConfig,
@@ -11,6 +10,7 @@ import {
 import { disconnect } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider } from "connectkit"
+import { createPublicClient, http } from "viem"
 import {
   useAccount,
   useConnect,
@@ -21,8 +21,9 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
+import { env } from "@/env/client"
 import { sidebarEvents } from "@/lib/events"
-import { chain, viemClient } from "@/lib/viem"
+import { extractSupportedChain } from "@/lib/viem"
 
 import { getConfigFromChainId } from "./config"
 
@@ -125,12 +126,17 @@ function SyncRenegadeWagmiState() {
   // 1. Verifies the current account can sign the stored seed
   // 2. Disconnects both wagmi and renegade if verification fails
   React.useEffect(() => {
-    if (!connections.length || !config?.state.seed) return
+    if (!connections.length || !config?.state.seed || !chainId) return
 
-    viemClient
+    const publicClient = createPublicClient({
+      chain: extractSupportedChain(chainId),
+      transport: http(env.NEXT_PUBLIC_RPC_URL),
+    })
+
+    publicClient
       .verifyMessage({
         address: connections[0].accounts[0],
-        message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+        message: `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`,
         signature: config.state.seed,
       })
       .then((verified) => {
@@ -145,7 +151,7 @@ function SyncRenegadeWagmiState() {
         disconnectWagmi()
         disconnect(config)
       })
-  }, [config, connections, disconnectWagmi])
+  }, [chainId, config, connections, disconnectWagmi])
 
   return null
 }

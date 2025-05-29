@@ -13,7 +13,8 @@ import {
 import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
-import { isBase, isTestnet } from "@/lib/viem"
+import { useIsBase } from "@/hooks/use-is-base"
+import { isTestnet } from "@/lib/viem"
 
 export function TransferForm({
   className,
@@ -27,6 +28,7 @@ export function TransferForm({
   onSuccess: () => void
   header: React.ReactNode
 }) {
+  const isBase = useIsBase()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

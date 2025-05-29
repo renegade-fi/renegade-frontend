@@ -37,6 +37,7 @@ export const getURL = (path = "") => {
 export const fundWallet = async (
   tokens: { ticker: string; amount: string }[],
   address: `0x${string}`,
+  chainId?: number,
 ) => {
   if (isTestnet) {
     await fetch(`/api/faucet`, {
@@ -47,6 +48,7 @@ export const fundWallet = async (
       body: JSON.stringify({
         tokens,
         address,
+        chainId,
       }),
     })
   }

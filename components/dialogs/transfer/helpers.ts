@@ -3,13 +3,13 @@ import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { Token } from "@renegade-fi/token-nextjs"
 import { QueryClient } from "@tanstack/react-query"
 import invariant from "tiny-invariant"
-import { formatUnits, isAddress } from "viem"
+import { formatUnits, isAddress, PublicClient } from "viem"
 import { z } from "zod"
 
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
-import { chain, extractSupportedChain, viemClient } from "@/lib/viem"
+import { extractSupportedChain } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -119,10 +119,10 @@ export function normalizeStatus(
   }
 }
 
-export function getExplorerLink(
-  txHash: string,
-  chainId: number = chain.id,
-): string {
+export function getExplorerLink(txHash: string, chainId?: number) {
+  if (!chainId) {
+    return
+  }
   const _chain = extractSupportedChain(chainId)
 
   const explorerUrl = _chain.blockExplorers?.default.url
@@ -133,17 +133,21 @@ export function getExplorerLink(
 }
 
 export function verifyRecipientAddress(
+  publicClient?: PublicClient,
   seed?: `0x${string}`,
   recipient?: string,
+  chainId?: number,
 ) {
+  invariant(publicClient, "Public client is required")
   invariant(seed, "Seed is required")
   invariant(
     recipient && isAddress(recipient),
     "Recipient is required and must be a valid address",
   )
-  return viemClient.verifyMessage({
+  invariant(chainId, "Chain ID is required")
+  return publicClient.verifyMessage({
     address: recipient,
-    message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+    message: `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`,
     signature: seed,
   })
 }

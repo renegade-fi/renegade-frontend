@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useChain } from "@/hooks/use-chain"
 import { FAUCET_TOOLTIP } from "@/lib/constants/tooltips"
 import { fundList, fundWallet } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
@@ -27,6 +28,7 @@ import { isTestnet } from "@/lib/viem"
 export function Footer() {
   const { address } = useAccount()
   const { state } = useSidebar()
+  const chainId = useChain()?.id
 
   return (
     <footer className="relative hidden min-h-20 min-w-full bg-background before:absolute before:left-0 before:right-0 before:top-0 before:h-[1px] before:bg-border lg:block">
@@ -73,15 +75,18 @@ export function Footer() {
                       return
                     }
 
-                    toast.promise(fundWallet(fundList.slice(0, 2), address), {
-                      loading: "Funding account...",
-                      success: "Successfully funded account.",
-                      error:
-                        "Funding failed: An unexpected error occurred. Please try again.",
-                    })
+                    toast.promise(
+                      fundWallet(fundList.slice(0, 2), address, chainId),
+                      {
+                        loading: "Funding account...",
+                        success: "Successfully funded account.",
+                        error:
+                          "Funding failed: An unexpected error occurred. Please try again.",
+                      },
+                    )
 
                     // Fund additional wallets in background
-                    fundWallet(fundList.slice(2), address)
+                    fundWallet(fundList.slice(2), address, chainId)
                   }}
                 >
                   Faucet

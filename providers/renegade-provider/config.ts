@@ -6,7 +6,6 @@ import {
 } from "@renegade-fi/react"
 
 import { cookieStorage } from "@/lib/cookie"
-import { viemClient } from "@/lib/viem"
 
 export const getConfigFromChainId = (chainId: number) => {
   if (!isSupportedChainId(chainId)) return undefined
@@ -20,6 +19,5 @@ export const getConfigFromChainId = (chainId: number) => {
     storage: createStorage({
       storage: cookieStorage,
     }),
-    viemClient: viemClient as any,
   })
 }

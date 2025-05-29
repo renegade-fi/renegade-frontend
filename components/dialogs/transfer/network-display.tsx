@@ -3,14 +3,10 @@ import * as React from "react"
 import { TokenIcon } from "@/components/token-icon"
 
 import { cn } from "@/lib/utils"
-import {
-  extractSupportedChain,
-  getChainLogoTicker,
-  getFormattedChainName,
-} from "@/lib/viem"
+import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem"
 
 interface NetworkLabelProps extends React.HTMLAttributes<HTMLDivElement> {
-  chainId: number
+  chainId: number | undefined
   showIcon?: boolean
   iconSize?: number
 }
@@ -22,8 +18,9 @@ export function NetworkLabel({
   className,
   ...props
 }: NetworkLabelProps) {
-  const _chain = extractSupportedChain(chainId)
-
+  if (!chainId) {
+    return null
+  }
   return (
     <div
       className={cn("flex items-center gap-1", className)}

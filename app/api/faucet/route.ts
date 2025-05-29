@@ -1,5 +1,6 @@
 import { Token } from "@renegade-fi/token-nextjs"
 import {
+  createPublicClient,
   createWalletClient,
   formatEther,
   http,
@@ -8,12 +9,11 @@ import {
   parseUnits,
 } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
-import { arbitrum, arbitrumSepolia, base, baseSepolia } from "viem/chains"
+import { arbitrumSepolia } from "viem/chains"
 import { createConfig } from "wagmi"
 
 import { env } from "@/env/server"
 import { readErc20BalanceOf } from "@/lib/generated"
-import { chain, viemClient } from "@/lib/viem"
 
 export const maxDuration = 300
 
@@ -25,12 +25,9 @@ const abi = parseAbi([
 ])
 
 const viemConfig = createConfig({
-  chains: [chain],
+  chains: [arbitrumSepolia],
   transports: {
-    [arbitrum.id]: http(),
     [arbitrumSepolia.id]: http(),
-    [baseSepolia.id]: http(),
-    [base.id]: http(),
   },
 })
 
@@ -38,24 +35,29 @@ const viemConfig = createConfig({
 const devAccount = privateKeyToAccount(env.DEV_PRIVATE_KEY!)
 const devWalletClient = createWalletClient({
   account: devAccount,
-  chain,
+  chain: arbitrumSepolia,
+  transport: http(),
+})
+
+const publicClient = createPublicClient({
+  chain: arbitrumSepolia,
   transport: http(),
 })
 
 export async function POST(request: Request) {
-  if (chain.id === arbitrum.id) {
-    return new Response("Faucet is not available on mainnet", {
+  const body = await request.json()
+  const chainId = body.chainId
+  if (chainId !== arbitrumSepolia.id) {
+    return new Response("Faucet is not available on this chain", {
       status: 403,
     })
   }
-
   if (!env.DEV_PRIVATE_KEY) {
     return new Response("DEV_PRIVATE_KEY is required", {
       status: 500,
     })
   }
 
-  const body = await request.json()
   const TOKENS_TO_FUND = body.tokens as {
     ticker: string
     amount: string
@@ -98,7 +100,7 @@ async function fundEth(
   recipient: `0x${string}`,
   amount: bigint,
 ): Promise<void> {
-  const ethBalance = await viemClient.getBalance({
+  const ethBalance = await publicClient.getBalance({
     address: recipient,
   })
   const amountToSend = amount - ethBalance
@@ -115,7 +117,7 @@ async function fundEth(
         value: amountToSend,
       })
 
-      await viemClient.waitForTransactionReceipt({
+      await publicClient.waitForTransactionReceipt({
         hash,
       })
 
@@ -172,7 +174,7 @@ async function mint(
   token: `0x${string}`,
   amount: bigint,
 ) {
-  const { request } = await viemClient.simulateContract({
+  const { request } = await publicClient.simulateContract({
     account: devAccount,
     address: token,
     abi,
@@ -181,7 +183,7 @@ async function mint(
   })
 
   const hash = await devWalletClient.writeContract(request)
-  const tx = await viemClient.waitForTransactionReceipt({
+  const tx = await publicClient.waitForTransactionReceipt({
     hash,
   })
   if (tx.status === "success") {
