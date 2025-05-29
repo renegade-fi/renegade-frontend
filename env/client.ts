@@ -1,7 +1,7 @@
 import { createEnv } from "@t3-oss/env-nextjs"
 import { z } from "zod/v4"
 
-import { zChainId } from "./schema"
+import { zChainId, zTokenMappingJson } from "./schema"
 
 export const env = createEnv({
   client: {
@@ -22,6 +22,12 @@ export const env = createEnv({
 
     /** Vercel-generated URL for preview deployments */
     NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
+
+    // ================================
+    // Token Mapping
+    // ================================
+    NEXT_PUBLIC_ARBITRUM_TOKEN_MAPPING: zTokenMappingJson,
+    NEXT_PUBLIC_BASE_TOKEN_MAPPING: zTokenMappingJson,
 
     // ================================
     // Chain & RPC Configuration
@@ -61,19 +67,22 @@ export const env = createEnv({
     NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: z.string().min(1),
   },
   runtimeEnv: {
+    NEXT_PUBLIC_ARBITRUM_TOKEN_MAPPING:
+      process.env.NEXT_PUBLIC_ARBITRUM_TOKEN_MAPPING,
+    NEXT_PUBLIC_BASE_TOKEN_MAPPING: process.env.NEXT_PUBLIC_BASE_TOKEN_MAPPING,
     NEXT_PUBLIC_CHAIN_ENVIRONMENT: process.env.NEXT_PUBLIC_CHAIN_ENVIRONMENT,
     NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
-    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
-    NEXT_PUBLIC_PRICE_REPORTER_URL: process.env.NEXT_PUBLIC_PRICE_REPORTER_URL,
-    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
-      process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
     NEXT_PUBLIC_DATADOG_APPLICATION_ID:
       process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
     NEXT_PUBLIC_DATADOG_CLIENT_TOKEN:
       process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
     NEXT_PUBLIC_DD_ENV: process.env.NEXT_PUBLIC_DD_ENV,
+    NEXT_PUBLIC_PRICE_REPORTER_URL: process.env.NEXT_PUBLIC_PRICE_REPORTER_URL,
     NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
+    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
+    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
+      process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
   },
 })
