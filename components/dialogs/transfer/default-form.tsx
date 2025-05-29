@@ -1,9 +1,7 @@
 import * as React from "react"
 
-import { usePathname, useRouter } from "next/navigation"
-
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType } from "@renegade-fi/react"
+import { UpdateType, getSDKConfig, useConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -74,7 +72,6 @@ import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const catchError = (error: Error, message: string) => {
@@ -94,11 +91,10 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
+  const chainId = useConfig()?.state.chainId
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const isTradePage = usePathname().includes("/trade")
   const queryClient = useQueryClient()
-  const router = useRouter()
   const { setSide } = useServerStore((state) => state)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
@@ -154,7 +150,7 @@ export function DefaultForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: sdkConfig.permit2Address,
+      spender: chainId ? getSDKConfig(chainId).permit2Address : undefined,
       decimals: l2Token?.decimals ?? 0,
     })
 
@@ -257,7 +253,10 @@ export function DefaultForm({
       if (allowanceRequired && l2Token?.address) {
         await handleApprove({
           address: l2Token.address,
-          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+          args: [
+            chainId ? getSDKConfig(chainId).permit2Address : "0x",
+            UNLIMITED_ALLOWANCE,
+          ],
         })
       } else {
         handleDeposit({

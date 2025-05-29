@@ -1,4 +1,4 @@
-import { chainIdToEnv } from "@renegade-fi/react"
+import { chainIdToEnv, getSDKConfig } from "@renegade-fi/react"
 import { createPublicClient, defineChain, extractChain, http } from "viem"
 import {
   arbitrumSepolia,
@@ -86,3 +86,6 @@ export function getChainLogoTicker(chainId: number): string {
       return _chain.nativeCurrency.symbol
   }
 }
+
+// TODO: Remove this once stats are recorded for all chains
+export const arbitrumSDKConfig = getSDKConfig(arbitrum.id)

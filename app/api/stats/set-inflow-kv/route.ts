@@ -4,26 +4,25 @@ import { Token } from "@renegade-fi/token-nextjs"
 import { kv } from "@vercel/kv"
 import {
   createPublicClient,
-  http,
-  parseAbiItem,
-  isAddress,
   formatUnits,
+  http,
+  isAddress,
+  parseAbiItem,
 } from "viem"
 
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 import {
   BLOCK_CHUNK_SIZE,
-  LAST_PROCESSED_BLOCK_KEY,
-  INFLOWS_KEY,
   ExternalTransferData,
+  INFLOWS_KEY,
   INFLOWS_SET_KEY,
+  LAST_PROCESSED_BLOCK_KEY,
 } from "@/app/api/stats/constants"
 
 import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
-import { chain } from "@/lib/viem"
-import { sdkConfig } from "@/providers/renegade-provider/config"
+import { arbitrumSDKConfig, chain } from "@/lib/viem"
 
 const viemClient = createPublicClient({
   chain,
@@ -76,7 +75,8 @@ export async function GET(req: NextRequest) {
     // Get all external transfer logs
     console.log("Fetching external transfer logs")
     const logs = await viemClient.getLogs({
-      address: sdkConfig.darkpoolAddress,
+      // @sehyunc TODO: remove hardcoded chain id
+      address: arbitrumSDKConfig.darkpoolAddress,
       event: parseAbiItem(
         "event ExternalTransfer(address indexed account, address indexed mint, bool indexed is_withdrawal, uint256 amount)",
       ),

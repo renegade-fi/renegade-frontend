@@ -1,6 +1,10 @@
 import React from "react"
 
-import { useBackOfQueueWallet, useConfig } from "@renegade-fi/react"
+import {
+  getSDKConfig,
+  useBackOfQueueWallet,
+  useConfig,
+} from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
@@ -12,7 +16,6 @@ import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { chain } from "@/lib/viem"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 
 export function useDeposit() {
   const config = useConfig()
@@ -56,8 +59,8 @@ export function useDeposit() {
     const { signature, nonce, deadline } = await signPermit2({
       amount: parsedAmount,
       chainId: chain.id,
-      spender: sdkConfig.darkpoolAddress,
-      permit2Address: sdkConfig.permit2Address,
+      spender: getSDKConfig(config.state.chainId!).darkpoolAddress,
+      permit2Address: getSDKConfig(config.state.chainId!).permit2Address,
       token,
       walletClient,
       pkRoot,

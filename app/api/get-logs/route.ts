@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server"
 
-import { encodeEventTopics, numberToHex, parseAbiItem, toHex } from "viem"
+import { getSDKConfig } from "@renegade-fi/react"
+import { encodeEventTopics, parseAbiItem, toHex } from "viem"
 
 import { env } from "@/env/server"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 
 export const runtime = "edge"
 
@@ -14,6 +14,10 @@ export async function GET(req: NextRequest) {
     )
     if (!blinderShare) {
       throw new Error("Blinder share is required")
+    }
+    const chainId = Number(req.nextUrl.searchParams.get("chainId"))
+    if (!chainId) {
+      throw new Error("Chain ID is required")
     }
 
     const topics = encodeEventTopics({
@@ -37,7 +41,7 @@ export async function GET(req: NextRequest) {
         method: "eth_getLogs",
         params: [
           {
-            address: sdkConfig.darkpoolAddress,
+            address: getSDKConfig(chainId).darkpoolAddress,
             topics,
             fromBlock: toHex(env.ARBITRUM_DEPLOY_BLOCK),
           },
