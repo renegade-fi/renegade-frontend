@@ -1,4 +1,5 @@
 import { http } from "viem"
+import type { Chain } from "viem"
 import {
   arbitrum,
   arbitrumSepolia,
@@ -13,16 +14,21 @@ import { getURL } from "@/lib/utils"
 
 import getDefaultConfig from "./defaultConfig"
 
+const chains: readonly [Chain, ...Chain[]] =
+  env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
+    ? ([mainnet, arbitrum, base] as const)
+    : ([mainnet, arbitrumSepolia, baseSepolia] as const)
+
 export function getConfig() {
   return createConfig(
     getDefaultConfig({
-      chains: [arbitrum, arbitrumSepolia, baseSepolia, base, mainnet],
+      chains,
       transports: {
+        [mainnet.id]: http("/api/proxy/mainnet"),
         [arbitrum.id]: http(),
         [arbitrumSepolia.id]: http(),
-        [baseSepolia.id]: http(),
         [base.id]: http(),
-        [mainnet.id]: http("/api/proxy/mainnet"),
+        [baseSepolia.id]: http(),
       },
       ssr: true,
       storage: createStorage({

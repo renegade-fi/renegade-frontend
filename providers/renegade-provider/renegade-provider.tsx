@@ -13,6 +13,7 @@ import { ConnectKitProvider } from "connectkit"
 import { createPublicClient, http } from "viem"
 import {
   useAccount,
+  useChainId,
   useConnect,
   useConnections,
   useDisconnect,
@@ -51,9 +52,10 @@ const connectKitTheme = {
 export function RenegadeProvider({
   children,
   cookieString,
-  chainId,
+  chainId: initialChainId,
 }: RenegadeProviderProps) {
   const [open, setOpen] = React.useState(false)
+  const chainId = useChainId() ?? initialChainId
   const config = useMemo(() => {
     if (chainId) {
       return getConfigFromChainId(chainId)
