@@ -40,13 +40,6 @@ export const env = createEnv({
     NEXT_PUBLIC_RPC_URL: z.string().optional(),
 
     // ================================
-    // External Services
-    // ================================
-
-    /** Price reporter service URL */
-    NEXT_PUBLIC_PRICE_REPORTER_URL: z.string().min(1),
-
-    // ================================
     // Monitoring
     // ================================
 
@@ -77,7 +70,6 @@ export const env = createEnv({
     NEXT_PUBLIC_DATADOG_CLIENT_TOKEN:
       process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
     NEXT_PUBLIC_DD_ENV: process.env.NEXT_PUBLIC_DD_ENV,
-    NEXT_PUBLIC_PRICE_REPORTER_URL: process.env.NEXT_PUBLIC_PRICE_REPORTER_URL,
     NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
