@@ -1,13 +1,13 @@
 import { useMemo } from "react"
 
 import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 import { useAccount } from "wagmi"
 
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { resolveAddress } from "@/lib/token"
 
 export type AssetsTableRow = {
   mint: `0x${string}`
@@ -38,24 +38,11 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
     mints,
   })
 
-  const priceResults = usePriceQueries(
-    mints.map((mint) => {
-      const token = Token.findByAddress(mint)
-      return Token.create(
-        token.name,
-        token.ticker,
-        mint,
-        token.decimals,
-        token.rawSupportedExchanges,
-        token.chainAddresses,
-        token.logoUrl,
-      )
-    }),
-  )
+  const priceResults = usePriceQueries(mints)
 
   const tableData = useMemo(() => {
     return mints.map((mint, i) => {
-      const token = Token.findByAddress(mint)
+      const token = resolveAddress(mint)
       const renegadeBalance = renegadeBalances?.get(mint) ?? BigInt(0)
       const price = priceResults[i]?.data ?? 0
       const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price)

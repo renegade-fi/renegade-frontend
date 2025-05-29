@@ -10,12 +10,9 @@ import { usePriceWebSocket } from "./use-price-websocket"
 
 const STALE_TIME_MS = 60_000
 
-export function usePriceQuery(
-  baseMint: `0x${string}`,
-  exchange: Exchange = "binance",
-) {
-  const topic = createPriceTopic(exchange, baseMint)
-  const queryKey = createPriceQueryKey(exchange, baseMint)
+export function usePriceQuery(baseMint: `0x${string}`, exchange?: Exchange) {
+  const topic = createPriceTopic({ exchange, base: baseMint })
+  const queryKey = createPriceQueryKey({ exchange, base: baseMint })
   const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket()
 
   React.useEffect(() => {

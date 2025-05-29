@@ -1,11 +1,14 @@
 import { useMemo } from "react"
 
 import { useQueries } from "@tanstack/react-query"
+import { useConfig } from "wagmi"
 
 import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { readErc20BalanceOf } from "@/lib/generated"
 import { isTestnet } from "@/lib/viem"
-import { arbitrumConfig } from "@/providers/wagmi-provider/config"
+
+import { useChain } from "./use-chain"
+import { useIsBase } from "./use-is-base"
 
 interface UseOnChainBalancesOptions {
   address?: `0x${string}`
@@ -13,25 +16,35 @@ interface UseOnChainBalancesOptions {
   enabled?: boolean
 }
 
+/**
+ * Get the on-chain balances for a given set of mints
+ * On Arbitrum One, combines balances from Mainnet and Solana
+ * @param address - owner address
+ * @param mints - tokens
+ * @param enabled - whether to enable the query
+ * @returns - Map of mints to balances (bigint)
+ */
 export function useOnChainBalances({
   address,
   mints,
   enabled = true,
 }: UseOnChainBalancesOptions) {
-  const arbitrumBalances = useQueries({
+  const config = useConfig()
+  const chainId = useChain()?.id
+  const queries = useQueries({
     queries: mints.map((mint) => ({
       queryKey: [
         "readContract",
         {
           address: mint,
           args: [address],
-          chainId: arbitrumConfig.chains[0].id,
+          chainId,
           functionName: "balanceOf",
         },
       ],
       queryFn: async () => {
         if (!address) return BigInt(0)
-        return readErc20BalanceOf(arbitrumConfig, {
+        return readErc20BalanceOf(config, {
           address: mint,
           args: [address],
         })
@@ -45,17 +58,18 @@ export function useOnChainBalances({
     },
   })
 
+  const isBase = useIsBase()
   const { data: combinedBalances, ...rest } = useCombinedBalances({
     address,
-    enabled: enabled && !isTestnet,
+    enabled: enabled && !(isTestnet || isBase),
   })
 
   const data = useMemo(() => {
-    if (isTestnet) {
-      return arbitrumBalances
+    if (isTestnet || isBase) {
+      return queries
     }
     return combinedBalances
-  }, [arbitrumBalances, combinedBalances, isTestnet])
+  }, [queries, combinedBalances, isBase])
 
   return { data, ...rest }
 }
