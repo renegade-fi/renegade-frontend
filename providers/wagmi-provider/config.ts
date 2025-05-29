@@ -14,7 +14,6 @@ import { getURL } from "@/lib/utils"
 
 import getDefaultConfig from "./defaultConfig"
 
-// Define the chain array with proper typing
 const chains: readonly [Chain, ...Chain[]] =
   env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
     ? ([mainnet, arbitrum, base] as const)

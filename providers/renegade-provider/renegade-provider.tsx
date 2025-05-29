@@ -56,10 +56,6 @@ export function RenegadeProvider({
 }: RenegadeProviderProps) {
   const [open, setOpen] = React.useState(false)
   const chainId = useChainId() ?? initialChainId
-  console.log("debug Chain ID", {
-    initialChainId,
-    chainId,
-  })
   const config = useMemo(() => {
     if (chainId) {
       return getConfigFromChainId(chainId)
