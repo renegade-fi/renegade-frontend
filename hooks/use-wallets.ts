@@ -48,7 +48,7 @@ export function useWallets() {
   const walletId = useWalletId()
 
   const renegadeWallet: Wallet =
-    config.state.seed && walletId
+    config?.state.seed && walletId
       ? {
           name: "Renegade Wallet ID",
           icon: "/glyph_light.png",
@@ -105,18 +105,20 @@ export function useWallets() {
     switch (status) {
       case "connecting":
       case "reconnecting":
-        return config.state.seed && address && connector
+        return config?.state.seed && address && connector
           ? "READY"
           : "CONNECTING"
 
       case "connected":
-        return config.state.seed && address && connector ? "READY" : "NOT_READY"
+        return config?.state.seed && address && connector
+          ? "READY"
+          : "NOT_READY"
 
       case "disconnected":
       default:
         return "NOT_READY"
     }
-  }, [address, config.state.seed, connector, status])
+  }, [address, config?.state.seed, connector, status])
 
   return {
     renegadeWallet,
