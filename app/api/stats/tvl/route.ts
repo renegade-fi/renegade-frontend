@@ -2,7 +2,7 @@ import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
 
 import { env } from "@/env/server"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { sdkConfig } from "@/providers/renegade-provider/config"
+import { arbitrumSDKConfig } from "@/lib/viem"
 
 export const runtime = "edge"
 
@@ -16,7 +16,7 @@ export async function GET() {
           const tvl = await fetchTvl(
             token.address,
             env.RPC_URL,
-            sdkConfig.darkpoolAddress,
+            arbitrumSDKConfig.darkpoolAddress,
           )
           return { ticker: token.ticker, tvl: tvl.toString() }
         } catch (error) {

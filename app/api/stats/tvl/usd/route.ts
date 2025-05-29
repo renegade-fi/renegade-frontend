@@ -5,7 +5,7 @@ import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 
 import { env } from "@/env/server"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
-import { sdkConfig } from "@/providers/renegade-provider/config"
+import { arbitrumSDKConfig } from "@/lib/viem"
 
 export const runtime = "edge"
 
@@ -18,7 +18,11 @@ export async function GET() {
       tokens.map(async (token) => {
         try {
           const [balance, price] = await Promise.all([
-            fetchTvl(token.address, env.RPC_URL, sdkConfig.darkpoolAddress),
+            fetchTvl(
+              token.address,
+              env.RPC_URL,
+              arbitrumSDKConfig.darkpoolAddress,
+            ),
             fetchAssetPrice(remapToken(token.ticker), env.AMBERDATA_API_KEY),
           ])
           return {

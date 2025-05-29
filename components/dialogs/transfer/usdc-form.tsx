@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType, useConfig } from "@renegade-fi/react"
+import { UpdateType, getSDKConfig, useConfig } from "@renegade-fi/react"
 import { Token } from "@renegade-fi/token-nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
@@ -82,7 +82,6 @@ import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
 import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { chain, getFormattedChainName, solana } from "@/lib/viem"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
@@ -124,6 +123,7 @@ export function USDCForm({
     },
   })
   const renegadeConfig = useConfig()
+  const chainId = renegadeConfig?.state.chainId
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in USDC form", error)
@@ -336,7 +336,10 @@ export function USDCForm({
         await switchChainAndInvoke(chain.id, () =>
           handleApprove({
             address: USDC_L2_TOKEN.address,
-            args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+            args: [
+              chainId ? getSDKConfig(chainId).permit2Address : "0x",
+              UNLIMITED_ALLOWANCE,
+            ],
           }),
         )
       } else {
@@ -387,7 +390,10 @@ export function USDCForm({
         await switchChainAndInvoke(chain.id, () =>
           handleApprove({
             address: USDC_L2_TOKEN.address,
-            args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+            args: [
+              chainId ? getSDKConfig(chainId).permit2Address : "0x",
+              UNLIMITED_ALLOWANCE,
+            ],
           }),
         )
       } else {
@@ -486,7 +492,10 @@ export function USDCForm({
       await switchChainAndInvoke(chain.id, () =>
         handleApprove({
           address: USDC_L2_TOKEN.address,
-          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+          args: [
+            chainId ? getSDKConfig(chainId).permit2Address : "0x",
+            UNLIMITED_ALLOWANCE,
+          ],
         }),
       )
     } else {
@@ -508,7 +517,10 @@ export function USDCForm({
   const { data: allowanceRequired, queryKey: usdcL2AllowanceQueryKey } =
     useReadErc20Allowance({
       address: USDC_L2_TOKEN.address,
-      args: [address ?? "0x", sdkConfig.permit2Address],
+      args: [
+        address ?? "0x",
+        chainId ? getSDKConfig(chainId).permit2Address : "0x",
+      ],
       chainId: chain.id,
       query: {
         select: (data) => {
@@ -725,7 +737,10 @@ export function USDCForm({
       await switchChainAndInvoke(chain.id, () =>
         handleApprove({
           address: USDC_L2_TOKEN.address,
-          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+          args: [
+            chainId ? getSDKConfig(chainId).permit2Address : "0x",
+            UNLIMITED_ALLOWANCE,
+          ],
         }),
       )
     } else {

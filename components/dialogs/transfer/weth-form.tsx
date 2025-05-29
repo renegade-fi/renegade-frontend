@@ -3,7 +3,7 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType } from "@renegade-fi/react"
+import { getSDKConfig, UpdateType, useConfig } from "@renegade-fi/react"
 import { Token } from "@renegade-fi/token-nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
@@ -90,7 +90,6 @@ import {
 } from "@/lib/generated"
 import { ETHEREUM_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-import { sdkConfig } from "@/providers/renegade-provider/config"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
   arbitrumConfig,
@@ -113,6 +112,7 @@ export function WETHForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
+  const chainId = useConfig()?.state.chainId
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
   const isMaxBalances = useIsMaxBalances(WETH_L2_TOKEN.address)
@@ -243,7 +243,10 @@ export function WETHForm({
       if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+          args: [
+            chainId ? getSDKConfig(chainId).permit2Address : "0x",
+            UNLIMITED_ALLOWANCE,
+          ],
         })
       } else {
         handleDeposit({
@@ -260,7 +263,7 @@ export function WETHForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: sdkConfig.permit2Address,
+      spender: chainId ? getSDKConfig(chainId).permit2Address : undefined,
       decimals: WETH_L2_TOKEN.decimals,
     })
 
@@ -405,7 +408,10 @@ export function WETHForm({
       } else if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+          args: [
+            chainId ? getSDKConfig(chainId).permit2Address : "0x",
+            UNLIMITED_ALLOWANCE,
+          ],
         })
       } else {
         handleDeposit({

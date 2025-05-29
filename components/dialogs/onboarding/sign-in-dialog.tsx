@@ -116,7 +116,7 @@ export function SignInDialog({
     mutationFn: async (variables: { signature: `0x${string}` }) => {
       const seed = variables.signature
       if (!config) return
-      config.setState((x) => ({ ...x, seed }))
+      config.setState((x) => ({ ...x, seed, chainId: currentChainId }))
       const id = getWalletId(config)
       config.setState((x) => ({ ...x, id }))
 
@@ -132,7 +132,9 @@ export function SignInDialog({
 
       // GET # logs
       const blinderShare = config.utils.derive_blinder_share(seed)
-      const res = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
+      const res = await fetch(
+        `/api/get-logs?blinderShare=${blinderShare}&chainId=${currentChainId}`,
+      )
       if (!res.ok) throw new Error("Failed to query chain")
       const { logs } = await res.json()
       // Iff logs === 0, create wallet
