@@ -1,5 +1,11 @@
 import { http } from "viem"
-import { mainnet, arbitrum, arbitrumSepolia, baseSepolia } from "viem/chains"
+import {
+  mainnet,
+  arbitrum,
+  arbitrumSepolia,
+  baseSepolia,
+  base,
+} from "viem/chains"
 import { createConfig, createStorage, cookieStorage } from "wagmi"
 
 import { env } from "@/env/client"
@@ -45,6 +51,7 @@ export const arbitrumConfig = createConfig({
     [arbitrum.id]: http(),
     [arbitrumSepolia.id]: http(),
     [baseSepolia.id]: http(),
+    [base.id]: http(),
   },
 })
 

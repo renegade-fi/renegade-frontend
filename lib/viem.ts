@@ -11,7 +11,7 @@ import {
 import { env } from "@/env/client"
 
 export const chain = extractChain({
-  chains: [arbitrum, arbitrumSepolia, baseSepolia],
+  chains: [arbitrum, arbitrumSepolia, baseSepolia, base],
   id: env.NEXT_PUBLIC_CHAIN_ID,
 })
 

@@ -30,7 +30,7 @@ export function RenegadeWalletActionsDropdown({
   const { rememberMe, setRememberMe } = useClientStore((state) => state)
 
   const handleRefreshWallet = async () => {
-    if (wallet.isConnected) {
+    if (wallet.isConnected && config) {
       await refreshWallet(config)
     }
   }
@@ -42,7 +42,9 @@ export function RenegadeWalletActionsDropdown({
   }
 
   const handleDisconnect = () => {
-    disconnectRenegade(config)
+    if (config) {
+      disconnectRenegade(config)
+    }
     disconnect()
   }
 

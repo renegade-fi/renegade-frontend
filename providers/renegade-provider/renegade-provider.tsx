@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useMemo } from "react"
 
 import {
   Config,
@@ -53,12 +53,12 @@ export function RenegadeProvider({
   chainId,
 }: RenegadeProviderProps) {
   const [open, setOpen] = React.useState(false)
-  const [config, setConfig] = React.useState<Config | undefined>(() => {
+  const config = useMemo(() => {
     if (chainId) {
       return getConfigFromChainId(chainId)
     }
     return undefined
-  })
+  }, [chainId])
   const initialState = config
     ? cookieToInitialState(config, cookieString)
     : undefined

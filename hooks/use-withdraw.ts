@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { useConfig, usePayFees } from "@renegade-fi/react"
+import { ConfigRequiredError, useConfig, usePayFees } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
@@ -28,6 +28,7 @@ export function useWithdraw({
   }: {
     onSuccess?: ({ taskId }: { taskId: string }) => void
   }) => {
+    if (!config) throw new ConfigRequiredError("useWithdraw")
     if (!address || !mint || !isAddress(mint, { strict: false })) return
     const token = Token.findByAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)

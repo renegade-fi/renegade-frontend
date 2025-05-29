@@ -132,8 +132,11 @@ export function getExplorerLink(
   return `${explorerUrl}/tx/${txHash}`
 }
 
-export function verifyRecipientAddress(config: Config, recipient?: string) {
-  invariant(config.state.seed, "Seed is required")
+export function verifyRecipientAddress(
+  seed?: `0x${string}`,
+  recipient?: string,
+) {
+  invariant(seed, "Seed is required")
   invariant(
     recipient && isAddress(recipient),
     "Recipient is required and must be a valid address",
@@ -141,6 +144,6 @@ export function verifyRecipientAddress(config: Config, recipient?: string) {
   return viemClient.verifyMessage({
     address: recipient,
     message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
-    signature: config.state.seed,
+    signature: seed,
   })
 }

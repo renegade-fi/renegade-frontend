@@ -17,7 +17,9 @@ export function useSignInAndConnect() {
   const handleClick = () => {
     if (address) {
       if (renegadeStatus === "in relayer") {
-        disconnectRenegade(config)
+        if (config) {
+          disconnectRenegade(config)
+        }
         disconnect()
       } else {
         setOpenSignIn(true)
