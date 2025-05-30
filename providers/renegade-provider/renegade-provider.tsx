@@ -2,18 +2,13 @@
 
 import React, { useMemo } from "react"
 
-import {
-  cookieToInitialState,
-  RenegadeProvider as Provider,
-  useConfig,
-} from "@renegade-fi/react"
+import { RenegadeProvider as Provider, useConfig } from "@renegade-fi/react"
 import { disconnect } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider } from "connectkit"
 import { createPublicClient, http } from "viem"
 import {
   useAccount,
-  useChainId,
   useConnect,
   useConnections,
   useDisconnect,
@@ -25,12 +20,11 @@ import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 import { sidebarEvents } from "@/lib/events"
 import { extractSupportedChain } from "@/lib/viem"
 
+import { useServerStore } from "../state-provider/server-store-provider"
 import { getConfigFromChainId } from "./config"
 
 interface RenegadeProviderProps {
   children: React.ReactNode
-  cookieString?: string
-  chainId?: number
 }
 
 const connectKitTheme = {
@@ -48,28 +42,21 @@ const connectKitTheme = {
   "--ck-overlay-background": "rgba(0,0,0,.8)",
 }
 
-export function RenegadeProvider({
-  children,
-  cookieString,
-  chainId: initialChainId,
-}: RenegadeProviderProps) {
+export function RenegadeProvider({ children }: RenegadeProviderProps) {
   const [open, setOpen] = React.useState(false)
-  const chainId = useChainId() ?? initialChainId
+  const { seed, chainId, id } = useServerStore((state) => state.wallet)
   const config = useMemo(() => {
-    if (chainId) {
-      return getConfigFromChainId(chainId)
+    if (chainId && seed && id) {
+      const config = getConfigFromChainId(chainId)
+      config.setState((x) => ({ ...x, seed, status: "in relayer", id }))
+      return config
     }
-    return undefined
-  }, [chainId])
-  const initialState = config
-    ? cookieToInitialState(config, cookieString)
-    : undefined
+  }, [chainId, seed, id])
 
   return (
     <Provider
-      reconnectOnMount
       config={config}
-      initialState={initialState}
+      reconnectOnMount={false}
     >
       <ConnectKitProvider
         customTheme={connectKitTheme}

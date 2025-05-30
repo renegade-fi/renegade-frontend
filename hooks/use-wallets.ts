@@ -1,10 +1,11 @@
 import React from "react"
 
-import { useConfig, useWalletId } from "@renegade-fi/react"
+import { useWalletId } from "@renegade-fi/react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useAccount, useEnsName } from "wagmi"
 
 import { truncateAddress } from "@/lib/format"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 export interface ConnectedWallet {
@@ -44,16 +45,15 @@ export function useWallets() {
 
   // Renegade
   // Using config.state.seed && walletId because initialState loads these from cookies
-  const config = useConfig()
-  const walletId = useWalletId()
+  const { seed, id } = useServerStore((state) => state.wallet)
 
   const renegadeWallet: Wallet =
-    config?.state.seed && walletId
+    seed && id
       ? {
           name: "Renegade Wallet ID",
           icon: "/glyph_light.png",
-          id: walletId,
-          label: truncateAddress(walletId),
+          id,
+          label: truncateAddress(id),
           isConnected: true,
         }
       : {
@@ -105,20 +105,16 @@ export function useWallets() {
     switch (status) {
       case "connecting":
       case "reconnecting":
-        return config?.state.seed && address && connector
-          ? "READY"
-          : "CONNECTING"
+        return seed && address && connector ? "READY" : "CONNECTING"
 
       case "connected":
-        return config?.state.seed && address && connector
-          ? "READY"
-          : "NOT_READY"
+        return seed && address && connector ? "READY" : "NOT_READY"
 
       case "disconnected":
       default:
         return "NOT_READY"
     }
-  }, [address, config?.state.seed, connector, status])
+  }, [address, seed, connector, status])
 
   return {
     renegadeWallet,

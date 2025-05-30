@@ -10,8 +10,6 @@ import {
 
 import { env } from "@/env/client"
 
-export const evmChains = [arbitrum, arbitrumSepolia, baseSepolia, base]
-
 export const isTestnet = env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "testnet"
 
 export const solana = defineChain({

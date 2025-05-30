@@ -1,23 +1,12 @@
-import {
-  createConfig,
-  createStorage,
-  getSDKConfig,
-  isSupportedChainId,
-} from "@renegade-fi/react"
+import { createConfig, getSDKConfig } from "@renegade-fi/react"
+import { ChainId } from "@renegade-fi/react/constants"
 
-import { cookieStorage } from "@/lib/cookie"
-
-export const getConfigFromChainId = (chainId: number) => {
-  if (!isSupportedChainId(chainId)) return undefined
+export const getConfigFromChainId = (chainId: ChainId) => {
   const sdkConfig = getSDKConfig(chainId)
   return createConfig({
     chainId,
     darkPoolAddress: sdkConfig.darkpoolAddress,
     priceReporterUrl: sdkConfig.priceReporterUrl,
     relayerUrl: sdkConfig.relayerUrl,
-    ssr: true,
-    storage: createStorage({
-      storage: cookieStorage,
-    }),
   })
 }
