@@ -1,5 +1,3 @@
-import { useConfig } from "@renegade-fi/react"
-import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
 import { Clipboard, ExternalLink, SquareX } from "lucide-react"
 import { useDisconnect } from "wagmi"
 
@@ -20,7 +18,6 @@ interface ArbitrumWalletActionsDropdownProps {
 export function ArbitrumWalletActionsDropdown({
   wallet,
 }: ArbitrumWalletActionsDropdownProps) {
-  const config = useConfig()
   const chain = useChain()
   const { disconnect } = useDisconnect()
 
@@ -38,10 +35,8 @@ export function ArbitrumWalletActionsDropdown({
   }
 
   const handleDisconnect = () => {
-    if (config) {
-      disconnectRenegade(config)
-    }
     disconnect()
+    // Allow sync to disconnect Renegade wallet
   }
 
   return (
