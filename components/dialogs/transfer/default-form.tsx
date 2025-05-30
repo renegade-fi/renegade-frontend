@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType, getSDKConfig, useConfig } from "@renegade-fi/react"
+import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
+import { useChainId } from "@/hooks/use-chain-id"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -91,7 +92,7 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const chainId = useConfig()?.state.chainId
+  const chainId = useChainId()
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
