@@ -1,15 +1,14 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType, getSDKConfig, useConfig } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { useDebounceValue } from "usehooks-ts"
 import { formatUnits, isAddress, parseUnits } from "viem"
-import { mainnet } from "viem/chains"
+import { arbitrum, mainnet } from "viem/chains"
 import {
   useAccount,
   usePublicClient,
@@ -86,7 +85,12 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
-import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
+import {
+  ADDITIONAL_TOKENS,
+  ETHEREUM_TOKENS,
+  SOLANA_TOKENS,
+  resolveTickerOnChain,
+} from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { getFormattedChainName, solana } from "@/lib/viem"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
@@ -95,7 +99,7 @@ import { mainnetConfig } from "@/providers/wagmi-provider/config"
 import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
-const USDC_L2_TOKEN = Token.findByTicker("USDC")
+const USDC_L2_TOKEN = resolveTickerOnChain("USDC", arbitrum.id)!
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
 const USDC_SOLANA_TOKEN = SOLANA_TOKENS["USDC"]
 
@@ -619,7 +623,7 @@ export function USDCForm({
             USDCE_L2_TOKEN.decimals,
           )
         : values.amount,
-      USDC_L2_TOKEN,
+      USDC_L2_TOKEN.address,
     )
 
     if (!isAmountSufficient) {

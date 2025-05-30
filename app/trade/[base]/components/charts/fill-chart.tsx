@@ -1,7 +1,6 @@
 import React from "react"
 
 import { OrderMetadata } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
@@ -24,7 +23,7 @@ import {
 import { useOHLC } from "@/hooks/use-ohlc"
 import { oneMinute } from "@/lib/constants/time"
 import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
-import { remapToken } from "@/lib/token"
+import { remapToken, resolveAddress } from "@/lib/token"
 import { decimalNormalizePrice } from "@/lib/utils"
 
 const chartConfig = {
@@ -53,8 +52,8 @@ function calculateYAxisDomain(
 }
 
 export function FillChart({ order }: { order: OrderMetadata }) {
-  const token = Token.findByAddress(order.data.base_mint)
-  const quoteToken = Token.findByAddress(order.data.quote_mint)
+  const token = resolveAddress(order.data.base_mint)
+  const quoteToken = resolveAddress(order.data.quote_mint)
 
   const formattedFills = order.fills
     .map((fill) => ({

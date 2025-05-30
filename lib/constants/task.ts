@@ -9,6 +9,8 @@ import { Token } from "@renegade-fi/token-nextjs"
 
 import { formatNumber } from "@/lib/format"
 
+import { resolveAddress } from "../token"
+
 export const WITHDRAW_TOAST_ID = (mint: `0x${string}`, amount: bigint) =>
   `withdraw-${mint}-${amount}`
 
@@ -134,7 +136,7 @@ export function generateCompletionToastMessage(task: Task) {
       switch (taskInfo.update_type) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
-          const mint = Token.findByAddress(taskInfo.mint)
+          const mint = resolveAddress(taskInfo.mint)
           message = `${
             taskInfo.update_type === UpdateType.Deposit
               ? "Deposited"
@@ -143,7 +145,7 @@ export function generateCompletionToastMessage(task: Task) {
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
-          const base = Token.findByAddress(taskInfo.base)
+          const base = resolveAddress(taskInfo.base)
           message = `${
             taskInfo.update_type === UpdateType.PlaceOrder
               ? "Placed"
@@ -156,7 +158,7 @@ export function generateCompletionToastMessage(task: Task) {
       }
       break
     case TaskType.SettleMatch:
-      const token = Token.findByAddress(taskInfo.base)
+      const token = resolveAddress(taskInfo.base)
       let actionVerb = taskInfo.is_sell ? "Sold" : "Bought"
       message = `${actionVerb} ${formatNumber(
         taskInfo.volume,
@@ -186,7 +188,7 @@ export function generateStartToastMessage(task: Task) {
       switch (taskInfo.update_type) {
         case UpdateType.Deposit:
         case UpdateType.Withdraw:
-          const mint = Token.findByAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
+          const mint = resolveAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
           message = `${
             taskInfo.update_type === UpdateType.Deposit
               ? "Depositing"
@@ -195,7 +197,7 @@ export function generateStartToastMessage(task: Task) {
           break
         case UpdateType.PlaceOrder:
         case UpdateType.CancelOrder:
-          const base = Token.findByAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
+          const base = resolveAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
           message = `${
             taskInfo.update_type === UpdateType.PlaceOrder
               ? "Placing"
@@ -208,7 +210,7 @@ export function generateStartToastMessage(task: Task) {
       }
       break
     case TaskType.SettleMatch:
-      const token = Token.findByAddress(taskInfo.base) // base is available for SettleMatch
+      const token = resolveAddress(taskInfo.base) // base is available for SettleMatch
       let actionVerb = taskInfo.is_sell ? "Selling" : "Buying"
       message = `${actionVerb} ${formatNumber(
         taskInfo.volume,
@@ -240,7 +242,7 @@ export function generateFailedToastMessage(task: Task) {
         taskInfo.update_type === UpdateType.Deposit ||
         taskInfo.update_type === UpdateType.Withdraw
       ) {
-        token = Token.findByAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
+        token = resolveAddress(taskInfo.mint) // mint is available for Deposit and Withdraw
         const action =
           taskInfo.update_type === UpdateType.Deposit ? "deposit" : "withdrawal"
         message = `Failed to ${action} ${formatNumber(
@@ -251,7 +253,7 @@ export function generateFailedToastMessage(task: Task) {
         taskInfo.update_type === UpdateType.PlaceOrder ||
         taskInfo.update_type === UpdateType.CancelOrder
       ) {
-        token = Token.findByAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
+        token = resolveAddress(taskInfo.base) // base is available for PlaceOrder and CancelOrder
         const action =
           taskInfo.update_type === UpdateType.PlaceOrder ? "place" : "cancel"
         message = `Failed to ${action} order for ${formatNumber(
@@ -261,7 +263,7 @@ export function generateFailedToastMessage(task: Task) {
       }
       break
     case TaskType.SettleMatch:
-      token = Token.findByAddress(taskInfo.base) // base is available for SettleMatch
+      token = resolveAddress(taskInfo.base) // base is available for SettleMatch
       const actionVerb = taskInfo.is_sell ? "sell" : "buy"
       message = `Failed to ${actionVerb} ${formatNumber(
         taskInfo.volume,

@@ -2,7 +2,6 @@ import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { UpdateType, useCreateOrder } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -44,6 +43,7 @@ import {
   formatNumber,
   safeParseUnits,
 } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
 
 export function DefaultStep(
@@ -54,8 +54,8 @@ export function DefaultStep(
 ) {
   const { onNext, setTaskId } = useStepper()
 
-  const baseToken = Token.findByTicker(props.base)
-  const quoteToken = Token.findByTicker("USDC")
+  const baseToken = resolveAddress(props.baseMint as `0x${string}`)
+  const quoteToken = resolveAddress(props.quoteMint as `0x${string}`)
   const { data: price } = usePriceQuery(baseToken.address)
 
   const worstCasePrice = React.useMemo(() => {
@@ -136,7 +136,7 @@ export function ConfirmOrderDisplay(
   },
 ) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const token = Token.findByTicker(props.base)
+  const token = resolveAddress(props.baseMint as `0x${string}`)
   const parsedAmount = safeParseUnits(props.amount, token.decimals)
   const formattedAmount = formatNumber(
     parsedAmount instanceof Error ? BigInt(0) : parsedAmount,
@@ -224,7 +224,7 @@ export function ConfirmOrderDisplay(
         amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
         baseMint={token.address}
         className="text-sm text-orange-400"
-        quoteMint={Token.findByTicker("USDC").address}
+        quoteMint={props.quoteMint as `0x${string}`}
         side={props.isSell ? Side.SELL : Side.BUY}
       />
     </>

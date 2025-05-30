@@ -1,7 +1,7 @@
 import { OrderMetadata } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { resolveAddress } from "@/lib/token"
 import { decimalNormalizePrice } from "@/lib/utils"
 
 export function getVWAP(order: OrderMetadata): number {
@@ -9,8 +9,8 @@ export function getVWAP(order: OrderMetadata): number {
     return 0
   }
 
-  const token = Token.findByAddress(order.data.base_mint)
-  const quoteToken = Token.findByAddress(order.data.quote_mint)
+  const token = resolveAddress(order.data.base_mint)
+  const quoteToken = resolveAddress(order.data.quote_mint)
 
   let totalVolume = BigInt(0)
   let totalValue = BigInt(0)

@@ -13,11 +13,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useChainId } from "@/hooks/use-chain-id"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
+import { resolveTickerOnChain } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 interface AmountShortcutButtonProps extends NewOrderFormProps {
@@ -26,17 +28,22 @@ interface AmountShortcutButtonProps extends NewOrderFormProps {
   percentage: number
 }
 
-// Percentage should be 25, 50, 100, etc.
-export function AmountShortcutButton({
-  base,
+// Add core props interface and core component
+interface AmountShortcutButtonCoreProps
+  extends Omit<AmountShortcutButtonProps, "base"> {
+  baseToken: InstanceType<typeof Token>
+  quoteToken: InstanceType<typeof Token>
+}
+
+function AmountShortcutButtonCore({
+  baseToken,
+  quoteToken,
   className,
   onSetAmount,
   percentage,
   isSell,
   isQuoteCurrency,
-}: AmountShortcutButtonProps) {
-  const baseToken = Token.findByTicker(base)
-  const quoteToken = Token.findByTicker("USDC")
+}: AmountShortcutButtonCoreProps) {
   const { data } = useBackOfQueueWallet({
     query: {
       select: (data) => ({
@@ -164,5 +171,35 @@ export function AmountShortcutButton({
       </TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
+  )
+}
+
+// Replace original wrapper with new guard and core component
+export function AmountShortcutButton(props: AmountShortcutButtonProps) {
+  const { base, ...coreProps } = props
+  const chainId = useChainId()
+  const baseToken = resolveTickerOnChain(base, chainId)
+  const quoteToken = resolveTickerOnChain("USDC", chainId)
+
+  if (!baseToken || !quoteToken) {
+    return (
+      <Button
+        disabled
+        className={cn("w-full", props.className)}
+        size="sm"
+        type="button"
+        variant="outline"
+      >
+        {props.percentage === 100 ? "MAX" : `${props.percentage}%`}
+      </Button>
+    )
+  }
+
+  return (
+    <AmountShortcutButtonCore
+      {...coreProps}
+      baseToken={baseToken}
+      quoteToken={quoteToken}
+    />
   )
 }

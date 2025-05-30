@@ -5,6 +5,7 @@ import { formatUnits } from "viem/utils"
 
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { resolveTicker } from "@/lib/token"
 
 import { useTvl } from "./use-tvl"
 
@@ -14,7 +15,7 @@ export function useTvlData() {
   const mints = React.useMemo(() => {
     if (!tvlData) return []
     return tvlData.map((tvl) => {
-      const token = Token.findByTicker(tvl.ticker)
+      const token = resolveTicker(tvl.ticker)
       return token.address
     })
   }, [tvlData])
@@ -30,7 +31,7 @@ export function useTvlData() {
     const tvlUsd: { name: string; data: number; fill: string }[] = []
 
     tvlData.forEach((tvl, i) => {
-      const token = Token.findByTicker(tvl.ticker)
+      const token = resolveTicker(tvl.ticker)
       if (!token) return
 
       const price = priceQueries[i]?.data

@@ -1,9 +1,9 @@
 import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
+import { resolveAddress } from "@/lib/token"
 
 export function useIsOrderUndercapitalized({
   amount,
@@ -16,8 +16,8 @@ export function useIsOrderUndercapitalized({
   quoteMint: `0x${string}`
   side: Side
 }) {
-  const baseToken = Token.findByAddress(baseMint)
-  const quoteToken = Token.findByAddress(quoteMint)
+  const baseToken = resolveAddress(baseMint)
+  const quoteToken = resolveAddress(quoteMint)
   const token = side === Side.BUY ? quoteToken : baseToken
 
   const { data: balance } = useBackOfQueueWallet({
@@ -27,7 +27,7 @@ export function useIsOrderUndercapitalized({
     },
   })
 
-  const usdPrice = useUSDPrice(Token.findByAddress(baseMint), amount)
+  const usdPrice = useUSDPrice(resolveAddress(baseMint), amount)
 
   const isUndercapitalized = (() => {
     if (side === Side.BUY) {

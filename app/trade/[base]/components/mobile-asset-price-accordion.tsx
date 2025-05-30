@@ -1,7 +1,6 @@
 import React from "react"
 
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { Token } from "@renegade-fi/token-nextjs"
 import { ChevronDown } from "lucide-react"
 
 import { AnimatedPrice } from "@/components/animated-price"
@@ -9,18 +8,21 @@ import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog"
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
 
+import { useChainId } from "@/hooks/use-chain-id"
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol"
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips"
+import { resolveTickerOnChain } from "@/lib/token"
 import { constructExchangeUrl } from "@/lib/utils"
 
 export function MobileAssetPriceAccordion({ base }: { base: string }) {
+  const chainId = useChainId()
   const mint = React.useMemo(() => {
     try {
-      return Token.findByTicker(base).address
+      return resolveTickerOnChain(base, chainId)?.address
     } catch (error) {
       return null
     }
-  }, [base])
+  }, [base, chainId])
 
   return (
     <AccordionPrimitive.Root

@@ -8,8 +8,10 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
+import { useChainId } from "@/hooks/use-chain-id"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { MAX_BALANCES_PLACE_ORDER_TOOLTIP } from "@/lib/constants/tooltips"
+import { resolveTickerOnChain } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function NoBalanceSlotWarning({
@@ -21,9 +23,10 @@ export function NoBalanceSlotWarning({
   ticker: string
   isSell?: boolean
 }) {
+  const chainId = useChainId()
   const receiveMint = isSell
-    ? Token.findByTicker("USDC")?.address
-    : Token.findByTicker(ticker)?.address
+    ? resolveTickerOnChain("USDC", chainId)?.address
+    : resolveTickerOnChain(ticker, chainId)?.address
   const isMaxBalances = useIsMaxBalances(receiveMint)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 

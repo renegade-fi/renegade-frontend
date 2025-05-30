@@ -1,7 +1,6 @@
 import React from "react"
 
 import { UpdateType, useCreateOrder } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -19,14 +18,15 @@ import {
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
 
 export function ConfirmStep(props: NewOrderConfirmationProps) {
   const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   const { onNext, setTaskId } = useStepper()
 
-  const baseToken = Token.findByTicker(props.base)
-  const quoteToken = Token.findByTicker("USDC")
+  const baseToken = resolveAddress(props.baseMint as `0x${string}`)
+  const quoteToken = resolveAddress(props.quoteMint as `0x${string}`)
   const { data: price } = usePriceQuery(baseToken.address)
 
   const worstCasePrice = React.useMemo(() => {

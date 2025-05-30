@@ -20,9 +20,7 @@ export const DISPLAY_TOKENS = (
     ? Token.getAllTokensOnChain(chainId)
     : Token.getAllTokens()
   if (hideStables) {
-    tokens = tokens.filter(
-      (token) => !Token.findByAddress(token.address).isStablecoin(),
-    )
+    tokens = tokens.filter((token) => !token.isStablecoin())
   }
   if (hideHidden) {
     tokens = tokens.filter((token) => !HIDDEN_TICKERS.includes(token.ticker))
@@ -41,25 +39,46 @@ export const DISPLAY_TOKENS = (
 export function resolveAddress(mint: `0x${string}`) {
   const tokens = Token.getAllTokens()
   const token = tokens.find((token) => isAddressEqual(token.address, mint))
+  // TODO: Return default token if not found
   if (!token) {
-    throw new Error(`Token not found: ${mint}`)
+    return Token.create("Unsupported Token", "--", mint, 18, {})
   }
   return token
 }
 
 /**
- * Resolve the token from a ticker and chain id
+ * Returns the first matching token across all configured remaps
  * @param ticker - The ticker of the token
  * @param chainId - The chain id of the token
  * @returns The token
  */
-export function resolveTickerAndChain(ticker: string, chainId?: ChainId) {
+export function resolveTickerOnChain(ticker: string, chainId?: ChainId) {
   if (!chainId) return
   return Token.fromTickerOnChain(ticker, chainId)
 }
 
+/**
+ * Returns the first matching token across all configured remaps
+ * @param ticker - The ticker of the token
+ * @returns The token
+ */
+export function resolveTicker(ticker: string) {
+  const tokens = Token.getAllTokens()
+  const token = tokens.find((token) => token.ticker === ticker)
+  if (!token) {
+    return Token.create(
+      "Unsupported Token",
+      ticker,
+      "0x0000000000000000000000000000000000000000",
+      18,
+      {},
+    )
+  }
+  return token
+}
+
 export const remapToken = (ticker: string) => {
-  const token = Token.findByTicker(ticker.toUpperCase())
+  const token = resolveTicker(ticker.toUpperCase())
   const remapped = token.getExchangeTicker("binance") || ticker
   return remapped.toLowerCase()
 }

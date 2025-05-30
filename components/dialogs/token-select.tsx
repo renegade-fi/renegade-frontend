@@ -26,7 +26,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 const tokens = DISPLAY_TOKENS().map((token) => ({
@@ -97,7 +97,7 @@ export function TokenSelect({
         <Command
           filter={(value, search) => {
             if (!isAddress(value)) return 0
-            const token = Token.findByAddress(value)
+            const token = resolveAddress(value)
             if (
               token.name.toLowerCase().includes(search.toLowerCase()) ||
               token.ticker.toLowerCase().includes(search.toLowerCase())
@@ -127,7 +127,7 @@ export function TokenSelect({
                     {formatNumber(
                       displayBalances?.get(t.value as `0x${string}`) ??
                         BigInt(0),
-                      Token.findByAddress(t.value).decimals,
+                      resolveAddress(t.value).decimals,
                     )}
                   </span>
                   <CheckIcon

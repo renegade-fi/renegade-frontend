@@ -2,7 +2,6 @@ import { useState } from "react"
 
 import { ConfigRequiredError, useConfig, usePayFees } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
-import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
@@ -10,6 +9,7 @@ import { useAccount } from "wagmi"
 
 import { FAILED_WITHDRAWAL_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 export function useWithdraw({
   mint,
@@ -30,7 +30,7 @@ export function useWithdraw({
   }) => {
     if (!config) throw new ConfigRequiredError("useWithdraw")
     if (!address || !mint || !isAddress(mint, { strict: false })) return
-    const token = Token.findByAddress(mint as `0x${string}`)
+    const token = resolveAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)
     if (parsedAmount instanceof Error) {
       toast.error("Withdrawal amount is invalid")

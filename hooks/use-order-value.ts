@@ -1,6 +1,5 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
@@ -8,6 +7,7 @@ import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-o
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { safeParseUnits } from "@/lib/format"
+import { resolveTicker } from "@/lib/token"
 
 /**
  * Hook to calculate the order value in both quote and base currency.
@@ -23,8 +23,8 @@ export function useOrderValue({
   base,
   isQuoteCurrency,
 }: NewOrderFormProps) {
-  const baseToken = Token.findByTicker(base)
-  const quoteToken = Token.findByTicker("USDC")
+  const baseToken = resolveTicker(base)
+  const quoteToken = resolveTicker("USDC")
   const { data: usdPerBase } = usePriceQuery(baseToken.address)
 
   // Calculate the inverse of the USD price per base token

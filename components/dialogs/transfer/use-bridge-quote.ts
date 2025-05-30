@@ -1,11 +1,11 @@
 import { QuoteRequest, getQuote } from "@lifi/sdk"
-import { Token } from "@renegade-fi/token-nextjs"
 import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
 import { mainnet } from "viem/chains"
 import { useAccount, useConfig } from "wagmi"
 
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { solana } from "@/lib/viem"
 
 export interface UseBridgeParams {
@@ -69,7 +69,7 @@ function useParams({
     return undefined
   }
 
-  const token = Token.findByAddress(toMint)
+  const token = resolveAddress(toMint)
   const parsedAmount = safeParseUnits(amount, token.decimals)
 
   if (parsedAmount instanceof Error) {

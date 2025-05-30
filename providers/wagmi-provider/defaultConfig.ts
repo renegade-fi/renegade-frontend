@@ -1,7 +1,7 @@
 // Copied from https://github.com/family/connectkit/blob/9a3c16c781d8a60853eff0c4988e22926a3f91ce/packages/connectkit/src/defaultConfig.ts
 // to bypass connectkit issue regarding SSR
 import { CreateConfigParameters, http } from "wagmi"
-import { mainnet, arbitrum } from "wagmi/chains"
+import { mainnet } from "wagmi/chains"
 import { CoinbaseWalletParameters } from "wagmi/connectors"
 
 import defaultConnectors from "./defaultConnectors"
@@ -31,7 +31,7 @@ const defaultConfig = ({
   appUrl,
   walletConnectProjectId,
   coinbaseWalletPreference,
-  chains = [mainnet, arbitrum],
+  chains = [mainnet],
   client,
   ...props
 }: DefaultConfigProps): CreateConfigParameters => {

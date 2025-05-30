@@ -1,7 +1,6 @@
 import Image from "next/image"
 
 import { OrderMetadata, OrderState } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button"
@@ -19,9 +18,10 @@ import { Separator } from "@/components/ui/separator"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { formatNumber, formatOrderState } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 export function EmptyContent({ order }: { order: OrderMetadata }) {
-  const token = Token.findByAddress(order.data.base_mint)
+  const token = resolveAddress(order.data.base_mint)
   const formattedTotalAmount = formatNumber(
     order.data.amount,
     token.decimals,

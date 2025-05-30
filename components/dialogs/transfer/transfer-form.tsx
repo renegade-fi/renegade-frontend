@@ -1,8 +1,8 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token } from "@renegade-fi/token-nextjs"
 import { useForm } from "react-hook-form"
+import { arbitrum } from "viem/chains"
 import { z } from "zod"
 
 import { DefaultForm } from "@/components/dialogs/transfer/default-form"
@@ -14,6 +14,7 @@ import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
 import { useIsBase } from "@/hooks/use-is-base"
+import { resolveTickerOnChain } from "@/lib/token"
 import { isTestnet } from "@/lib/viem"
 
 export function TransferForm({
@@ -49,7 +50,9 @@ export function TransferForm({
     )
   }
 
-  if (form.watch("mint") === Token.findByTicker("WETH").address) {
+  if (
+    form.watch("mint") === resolveTickerOnChain("WETH", arbitrum.id)?.address
+  ) {
     return (
       <WETHForm
         className={className}
@@ -61,7 +64,9 @@ export function TransferForm({
     )
   }
   if (direction === ExternalTransferDirection.Deposit) {
-    if (form.watch("mint") === Token.findByTicker("USDC").address) {
+    if (
+      form.watch("mint") === resolveTickerOnChain("USDC", arbitrum.id)?.address
+    ) {
       return (
         <USDCForm
           className={className}

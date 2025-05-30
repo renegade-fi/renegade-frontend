@@ -14,7 +14,7 @@ import {
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { useWallets } from "@/hooks/use-wallets"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
-import { resolveAddress, resolveTickerAndChain } from "@/lib/token"
+import { resolveAddress, resolveTickerOnChain } from "@/lib/token"
 
 export function AssetsSectionWithDepositButton({
   base,
@@ -25,8 +25,8 @@ export function AssetsSectionWithDepositButton({
   quote?: string
   chainId?: ChainId
 }) {
-  const baseToken = resolveTickerAndChain(base, chainId)
-  const quoteToken = resolveTickerAndChain(quote, chainId)
+  const baseToken = resolveTickerOnChain(base, chainId)
+  const quoteToken = resolveTickerOnChain(quote, chainId)
   const { data } = useBackOfQueueWallet({
     query: {
       select: (data) =>
@@ -70,8 +70,8 @@ export function AssetsSection({
   disabled?: boolean
   chainId?: ChainId
 }) {
-  const baseToken = resolveTickerAndChain(base, chainId)
-  const quoteToken = resolveTickerAndChain(quote, chainId)
+  const baseToken = resolveTickerOnChain(base, chainId)
+  const quoteToken = resolveTickerOnChain(quote, chainId)
 
   return (
     <>

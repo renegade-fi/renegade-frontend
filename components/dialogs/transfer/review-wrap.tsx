@@ -1,7 +1,7 @@
 import { InfoCircledIcon } from "@radix-ui/react-icons"
-import { Token } from "@renegade-fi/token-nextjs"
 import { AlertTriangle } from "lucide-react"
 import { formatEther } from "viem"
+import { arbitrum } from "viem/chains"
 
 import { Row } from "@/components/dialogs/transfer/row"
 import {
@@ -12,6 +12,7 @@ import {
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
+import { resolveTickerOnChain } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function ReviewWrap({
@@ -25,7 +26,7 @@ export function ReviewWrap({
   remainingEthBalance: bigint
   wrapAmount: bigint
 }) {
-  const wethToken = Token.findByTicker("WETH")
+  const wethToken = resolveTickerOnChain("WETH", arbitrum.id)!
 
   const bufferedMinEthToKeepUnwrapped = BigInt(
     Math.round(Number(minEthToKeepUnwrapped) * 0.9),

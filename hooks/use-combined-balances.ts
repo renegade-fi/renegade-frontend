@@ -1,6 +1,8 @@
-import { Token } from "@renegade-fi/token-nextjs"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
+import { arbitrum } from "viem/chains"
+
+import { resolveTickerOnChain } from "@/lib/token"
 
 async function fetchCombinedBalances(
   address: `0x${string}`,
@@ -42,7 +44,10 @@ export function useCombinedBalances({
       enabled: !!address && enabled,
       select: (data) =>
         Object.entries(data).reduce((acc, [key, value]) => {
-          const address = Token.findByTicker(key).address
+          const address = resolveTickerOnChain(key, arbitrum.id)?.address
+          if (!address) {
+            return acc
+          }
           acc.set(address, BigInt(value))
           return acc
         }, new Map<`0x${string}`, bigint>()),

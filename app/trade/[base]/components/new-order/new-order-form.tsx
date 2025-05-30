@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -36,14 +35,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useChainId } from "@/hooks/use-chain-id"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
-import { usePriceQuery } from "@/hooks/use-price-query"
 import { useWallets } from "@/hooks/use-wallets"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
+import { resolveTickerOnChain } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const formSchema = z.object({
@@ -60,6 +60,8 @@ const formSchema = z.object({
   base: z.string(),
   isSell: z.boolean(),
   isQuoteCurrency: z.boolean(),
+  baseMint: z.string(),
+  quoteMint: z.string(),
 })
 
 export type NewOrderFormProps = z.infer<typeof formSchema>
@@ -78,6 +80,7 @@ export function NewOrderForm({
     order: { side, currency },
     setSide,
     setCurrency,
+    wallet: { chainId },
   } = useServerStore((state) => state)
   const defaultValues = React.useMemo(
     () => ({
@@ -85,8 +88,10 @@ export function NewOrderForm({
       base,
       isSell: side === Side.SELL,
       isQuoteCurrency: currency === "quote",
+      baseMint: resolveTickerOnChain(base, chainId)?.address ?? "",
+      quoteMint: resolveTickerOnChain("USDC", chainId)?.address ?? "",
     }),
-    [side, currency, base],
+    [side, currency, base, chainId],
   )
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -108,7 +113,6 @@ export function NewOrderForm({
     ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
   const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${base}`
-  const { data: price } = usePriceQuery(Token.findByTicker(base).address)
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -141,13 +145,13 @@ export function NewOrderForm({
   const { data: hasBalances } = useBackOfQueueWallet({
     query: {
       select: (data) => {
-        const baseToken = Token.findByTicker(base)
-        const quoteToken = Token.findByTicker("USDC")
+        const baseToken = resolveTickerOnChain(base, chainId)
+        const quoteToken = resolveTickerOnChain("USDC", chainId)
         return data.balances.some(
           (balance) =>
             balance.amount > BigInt(0) &&
-            (balance.mint === baseToken.address ||
-              balance.mint === quoteToken.address),
+            (balance.mint === baseToken?.address ||
+              balance.mint === quoteToken?.address),
         )
       },
     },

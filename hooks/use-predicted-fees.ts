@@ -26,6 +26,8 @@ export function usePredictedFees(order: NewOrderFormProps) {
     base: order.base,
     isSell: order.isSell,
     isQuoteCurrency: order.isQuoteCurrency,
+    baseMint: order.baseMint,
+    quoteMint: order.quoteMint,
   })
   const [predictedSavings, setPredictedSavings] = React.useState(0)
   React.useEffect(() => {

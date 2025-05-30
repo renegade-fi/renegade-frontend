@@ -1,4 +1,3 @@
-import { Token } from "@renegade-fi/token-nextjs"
 import {
   createPublicClient,
   createWalletClient,
@@ -14,6 +13,7 @@ import { createConfig } from "wagmi"
 
 import { env } from "@/env/server"
 import { readErc20BalanceOf } from "@/lib/generated"
+import { resolveAddress, resolveTickerOnChain } from "@/lib/token"
 
 export const maxDuration = 300
 
@@ -83,8 +83,11 @@ export async function POST(request: Request) {
     for (const { ticker, amount } of TOKENS_TO_FUND) {
       await mintUpTo(
         recipient,
-        Token.findByTicker(ticker).address,
-        parseUnits(amount, Token.findByTicker(ticker).decimals),
+        resolveTickerOnChain(ticker, chainId)?.address ?? "0x",
+        parseUnits(
+          amount,
+          resolveTickerOnChain(ticker, chainId)?.decimals ?? 0,
+        ),
       )
     }
 
@@ -163,7 +166,7 @@ async function mintUpTo(
   } else {
     console.log(
       `No minting needed for ${
-        Token.findByAddress(token).ticker
+        resolveAddress(token).ticker
       } for address ${recipientAddr}`,
     )
   }
@@ -189,13 +192,13 @@ async function mint(
   if (tx.status === "success") {
     console.log(
       `Minted ${formatEther(amount)} ${
-        Token.findByAddress(token).ticker
+        resolveAddress(token).ticker
       } for address ${recipientAddr}`,
     )
   } else {
     console.log(
       `Failed to mint ${formatEther(amount)} ${
-        Token.findByAddress(token).ticker
+        resolveAddress(token).ticker
       } for address ${recipientAddr}`,
     )
   }

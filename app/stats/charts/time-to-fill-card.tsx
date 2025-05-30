@@ -9,7 +9,9 @@ import { useTimeToFill } from "@/app/stats/hooks/use-time-to-fill"
 import { Slider } from "@/components/animated-slider"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { useChainId } from "@/hooks/use-chain-id"
 import { useOrderValue } from "@/hooks/use-order-value"
+import { resolveTickerOnChain } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 interface TimeDisplayValues {
@@ -22,12 +24,16 @@ export function TimeToFillCard() {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
   const [selectedTicker, setSelectedToken] = React.useState("WETH")
   const [isSell, setIsSell] = React.useState(true)
+  const chainId = useChainId()
+  const baseMint = resolveTickerOnChain(selectedTicker, chainId)?.address ?? ""
 
   const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue({
     amount: selectedAmount.toString(),
     base: selectedTicker,
     isQuoteCurrency: true,
     isSell,
+    baseMint,
+    quoteMint: resolveTickerOnChain("USDC", chainId)?.address ?? "",
   })
 
   const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 500)

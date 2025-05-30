@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { parseUnits } from "viem"
 import { z } from "zod"
+
+import { resolveTicker } from "@/lib/token"
 
 import { formSchema } from "./helpers"
 
@@ -13,7 +14,7 @@ interface SwapState {
   usdcBalance: bigint
 }
 
-const baseToken = Token.findByTicker("USDC")
+const baseToken = resolveTicker("USDC")
 
 export function useSwapState(
   form: UseFormReturn<z.infer<typeof formSchema>>,

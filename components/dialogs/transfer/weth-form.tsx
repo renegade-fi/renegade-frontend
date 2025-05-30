@@ -3,14 +3,13 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { getSDKConfig, UpdateType, useConfig } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { encodeFunctionData, formatEther, parseEther } from "viem"
-import { mainnet } from "viem/chains"
+import { arbitrum, mainnet } from "viem/chains"
 import { useAccount, useBalance, useEstimateGas } from "wagmi"
 import { z } from "zod"
 
@@ -89,7 +88,7 @@ import {
   useWriteWethWithdraw,
   wethAbi,
 } from "@/lib/generated"
-import { ETHEREUM_TOKENS } from "@/lib/token"
+import { ETHEREUM_TOKENS, resolveTickerOnChain } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
@@ -99,7 +98,7 @@ import {
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 // Assume mint is WETH
-const WETH_L2_TOKEN = Token.findByTicker("WETH")
+const WETH_L2_TOKEN = resolveTickerOnChain("WETH", arbitrum.id)!
 
 export function WETHForm({
   className,
@@ -363,7 +362,7 @@ export function WETHForm({
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
-      WETH_L2_TOKEN,
+      WETH_L2_TOKEN.address,
     )
 
     if (isDeposit) {

@@ -6,7 +6,6 @@ import {
   useConfig,
 } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
-import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
@@ -15,6 +14,7 @@ import { useWalletClient } from "wagmi"
 import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
+import { resolveAddress } from "@/lib/token"
 
 import { useChainId } from "./use-chain-id"
 
@@ -47,7 +47,7 @@ export function useDeposit() {
       !chainId
     )
       return
-    const token = Token.findByAddress(mint as `0x${string}`)
+    const token = resolveAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)
     if (parsedAmount instanceof Error) {
       toast.error("Deposit amount is invalid")

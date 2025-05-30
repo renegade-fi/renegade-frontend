@@ -8,8 +8,9 @@ import {
   useBackOfQueueWallet,
   useConfig,
 } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { isAddress, parseUnits, toHex } from "viem/utils"
+
+import { resolveAddress } from "@/lib/token"
 
 export type UsePrepareWithdrawParameters = {
   mint?: string
@@ -38,7 +39,7 @@ export function usePrepareWithdraw(
       return undefined
     if (!isAddress(mint) || !isAddress(destinationAddr)) return undefined
 
-    const token = Token.findByAddress(mint)
+    const token = resolveAddress(mint)
     let parsedAmount: bigint
     if (typeof amount === "number") {
       parsedAmount = parseUnits(amount.toString(), token.decimals)

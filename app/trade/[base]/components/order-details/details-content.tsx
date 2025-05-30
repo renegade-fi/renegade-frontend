@@ -1,5 +1,4 @@
 import { OrderMetadata, OrderState } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
@@ -31,11 +30,12 @@ import {
   formatPercentage,
 } from "@/lib/format"
 import { getVWAP } from "@/lib/order"
+import { resolveAddress } from "@/lib/token"
 import { decimalNormalizePrice } from "@/lib/utils"
 
 export function DetailsContent({ order }: { order: OrderMetadata }) {
-  const token = Token.findByAddress(order.data.base_mint)
-  const quoteToken = Token.findByAddress(order.data.quote_mint)
+  const token = resolveAddress(order.data.base_mint)
+  const quoteToken = resolveAddress(order.data.quote_mint)
   const filledAmount = order.fills.reduce(
     (acc, fill) => acc + fill.amount,
     BigInt(0),
