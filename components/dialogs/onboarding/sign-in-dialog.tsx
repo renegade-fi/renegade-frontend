@@ -117,18 +117,12 @@ export function SignInDialog({
       config.setState((x) => ({ ...x, seed, status: "in relayer" }))
       const id = getWalletId(config)
       setWallet(seed, currentChainId as ChainId, id)
-      console.log("setWallet debug: ", {
-        seed,
-        currentChainId,
-        id,
-      })
 
       try {
         // GET wallet from relayer
         const wallet = await getWalletFromRelayer(config)
         // If success, return
         if (wallet) {
-          config.setState((x) => ({ ...x, status: "in relayer" }))
           return ConnectSuccess.ALREADY_INDEXED
         }
       } catch (error) {}
