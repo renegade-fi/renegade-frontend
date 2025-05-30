@@ -3,6 +3,7 @@ import React from "react"
 import { isSupportedChainId } from "@renegade-fi/react"
 import {
   createWallet,
+  getWalletFromRelayer,
   getWalletId,
   lookupWallet,
 } from "@renegade-fi/react/actions"
@@ -121,6 +122,16 @@ export function SignInDialog({
         currentChainId,
         id,
       })
+
+      try {
+        // GET wallet from relayer
+        const wallet = await getWalletFromRelayer(config)
+        // If success, return
+        if (wallet) {
+          config.setState((x) => ({ ...x, status: "in relayer" }))
+          return ConnectSuccess.ALREADY_INDEXED
+        }
+      } catch (error) {}
 
       // GET # logs
       const blinderShare = config.utils.derive_blinder_share(seed)
