@@ -22,7 +22,6 @@ import {
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
-import { env } from "@/env/client"
 import { sidebarEvents } from "@/lib/events"
 import { extractSupportedChain } from "@/lib/viem"
 
@@ -132,7 +131,7 @@ function SyncRenegadeWagmiState() {
 
     const publicClient = createPublicClient({
       chain: extractSupportedChain(chainId),
-      transport: http(env.NEXT_PUBLIC_RPC_URL),
+      transport: http(),
     })
 
     publicClient
