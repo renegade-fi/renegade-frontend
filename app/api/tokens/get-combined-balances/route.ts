@@ -15,10 +15,13 @@ import {
   ETHEREUM_TOKENS,
   SOLANA_TOKENS,
 } from "@/lib/token"
+import { arbitrum } from "viem/chains"
 
 export const runtime = "edge"
 
-const tokens = DISPLAY_TOKENS()
+const tokens = DISPLAY_TOKENS({
+  chainId: arbitrum.id
+})
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
