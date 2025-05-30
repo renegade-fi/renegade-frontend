@@ -1,3 +1,4 @@
+import { ChainId } from "@renegade-fi/react/constants"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { createStore } from "zustand/vanilla"
 
@@ -7,6 +8,11 @@ import { createCookieStorage } from "@/providers/state-provider/cookie-storage"
 
 // State that must be available during Server Component rendering
 export type ServerState = {
+  wallet: {
+    seed: `0x${string}` | undefined
+    chainId: ChainId | undefined
+    id: string | undefined
+  }
   order: {
     side: Side
     amount: string
@@ -24,18 +30,30 @@ export type ServerActions = {
   setCurrency: (currency: "base" | "quote") => void
   setBase: (base: string) => void
   setPanels: (layout: number[]) => void
+  setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => void
+  resetWallet: () => void
 }
 
 export type ServerStore = ServerState & ServerActions
 
 export const initServerStore = (): ServerState => {
   return {
+    wallet: {
+      seed: undefined,
+      chainId: undefined,
+      id: undefined,
+    },
     order: { side: Side.BUY, amount: "", currency: "base", base: "WBTC" },
     panels: { layout: [22, 78] },
   }
 }
 
 export const defaultInitState: ServerState = {
+  wallet: {
+    seed: undefined,
+    chainId: undefined,
+    id: undefined,
+  },
   order: { side: Side.BUY, amount: "", currency: "base", base: "WBTC" },
   panels: { layout: [22, 78] },
 }
@@ -57,6 +75,17 @@ export const createServerStore = (
           set((state) => ({ order: { ...state.order, base } })),
         setPanels: (layout: number[]) =>
           set((state) => ({ panels: { layout } })),
+        setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) =>
+          set((state) => ({ wallet: { ...state.wallet, seed, chainId, id } })),
+        resetWallet: () =>
+          set((state) => ({
+            wallet: {
+              ...state.wallet,
+              seed: undefined,
+              chainId: undefined,
+              id: undefined,
+            },
+          })),
       }),
       {
         name: STORAGE_SERVER_STORE,

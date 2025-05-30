@@ -117,10 +117,7 @@ export default async function RootLayout({
             <ClientStoreProvider>
               <SolanaProvider>
                 <WagmiProvider initialState={initialState}>
-                  <RenegadeProvider
-                    chainId={initialState?.chainId}
-                    cookieString={cookieString}
-                  >
+                  <RenegadeProvider>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
                       <WalletSidebarSync />
