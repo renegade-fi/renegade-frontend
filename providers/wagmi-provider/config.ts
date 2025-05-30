@@ -16,7 +16,7 @@ import getDefaultConfig from "./defaultConfig"
 
 const chains: readonly [Chain, ...Chain[]] =
   env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
-    ? ([arbitrum, base] as const)
+    ? ([arbitrum, base, mainnet] as const)
     : ([arbitrumSepolia, baseSepolia] as const)
 
 export function getConfig() {
@@ -28,6 +28,8 @@ export function getConfig() {
         [arbitrumSepolia.id]: http(),
         [base.id]: http(),
         [baseSepolia.id]: http(),
+        // Needed to support bridge
+        [mainnet.id]: http("/api/proxy/mainnet"),
       },
       ssr: true,
       storage: createStorage({

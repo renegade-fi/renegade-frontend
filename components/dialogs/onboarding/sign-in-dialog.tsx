@@ -1,24 +1,19 @@
 import React from "react"
 
-import { useConfig } from "@renegade-fi/react"
+import { isSupportedChainId } from "@renegade-fi/react"
 import {
   createWallet,
   getWalletFromRelayer,
   getWalletId,
   lookupWallet,
 } from "@renegade-fi/react/actions"
-import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { ChainId, ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { MutationStatus, useMutation } from "@tanstack/react-query"
 import { useModal } from "connectkit"
 import { Check, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import { BaseError } from "viem"
-import {
-  useChainId,
-  useDisconnect,
-  useSignMessage,
-  useSwitchChain,
-} from "wagmi"
+import { useChainId, useDisconnect, useSignMessage } from "wagmi"
 
 import {
   ConnectSuccess,
@@ -47,7 +42,9 @@ import {
 } from "@/lib/constants/toast"
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
+import { getConfigFromChainId } from "@/providers/renegade-provider/config"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function SignInDialog({
   open,
@@ -57,15 +54,14 @@ export function SignInDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const currentChainId = useChainId()
-  const { switchChainAsync } = useSwitchChain()
   const { disconnectAsync } = useDisconnect()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const config = useConfig()
   const [connectLabel, setConnectLabel] = React.useState("Connect to relayer")
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
   const { setOpen } = useModal()
+  const setWallet = useServerStore((state) => state.setWallet)
 
   const {
     data: signMessage1Data,
@@ -114,10 +110,18 @@ export function SignInDialog({
   } = useMutation({
     mutationFn: async (variables: { signature: `0x${string}` }) => {
       const seed = variables.signature
-      if (!config) return
-      config.setState((x) => ({ ...x, seed, chainId: currentChainId }))
+      if (!isSupportedChainId(currentChainId)) {
+        throw new Error("Unsupported chain")
+      }
+      const config = getConfigFromChainId(currentChainId)
+      config.setState((x) => ({ ...x, seed, status: "in relayer" }))
       const id = getWalletId(config)
-      config.setState((x) => ({ ...x, id }))
+      setWallet(seed, currentChainId as ChainId, id)
+      console.log("setWallet debug: ", {
+        seed,
+        currentChainId,
+        id,
+      })
 
       try {
         // GET wallet from relayer

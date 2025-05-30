@@ -6,7 +6,7 @@ export async function setCookie(name: string, value: string): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.set(name, value, {
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
   })
 }
