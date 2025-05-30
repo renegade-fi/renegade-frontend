@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 
 import { Config, useConfig } from "@renegade-fi/react"
+import { ChainId } from "@renegade-fi/react/constants"
 
 /**
  * @returns The chain id of the chain the user signed in with.
@@ -10,23 +11,24 @@ import { Config, useConfig } from "@renegade-fi/react"
  *
  * We subscribe to the state within config to ensure the value returned is reactive.
  */
-export function useChainId(): number | undefined {
+export function useChainId(): ChainId | undefined {
   const config = useConfig()
-  const [chainId, setChainId] = useState<number | undefined>(
-    config?.state.chainId,
+  const [chainId, setChainId] = useState<ChainId | undefined>(
+    config?.state.chainId as ChainId,
   )
 
   useEffect(() => {
     if (!config) return
     const unsubscribe = watchChainId(config, {
       onChange: (chainId) => {
-        setChainId(chainId)
+        setChainId(chainId as ChainId | undefined)
       },
     })
     return () => unsubscribe()
   }, [config])
 
-  return chainId
+  // TODO: validate at source
+  return chainId as ChainId
 }
 
 export type WatchChainIdParameters = {

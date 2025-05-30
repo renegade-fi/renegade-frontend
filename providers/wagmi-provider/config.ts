@@ -16,15 +16,14 @@ import getDefaultConfig from "./defaultConfig"
 
 const chains: readonly [Chain, ...Chain[]] =
   env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
-    ? ([mainnet, arbitrum, base] as const)
-    : ([mainnet, arbitrumSepolia, baseSepolia] as const)
+    ? ([arbitrum, base] as const)
+    : ([arbitrumSepolia, baseSepolia] as const)
 
 export function getConfig() {
   return createConfig(
     getDefaultConfig({
       chains,
       transports: {
-        [mainnet.id]: http("/api/proxy/mainnet"),
         [arbitrum.id]: http(),
         [arbitrumSepolia.id]: http(),
         [base.id]: http(),

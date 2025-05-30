@@ -40,7 +40,9 @@ export function checkAmount(
 ) {
   if (!baseToken) return false
   const usdPrice = queryClient.getQueryData<number>(
-    createPriceQueryKey("binance", baseToken.address),
+    createPriceQueryKey({
+      base: baseToken.address,
+    }),
   )
   if (!usdPrice) return false
   const amountInUsd = Number(amount) * usdPrice

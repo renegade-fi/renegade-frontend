@@ -19,20 +19,7 @@ export function useTvlData() {
     })
   }, [tvlData])
 
-  const priceQueries = usePriceQueries(
-    mints.map((mint) => {
-      const token = Token.findByAddress(mint)
-      return Token.create(
-        token.name,
-        token.ticker,
-        mint,
-        token.decimals,
-        token.rawSupportedExchanges,
-        token.chainAddresses,
-        token.logoUrl,
-      )
-    }),
-  )
+  const priceQueries = usePriceQueries(mints)
 
   const { cumulativeTvlUsd, tvlUsd } = React.useMemo(() => {
     if (!tvlData || !priceQueries.every((query) => query.data !== undefined)) {

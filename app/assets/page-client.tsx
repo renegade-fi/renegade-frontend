@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/responsive-tooltip"
 
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
+import { useChainId } from "@/hooks/use-chain-id"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
 import { DISPLAY_TOKENS } from "@/lib/token"
 
@@ -33,13 +34,14 @@ export type HistoryData = {
 }
 
 export function PageClient() {
+  const chainId = useChainId()
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
     React.useState(true)
   const [showZeroOnChainBalance, setShowZeroOnChainBalance] =
     React.useState(true)
 
   const rawTableData = useAssetsTableData({
-    mints: DISPLAY_TOKENS().map((token) => token.address),
+    mints: DISPLAY_TOKENS({ chainId }).map((token) => token.address),
   })
 
   const filteredTableData = React.useMemo(() => {

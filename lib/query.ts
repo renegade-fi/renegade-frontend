@@ -29,25 +29,46 @@ export function shouldInvalidate(query: Query, queryClient: QueryClient) {
   return effectiveStaleTime !== Number.POSITIVE_INFINITY
 }
 
-export function createPriceTopic(
-  exchange: Exchange = "binance",
-  baseMint: `0x${string}`,
-): string {
-  return `${exchange}-${baseMint}-${getDefaultQuoteToken(exchange).address}`
+export function createPriceTopic({
+  exchange,
+  base,
+  quote: _quote,
+}: {
+  exchange?: Exchange
+  base: `0x${string}`
+  quote?: `0x${string}`
+}): string {
+  if (!exchange || exchange === "renegade") {
+    return `renegade-${base}`
+  }
+  const quote = _quote ?? getDefaultQuoteToken(exchange).address
+  return `${exchange}-${base}-${quote}`
 }
 
-export function createPriceQueryKey(
-  exchange: Exchange = "binance",
-  baseMint: `0x${string}`,
-): string[] {
-  return ["price", exchange, baseMint, getDefaultQuoteToken(exchange).address]
+export function createCanonicalPriceTopic(mint: `0x${string}`): string {
+  return `renegade-${mint}`
+}
+
+export function createPriceQueryKey({
+  exchange,
+  base,
+  quote: _quote,
+}: {
+  exchange?: Exchange
+  base: `0x${string}`
+  quote?: `0x${string}`
+}): string[] {
+  if (!exchange || exchange === "renegade") {
+    return ["price", "renegade", base]
+  }
+  const quote = _quote ?? getDefaultQuoteToken(exchange).address
+  return ["price", exchange, base, quote]
 }
 
 export function topicToQueryKey(topic: string): string[] {
-  return ["price", ...topic.split("-")]
-}
-
-export function queryKeyToTopic(queryKey: string[]): string {
-  const [, ...rest] = queryKey
-  return rest.join("-")
+  const [exchange, base, quote] = topic.split("-")
+  if (exchange === "renegade") {
+    return ["price", "renegade", base]
+  }
+  return ["price", exchange, base, quote]
 }

@@ -1,5 +1,6 @@
+import { ChainId } from "@renegade-fi/react/constants"
 import { Token } from "@renegade-fi/token-nextjs"
-import { getAddress } from "viem"
+import { getAddress, isAddressEqual } from "viem"
 import { mainnet } from "viem/chains"
 
 import { solana } from "./viem"
@@ -11,10 +12,13 @@ export const DISPLAY_TOKENS = (
     hideStables?: boolean
     hideHidden?: boolean
     hideTickers?: Array<string>
+    chainId?: ChainId
   } = {},
 ) => {
-  const { hideStables, hideHidden = true, hideTickers = [] } = options
-  let tokens = Token.getAllTokens()
+  const { hideStables, hideHidden = true, hideTickers = [], chainId } = options
+  let tokens = chainId
+    ? Token.getAllTokensOnChain(chainId)
+    : Token.getAllTokens()
   if (hideStables) {
     tokens = tokens.filter(
       (token) => !Token.findByAddress(token.address).isStablecoin(),
@@ -27,6 +31,31 @@ export const DISPLAY_TOKENS = (
     tokens = tokens.filter((token) => !hideTickers.includes(token.ticker))
   }
   return tokens
+}
+
+/**
+ * Resolve the token address for a given mint across all chains
+ * @param mint - The mint address
+ * @returns The token address
+ */
+export function resolveAddress(mint: `0x${string}`) {
+  const tokens = Token.getAllTokens()
+  const token = tokens.find((token) => isAddressEqual(token.address, mint))
+  if (!token) {
+    throw new Error(`Token not found: ${mint}`)
+  }
+  return token
+}
+
+/**
+ * Resolve the token from a ticker and chain id
+ * @param ticker - The ticker of the token
+ * @param chainId - The chain id of the token
+ * @returns The token
+ */
+export function resolveTickerAndChain(ticker: string, chainId?: ChainId) {
+  if (!chainId) return
+  return Token.fromTickerOnChain(ticker, chainId)
 }
 
 export const remapToken = (ticker: string) => {
