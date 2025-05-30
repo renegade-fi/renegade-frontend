@@ -1,27 +1,23 @@
 import { useState } from "react"
 
-import { useConfig } from "@renegade-fi/react"
-import { disconnect as disconnectRenegade } from "@renegade-fi/react/actions"
 import { useModal } from "connectkit"
-import { useAccount, useDisconnect } from "wagmi"
+import { useAccount } from "wagmi"
+
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 import { useRenegadeStatus } from "./use-renegade-status"
 
 export function useSignInAndConnect() {
-  const { address } = useAccount()
-  const config = useConfig()
-  const { isConnected } = useRenegadeStatus()
-  const { disconnect } = useDisconnect()
+  const { address, isConnected: isWagmiConnected } = useAccount()
+  const { isConnected: isRenegadeConnected } = useRenegadeStatus()
+  const resetWallet = useServerStore((state) => state.resetWallet)
   const { setOpen } = useModal()
   const [open, setOpenSignIn] = useState(false)
 
   const handleClick = () => {
-    if (address) {
-      if (isConnected) {
-        if (config) {
-          disconnectRenegade(config)
-        }
-        disconnect()
+    if (isWagmiConnected) {
+      if (isRenegadeConnected) {
+        resetWallet()
       } else {
         setOpenSignIn(true)
       }
@@ -32,7 +28,7 @@ export function useSignInAndConnect() {
 
   let content = ""
   if (address) {
-    if (isConnected) {
+    if (isRenegadeConnected) {
       content = `Disconnect ${address?.slice(0, 6)}`
     } else {
       content = `Sign in`

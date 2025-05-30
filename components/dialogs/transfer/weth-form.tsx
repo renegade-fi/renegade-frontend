@@ -66,6 +66,7 @@ import {
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
+import { useChainId } from "@/hooks/use-chain-id"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -112,7 +113,7 @@ export function WETHForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const chainId = useConfig()?.state.chainId
+  const chainId = useChainId()
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
   const isMaxBalances = useIsMaxBalances(WETH_L2_TOKEN.address)
