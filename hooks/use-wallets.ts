@@ -44,7 +44,7 @@ export function useWallets() {
   })
 
   // Renegade
-  // Using config.state.seed && walletId because initialState loads these from cookies
+  // Using seed && wallet ID because initialState loads these from cookies
   const { seed, id } = useServerStore((state) => state.wallet)
 
   const renegadeWallet: Wallet =

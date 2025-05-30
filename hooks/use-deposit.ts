@@ -16,11 +16,11 @@ import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 
-import { useChain } from "./use-chain"
+import { useChainId } from "./use-chain-id"
 
 export function useDeposit() {
   const config = useConfig()
-  const chainId = useChain()?.id
+  const chainId = useChainId()
   const { data: walletClient } = useWalletClient()
   const [status, setStatus] = React.useState<MutationStatus>("idle")
   const { data: keychainNonce } = useBackOfQueueWallet({
@@ -62,8 +62,8 @@ export function useDeposit() {
     const { signature, nonce, deadline } = await signPermit2({
       amount: parsedAmount,
       chainId,
-      spender: getSDKConfig(config.state.chainId!).darkpoolAddress,
-      permit2Address: getSDKConfig(config.state.chainId!).permit2Address,
+      spender: getSDKConfig(chainId).darkpoolAddress,
+      permit2Address: getSDKConfig(chainId).permit2Address,
       token,
       walletClient,
       pkRoot,
