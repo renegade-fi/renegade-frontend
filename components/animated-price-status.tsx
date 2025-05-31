@@ -18,11 +18,6 @@ export function AnimatedPriceStatus({
     isStale,
     isFetchedAfterMount,
   } = usePriceQuery(mint, exchange)
-  // Temporary fix for Coinbase
-  if (exchange === "coinbase") {
-    return <span className={cn("!text-muted", className)}>NO DATA</span>
-  }
-
   const { text, statusColor } = getPriceStatus({
     price,
     // Optimistically give price a chance to update before displaying stale status
