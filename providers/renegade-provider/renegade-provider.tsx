@@ -16,7 +16,13 @@ export function RenegadeProvider({ children }: RenegadeProviderProps) {
   const config = useMemo(() => {
     if (chainId && seed && id) {
       const config = getConfigFromChainId(chainId)
-      config.setState((x) => ({ ...x, seed, status: "in relayer", id }))
+      config.setState((x) => ({
+        ...x,
+        seed,
+        status: "in relayer",
+        id,
+        chainId,
+      }))
       return config
     }
   }, [chainId, seed, id])
