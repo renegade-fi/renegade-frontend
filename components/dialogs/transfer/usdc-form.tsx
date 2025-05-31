@@ -1,8 +1,7 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType, getSDKConfig, useConfig } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -86,7 +85,12 @@ import { constructStartToastMessage } from "@/lib/constants/task"
 import { catchErrorWithToast } from "@/lib/constants/toast"
 import { safeParseUnits } from "@/lib/format"
 import { useReadErc20Allowance, useWriteErc20Approve } from "@/lib/generated"
-import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token"
+import {
+  ADDITIONAL_TOKENS,
+  ETHEREUM_TOKENS,
+  SOLANA_TOKENS,
+  resolveAddress,
+} from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { getFormattedChainName, solana } from "@/lib/viem"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
@@ -95,7 +99,6 @@ import { mainnetConfig } from "@/providers/wagmi-provider/config"
 import { EVMStep, STEP_CONFIGS, SVMStep, TransferStep } from "./types"
 
 const USDC_L1_TOKEN = ETHEREUM_TOKENS["USDC"]
-const USDC_L2_TOKEN = Token.findByTicker("USDC")
 const USDCE_L2_TOKEN = ADDITIONAL_TOKENS["USDC.e"]
 const USDC_SOLANA_TOKEN = SOLANA_TOKENS["USDC"]
 
@@ -111,6 +114,11 @@ export function USDCForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
+  const mint = useWatch({
+    control: form.control,
+    name: "mint",
+  })
+  const USDC_L2_TOKEN = resolveAddress(mint as `0x${string}`)
   const { address } = useAccount()
   const chain = useChain()
   const { checkChain } = useCheckChain()
@@ -143,10 +151,6 @@ export function USDCForm({
     }
   }
 
-  const mint = useWatch({
-    control: form.control,
-    name: "mint",
-  })
   const amount = useWatch({
     control: form.control,
     name: "amount",
@@ -897,7 +901,7 @@ export function USDCForm({
         steps: stepList,
         token: USDC_L2_TOKEN,
       }) satisfies Execution,
-    [stepList],
+    [stepList, USDC_L2_TOKEN],
   )
 
   const renderTransferOptions = () => {

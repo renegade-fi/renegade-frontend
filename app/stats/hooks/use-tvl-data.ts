@@ -1,24 +1,16 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
+import { resolveAddress } from "@/lib/token"
 
 import { useTvl } from "./use-tvl"
 
 export function useTvlData() {
   const { data: tvlData } = useTvl()
-
-  const mints = React.useMemo(() => {
-    if (!tvlData) return []
-    return tvlData.map((tvl) => {
-      const token = Token.findByTicker(tvl.ticker)
-      return token.address
-    })
-  }, [tvlData])
-
+  const mints = (tvlData || []).map((tvl) => tvl.address)
   const priceQueries = usePriceQueries(mints)
 
   const { cumulativeTvlUsd, tvlUsd } = React.useMemo(() => {
@@ -30,8 +22,7 @@ export function useTvlData() {
     const tvlUsd: { name: string; data: number; fill: string }[] = []
 
     tvlData.forEach((tvl, i) => {
-      const token = Token.findByTicker(tvl.ticker)
-      if (!token) return
+      const token = resolveAddress(tvl.address)
 
       const price = priceQueries[i]?.data
 
@@ -40,12 +31,12 @@ export function useTvlData() {
         const formatted = Number(formatUnits(usd, token.decimals))
         totalTvlUsd += formatted
         tvlUsd.push({
-          name: tvl.ticker,
+          name: token.ticker,
           data: formatted,
-          fill: `var(--color-${tvl.ticker})`,
+          fill: `var(--color-${token.ticker})`,
         })
       } else {
-        console.error(`Price not found for token: ${tvl.ticker}`)
+        console.error(`Price not found for token: ${token.ticker}`)
       }
     })
 
