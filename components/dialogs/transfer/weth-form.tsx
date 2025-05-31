@@ -3,8 +3,7 @@ import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { getSDKConfig, UpdateType, useConfig } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -532,7 +531,7 @@ export function WETHForm({
         steps: stepList,
         token: WETH_L2_TOKEN,
       }) satisfies Execution,
-    [stepList],
+    [stepList, WETH_L2_TOKEN],
   )
 
   let buttonText = ""

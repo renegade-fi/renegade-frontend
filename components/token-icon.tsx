@@ -1,7 +1,6 @@
 import Image from "next/image"
 
-import { Token } from "@renegade-fi/token-nextjs"
-
+import { resolveTicker } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function TokenIcon({
@@ -17,7 +16,7 @@ export function TokenIcon({
   if (ticker === "SOL") {
     logoUrl = "/tokens/sol.png"
   } else {
-    logoUrl = Token.findByTicker(ticker).logoUrl
+    logoUrl = resolveTicker(ticker).logoUrl
   }
 
   return (

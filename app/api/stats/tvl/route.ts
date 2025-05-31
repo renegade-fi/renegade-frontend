@@ -18,10 +18,10 @@ export async function GET() {
             env.RPC_URL,
             arbitrumSDKConfig.darkpoolAddress,
           )
-          return { ticker: token.ticker, tvl: tvl.toString() }
+          return { address: token.address, tvl: tvl.toString() }
         } catch (error) {
           console.error(`Error fetching TVL for ${token.ticker}:`, error)
-          return { ticker: token.ticker, tvl: "0" }
+          return { address: token.address, tvl: "0" }
         }
       }),
     )

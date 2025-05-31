@@ -3,7 +3,6 @@ import React from "react"
 import { LiFiStep } from "@lifi/sdk"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDownIcon, InfoCircledIcon } from "@radix-ui/react-icons"
-import { Token } from "@renegade-fi/token-nextjs"
 import { motion } from "framer-motion"
 import { formatUnits } from "viem/utils"
 
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { truncateAddress } from "@/lib/format"
+import { resolveTicker } from "@/lib/token"
 import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem"
 
 function Layout({
@@ -110,13 +110,13 @@ function ReviewBridgeContent({ quote }: { quote: LiFiStep }) {
   const fromChainLogo =
     fromChainTicker === "SOL"
       ? "/tokens/sol.png"
-      : Token.findByTicker(fromChainTicker).logoUrl
+      : resolveTicker(fromChainTicker).logoUrl
 
   const toChainTicker = getChainLogoTicker(toChainId)
   const toChainLogo =
     toChainTicker === "SOL"
       ? "/tokens/sol.png"
-      : Token.findByTicker(toChainTicker).logoUrl
+      : resolveTicker(toChainTicker).logoUrl
 
   return (
     <AccordionPrimitive.Root
