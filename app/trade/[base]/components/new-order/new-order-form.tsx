@@ -108,7 +108,8 @@ export function NewOrderForm({
   const formattedOrderValue = Number(valueInQuoteCurrency)
     ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
-  const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${resolveAddress(base).ticker}`
+  const baseTicker = resolveAddress(base).ticker
+  const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${baseTicker}`
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -208,9 +209,9 @@ export function NewOrderForm({
               <TokenIcon
                 className="mr-2"
                 size={22}
-                ticker={resolveAddress(base).ticker}
+                ticker={baseTicker}
               />
-              {resolveAddress(base).ticker}
+              {baseTicker}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </TokenSelectDialog>
@@ -253,7 +254,7 @@ export function NewOrderForm({
                         field.onChange(!field.value)
                       }}
                     >
-                      {field.value ? "USDC" : resolveAddress(base).ticker}
+                      {field.value ? "USDC" : baseTicker}
                       <ArrowRightLeft className="ml-2 h-5 w-5" />
                     </Button>
                   </FormControl>
@@ -314,8 +315,7 @@ export function NewOrderForm({
                 type="submit"
                 variant="default"
               >
-                {form.getValues("isSell") ? "Sell" : "Buy"}{" "}
-                {resolveAddress(base).ticker}
+                {form.getValues("isSell") ? "Sell" : "Buy"} {baseTicker}
               </Button>
             </MaintenanceButtonWrapper>
           </div>
@@ -377,8 +377,7 @@ export function NewOrderForm({
               type="submit"
               variant="default"
             >
-              {form.getValues("isSell") ? "Sell" : "Buy"}{" "}
-              {resolveAddress(base).ticker}
+              {form.getValues("isSell") ? "Sell" : "Buy"} {baseTicker}
             </Button>
           </MaintenanceButtonWrapper>
         </div>
