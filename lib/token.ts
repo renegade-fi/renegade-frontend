@@ -89,9 +89,9 @@ export function resolveTickerAndChain(ticker: string, chainId?: ChainId) {
   return Token.fromTickerOnChain(ticker, chainId)
 }
 
-export const remapToken = (ticker: string) => {
-  const token = Token.findByTicker(ticker.toUpperCase())
-  const remapped = token.getExchangeTicker("binance") || ticker
+export const remapToken = (mint: `0x${string}`) => {
+  const token = resolveAddress(mint)
+  const remapped = token.getExchangeTicker("binance") || token.ticker
   return remapped.toLowerCase()
 }
 

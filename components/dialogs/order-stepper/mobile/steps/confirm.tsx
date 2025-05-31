@@ -19,15 +19,18 @@ import {
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function ConfirmStep(props: NewOrderConfirmationProps) {
   const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   const { onNext, setTaskId } = useStepper()
 
-  const baseToken = Token.findByTicker(props.base)
-  const quoteToken = Token.findByTicker("USDC")
-  const { data: price } = usePriceQuery(baseToken.address)
+  const baseToken = resolveAddress(props.base)
+  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteToken = resolveAddress(quoteMint)
+  const { data: price } = usePriceQuery(props.base)
 
   const worstCasePrice = React.useMemo(() => {
     if (!price) return 0
@@ -36,8 +39,8 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
   const { data: request } = usePrepareCreateOrder({
-    base: baseToken.address,
-    quote: quoteToken.address,
+    base: props.base,
+    quote: quoteMint,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
@@ -93,7 +96,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
             createOrder({ request })
           }}
         >
-          {props.isSell ? "Sell" : "Buy"} {props.base}
+          {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
         </Button>
       </DialogFooter>
     </>

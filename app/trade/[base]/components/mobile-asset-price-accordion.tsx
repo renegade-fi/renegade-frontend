@@ -11,17 +11,11 @@ import { Button } from "@/components/ui/button"
 
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol"
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips"
+import { resolveAddress } from "@/lib/token"
 import { constructExchangeUrl } from "@/lib/utils"
 
-export function MobileAssetPriceAccordion({ base }: { base: string }) {
-  const mint = React.useMemo(() => {
-    try {
-      return Token.findByTicker(base).address
-    } catch (error) {
-      return null
-    }
-  }, [base])
-
+export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
+  const token = resolveAddress(base)
   return (
     <AccordionPrimitive.Root
       collapsible
@@ -30,7 +24,7 @@ export function MobileAssetPriceAccordion({ base }: { base: string }) {
     >
       <AccordionPrimitive.Item value="asset-details">
         <div className="flex items-center justify-between p-4">
-          <TokenSelectDialog ticker={base}>
+          <TokenSelectDialog mint={base}>
             <Button
               className="px-2 py-0 font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
               variant="ghost"
@@ -38,9 +32,9 @@ export function MobileAssetPriceAccordion({ base }: { base: string }) {
               <TokenIcon
                 className="mr-2"
                 size={22}
-                ticker={base}
+                ticker={token.ticker}
               />
-              {base}
+              {token.ticker}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </TokenSelectDialog>
@@ -52,12 +46,11 @@ export function MobileAssetPriceAccordion({ base }: { base: string }) {
               <div className="mr-2 text-xs leading-none text-muted-foreground">
                 BBO
               </div>
-              {mint && (
-                <AnimatedPrice
-                  className="font-mono text-xl"
-                  mint={mint}
-                />
-              )}
+              <AnimatedPrice
+                className="font-mono text-xl"
+                exchange="binance"
+                mint={base}
+              />
               <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200" />
             </Button>
           </AccordionPrimitive.Trigger>
@@ -75,13 +68,11 @@ export function MobileAssetPriceAccordion({ base }: { base: string }) {
                   <span className="font-sans text-xs underline underline-offset-2">
                     {exchangeToName[exchange]}
                   </span>
-                  {mint && (
-                    <AnimatedPrice
-                      className="font-mono"
-                      exchange={exchange}
-                      mint={mint}
-                    />
-                  )}
+                  <AnimatedPrice
+                    className="font-mono"
+                    exchange={exchange}
+                    mint={base}
+                  />
                 </div>
               </a>
             ))}

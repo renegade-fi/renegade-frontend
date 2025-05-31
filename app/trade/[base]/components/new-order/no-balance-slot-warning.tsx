@@ -14,16 +14,16 @@ import { cn } from "@/lib/utils"
 
 export function NoBalanceSlotWarning({
   className,
-  ticker,
+  baseMint,
+  quoteMint,
   isSell,
 }: {
   className?: string
-  ticker: string
+  baseMint: `0x${string}`
+  quoteMint: `0x${string}`
   isSell?: boolean
 }) {
-  const receiveMint = isSell
-    ? Token.findByTicker("USDC")?.address
-    : Token.findByTicker(ticker)?.address
+  const receiveMint = isSell ? quoteMint : baseMint
   const isMaxBalances = useIsMaxBalances(receiveMint)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
 

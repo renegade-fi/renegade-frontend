@@ -12,11 +12,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-import { useChainId } from "@/hooks/use-chain-id"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 
-export function NewOrderPanel({ base }: { base: string }) {
-  const chainId = useChainId()
+export function NewOrderPanel({ base }: { base: `0x${string}` }) {
   const [open, setOpen] = React.useState(false)
   const [lockedFormValues, setLockedFormValues] =
     React.useState<NewOrderConfirmationProps | null>(null)
@@ -29,10 +27,7 @@ export function NewOrderPanel({ base }: { base: string }) {
   return (
     <aside className="space-y-6">
       <div className="px-6 pt-6 text-sm">
-        <AssetsSectionWithDepositButton
-          base={base}
-          chainId={chainId}
-        />
+        <AssetsSectionWithDepositButton base={base} />
       </div>
       <Separator />
       <NewOrderForm

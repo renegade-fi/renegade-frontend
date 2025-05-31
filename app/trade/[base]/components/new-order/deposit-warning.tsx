@@ -1,5 +1,4 @@
 import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { AlertTriangle } from "lucide-react"
 
 import {
@@ -10,26 +9,26 @@ import {
 
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { ORDER_FORM_DEPOSIT_WARNING } from "@/lib/constants/tooltips"
+import { resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function DepositWarning({
   className,
-  ticker,
+  baseMint,
+  quoteMint,
 }: {
   className?: string
-  ticker: string
+  baseMint: `0x${string}`
+  quoteMint: `0x${string}`
 }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const { data: hasBalances } = useBackOfQueueWallet({
     query: {
       select: (data) => {
-        const baseToken = Token.findByTicker(ticker)
-        const quoteToken = Token.findByTicker("USDC")
         return data.balances.some(
           (balance) =>
             balance.amount > BigInt(0) &&
-            (balance.mint === baseToken.address ||
-              balance.mint === quoteToken.address),
+            (balance.mint === baseMint || balance.mint === quoteMint),
         )
       },
     },
@@ -51,7 +50,9 @@ export function DepositWarning({
           </div>
         </ResponsiveTooltipTrigger>
         <ResponsiveTooltipContent>
-          {ORDER_FORM_DEPOSIT_WARNING({ ticker })}
+          {ORDER_FORM_DEPOSIT_WARNING({
+            ticker: resolveAddress(baseMint).ticker,
+          })}
         </ResponsiveTooltipContent>
       </ResponsiveTooltip>
     )

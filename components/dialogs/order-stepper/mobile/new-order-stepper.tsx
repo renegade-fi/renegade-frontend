@@ -10,7 +10,7 @@ export function NewOrderStepperInner({
   children,
   ...props
 }: React.PropsWithChildren<{
-  base: string
+  base: `0x${string}`
 }>) {
   const { step, onNext, setStep, setTaskId } = useStepper()
   const [lockedFormValues, setLockedFormValues] =
@@ -101,7 +101,7 @@ export function NewOrderStepper({
   children,
   ...props
 }: React.PropsWithChildren<{
-  base: string
+  base: `0x${string}`
 }>) {
   return (
     <StepperProvider>

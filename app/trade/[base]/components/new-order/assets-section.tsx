@@ -15,18 +15,16 @@ import { useUSDPrice } from "@/hooks/use-usd-price"
 import { useWallets } from "@/hooks/use-wallets"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 import { resolveAddress, resolveTickerAndChain } from "@/lib/token"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function AssetsSectionWithDepositButton({
   base,
-  quote = "USDC",
-  chainId,
 }: {
-  base: string
-  quote?: string
-  chainId?: ChainId
+  base: `0x${string}`
 }) {
-  const baseToken = resolveTickerAndChain(base, chainId)
-  const quoteToken = resolveTickerAndChain(quote, chainId)
+  const baseToken = resolveAddress(base)
+  const quote = useServerStore((state) => state.order.quoteMint)
+  const quoteToken = resolveAddress(quote)
   const { data } = useBackOfQueueWallet({
     query: {
       select: (data) =>
@@ -41,7 +39,6 @@ export function AssetsSectionWithDepositButton({
       <div className="flex-1">
         <AssetsSection
           base={base}
-          chainId={chainId}
           quote={quote}
         />
       </div>
@@ -61,17 +58,13 @@ export function AssetsSectionWithDepositButton({
 
 export function AssetsSection({
   base,
-  quote = "USDC",
-  disabled = false,
-  chainId,
+  quote,
 }: {
-  base: string
-  quote?: string
-  disabled?: boolean
-  chainId?: ChainId
+  base: `0x${string}`
+  quote: `0x${string}`
 }) {
-  const baseToken = resolveTickerAndChain(base, chainId)
-  const quoteToken = resolveTickerAndChain(quote, chainId)
+  const baseToken = resolveAddress(base)
+  const quoteToken = resolveAddress(quote)
 
   return (
     <>

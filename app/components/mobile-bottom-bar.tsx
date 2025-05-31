@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"
 import { useWallets } from "@/hooks/use-wallets"
 
-export function MobileBottomBar({ base }: { base: string }) {
+export function MobileBottomBar({ base }: { base: `0x${string}` }) {
   const { walletReadyState } = useWallets()
   const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
   return (

@@ -1,16 +1,34 @@
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
 import {
+  dehydrate,
   HydrationBoundary,
   QueryClient,
-  dehydrate,
 } from "@tanstack/react-query"
 
 import { PageClient } from "@/app/trade/[base]/page-client"
 
+import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
+import {
+  defaultInitState,
+  ServerState,
+} from "@/providers/state-provider/server-store"
 
-import { hydrateServerState, resolveTokenParam } from "./utils"
+import { resolveTokenParam } from "./utils"
+
+/**
+ * Hydrates server state from cookies
+ */
+export async function hydrateServerState(): Promise<ServerState> {
+  const cookieStore = await cookies()
+  const cookieVal = cookieStore.get(STORAGE_SERVER_STORE)?.value
+  const initialState =
+    cookieToInitialState(STORAGE_SERVER_STORE, cookieVal) ?? defaultInitState
+  return initialState
+}
 
 export async function generateStaticParams() {
   const tokens = DISPLAY_TOKENS({ hideStables: true, hideHidden: true })
