@@ -69,6 +69,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useChain } from "@/hooks/use-chain"
+import { useChainId } from "@/hooks/use-chain-id"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -130,8 +131,8 @@ export function USDCForm({
       onError: (error) => setSwitchChainError(error),
     },
   })
-  const renegadeConfig = useConfig()
-  const chainId = useChain()?.id
+  const seed = useServerStore((state) => state.wallet.seed)
+  const chainId = useChainId()
   const publicClient = usePublicClient()
 
   const catchError = (error: Error, message: string) => {
@@ -652,7 +653,7 @@ export function USDCForm({
     if (bridgeRequired && bridgeQuote) {
       const validRecipient = await verifyRecipientAddress(
         publicClient,
-        renegadeConfig?.state.seed,
+        seed,
         bridgeQuote?.action.toAddress,
         chainId,
       )
