@@ -6,14 +6,14 @@ import {
   OrderMetadata,
   OrderState,
   useBackOfQueueWallet,
-  useOrderHistoryWebSocket,
   useOrderHistory,
+  useOrderHistoryWebSocket,
 } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { toast } from "sonner"
 
 import { formatNumber } from "@/lib/format"
 import { syncOrdersWithWalletState } from "@/lib/order"
+import { resolveAddress } from "@/lib/token"
 
 export function OrderToaster() {
   const [incomingOrder, setIncomingOrder] = React.useState<OrderMetadata>()
@@ -61,7 +61,7 @@ export function OrderToaster() {
         state,
         data: { base_mint, side, amount },
       } = incomingOrder
-      const base = Token.findByAddress(base_mint)
+      const base = resolveAddress(base_mint)
       const formattedAmount = formatNumber(amount, base.decimals)
       const prevFills = existingOrder?.fills || []
 

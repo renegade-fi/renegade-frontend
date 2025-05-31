@@ -1,5 +1,4 @@
 import { OrderState, useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
@@ -27,6 +26,7 @@ import {
   formatPercentage,
   formatTimestamp,
 } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -35,28 +35,6 @@ declare module "@tanstack/react-table" {
 }
 
 export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
-  // {
-  //   id: 'select',
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && 'indeterminate')
-  //       }
-  //       onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={value => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
   {
     id: "notification",
     header: () => null,
@@ -70,7 +48,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
         quoteMint: row.original.data.quote_mint,
         side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
       })
-      const token = Token.findByAddress(
+      const token = resolveAddress(
         row.original.data.side === "Buy"
           ? row.original.data.quote_mint
           : row.original.data.base_mint,
@@ -153,7 +131,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     header: () => <div className="pr-7">Asset</div>,
     cell: ({ row }) => {
       const mint = row.getValue<`0x${string}`>("mint")
-      const token = Token.findByAddress(mint)
+      const token = resolveAddress(mint)
       return (
         <div className="flex items-center gap-2 font-medium">
           <TokenIcon
@@ -238,7 +216,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     cell: ({ row, table }) => {
       const amount = row.getValue<bigint>("amount")
       const mint = row.getValue<`0x${string}`>("mint")
-      const token = Token.findByAddress(mint)
+      const token = resolveAddress(mint)
       const formatted = formatNumber(
         amount,
         token.decimals,

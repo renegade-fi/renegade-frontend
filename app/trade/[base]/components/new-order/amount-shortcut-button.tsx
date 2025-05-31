@@ -103,7 +103,7 @@ export function AmountShortcutButton({
     return shortcutBigInt
   }, [maxBalance, percentage])
 
-  const usdPrice = useUSDPrice(baseToken, shortcut)
+  const usdPrice = useUSDPrice(base, shortcut)
 
   const formattedShortcut = React.useMemo(() => {
     if (isQuoteCurrency && shortcut < MIN_FILL_SIZE) {

@@ -13,7 +13,9 @@ import {
 import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
+import { useChainId } from "@/hooks/use-chain-id"
 import { useIsBase } from "@/hooks/use-is-base"
+import { resolveAddress, resolveTickerAndChain } from "@/lib/token"
 import { isTestnet } from "@/lib/viem"
 
 export function TransferForm({
@@ -49,7 +51,9 @@ export function TransferForm({
     )
   }
 
-  if (form.watch("mint") === Token.findByTicker("WETH").address) {
+  const mint = form.watch("mint")
+  const token = resolveAddress(mint as `0x${string}`)
+  if (token.ticker === "WETH") {
     return (
       <WETHForm
         className={className}
@@ -61,7 +65,7 @@ export function TransferForm({
     )
   }
   if (direction === ExternalTransferDirection.Deposit) {
-    if (form.watch("mint") === Token.findByTicker("USDC").address) {
+    if (token.ticker === "USDC") {
       return (
         <USDCForm
           className={className}

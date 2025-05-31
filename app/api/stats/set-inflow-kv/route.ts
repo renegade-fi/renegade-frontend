@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { kv } from "@vercel/kv"
 import {
   createPublicClient,
@@ -22,7 +21,7 @@ import {
 
 import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
+import { DISPLAY_TOKENS, remapToken, resolveAddress } from "@/lib/token"
 import { arbitrumSDKConfig } from "@/lib/viem"
 
 const viemClient = createPublicClient({
@@ -57,7 +56,7 @@ export async function GET(req: NextRequest) {
     const tokens = DISPLAY_TOKENS()
 
     const pricePromises = tokens.map((token) =>
-      fetchAssetPrice(remapToken(token.ticker), env.AMBERDATA_API_KEY),
+      fetchAssetPrice(remapToken(token.address), env.AMBERDATA_API_KEY),
     )
     const priceResults = await Promise.all(pricePromises)
 
@@ -103,7 +102,7 @@ export async function GET(req: NextRequest) {
     const processPromises = logs.map(async (log) => {
       const mint = log.args.mint?.toString().toLowerCase()
       if (mint && isAddress(mint)) {
-        const token = Token.findByAddress(mint)
+        const token = resolveAddress(mint)
         const price = priceData.find((tp) => tp.ticker === token?.ticker)?.price
         if (price && token && log.args.amount) {
           const usdVolume = amountTimesPrice(log.args.amount, price)

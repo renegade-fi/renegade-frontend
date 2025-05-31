@@ -1,5 +1,4 @@
 import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { ChainId } from "@renegade-fi/react/constants"
 import { formatUnits } from "viem/utils"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
@@ -14,7 +13,7 @@ import {
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { useWallets } from "@/hooks/use-wallets"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
-import { resolveAddress, resolveTickerAndChain } from "@/lib/token"
+import { resolveAddress } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function AssetsSectionWithDepositButton({
@@ -97,15 +96,7 @@ function RowFallback({ ticker }: { ticker: string }) {
   )
 }
 
-function Row({
-  mint,
-  chainId,
-  disabled,
-}: {
-  mint: `0x${string}`
-  chainId?: ChainId
-  disabled?: boolean
-}) {
+function Row({ mint, disabled }: { mint: `0x${string}`; disabled?: boolean }) {
   const token = resolveAddress(mint)
   const { walletReadyState } = useWallets()
 
@@ -122,7 +113,7 @@ function Row({
   const formattedBalance = isLoading
     ? "--"
     : formatNumber(balance, token.decimals, true)
-  const usdPrice = useUSDPrice(token, balance)
+  const usdPrice = useUSDPrice(mint, balance)
   // balance is in token decimals, so adjust by token decimals
   const formattedUsdPrice = formatUnits(usdPrice, token.decimals)
   const formattedUsdPriceLabel = isLoading

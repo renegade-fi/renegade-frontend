@@ -1,5 +1,4 @@
 import { OrderMetadata, OrderState } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart"
@@ -31,17 +30,21 @@ import {
   formatPercentage,
 } from "@/lib/format"
 import { getVWAP } from "@/lib/order"
+import { resolveAddress } from "@/lib/token"
 import { decimalNormalizePrice } from "@/lib/utils"
 
 export function DetailsContent({ order }: { order: OrderMetadata }) {
-  const token = Token.findByAddress(order.data.base_mint)
-  const quoteToken = Token.findByAddress(order.data.quote_mint)
+  const baseToken = resolveAddress(order.data.base_mint)
+  const quoteToken = resolveAddress(order.data.quote_mint)
   const filledAmount = order.fills.reduce(
     (acc, fill) => acc + fill.amount,
     BigInt(0),
   )
-  const formattedFilledAmount = formatNumber(filledAmount, token.decimals)
-  const formattedFilledAmountLong = formatUnits(filledAmount, token.decimals)
+  const formattedFilledAmount = formatNumber(filledAmount, baseToken.decimals)
+  const formattedFilledAmountLong = formatUnits(
+    filledAmount,
+    baseToken.decimals,
+  )
   const percentageFilled =
     (Number(filledAmount) / Number(order.data.amount)) * 100
   const percentageFilledLabel = formatPercentage(
@@ -52,17 +55,17 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
 
   const formattedTotalAmount = formatNumber(
     order.data.amount,
-    token.decimals,
+    baseToken.decimals,
     true,
   )
   const formattedTotalAmountLong = formatUnits(
     order.data.amount,
-    token.decimals,
+    baseToken.decimals,
   )
-  const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${token.ticker} ${
+  const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${baseToken.ticker} ${
     order.data.side === "Buy" ? "with" : "for"
   } USDC`
-  const titleLong = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmountLong} ${token.ticker} ${
+  const titleLong = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmountLong} ${baseToken.ticker} ${
     order.data.side === "Buy" ? "with" : "for"
   } USDC`
 
@@ -74,21 +77,21 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
   )
   const vwap = getVWAP(order)
   const formattedVWAP = vwap ? formatCurrency(vwap) : "--"
-  const filledLabel = `${formattedFilledAmount} ${token.ticker} @ ${formattedVWAP}`
-  const filledLabelLong = `${formattedFilledAmountLong} ${token.ticker} @ ${formattedVWAP}`
+  const filledLabel = `${formattedFilledAmount} ${baseToken.ticker} @ ${formattedVWAP}`
+  const filledLabelLong = `${formattedFilledAmountLong} ${baseToken.ticker} @ ${formattedVWAP}`
 
   const data: FillTableData[] = order.fills.map((fill, index) => {
-    const amount = formatNumber(fill.amount, token.decimals)
-    const amountLong = formatNumber(fill.amount, token.decimals, true)
+    const amount = formatNumber(fill.amount, baseToken.decimals)
+    const amountLong = formatNumber(fill.amount, baseToken.decimals, true)
     const value = amountTimesPrice(
       fill.amount,
       decimalNormalizePrice(
         fill.price.price,
-        token.decimals,
+        baseToken.decimals,
         quoteToken.decimals,
       ),
     )
-    const formattedValue = formatUnits(value, token.decimals)
+    const formattedValue = formatUnits(value, baseToken.decimals)
     const formattedValueUSD = formatCurrencyFromString(formattedValue)
     return {
       index,
@@ -97,7 +100,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
       amountUSD: formattedValueUSD,
       timestamp: Number(fill.price.timestamp),
       createdAt: Number(order.created),
-      ticker: token.ticker,
+      ticker: baseToken.ticker,
     }
   })
   const isOpen =

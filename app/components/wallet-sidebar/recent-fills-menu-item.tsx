@@ -1,6 +1,5 @@
 import React from "react"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { ChevronRight } from "lucide-react"
 import { formatUnits } from "viem"
 
@@ -26,6 +25,7 @@ import {
 
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { formatCurrencyFromString, formatRelativeTimestamp } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { decimalNormalizePrice } from "@/lib/utils"
 
 import { useRecentUnviewedFills } from "./hooks/use-unviewed-fills"
@@ -57,8 +57,8 @@ export function RecentFillsMenuItem() {
               <React.Fragment key={order.id}>
                 {order.fills.map((fill) => {
                   const isBuy = order.data.side === "Buy"
-                  const token = Token.findByAddress(order.data.base_mint)
-                  const quoteToken = Token.findByAddress(order.data.quote_mint)
+                  const token = resolveAddress(order.data.base_mint)
+                  const quoteToken = resolveAddress(order.data.quote_mint)
                   const fillId = generateFillIdentifier(
                     order.id,
                     fill.price.timestamp,

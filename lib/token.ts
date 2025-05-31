@@ -21,9 +21,7 @@ export const DISPLAY_TOKENS = (
     ? Token.getAllTokensOnChain(chainId)
     : Token.getAllTokens()
   if (hideStables) {
-    tokens = tokens.filter(
-      (token) => !Token.findByAddress(token.address).isStablecoin(),
-    )
+    tokens = tokens.filter((token) => !token.isStablecoin())
   }
   if (hideHidden) {
     tokens = tokens.filter((token) => !HIDDEN_TICKERS.includes(token.ticker))

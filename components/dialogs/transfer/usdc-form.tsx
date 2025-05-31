@@ -619,7 +619,7 @@ export function USDCForm({
             USDCE_L2_TOKEN.decimals,
           )
         : values.amount,
-      USDC_L2_TOKEN,
+      USDC_L2_TOKEN.address,
     )
 
     if (!isAmountSufficient) {

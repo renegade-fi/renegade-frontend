@@ -1,9 +1,9 @@
-import { QuoteRequest, getQuote, getStatus } from "@lifi/sdk"
-import { Token } from "@renegade-fi/token-nextjs"
+import { QuoteRequest, getQuote } from "@lifi/sdk"
 import { useQuery } from "@tanstack/react-query"
 import { useAccount } from "wagmi"
 
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 export interface UseSwapParams {
   fromMint: `0x${string}`
@@ -42,7 +42,7 @@ function useParams({
     return undefined
   }
 
-  const token = Token.findByAddress(toMint)
+  const token = resolveAddress(toMint)
   const parsedAmount = safeParseUnits(amount, token.decimals)
 
   if (parsedAmount instanceof Error) {
