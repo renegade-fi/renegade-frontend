@@ -1,19 +1,16 @@
-import { cookies } from "next/headers"
-
 import type { ChainId } from "@renegade-fi/react/constants"
 import { isAddress } from "viem"
 
-import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import {
   resolveAddress,
   resolveTicker,
   resolveTickerAndChain,
 } from "@/lib/token"
-import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
 import type { ServerState } from "@/providers/state-provider/server-store"
-import { defaultInitState } from "@/providers/state-provider/server-store"
 
-const FALLBACK_TICKER = "WETH"
+export const FALLBACK_TICKER = "WETH"
+
+const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 /**
  * Validates that an address corresponds to a valid (non-stablecoin) token
@@ -49,17 +46,6 @@ export function getBaseMint(
 }
 
 /**
- * Hydrates server state from cookies
- */
-export async function hydrateServerState(): Promise<ServerState> {
-  const cookieStore = await cookies()
-  const cookieVal = cookieStore.get(STORAGE_SERVER_STORE)?.value
-  const initialState =
-    cookieToInitialState(STORAGE_SERVER_STORE, cookieVal) ?? defaultInitState
-  return initialState
-}
-
-/**
  * Resolves an address parameter to a valid token address
  * Returns null if the input is not a valid address
  */
@@ -71,22 +57,18 @@ function resolveAddressParam(
   }
 
   const candidate = baseParam.toLowerCase()
-  if (isValidTokenAddress(candidate)) {
-    // Redirect to canonical casing if needed
-    if (candidate !== baseParam) {
-      return { redirect: `/trade/${candidate}` }
-    }
-    return { resolved: candidate }
+  // Redirect to canonical casing if needed
+  if (candidate !== baseParam) {
+    return { redirect: `/trade/${candidate}` }
   }
-
-  return null
+  return { resolved: candidate }
 }
 
 /**
  * Resolves a ticker parameter to a valid token address
  * Returns null if ticker resolution fails
  */
-function resolveTickerParam(
+export function resolveTickerParam(
   baseParam: string,
   chainId?: ChainId,
 ): { resolved: `0x${string}` } | { redirect: string } | null {
@@ -97,10 +79,13 @@ function resolveTickerParam(
     // First, try to resolve the ticker to get the canonical casing
     if (chainId) {
       token = resolveTickerAndChain(baseParam, chainId)
-      if (!token) throw new Error("Token not found")
+      if (!token || token.address === zeroAddress)
+        throw new Error("Token not found")
       resolvedAddress = token.address.toLowerCase() as `0x${string}`
     } else {
       token = resolveTicker(baseParam)
+      if (!token || token.address === zeroAddress)
+        throw new Error("Token not found")
       resolvedAddress = token.address.toLowerCase() as `0x${string}`
     }
 
@@ -112,9 +97,7 @@ function resolveTickerParam(
       return { redirect: `/trade/${canonicalTicker}` }
     }
 
-    if (isValidTokenAddress(resolvedAddress)) {
-      return { resolved: resolvedAddress }
-    }
+    return { resolved: resolvedAddress }
   } catch {
     // Token not found
   }
@@ -133,14 +116,27 @@ export function resolveTokenParam(
 ): { resolved: `0x${string}` } | { redirect: string } {
   // Try resolving as address first
   const addressResult = resolveAddressParam(baseParam)
-  if (addressResult) {
+  if (addressResult && "redirect" in addressResult) {
+    return addressResult
+  }
+  if (
+    addressResult &&
+    "resolved" in addressResult &&
+    isValidTokenAddress(addressResult.resolved)
+  ) {
     return addressResult
   }
 
   // Try resolving as ticker
   const tickerResult = resolveTickerParam(baseParam, chainId)
-  console.log("🚀 ~ tickerResult:", tickerResult)
-  if (tickerResult) {
+  if (tickerResult && "redirect" in tickerResult) {
+    return tickerResult
+  }
+  if (
+    tickerResult &&
+    "resolved" in tickerResult &&
+    isValidTokenAddress(tickerResult.resolved)
+  ) {
     return tickerResult
   }
 

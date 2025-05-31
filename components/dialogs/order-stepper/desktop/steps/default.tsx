@@ -44,7 +44,9 @@ import {
   formatNumber,
   safeParseUnits,
 } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function DefaultStep(
   props: NewOrderConfirmationProps & {
@@ -54,8 +56,9 @@ export function DefaultStep(
 ) {
   const { onNext, setTaskId } = useStepper()
 
-  const baseToken = Token.findByTicker(props.base)
-  const quoteToken = Token.findByTicker("USDC")
+  const baseToken = resolveAddress(props.base)
+  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteToken = resolveAddress(quoteMint)
   const { data: price } = usePriceQuery(baseToken.address)
 
   const worstCasePrice = React.useMemo(() => {
@@ -65,7 +68,7 @@ export function DefaultStep(
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
   const { data: request } = usePrepareCreateOrder({
-    base: baseToken.address,
+    base: props.base,
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
@@ -122,7 +125,7 @@ export function DefaultStep(
             createOrder({ request })
           }}
         >
-          {props.isSell ? "Sell" : "Buy"} {props.base}
+          {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
         </Button>
       </DialogFooter>
     </>
@@ -136,7 +139,8 @@ export function ConfirmOrderDisplay(
   },
 ) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const token = Token.findByTicker(props.base)
+  const token = resolveAddress(props.base)
+  const quoteMint = useServerStore((state) => state.order.quoteMint)
   const parsedAmount = safeParseUnits(props.amount, token.decimals)
   const formattedAmount = formatNumber(
     parsedAmount instanceof Error ? BigInt(0) : parsedAmount,
@@ -158,9 +162,9 @@ export function ConfirmOrderDisplay(
         </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">
-            {formattedAmount} {props.base}
+            {formattedAmount} {token.ticker}
           </div>
-          <TokenIcon ticker={props.base} />
+          <TokenIcon ticker={token.ticker} />
         </div>
       </div>
       <div className="space-y-3">
@@ -215,16 +219,17 @@ export function ConfirmOrderDisplay(
         />
       </div>
       <NoBalanceSlotWarning
+        baseMint={props.base}
         className="text-sm text-orange-400"
         isSell={props.isSell}
-        ticker={props.base}
+        quoteMint={quoteMint}
       />
       <InsufficientWarning
         richColors
         amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
         baseMint={token.address}
         className="text-sm text-orange-400"
-        quoteMint={Token.findByTicker("USDC").address}
+        quoteMint={quoteMint}
         side={props.isSell ? Side.SELL : Side.BUY}
       />
     </>

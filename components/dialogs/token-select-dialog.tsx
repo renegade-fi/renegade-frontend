@@ -29,10 +29,10 @@ import { useClientStore } from "@/providers/state-provider/client-store-provider
 
 export function TokenSelectDialog({
   children,
-  ticker,
+  mint,
 }: {
   children: React.ReactNode
-  ticker: string
+  mint: `0x${string}`
 }) {
   const [open, setOpen] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -60,8 +60,8 @@ export function TokenSelectDialog({
           <ScrollArea className="max-h-[50vh] min-h-[50vh]">
             <TokenList
               enabled={open}
+              mint={mint}
               searchTerm={debouncedSearchTerm}
-              ticker={ticker}
               onClose={() => setOpen(false)}
             />
           </ScrollArea>
@@ -96,8 +96,8 @@ export function TokenSelectDialog({
         <ScrollArea className="max-h-[calc(100dvh-158px)]">
           <TokenList
             enabled={open}
+            mint={mint}
             searchTerm={debouncedSearchTerm}
-            ticker={ticker}
             onClose={() => setOpen(false)}
           />
         </ScrollArea>
@@ -121,12 +121,12 @@ function TokenList({
   enabled,
   searchTerm,
   onClose,
-  ticker,
+  mint,
 }: {
   enabled: boolean
   searchTerm: string
   onClose: () => void
-  ticker: string
+  mint: `0x${string}`
 }) {
   const { data, status } = useBackOfQueueWallet({
     query: {
@@ -184,7 +184,7 @@ function TokenList({
             <div
               key={token.address}
               className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-              onClick={() => token.ticker === ticker && onClose()}
+              onClick={() => token.address === mint && onClose()}
             >
               <Link
                 key={token.address}

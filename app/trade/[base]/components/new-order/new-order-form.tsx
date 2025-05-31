@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -38,12 +37,12 @@ import {
 
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
-import { usePriceQuery } from "@/hooks/use-price-query"
 import { useWallets } from "@/hooks/use-wallets"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const formSchema = z.object({
@@ -57,7 +56,9 @@ const formSchema = z.object({
       },
       { message: "Amount must be greater than zero" },
     ),
-  base: z.string(),
+  base: z.string().refine((val): val is `0x${string}` => val.startsWith("0x"), {
+    message: "Must start with 0x",
+  }),
   isSell: z.boolean(),
   isQuoteCurrency: z.boolean(),
 })
@@ -69,13 +70,13 @@ export function NewOrderForm({
   onSubmit,
   closeButton,
 }: {
-  base: string
+  base: `0x${string}`
   onSubmit: (values: NewOrderConfirmationProps) => void
   closeButton?: React.ReactNode
 }) {
   // Form initializaiton
   const {
-    order: { side, currency },
+    order: { side, currency, quoteMint },
     setSide,
     setCurrency,
   } = useServerStore((state) => state)
@@ -107,8 +108,8 @@ export function NewOrderForm({
   const formattedOrderValue = Number(valueInQuoteCurrency)
     ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
-  const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${base}`
-  const { data: price } = usePriceQuery(Token.findByTicker(base).address)
+  const baseTicker = resolveAddress(base).ticker
+  const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${baseTicker}`
 
   React.useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -141,13 +142,10 @@ export function NewOrderForm({
   const { data: hasBalances } = useBackOfQueueWallet({
     query: {
       select: (data) => {
-        const baseToken = Token.findByTicker(base)
-        const quoteToken = Token.findByTicker("USDC")
         return data.balances.some(
           (balance) =>
             balance.amount > BigInt(0) &&
-            (balance.mint === baseToken.address ||
-              balance.mint === quoteToken.address),
+            (balance.mint === base || balance.mint === quoteMint),
         )
       },
     },
@@ -202,7 +200,7 @@ export function NewOrderForm({
               </FormItem>
             )}
           />
-          <TokenSelectDialog ticker={base}>
+          <TokenSelectDialog mint={base}>
             <Button
               className="hidden flex-1 border-l-0 font-serif text-2xl font-bold lg:inline-flex"
               size="xl"
@@ -211,9 +209,9 @@ export function NewOrderForm({
               <TokenIcon
                 className="mr-2"
                 size={22}
-                ticker={base}
+                ticker={baseTicker}
               />
-              {base}
+              {baseTicker}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </TokenSelectDialog>
@@ -256,7 +254,7 @@ export function NewOrderForm({
                         field.onChange(!field.value)
                       }}
                     >
-                      {field.value ? "USDC" : base}
+                      {field.value ? "USDC" : baseTicker}
                       <ArrowRightLeft className="ml-2 h-5 w-5" />
                     </Button>
                   </FormControl>
@@ -292,13 +290,15 @@ export function NewOrderForm({
         </div>
         <MaxOrdersWarning className="text-sm text-orange-400" />
         <NoBalanceSlotWarning
+          baseMint={base}
           className="text-sm text-orange-400"
           isSell={form.getValues("isSell")}
-          ticker={base}
+          quoteMint={quoteMint}
         />
         <DepositWarning
+          baseMint={base}
           className="text-sm text-orange-400"
-          ticker={base}
+          quoteMint={quoteMint}
         />
 
         {walletReadyState === "READY" ? (
@@ -315,7 +315,7 @@ export function NewOrderForm({
                 type="submit"
                 variant="default"
               >
-                {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+                {form.getValues("isSell") ? "Sell" : "Buy"} {baseTicker}
               </Button>
             </MaintenanceButtonWrapper>
           </div>
@@ -377,7 +377,7 @@ export function NewOrderForm({
               type="submit"
               variant="default"
             >
-              {form.getValues("isSell") ? "Sell" : "Buy"} {base}
+              {form.getValues("isSell") ? "Sell" : "Buy"} {baseTicker}
             </Button>
           </MaintenanceButtonWrapper>
         </div>

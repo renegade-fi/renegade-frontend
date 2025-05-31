@@ -8,16 +8,18 @@ import { Button } from "@/components/ui/button"
 import {
   DialogClose,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
+
 export function DefaultStep(props: {
-  base: string
+  base: `0x${string}`
   onSubmit: (values: NewOrderConfirmationProps) => void
 }) {
+  const quoteMint = useServerStore((state) => state.order.quoteMint)
   return (
     <>
       <DialogHeader className="p-0">
@@ -28,8 +30,8 @@ export function DefaultStep(props: {
       </DialogHeader>
       <div className="mt-6 p-6">
         <AssetsSection
-          disabled
           base={props.base}
+          quote={quoteMint}
         />
       </div>
       <Separator />

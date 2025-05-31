@@ -31,6 +31,7 @@ export type ServerActions = {
   setAmount: (amount: string) => void
   setCurrency: (currency: "base" | "quote") => void
   setBase: (baseMint: `0x${string}`) => void
+  setQuote: (quoteMint: `0x${string}`) => void
   setPanels: (layout: number[]) => void
   setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => void
   resetWallet: () => void
@@ -92,6 +93,13 @@ export const createServerStore = (
             order: {
               ...state.order,
               baseMint: baseMint.toLowerCase() as `0x${string}`,
+            },
+          })),
+        setQuote: (quoteMint: `0x${string}`) =>
+          set((state) => ({
+            order: {
+              ...state.order,
+              quoteMint: quoteMint.toLowerCase() as `0x${string}`,
             },
           })),
         setPanels: (layout: number[]) =>
