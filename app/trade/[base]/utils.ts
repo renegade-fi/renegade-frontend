@@ -10,6 +10,8 @@ import type { ServerState } from "@/providers/state-provider/server-store"
 
 export const FALLBACK_TICKER = "WETH"
 
+const zeroAddress = "0x0000000000000000000000000000000000000000"
+
 /**
  * Validates that an address corresponds to a valid (non-stablecoin) token
  */
@@ -77,10 +79,13 @@ export function resolveTickerParam(
     // First, try to resolve the ticker to get the canonical casing
     if (chainId) {
       token = resolveTickerAndChain(baseParam, chainId)
-      if (!token) throw new Error("Token not found")
+      if (!token || token.address === zeroAddress)
+        throw new Error("Token not found")
       resolvedAddress = token.address.toLowerCase() as `0x${string}`
     } else {
       token = resolveTicker(baseParam)
+      if (!token || token.address === zeroAddress)
+        throw new Error("Token not found")
       resolvedAddress = token.address.toLowerCase() as `0x${string}`
     }
 
@@ -111,28 +116,28 @@ export function resolveTokenParam(
 ): { resolved: `0x${string}` } | { redirect: string } {
   // Try resolving as address first
   const addressResult = resolveAddressParam(baseParam)
-  if (addressResult) {
-    if (
-      "resolved" in addressResult &&
-      !isValidTokenAddress(addressResult.resolved)
-    ) {
-      // Address format is valid but not a valid token, try ticker resolution
-    } else {
-      return addressResult
-    }
+  if (addressResult && "redirect" in addressResult) {
+    return addressResult
+  }
+  if (
+    addressResult &&
+    "resolved" in addressResult &&
+    isValidTokenAddress(addressResult.resolved)
+  ) {
+    return addressResult
   }
 
   // Try resolving as ticker
   const tickerResult = resolveTickerParam(baseParam, chainId)
-  if (tickerResult) {
-    if (
-      "resolved" in tickerResult &&
-      !isValidTokenAddress(tickerResult.resolved)
-    ) {
-      // Ticker resolved but not a valid token, fall back
-    } else {
-      return tickerResult
-    }
+  if (tickerResult && "redirect" in tickerResult) {
+    return tickerResult
+  }
+  if (
+    tickerResult &&
+    "resolved" in tickerResult &&
+    isValidTokenAddress(tickerResult.resolved)
+  ) {
+    return tickerResult
   }
 
   // Fallback to base mint ticker
