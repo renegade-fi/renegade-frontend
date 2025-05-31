@@ -1,19 +1,23 @@
 import { useQuery } from "@tanstack/react-query"
+import { zeroAddress } from "viem"
 
 import { TimeToFillResponse } from "@/app/api/stats/time-to-fill/route"
 
+import { resolveAddress } from "@/lib/token"
+
 interface TimeToFillParams {
   amount: string
-  baseTicker: string
+  mint: `0x${string}`
 }
 
-export function useTimeToFill({ amount, baseTicker }: TimeToFillParams) {
+export function useTimeToFill({ amount, mint }: TimeToFillParams) {
   return useQuery({
-    queryKey: ["timeToFill", amount, baseTicker],
+    queryKey: ["timeToFill", amount, mint],
     queryFn: async () => {
+      const ticker = resolveAddress(mint).ticker
       const searchParams = new URLSearchParams({
         amount,
-        baseTicker,
+        baseTicker: ticker,
       })
 
       const response = await fetch(`/api/stats/time-to-fill?${searchParams}`)
@@ -34,6 +38,6 @@ export function useTimeToFill({ amount, baseTicker }: TimeToFillParams) {
 
       return data.estimatedMs
     },
-    enabled: Boolean(amount && baseTicker),
+    enabled: Boolean(amount && mint),
   })
 }

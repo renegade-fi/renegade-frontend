@@ -10,6 +10,7 @@ import { Slider } from "@/components/animated-slider"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { useOrderValue } from "@/hooks/use-order-value"
+import { resolveTicker } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 interface TimeDisplayValues {
@@ -20,21 +21,23 @@ interface TimeDisplayValues {
 
 export function TimeToFillCard() {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
-  const [selectedTicker, setSelectedToken] = React.useState("WETH")
+  const [selectedToken, setSelectedToken] = React.useState(
+    resolveTicker("WETH").address,
+  )
   const [isSell, setIsSell] = React.useState(true)
 
   const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue({
     amount: selectedAmount.toString(),
-    base: selectedTicker,
+    base: selectedToken,
     isQuoteCurrency: true,
     isSell,
   })
 
   const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 500)
 
-  const { data: timeToFillMs, isLoading } = useTimeToFill({
+  const { data: timeToFillMs } = useTimeToFill({
     amount: debouncedUsdValue,
-    baseTicker: selectedTicker,
+    mint: selectedToken,
   })
 
   const lastValidValue = useRef<TimeDisplayValues>({
@@ -119,7 +122,7 @@ export function TimeToFillCard() {
               <Skeleton className="h-8 w-32" />
             )}
             <TokenSelect
-              value={selectedTicker}
+              value={selectedToken}
               onChange={setSelectedToken}
             />
             {displayValues.value ? (

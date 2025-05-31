@@ -20,11 +20,14 @@ import {
 } from "@/components/ui/context-menu"
 
 import { useWallets } from "@/hooks/use-wallets"
+import { resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function Header() {
   const pathname = usePathname()
   const { walletReadyState, arbitrumWallet } = useWallets()
+  const baseMint = useServerStore((state) => state.order.baseMint)
 
   return (
     <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
@@ -102,7 +105,7 @@ export function Header() {
               "flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground",
               pathname.startsWith("/trade") && "text-foreground",
             )}
-            href="/trade"
+            href={`/trade/${resolveAddress(baseMint).ticker}`}
           >
             Trade
           </Link>
