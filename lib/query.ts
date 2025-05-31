@@ -1,6 +1,7 @@
 import { Exchange } from "@renegade-fi/react"
-import { getDefaultQuoteToken } from "@renegade-fi/token-nextjs"
 import { Query, QueryClient } from "@tanstack/react-query"
+
+import { getDefaultQuote } from "./token"
 
 // Helper function defining a global rule for invalidating queries
 // We invalidate queries that are:
@@ -41,7 +42,7 @@ export function createPriceTopic({
   if (!exchange || exchange === "renegade") {
     return `renegade-${base}`
   }
-  const quote = _quote ?? getDefaultQuoteToken(exchange).address
+  const quote = _quote ?? getDefaultQuote(base, exchange).address
   return `${exchange}-${base}-${quote}`
 }
 
@@ -61,7 +62,7 @@ export function createPriceQueryKey({
   if (!exchange || exchange === "renegade") {
     return ["price", "renegade", base]
   }
-  const quote = _quote ?? getDefaultQuoteToken(exchange).address
+  const quote = _quote ?? getDefaultQuote(base, exchange).address
   return ["price", exchange, base, quote]
 }
 

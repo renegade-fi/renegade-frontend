@@ -4,6 +4,7 @@ import { createStore } from "zustand/vanilla"
 
 import { Side } from "@/lib/constants/protocol"
 import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
+import { resolveTicker } from "@/lib/token"
 import { createCookieStorage } from "@/providers/state-provider/cookie-storage"
 
 // State that must be available during Server Component rendering
@@ -17,7 +18,8 @@ export type ServerState = {
     side: Side
     amount: string
     currency: "base" | "quote"
-    base: string
+    baseMint: `0x${string}`
+    quoteMint: `0x${string}`
   }
   panels: {
     layout: number[]
@@ -28,7 +30,7 @@ export type ServerActions = {
   setSide: (side: Side) => void
   setAmount: (amount: string) => void
   setCurrency: (currency: "base" | "quote") => void
-  setBase: (base: string) => void
+  setBase: (baseMint: `0x${string}`) => void
   setPanels: (layout: number[]) => void
   setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => void
   resetWallet: () => void
@@ -36,6 +38,8 @@ export type ServerActions = {
 
 export type ServerStore = ServerState & ServerActions
 
+const WETH = resolveTicker("WETH")
+const USDC = resolveTicker("USDC")
 export const initServerStore = (): ServerState => {
   return {
     wallet: {
@@ -43,7 +47,13 @@ export const initServerStore = (): ServerState => {
       chainId: undefined,
       id: undefined,
     },
-    order: { side: Side.BUY, amount: "", currency: "base", base: "WBTC" },
+    order: {
+      side: Side.BUY,
+      amount: "",
+      currency: "base",
+      baseMint: WETH.address,
+      quoteMint: USDC.address,
+    },
     panels: { layout: [22, 78] },
   }
 }
@@ -54,7 +64,13 @@ export const defaultInitState: ServerState = {
     chainId: undefined,
     id: undefined,
   },
-  order: { side: Side.BUY, amount: "", currency: "base", base: "WBTC" },
+  order: {
+    side: Side.BUY,
+    amount: "",
+    currency: "base",
+    baseMint: WETH.address,
+    quoteMint: USDC.address,
+  },
   panels: { layout: [22, 78] },
 }
 
@@ -71,8 +87,13 @@ export const createServerStore = (
           set((state) => ({ order: { ...state.order, amount } })),
         setCurrency: (currency: "base" | "quote") =>
           set((state) => ({ order: { ...state.order, currency } })),
-        setBase: (base: string) =>
-          set((state) => ({ order: { ...state.order, base } })),
+        setBase: (baseMint: `0x${string}`) =>
+          set((state) => ({
+            order: {
+              ...state.order,
+              baseMint: baseMint.toLowerCase() as `0x${string}`,
+            },
+          })),
         setPanels: (layout: number[]) =>
           set((state) => ({ panels: { layout } })),
         setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) =>

@@ -1,30 +1,29 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { getBaseMint, getTickerForAddress } from "@/app/trade/[base]/utils"
+
 import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
+import { defaultInitState } from "@/providers/state-provider/server-store"
 
 export function middleware(request: NextRequest) {
-  const cookieString = request.cookies.toString()
-  const serverState = cookieToInitialState(STORAGE_SERVER_STORE, cookieString)
-  const currentBase = serverState?.order.base || "WETH"
-
-  // Redirect root and /trade paths
+  // Redirect root or bare /trade to the user's default token
   if (
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname === "/trade"
   ) {
-    return NextResponse.redirect(new URL(`/trade/${currentBase}`, request.url))
-  }
+    const cookieString = request.cookies.toString()
+    const initialState = cookieToInitialState(
+      STORAGE_SERVER_STORE,
+      cookieString,
+    )
+    const serverState = initialState ?? defaultInitState
+    const defaultAddress = getBaseMint(serverState)
+    const fallbackTicker = getTickerForAddress(defaultAddress).toLowerCase()
 
-  // Extract BASE from /trade/{BASE} path and handle USDC case
-  const baseMatch = request.nextUrl.pathname.match(/^\/trade\/([^\/]+)/)
-  if (baseMatch) {
-    const base = baseMatch[1]
-    if (base === "USDC") {
-      return NextResponse.redirect(
-        new URL(`/trade/${currentBase}`, request.url),
-      )
-    }
+    return NextResponse.redirect(
+      new URL(`/trade/${fallbackTicker}`, request.url),
+    )
   }
 
   return NextResponse.next()
