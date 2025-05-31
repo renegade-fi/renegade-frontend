@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { isAddress } from "viem"
+import { arbitrum } from "viem/chains"
 
 import {
   readErc20BalanceOf,
@@ -15,12 +16,11 @@ import {
   ETHEREUM_TOKENS,
   SOLANA_TOKENS,
 } from "@/lib/token"
-import { arbitrum } from "viem/chains"
 
 export const runtime = "edge"
 
 const tokens = DISPLAY_TOKENS({
-  chainId: arbitrum.id
+  chainId: arbitrum.id,
 })
 
 export async function GET(req: Request) {

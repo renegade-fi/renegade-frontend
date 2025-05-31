@@ -1,5 +1,6 @@
+import { Exchange } from "@renegade-fi/react"
 import { ChainId } from "@renegade-fi/react/constants"
-import { Token } from "@renegade-fi/token-nextjs"
+import { getDefaultQuoteTokenOnChain, Token } from "@renegade-fi/token-nextjs"
 import { getAddress, isAddressEqual } from "viem"
 import { mainnet } from "viem/chains"
 
@@ -34,15 +35,37 @@ export const DISPLAY_TOKENS = (
 }
 
 /**
- * Resolve the token address for a given mint across all chains
- * @param mint - The mint address
- * @returns The token address
+ * Returns the default quote token for a given mint and exchange on the chain of the mint
+ */
+export function getDefaultQuote(mint: `0x${string}`, exchange: Exchange) {
+  const chain = resolveAddress(mint).chain
+  if (!chain) {
+    return Token.create("UNKNOWN", "UNKNOWN", mint, 18, {})
+  }
+  const quote = getDefaultQuoteTokenOnChain(chain, exchange)
+  return Token.fromAddressOnChain(quote.address, chain)
+}
+
+/**
+ * Returns the first token found with the given mint address
  */
 export function resolveAddress(mint: `0x${string}`) {
   const tokens = Token.getAllTokens()
   const token = tokens.find((token) => isAddressEqual(token.address, mint))
   if (!token) {
-    throw new Error(`Token not found: ${mint}`)
+    return Token.create("UNKNOWN", "UNKNOWN", mint, 18, {})
+  }
+  return token
+}
+
+/**
+ * Returns the first token found with the given ticker
+ */
+export function resolveTicker(ticker: string) {
+  const tokens = Token.getAllTokens()
+  const token = tokens.find((token) => token.ticker === ticker)
+  if (!token) {
+    throw new Error(`Token not found: ${ticker}`)
   }
   return token
 }
