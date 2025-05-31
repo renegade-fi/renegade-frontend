@@ -1,5 +1,6 @@
 import { Exchange } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+
+import { resolveAddress } from "./token"
 
 /** Mapping of token price statuses with text, statusColor, and priceColor. */
 export const PRICE_STATUSES = {
@@ -37,7 +38,7 @@ export function getPriceStatus({
   mint: `0x${string}`
   exchange?: Exchange
 }) {
-  const token = Token.findByAddress(mint)
+  const token = resolveAddress(mint)
   const tokenSupported = token.supportedExchanges.has(exchange)
 
   if (!tokenSupported) {
