@@ -3,13 +3,11 @@ import { useQuery } from "@tanstack/react-query"
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
-import { resolveAddress } from "@/lib/token"
 
 export function useSavings({ amount, base, isSell }: NewOrderFormProps) {
-  const baseToken = resolveAddress(base)
   const options = {
     amount,
-    baseTicker: baseToken.ticker,
+    baseMint: base,
     direction: isSell ? "sell" : "buy",
     quoteTicker: "USDC",
     renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,

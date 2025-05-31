@@ -14,14 +14,14 @@ export async function POST(request: Request) {
   try {
     const res = await request.json()
     const {
-      baseTicker,
+      baseMint,
       quoteTicker,
       direction,
       amount,
       renegadeFeeRate,
       timestamp = Date.now(),
     } = res
-    invariant(baseTicker, "baseTicker is required")
+    invariant(baseMint, "baseMint is required")
     invariant(quoteTicker, "quoteTicker is required")
     invariant(direction, "direction is required")
     invariant(renegadeFeeRate, "renegadeFeeRate is required")
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       return Response.json({ savings: 0 })
     }
 
-    const instrument = `${remapToken(baseTicker)}_usdt`
+    const instrument = `${remapToken(baseMint)}_usdt`
 
     const orderbookRes = await constructBinanceOrderbook(instrument, timestamp)
 

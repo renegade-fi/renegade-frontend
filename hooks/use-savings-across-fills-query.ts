@@ -15,7 +15,7 @@ export function useSavingsAcrossFillsQuery({
   const direction = order.data.side === "Buy" ? "buy" : "sell"
   const options = order.fills.map((fill) => ({
     amount: formatUnits(fill.amount, baseToken.decimals),
-    baseTicker: baseToken.ticker,
+    baseMint: order.data.base_mint,
     quoteTicker,
     direction,
     renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,
