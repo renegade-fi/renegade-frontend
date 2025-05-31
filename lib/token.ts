@@ -34,13 +34,21 @@ export const DISPLAY_TOKENS = (
   return tokens
 }
 
+const DEFAULT_TOKEN = Token.create(
+  "UNKNOWN",
+  "UNKNOWN",
+  "0x0000000000000000000000000000000000000000",
+  18,
+  {},
+)
+
 /**
  * Returns the default quote token for a given mint and exchange on the chain of the mint
  */
 export function getDefaultQuote(mint: `0x${string}`, exchange: Exchange) {
   const chain = resolveAddress(mint).chain
   if (!chain) {
-    return Token.create("UNKNOWN", "UNKNOWN", mint, 18, {})
+    return DEFAULT_TOKEN
   }
   const quote = getDefaultQuoteTokenOnChain(chain, exchange)
   return Token.fromAddressOnChain(quote.address, chain)
@@ -53,7 +61,7 @@ export function resolveAddress(mint: `0x${string}`) {
   const tokens = Token.getAllTokens()
   const token = tokens.find((token) => isAddressEqual(token.address, mint))
   if (!token) {
-    return Token.create("UNKNOWN", "UNKNOWN", mint, 18, {})
+    return DEFAULT_TOKEN
   }
   return token
 }
@@ -65,7 +73,7 @@ export function resolveTicker(ticker: string) {
   const tokens = Token.getAllTokens()
   const token = tokens.find((token) => token.ticker === ticker)
   if (!token) {
-    throw new Error(`Token not found: ${ticker}`)
+    return DEFAULT_TOKEN
   }
   return token
 }
