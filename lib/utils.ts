@@ -8,6 +8,8 @@ import { twMerge } from "tailwind-merge"
 import { env } from "@/env/client"
 import { isTestnet } from "@/lib/viem"
 
+import { resolveAddress } from "./token"
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -210,10 +212,8 @@ export function decimalCorrectPrice(
   return correctedPrice
 }
 
-export function constructExchangeUrl(exchange: Exchange, baseTicker: string) {
-  const remappedBase = Token.findByTicker(
-    baseTicker.toUpperCase(),
-  ).getExchangeTicker(exchange)
+export function constructExchangeUrl(exchange: Exchange, mint: `0x${string}`) {
+  const remappedBase = resolveAddress(mint).getExchangeTicker(exchange)
   const remappedQuote =
     getDefaultQuoteToken(exchange).getExchangeTicker(exchange)
   if (!(remappedBase && remappedQuote)) {
