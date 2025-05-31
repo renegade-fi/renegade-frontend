@@ -8,8 +8,9 @@ import {
   useBackOfQueueWallet,
   useConfig,
 } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { isAddress, isHex, parseUnits, toHex } from "viem"
+
+import { resolveAddress } from "@/lib/token"
 
 export type UsePrepareDepositParameters = {
   amount?: number | bigint
@@ -44,7 +45,7 @@ export function usePrepareDeposit(parameters: UsePrepareDepositParameters) {
     if (!isAddress(mint) || !isAddress(fromAddr) || !isHex(permit))
       return undefined
 
-    const token = Token.findByAddress(mint)
+    const token = resolveAddress(mint)
     let parsedAmount: bigint
     if (typeof amount === "number") {
       parsedAmount = parseUnits(amount.toString(), token.decimals)

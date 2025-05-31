@@ -89,7 +89,7 @@ import {
   useWriteWethWithdraw,
   wethAbi,
 } from "@/lib/generated"
-import { ETHEREUM_TOKENS } from "@/lib/token"
+import { ETHEREUM_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
@@ -98,8 +98,6 @@ import {
 } from "@/providers/wagmi-provider/config"
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
-// Assume mint is WETH
-const WETH_L2_TOKEN = Token.findByTicker("WETH")
 
 export function WETHForm({
   className,
@@ -113,6 +111,11 @@ export function WETHForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
+  const mint = useWatch({
+    control: form.control,
+    name: "mint",
+  })
+  const WETH_L2_TOKEN = resolveAddress(mint as `0x${string}`)
   const chainId = useChainId()
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
@@ -124,10 +127,6 @@ export function WETHForm({
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
   const [unwrapRequired, setUnwrapRequired] = React.useState(false)
-  const mint = useWatch({
-    control: form.control,
-    name: "mint",
-  })
   const amount = useWatch({
     control: form.control,
     name: "amount",
@@ -363,7 +362,7 @@ export function WETHForm({
     const isAmountSufficient = checkAmount(
       queryClient,
       values.amount,
-      WETH_L2_TOKEN,
+      WETH_L2_TOKEN.address,
     )
 
     if (isDeposit) {
@@ -564,6 +563,7 @@ export function WETHForm({
           <ReviewWrap
             gasEstimate={gasEstimate}
             minEthToKeepUnwrapped={minEthToKeepUnwrapped}
+            mint={mint as `0x${string}`}
             remainingEthBalance={remainingEthBalance}
             wrapAmount={
               parseEther(form.getValues("amount")) - (l2Balance ?? BigInt(0))

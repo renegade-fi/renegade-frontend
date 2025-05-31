@@ -3,7 +3,6 @@
 import React from "react"
 
 import { TaskType, UpdateType, useTaskHistory } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
@@ -19,7 +18,7 @@ import {
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { useChainId } from "@/hooks/use-chain-id"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -68,7 +67,7 @@ export function PageClient() {
         (task.task_info.update_type === UpdateType.Deposit ||
           task.task_info.update_type === UpdateType.Withdraw)
       ) {
-        const token = Token.findByAddress(task.task_info.mint)
+        const token = resolveAddress(task.task_info.mint)
 
         acc.push({
           status: task.state,

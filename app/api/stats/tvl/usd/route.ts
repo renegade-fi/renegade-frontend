@@ -23,7 +23,7 @@ export async function GET() {
               env.RPC_URL,
               arbitrumSDKConfig.darkpoolAddress,
             ),
-            fetchAssetPrice(remapToken(token.ticker), env.AMBERDATA_API_KEY),
+            fetchAssetPrice(remapToken(token.address), env.AMBERDATA_API_KEY),
           ])
           return {
             balance,

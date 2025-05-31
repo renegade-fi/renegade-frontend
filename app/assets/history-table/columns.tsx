@@ -1,4 +1,3 @@
-import { Token } from "@renegade-fi/token-nextjs"
 import { ColumnDef } from "@tanstack/react-table"
 import { formatUnits } from "viem/utils"
 
@@ -18,6 +17,7 @@ import {
   formatNumber,
   formatTimestamp,
 } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 export const columns: ColumnDef<HistoryData>[] = [
   {
@@ -33,7 +33,7 @@ export const columns: ColumnDef<HistoryData>[] = [
     header: () => <div className="pr-7">Asset</div>,
     cell: ({ row }) => {
       const mint = row.getValue<`0x${string}`>("mint")
-      const token = Token.findByAddress(mint)
+      const token = resolveAddress(mint)
       return (
         <div className="flex items-center gap-2 font-medium">
           <TokenIcon
@@ -61,7 +61,7 @@ export const columns: ColumnDef<HistoryData>[] = [
     ),
     cell: function Cell({ row }) {
       const mint = row.getValue<`0x${string}`>("mint")
-      const token = Token.findByAddress(mint)
+      const token = resolveAddress(mint)
       const { data: price } = usePriceQuery(mint)
       const amount = row.original.rawAmount
       const usdValueBigInt = amountTimesPrice(amount, price)
@@ -76,7 +76,7 @@ export const columns: ColumnDef<HistoryData>[] = [
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row, table }) => {
       const amount = row.original.rawAmount
-      const token = Token.findByAddress(row.original.mint)
+      const token = resolveAddress(row.original.mint)
       const formatted = formatNumber(
         amount,
         token.decimals,

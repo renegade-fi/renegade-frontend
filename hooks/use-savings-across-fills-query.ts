@@ -1,16 +1,17 @@
 import { OrderMetadata } from "@renegade-fi/react"
-import { formatUnits, Token } from "@renegade-fi/token-nextjs"
+import { formatUnits } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
+import { resolveAddress } from "@/lib/token"
 
 export function useSavingsAcrossFillsQuery({
   order,
 }: {
   order: OrderMetadata
 }) {
-  const baseToken = Token.findByAddress(order.data.base_mint)
-  const quoteTicker = Token.findByAddress(order.data.quote_mint).ticker
+  const baseToken = resolveAddress(order.data.base_mint)
+  const quoteTicker = resolveAddress(order.data.quote_mint).ticker
   const direction = order.data.side === "Buy" ? "buy" : "sell"
   const options = order.fills.map((fill) => ({
     amount: formatUnits(fill.amount, baseToken.decimals),

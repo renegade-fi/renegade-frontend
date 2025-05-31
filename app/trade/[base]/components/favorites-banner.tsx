@@ -1,12 +1,12 @@
 import Link from "next/link"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { Star } from "lucide-react"
 import { isAddress } from "viem/utils"
 
 import { AnimatedPrice } from "@/components/animated-price"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
+import { resolveAddress } from "@/lib/token"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 
 export function FavoritesBanner() {
@@ -21,7 +21,7 @@ export function FavoritesBanner() {
           </div>
           {favorites.map((address, index) => {
             if (!isAddress(address)) return null
-            const token = Token.findByAddress(address)
+            const token = resolveAddress(address)
             return (
               <div
                 key={address}
@@ -30,7 +30,7 @@ export function FavoritesBanner() {
                 <Link href={`/trade/${token.ticker}`}>
                   <span className="space-x-4">
                     <span>{token.ticker}</span>
-                    <AnimatedPrice mint={token.address} />
+                    <AnimatedPrice mint={address} />
                   </span>
                 </Link>
                 {index < favorites.length - 1 && (

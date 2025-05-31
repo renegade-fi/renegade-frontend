@@ -1,7 +1,6 @@
 import Image from "next/image"
 
 import { OrderMetadata, OrderState } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem/utils"
 
 import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button"
@@ -19,22 +18,23 @@ import { Separator } from "@/components/ui/separator"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { formatNumber, formatOrderState } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 export function EmptyContent({ order }: { order: OrderMetadata }) {
-  const token = Token.findByAddress(order.data.base_mint)
+  const baseToken = resolveAddress(order.data.base_mint)
   const formattedTotalAmount = formatNumber(
     order.data.amount,
-    token.decimals,
+    baseToken.decimals,
     true,
   )
   const formattedTotalAmountLong = formatUnits(
     order.data.amount,
-    token.decimals,
+    baseToken.decimals,
   )
-  const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${token.ticker} ${
+  const title = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmount} ${baseToken.ticker} ${
     order.data.side === "Buy" ? "with" : "for"
   } USDC`
-  const titleLong = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmountLong} ${token.ticker} ${
+  const titleLong = `${order.data.side === "Buy" ? "Buy" : "Sell"} ${formattedTotalAmountLong} ${baseToken.ticker} ${
     order.data.side === "Buy" ? "with" : "for"
   } USDC`
 

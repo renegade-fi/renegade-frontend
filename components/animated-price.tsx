@@ -13,7 +13,7 @@ export function AnimatedPrice({
   mint,
 }: {
   className?: string
-  exchange: Exchange
+  exchange?: Exchange
   mint: `0x${string}`
 }) {
   const { data: price, isStale } = usePriceQuery(mint, exchange)

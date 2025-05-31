@@ -7,11 +7,11 @@ import {
   useConfig,
 } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
-import { Token } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 import { toHex } from "viem"
 
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 
 export type UsePrepareCreateOrderParameters = {
   id?: string
@@ -48,10 +48,7 @@ export function usePrepareCreateOrder(
         throw new Error("Max orders reached.")
       if (!worstCasePrice) throw new Error("Worst case price is required")
 
-      const parsedAmount = safeParseUnits(
-        amount,
-        Token.findByAddress(base).decimals,
-      )
+      const parsedAmount = safeParseUnits(amount, resolveAddress(base).decimals)
       if (parsedAmount instanceof Error)
         throw new Error("Failed to parse amount.")
 

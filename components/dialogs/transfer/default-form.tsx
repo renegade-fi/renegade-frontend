@@ -218,7 +218,11 @@ export function DefaultForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const isAmountSufficient = checkAmount(queryClient, values.amount, l2Token)
+    const isAmountSufficient = checkAmount(
+      queryClient,
+      values.amount,
+      l2Token?.address,
+    )
 
     if (isDeposit) {
       if (!isAmountSufficient) {

@@ -2,7 +2,7 @@ import { Token } from "@renegade-fi/token-nextjs"
 import { mainnet } from "viem/chains"
 import { isAddress } from "viem/utils"
 
-import { ETHEREUM_TOKENS } from "@/lib/token"
+import { ETHEREUM_TOKENS, resolveAddress } from "@/lib/token"
 
 export function useToken({
   chainId,
@@ -14,7 +14,7 @@ export function useToken({
   if (!mint || !isAddress(mint)) return undefined
 
   const address = mint as `0x${string}`
-  const baseToken = Token.findByAddress(address)
+  const baseToken = resolveAddress(address)
 
   if (!chainId) return baseToken
   if (chainId === mainnet.id && baseToken) {

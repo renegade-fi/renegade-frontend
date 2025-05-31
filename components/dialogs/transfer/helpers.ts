@@ -1,6 +1,4 @@
-import { Config } from "@renegade-fi/react"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { Token } from "@renegade-fi/token-nextjs"
 import { QueryClient } from "@tanstack/react-query"
 import invariant from "tiny-invariant"
 import { formatUnits, isAddress, PublicClient } from "viem"
@@ -9,6 +7,7 @@ import { z } from "zod"
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
+import { resolveAddress } from "@/lib/token"
 import { extractSupportedChain } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
@@ -36,12 +35,12 @@ export const formSchema = z.object({
 export function checkAmount(
   queryClient: QueryClient,
   amount: string,
-  baseToken?: InstanceType<typeof Token>,
+  mint?: `0x${string}`,
 ) {
-  if (!baseToken) return false
+  if (!mint) return false
   const usdPrice = queryClient.getQueryData<number>(
     createPriceQueryKey({
-      base: baseToken.address,
+      base: mint,
     }),
   )
   if (!usdPrice) return false
@@ -60,7 +59,7 @@ export function checkBalance({
     return false
   }
   try {
-    const token = Token.findByAddress(mint as `0x${string}`)
+    const token = resolveAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)
     if (parsedAmount instanceof Error) {
       return false
@@ -81,7 +80,7 @@ export function isMaxBalance({
     return false
   }
   try {
-    const token = Token.findByAddress(mint as `0x${string}`)
+    const token = resolveAddress(mint as `0x${string}`)
     const formattedAmount = formatUnits(balance, token.decimals)
     return amount === formattedAmount
   } catch (error) {

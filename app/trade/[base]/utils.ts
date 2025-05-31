@@ -9,6 +9,7 @@ import {
 import type { ServerState } from "@/providers/state-provider/server-store"
 
 export const FALLBACK_TICKER = "WETH"
+const zeroAddress = "0x0000000000000000000000000000000000000000"
 
 const zeroAddress = "0x0000000000000000000000000000000000000000"
 
