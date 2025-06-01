@@ -33,13 +33,8 @@ export const DISPLAY_TOKENS = (
   return tokens
 }
 
-const DEFAULT_TOKEN = Token.create(
-  "UNKNOWN",
-  "UNKNOWN",
-  "0x0000000000000000000000000000000000000000",
-  18,
-  {},
-)
+export const zeroAddress = "0x0000000000000000000000000000000000000000"
+const DEFAULT_TOKEN = Token.create("UNKNOWN", "UNKNOWN", zeroAddress, 18, {})
 
 /**
  * Returns the default quote token for a given mint and exchange on the chain of the mint

@@ -24,6 +24,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 import { useOrderTableData } from "@/hooks/use-order-table-data"
+import { useResolvePair } from "@/hooks/use-resolve-pair"
 import { defaultInitState } from "@/providers/state-provider/server-store"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
@@ -31,20 +32,30 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 const PriceChartMemo = React.memo(PriceChart)
 
 export function PageClient({ base }: { base: `0x${string}` }) {
+  const { base: baseMint, quote: quoteMint } = useResolvePair(base)
   const data = useOrderTableData()
-  const { setBase, panels, setPanels } = useServerStore((state) => state)
+  const {
+    panels,
+    setPanels,
+    order: { baseMint: cachedBaseMint },
+    setBase,
+    setQuote,
+  } = useServerStore((state) => state)
   const debouncedSetPanels = useDebounceCallback(setPanels, 500)
 
   React.useEffect(() => {
-    setBase(base)
-  }, [base, setBase])
+    if (cachedBaseMint !== baseMint) {
+      setBase(baseMint)
+      setQuote(quoteMint)
+    }
+  }, [baseMint, cachedBaseMint, quoteMint, setBase, setQuote])
 
   return (
     <>
       <MaintenanceBanner />
       <DepositBanner />
-      <BBOMarquee base={base} />
-      <MobileAssetPriceAccordion base={base} />
+      <BBOMarquee base={baseMint} />
+      <MobileAssetPriceAccordion base={baseMint} />
       <ScrollArea className="flex-grow">
         <ResizablePanelGroup
           direction="horizontal"
@@ -57,7 +68,7 @@ export function PageClient({ base }: { base: `0x${string}` }) {
             minSize={defaultInitState.panels.layout[0]}
             order={1}
           >
-            <NewOrderPanel base={base} />
+            <NewOrderPanel base={baseMint} />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel
@@ -65,7 +76,7 @@ export function PageClient({ base }: { base: `0x${string}` }) {
             order={2}
           >
             <main>
-              <PriceChartMemo base={base} />
+              <PriceChartMemo base={baseMint} />
               <Separator />
               <div className="p-6">
                 <DataTable
@@ -85,7 +96,7 @@ export function PageClient({ base }: { base: `0x${string}` }) {
         </ResizablePanelGroup>
       </ScrollArea>
       <FavoritesBanner />
-      <MobileBottomBar base={base} />
+      <MobileBottomBar base={baseMint} />
     </>
   )
 }

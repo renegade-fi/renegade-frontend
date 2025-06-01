@@ -1,4 +1,4 @@
-import { cookies } from "next/headers"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import {
@@ -23,10 +23,12 @@ import { resolveTokenParam } from "./utils"
  * Hydrates server state from cookies
  */
 export async function hydrateServerState(): Promise<ServerState> {
-  const cookieStore = await cookies()
-  const cookieVal = cookieStore.get(STORAGE_SERVER_STORE)?.value
+  const headersList = await headers()
+  const cookieString = headersList.get("cookie")
+    ? decodeURIComponent(headersList.get("cookie") ?? "")
+    : ""
   const initialState =
-    cookieToInitialState(STORAGE_SERVER_STORE, cookieVal) ?? defaultInitState
+    cookieToInitialState(STORAGE_SERVER_STORE, cookieString) ?? defaultInitState
   return initialState
 }
 
@@ -46,10 +48,9 @@ export default async function Page({
 
   // Hydrate server-side state from cookies
   const serverState = await hydrateServerState()
-  const chainId = serverState.wallet.chainId
 
   // Resolve ticker or address to a valid token address
-  const result = resolveTokenParam(baseParam, chainId, serverState)
+  const result = resolveTokenParam(baseParam, serverState)
 
   // Handle redirect if needed
   if ("redirect" in result) {
