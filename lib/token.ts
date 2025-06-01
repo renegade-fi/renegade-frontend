@@ -1,4 +1,4 @@
-import { Exchange } from "@renegade-fi/react"
+import { Exchange, isSupportedChainId } from "@renegade-fi/react"
 import { ChainId } from "@renegade-fi/react/constants"
 import { getDefaultQuoteTokenOnChain, Token } from "@renegade-fi/token-nextjs"
 import { getAddress, isAddressEqual } from "viem"
@@ -13,13 +13,14 @@ export const DISPLAY_TOKENS = (
     hideStables?: boolean
     hideHidden?: boolean
     hideTickers?: Array<string>
-    chainId?: ChainId
+    chainId?: number
   } = {},
 ) => {
   const { hideStables, hideHidden = true, hideTickers = [], chainId } = options
-  let tokens = chainId
-    ? Token.getAllTokensOnChain(chainId)
-    : Token.getAllTokens()
+  let tokens =
+    chainId && isSupportedChainId(chainId)
+      ? Token.getAllTokensOnChain(chainId)
+      : Token.getAllTokens()
   if (hideStables) {
     tokens = tokens.filter((token) => !token.isStablecoin())
   }

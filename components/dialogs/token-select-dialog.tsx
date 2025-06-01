@@ -6,6 +6,7 @@ import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { Star } from "lucide-react"
 import { useDebounceValue } from "usehooks-ts"
 import { fromHex } from "viem/utils"
+import { useChainId } from "wagmi"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -142,10 +143,12 @@ function TokenList({
 
   const { favorites, setFavorites } = useClientStore((state) => state)
 
+  const chainId = useChainId()
   const processedTokens = React.useMemo(() => {
     return DISPLAY_TOKENS({
       hideHidden: true,
       hideStables: true,
+      chainId,
     })
       .sort((a, b) => {
         const balanceA = data?.get(a.address) ?? BigInt(0)
@@ -169,7 +172,7 @@ function TokenList({
           token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           token.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
       )
-  }, [data, searchTerm, favorites])
+  }, [chainId, data, favorites, searchTerm])
 
   return (
     <div className="grid items-start">
