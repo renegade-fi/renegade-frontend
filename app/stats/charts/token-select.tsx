@@ -23,14 +23,14 @@ import { cn } from "@/lib/utils"
 
 const tokens = DISPLAY_TOKENS({ hideHidden: true, hideStables: true }).map(
   (token) => ({
-    value: token.ticker,
+    value: token.address,
     label: token.ticker,
   }),
 )
 
 type TokenSelectProps = {
   value: string
-  onChange: (value: string) => void
+  onChange: (value: `0x${string}`) => void
 }
 
 export function TokenSelect({ value, onChange }: TokenSelectProps) {
@@ -71,7 +71,7 @@ export function TokenSelect({ value, onChange }: TokenSelectProps) {
                   key={token.value}
                   value={token.value}
                   onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue)
+                    onChange(currentValue as `0x${string}`)
                     setOpen(false)
                   }}
                 >

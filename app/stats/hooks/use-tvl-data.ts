@@ -26,18 +26,16 @@ export function useTvlData() {
 
       const price = priceQueries[i]?.data
 
-      if (price) {
-        const usd = amountTimesPrice(tvl.tvl, price)
-        const formatted = Number(formatUnits(usd, token.decimals))
-        totalTvlUsd += formatted
-        tvlUsd.push({
-          name: token.ticker,
-          data: formatted,
-          fill: `var(--color-${token.ticker})`,
-        })
-      } else {
-        console.error(`Price not found for token: ${token.ticker}`)
-      }
+      if (!price) return
+
+      const usd = amountTimesPrice(tvl.tvl, price)
+      const formatted = Number(formatUnits(usd, token.decimals))
+      totalTvlUsd += formatted
+      tvlUsd.push({
+        name: token.ticker,
+        data: formatted,
+        fill: `var(--color-${token.ticker})`,
+      })
     })
 
     return { cumulativeTvlUsd: totalTvlUsd, tvlUsd }
