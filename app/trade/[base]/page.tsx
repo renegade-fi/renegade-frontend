@@ -22,7 +22,7 @@ import { resolveTokenParam } from "./utils"
 /**
  * Hydrates server state from cookies
  */
-export async function hydrateServerState(): Promise<ServerState> {
+async function hydrateServerState(): Promise<ServerState> {
   const headersList = await headers()
   const cookieString = headersList.get("cookie")
     ? decodeURIComponent(headersList.get("cookie") ?? "")
