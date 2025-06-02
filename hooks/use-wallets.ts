@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useMemo } from "react"
 
-import { useWalletId } from "@renegade-fi/react"
 import { useWallet } from "@solana/wallet-adapter-react"
+import { arbitrum, arbitrumSepolia, base, baseSepolia } from "viem/chains"
 import { useAccount, useEnsName } from "wagmi"
 
 import { truncateAddress } from "@/lib/format"
@@ -36,17 +36,17 @@ export function useWallets() {
   // Wagmi
   // Using address && connector because initialState loads these from cookies
   // status is "reconnecting" usually, so avoid usign it on page load
-  const { address, connector, status } = useAccount()
+  const { address, chain, connector, status } = useAccount()
   const { publicKey, wallet, connected } = useWallet()
   const { data: ensName } = useEnsName({
     address,
     config: mainnetConfig,
   })
+  const chainSpecifier = chain?.name.split(" ")[0].toLowerCase()
 
   // Renegade
   // Using seed && wallet ID because initialState loads these from cookies
   const { seed, id } = useServerStore((state) => state.wallet)
-
   const renegadeWallet: Wallet =
     seed && id
       ? {
@@ -67,15 +67,15 @@ export function useWallets() {
   const arbitrumWallet: Wallet =
     address && connector
       ? {
-          name: "Arbitrum Address",
-          icon: connector.icon ?? "",
+          name: `${chainSpecifier} Address`,
+          icon: `/${chainSpecifier}.svg`,
           id: address,
           label: ensName || truncateAddress(address),
           isConnected: true,
         }
       : {
-          name: "Arbitrum Address",
-          icon: null,
+          name: `${chainSpecifier} Address`,
+          icon: `/${chainSpecifier}.svg`,
           id: null,
           label: "Not Connected",
           isConnected: false,
