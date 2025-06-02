@@ -107,6 +107,7 @@
   "prettier": "./prettier.mjs",
   "pnpm": {
     "overrides": {
+      "@renegade-fi/token": "0.0.21",
       "react-is": "19.1.0",
       "viem": "$viem",
       "@types/react": "19.1.4",

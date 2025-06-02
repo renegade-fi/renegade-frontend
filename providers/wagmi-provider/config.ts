@@ -14,10 +14,13 @@ import { getURL } from "@/lib/utils"
 
 import getDefaultConfig from "./defaultConfig"
 
+export const MAINNET_CHAINS = [arbitrum, base] as const
+export const TESTNET_CHAINS = [arbitrumSepolia, baseSepolia] as const
+
 const chains: readonly [Chain, ...Chain[]] =
   env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
-    ? ([arbitrum, base, mainnet] as const)
-    : ([arbitrumSepolia, baseSepolia] as const)
+    ? [...MAINNET_CHAINS, mainnet]
+    : [...TESTNET_CHAINS]
 
 export function getConfig() {
   return createConfig(

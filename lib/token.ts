@@ -65,7 +65,9 @@ export function resolveAddress(mint: `0x${string}`) {
  */
 export function resolveTicker(ticker: string) {
   const tokens = Token.getAllTokens()
-  const token = tokens.find((token) => token.ticker === ticker)
+  const token = tokens.find(
+    (token) => token.ticker.toLowerCase() === ticker.toLowerCase(),
+  )
   if (!token) {
     return DEFAULT_TOKEN
   }
