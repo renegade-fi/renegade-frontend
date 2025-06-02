@@ -31,7 +31,7 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart)
 
-export function PageClient({ base }: { base: `0x${string}` }) {
+export function PageClient({ base }: { base: string }) {
   const { base: baseMint, quote: quoteMint } = useResolvePair(base)
   const data = useOrderTableData()
   const {

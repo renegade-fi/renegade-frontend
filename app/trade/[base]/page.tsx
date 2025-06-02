@@ -17,7 +17,7 @@ import {
   ServerState,
 } from "@/providers/state-provider/server-store"
 
-import { resolveTokenParam } from "./utils"
+import { getResolvedTicker } from "./utils"
 
 /**
  * Hydrates server state from cookies
@@ -44,24 +44,18 @@ export default async function Page({
 }: {
   params: Promise<{ base: string }>
 }) {
-  const baseParam = (await params).base
+  const baseTicker = (await params).base
 
   // Hydrate server-side state from cookies
   const serverState = await hydrateServerState()
 
-  // Resolve ticker or address to a valid token address
-  const result = resolveTokenParam(baseParam, serverState)
+  const resolvedTicker = getResolvedTicker(baseTicker, serverState)
+  if (resolvedTicker) redirect(`/trade/${resolvedTicker}`)
 
-  // Handle redirect if needed
-  if ("redirect" in result) {
-    redirect(result.redirect)
-  }
-
-  // Render with the resolved address
   const queryClient = new QueryClient()
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <PageClient base={result.resolved} />
+      <PageClient base={baseTicker} />
     </HydrationBoundary>
   )
 }
