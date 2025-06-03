@@ -8,8 +8,8 @@ import { resolveAddress } from "@/lib/token"
 
 import { useTvl } from "./use-tvl"
 
-export function useTvlData() {
-  const { data: tvlData } = useTvl()
+export function useTvlData(chainId: number) {
+  const { data: tvlData } = useTvl(chainId)
   const mints = (tvlData || []).map((tvl) => tvl.address)
   const priceQueries = usePriceQueries(mints)
 

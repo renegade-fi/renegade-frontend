@@ -1,21 +1,21 @@
 import { useQuery } from "@tanstack/react-query"
 
-export function useTvl() {
-  const queryKey = ["stats", "tvl"]
+export function useTvl(chainId: number) {
+  const queryKey = ["stats", "tvl", chainId]
   return {
     ...useQuery<{ address: `0x${string}`; tvl: bigint }[], Error>({
       queryKey,
-      queryFn: fetchTvlData,
+      queryFn: () => fetchTvlData(chainId),
       staleTime: Infinity,
     }),
     queryKey,
   }
 }
 
-const fetchTvlData = async (): Promise<
-  { address: `0x${string}`; tvl: bigint }[]
-> => {
-  const response = await fetch("/api/stats/tvl")
+const fetchTvlData = async (
+  chainId: number,
+): Promise<{ address: `0x${string}`; tvl: bigint }[]> => {
+  const response = await fetch(`/api/stats/tvl?chainId=${chainId}`)
   if (!response.ok) {
     throw new Error("Failed to fetch TVL data")
   }

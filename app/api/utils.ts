@@ -154,3 +154,37 @@ export async function readSplBalanceOf(
     return BigInt(0)
   }
 }
+
+// Bypassing viem readContract because it returns inconsistent data, maybe due to caching
+export async function fetchTvl(
+  mint: `0x${string}`,
+  rpcUrl: string,
+  darkpoolContract: `0x${string}`,
+): Promise<bigint> {
+  const data = encodeFunctionData({
+    abi,
+    functionName: "balanceOf",
+    args: [darkpoolContract],
+  })
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: 1,
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [{ to: mint, data }, "latest"],
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+
+  const result = await response.json()
+  if (result.error) {
+    throw new Error(`RPC error: ${result.error.message}`)
+  }
+
+  return hexToBigInt(result.result)
+}
