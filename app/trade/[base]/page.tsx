@@ -12,10 +12,8 @@ import { PageClient } from "@/app/trade/[base]/page-client"
 import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
-import {
-  defaultInitState,
-  ServerState,
-} from "@/providers/state-provider/server-store"
+import { ServerState } from "@/providers/state-provider/schema"
+import { defaultInitState } from "@/providers/state-provider/server-store"
 
 import { getTickerRedirect } from "./utils"
 

@@ -6,7 +6,7 @@ import {
   setCookie,
   removeCookie,
 } from "@/providers/state-provider/cookie-actions"
-import { ServerState } from "@/providers/state-provider/server-store"
+import { ServerState } from "@/providers/state-provider/schema"
 
 export const createCookieStorage = (): StateStorage => {
   return {

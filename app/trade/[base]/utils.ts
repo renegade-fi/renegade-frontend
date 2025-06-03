@@ -1,5 +1,5 @@
 import { resolveAddress, resolveTicker, zeroAddress } from "@/lib/token"
-import type { ServerState } from "@/providers/state-provider/server-store"
+import type { ServerState } from "@/providers/state-provider/schema"
 
 export const FALLBACK_TICKER = "WETH"
 
