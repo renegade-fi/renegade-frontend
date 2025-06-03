@@ -19,7 +19,7 @@ export function DefaultStep(props: {
   base: `0x${string}`
   onSubmit: (values: NewOrderConfirmationProps) => void
 }) {
-  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteMint = useServerStore((state) => state.quoteMint)
   return (
     <>
       <DialogHeader className="p-0">

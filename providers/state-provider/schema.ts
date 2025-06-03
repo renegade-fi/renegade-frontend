@@ -18,9 +18,9 @@ export const ServerStateSchema = z.object({
     side: zSide,
     amount: z.string(),
     currency: zCurrency,
-    baseMint: zHexString,
-    quoteMint: zHexString,
   }),
+  baseMint: zHexString,
+  quoteMint: zHexString,
   panels: z.object({
     layout: z.array(z.number()),
   }),

@@ -28,7 +28,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
 
   const baseToken = resolveAddress(props.base)
-  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteMint = useServerStore((state) => state.quoteMint)
   const quoteToken = resolveAddress(quoteMint)
   const { data: price } = usePriceQuery(props.base)
 

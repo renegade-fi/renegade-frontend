@@ -39,17 +39,21 @@ export const defaultInitState: ServerState = {
     side: Side.BUY,
     amount: "",
     currency: "base",
-    baseMint: WETH.address,
-    quoteMint: USDC.address,
   },
+  baseMint: WETH.address,
+  quoteMint: USDC.address,
   panels: { layout: [22, 78] },
 }
 
 export const createServerStore = (
   initState: ServerState = defaultInitState,
 ) => {
-  let validatedState = initState
-  if (!validateState(initState)) {
+  let validatedState: ServerState
+  const validationResult = validateState(initState)
+  if (validationResult) {
+    console.log("Valid state, using init state")
+    validatedState = initState
+  } else {
     console.warn("Invalid state, resetting to default state")
     validatedState = defaultInitState
   }
@@ -58,39 +62,40 @@ export const createServerStore = (
     persist(
       (set) => ({
         ...validatedState,
-        setSide: (side: Side) =>
-          set((state) => ({ order: { ...state.order, side } })),
-        setAmount: (amount: string) =>
-          set((state) => ({ order: { ...state.order, amount } })),
-        setCurrency: (currency: "base" | "quote") =>
-          set((state) => ({ order: { ...state.order, currency } })),
-        setBase: (baseMint: `0x${string}`) =>
-          set((state) => ({
-            order: {
-              ...state.order,
-              baseMint: baseMint.toLowerCase() as `0x${string}`,
-            },
-          })),
-        setQuote: (quoteMint: `0x${string}`) =>
-          set((state) => ({
-            order: {
-              ...state.order,
-              quoteMint: quoteMint.toLowerCase() as `0x${string}`,
-            },
-          })),
-        setPanels: (layout: number[]) =>
-          set((state) => ({ panels: { layout } })),
-        setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) =>
-          set((state) => ({ wallet: { ...state.wallet, seed, chainId, id } })),
-        resetWallet: () =>
-          set((state) => ({
+        setSide: (side: Side) => {
+          set((state) => ({ order: { ...state.order, side } }))
+        },
+        setAmount: (amount: string) => {
+          set((state) => ({ order: { ...state.order, amount } }))
+        },
+        setCurrency: (currency: "base" | "quote") => {
+          set((state) => ({ order: { ...state.order, currency } }))
+        },
+        setBase: (baseMint: `0x${string}`) => {
+          set(() => ({
+            baseMint: baseMint.toLowerCase() as `0x${string}`,
+          }))
+        },
+        setQuote: (quoteMint: `0x${string}`) => {
+          set(() => ({
+            quoteMint: quoteMint.toLowerCase() as `0x${string}`,
+          }))
+        },
+        setPanels: (layout: number[]) => {
+          set(() => ({ panels: { layout } }))
+        },
+        setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => {
+          set((state) => ({ wallet: { ...state.wallet, seed, chainId, id } }))
+        },
+        resetWallet: () => {
+          set(() => ({
             wallet: {
-              ...state.wallet,
               seed: undefined,
               chainId: undefined,
               id: undefined,
             },
-          })),
+          }))
+        },
       }),
       {
         name: STORAGE_SERVER_STORE,

@@ -29,8 +29,8 @@ export function getTickerRedirect(
  * Gets the cached ticker from server state, with fallback to WETH
  */
 export function getFallbackTicker(serverState: ServerState): string {
-  if (serverState.order.baseMint) {
-    const baseToken = resolveAddress(serverState.order.baseMint)
+  if (serverState.baseMint) {
+    const baseToken = resolveAddress(serverState.baseMint)
     return baseToken.ticker
   }
   return FALLBACK_TICKER

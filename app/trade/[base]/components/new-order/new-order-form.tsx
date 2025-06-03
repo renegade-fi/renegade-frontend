@@ -79,7 +79,8 @@ export function NewOrderForm({
 }) {
   // Form initializaiton
   const {
-    order: { side, currency, quoteMint },
+    order: { side, currency },
+    quoteMint,
     setSide,
     setCurrency,
   } = useServerStore((state) => state)

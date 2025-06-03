@@ -22,7 +22,7 @@ export function AssetsSectionWithDepositButton({
   base: `0x${string}`
 }) {
   const baseToken = resolveAddress(base)
-  const quote = useServerStore((state) => state.order.quoteMint)
+  const quote = useServerStore((state) => state.quoteMint)
   const quoteToken = resolveAddress(quote)
   const { data } = useBackOfQueueWallet({
     query: {

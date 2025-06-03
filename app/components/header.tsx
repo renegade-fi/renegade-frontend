@@ -27,7 +27,7 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 export function Header() {
   const pathname = usePathname()
   const { walletReadyState, arbitrumWallet } = useWallets()
-  const baseMint = useServerStore((state) => state.order.baseMint)
+  const baseMint = useServerStore((state) => state.baseMint)
 
   return (
     <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
