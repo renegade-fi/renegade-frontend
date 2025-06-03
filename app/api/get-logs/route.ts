@@ -2,6 +2,9 @@ import { NextRequest } from "next/server"
 
 import { getSDKConfig } from "@renegade-fi/react"
 import { encodeEventTopics, parseAbiItem, toHex } from "viem"
+import { arbitrum } from "viem/chains"
+
+import { getAlchemyRpcUrl } from "@/app/api/utils"
 
 import { env } from "@/env/server"
 
@@ -32,7 +35,7 @@ export async function GET(req: NextRequest) {
     })
 
     // Make raw JSON-RPC call
-    const response = await fetch(env.RPC_URL, {
+    const response = await fetch(getAlchemyRpcUrl(arbitrum.id), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

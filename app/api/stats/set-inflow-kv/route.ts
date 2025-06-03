@@ -18,6 +18,7 @@ import {
   INFLOWS_SET_KEY,
   LAST_PROCESSED_BLOCK_KEY,
 } from "@/app/api/stats/constants"
+import { getAlchemyRpcUrl } from "@/app/api/utils"
 
 import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
@@ -26,7 +27,7 @@ import { arbitrumSDKConfig } from "@/lib/viem"
 
 const viemClient = createPublicClient({
   chain: arbitrum,
-  transport: http(env.RPC_URL),
+  transport: http(getAlchemyRpcUrl(arbitrum.id)),
 })
 
 export const maxDuration = 300

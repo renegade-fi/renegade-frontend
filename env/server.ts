@@ -9,14 +9,8 @@ export const env = createEnv({
     // Chain & RPC Configuration
     // ================================
 
-    /** Arbitrum RPC URL */
-    RPC_URL: z.url(),
-
-    /** Ethereum mainnet RPC URL */
-    RPC_URL_MAINNET: z.url().default("https://cloudflare-eth.com"),
-
-    /** Solana mainnet RPC URL */
-    RPC_URL_SOLANA: z.url().default("https://api.mainnet-beta.solana.com"),
+    /** Alchemy API key for multi-chain RPC access */
+    ALCHEMY_API_KEY: z.string().min(1),
 
     /** Darkpool contract deployment block number on Arbitrum */
     ARBITRUM_DEPLOY_BLOCK: z.number().default(0),

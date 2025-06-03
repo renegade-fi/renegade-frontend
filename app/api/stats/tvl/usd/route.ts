@@ -1,7 +1,9 @@
 // Returns TVL in USD
 import { encodeFunctionData, formatUnits, hexToBigInt, parseAbi } from "viem"
+import { arbitrum } from "viem/chains"
 
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
+import { getAlchemyRpcUrl } from "@/app/api/utils"
 
 import { env } from "@/env/server"
 import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
@@ -20,7 +22,7 @@ export async function GET() {
           const [balance, price] = await Promise.all([
             fetchTvl(
               token.address,
-              env.RPC_URL,
+              getAlchemyRpcUrl(arbitrum.id),
               arbitrumSDKConfig.darkpoolAddress,
             ),
             fetchAssetPrice(remapToken(token.address), env.AMBERDATA_API_KEY),
