@@ -1,9 +1,10 @@
 import { Bar } from "@renegade-fi/tradingview-charts"
-import invariant from "tiny-invariant"
 
 import { makeAmberApiRequest } from "@/app/trade/[base]/components/charts/tradingview/helpers"
 
 import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
+
+import { getDefaultQuote, resolveAddress } from "./token"
 
 const BASE_URL = "https://api.amberdata.com"
 
@@ -64,4 +65,47 @@ const timeIntervalToTimeRangeLimitMap = {
   minutes: oneDayMs,
   hours: oneMonthMs,
   days: twelveMonthsMs,
+} as const
+
+/**
+ * Constructs an instrument for the Amberdata API using the canonical exchange of a token
+ *
+ * @param mint - The mint address of the token
+ * @returns A tuple of canonical exchange and pair composed of the canonical ticker's ticker and default quote
+ */
+export function getPriceChartInfo(mint: `0x${string}`) {
+  const token = resolveAddress(mint)
+  const canonicalExchange = token.canonicalExchange.toUpperCase().toUpperCase()
+  const canonicalTicker = token.getCanonicalExchangeTicker()
+  const defaultQuote = getQuoteTicker(mint)
+  const instrument = `${canonicalTicker}_${defaultQuote}`.toLowerCase()
+  return {
+    exchange: canonicalExchange,
+    instrument,
+    ticker: canonicalTicker,
+  } as const
+}
+
+/**
+ * Returns Amberdata specific quote ticker for a given mint
+ */
+export const getQuoteTicker = (mint: `0x${string}`) => {
+  const token = resolveAddress(mint)
+  const canonicalExchange = token.canonicalExchange
+  if (["coinbase", "kraken"].includes(canonicalExchange)) {
+    return "usd"
+  }
+  return getDefaultQuote(mint, canonicalExchange).ticker
+}
+
+/**
+ * Maps internal exchange names to Amberdata exchange names
+ *
+ * Capitalized because this is rendered in the TradingView chart
+ */
+export const exchangeToAmberdataExchange = {
+  BINANCE: "binance",
+  COINBASE: "gdax",
+  KRAKEN: "kraken",
+  OKX: "okex",
 } as const
