@@ -134,3 +134,12 @@ export const ETHEREUM_TOKENS = Object.fromEntries(
       ),
     ]),
 )
+
+/** Returns whether or not a token is supported on a given exchange */
+export function isSupportedExchange(mint: `0x${string}`, exchange: Exchange) {
+  // Renegade routes to the canonical exchange so it is always valid
+  if (exchange === "renegade") return true
+  const token = resolveAddress(mint)
+  const supportedExchanges = token.supportedExchanges
+  return supportedExchanges.has(exchange)
+}

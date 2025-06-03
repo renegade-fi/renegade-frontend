@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 export function AnimatedPriceStatus({
   className,
-  exchange = "binance",
+  exchange = "renegade",
   mint,
 }: {
   className?: string
