@@ -17,7 +17,7 @@ import {
   ServerState,
 } from "@/providers/state-provider/server-store"
 
-import { getResolvedTicker } from "./utils"
+import { getTickerRedirect } from "./utils"
 
 /**
  * Hydrates server state from cookies
@@ -49,7 +49,7 @@ export default async function Page({
   // Hydrate server-side state from cookies
   const serverState = await hydrateServerState()
 
-  const resolvedTicker = getResolvedTicker(baseTicker, serverState)
+  const resolvedTicker = getTickerRedirect(baseTicker, serverState)
   if (resolvedTicker) redirect(`/trade/${resolvedTicker}`)
 
   const queryClient = new QueryClient()

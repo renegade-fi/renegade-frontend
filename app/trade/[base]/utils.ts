@@ -9,7 +9,7 @@ export const FALLBACK_TICKER = "WETH"
  * @param serverState - The server state
  * @returns The resolved ticker or undefined if no redirect is necessary
  */
-export function getResolvedTicker(
+export function getTickerRedirect(
   ticker: string,
   serverState: ServerState,
 ): string | undefined {
