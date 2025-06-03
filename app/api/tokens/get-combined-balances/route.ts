@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { isAddress } from "viem"
-import { arbitrum } from "viem/chains"
+import { arbitrum, arbitrumSepolia } from "viem/chains"
 
 import {
   readErc20BalanceOf,
@@ -9,6 +9,7 @@ import {
   readSplBalanceOf,
 } from "@/app/api/utils"
 
+import { env as clientEnv } from "@/env/client"
 import { env } from "@/env/server"
 import {
   ADDITIONAL_TOKENS,
@@ -20,7 +21,10 @@ import {
 export const runtime = "edge"
 
 const tokens = DISPLAY_TOKENS({
-  chainId: arbitrum.id,
+  chainId:
+    clientEnv.NEXT_PUBLIC_CHAIN_ENVIRONMENT == "mainnet"
+      ? arbitrum.id
+      : arbitrumSepolia.id,
 })
 
 export async function GET(req: Request) {

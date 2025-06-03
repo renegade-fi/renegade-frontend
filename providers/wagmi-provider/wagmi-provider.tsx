@@ -3,8 +3,7 @@
 import React from "react"
 
 import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
-import { isSupportedChainId } from "@renegade-fi/react"
-import { ChainId, ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider } from "connectkit"
 import { mainnet } from "viem/chains"
 import {
@@ -14,12 +13,9 @@ import {
   useVerifyMessage,
 } from "wagmi"
 
-import { resolveTickerParam } from "@/app/trade/[base]/utils"
-
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
 import { sidebarEvents } from "@/lib/events"
-import { resolveAddress } from "@/lib/token"
 import { QueryProvider } from "@/providers/query-provider"
 
 import { useServerStore } from "../state-provider/server-store-provider"
@@ -63,7 +59,6 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
         >
           {children}
           <SyncRenegadeWagmiState />
-          <SyncPairWithWagmi />
           <SignInDialog
             open={open}
             onOpenChange={setOpen}
@@ -126,54 +121,4 @@ function SyncRenegadeWagmiState() {
   }, [shouldClearWallet, resetWallet])
 
   return null
-}
-
-/**
- * Sync cached base and quote mint with wagmi chain id
- */
-function SyncPairWithWagmi() {
-  const { baseMint, quoteMint } = useServerStore((state) => state.order)
-  const setBase = useServerStore((state) => state.setBase)
-  const setQuote = useServerStore((state) => state.setQuote)
-  const account = useAccount()
-
-  React.useEffect(() => {
-    // Skip sync if on mainnet, no chainId, or unsupported chain
-    if (
-      account.chainId === mainnet.id ||
-      !account.chainId ||
-      !isSupportedChainId(account.chainId)
-    ) {
-      return
-    }
-
-    // Get resolved addresses for current chain
-    const expectedBaseAddr = getResolvedAddrOnChain(baseMint, account.chainId)
-    const expectedQuoteAddr = getResolvedAddrOnChain(quoteMint, account.chainId)
-
-    // Update base if resolved address differs
-    if (expectedBaseAddr && expectedBaseAddr !== baseMint) {
-      setBase(expectedBaseAddr)
-    }
-
-    // Update quote if resolved address differs
-    if (expectedQuoteAddr && expectedQuoteAddr !== quoteMint) {
-      setQuote(expectedQuoteAddr)
-    }
-  }, [account.chainId, baseMint, quoteMint, setBase, setQuote])
-
-  return null
-}
-
-/**
- * Resolves the address of a given mint on the specified chain by converting through ticker
- */
-export function getResolvedAddrOnChain(
-  mint: `0x${string}`,
-  chainId: ChainId,
-): `0x${string}` | null {
-  const ticker = resolveAddress(mint).ticker
-  const result = resolveTickerParam(ticker, chainId)
-
-  return result && "resolved" in result ? result.resolved : null
 }

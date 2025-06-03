@@ -1,4 +1,4 @@
-import { cookies } from "next/headers"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import {
@@ -17,16 +17,18 @@ import {
   ServerState,
 } from "@/providers/state-provider/server-store"
 
-import { resolveTokenParam } from "./utils"
+import { getTickerRedirect } from "./utils"
 
 /**
  * Hydrates server state from cookies
  */
-export async function hydrateServerState(): Promise<ServerState> {
-  const cookieStore = await cookies()
-  const cookieVal = cookieStore.get(STORAGE_SERVER_STORE)?.value
+async function hydrateServerState(): Promise<ServerState> {
+  const headersList = await headers()
+  const cookieString = headersList.get("cookie")
+    ? decodeURIComponent(headersList.get("cookie") ?? "")
+    : ""
   const initialState =
-    cookieToInitialState(STORAGE_SERVER_STORE, cookieVal) ?? defaultInitState
+    cookieToInitialState(STORAGE_SERVER_STORE, cookieString) ?? defaultInitState
   return initialState
 }
 
@@ -42,25 +44,18 @@ export default async function Page({
 }: {
   params: Promise<{ base: string }>
 }) {
-  const baseParam = (await params).base
+  const baseTicker = (await params).base
 
   // Hydrate server-side state from cookies
   const serverState = await hydrateServerState()
-  const chainId = serverState.wallet.chainId
 
-  // Resolve ticker or address to a valid token address
-  const result = resolveTokenParam(baseParam, chainId, serverState)
+  const resolvedTicker = getTickerRedirect(baseTicker, serverState)
+  if (resolvedTicker) redirect(`/trade/${resolvedTicker}`)
 
-  // Handle redirect if needed
-  if ("redirect" in result) {
-    redirect(result.redirect)
-  }
-
-  // Render with the resolved address
   const queryClient = new QueryClient()
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <PageClient base={result.resolved} />
+      <PageClient base={baseTicker} />
     </HydrationBoundary>
   )
 }

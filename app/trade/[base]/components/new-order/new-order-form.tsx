@@ -35,6 +35,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useNeedsSwitch } from "@/hooks/use-needs-switch"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { useWallets } from "@/hooks/use-wallets"
@@ -44,6 +45,8 @@ import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
 import { resolveAddress } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
+
+import { SwitchChainButton } from "../switch-chain-button"
 
 const formSchema = z.object({
   amount: z
@@ -169,6 +172,8 @@ export function NewOrderForm({
       }
     })
   }
+
+  const needsSwitch = useNeedsSwitch(base)
 
   return (
     <Form {...form}>
@@ -301,7 +306,12 @@ export function NewOrderForm({
           quoteMint={quoteMint}
         />
 
-        {walletReadyState === "READY" ? (
+        {needsSwitch ? (
+          <SwitchChainButton
+            baseMint={base}
+            className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
+          />
+        ) : walletReadyState === "READY" ? (
           <div className="hidden lg:block">
             <MaintenanceButtonWrapper messageKey="place">
               <Button
@@ -322,6 +332,7 @@ export function NewOrderForm({
         ) : (
           <ConnectButton className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal" />
         )}
+
         <div className="space-y-3 whitespace-nowrap text-sm">
           {form.getValues("isQuoteCurrency") ? (
             <div className="flex items-center justify-between">

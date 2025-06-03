@@ -44,7 +44,9 @@ export function WalletButton({ wallet, dropdownContent }: WalletButtonProps) {
                 <AvatarFallback className="rounded-lg bg-[hsl(var(--chart-blue))]" />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{wallet.name}</span>
+                <span className="truncate font-semibold capitalize">
+                  {wallet.name}
+                </span>
                 <span className="truncate text-xs">{wallet.label}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
