@@ -40,6 +40,7 @@ export function getConfig() {
       }),
 
       walletConnectProjectId: env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+      coinbaseWalletPreference: "eoaOnly",
 
       appName: "Renegade",
       appDescription: "On-chain dark pool",
