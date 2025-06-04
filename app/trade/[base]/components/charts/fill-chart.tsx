@@ -22,20 +22,13 @@ import {
 
 import { useOHLC } from "@/hooks/use-ohlc"
 import { oneMinute } from "@/lib/constants/time"
-import { formatCurrency, formatNumber, formatPercentage } from "@/lib/format"
-import { remapToken, resolveAddress } from "@/lib/token"
+import {
+  formatDynamicCurrency,
+  formatNumber,
+  formatPercentage,
+} from "@/lib/format"
+import { getCanonicalExchange, resolveAddress } from "@/lib/token"
 import { decimalNormalizePrice } from "@/lib/utils"
-
-const chartConfig = {
-  price: {
-    label: "Binance Price",
-    color: "hsl(var(--chart-yellow))",
-  },
-  fillPrice: {
-    label: "Renegade Fill",
-    color: "hsl(var(--chart-blue))",
-  },
-} satisfies ChartConfig
 
 function calculateYAxisDomain(
   minValue: number,
@@ -54,6 +47,19 @@ function calculateYAxisDomain(
 export function FillChart({ order }: { order: OrderMetadata }) {
   const baseToken = resolveAddress(order.data.base_mint)
   const quoteToken = resolveAddress(order.data.quote_mint)
+
+  const canonicalExchange = getCanonicalExchange(order.data.base_mint)
+
+  const chartConfig = {
+    price: {
+      label: `${canonicalExchange} Price`,
+      color: "hsl(var(--chart-yellow))",
+    },
+    fillPrice: {
+      label: "Renegade Fill",
+      color: "hsl(var(--chart-blue))",
+    },
+  } satisfies ChartConfig
 
   const formattedFills = order.fills
     .map((fill) => ({
@@ -106,7 +112,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
   }, [formattedFills])
 
   const { data: ohlc } = useOHLC({
-    instrument: `${remapToken(order.data.base_mint)}_usdt`,
+    mint: order.data.base_mint,
     startDateMs: startMs,
     endDateMs: endMs,
     timeInterval: "minutes",
@@ -200,7 +206,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
       <CardHeader>
         <CardTitle>Fill Chart</CardTitle>
         <CardDescription>
-          Showing fills compared to Binance price
+          Showing fills compared to {canonicalExchange} price
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -226,7 +232,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
               dataKey="price"
               domain={calculateYAxisDomain(minValue, maxValue)}
               tickCount={5}
-              tickFormatter={formatCurrency}
+              tickFormatter={formatDynamicCurrency}
               tickLine={false}
             />
             <ChartLegend content={<ChartLegendContent />} />
@@ -264,7 +270,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                       {chartConfig[name as keyof typeof chartConfig]?.label ||
                         name}
                       <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
-                        {formatCurrency(Number(value))}
+                        {formatDynamicCurrency(Number(value))}
                       </div>
                       {index === 1 &&
                         isPositiveRelativeFill(

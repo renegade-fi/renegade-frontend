@@ -85,6 +85,15 @@ export function resolveTickerAndChain(ticker: string, chainId?: ChainId) {
   return Token.fromTickerOnChain(ticker, chainId)
 }
 
+/** Get the canonical exchange of a token, capitalized */
+export function getCanonicalExchange(mint: `0x${string}`) {
+  const token = resolveAddress(mint)
+  return (
+    token.canonicalExchange.charAt(0).toUpperCase() +
+    token.canonicalExchange.slice(1)
+  )
+}
+
 export const remapToken = (mint: `0x${string}`) => {
   const token = resolveAddress(mint)
   const remapped = token.getExchangeTicker("binance") || token.ticker

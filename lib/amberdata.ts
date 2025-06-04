@@ -13,14 +13,16 @@ export async function fetchBars({
   startDateMs,
   endDateMs,
   timeInterval,
+  exchange,
 }: {
   instrument: string
   startDateMs: number
   endDateMs: number
   timeInterval: "minutes" | "hours" | "days"
+  exchange: string
 }) {
   const url = new URL(`${BASE_URL}/markets/spot/ohlcv/${instrument}`)
-  url.searchParams.set("exchange", "binance")
+  url.searchParams.set("exchange", exchange)
   url.searchParams.set("startDate", startDateMs.toString())
   url.searchParams.set("endDate", endDateMs.toString())
   url.searchParams.set("timeInterval", timeInterval)

@@ -13,10 +13,10 @@ export const UNDERCAPITALIZED_ORDER_TOOLTIP = ({
 export const MAX_BALANCES_TOOLTIP = `Renegade wallets can hold a maximum of ${MAX_BALANCES} assets at a time.`
 export const MAX_ORDERS_TOOLTIP = `Renegade wallets can hold a maximum of ${MAX_ORDERS} orders at a time.`
 export const BBO_TOOLTIP = (ex: string) =>
-  `All prices are streamed from centralized exchanges in real-time, and all trades clear at the middle of the ${ex.charAt(0).toUpperCase() + ex.slice(1)} bid-ask spread.`
+  `All prices are streamed from centralized exchanges in real-time, and all trades clear at the middle of the ${ex} bid-ask spread.`
 export const FAUCET_TOOLTIP = "Click to get more testnet funds."
 export const MIDPOINT_TOOLTIP = (ex: string) =>
-  `This order will clear at the middle of the ${ex.charAt(0).toUpperCase() + ex.slice(1)} bid-ask spread.`
+  `This order will clear at the middle of the ${ex} bid-ask spread.`
 export const GAS_FEE_TOOLTIP =
   "Gas fees for this transaction are paid for by your connected relayer."
 export const MAX_BALANCES_PLACE_ORDER_TOOLTIP = `This order will not fill because it would result in more than ${MAX_BALANCES} balances.`

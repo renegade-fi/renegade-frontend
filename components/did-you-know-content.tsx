@@ -5,15 +5,12 @@ import { Repeat } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
-import { resolveAddress } from "@/lib/token"
+import { getCanonicalExchange } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function DidYouKnowContent() {
   const baseMint = useServerStore((state) => state.baseMint)
-  const baseToken = resolveAddress(baseMint)
-  const canonicalExchange =
-    baseToken.canonicalExchange.charAt(0).toUpperCase() +
-    baseToken.canonicalExchange.slice(1)
+  const canonicalExchange = getCanonicalExchange(baseMint)
 
   const DID_YOU_KNOW_CONTENT = useMemo(
     () =>

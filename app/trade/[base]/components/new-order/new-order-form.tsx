@@ -43,7 +43,7 @@ import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import { Side } from "@/lib/constants/protocol"
 import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
-import { resolveAddress } from "@/lib/token"
+import { getCanonicalExchange, resolveAddress } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 import { SwitchChainButton } from "../switch-chain-button"
@@ -112,9 +112,8 @@ export function NewOrderForm({
   const formattedOrderValue = Number(valueInQuoteCurrency)
     ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
-  const baseToken = resolveAddress(base)
-  const baseTicker = baseToken.ticker
-  const canonicalExchange = baseToken.canonicalExchange
+  const baseTicker = resolveAddress(base).ticker
+  const canonicalExchange = getCanonicalExchange(base)
   const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${baseTicker}`
 
   React.useEffect(() => {
@@ -375,6 +374,7 @@ export function NewOrderForm({
           </div>
           <FeesSection
             amount={form.watch("amount")}
+            base={base}
             {...fees}
           />
         </div>
