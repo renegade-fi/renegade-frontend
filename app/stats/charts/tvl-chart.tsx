@@ -52,6 +52,23 @@ const tokenColors = {
   XAI: "red",
   RDNT: "blue",
   ETHFI: "purple",
+  AERO: "blue",
+  AIXBT: "violet",
+  B3: "sky",
+  cbBTC: "sky",
+  CLANKER: "purple",
+  DEGEN: "violet",
+  doginme: "cyan",
+  EDGE: "amber",
+  FAI: "emerald",
+  KAITO: "teal",
+  KEYCAT: "blue",
+  MORPHO: "cyan",
+  SPX: "amber",
+  TOSHI: "sky",
+  VIRTUAL: "lime",
+  VVV: "orange",
+  ZORA: "purple",
 } as const
 
 // Tailwind color palette
@@ -75,8 +92,8 @@ const tailwindColors = [
   "rose",
 ]
 
-export function TvlChart() {
-  const { cumulativeTvlUsd, tvlUsd } = useTvlData()
+export function TvlChart({ chainId }: { chainId: number }) {
+  const { cumulativeTvlUsd, tvlUsd } = useTvlData(chainId)
 
   const chartConfig = React.useMemo(() => {
     const config: ChartConfig = {}
@@ -105,7 +122,7 @@ export function TvlChart() {
               <Skeleton className="h-10 w-40" />
             )}
           </CardTitle>
-          <CardDescription>Total Value Locked</CardDescription>
+          <CardDescription>Total Value Deposited</CardDescription>
         </div>
       </CardHeader>
       <CardContent>

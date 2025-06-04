@@ -49,6 +49,20 @@ export function getConfig() {
   )
 }
 
+/** Chains available in the environment */
+export const AVAILABLE_CHAINS =
+  env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
+    ? MAINNET_CHAINS
+    : TESTNET_CHAINS
+
+/** Chain logo mapping */
+export const CHAIN_LOGOS = {
+  42161: "/arbitrum.svg",
+  421614: "/arbitrum.svg",
+  8453: "/base.svg",
+  84532: "/base.svg",
+} as const
+
 export const mainnetConfig = createConfig({
   chains: [mainnet],
   transports: {

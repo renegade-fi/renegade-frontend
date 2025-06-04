@@ -1,24 +1,30 @@
-import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
-import { arbitrum } from "viem/chains"
+import { NextRequest } from "next/server"
 
-import { getAlchemyRpcUrl } from "@/app/api/utils"
+import { getSDKConfig } from "@renegade-fi/react"
+import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
+
+import { fetchTvl, getAlchemyRpcUrl } from "@/app/api/utils"
 
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { arbitrumSDKConfig } from "@/lib/viem"
 
 export const runtime = "edge"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const tokens = DISPLAY_TOKENS()
+    const chainIdParam = req.nextUrl.searchParams.get("chainId")
+    const chainId = Number(chainIdParam)
+
+    const rpcUrl = getAlchemyRpcUrl(chainId)
+    const sdkConfig = getSDKConfig(chainId)
+    const tokens = DISPLAY_TOKENS({ chainId })
 
     const tvlData = await Promise.all(
       tokens.map(async (token) => {
         try {
           const tvl = await fetchTvl(
             token.address,
-            getAlchemyRpcUrl(arbitrum.id),
-            arbitrumSDKConfig.darkpoolAddress,
+            rpcUrl,
+            sdkConfig.darkpoolAddress,
           )
           return { address: token.address, tvl: tvl.toString() }
         } catch (error) {
@@ -33,48 +39,14 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error in GET:", error)
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    })
+    return new Response(
+      JSON.stringify({
+        error: `Invalid or unsupported chain ID: ${req.nextUrl.searchParams.get("chainId")}`,
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
+    )
   }
-}
-
-const abi = parseAbi([
-  "function balanceOf(address owner) view returns (uint256)",
-])
-
-// Bypassing viem readContract because it returns inconsistent data, maybe due to caching
-async function fetchTvl(
-  tokenAddress: `0x${string}`,
-  rpcUrl: string,
-  darkpoolContract: `0x${string}`,
-): Promise<bigint> {
-  const data = encodeFunctionData({
-    abi,
-    functionName: "balanceOf",
-    args: [darkpoolContract],
-  })
-
-  const response = await fetch(rpcUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [{ to: tokenAddress, data }, "latest"],
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
-  }
-
-  const result = await response.json()
-  if (result.error) {
-    throw new Error(`RPC error: ${result.error.message}`)
-  }
-
-  return hexToBigInt(result.result)
 }
