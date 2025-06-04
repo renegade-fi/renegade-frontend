@@ -32,6 +32,21 @@ export const datafeedConfig = {
       name: "BINANCE",
       desc: "Binance",
     },
+    {
+      value: "coinbase",
+      name: "COINBASE",
+      desc: "Coinbase",
+    },
+    {
+      value: "kraken",
+      name: "KRAKEN",
+      desc: "Kraken",
+    },
+    {
+      value: "okx",
+      name: "OKX",
+      desc: "Okx",
+    },
   ],
   symbols_types: [
     {

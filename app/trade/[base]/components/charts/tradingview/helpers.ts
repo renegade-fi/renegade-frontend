@@ -1,5 +1,7 @@
 import { Bar } from "@renegade-fi/tradingview-charts"
 
+import { exchangeToAmberdataExchange } from "@/lib/amberdata"
+
 // Amberdata API URL
 const BASE_URL = "https://api.amberdata.com"
 
@@ -31,25 +33,6 @@ export function formatBars(bars: any[]): Bar[] {
   }))
 }
 
-export async function fetchSymbolReferenceInfo(pair: string) {
-  try {
-    const url = new URL(`${BASE_URL}/markets/spot/exchanges/reference`)
-    url.searchParams.set("exchange", "binance")
-    url.searchParams.set("instrument", pair)
-    const res = await makeAmberApiRequest(url, {
-      cache: "force-cache",
-    })
-    if (res.status !== 200) {
-      throw new Error(res.statusText)
-    } else if (!res.payload.data || !res.payload.data.length) {
-      throw new Error(`Pair not found: ${pair}`)
-    }
-    return res.payload.data[0]
-  } catch (error) {
-    throw new Error(`Failed to fetch symbol reference info: ${error}`)
-  }
-}
-
 const TWO_YEARS_MS = 2 * 365 * 24 * 60 * 60 * 1000
 const MAX_PARALLEL_REQUESTS = 1
 
@@ -58,6 +41,7 @@ const MAX_PARALLEL_REQUESTS = 1
  */
 export async function fetchBarsForPeriod(
   ticker: string,
+  exchange: string,
   startTimeMs: number,
   endTimeMs: number,
   timeInterval: string,
@@ -72,9 +56,15 @@ export async function fetchBarsForPeriod(
     MAX_PARALLEL_REQUESTS,
   )
 
+  const amberdataExchange =
+    exchangeToAmberdataExchange[
+      exchange as keyof typeof exchangeToAmberdataExchange
+    ]
+
   const allBarsPromises = timeChunks.map((chunk) =>
     fetchBarsForTimeChunk(
       ticker,
+      amberdataExchange,
       chunk.start,
       chunk.end,
       timeInterval,
@@ -103,6 +93,7 @@ export async function fetchBarsForPeriod(
  */
 async function fetchBarsForTimeChunk(
   ticker: string,
+  exchange: string,
   startTimeMs: number,
   endTimeMs: number,
   timeInterval: string,
@@ -116,6 +107,7 @@ async function fetchBarsForTimeChunk(
   } else if (timeDiff <= TWO_YEARS_MS) {
     return fetchBarsForTwoYearsOrLess(
       ticker,
+      exchange,
       startTimeMs,
       endTimeMs,
       timeInterval,
@@ -126,6 +118,7 @@ async function fetchBarsForTimeChunk(
     const [firstHalf, secondHalf] = await Promise.all([
       fetchBarsForTimeChunk(
         ticker,
+        exchange,
         startTimeMs,
         midTimeMs,
         timeInterval,
@@ -133,6 +126,7 @@ async function fetchBarsForTimeChunk(
       ),
       fetchBarsForTimeChunk(
         ticker,
+        exchange,
         midTimeMs,
         endTimeMs,
         timeInterval,
@@ -154,13 +148,14 @@ async function fetchBarsForTimeChunk(
  */
 async function fetchBarsForTwoYearsOrLess(
   ticker: string,
+  exchange: string,
   startTimeMs: number,
   endTimeMs: number,
   timeInterval: string,
   countBack: number,
 ): Promise<Bar[]> {
   const url = new URL(`${BASE_URL}/markets/spot/ohlcv/${ticker}`)
-  url.searchParams.set("exchange", "binance")
+  url.searchParams.set("exchange", exchange)
   url.searchParams.set("timeInterval", timeInterval)
   url.searchParams.set("startDate", new Date(startTimeMs).toISOString())
   url.searchParams.set("endDate", new Date(endTimeMs).toISOString())
