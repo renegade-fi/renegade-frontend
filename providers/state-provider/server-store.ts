@@ -51,10 +51,8 @@ export const createServerStore = (
   let validatedState: ServerState
   const validationResult = validateState(initState)
   if (validationResult) {
-    console.log("Valid state, using init state")
     validatedState = initState
   } else {
-    console.warn("Invalid state, resetting to default state")
     validatedState = defaultInitState
   }
 

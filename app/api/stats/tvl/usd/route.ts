@@ -4,11 +4,10 @@ import { NextRequest } from "next/server"
 import { getSDKConfig } from "@renegade-fi/react"
 import { formatUnits } from "viem"
 
-import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 import { fetchTvl, getAlchemyRpcUrl } from "@/app/api/utils"
 
-import { env } from "@/env/server"
-import { DISPLAY_TOKENS, remapToken } from "@/lib/token"
+import { client } from "@/lib/clients/price-reporter"
+import { DISPLAY_TOKENS } from "@/lib/token"
 
 export const runtime = "edge"
 
@@ -27,11 +26,11 @@ export async function GET(req: NextRequest) {
         try {
           const [balance, price] = await Promise.all([
             fetchTvl(token.address, rpcUrl, sdkConfig.darkpoolAddress),
-            fetchAssetPrice(remapToken(token.address), env.AMBERDATA_API_KEY),
+            client.getPrice(token.address),
           ])
           return {
             balance,
-            price: price.payload.price,
+            price,
             decimals: token.decimals,
           }
         } catch (error) {

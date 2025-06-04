@@ -1,32 +1,43 @@
-import React from "react"
+import React, { useMemo } from "react"
 
 import { Repeat } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
-
-const DID_YOU_KNOW_CONTENT = [
-  {
-    text: "All trades are pre-trade and post-trade private.",
-    link: HELP_CENTER_ARTICLES.PRIVACY.url,
-  },
-  {
-    text: "All trades clear at the midpoint of the Binance bid-ask spread.",
-    link: HELP_CENTER_ARTICLES.MIDPOINT_PRICING.url,
-  },
-  {
-    text: "Trading in Renegade has zero MEV, slippage, or price impact.",
-    link: HELP_CENTER_ARTICLES.ZERO_MEV.url,
-  },
-] as const
+import { resolveAddress } from "@/lib/token"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function DidYouKnowContent() {
+  const baseMint = useServerStore((state) => state.baseMint)
+  const baseToken = resolveAddress(baseMint)
+  const canonicalExchange =
+    baseToken.canonicalExchange.charAt(0).toUpperCase() +
+    baseToken.canonicalExchange.slice(1)
+
+  const DID_YOU_KNOW_CONTENT = useMemo(
+    () =>
+      [
+        {
+          text: "All trades are pre-trade and post-trade private.",
+          link: HELP_CENTER_ARTICLES.PRIVACY.url,
+        },
+        {
+          text: `All trades clear at the midpoint of the ${canonicalExchange} bid-ask spread.`,
+          link: HELP_CENTER_ARTICLES.MIDPOINT_PRICING.url,
+        },
+        {
+          text: "Trading in Renegade has zero MEV, slippage, or price impact.",
+          link: HELP_CENTER_ARTICLES.ZERO_MEV.url,
+        },
+      ] as const,
+    [canonicalExchange],
+  )
+
   const [randomContent, setRandomContent] = React.useState(() => {
     const randomIndex = Math.floor(Math.random() * DID_YOU_KNOW_CONTENT.length)
     return DID_YOU_KNOW_CONTENT[randomIndex]
   })
-
   const handleRefresh = () => {
     let newIndex: number
     do {

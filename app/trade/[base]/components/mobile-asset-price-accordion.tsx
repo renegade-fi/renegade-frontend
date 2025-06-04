@@ -77,7 +77,7 @@ export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
             ))}
           </div>
           <div className="mt-4 text-pretty text-xs text-muted-foreground">
-            {BBO_TOOLTIP}
+            {BBO_TOOLTIP(token.canonicalExchange)}
           </div>
         </AccordionPrimitive.Content>
       </AccordionPrimitive.Item>

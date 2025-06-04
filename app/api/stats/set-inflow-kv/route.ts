@@ -5,7 +5,6 @@ import { kv } from "@vercel/kv"
 import { formatUnits } from "viem"
 
 import { AlchemyTransfer, getAssetTransfers } from "@/app/api/alchemy-transfers"
-import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 import {
   ExternalTransferData,
   getInflowsKey,
@@ -13,9 +12,9 @@ import {
   getLastProcessedBlockKey,
 } from "@/app/api/stats/constants"
 
-import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { DISPLAY_TOKENS, remapToken, resolveAddress } from "@/lib/token"
+import { client } from "@/lib/clients/price-reporter"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
 import { getDeployBlock } from "@/lib/viem"
 
 export const maxDuration = 300
@@ -41,14 +40,12 @@ export async function GET(req: NextRequest) {
     console.log("Fetching token prices")
     const tokens = DISPLAY_TOKENS({ chainId })
 
-    const pricePromises = tokens.map((token) =>
-      fetchAssetPrice(remapToken(token.address), env.AMBERDATA_API_KEY),
-    )
+    const pricePromises = tokens.map((token) => client.getPrice(token.address))
     const priceResults = await Promise.all(pricePromises)
 
     const priceData = tokens.map((token, index) => ({
       ticker: token.ticker,
-      price: priceResults[index].payload.price,
+      price: priceResults[index],
     }))
     console.log(`Fetched prices for ${priceData.length} tokens`)
 

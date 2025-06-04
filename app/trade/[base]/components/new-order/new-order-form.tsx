@@ -112,7 +112,9 @@ export function NewOrderForm({
   const formattedOrderValue = Number(valueInQuoteCurrency)
     ? formatCurrencyFromString(valueInQuoteCurrency)
     : "--"
-  const baseTicker = resolveAddress(base).ticker
+  const baseToken = resolveAddress(base)
+  const baseTicker = baseToken.ticker
+  const canonicalExchange = baseToken.canonicalExchange
   const receiveLabel = `${valueInBaseCurrency ? Number(valueInBaseCurrency) : "--"} ${baseTicker}`
 
   React.useEffect(() => {
@@ -361,7 +363,9 @@ export function NewOrderForm({
                   </a>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{MIDPOINT_TOOLTIP}</TooltipContent>
+              <TooltipContent>
+                {MIDPOINT_TOOLTIP(canonicalExchange)}
+              </TooltipContent>
             </Tooltip>
             <div>Midpoint</div>
           </div>
