@@ -63,7 +63,7 @@ export function PageClient() {
       <div className="grid grid-cols-1 grid-rows-[1fr] gap-12 lg:grid-cols-3 lg:gap-4">
         <div className="col-span-1 flex flex-col">
           <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
-            Total Value Locked
+            Total Value Deposited
           </h1>
           <TvlChart chainId={selectedChainId} />
         </div>

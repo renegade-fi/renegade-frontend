@@ -122,7 +122,7 @@ export function TvlChart({ chainId }: { chainId: number }) {
               <Skeleton className="h-10 w-40" />
             )}
           </CardTitle>
-          <CardDescription>Total Value Locked</CardDescription>
+          <CardDescription>Total Value Deposited</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
