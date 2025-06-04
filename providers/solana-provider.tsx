@@ -33,8 +33,6 @@ const endpoint =
     : clusterApiUrl(WalletAdapterNetwork.Mainnet)
 
 export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
-  // useDisconnectOnBase()
-
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider
@@ -54,7 +52,6 @@ export function SyncSolanaWagmiState() {
 
   useEffect(() => {
     if ([base.id, baseSepolia.id].includes(chainId as any)) {
-      console.log("disconnecting")
       disconnect()
     }
   }, [chainId, disconnect])
