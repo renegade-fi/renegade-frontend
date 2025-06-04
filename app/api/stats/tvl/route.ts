@@ -1,6 +1,8 @@
 import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
+import { arbitrum } from "viem/chains"
 
-import { env } from "@/env/server"
+import { getAlchemyRpcUrl } from "@/app/api/utils"
+
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { arbitrumSDKConfig } from "@/lib/viem"
 
@@ -15,7 +17,7 @@ export async function GET() {
         try {
           const tvl = await fetchTvl(
             token.address,
-            env.RPC_URL,
+            getAlchemyRpcUrl(arbitrum.id),
             arbitrumSDKConfig.darkpoolAddress,
           )
           return { address: token.address, tvl: tvl.toString() }

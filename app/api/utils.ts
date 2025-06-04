@@ -1,8 +1,48 @@
 import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  mainnet,
+} from "viem/chains"
+
+import { env } from "@/env/server"
+import { solana } from "@/lib/viem"
 
 const abi = parseAbi([
   "function balanceOf(address owner) view returns (uint256)",
 ])
+
+// Mapping of chain IDs to Alchemy subdomain prefixes
+const ALCHEMY_SUBDOMAINS = {
+  [mainnet.id]: "eth-mainnet",
+  [arbitrum.id]: "arb-mainnet",
+  [arbitrumSepolia.id]: "arb-sepolia",
+  [base.id]: "base-mainnet",
+  [baseSepolia.id]: "base-sepolia",
+  [solana.id]: "solana-mainnet",
+} as const
+
+/**
+ * Constructs an RPC URL for the given chain ID
+ * @param chainId - The chain ID to get the RPC URL for
+ * @returns The RPC URL for the specified chain
+ * @throws Error if the chain ID is not supported
+ */
+export function getAlchemyRpcUrl(chainId: number): string {
+  // Get the Alchemy subdomain for this chain
+  const subdomain =
+    ALCHEMY_SUBDOMAINS[chainId as keyof typeof ALCHEMY_SUBDOMAINS]
+
+  if (!subdomain) {
+    throw new Error(
+      `Unsupported chain ID: ${chainId}. Supported chains: ${Object.keys(ALCHEMY_SUBDOMAINS).join(", ")}`,
+    )
+  }
+
+  return `https://${subdomain}.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}`
+}
 
 // Helper function to manually encode function data to read balance of token
 export async function readErc20BalanceOf(

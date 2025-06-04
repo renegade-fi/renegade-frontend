@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { env } from "@/env/server"
+import { mainnet } from "viem/chains"
+
+import { getAlchemyRpcUrl } from "@/app/api/utils"
 
 export const runtime = "edge"
 
-const MAINNET_RPC_URL = env.RPC_URL_MAINNET
+const MAINNET_RPC_URL = getAlchemyRpcUrl(mainnet.id)
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
