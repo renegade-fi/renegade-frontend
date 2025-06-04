@@ -6,10 +6,21 @@ import { base, baseSepolia } from "viem/chains"
 
 import { useChainId } from "./use-chain-id"
 
-export function useIsBase() {
-  const chainId = useChainId()
+const BASE_CHAINS = [baseSepolia.id, base.id] as const
+
+/**
+ * Returns true if the chain is Base
+ * Checks the id passed in, or the id used to generate the Renegade wallet seed
+ */
+export function useIsBase(chainId?: number) {
+  const renegadeChainId = useChainId()
   return useMemo(() => {
-    if (!chainId) return false
-    return [baseSepolia.id, base.id].includes(chainId as any)
-  }, [chainId])
+    if (chainId) {
+      return BASE_CHAINS.includes(chainId as any)
+    }
+    if (BASE_CHAINS.includes(renegadeChainId as any)) {
+      return true
+    }
+    return false
+  }, [chainId, renegadeChainId])
 }

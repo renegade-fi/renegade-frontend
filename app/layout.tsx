@@ -115,9 +115,9 @@ export default async function RootLayout({
         >
           <ServerStoreProvider cookieString={cookieString}>
             <ClientStoreProvider>
-              <SolanaProvider>
-                <WagmiProvider initialState={initialState}>
-                  <RenegadeProvider>
+              <WagmiProvider initialState={initialState}>
+                <RenegadeProvider>
+                  <SolanaProvider>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
                       <WalletSidebarSync />
@@ -150,9 +150,9 @@ export default async function RootLayout({
                       <ClearCookie />
                       <WalletSidebar side="right" />
                     </SidebarProvider>
-                  </RenegadeProvider>
-                </WagmiProvider>
-              </SolanaProvider>
+                  </SolanaProvider>
+                </RenegadeProvider>
+              </WagmiProvider>
             </ClientStoreProvider>
           </ServerStoreProvider>
         </ThemeProvider>
