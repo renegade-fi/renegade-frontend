@@ -19,7 +19,7 @@ interface TimeDisplayValues {
   suffix: string
 }
 
-export function TimeToFillCard() {
+export function TimeToFillCard({ chainId }: { chainId: number }) {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
   const [selectedToken, setSelectedToken] = React.useState(
     resolveTicker("WETH").address,
@@ -38,6 +38,7 @@ export function TimeToFillCard() {
   const { data: timeToFillMs } = useTimeToFill({
     amount: debouncedUsdValue,
     mint: selectedToken,
+    chainId,
   })
 
   const lastValidValue = useRef<TimeDisplayValues>({

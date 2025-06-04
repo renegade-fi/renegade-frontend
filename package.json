@@ -43,7 +43,7 @@
     "@renegade-fi/internal-sdk": "0.4.12",
     "@renegade-fi/price-reporter": "0.0.0-canary-20250529193905",
     "@renegade-fi/react": "0.0.0-canary-20250602165352",
-    "@renegade-fi/token-nextjs": "file:/Users/s/code/sdk/packages/token-nextjs",
+    "@renegade-fi/token-nextjs": "^0.1.8",
     "@renegade-fi/tradingview-charts": "0.27.6",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",

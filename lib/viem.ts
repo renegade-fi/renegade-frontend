@@ -1,4 +1,3 @@
-import { getSDKConfig } from "@renegade-fi/react"
 import { defineChain, extractChain } from "viem"
 import {
   arbitrum,
@@ -101,6 +100,3 @@ export function getDeployBlock(chainId: number) {
       return BigInt(0)
   }
 }
-
-// TODO: Remove this once stats are recorded for all chains
-export const arbitrumSDKConfig = getSDKConfig(arbitrum.id)

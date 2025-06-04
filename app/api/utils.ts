@@ -1,3 +1,5 @@
+import { isSupportedChainId } from "@renegade-fi/react"
+import { CHAIN_SPECIFIERS } from "@renegade-fi/react/constants"
 import { encodeFunctionData, parseAbi } from "viem"
 import {
   arbitrum,
@@ -42,6 +44,27 @@ export function getAlchemyRpcUrl(chainId: number): string {
   }
 
   return `https://${subdomain}.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}`
+}
+
+/** Get the Bot Server URL for the given chain ID */
+export function getBotServerUrl(chainId: number) {
+  if (!isSupportedChainId(chainId)) {
+    throw new Error(`Unsupported chain ID: ${chainId}`)
+  }
+  const hostname = "bot-server.renegade.fi"
+  const chainSpecifier = CHAIN_SPECIFIERS[chainId]
+  return `https://${chainSpecifier}.${hostname}`
+}
+
+/** Get the Bot Server API key for the given chain ID */
+export function getBotServerApiKey(chainId: number) {
+  if ([arbitrum.id, arbitrumSepolia.id].includes(chainId as any)) {
+    return env.ARBITRUM_BOT_SERVER_API_KEY
+  }
+  if ([base.id, baseSepolia.id].includes(chainId as any)) {
+    return env.BASE_BOT_SERVER_API_KEY
+  }
+  throw new Error(`Unsupported chain ID: ${chainId}`)
 }
 
 // Helper function to manually encode function data to read balance of token

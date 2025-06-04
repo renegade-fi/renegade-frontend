@@ -1,6 +1,6 @@
-import invariant from "tiny-invariant"
+import { NextRequest } from "next/server"
 
-import { env } from "@/env/server"
+import { getBotServerApiKey, getBotServerUrl } from "../../utils"
 
 export const runtime = "edge"
 
@@ -17,9 +17,9 @@ interface BotServerResponse {
   data: number // milliseconds
 }
 
-export async function GET(request: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(req.url)
     const amount = searchParams.get("amount")
     const baseTicker = searchParams.get("baseTicker")
 
@@ -32,12 +32,24 @@ export async function GET(request: Request) {
       )
     }
 
-    const url = new URL(`${env.BOT_SERVER_URL}/${TIME_TO_FILL_PATH}`)
+    const chainIdParam = req.nextUrl.searchParams.get("chainId")
+    const chainId = Number(chainIdParam)
+    if (isNaN(chainId)) {
+      return new Response(
+        JSON.stringify({ error: `Invalid chainId: ${chainIdParam}` }),
+        { status: 400 },
+      )
+    }
+
+    const botServerUrl = getBotServerUrl(chainId)
+    const botServerApiKey = getBotServerApiKey(chainId)
+
+    const url = new URL(`${botServerUrl}/${TIME_TO_FILL_PATH}`)
     url.searchParams.set("amount", amount)
     url.searchParams.set("baseTicker", baseTicker)
 
     const res = await fetch(url, {
-      headers: { "x-api-key": env.BOT_SERVER_API_KEY },
+      headers: { "x-api-key": botServerApiKey },
     })
 
     if (!res.ok) {
