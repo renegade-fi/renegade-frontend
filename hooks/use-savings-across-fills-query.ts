@@ -1,6 +1,7 @@
 import { OrderMetadata } from "@renegade-fi/react"
 import { formatUnits } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
+import { base, baseSepolia } from "viem/chains"
 
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 import { resolveAddress } from "@/lib/token"
@@ -22,6 +23,13 @@ export function useSavingsAcrossFillsQuery({
     timestamp: Number(fill.price.timestamp),
   }))
   const queryKey = ["savings-across-fills", order.id]
+  const isBase = [base.id, baseSepolia.id].includes(baseToken.chain as any)
+  console.log("isBase debug", {
+    isBase,
+    baseToken,
+    address: baseToken.address,
+    chain: baseToken.chain,
+  })
   return {
     ...useQuery({
       queryKey,
@@ -39,6 +47,7 @@ export function useSavingsAcrossFillsQuery({
       },
       staleTime: Infinity,
       gcTime: Infinity,
+      enabled: !isBase,
     }),
     queryKey,
   }
