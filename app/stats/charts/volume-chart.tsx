@@ -29,26 +29,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-/**
- * Rounds the given timestamp to the next day at midnight (UTC)
- * @param timestamp Unix timestamp in seconds
- * @returns Unix timestamp in seconds for the next day at midnight
- */
-function roundToNextDay(timestamp: number): number {
-  const date = new Date(timestamp * 1000)
-  date.setUTCHours(24, 0, 0, 0)
-  return Math.floor(date.getTime() / 1000)
-}
-
-const timePeriod = {
-  year: 365 * 24 * 60 * 60,
-  month: 30 * 24 * 60 * 60,
-  day: 24 * 60 * 60,
-} as const
-
-export function VolumeChart() {
-  const now = roundToNextDay(Math.floor(Date.now() / 1000)) // Current time in seconds
-  const { data } = useVolumeData()
+export function VolumeChart({ chainId }: { chainId: number }) {
+  const { data } = useVolumeData(chainId)
 
   const chartData = data?.map((dataPoint) => ({
     timestamp: (dataPoint.timestamp * 1000).toString(),

@@ -9,7 +9,11 @@
       "schedule": "* * * * *"
     },
     {
-      "path": "/api/stats/set-historical-volume-kv",
+      "path": "/api/stats/set-historical-volume-kv?chainId=42161",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/stats/set-historical-volume-kv?chainId=8453",
       "schedule": "* * * * *"
     }
   ]

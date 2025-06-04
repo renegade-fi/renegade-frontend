@@ -28,10 +28,6 @@ export const env = createEnv({
     // ================================
     // Monitoring
     // ================================
-
-    /** Datadog environment identifier */
-    DD_ENV: z.string().min(1),
-
     /** Datadog service name */
     DD_SERVICE: z.string().min(1),
 

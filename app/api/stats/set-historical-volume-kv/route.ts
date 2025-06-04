@@ -1,11 +1,12 @@
 import { NextRequest } from "next/server"
 
 import { DDogClient } from "@renegade-fi/internal-sdk"
+import { CHAIN_SPECIFIERS } from "@renegade-fi/react/constants"
 import { kv } from "@vercel/kv"
 
 import {
-  HISTORICAL_VOLUME_KEY_PREFIX,
-  HISTORICAL_VOLUME_SET_KEY,
+  getHistoricalVolumeKeyPrefix,
+  getHistoricalVolumeSetKey,
 } from "@/app/api/stats/constants"
 
 import { env } from "@/env/server"
@@ -31,11 +32,23 @@ export const maxDuration = 300
 
 export async function GET(req: NextRequest) {
   console.log("Starting cron job: set-volume-kv")
+  // Parse and validate chainId
+  const chainIdParam = req.nextUrl.searchParams.get("chainId")
+  const chainId = Number(chainIdParam)
+  const specifiers = CHAIN_SPECIFIERS as Record<string, string>
+  if (!chainIdParam || isNaN(chainId) || !specifiers[chainId]) {
+    return new Response(
+      JSON.stringify({ error: `Invalid or missing chainId: ${chainIdParam}` }),
+      { status: 400 },
+    )
+  }
+  const chainSpecifier = specifiers[chainId]
+
   try {
     const ddog = new DDogClient(
       env.DD_API_KEY,
       env.DD_APP_KEY,
-      env.DD_ENV,
+      chainSpecifier,
       env.DD_SERVICE,
     )
     const { searchParams } = new URL(req.url)
@@ -87,12 +100,16 @@ export async function GET(req: NextRequest) {
         `Sample processed data: ${JSON.stringify(volumeData.slice(0, 5))}...`,
       ) // Log first 5 processed data points
 
+      // Derive chain-aware KV keys
+      const keyPrefix = getHistoricalVolumeKeyPrefix(chainId)
+      const setKey = getHistoricalVolumeSetKey(chainId)
+
       let successCount = 0
       const setPromises = volumeData.map(async (data: VolumeData, index) => {
-        const key = `${HISTORICAL_VOLUME_KEY_PREFIX}:${data.timestamp}`
+        const key = `${keyPrefix}:${data.timestamp}`
         try {
           await kv.set(key, JSON.stringify(data))
-          await kv.sadd(HISTORICAL_VOLUME_SET_KEY, key)
+          await kv.sadd(setKey, key)
           successCount++
           if (index % 10 === 0)
             console.log(
