@@ -1,6 +1,6 @@
 import { Exchange } from "@renegade-fi/react"
 
-import { resolveAddress } from "./token"
+import { isSupportedExchange } from "./token"
 
 /** Mapping of token price statuses with text, statusColor, and priceColor. */
 export const PRICE_STATUSES = {
@@ -31,17 +31,14 @@ export function getPriceStatus({
   price,
   isStale,
   mint,
-  exchange = "binance",
+  exchange,
 }: {
   price: number | undefined
   isStale: boolean
   mint: `0x${string}`
-  exchange?: Exchange
+  exchange: Exchange
 }) {
-  const token = resolveAddress(mint)
-  const tokenSupported = token.supportedExchanges.has(exchange)
-
-  if (!tokenSupported) {
+  if (!isSupportedExchange(mint, exchange)) {
     return PRICE_STATUSES.unsupported
   }
   if (isStale) {

@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils"
 
 export function AnimatedPrice({
   className,
-  exchange,
   mint,
+  exchange = "renegade",
 }: {
   className?: string
   exchange?: Exchange
