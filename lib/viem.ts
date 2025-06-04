@@ -88,5 +88,19 @@ export function getChainLogoTicker(chainId: number): string {
   }
 }
 
+/** Get the deploy block for a given chain */
+export function getDeployBlock(chainId: number) {
+  switch (chainId) {
+    case arbitrum.id:
+    case arbitrumSepolia.id:
+      return env.NEXT_PUBLIC_ARBITRUM_DEPLOY_BLOCK
+    case base.id:
+    case baseSepolia.id:
+      return env.NEXT_PUBLIC_BASE_DEPLOY_BLOCK
+    default:
+      return BigInt(0)
+  }
+}
+
 // TODO: Remove this once stats are recorded for all chains
 export const arbitrumSDKConfig = getSDKConfig(arbitrum.id)

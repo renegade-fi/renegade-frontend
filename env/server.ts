@@ -12,9 +12,6 @@ export const env = createEnv({
     /** Alchemy API key for multi-chain RPC access */
     ALCHEMY_API_KEY: z.string().min(1),
 
-    /** Darkpool contract deployment block number on Arbitrum */
-    ARBITRUM_DEPLOY_BLOCK: z.number().default(0),
-
     // ================================
     // External Services
     // ================================

@@ -1,6 +1,15 @@
-export const INFLOWS_SET_KEY = "stats:inflows:set"
-export const INFLOWS_KEY = "stats:inflows"
-export const LAST_PROCESSED_BLOCK_KEY = "stats:inflows:last_processed_block"
+export function getInflowsSetKey(chainId: number): string {
+  return `stats:inflows:${chainId}:set`
+}
+
+export function getInflowsKey(chainId: number): string {
+  return `stats:inflows:${chainId}`
+}
+
+export function getLastProcessedBlockKey(chainId: number): string {
+  return `stats:inflows:${chainId}:last_processed_block`
+}
+
 export const BLOCK_CHUNK_SIZE = 10 // Adjust this value based on rate limit constraints
 
 export type ExternalTransferData = {
@@ -25,3 +34,7 @@ export const HISTORICAL_VOLUME_SET_KEY = "stats:historical-volume:set"
 // Flows
 
 export const NET_FLOW_KEY = "net_flow_24h"
+
+export function getNetFlowKey(chainId: number): string {
+  return `${NET_FLOW_KEY}:${chainId}`
+}

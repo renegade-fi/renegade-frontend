@@ -23,6 +23,12 @@ export const env = createEnv({
     /** Vercel-generated URL for preview deployments */
     NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
 
+    /** Darkpool contract deployment block number on Arbitrum */
+    NEXT_PUBLIC_ARBITRUM_DEPLOY_BLOCK: z.coerce.bigint().optional(),
+
+    /** Darkpool contract deployment block number on Base */
+    NEXT_PUBLIC_BASE_DEPLOY_BLOCK: z.coerce.bigint().optional(),
+
     // ================================
     // Token Mapping
     // ================================
@@ -50,6 +56,9 @@ export const env = createEnv({
     NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: z.string().min(1),
   },
   runtimeEnv: {
+    NEXT_PUBLIC_ARBITRUM_DEPLOY_BLOCK:
+      process.env.NEXT_PUBLIC_ARBITRUM_DEPLOY_BLOCK,
+    NEXT_PUBLIC_BASE_DEPLOY_BLOCK: process.env.NEXT_PUBLIC_BASE_DEPLOY_BLOCK,
     NEXT_PUBLIC_ARBITRUM_TOKEN_MAPPING:
       process.env.NEXT_PUBLIC_ARBITRUM_TOKEN_MAPPING,
     NEXT_PUBLIC_BASE_TOKEN_MAPPING: process.env.NEXT_PUBLIC_BASE_TOKEN_MAPPING,

@@ -1,60 +1,45 @@
 import { NextRequest } from "next/server"
 
+import { getSDKConfig } from "@renegade-fi/react"
 import { kv } from "@vercel/kv"
-import {
-  createPublicClient,
-  formatUnits,
-  http,
-  isAddress,
-  parseAbiItem,
-} from "viem"
-import { arbitrum } from "viem/chains"
+import { formatUnits } from "viem"
 
+import { AlchemyTransfer, getAssetTransfers } from "@/app/api/alchemy-transfers"
 import { fetchAssetPrice } from "@/app/api/amberdata/helpers"
 import {
-  BLOCK_CHUNK_SIZE,
   ExternalTransferData,
-  INFLOWS_KEY,
-  INFLOWS_SET_KEY,
-  LAST_PROCESSED_BLOCK_KEY,
+  getInflowsKey,
+  getInflowsSetKey,
+  getLastProcessedBlockKey,
 } from "@/app/api/stats/constants"
-import { getAlchemyRpcUrl } from "@/app/api/utils"
 
 import { env } from "@/env/server"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { DISPLAY_TOKENS, remapToken, resolveAddress } from "@/lib/token"
-import { arbitrumSDKConfig } from "@/lib/viem"
-
-const viemClient = createPublicClient({
-  chain: arbitrum,
-  transport: http(getAlchemyRpcUrl(arbitrum.id)),
-})
+import { getDeployBlock } from "@/lib/viem"
 
 export const maxDuration = 300
 
-async function getBlockTimestamps(
-  blockNumbers: bigint[],
-): Promise<Map<bigint, bigint>> {
-  const blockNumberToTimestamp = new Map<bigint, bigint>()
-  for (let i = 0; i < blockNumbers.length; i += BLOCK_CHUNK_SIZE) {
-    const chunk = blockNumbers.slice(i, i + BLOCK_CHUNK_SIZE)
-    const blockPromises = chunk.map((blockNumber) =>
-      viemClient.getBlock({ blockNumber }),
-    )
-    const blocks = await Promise.all(blockPromises)
-    blocks.forEach((block) =>
-      blockNumberToTimestamp.set(block.number, block.timestamp),
-    )
-  }
-  return blockNumberToTimestamp
-}
-
 export async function GET(req: NextRequest) {
   console.log("Starting POST request: set-inflow-kv")
+  // Parse and validate chainId
+  const chainIdParam = req.nextUrl.searchParams.get("chainId")
+  const chainId = Number(chainIdParam)
+  if (isNaN(chainId)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid chainId: ${chainIdParam}` }),
+      { status: 400 },
+    )
+  }
+  // Build dynamic clients and keys
+  const sdkConfig = getSDKConfig(chainId)
+  const inflowsKey = getInflowsKey(chainId)
+  const inflowsSetKey = getInflowsSetKey(chainId)
+  const lastProcessedBlockKey = getLastProcessedBlockKey(chainId)
   try {
     // Get all token prices
     console.log("Fetching token prices")
-    const tokens = DISPLAY_TOKENS()
+    const tokens = DISPLAY_TOKENS({ chainId })
 
     const pricePromises = tokens.map((token) =>
       fetchAssetPrice(remapToken(token.address), env.AMBERDATA_API_KEY),
@@ -68,70 +53,68 @@ export async function GET(req: NextRequest) {
     console.log(`Fetched prices for ${priceData.length} tokens`)
 
     // Get the last processed block number
-    let fromBlock = BigInt(
-      (await kv.get(LAST_PROCESSED_BLOCK_KEY)) || env.ARBITRUM_DEPLOY_BLOCK,
-    )
+    const deployBlock = getDeployBlock(chainId) ?? BigInt(0)
+    const lastProcessedFromKV = await kv.get(lastProcessedBlockKey)
+    const fromBlock = lastProcessedFromKV
+      ? BigInt(Number(lastProcessedFromKV))
+      : deployBlock
     console.log(`Starting from block: ${fromBlock}`)
 
-    // Get all external transfer logs
-    console.log("Fetching external transfer logs")
-    const logs = await viemClient.getLogs({
-      // @sehyunc TODO: remove hardcoded chain id
-      address: arbitrumSDKConfig.darkpoolAddress,
-      event: parseAbiItem(
-        "event ExternalTransfer(address indexed account, address indexed mint, bool indexed is_withdrawal, uint256 amount)",
-      ),
-      fromBlock: fromBlock,
-    })
-    console.log(`Fetched ${logs.length} logs`)
-
-    if (logs.length === 0) {
-      console.log("No new logs to process")
-      return new Response(JSON.stringify({ message: "No new logs to process" }))
+    // Get external transfer logs
+    console.log("Fetching external transfer logs", sdkConfig.darkpoolAddress)
+    const [depositTransfers, withdrawTransfers] = await Promise.all([
+      getAssetTransfers({
+        fromBlock,
+        isWithdrawal: false,
+        chainId,
+      }),
+      getAssetTransfers({
+        fromBlock,
+        isWithdrawal: true,
+        chainId,
+      }),
+    ])
+    const rawTransfers: AlchemyTransfer[] = [
+      ...depositTransfers,
+      ...withdrawTransfers,
+    ]
+    if (rawTransfers.length === 0) {
+      console.log("No new transfers to process")
+      return new Response(
+        JSON.stringify({ message: "No new transfers to process" }),
+      )
     }
+    console.log(`Fetched ${rawTransfers.length} transfers from Alchemy`)
+    // Process all raw transfers
+    console.log("Processing transfers")
+    const processPromises = rawTransfers.map(async (raw) => {
+      const mint = raw.rawContract.address as `0x${string}`
+      const token = resolveAddress(mint)
+      const price = priceData.find((tp) => tp.ticker === token.ticker)?.price
+      if (!price) return null
 
-    // Get timestamps for all blocks (chunked)
-    console.log("Fetching block timestamps")
-    const uniqueBlockNumbers = Array.from(
-      new Set(logs.map((log) => log.blockNumber)),
-    )
-    const blockNumberToTimestamp = await getBlockTimestamps(uniqueBlockNumbers)
-    console.log(`Fetched timestamps for ${uniqueBlockNumbers.length} blocks`)
+      const rawAmount = BigInt(raw.rawContract.value)
+      const usdVolumeBigInt = amountTimesPrice(rawAmount, price)
+      const amount = parseFloat(formatUnits(usdVolumeBigInt, token.decimals))
 
-    // Process all logs
-    console.log("Processing logs")
-    const processPromises = logs.map(async (log) => {
-      const mint = log.args.mint?.toString().toLowerCase()
-      if (mint && isAddress(mint)) {
-        const token = resolveAddress(mint)
-        const price = priceData.find((tp) => tp.ticker === token?.ticker)?.price
-        if (price && token && log.args.amount) {
-          const usdVolume = amountTimesPrice(log.args.amount, price)
-          const formatted = parseFloat(formatUnits(usdVolume, token.decimals))
-          const timestamp = blockNumberToTimestamp.get(log.blockNumber)
+      const timestamp = new Date(raw.metadata.blockTimestamp).getTime()
 
-          if (timestamp) {
-            const data: ExternalTransferData = {
-              timestamp: Number(timestamp) * 1000,
-              amount: formatted,
-              isWithdrawal: Boolean(log.args.is_withdrawal),
-              mint,
-              transactionHash: log.transactionHash,
-            }
+      const isWithdrawal =
+        raw.from.toLowerCase() === sdkConfig.darkpoolAddress.toLowerCase()
 
-            // Write to KV store and add to Set
-            await Promise.all([
-              kv.set(
-                `${INFLOWS_KEY}:${log.transactionHash}`,
-                JSON.stringify(data),
-              ),
-              kv.sadd(INFLOWS_SET_KEY, log.transactionHash),
-            ])
-            return data
-          }
-        }
+      const data: ExternalTransferData = {
+        timestamp,
+        amount,
+        isWithdrawal,
+        mint,
+        transactionHash: raw.hash,
       }
-      return null
+
+      await Promise.all([
+        kv.set(`${inflowsKey}:${raw.hash}`, JSON.stringify(data)),
+        kv.sadd(inflowsSetKey, raw.hash),
+      ])
+      return data
     })
 
     const results = await Promise.all(processPromises)
@@ -141,8 +124,10 @@ export async function GET(req: NextRequest) {
     console.log(`Successfully processed ${processedResults.length} logs`)
 
     // Store the last processed block number
-    const lastProcessedBlock = logs[logs.length - 1].blockNumber
-    await kv.set(LAST_PROCESSED_BLOCK_KEY, lastProcessedBlock.toString())
+    const lastProcessedBlock = rawTransfers
+      .map((r) => BigInt(r.blockNum))
+      .reduce((max, b) => (b > max ? b : max), BigInt(0))
+    await kv.set(lastProcessedBlockKey, lastProcessedBlock.toString())
     console.log(`Updated last processed block to ${lastProcessedBlock}`)
 
     console.log("POST request completed successfully")
