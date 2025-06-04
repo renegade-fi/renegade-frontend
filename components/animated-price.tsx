@@ -3,7 +3,7 @@ import * as React from "react"
 import { Exchange } from "@renegade-fi/react"
 
 import { usePriceQuery } from "@/hooks/use-price-query"
-import { formatCurrency } from "@/lib/format"
+import { formatDynamicCurrency } from "@/lib/format"
 import { getPriceStatus } from "@/lib/price-status"
 import { cn } from "@/lib/utils"
 
@@ -42,7 +42,7 @@ export function AnimatedPrice({
         "animate-price-red": price < prev.current,
       })}
     >
-      {formatCurrency(price)}
+      {formatDynamicCurrency(price)}
     </span>
   )
 }
