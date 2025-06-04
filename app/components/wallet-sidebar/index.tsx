@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { Smartphone } from "lucide-react"
+import { useChainId } from "wagmi"
 
 import { ArbitrumWalletActionsDropdown } from "@/app/components/wallet-sidebar/arbitrum-wallet-actions-dropdown"
 import { AssetsMenuItem } from "@/app/components/wallet-sidebar/assets-menu-item"
@@ -44,7 +45,8 @@ export function WalletSidebar({
   const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
   const { solanaWallet, renegadeWallet, arbitrumWallet, walletReadyState } =
     useWallets()
-  const isBase = useIsBase()
+  const chainId = useChainId()
+  const isBase = useIsBase(chainId)
 
   return (
     <>

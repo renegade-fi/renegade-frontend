@@ -1,14 +1,17 @@
 "use client"
 
-import { type FC, type PropsWithChildren } from "react"
+import { useEffect, type FC, type PropsWithChildren } from "react"
 
 import type { Adapter } from "@solana/wallet-adapter-base"
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
 import {
   ConnectionProvider,
+  useWallet,
   WalletProvider,
 } from "@solana/wallet-adapter-react"
 import { clusterApiUrl } from "@solana/web3.js"
+import { base, baseSepolia } from "viem/chains"
+import { useChainId } from "wagmi"
 
 /**
  * Wallets that implement either of these standards will be available automatically.
@@ -30,6 +33,8 @@ const endpoint =
     : clusterApiUrl(WalletAdapterNetwork.Mainnet)
 
 export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
+  // useDisconnectOnBase()
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider
@@ -37,7 +42,22 @@ export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
         wallets={wallets}
       >
         {children}
+        <SyncSolanaWagmiState />
       </WalletProvider>
     </ConnectionProvider>
   )
+}
+
+export function SyncSolanaWagmiState() {
+  const chainId = useChainId()
+  const { disconnect } = useWallet()
+
+  useEffect(() => {
+    if ([base.id, baseSepolia.id].includes(chainId as any)) {
+      console.log("disconnecting")
+      disconnect()
+    }
+  }, [chainId, disconnect])
+
+  return null
 }
