@@ -37,7 +37,7 @@ export function AmountShortcutButton({
   isQuoteCurrency,
 }: AmountShortcutButtonProps) {
   const baseToken = resolveAddress(base)
-  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteMint = useServerStore((state) => state.quoteMint)
   const quoteToken = resolveAddress(quoteMint)
   const { data } = useBackOfQueueWallet({
     query: {

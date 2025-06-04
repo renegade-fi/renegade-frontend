@@ -7,24 +7,7 @@ import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { resolveTicker } from "@/lib/token"
 import { createCookieStorage } from "@/providers/state-provider/cookie-storage"
 
-// State that must be available during Server Component rendering
-export type ServerState = {
-  wallet: {
-    seed: `0x${string}` | undefined
-    chainId: ChainId | undefined
-    id: string | undefined
-  }
-  order: {
-    side: Side
-    amount: string
-    currency: "base" | "quote"
-    baseMint: `0x${string}`
-    quoteMint: `0x${string}`
-  }
-  panels: {
-    layout: number[]
-  }
-}
+import { ServerState, ServerStateSchema } from "./schema"
 
 export type ServerActions = {
   setSide: (side: Side) => void
@@ -41,22 +24,9 @@ export type ServerStore = ServerState & ServerActions
 
 const WETH = resolveTicker("WETH")
 const USDC = resolveTicker("USDC")
+
 export const initServerStore = (): ServerState => {
-  return {
-    wallet: {
-      seed: undefined,
-      chainId: undefined,
-      id: undefined,
-    },
-    order: {
-      side: Side.BUY,
-      amount: "",
-      currency: "base",
-      baseMint: WETH.address,
-      quoteMint: USDC.address,
-    },
-    panels: { layout: [22, 78] },
-  }
+  return defaultInitState
 }
 
 export const defaultInitState: ServerState = {
@@ -69,52 +39,63 @@ export const defaultInitState: ServerState = {
     side: Side.BUY,
     amount: "",
     currency: "base",
-    baseMint: WETH.address,
-    quoteMint: USDC.address,
   },
+  baseMint: WETH.address,
+  quoteMint: USDC.address,
   panels: { layout: [22, 78] },
 }
 
 export const createServerStore = (
   initState: ServerState = defaultInitState,
 ) => {
+  let validatedState: ServerState
+  const validationResult = validateState(initState)
+  if (validationResult) {
+    console.log("Valid state, using init state")
+    validatedState = initState
+  } else {
+    console.warn("Invalid state, resetting to default state")
+    validatedState = defaultInitState
+  }
+
   return createStore<ServerStore>()(
     persist(
       (set) => ({
-        ...initState,
-        setSide: (side: Side) =>
-          set((state) => ({ order: { ...state.order, side } })),
-        setAmount: (amount: string) =>
-          set((state) => ({ order: { ...state.order, amount } })),
-        setCurrency: (currency: "base" | "quote") =>
-          set((state) => ({ order: { ...state.order, currency } })),
-        setBase: (baseMint: `0x${string}`) =>
-          set((state) => ({
-            order: {
-              ...state.order,
-              baseMint: baseMint.toLowerCase() as `0x${string}`,
-            },
-          })),
-        setQuote: (quoteMint: `0x${string}`) =>
-          set((state) => ({
-            order: {
-              ...state.order,
-              quoteMint: quoteMint.toLowerCase() as `0x${string}`,
-            },
-          })),
-        setPanels: (layout: number[]) =>
-          set((state) => ({ panels: { layout } })),
-        setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) =>
-          set((state) => ({ wallet: { ...state.wallet, seed, chainId, id } })),
-        resetWallet: () =>
-          set((state) => ({
+        ...validatedState,
+        setSide: (side: Side) => {
+          set((state) => ({ order: { ...state.order, side } }))
+        },
+        setAmount: (amount: string) => {
+          set((state) => ({ order: { ...state.order, amount } }))
+        },
+        setCurrency: (currency: "base" | "quote") => {
+          set((state) => ({ order: { ...state.order, currency } }))
+        },
+        setBase: (baseMint: `0x${string}`) => {
+          set(() => ({
+            baseMint: baseMint.toLowerCase() as `0x${string}`,
+          }))
+        },
+        setQuote: (quoteMint: `0x${string}`) => {
+          set(() => ({
+            quoteMint: quoteMint.toLowerCase() as `0x${string}`,
+          }))
+        },
+        setPanels: (layout: number[]) => {
+          set(() => ({ panels: { layout } }))
+        },
+        setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => {
+          set((state) => ({ wallet: { ...state.wallet, seed, chainId, id } }))
+        },
+        resetWallet: () => {
+          set(() => ({
             wallet: {
-              ...state.wallet,
               seed: undefined,
               chainId: undefined,
               id: undefined,
             },
-          })),
+          }))
+        },
       }),
       {
         name: STORAGE_SERVER_STORE,
@@ -123,4 +104,12 @@ export const createServerStore = (
       },
     ),
   )
+}
+
+/**
+ * Validates the state against the schema.
+ */
+function validateState(state: ServerState): boolean {
+  const validationResult = ServerStateSchema.safeParse(state)
+  return validationResult.success
 }

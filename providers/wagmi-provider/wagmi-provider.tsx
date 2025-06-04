@@ -102,7 +102,7 @@ function SyncRenegadeWagmiState() {
 
   const shouldClearWallet = React.useMemo(() => {
     // Clear if wagmi is disconnected
-    if (account.status === "disconnected") {
+    if (account.status === "disconnected" && signature) {
       return true
     }
 
@@ -112,7 +112,7 @@ function SyncRenegadeWagmiState() {
     }
 
     return false
-  }, [account.status, isBridging, verified])
+  }, [account.status, isBridging, signature, verified])
 
   React.useEffect(() => {
     if (shouldClearWallet) {

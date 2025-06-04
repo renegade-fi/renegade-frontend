@@ -57,7 +57,7 @@ export function DefaultStep(
   const { onNext, setTaskId } = useStepper()
 
   const baseToken = resolveAddress(props.base)
-  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteMint = useServerStore((state) => state.quoteMint)
   const quoteToken = resolveAddress(quoteMint)
   const { data: price } = usePriceQuery(baseToken.address)
 
@@ -140,7 +140,7 @@ export function ConfirmOrderDisplay(
 ) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const token = resolveAddress(props.base)
-  const quoteMint = useServerStore((state) => state.order.quoteMint)
+  const quoteMint = useServerStore((state) => state.quoteMint)
   const parsedAmount = safeParseUnits(props.amount, token.decimals)
   const formattedAmount = formatNumber(
     parsedAmount instanceof Error ? BigInt(0) : parsedAmount,

@@ -37,7 +37,7 @@ export function PageClient({ base }: { base: string }) {
   const {
     panels,
     setPanels,
-    order: { baseMint: cachedBaseMint },
+    baseMint: cachedBaseMint,
     setBase,
     setQuote,
   } = useServerStore((state) => state)
