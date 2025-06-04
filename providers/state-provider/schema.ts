@@ -10,7 +10,7 @@ export const zCurrency = z.enum(["base", "quote"])
 
 export const ServerStateSchema = z.object({
   wallet: z.object({
-    seed: z.custom<`0x${string}`>().optional(),
+    seed: zHexString.optional(),
     chainId: zChainId.optional(),
     id: z.string().optional(),
   }),
