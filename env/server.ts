@@ -19,11 +19,9 @@ export const env = createEnv({
     /** Amberdata API key for blockchain analytics */
     AMBERDATA_API_KEY: z.string().min(1),
 
-    /** Bot server URL */
-    BOT_SERVER_URL: z.url(),
-
-    /** Bot server API key */
-    BOT_SERVER_API_KEY: z.string().min(1),
+    /** Bot server API keys */
+    ARBITRUM_BOT_SERVER_API_KEY: z.string().min(1),
+    BASE_BOT_SERVER_API_KEY: z.string().min(1),
 
     // ================================
     // Monitoring

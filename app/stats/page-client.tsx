@@ -39,7 +39,7 @@ export function PageClient() {
             />
           </div>
           <div className="relative border py-16">
-            <TimeToFillCard />
+            <TimeToFillCard chainId={selectedChainId} />
             <div className="absolute bottom-2 right-4">
               <Button
                 asChild

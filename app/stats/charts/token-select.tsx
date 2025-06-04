@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 const tokens = DISPLAY_TOKENS({ hideHidden: true, hideStables: true }).map(
@@ -52,7 +52,7 @@ export function TokenSelect({ value, onChange }: TokenSelectProps) {
           <TokenIcon
             className="mr-2"
             size={22}
-            ticker={value}
+            ticker={resolveAddress(value as `0x${string}`).ticker}
           />
           {value
             ? tokens.find((token) => token.value === value)?.label
