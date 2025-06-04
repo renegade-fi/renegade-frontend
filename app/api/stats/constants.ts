@@ -28,8 +28,13 @@ export type BucketData = {
 
 // Volume
 
-export const HISTORICAL_VOLUME_KEY_PREFIX = "stats:historical-volume"
-export const HISTORICAL_VOLUME_SET_KEY = "stats:historical-volume:set"
+export function getHistoricalVolumeKeyPrefix(chainId: number): string {
+  return `stats:historical-volume:${chainId}`
+}
+
+export function getHistoricalVolumeSetKey(chainId: number): string {
+  return `stats:historical-volume:${chainId}:set`
+}
 
 // Flows
 

@@ -1,7 +1,7 @@
 import { createEnv } from "@t3-oss/env-nextjs"
 import { z } from "zod/v4"
 
-import { zChainId, zTokenMappingJson } from "./schema"
+import { zTokenMappingJson } from "./schema"
 
 export const env = createEnv({
   client: {
@@ -45,9 +45,6 @@ export const env = createEnv({
     /** Datadog client token */
     NEXT_PUBLIC_DATADOG_CLIENT_TOKEN: z.string().min(1),
 
-    /** Datadog environment identifier */
-    NEXT_PUBLIC_DD_ENV: z.string().min(1),
-
     // ================================
     // Wallet Integration
     // ================================
@@ -67,7 +64,6 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
     NEXT_PUBLIC_DATADOG_CLIENT_TOKEN:
       process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
-    NEXT_PUBLIC_DD_ENV: process.env.NEXT_PUBLIC_DD_ENV,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
     NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,

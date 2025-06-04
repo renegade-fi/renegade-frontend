@@ -71,7 +71,7 @@ export function PageClient() {
           <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
             Volume
           </h1>
-          <VolumeChart />
+          <VolumeChart chainId={selectedChainId} />
         </div>
       </div>
 
