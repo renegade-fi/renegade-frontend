@@ -33,8 +33,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function InflowsChart() {
-  const { data } = useExternalTransferLogs()
+export function InflowsChart({ chainId }: { chainId: number }) {
+  const { data } = useExternalTransferLogs({ chainId })
 
   const chartData = React.useMemo(() => {
     if (!data || !data.length) return []

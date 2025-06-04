@@ -6,7 +6,7 @@ import { arbitrum } from "viem/chains"
 
 import { getAlchemyRpcUrl } from "@/app/api/utils"
 
-import { env } from "@/env/server"
+import { getDeployBlock } from "@/lib/viem"
 
 export const runtime = "edge"
 
@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
         wallet_blinder_share: blinderShare,
       },
     })
+    const deployBlock = getDeployBlock(chainId) ?? BigInt(0)
 
     // Make raw JSON-RPC call
     const response = await fetch(getAlchemyRpcUrl(arbitrum.id), {
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
           {
             address: getSDKConfig(chainId).darkpoolAddress,
             topics,
-            fromBlock: toHex(env.ARBITRUM_DEPLOY_BLOCK),
+            fromBlock: toHex(deployBlock),
           },
         ],
       }),

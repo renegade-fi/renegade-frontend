@@ -1,4 +1,4 @@
-import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
+import { encodeFunctionData, parseAbi } from "viem"
 import {
   arbitrum,
   arbitrumSepolia,
@@ -69,7 +69,7 @@ export async function readErc20BalanceOf(
     })
 
     const result = await response.json()
-    return hexToBigInt(result.result)
+    return BigInt(result.result)
   } catch (error) {
     console.error("Error fetching balance", {
       rpcUrl,
@@ -98,7 +98,7 @@ export async function readEthBalance(
     })
 
     const result = await response.json()
-    return hexToBigInt(result.result)
+    return BigInt(result.result)
   } catch (error) {
     console.error("Error reading ETH balance", {
       rpcUrl,
@@ -186,5 +186,5 @@ export async function fetchTvl(
     throw new Error(`RPC error: ${result.error.message}`)
   }
 
-  return hexToBigInt(result.result)
+  return BigInt(result.result)
 }

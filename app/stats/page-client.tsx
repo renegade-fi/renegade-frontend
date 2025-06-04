@@ -80,7 +80,7 @@ export function PageClient() {
           <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
             Inflows
           </h1>
-          <InflowsChart />
+          <InflowsChart chainId={selectedChainId} />
         </div>
       </div>
     </main>
