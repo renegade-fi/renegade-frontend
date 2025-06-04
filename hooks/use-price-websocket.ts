@@ -4,8 +4,10 @@ import { useQueryClient } from "@tanstack/react-query"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
 import { client } from "@/lib/clients/price-reporter"
-import { formatCurrency } from "@/lib/format"
+import { formatDynamicCurrency } from "@/lib/format"
 import { topicToQueryKey } from "@/lib/query"
+
+import { STALE_TIME_MS } from "./use-price-query"
 
 export function usePriceWebSocket() {
   const queryClient = useQueryClient()
@@ -14,24 +16,29 @@ export function usePriceWebSocket() {
     share: true,
     filter: () => false,
     onMessage: (event) => {
-      const { topic, price } = JSON.parse(event.data)
-      if (!topic || !price) return
+      const { topic, price: incomingPrice } = JSON.parse(event.data)
+      if (!topic || !incomingPrice) return
 
       const queryKey = topicToQueryKey(topic)
       const dataUpdatedAt = queryClient.getQueryState(queryKey)?.dataUpdatedAt
-      const data = queryClient.getQueryData<number>(queryKey)
+      const oldPrice = queryClient.getQueryData<number>(queryKey)
 
-      if (!dataUpdatedAt || !data) {
-        queryClient.setQueryData(queryKey, price)
+      if (!dataUpdatedAt || !oldPrice) {
+        queryClient.setQueryData(queryKey, incomingPrice)
         return
       }
 
-      const currentTime = Date.now()
+      const timeSinceUpdate = Date.now() - dataUpdatedAt
       const randomDelay = Math.floor(Math.random() * 2000 + 500)
 
-      const priceNeedsUpdate = formatCurrency(data) !== formatCurrency(price)
-      if (currentTime - dataUpdatedAt > randomDelay && priceNeedsUpdate) {
-        queryClient.setQueryData(queryKey, price)
+      const isPastDelay = timeSinceUpdate > randomDelay
+      const isDiff =
+        formatDynamicCurrency(oldPrice) !== formatDynamicCurrency(incomingPrice)
+      const isStale = timeSinceUpdate >= STALE_TIME_MS * 0.8
+
+      const shouldUpdate = (isPastDelay && isDiff) || isStale
+      if (shouldUpdate) {
+        queryClient.setQueryData(queryKey, incomingPrice)
       }
     },
     shouldReconnect: () => true,

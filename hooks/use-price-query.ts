@@ -9,7 +9,7 @@ import { isSupportedExchange } from "@/lib/token"
 
 import { usePriceWebSocket } from "./use-price-websocket"
 
-const STALE_TIME_MS = 60_000
+export const STALE_TIME_MS = 60_000
 
 export function usePriceQuery(
   baseMint: `0x${string}`,

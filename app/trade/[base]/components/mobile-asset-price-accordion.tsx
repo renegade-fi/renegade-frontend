@@ -48,7 +48,6 @@ export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
               </div>
               <AnimatedPrice
                 className="font-mono text-xl"
-                exchange="binance"
                 mint={base}
               />
               <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200" />

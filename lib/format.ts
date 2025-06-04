@@ -169,3 +169,26 @@ export function formatDuration(ms: number | undefined): string | undefined {
   if (!ms) return undefined
   return dayjs.duration(ms, "milliseconds").humanize()
 }
+
+// Format currency with dynamic precision based on magnitude
+export function formatDynamicCurrency(value: number): string {
+  if (value <= 0) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(0)
+  }
+  const exponent = Math.floor(Math.log10(value))
+  let decimals = Math.max(2, -exponent)
+  if (value < 1) {
+    decimals += 1
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value)
+}
