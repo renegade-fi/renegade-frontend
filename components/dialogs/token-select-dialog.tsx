@@ -177,40 +177,39 @@ function TokenList({
   return (
     <div className="grid items-start">
       {processedTokens.length ? (
-        processedTokens.map((token, index) => {
+        processedTokens.map((token) => {
           const balance = data?.get(token.address)
           const formattedBalance =
             status === "pending"
               ? "--"
               : formatNumber(balance ?? BigInt(0), token.decimals, true)
           return (
-            <div
+            <Link
               key={token.address}
               className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-              onClick={() => token.address === mint && onClose()}
+              href={`/trade/${token.ticker}`}
+              onClick={() => {
+                if (token.address === mint) onClose()
+              }}
             >
-              <Link
-                key={token.address}
-                className="w-full"
-                href={`/trade/${token.ticker}`}
-              >
-                <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4">
-                  <TokenIcon ticker={token.ticker} />
-                  <div>
-                    <p className="text-md font-medium">{token.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {token.ticker}
-                    </p>
-                  </div>
-                  <div className="justify-self-end font-mono">
-                    {formattedBalance}
-                  </div>
+              <div className="grid w-full grid-cols-[32px_2fr_1fr] items-center gap-4">
+                <TokenIcon ticker={token.ticker} />
+                <div>
+                  <p className="text-md font-medium">{token.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {token.ticker}
+                  </p>
                 </div>
-              </Link>
+                <div className="justify-self-end font-mono">
+                  {formattedBalance}
+                </div>
+              </div>
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   if (favorites.includes(token.address)) {
                     setFavorites(
                       favorites.filter((address) => address !== token.address),
@@ -225,7 +224,7 @@ function TokenList({
                   fill={favorites.includes(token.address) ? "white" : "none"}
                 />
               </Button>
-            </div>
+            </Link>
           )
         })
       ) : (
