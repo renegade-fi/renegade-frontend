@@ -24,6 +24,7 @@ import { Zendesk } from "@/app/components/zendesk"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { WalletIndexCheck } from "@/components/wallet-index-check"
 
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
@@ -129,6 +130,7 @@ export default async function RootLayout({
                         <SidebarInset className="max-w-full">
                           <Header />
                           {children}
+                          <WalletIndexCheck />
                           <Footer />
                         </SidebarInset>
                       </TooltipProvider>

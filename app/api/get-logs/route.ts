@@ -2,7 +2,6 @@ import { NextRequest } from "next/server"
 
 import { getSDKConfig } from "@renegade-fi/react"
 import { encodeEventTopics, parseAbiItem, toHex } from "viem"
-import { arbitrum } from "viem/chains"
 
 import { getAlchemyRpcUrl } from "@/app/api/utils"
 
@@ -11,17 +10,29 @@ import { getDeployBlock } from "@/lib/viem"
 export const runtime = "edge"
 
 export async function GET(req: NextRequest) {
-  try {
-    const blinderShare = BigInt(
-      req.nextUrl.searchParams.get("blinderShare") || "0",
+  const chainIdParam = req.nextUrl.searchParams.get("chainId")
+  const chainId = Number(chainIdParam)
+  if (isNaN(chainId)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid chainId: ${chainIdParam}` }),
+      { status: 400 },
     )
-    if (!blinderShare) {
-      throw new Error("Blinder share is required")
-    }
-    const chainId = Number(req.nextUrl.searchParams.get("chainId"))
-    if (!chainId) {
-      throw new Error("Chain ID is required")
-    }
+  }
+
+  const blinderParam = req.nextUrl.searchParams.get("blinderShare")
+  const blinderShare = BigInt(blinderParam || "0")
+  if (blinderShare === BigInt(0)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid blinderShare: ${blinderParam}` }),
+      { status: 400 },
+    )
+  }
+
+  try {
+    const deployBlock = getDeployBlock(chainId) ?? BigInt(0)
+    const deployBlockHex = toHex(deployBlock)
+    const darkpool = getSDKConfig(chainId).darkpoolAddress
+    const rpcUrl = getAlchemyRpcUrl(chainId)
 
     const topics = encodeEventTopics({
       abi: [
@@ -33,10 +44,9 @@ export async function GET(req: NextRequest) {
         wallet_blinder_share: blinderShare,
       },
     })
-    const deployBlock = getDeployBlock(chainId) ?? BigInt(0)
 
     // Make raw JSON-RPC call
-    const response = await fetch(getAlchemyRpcUrl(arbitrum.id), {
+    const response = await fetch(rpcUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -45,9 +55,9 @@ export async function GET(req: NextRequest) {
         method: "eth_getLogs",
         params: [
           {
-            address: getSDKConfig(chainId).darkpoolAddress,
+            address: darkpool,
             topics,
-            fromBlock: toHex(deployBlock),
+            fromBlock: deployBlockHex,
           },
         ],
       }),
@@ -58,6 +68,9 @@ export async function GET(req: NextRequest) {
     }
 
     const result = await response.json()
+    console.log("logs debug", {
+      result,
+    })
     if (result.error) {
       throw new Error(`RPC error: ${result.error.message}`)
     }
