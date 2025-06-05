@@ -1,5 +1,7 @@
 import * as React from "react"
 
+import Image from "next/image"
+
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -57,9 +59,9 @@ import {
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useChainId } from "@/hooks/use-chain-id"
+import { useChainName } from "@/hooks/use-chain-name"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
-import { useIsBase } from "@/hooks/use-is-base"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -218,8 +220,7 @@ export function DefaultForm({
     onSuccess?.()
   }
 
-  const isBase = useIsBase()
-  const chainName = isBase ? "Base" : "Arbitrum"
+  const chainName = useChainName(true /* short */)
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
@@ -507,14 +508,24 @@ export function DefaultForm({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  Balance&nbsp;on&nbsp;
-                  {isDeposit ? (
+                  Balance on&nbsp;
+                  {isDeposit && chainName ? (
                     <>
-                      <TokenIcon
-                        size={16}
-                        ticker="ARB"
-                      />
-                      Arbitrum
+                      <div
+                        className={cn("overflow-hidden rounded-full")}
+                        style={{
+                          width: 16,
+                          height: 16,
+                        }}
+                      >
+                        <Image
+                          alt={chainName}
+                          height={16}
+                          src={`/${chainName.toLowerCase()}.svg`}
+                          width={16}
+                        />
+                      </div>
+                      {chainName}
                     </>
                   ) : (
                     "Renegade"
