@@ -42,9 +42,8 @@ export function WalletSidebar({
 }: React.ComponentProps<typeof Sidebar>) {
   const isPWA = useMediaQuery("(display-mode: standalone)")
   const { isMobile } = useSidebar()
-  const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
-  const { solanaWallet, renegadeWallet, arbitrumWallet, walletReadyState } =
-    useWallets()
+  const { handleClick, open, onOpenChange } = useSignInAndConnect()
+  const { solanaWallet, renegadeWallet, arbitrumWallet } = useWallets()
   const chainId = useChainId()
   const isBase = useIsBase(chainId)
 
@@ -79,7 +78,7 @@ export function WalletSidebar({
           ) : (
             <ConnectWalletMenuItem
               subtitle=""
-              title="Connect Arbitrum Wallet"
+              title="Connect Wallet"
               onClick={handleClick}
             />
           )}

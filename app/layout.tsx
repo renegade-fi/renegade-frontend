@@ -121,7 +121,7 @@ export default async function RootLayout({
                   <SolanaProvider>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
-                      <WalletSidebarSync />
+                      {/* <WalletSidebarSync /> */}
                       <TailwindIndicator />
                       <TooltipProvider
                         delayDuration={0}
