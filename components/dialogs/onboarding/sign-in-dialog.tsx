@@ -1,22 +1,15 @@
 import React from "react"
 
 import { isSupportedChainId } from "@renegade-fi/react"
-import {
-  createWallet,
-  getWalletFromRelayer,
-  getWalletId,
-  lookupWallet,
-} from "@renegade-fi/react/actions"
-import { ChainId, ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { MutationStatus, useMutation } from "@tanstack/react-query"
+import { getWalletId } from "@renegade-fi/react/actions"
+import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { MutationStatus } from "@tanstack/react-query"
 import { useModal } from "connectkit"
 import { Check, Loader2, X } from "lucide-react"
-import { toast } from "sonner"
 import { BaseError } from "viem"
 import { useChainId, useDisconnect, useSignMessage } from "wagmi"
 
 import {
-  ConnectSuccess,
   NonDeterministicWalletError,
   Step,
   isNonDeterministicWalletError,
@@ -34,12 +27,6 @@ import {
 import { Label } from "@/components/ui/label"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import {
-  CREATE_WALLET_START,
-  CREATE_WALLET_SUCCESS,
-  LOOKUP_WALLET_START,
-  LOOKUP_WALLET_SUCCESS,
-} from "@/lib/constants/toast"
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { getConfigFromChainId } from "@/providers/renegade-provider/config"
@@ -56,7 +43,6 @@ export function SignInDialog({
   const currentChainId = useChainId()
   const { disconnectAsync } = useDisconnect()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const [connectLabel, setConnectLabel] = React.useState("Connect to relayer")
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
@@ -95,92 +81,40 @@ export function SignInDialog({
       onSuccess(data) {
         if (!data || !signMessage1Data) throw new Error("Missing signature")
         if (data !== signMessage1Data) throw NonDeterministicWalletError
-        connectWallet({
-          signature: signMessage1Data,
-        })
+
+        if (!isSupportedChainId(currentChainId)) {
+          throw new Error("Unsupported chain")
+        }
+        const config = getConfigFromChainId(currentChainId)
+        config.setState((x) => ({ ...x, seed: data, status: "in relayer" }))
+        const id = getWalletId(config)
+        setWallet(data, currentChainId, id)
+
+        onOpenChange(false)
+        sidebarEvents.emit("open")
       },
     },
   })
 
-  const {
-    mutate: connectWallet,
-    status: connectStatus,
-    reset: resetConnect,
-    error: connectError,
-  } = useMutation({
-    mutationFn: async (variables: { signature: `0x${string}` }) => {
-      const seed = variables.signature
-      if (!isSupportedChainId(currentChainId)) {
-        throw new Error("Unsupported chain")
-      }
-      const config = getConfigFromChainId(currentChainId)
-      config.setState((x) => ({ ...x, seed, status: "in relayer" }))
-      const id = getWalletId(config)
-      setWallet(seed, currentChainId as ChainId, id)
-
-      try {
-        // GET wallet from relayer
-        const wallet = await getWalletFromRelayer(config)
-        // If success, return
-        if (wallet) {
-          return ConnectSuccess.ALREADY_INDEXED
-        }
-      } catch (error) {}
-
-      // GET # logs
-      const blinderShare = config.utils.derive_blinder_share(seed)
-      const res = await fetch(
-        `/api/get-logs?blinderShare=${blinderShare}&chainId=${currentChainId}`,
-      )
-      if (!res.ok) throw new Error("Failed to query chain")
-      const { logs } = await res.json()
-      // Iff logs === 0, create wallet
-      if (logs === 0) {
-        await createWallet(config)
-        setConnectLabel(CREATE_WALLET_START)
-        return ConnectSuccess.CREATE_WALLET
-      } else if (logs > 0) {
-        await lookupWallet(config)
-        setConnectLabel(LOOKUP_WALLET_START)
-        return ConnectSuccess.LOOKUP_WALLET
-      }
-      throw new Error("Failed to create or lookup wallet")
-    },
-    onMutate() {
-      setCurrentStep(2)
-    },
-    onSuccess(data) {
-      let message = ""
-      if (data === ConnectSuccess.CREATE_WALLET) {
-        message = CREATE_WALLET_SUCCESS
-      } else if (data === ConnectSuccess.LOOKUP_WALLET) {
-        message = LOOKUP_WALLET_SUCCESS
-      } else if (data === ConnectSuccess.ALREADY_INDEXED) {
-        message = "Successfully signed in"
-      }
-      toast.success(message)
-      reset()
-      onOpenChange(false)
-      sidebarEvents.emit("open")
-    },
-  })
-
-  const reset = () => {
+  const reset = React.useCallback(() => {
     reset1()
     reset2()
-    resetConnect()
     setCurrentStep(undefined)
-  }
+  }, [reset1, reset2, setCurrentStep])
+
+  React.useEffect(() => {
+    reset()
+    return () => {
+      reset()
+    }
+  }, [reset, open])
 
   const onSubmit = async () => {
-    if (steps.some((step) => step.status === "error")) {
-      const error = steps.find((step) => step.status === "error")
-      if (isNonDeterministicWalletError(error?.error)) {
+    if ([signStatus1, signStatus2].some((s) => s === "error")) {
+      const err = signMessage1Error || signMessage2Error
+      if (isNonDeterministicWalletError((err as BaseError)?.message)) {
         reset()
-        await disconnectAsync().then(() => {
-          onOpenChange(false)
-          // setOpen(true)
-        })
+        await disconnectAsync().then(() => onOpenChange(false))
         return
       }
     }
@@ -190,8 +124,8 @@ export function SignInDialog({
     })
   }
 
-  const steps = React.useMemo(() => {
-    return [
+  const steps: Step[] = React.useMemo(
+    () => [
       {
         label: "Generate your Renegade wallet",
         status: signStatus1,
@@ -201,24 +135,12 @@ export function SignInDialog({
         label: "Verify wallet compatibility",
         status: signStatus2,
         error:
-          (signMessage2Error as BaseError)?.shortMessage ??
+          (signMessage2Error as BaseError)?.shortMessage ||
           signMessage2Error?.message,
       },
-      {
-        label: connectLabel,
-        status: connectStatus,
-        error: connectError?.message,
-      },
-    ]
-  }, [
-    connectError?.message,
-    connectLabel,
-    connectStatus,
-    signMessage1Error,
-    signMessage2Error,
-    signStatus1,
-    signStatus2,
-  ])
+    ],
+    [signMessage1Error, signMessage2Error, signStatus1, signStatus2],
+  )
 
   const isDisabled = steps.some((step) => step.status === "pending")
 
