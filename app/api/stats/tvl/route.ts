@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server"
 
 import { getSDKConfig } from "@renegade-fi/react"
-import { encodeFunctionData, hexToBigInt, parseAbi } from "viem"
 
 import { fetchTvl, getAlchemyRpcUrl } from "@/app/api/utils"
 

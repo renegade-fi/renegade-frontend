@@ -13,6 +13,7 @@ import {
   FEES_SECTION_TOTAL_SAVINGS,
 } from "@/lib/constants/tooltips"
 import { formatCurrency } from "@/lib/format"
+import { getCanonicalExchange } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function FeesSection({
@@ -20,17 +21,19 @@ export function FeesSection({
   relayerFee,
   protocolFee,
   amount,
+  base,
 }: {
   predictedSavings: number
   relayerFee: number
   protocolFee: number
   amount: string
+  base: `0x${string}`
 }) {
   const totalFees = relayerFee + protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : "--"
 
-  const savingsLabel =
-    predictedSavings && amount ? formatCurrency(predictedSavings) : "--"
+  const canonicalExchange = getCanonicalExchange(base)
+
   return (
     <>
       <div className={cn("flex justify-between transition-colors")}>
@@ -69,7 +72,7 @@ export function FeesSection({
                 rel="noreferrer"
                 target="_blank"
               >
-                Total Savings vs. Binance
+                Total Savings vs. {canonicalExchange}
               </a>
             </Button>
           </TooltipTrigger>

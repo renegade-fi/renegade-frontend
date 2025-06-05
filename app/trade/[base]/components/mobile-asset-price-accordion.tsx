@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/button"
 
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol"
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips"
-import { resolveAddress } from "@/lib/token"
+import { getCanonicalExchange, resolveAddress } from "@/lib/token"
 import { constructExchangeUrl } from "@/lib/utils"
 
 export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
+  const canonicalExchange = getCanonicalExchange(base)
   const token = resolveAddress(base)
   return (
     <AccordionPrimitive.Root
@@ -77,7 +78,7 @@ export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
             ))}
           </div>
           <div className="mt-4 text-pretty text-xs text-muted-foreground">
-            {BBO_TOOLTIP}
+            {BBO_TOOLTIP(canonicalExchange)}
           </div>
         </AccordionPrimitive.Content>
       </AccordionPrimitive.Item>
