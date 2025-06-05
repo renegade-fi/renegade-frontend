@@ -24,12 +24,7 @@ export function useSavingsAcrossFillsQuery({
   }))
   const queryKey = ["savings-across-fills", order.id]
   const isBase = [base.id, baseSepolia.id].includes(baseToken.chain as any)
-  console.log("isBase debug", {
-    isBase,
-    baseToken,
-    address: baseToken.address,
-    chain: baseToken.chain,
-  })
+
   return {
     ...useQuery({
       queryKey,
