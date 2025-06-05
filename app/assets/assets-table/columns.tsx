@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/tooltip"
 
 import { AssetsTableRow } from "@/hooks/use-assets-table-data"
+import { useChainName } from "@/hooks/use-chain-name"
+import { useIsBase } from "@/hooks/use-is-base"
 import { ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
 import { resolveAddress } from "@/lib/token"
@@ -42,37 +44,50 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
   {
     id: "onChainUsdValue",
     accessorFn: (row) => row.onChainUsdValue,
-    header: ({ column }) => (
-      <div className="flex flex-row-reverse">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                const isSorted = column.getIsSorted()
-                if (isSorted === "desc") {
-                  column.toggleSorting(false)
-                } else if (isSorted === "asc") {
-                  column.clearSorting()
-                } else {
-                  column.toggleSorting(true)
-                }
-              }}
-            >
-              On-Chain Balance ($)
-              {column.getIsSorted() === "asc" ? (
-                <ChevronUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === "desc" ? (
-                <ChevronDown className="ml-2 h-4 w-4" />
-              ) : (
-                <ChevronsUpDown className="ml-2 h-4 w-4" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP}</TooltipContent>
-        </Tooltip>
-      </div>
-    ),
+    header: function Header({ column }) {
+      const isBase = useIsBase()
+      const chainName = useChainName(true /* short */)
+
+      const buttonElement = (
+        <Button
+          variant="ghost"
+          onClick={() => {
+            const isSorted = column.getIsSorted()
+            if (isSorted === "desc") {
+              column.toggleSorting(false)
+            } else if (isSorted === "asc") {
+              column.clearSorting()
+            } else {
+              column.toggleSorting(true)
+            }
+          }}
+        >
+          On-Chain Balance ($)
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-2 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ChevronsUpDown className="ml-2 h-4 w-4" />
+          )}
+        </Button>
+      )
+
+      return (
+        <div className="flex flex-row-reverse">
+          {isBase ? (
+            buttonElement
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>{buttonElement}</TooltipTrigger>
+              <TooltipContent>
+                {ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP(chainName)}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      )
+    },
     cell: ({ row }) => {
       const value = row.getValue<string>("onChainUsdValue")
       const balance = row.original.rawOnChainBalance
@@ -94,14 +109,23 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
   },
   {
     accessorKey: "onChainBalance",
-    header: () => (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="text-right">On-Chain Balance</div>
-        </TooltipTrigger>
-        <TooltipContent>{ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP}</TooltipContent>
-      </Tooltip>
-    ),
+    header: function Header() {
+      const isBase = useIsBase()
+      const chainName = useChainName(true /* short */)
+
+      const headerElement = <div className="text-right">On-Chain Balance</div>
+
+      return isBase ? (
+        headerElement
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>{headerElement}</TooltipTrigger>
+          <TooltipContent>
+            {ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP(chainName)}
+          </TooltipContent>
+        </Tooltip>
+      )
+    },
     cell: ({ row, table }) => {
       const balance = row.original.rawOnChainBalance
       const token = resolveAddress(row.original.mint)

@@ -59,6 +59,7 @@ import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useChainId } from "@/hooks/use-chain-id"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { useIsBase } from "@/hooks/use-is-base"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -217,6 +218,9 @@ export function DefaultForm({
     onSuccess?.()
   }
 
+  const isBase = useIsBase()
+  const chainName = isBase ? "Base" : "Arbitrum"
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
       queryClient,
@@ -239,7 +243,7 @@ export function DefaultForm({
       })
       if (!isBalanceSufficient) {
         form.setError("amount", {
-          message: "Insufficient Arbitrum balance",
+          message: `Insufficient ${chainName} balance`,
         })
         return
       }

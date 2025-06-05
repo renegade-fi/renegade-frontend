@@ -21,10 +21,12 @@ export const GAS_FEE_TOOLTIP =
   "Gas fees for this transaction are paid for by your connected relayer."
 export const MAX_BALANCES_PLACE_ORDER_TOOLTIP = `This order will not fill because it would result in more than ${MAX_BALANCES} balances.`
 export const ASSETS_TOOLTIP = `Certain assets are whitelisted in the early days of Renegade. Check back soon!`
-export const ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP =
-  "Balances show the total of all supported tokens across Arbitrum and Ethereum."
-export const TRANSFER_DIALOG_BRIDGE_TOOLTIP =
-  "Renegade only supports deposits on the Arbitrum network."
+export const ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP = (chain?: string) =>
+  `Balances show the total of all supported tokens ${
+    chain ? `on ${chain} and Ethereum` : "on-chain"
+  }.`
+export const TRANSFER_DIALOG_BRIDGE_TOOLTIP = (chain?: string) =>
+  `Renegade only supports deposits on the ${chain ? chain : "Arbitrum"} network.`
 export const TRANSFER_DIALOG_L1_BALANCE_TOOLTIP =
   "Bridge to Arbitrum to deposit."
 export const ORDER_FORM_DEPOSIT_WARNING = ({ ticker }: { ticker: string }) =>

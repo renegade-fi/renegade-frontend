@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react"
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 
+import { useChainName } from "@/hooks/use-chain-name"
 import { useMediaQuery } from "@/hooks/use-media-query"
 
 export function DepositBanner() {
@@ -30,6 +31,9 @@ export function DepositBanner() {
     }
   }, [data])
 
+  const chainName = useChainName(true /* short */)
+  const content = `Welcome to Renegade! Deposit your ${chainName} tokens to get started.`
+
   if (isDesktop) {
     return (
       <div
@@ -40,9 +44,7 @@ export function DepositBanner() {
         }`}
       >
         <div className="flex w-full items-center border-b border-border bg-[#00183e] py-2 pl-4 text-sm text-blue lg:py-0">
-          <div>
-            Welcome to Renegade! Deposit your Arbitrum tokens to get started.
-          </div>
+          <div>{content}</div>
           <TransferDialog>
             <Button
               className="text-blue"
@@ -65,9 +67,7 @@ export function DepositBanner() {
     >
       <div className="flex w-full items-center text-pretty border-b border-border bg-[#00183e] py-2 pl-4 pr-2 text-sm text-blue lg:py-0">
         <TransferDialog>
-          <div>
-            Welcome to Renegade! Deposit your Arbitrum tokens to get started.
-          </div>
+          <div>{content}</div>
         </TransferDialog>
       </div>
     </div>
