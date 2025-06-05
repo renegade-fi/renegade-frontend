@@ -1,5 +1,10 @@
+import { headers } from "next/headers"
+
+import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { resolveAddress, resolveTicker, zeroAddress } from "@/lib/token"
+import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
 import type { ServerState } from "@/providers/state-provider/schema"
+import { defaultInitState } from "@/providers/state-provider/server-store"
 
 export const FALLBACK_TICKER = "WETH"
 
@@ -34,4 +39,17 @@ export function getFallbackTicker(serverState: ServerState): string {
     return baseToken.ticker
   }
   return FALLBACK_TICKER
+}
+
+/**
+ * Hydrates server state from cookies
+ */
+export async function hydrateServerState(): Promise<ServerState> {
+  const headersList = await headers()
+  const cookieString = headersList.get("cookie")
+    ? decodeURIComponent(headersList.get("cookie") ?? "")
+    : ""
+  const initialState =
+    cookieToInitialState(STORAGE_SERVER_STORE, cookieString) ?? defaultInitState
+  return initialState
 }

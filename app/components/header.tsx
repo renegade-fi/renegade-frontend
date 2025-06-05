@@ -1,5 +1,7 @@
 "use client"
 
+import { useMemo } from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -28,6 +30,9 @@ export function Header() {
   const pathname = usePathname()
   const { walletReadyState, arbitrumWallet } = useWallets()
   const baseMint = useServerStore((state) => state.baseMint)
+  const homeHref = useMemo(() => {
+    return `/trade/${resolveAddress(baseMint).ticker}`
+  }, [baseMint])
 
   return (
     <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
@@ -74,7 +79,7 @@ export function Header() {
         <div className="w-fit">
           <ContextMenu>
             <ContextMenuTrigger>
-              <Link href="/trade">
+              <Link href={homeHref}>
                 <Image
                   priority
                   alt="logo"
@@ -105,7 +110,7 @@ export function Header() {
               "flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground",
               pathname.startsWith("/trade") && "text-foreground",
             )}
-            href={`/trade/${resolveAddress(baseMint).ticker}`}
+            href={homeHref}
           >
             Trade
           </Link>

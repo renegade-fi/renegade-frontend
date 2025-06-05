@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-import { getFallbackTicker, hydrateServerState } from "./trade/[base]/utils"
+import { getFallbackTicker, hydrateServerState } from "./[base]/utils"
 
 export default async function Page() {
   // Hydrate server-side state from cookies

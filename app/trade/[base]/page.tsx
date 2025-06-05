@@ -1,4 +1,3 @@
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import {
@@ -9,26 +8,9 @@ import {
 
 import { PageClient } from "@/app/trade/[base]/page-client"
 
-import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
-import { ServerState } from "@/providers/state-provider/schema"
-import { defaultInitState } from "@/providers/state-provider/server-store"
 
-import { getTickerRedirect } from "./utils"
-
-/**
- * Hydrates server state from cookies
- */
-async function hydrateServerState(): Promise<ServerState> {
-  const headersList = await headers()
-  const cookieString = headersList.get("cookie")
-    ? decodeURIComponent(headersList.get("cookie") ?? "")
-    : ""
-  const initialState =
-    cookieToInitialState(STORAGE_SERVER_STORE, cookieString) ?? defaultInitState
-  return initialState
-}
+import { getTickerRedirect, hydrateServerState } from "./utils"
 
 export async function generateStaticParams() {
   const tokens = DISPLAY_TOKENS({ hideStables: true, hideHidden: true })
