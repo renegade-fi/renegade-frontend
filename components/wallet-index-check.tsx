@@ -9,7 +9,7 @@ import {
 } from "@renegade-fi/react"
 import {
   createWallet,
-  getBackOfQueueWallet,
+  getWalletFromRelayer,
   lookupWallet,
 } from "@renegade-fi/react/actions"
 import { useMutation } from "@tanstack/react-query"
@@ -19,9 +19,9 @@ import { toast } from "sonner"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 // Toast messages
-const MSG_INITIAL = "Hang tight…setting up your wallet"
-const MSG_CREATING = "Creating your wallet…"
-const MSG_RECOVER = "Recovering your wallet…"
+const MSG_INITIAL = "Setting up your wallet..."
+const MSG_CREATING = "Creating your wallet..."
+const MSG_RECOVER = "Recovering your wallet..."
 const MSG_SUCCESS = "All set! Your wallet is ready"
 const MSG_ERROR = "Oops, something went wrong"
 
@@ -47,7 +47,7 @@ export function WalletIndexCheck() {
     try {
       // Step 1: Check if wallet already exists
       try {
-        const existing = await getBackOfQueueWallet(config)
+        const existing = await getWalletFromRelayer(config)
         if (existing.id) {
           return existing
         }
@@ -90,7 +90,7 @@ export function WalletIndexCheck() {
       const startTime = Date.now()
       do {
         await delay(POLL_DELAY_MS)
-        polled = await getBackOfQueueWallet(config)
+        polled = await getWalletFromRelayer(config)
         if (Date.now() - startTime > POLL_TIMEOUT_MS) {
           throw new Error("Wallet indexing timed out after 60 seconds")
         }

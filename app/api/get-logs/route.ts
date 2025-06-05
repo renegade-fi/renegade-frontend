@@ -68,9 +68,6 @@ export async function GET(req: NextRequest) {
     }
 
     const result = await response.json()
-    console.log("logs debug", {
-      result,
-    })
     if (result.error) {
       throw new Error(`RPC error: ${result.error.message}`)
     }
