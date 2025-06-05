@@ -19,6 +19,7 @@ import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { useChainId } from "@/hooks/use-chain-id"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
 import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -53,8 +54,12 @@ export function PageClient() {
   }, [rawTableData, showZeroOnChainBalance, showZeroRenegadeBalance])
 
   // Transfer History Table Data
+  const wallet = useServerStore((state) => state.wallet)
   const { data: transferHistory } = useTaskHistory({
     limit: 1000,
+    seed: wallet.seed,
+    walletId: wallet.id,
+    chainId: wallet.chainId,
     query: {
       select: (data) => Array.from(data.values()),
     },

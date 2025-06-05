@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { TaskState, useTaskHistoryWebSocket } from "@renegade-fi/react"
+import { TaskState } from "@renegade-fi/react"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 
 import { useStepper } from "@/components/dialogs/order-stepper/desktop/new-order-stepper"
@@ -15,6 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+
+import { useTaskHistoryWebSocket } from "@/hooks/use-task-history-websocket"
 
 const states: TaskState[] = [
   "Proving",

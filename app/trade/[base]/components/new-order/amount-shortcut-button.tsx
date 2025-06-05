@@ -1,6 +1,5 @@
 import React from "react"
 
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
@@ -12,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"

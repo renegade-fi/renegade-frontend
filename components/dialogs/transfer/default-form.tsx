@@ -62,6 +62,7 @@ import { useChainId } from "@/hooks/use-chain-id"
 import { useChainName } from "@/hooks/use-chain-name"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { useIsBase } from "@/hooks/use-is-base"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -102,6 +103,7 @@ export function DefaultForm({
   const { setSide } = useServerStore((state) => state)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
+  const isBase = useIsBase()
   const isDeposit = direction === ExternalTransferDirection.Deposit
 
   const amount = useWatch({
@@ -565,7 +567,11 @@ export function DefaultForm({
 
             <div
               className={cn("flex justify-between", {
-                hidden: !userHasL1Balance || !isDeposit || !l1Token?.address,
+                hidden:
+                  !userHasL1Balance ||
+                  !isDeposit ||
+                  !l1Token?.address ||
+                  isBase,
               })}
             >
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -607,7 +613,11 @@ export function DefaultForm({
 
             <div
               className={cn({
-                hidden: !userHasL1Balance || !isDeposit || !l1Token?.address,
+                hidden:
+                  !userHasL1Balance ||
+                  !isDeposit ||
+                  !l1Token?.address ||
+                  isBase,
               })}
             >
               <BridgePrompt

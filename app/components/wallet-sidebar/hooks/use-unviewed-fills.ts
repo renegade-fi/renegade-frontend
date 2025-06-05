@@ -1,18 +1,16 @@
 import React from "react"
 
-import {
-  OrderMetadata,
-  useBackOfQueueWallet,
-  useOrderHistory,
-} from "@renegade-fi/react"
+import { OrderMetadata, useOrderHistory } from "@renegade-fi/react"
 
 import {
   generateFillIdentifier,
   useViewedFills,
 } from "@/app/components/wallet-sidebar/hooks/use-viewed-fills"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { syncOrdersWithWalletState } from "@/lib/order"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function useRecentUnviewedFills() {
   const { lastVisitTs } = useClientStore((state) => state)
@@ -26,7 +24,11 @@ export function useRecentUnviewedFills() {
       select: (data) => data.orders.map((order) => order.id),
     },
   })
+  const wallet = useServerStore((state) => state.wallet)
   const { data: orders } = useOrderHistory({
+    seed: wallet.seed,
+    walletId: wallet.id,
+    chainId: wallet.chainId,
     query: {
       select: (data) => {
         if (!lastVisitBigInt) return []

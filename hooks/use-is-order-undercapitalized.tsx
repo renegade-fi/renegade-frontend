@@ -1,9 +1,10 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
 import { resolveAddress } from "@/lib/token"
+
+import { useBackOfQueueWallet } from "./query/use-back-of-queue-wallet"
 
 export function useIsOrderUndercapitalized({
   amount,

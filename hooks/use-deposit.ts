@@ -1,10 +1,6 @@
 import React from "react"
 
-import {
-  getSDKConfig,
-  useBackOfQueueWallet,
-  useConfig,
-} from "@renegade-fi/react"
+import { getSDKConfig, useConfig } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -16,6 +12,7 @@ import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { resolveAddress } from "@/lib/token"
 
+import { useBackOfQueueWallet } from "./query/use-back-of-queue-wallet"
 import { useChainId } from "./use-chain-id"
 
 export function useDeposit() {

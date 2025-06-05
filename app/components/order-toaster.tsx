@@ -2,18 +2,15 @@
 
 import React from "react"
 
-import {
-  OrderMetadata,
-  OrderState,
-  useBackOfQueueWallet,
-  useOrderHistory,
-  useOrderHistoryWebSocket,
-} from "@renegade-fi/react"
+import { OrderMetadata, OrderState, useOrderHistory } from "@renegade-fi/react"
 import { toast } from "sonner"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
+import { useOrderHistoryWebSocket } from "@/hooks/use-order-history-websocket"
 import { formatNumber } from "@/lib/format"
 import { syncOrdersWithWalletState } from "@/lib/order"
 import { resolveAddress } from "@/lib/token"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function OrderToaster() {
   const [incomingOrder, setIncomingOrder] = React.useState<OrderMetadata>()
@@ -29,7 +26,11 @@ export function OrderToaster() {
       select: (data) => data.orders.map((order) => order.id),
     },
   })
+  const wallet = useServerStore((state) => state.wallet)
   const { data } = useOrderHistory({
+    seed: wallet.seed,
+    walletId: wallet.id,
+    chainId: wallet.chainId,
     query: {
       enabled: orderMetadataRef.current.size === 0,
       select: (data) =>

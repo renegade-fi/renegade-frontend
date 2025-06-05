@@ -1,12 +1,10 @@
-import {
-  OrderMetadata,
-  useBackOfQueueWallet,
-  useOrderHistory,
-} from "@renegade-fi/react"
+import { OrderMetadata, useOrderHistory } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { getVWAP, syncOrdersWithWalletState } from "@/lib/order"
 import { resolveAddress } from "@/lib/token"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export interface ExtendedOrderMetadata extends OrderMetadata {
   usdValue: number
@@ -18,7 +16,11 @@ export function useOrderTableData() {
       select: (data) => data.orders.map((order) => order.id),
     },
   })
+  const wallet = useServerStore((state) => state.wallet)
   const { data } = useOrderHistory({
+    seed: wallet.seed,
+    walletId: wallet.id,
+    chainId: wallet.chainId,
     query: {
       select: (data) => {
         const filtered = syncOrdersWithWalletState({

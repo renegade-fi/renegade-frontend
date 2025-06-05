@@ -1,9 +1,9 @@
 import { useMemo } from "react"
 
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 import { useAccount } from "wagmi"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { usePriceQueries } from "@/hooks/use-price-queries"
 import { amountTimesPrice } from "@/hooks/use-usd-price"

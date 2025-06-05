@@ -1,8 +1,8 @@
 "use client"
 
-import { useTaskHistoryWebSocket } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 
+import { useTaskHistoryWebSocket } from "@/hooks/use-task-history-websocket"
 import { shouldInvalidate } from "@/lib/query"
 
 export function InvalidateQueries() {
