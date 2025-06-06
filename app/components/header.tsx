@@ -26,6 +26,8 @@ import { resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
+import { ChainSelector } from "./chain-selector"
+
 export function Header() {
   const pathname = usePathname()
   const { walletReadyState, arbitrumWallet } = useWallets()
@@ -140,6 +142,7 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end">
+          <ChainSelector />
           {walletReadyState === "READY" ? (
             <>
               <TransferDialog>

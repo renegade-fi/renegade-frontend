@@ -1,4 +1,3 @@
-import { deserialize, parseCookie } from "wagmi"
 import { StateStorage } from "zustand/middleware"
 
 import {
@@ -37,9 +36,21 @@ export const createCookieStorage = (): StateStorage => {
   }
 }
 
+export function parseCookie(cookie: string, key: string) {
+  const keyValue = cookie.split("; ").find((x) => x.startsWith(`${key}=`))
+  if (!keyValue) return undefined
+  return keyValue.substring(key.length + 1)
+}
+
 export function cookieToInitialState(key: string, cookie?: string | null) {
   if (!cookie) return undefined
   const parsed = parseCookie(decodeURIComponent(cookie), key)
   if (!parsed) return undefined
-  return deserialize<{ state: ServerState }>(parsed).state
+  try {
+    const { state } = JSON.parse(parsed) as { state: ServerState }
+    return state
+  } catch (err) {
+    console.error("Error parsing cookie:", err)
+    return undefined
+  }
 }
