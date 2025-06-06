@@ -98,10 +98,12 @@ export function NewOrderForm({
     defaultValues,
   })
   // Keep form in sync with server store
+  // TODO: This is an anti-pattern, we should use a single source of truth for the form (server state)
   React.useEffect(() => {
     form.setValue("isSell", side === Side.SELL)
     form.setValue("isQuoteCurrency", currency === "quote")
-  }, [form, side, currency])
+    form.setValue("base", base)
+  }, [form, side, currency, base])
 
   const isMaxOrders = useIsMaxOrders()
   const { walletReadyState } = useWallets()
