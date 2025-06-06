@@ -50,7 +50,7 @@ export function useWallets() {
   const renegadeWallet: Wallet =
     seed && id
       ? {
-          name: "Renegade Wallet ID",
+          name: "Renegade Wallet",
           icon: "/glyph_light.png",
           id,
           label: truncateAddress(id),
@@ -67,14 +67,14 @@ export function useWallets() {
   const arbitrumWallet: Wallet =
     address && connector
       ? {
-          name: `${chainSpecifier} Address`,
+          name: `${chainSpecifier} Wallet`,
           icon: `/${chainSpecifier}.svg`,
           id: address,
           label: ensName || truncateAddress(address),
           isConnected: true,
         }
       : {
-          name: `${chainSpecifier} Address`,
+          name: `${chainSpecifier} Wallet`,
           icon: `/${chainSpecifier}.svg`,
           id: null,
           label: "Not Connected",
