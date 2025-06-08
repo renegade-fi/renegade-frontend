@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { ArrowRightLeft, ChevronDown } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -35,6 +34,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useNeedsSwitch } from "@/hooks/use-needs-switch"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"

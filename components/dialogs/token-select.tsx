@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
 
@@ -21,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"

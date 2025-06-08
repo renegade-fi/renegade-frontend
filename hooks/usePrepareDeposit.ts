@@ -2,15 +2,14 @@
 
 import React from "react"
 
-import {
-  ConfigRequiredError,
-  stringifyForWasm,
-  useBackOfQueueWallet,
-  useConfig,
-} from "@renegade-fi/react"
+import { ConfigRequiredError } from "@renegade-fi/react"
 import { isAddress, isHex, parseUnits, toHex } from "viem"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { resolveAddress } from "@/lib/token"
+import { useConfig } from "@/providers/state-provider/hooks"
+
+import { stringifyForWasm } from "./query/utils"
 
 export type UsePrepareDepositParameters = {
   amount?: number | bigint

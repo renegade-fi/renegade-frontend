@@ -1,7 +1,10 @@
 "use client"
 
+import { useMemo } from "react"
+
 import { ChainId } from "@renegade-fi/react/constants"
 
+import { getConfigFromChainId } from "../renegade-provider/config"
 import { CachedWallet, createEmptyWallet } from "./schema"
 import { useServerStore } from "./server-store-provider"
 
@@ -30,4 +33,24 @@ export function useCurrentWallet(): CachedWallet {
 export function useIsWalletConnected(): boolean {
   const { seed, id } = useCurrentWallet()
   return Boolean(seed && id)
+}
+
+/**
+ * Returns a config object with the current wallet and chain id.
+ * Importantly, this reacts to changes in the wallet and chain id.
+ */
+export function useConfig() {
+  const chainId = useCurrentChain()
+  const wallet = useCurrentWallet()
+
+  return useMemo(() => {
+    if (!wallet.seed || !wallet.id) return
+    const config = getConfigFromChainId(chainId)
+    config.setState((s) => ({
+      ...s,
+      seed: wallet.seed,
+      id: wallet.id,
+    }))
+    return config
+  }, [chainId, wallet.id, wallet.seed])
 }

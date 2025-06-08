@@ -1,4 +1,3 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
@@ -10,6 +9,7 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { useWallets } from "@/hooks/use-wallets"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"

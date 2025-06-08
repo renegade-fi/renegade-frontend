@@ -2,11 +2,9 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { Star } from "lucide-react"
 import { useDebounceValue } from "usehooks-ts"
 import { fromHex } from "viem/utils"
-import { useChainId } from "wagmi"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Button } from "@/components/ui/button"
@@ -23,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"

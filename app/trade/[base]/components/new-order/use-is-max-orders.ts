@@ -1,5 +1,6 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
+
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 
 export function useIsMaxOrders() {
   const { data } = useBackOfQueueWallet({

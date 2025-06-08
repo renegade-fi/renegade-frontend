@@ -1,13 +1,13 @@
 "use client"
 
-import {
-  ConfigRequiredError,
-  stringifyForWasm,
-  useBackOfQueueWallet,
-  useConfig,
-} from "@renegade-fi/react"
+import { ConfigRequiredError } from "@renegade-fi/react"
 import { CancelOrderParameters } from "@renegade-fi/react/actions"
 import { useQuery } from "@tanstack/react-query"
+
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
+import { useConfig } from "@/providers/state-provider/hooks"
+
+import { stringifyForWasm } from "./query/utils"
 
 export type UsePrepareCancelOrderParameters = CancelOrderParameters
 

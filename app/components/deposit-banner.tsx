@@ -1,11 +1,11 @@
 import React from "react"
 
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { ArrowRight } from "lucide-react"
 
 import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog"
 import { Button } from "@/components/ui/button"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useChainName } from "@/hooks/use-chain-name"
 import { useMediaQuery } from "@/hooks/use-media-query"
 

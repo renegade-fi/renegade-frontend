@@ -1,6 +1,6 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { Side } from "@/lib/constants/protocol"
 import { resolveAddress } from "@/lib/token"
