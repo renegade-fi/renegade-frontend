@@ -3,7 +3,6 @@
 import { useState } from "react"
 
 import { Info } from "lucide-react"
-import { useChainId } from "wagmi"
 
 import { ChainSelector } from "@/app/stats/chain-selector"
 import { InflowsChart } from "@/app/stats/charts/inflows-chart"
@@ -14,10 +13,11 @@ import { VolumeChart } from "@/app/stats/charts/volume-chart"
 import { Button } from "@/components/ui/button"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { AVAILABLE_CHAINS } from "@/providers/wagmi-provider/config"
 
 export function PageClient() {
-  const currentChainId = useChainId()
+  const currentChainId = useCurrentChain()
   const defaultChainId =
     currentChainId &&
     AVAILABLE_CHAINS.some((chain) => chain.id === currentChainId)

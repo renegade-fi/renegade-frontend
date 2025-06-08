@@ -1,3 +1,5 @@
+"use client"
+
 import { ChainId } from "@renegade-fi/react/constants"
 
 import { CachedWallet, createEmptyWallet } from "./schema"
@@ -15,7 +17,11 @@ export function useCurrentChain(): ChainId {
  */
 export function useCurrentWallet(): CachedWallet {
   const chain = useCurrentChain()
-  return useServerStore((s) => s.wallet[chain] ?? createEmptyWallet())
+  return useServerStore((s) => {
+    const wallet = s.wallet.get(chain)
+    if (!wallet) return createEmptyWallet()
+    return wallet
+  })
 }
 
 /**

@@ -27,6 +27,7 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function TokenSelectDialog({
   children,
@@ -143,7 +144,7 @@ function TokenList({
 
   const { favorites, setFavorites } = useClientStore((state) => state)
 
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const processedTokens = React.useMemo(() => {
     return DISPLAY_TOKENS({
       hideHidden: true,

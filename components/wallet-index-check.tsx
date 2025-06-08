@@ -16,7 +16,10 @@ import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useServerStore } from "@/providers/state-provider/server-store-provider"
+import {
+  useCurrentChain,
+  useCurrentWallet,
+} from "@/providers/state-provider/hooks"
 
 // Toast messages
 const MSG_INITIAL = "Setting up your wallet..."
@@ -30,9 +33,8 @@ const POLL_DELAY_MS = 2000
 const POLL_TIMEOUT_MS = 60000
 
 export function WalletIndexCheck() {
-  const seed = useServerStore((s) => s.wallet.seed)
-  const chainId = useServerStore((s) => s.wallet.chainId)
-  const walletId = useServerStore((s) => s.wallet.id)
+  const { seed, id } = useCurrentWallet()
+  const chainId = useCurrentChain()
   const wasmInitialized = useWasmInitialized()
   const config = useConfig()
   const toastId = useId()
@@ -113,10 +115,10 @@ export function WalletIndexCheck() {
   })
 
   useEffect(() => {
-    if (config && seed && chainId && walletId && wasmInitialized) {
+    if (config && seed && chainId && id && wasmInitialized) {
       mutate()
     }
-  }, [chainId, config, mutate, seed, walletId, wasmInitialized])
+  }, [chainId, config, mutate, seed, id, wasmInitialized])
 
   return null
 }

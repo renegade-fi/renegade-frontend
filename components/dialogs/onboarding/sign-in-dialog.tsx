@@ -7,7 +7,7 @@ import { MutationStatus } from "@tanstack/react-query"
 import { useModal } from "connectkit"
 import { Check, Loader2, X } from "lucide-react"
 import { BaseError } from "viem"
-import { useChainId, useDisconnect, useSignMessage } from "wagmi"
+import { useDisconnect, useSignMessage } from "wagmi"
 
 import {
   NonDeterministicWalletError,
@@ -31,6 +31,7 @@ import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { getConfigFromChainId } from "@/providers/renegade-provider/config"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function SignInDialog({
@@ -40,7 +41,7 @@ export function SignInDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const currentChainId = useChainId()
+  const currentChainId = useCurrentChain()
   const { disconnectAsync } = useDisconnect()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
@@ -88,7 +89,7 @@ export function SignInDialog({
         const config = getConfigFromChainId(currentChainId)
         config.setState((x) => ({ ...x, seed: data, status: "in relayer" }))
         const id = getWalletId(config)
-        setWallet(data, currentChainId, id)
+        setWallet(data, id)
 
         onOpenChange(false)
         sidebarEvents.emit("open")
