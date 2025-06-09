@@ -1,7 +1,7 @@
 import { cancelOrder } from "@renegade-fi/react/actions"
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
-import { useConfig } from "@/providers/state-provider/hooks"
+import { useConfig } from "@/providers/renegade-provider/config-provider"
 
 export function useCancelAllOrders() {
   const config = useConfig()

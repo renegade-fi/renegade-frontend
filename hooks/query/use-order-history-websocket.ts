@@ -1,15 +1,12 @@
 import React from "react"
 
-import {
-  createSignedWebSocketRequest,
-  OrderMetadata,
-  useWasmInitialized,
-} from "@renegade-fi/react"
+import { createSignedWebSocketRequest, OrderMetadata } from "@renegade-fi/react"
 import { getSymmetricKey } from "@renegade-fi/react/actions"
 import { WS_WALLET_ORDERS_ROUTE } from "@renegade-fi/react/constants"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
-import { useConfig, useCurrentWallet } from "@/providers/state-provider/hooks"
+import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useCurrentWallet } from "@/providers/state-provider/hooks"
 
 export type UseOrderHistoryWebsocketParameters = {
   onUpdate: (order: OrderMetadata) => void
@@ -19,7 +16,6 @@ export function useOrderHistoryWebSocket(
   parameters: UseOrderHistoryWebsocketParameters,
 ) {
   const { onUpdate } = parameters
-  const isWasmInitialized = useWasmInitialized()
   const { id: walletId } = useCurrentWallet()
   const config = useConfig()
 
@@ -54,8 +50,7 @@ export function useOrderHistoryWebSocket(
   )
 
   React.useEffect(() => {
-    console.trace()
-    if (!enabled || readyState !== ReadyState.OPEN || !isWasmInitialized) return
+    if (!enabled || readyState !== ReadyState.OPEN) return
 
     // Subscribe to wallet updates
     const body = {
@@ -71,5 +66,5 @@ export function useOrderHistoryWebSocket(
     )
 
     sendJsonMessage(subscriptionMessage)
-  }, [config, enabled, isWasmInitialized, readyState, sendJsonMessage])
+  }, [config, enabled, readyState, sendJsonMessage])
 }
