@@ -5,7 +5,7 @@ import { getSymmetricKey } from "@renegade-fi/react/actions"
 import { WALLET_ROUTE } from "@renegade-fi/react/constants"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 import { useCurrentWallet } from "@/providers/state-provider/hooks"
 import { CachedWallet } from "@/providers/state-provider/schema"
 

@@ -34,3 +34,25 @@ export function useIsWalletConnected(): boolean {
   const { seed, id } = useCurrentWallet()
   return Boolean(seed && id)
 }
+
+/**
+ * Returns a config object with the current wallet and chain id.
+ * Importantly, this reacts to changes in the wallet and chain id.
+ */
+export function useConfig() {
+  const chainId = useCurrentChain()
+  const wallet = useCurrentWallet()
+
+  return useMemo(() => {
+    if (!wallet.seed || !wallet.id) return
+    const config = getConfigFromChainId(chainId)
+    config.setState((s) => ({
+      ...s,
+      seed: wallet.seed,
+      id: wallet.id,
+      chainId,
+      status: "in relayer",
+    }))
+    return config
+  }, [chainId, wallet.id, wallet.seed])
+}

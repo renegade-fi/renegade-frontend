@@ -9,7 +9,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 import { useCurrentWallet } from "@/providers/state-provider/hooks"
 import { CachedWallet } from "@/providers/state-provider/schema"
 
