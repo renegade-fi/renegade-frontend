@@ -18,7 +18,6 @@ import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
 import { TrackLastVisit } from "@/app/components/track-last-visit"
 import { WalletSidebar } from "@/app/components/wallet-sidebar"
-import { WalletSidebarSync } from "@/app/components/wallet-sidebar-sync"
 import { Zendesk } from "@/app/components/zendesk"
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
@@ -121,7 +120,6 @@ export default async function RootLayout({
                   <SolanaProvider>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
-                      {/* <WalletSidebarSync /> */}
                       <TailwindIndicator />
                       <TooltipProvider
                         delayDuration={0}

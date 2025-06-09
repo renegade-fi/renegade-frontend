@@ -65,28 +65,24 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
 }
 
 /**
- * Wagmi state is the source of truth for connected browser wallet data.
- * We derive Renegade wallet state from Wagmi state and cache what is needed (seed, chainId, id).
- * Cached state is used to connect to the Renegade relayer.
+ * Cookie state is the source of truth for chain and wallet data, therefore we must make sure Wagmi state stays in sync.
  *
- * Wagmi
- * - on connect, ignore. sign in logic will populate the cached state
- * - on disconnect, clear the cached state
- * - on account switch, clear the cached state
- * - on chain switch, clear the cached state (unless mainnet, in which case we are bridging)
+ * We verify derived seeds against the active account. If none exists, we clear the cached state.
  */
 function SyncRenegadeWagmiState() {
   const resetWallet = useServerStore((state) => state.resetWallet)
-
-  // Sync wallet state: clear cache when wagmi state invalidates it
-  const account = useAccount()
-
+  const resetAllWallets = useServerStore((state) => state.resetAllWallets)
   const wallets = useServerStore((state) => state.wallet)
+  const account = useAccount()
 
   React.useEffect(() => {
     async function verifyWallets() {
       const address = account.address
-      if (!address) return
+      if (!address) {
+        resetAllWallets()
+        return
+      }
+
       for (const [chainId, wallet] of wallets) {
         if (!wallet.seed) continue
         const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`
@@ -102,7 +98,7 @@ function SyncRenegadeWagmiState() {
       }
     }
     verifyWallets()
-  }, [account.address, wallets, resetWallet])
+  }, [account.address, resetAllWallets, resetWallet, wallets])
 
   return null
 }

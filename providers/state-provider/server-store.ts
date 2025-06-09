@@ -27,6 +27,7 @@ export type ServerActions = {
   setSide: (side: Side) => void
   setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => void
   resetWallet: (chainId?: ChainId) => void
+  resetAllWallets: () => void
 }
 
 export type ServerStore = ServerState & ServerActions
@@ -104,6 +105,7 @@ export const createServerStore = (
               createEmptyWallet(),
             ),
           })),
+        resetAllWallets: () => set(() => ({ wallet: defaultWalletMap })),
       }),
       {
         name: STORAGE_SERVER_STORE,
