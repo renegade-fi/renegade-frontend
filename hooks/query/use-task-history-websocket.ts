@@ -2,21 +2,23 @@ import React from "react"
 
 import {
   createSignedWebSocketRequest,
-  OrderMetadata,
+  Task,
   useWasmInitialized,
 } from "@renegade-fi/react"
 import { getSymmetricKey } from "@renegade-fi/react/actions"
-import { WS_WALLET_ORDERS_ROUTE } from "@renegade-fi/react/constants"
+import { WS_TASK_HISTORY_ROUTE } from "@renegade-fi/react/constants"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
 import { useConfig, useCurrentWallet } from "@/providers/state-provider/hooks"
 
-export type UseOrderHistoryWebsocketParameters = {
-  onUpdate: (order: OrderMetadata) => void
+import { parseBigJSON } from "./utils"
+
+export type UseTaskHistoryWebsocketParameters = {
+  onUpdate: (task: Task) => void
 }
 
-export function useOrderHistoryWebSocket(
-  parameters: UseOrderHistoryWebsocketParameters,
+export function useTaskHistoryWebSocket(
+  parameters: UseTaskHistoryWebsocketParameters,
 ) {
   const { onUpdate } = parameters
   const isWasmInitialized = useWasmInitialized()
@@ -32,19 +34,14 @@ export function useOrderHistoryWebSocket(
       filter: () => false,
       onMessage(event) {
         try {
-          const messageData = JSON.parse(event.data, (key, value) => {
-            if (typeof value === "number" && key !== "price") {
-              return BigInt(value)
-            }
-            return value
-          })
+          const messageData = parseBigJSON(event.data)
           if (
             walletId &&
-            messageData.topic === WS_WALLET_ORDERS_ROUTE(walletId) &&
-            messageData.event?.type === "OrderMetadataUpdated" &&
-            messageData.event?.order
+            messageData.topic === WS_TASK_HISTORY_ROUTE(walletId) &&
+            messageData.event?.type === "TaskHistoryUpdate" &&
+            messageData.event?.task
           )
-            onUpdate?.(messageData.event.order)
+            onUpdate?.(messageData.event.task)
         } catch (_) {}
       },
       share: true,
@@ -59,8 +56,8 @@ export function useOrderHistoryWebSocket(
 
     // Subscribe to wallet updates
     const body = {
-      method: "subscribe" as const,
-      topic: WS_WALLET_ORDERS_ROUTE(config?.state.id!),
+      method: "subscribe",
+      topic: WS_TASK_HISTORY_ROUTE(config?.state.id!),
     } as const
 
     const symmetricKey = getSymmetricKey(config!)
