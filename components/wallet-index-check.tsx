@@ -2,7 +2,7 @@
 
 import { useEffect, useId } from "react"
 
-import { ConfigRequiredError, useConfig } from "@renegade-fi/react"
+import { ConfigRequiredError } from "@renegade-fi/react"
 import {
   createWallet,
   getWalletFromRelayer,
@@ -12,6 +12,7 @@ import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
+import { useConfig } from "@/providers/renegade-provider/config-provider"
 import {
   useCurrentChain,
   useCurrentWallet,

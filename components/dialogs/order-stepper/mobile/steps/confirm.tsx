@@ -1,6 +1,6 @@
 import React from "react"
 
-import { UpdateType, useCreateOrder } from "@renegade-fi/react"
+import { UpdateType } from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+import { useCreateOrder } from "@/hooks/mutation/use-create-order"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { constructStartToastMessage } from "@/lib/constants/task"
@@ -46,7 +47,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
     allowExternalMatches,
   })
 
-  const { createOrder } = useCreateOrder({
+  const { mutate: createOrder } = useCreateOrder({
     mutation: {
       onSuccess(data) {
         props.onSuccess?.()
