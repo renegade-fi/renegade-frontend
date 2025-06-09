@@ -1,12 +1,11 @@
 import * as React from "react"
 
-import { usePayFees } from "@renegade-fi/react"
-
 import { Header } from "@/components/dialogs/transfer/header"
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers"
 import { TransferForm } from "@/components/dialogs/transfer/transfer-form"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
+import { usePayFees } from "@/hooks/mutation/use-pay-fees"
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useFeeOnZeroBalance } from "@/hooks/use-fee-on-zero-balance"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -24,7 +23,7 @@ export function TransferDialog({
     ExternalTransferDirection.Deposit,
   )
 
-  const { payFees } = usePayFees()
+  const { mutate: payFees } = usePayFees()
   const feeOnZeroBalance = useFeeOnZeroBalance()
   const { data: numFees } = useBackOfQueueWallet({
     query: {

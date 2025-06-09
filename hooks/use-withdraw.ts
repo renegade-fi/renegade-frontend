@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { ConfigRequiredError, useConfig, usePayFees } from "@renegade-fi/react"
+import { ConfigRequiredError } from "@renegade-fi/react"
 import { withdraw } from "@renegade-fi/react/actions"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -10,6 +10,9 @@ import { useAccount } from "wagmi"
 import { FAILED_WITHDRAWAL_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { resolveAddress } from "@/lib/token"
+import { useConfig } from "@/providers/renegade-provider/config-provider"
+
+import { usePayFees } from "./mutation/use-pay-fees"
 
 export function useWithdraw({
   mint,
@@ -21,7 +24,7 @@ export function useWithdraw({
   const { address } = useAccount()
   const config = useConfig()
   const [status, setStatus] = useState<MutationStatus>("idle")
-  const { payFeesAsync } = usePayFees()
+  const { mutateAsync: payFees } = usePayFees()
 
   const handleWithdraw = async ({
     onSuccess,
@@ -38,7 +41,7 @@ export function useWithdraw({
     }
     setStatus("pending")
 
-    await payFeesAsync()
+    await payFees()
 
     // Withdraw
     await withdraw(config, {
