@@ -12,13 +12,11 @@ import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { resolveAddress } from "@/lib/token"
-import { useConfig } from "@/providers/state-provider/hooks"
-
-import { useChainId } from "./use-chain-id"
+import { useConfig, useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function useDeposit() {
   const config = useConfig()
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const { data: walletClient } = useWalletClient()
   const [status, setStatus] = React.useState<MutationStatus>("idle")
   const { data: keychainNonce } = useBackOfQueueWallet({

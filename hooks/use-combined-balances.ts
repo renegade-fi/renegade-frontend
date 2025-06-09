@@ -2,8 +2,7 @@ import { useWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
 
 import { resolveTickerAndChain } from "@/lib/token"
-
-import { useChainId } from "./use-chain-id"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 async function fetchCombinedBalances(
   address: `0x${string}`,
@@ -33,7 +32,7 @@ export function useCombinedBalances({
   address?: `0x${string}`
   enabled?: boolean
 }) {
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const { publicKey } = useWallet()
   const solanaAddress = publicKey?.toBase58()
   const queryKey = ["combinedBalances", address, solanaAddress]

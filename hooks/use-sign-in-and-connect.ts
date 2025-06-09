@@ -3,13 +3,12 @@ import { useState } from "react"
 import { useModal } from "connectkit"
 import { useAccount } from "wagmi"
 
+import { useIsWalletConnected } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
-
-import { useRenegadeStatus } from "./use-renegade-status"
 
 export function useSignInAndConnect() {
   const { address, isConnected: isWagmiConnected } = useAccount()
-  const { isConnected: isRenegadeConnected } = useRenegadeStatus()
+  const isRenegadeConnected = useIsWalletConnected()
   const resetWallet = useServerStore((state) => state.resetWallet)
   const { setOpen } = useModal()
   const [open, setOpenSignIn] = useState(false)

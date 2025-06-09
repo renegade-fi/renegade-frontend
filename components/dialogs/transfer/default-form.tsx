@@ -58,7 +58,6 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
-import { useChainId } from "@/hooks/use-chain-id"
 import { useChainName } from "@/hooks/use-chain-name"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
@@ -77,6 +76,7 @@ import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const catchError = (error: Error, message: string) => {
@@ -96,7 +96,7 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()

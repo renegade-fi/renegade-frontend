@@ -12,7 +12,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { useChainId } from "@/hooks/use-chain-id"
 import { useIsBase } from "@/hooks/use-is-base"
 import { cn } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
@@ -25,16 +24,14 @@ export function SwitchChainButton({
   baseMint: `0x${string}`
 }) {
   const { switchChain } = useSwitchChain()
-  const chainId = useChainId()
   const isBase = useIsBase()
 
   const targetChain = useMemo(() => {
-    if (!chainId) return null
     if (isBase) {
       return isTestnet ? arbitrumSepolia : arbitrum
     }
     return isTestnet ? baseSepolia : base
-  }, [chainId, isBase])
+  }, [isBase])
 
   const baseTicker = useMemo(() => {
     if (!targetChain) return null

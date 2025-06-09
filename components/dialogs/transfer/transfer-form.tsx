@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token } from "@renegade-fi/token-nextjs"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -13,9 +12,8 @@ import {
 import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
-import { useChainId } from "@/hooks/use-chain-id"
 import { useIsBase } from "@/hooks/use-is-base"
-import { resolveAddress, resolveTickerAndChain } from "@/lib/token"
+import { resolveAddress } from "@/lib/token"
 import { isTestnet } from "@/lib/viem"
 
 export function TransferForm({
