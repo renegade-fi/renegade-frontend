@@ -1,7 +1,7 @@
 import { payFees } from "@renegade-fi/react/actions"
 import { useMutation } from "@tanstack/react-query"
 
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 
 export function usePayFees() {
   const config = useConfig()

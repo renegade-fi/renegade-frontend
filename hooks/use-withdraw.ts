@@ -10,7 +10,7 @@ import { useAccount } from "wagmi"
 import { FAILED_WITHDRAWAL_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { resolveAddress } from "@/lib/token"
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 
 import { usePayFees } from "./mutation/use-pay-fees"
 
