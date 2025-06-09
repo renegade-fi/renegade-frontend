@@ -5,7 +5,7 @@ import {
 } from "@renegade-fi/react/actions"
 import { useMutation, UseMutationOptions } from "@tanstack/react-query"
 
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 
 export function useCreateOrder(parameters?: {
   mutation?: Partial<
