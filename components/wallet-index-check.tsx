@@ -2,11 +2,7 @@
 
 import { useEffect, useId } from "react"
 
-import {
-  ConfigRequiredError,
-  useConfig,
-  useWasmInitialized,
-} from "@renegade-fi/react"
+import { ConfigRequiredError, useConfig } from "@renegade-fi/react"
 import {
   createWallet,
   getWalletFromRelayer,
@@ -35,7 +31,6 @@ const POLL_TIMEOUT_MS = 60000
 export function WalletIndexCheck() {
   const { seed, id } = useCurrentWallet()
   const chainId = useCurrentChain()
-  const wasmInitialized = useWasmInitialized()
   const config = useConfig()
   const toastId = useId()
 
@@ -115,10 +110,10 @@ export function WalletIndexCheck() {
   })
 
   useEffect(() => {
-    if (config && seed && chainId && id && wasmInitialized) {
+    if (config && seed && chainId && id) {
       mutate()
     }
-  }, [chainId, config, mutate, seed, id, wasmInitialized])
+  }, [chainId, config, mutate, seed, id])
 
   return null
 }

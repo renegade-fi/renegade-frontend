@@ -7,7 +7,7 @@ import { isAddress, isHex, parseUnits, toHex } from "viem"
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { resolveAddress } from "@/lib/token"
-import { useConfig } from "@/providers/state-provider/hooks"
+import { useConfig } from "@/providers/renegade-provider/config-provider"
 
 import { stringifyForWasm } from "./query/utils"
 

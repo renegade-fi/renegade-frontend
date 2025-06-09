@@ -28,7 +28,7 @@ import { WalletIndexCheck } from "@/components/wallet-index-check"
 
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
-import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
+import { ConfigProvider as RenegadeProvider } from "@/providers/renegade-provider/config-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
 import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider.tsx"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
