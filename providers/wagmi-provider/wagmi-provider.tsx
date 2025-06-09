@@ -5,13 +5,8 @@ import React from "react"
 import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { ConnectKitProvider } from "connectkit"
-import { mainnet } from "viem/chains"
-import {
-  WagmiProvider as Provider,
-  State,
-  useAccount,
-  useVerifyMessage,
-} from "wagmi"
+import { verifyMessage } from "viem"
+import { WagmiProvider as Provider, State, useAccount } from "wagmi"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
@@ -84,41 +79,30 @@ function SyncRenegadeWagmiState() {
   const resetWallet = useServerStore((state) => state.resetWallet)
 
   // Sync wallet state: clear cache when wagmi state invalidates it
-  const signature = useServerStore((state) => state.wallet.seed)
   const account = useAccount()
-  const isBridging = account.chainId === mainnet.id
-  const message = `${ROOT_KEY_MESSAGE_PREFIX} ${account.chainId}`
-  const address = account.address
 
-  const { data: verified } = useVerifyMessage({
-    address,
-    message,
-    signature,
-    query: {
-      // Ignore while bridging
-      enabled: !isBridging,
-    },
-  })
-
-  const shouldClearWallet = React.useMemo(() => {
-    // Clear if wagmi is disconnected
-    if (account.status === "disconnected" && signature) {
-      return true
-    }
-
-    // Clear if verification failed (but not while bridging)
-    if (!isBridging && verified !== undefined && !verified) {
-      return true
-    }
-
-    return false
-  }, [account.status, isBridging, signature, verified])
+  const wallets = useServerStore((state) => state.wallet)
 
   React.useEffect(() => {
-    if (shouldClearWallet) {
-      resetWallet()
+    async function verifyWallets() {
+      const address = account.address
+      if (!address) return
+      for (const [chainId, wallet] of wallets) {
+        if (!wallet.seed) continue
+        const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`
+        const signature = wallet.seed
+        const valid = await verifyMessage({
+          address,
+          message,
+          signature,
+        })
+        if (!valid) {
+          resetWallet(chainId)
+        }
+      }
     }
-  }, [shouldClearWallet, resetWallet])
+    verifyWallets()
+  }, [account.address, wallets, resetWallet])
 
   return null
 }

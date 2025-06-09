@@ -1,6 +1,7 @@
+import type { ChainId } from "@renegade-fi/react/constants"
 import { z } from "zod/v4"
 
-import { zChainId, zChainIdKey, zHexString } from "@/env/schema"
+import { zChainId, zHexString } from "@/env/schema"
 
 /** Zod schema for accepted sides */
 export const zSide = z.enum(["buy", "sell"])
@@ -19,11 +20,13 @@ export type CachedWallet = z.infer<typeof zWallet>
 
 export const createEmptyWallet = (): CachedWallet => zWallet.parse({})
 
+export const zWalletMap = z.map(zChainId, zWallet)
+
 // --- Server State --- //
 
 export const ServerStateSchema = z.object({
   chainId: zChainId,
-  wallet: z.record(zChainIdKey, zWallet),
+  wallet: zWalletMap,
   order: z.object({
     side: zSide,
     amount: z.string(),

@@ -1,12 +1,13 @@
-import React, { useMemo } from "react"
+import React from "react"
 
 import { useWallet } from "@solana/wallet-adapter-react"
-import { arbitrum, arbitrumSepolia, base, baseSepolia } from "viem/chains"
 import { useAccount, useEnsName } from "wagmi"
 
 import { truncateAddress } from "@/lib/format"
-import { useServerStore } from "@/providers/state-provider/server-store-provider"
+import { useCurrentWallet } from "@/providers/state-provider/hooks"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
+
+import { useChain } from "./use-chain"
 
 export interface ConnectedWallet {
   name: string
@@ -36,17 +37,18 @@ export function useWallets() {
   // Wagmi
   // Using address && connector because initialState loads these from cookies
   // status is "reconnecting" usually, so avoid usign it on page load
-  const { address, chain, connector, status } = useAccount()
+  const { address, connector, status } = useAccount()
+  const currentChain = useChain()
   const { publicKey, wallet, connected } = useWallet()
   const { data: ensName } = useEnsName({
     address,
     config: mainnetConfig,
   })
-  const chainSpecifier = chain?.name.split(" ")[0].toLowerCase()
+  const chainSpecifier = currentChain?.name.split(" ")[0].toLowerCase()
 
   // Renegade
   // Using seed && wallet ID because initialState loads these from cookies
-  const { seed, id } = useServerStore((state) => state.wallet)
+  const { seed, id } = useCurrentWallet()
   const renegadeWallet: Wallet =
     seed && id
       ? {

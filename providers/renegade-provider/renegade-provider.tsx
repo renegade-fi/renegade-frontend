@@ -4,7 +4,7 @@ import React, { useMemo } from "react"
 
 import { RenegadeProvider as Provider } from "@renegade-fi/react"
 
-import { useServerStore } from "../state-provider/server-store-provider"
+import { useCurrentChain, useCurrentWallet } from "../state-provider/hooks"
 import { getConfigFromChainId } from "./config"
 
 interface RenegadeProviderProps {
@@ -12,7 +12,8 @@ interface RenegadeProviderProps {
 }
 
 export function RenegadeProvider({ children }: RenegadeProviderProps) {
-  const { seed, chainId, id } = useServerStore((state) => state.wallet)
+  const { seed, id } = useCurrentWallet()
+  const chainId = useCurrentChain()
   const config = useMemo(() => {
     if (chainId && seed && id) {
       const config = getConfigFromChainId(chainId)

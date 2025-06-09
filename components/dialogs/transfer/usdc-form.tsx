@@ -93,6 +93,7 @@ import {
 } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { getFormattedChainName, solana } from "@/lib/viem"
+import { useCurrentWallet } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
@@ -139,7 +140,7 @@ export function USDCForm({
       onError: (error) => setSwitchChainError(error),
     },
   })
-  const seed = useServerStore((state) => state.wallet.seed)
+  const { seed } = useCurrentWallet()
   const chainId = useChainId()
   const publicClient = usePublicClient()
 

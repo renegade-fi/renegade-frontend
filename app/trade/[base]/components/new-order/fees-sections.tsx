@@ -34,8 +34,7 @@ export function FeesSection({
   const totalFees = relayerFee + protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : "--"
   const canonicalExchange = getCanonicalExchange(base)
-  const chainId = useChainId()
-  const isBase = useIsBase(chainId)
+  const isBase = useIsBase()
 
   return (
     <>

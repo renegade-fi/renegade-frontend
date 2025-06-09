@@ -2,7 +2,7 @@
 
 import { ChainId } from "@renegade-fi/react/constants"
 
-import { useServerStore } from "@/providers/state-provider/server-store-provider"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 /**
  * @returns The chain id of the chain the user signed in with.
@@ -11,5 +11,5 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
  * We subscribe to the state within config to ensure the value returned is reactive.
  */
 export function useChainId(): ChainId | undefined {
-  return useServerStore((state) => state.wallet.chainId)
+  return useCurrentChain()
 }
