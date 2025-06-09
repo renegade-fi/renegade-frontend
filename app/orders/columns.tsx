@@ -1,4 +1,4 @@
-import { OrderState, useBackOfQueueWallet } from "@renegade-fi/react"
+import { OrderState } from "@renegade-fi/react"
 import { ColumnDef, RowData } from "@tanstack/react-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { formatUnits } from "viem/utils"
@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useIsOrderUndercapitalized } from "@/hooks/use-is-order-undercapitalized"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
 import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"

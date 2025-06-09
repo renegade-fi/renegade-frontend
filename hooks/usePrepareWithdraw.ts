@@ -2,15 +2,14 @@
 
 import React from "react"
 
-import {
-  ConfigRequiredError,
-  stringifyForWasm,
-  useBackOfQueueWallet,
-  useConfig,
-} from "@renegade-fi/react"
+import { ConfigRequiredError } from "@renegade-fi/react"
 import { isAddress, parseUnits, toHex } from "viem/utils"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { resolveAddress } from "@/lib/token"
+import { useConfig } from "@/providers/state-provider/hooks"
+
+import { stringifyForWasm } from "./query/utils"
 
 export type UsePrepareWithdrawParameters = {
   mint?: string

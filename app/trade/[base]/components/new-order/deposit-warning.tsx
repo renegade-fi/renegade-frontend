@@ -1,4 +1,3 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { AlertTriangle } from "lucide-react"
 
 import {
@@ -7,6 +6,7 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { ORDER_FORM_DEPOSIT_WARNING } from "@/lib/constants/tooltips"
 import { resolveAddress } from "@/lib/token"

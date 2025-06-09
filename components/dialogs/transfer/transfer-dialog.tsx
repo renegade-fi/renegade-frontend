@@ -1,12 +1,13 @@
 import * as React from "react"
 
-import { useBackOfQueueWallet, usePayFees } from "@renegade-fi/react"
+import { usePayFees } from "@renegade-fi/react"
 
 import { Header } from "@/components/dialogs/transfer/header"
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers"
 import { TransferForm } from "@/components/dialogs/transfer/transfer-form"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useFeeOnZeroBalance } from "@/hooks/use-fee-on-zero-balance"
 import { useMediaQuery } from "@/hooks/use-media-query"
 

@@ -1,20 +1,18 @@
 import React from "react"
 
-import {
-  getSDKConfig,
-  useBackOfQueueWallet,
-  useConfig,
-} from "@renegade-fi/react"
+import { getSDKConfig } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useWalletClient } from "wagmi"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
 import { resolveAddress } from "@/lib/token"
+import { useConfig } from "@/providers/state-provider/hooks"
 
 import { useChainId } from "./use-chain-id"
 

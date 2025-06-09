@@ -5,12 +5,12 @@ import React from "react"
 import {
   OrderMetadata,
   OrderState,
-  useBackOfQueueWallet,
   useOrderHistory,
   useOrderHistoryWebSocket,
 } from "@renegade-fi/react"
 import { toast } from "sonner"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { formatNumber } from "@/lib/format"
 import { syncOrdersWithWalletState } from "@/lib/order"
 import { resolveAddress } from "@/lib/token"
