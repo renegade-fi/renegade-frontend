@@ -1,6 +1,6 @@
 import { z } from "zod/v4"
 
-import { zChainId, zHexString } from "@/env/schema"
+import { zChainId, zChainIdKey, zHexString } from "@/env/schema"
 
 /** Zod schema for accepted sides */
 export const zSide = z.enum(["buy", "sell"])
@@ -8,12 +8,22 @@ export const zSide = z.enum(["buy", "sell"])
 /** Zod schema for accepted currencies */
 export const zCurrency = z.enum(["base", "quote"])
 
+// --- Wallet --- //
+
+export const zWallet = z.object({
+  seed: zHexString.optional(),
+  id: z.string().optional(),
+})
+
+export type CachedWallet = z.infer<typeof zWallet>
+
+export const createEmptyWallet = (): CachedWallet => zWallet.parse({})
+
+// --- Server State --- //
+
 export const ServerStateSchema = z.object({
-  wallet: z.object({
-    seed: zHexString.optional(),
-    chainId: zChainId.optional(),
-    id: z.string().optional(),
-  }),
+  chainId: zChainId,
+  wallet: z.record(zChainIdKey, zWallet),
   order: z.object({
     side: zSide,
     amount: z.string(),

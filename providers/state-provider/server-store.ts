@@ -1,4 +1,5 @@
 import { ChainId } from "@renegade-fi/react/constants"
+import { CHAIN_IDS } from "@renegade-fi/react/constants"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { createStore } from "zustand/vanilla"
 
@@ -7,21 +8,37 @@ import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
 import { resolveTicker } from "@/lib/token"
 import { createCookieStorage } from "@/providers/state-provider/cookie-storage"
 
-import { ServerState, ServerStateSchema } from "./schema"
+import {
+  CachedWallet,
+  createEmptyWallet,
+  ServerState,
+  ServerStateSchema,
+} from "./schema"
 
 export type ServerActions = {
-  setSide: (side: Side) => void
   setAmount: (amount: string) => void
-  setCurrency: (currency: "base" | "quote") => void
   setBase: (baseMint: `0x${string}`) => void
-  setQuote: (quoteMint: `0x${string}`) => void
+  setChainId: (chainId: ChainId) => void
+  setCurrency: (currency: "base" | "quote") => void
   setPanels: (layout: number[]) => void
-  setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => void
-  resetWallet: () => void
+  setQuote: (quoteMint: `0x${string}`) => void
+  setSide: (side: Side) => void
+  setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => void
+  resetWallet: (chainId?: ChainId) => void
 }
 
 export type ServerStore = ServerState & ServerActions
 
+const supportedChains = Object.values(CHAIN_IDS)
+const defaultWallets = supportedChains.reduce(
+  (acc, chainId) => {
+    acc[chainId] = createEmptyWallet()
+    return acc
+  },
+  {} as Record<ChainId, CachedWallet>,
+)
+
+const DEFAULT_CHAIN = supportedChains[0]
 const WETH = resolveTicker("WETH")
 const USDC = resolveTicker("USDC")
 
@@ -30,11 +47,8 @@ export const initServerStore = (): ServerState => {
 }
 
 export const defaultInitState: ServerState = {
-  wallet: {
-    seed: undefined,
-    chainId: undefined,
-    id: undefined,
-  },
+  chainId: DEFAULT_CHAIN,
+  wallet: defaultWallets,
   order: {
     side: Side.BUY,
     amount: "",
@@ -60,37 +74,44 @@ export const createServerStore = (
     persist(
       (set) => ({
         ...validatedState,
-        setSide: (side: Side) => {
-          set((state) => ({ order: { ...state.order, side } }))
-        },
         setAmount: (amount: string) => {
           set((state) => ({ order: { ...state.order, amount } }))
-        },
-        setCurrency: (currency: "base" | "quote") => {
-          set((state) => ({ order: { ...state.order, currency } }))
         },
         setBase: (baseMint: `0x${string}`) => {
           set(() => ({
             baseMint: baseMint.toLowerCase() as `0x${string}`,
           }))
         },
+        setChainId: (chainId: ChainId) => {
+          set(() => ({ chainId }))
+        },
+        setCurrency: (currency: "base" | "quote") => {
+          set((state) => ({ order: { ...state.order, currency } }))
+        },
+        setPanels: (layout: number[]) => {
+          set(() => ({ panels: { layout } }))
+        },
         setQuote: (quoteMint: `0x${string}`) => {
           set(() => ({
             quoteMint: quoteMint.toLowerCase() as `0x${string}`,
           }))
         },
-        setPanels: (layout: number[]) => {
-          set(() => ({ panels: { layout } }))
+        setSide: (side: Side) => {
+          set((state) => ({ order: { ...state.order, side } }))
         },
-        setWallet: (seed: `0x${string}`, chainId: ChainId, id: string) => {
-          set((state) => ({ wallet: { ...state.wallet, seed, chainId, id } }))
-        },
-        resetWallet: () => {
-          set(() => ({
+        setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => {
+          set((state) => ({
             wallet: {
-              seed: undefined,
-              chainId: undefined,
-              id: undefined,
+              ...state.wallet,
+              [chainId ?? state.chainId]: { seed, id },
+            },
+          }))
+        },
+        resetWallet: (chainId?: ChainId) => {
+          set((state) => ({
+            wallet: {
+              ...state.wallet,
+              [chainId ?? state.chainId]: createEmptyWallet(),
             },
           }))
         },

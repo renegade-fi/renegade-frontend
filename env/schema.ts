@@ -5,13 +5,22 @@ import z from "zod/v4"
 export const zHexString = z.templateLiteral(["0x", z.string()])
 
 /** Dynamically create chain ID literals from CHAIN_IDS */
-const chainIdValues = Object.values(CHAIN_IDS)
+export const chainIdValues = Object.values(CHAIN_IDS)
 const chainIdLiterals = chainIdValues.map((id) => z.literal(id)) as [
   ...z.ZodLiteral<(typeof chainIdValues)[number]>[],
 ]
 
-/** Zod schema for accepted chain IDs with type narrowing to number literals */
-export const zChainId = z.coerce.number().pipe(z.union(chainIdLiterals))
+/**
+ * zChainIdKey: a raw union of numeric chain-ID literals.
+ * Used as a "pure" key schema in z.record(...) (Zod requires literal schemas here).
+ */
+export const zChainIdKey = z.union(chainIdLiterals)
+
+/**
+ * zChainId: coercing schema for external inputs (env vars, JSON, etc.).
+ * Coerces strings → numbers, then validates against our literal set.
+ */
+export const zChainId = z.coerce.number().pipe(zChainIdKey)
 
 /** Zod schema for JSON strings */
 export const zJsonString = z.string().transform((str, ctx): z.ZodJSONSchema => {
