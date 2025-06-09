@@ -12,7 +12,7 @@ import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 import {
   useCurrentChain,
   useCurrentWallet,

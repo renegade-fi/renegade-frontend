@@ -11,8 +11,8 @@ import {
 import { Label } from "@/components/ui/label"
 
 import { type Wallet } from "@/hooks/use-wallets"
-import { useConfig } from "@/providers/renegade-provider/config-provider"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useConfig } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 interface RenegadeWalletActionsDropdownProps {
