@@ -1,8 +1,7 @@
 import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType, useCreateOrder } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType } from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -32,6 +31,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
+import { useCreateOrder } from "@/hooks/mutation/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
@@ -76,7 +76,7 @@ export function DefaultStep(
     allowExternalMatches: props.allowExternalMatches,
   })
 
-  const { createOrder } = useCreateOrder({
+  const { mutate: createOrder } = useCreateOrder({
     mutation: {
       onSuccess(data) {
         props.onSuccess?.()
