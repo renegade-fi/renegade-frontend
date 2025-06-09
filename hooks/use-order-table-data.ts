@@ -1,7 +1,8 @@
-import { OrderMetadata, useOrderHistory } from "@renegade-fi/react"
+import { OrderMetadata } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
+import { useOrderHistory } from "@/hooks/query/use-order-history"
 import { getVWAP, syncOrdersWithWalletState } from "@/lib/order"
 import { resolveAddress } from "@/lib/token"
 
