@@ -8,7 +8,7 @@ import { toHex } from "viem"
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { safeParseUnits } from "@/lib/format"
 import { resolveAddress } from "@/lib/token"
-import { useConfig } from "@/providers/renegade-provider/config-provider"
+import { useConfig } from "@/providers/state-provider/hooks"
 
 import { stringifyForWasm } from "./query/utils"
 

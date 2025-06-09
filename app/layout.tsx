@@ -28,7 +28,7 @@ import { WalletIndexCheck } from "@/components/wallet-index-check"
 
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
-import { ConfigProvider as RenegadeProvider } from "@/providers/renegade-provider/config-provider"
+import { WasmProvider } from "@/providers/renegade-provider/wasm-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
 import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider.tsx"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
@@ -108,16 +108,16 @@ export default async function RootLayout({
       <body
         className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
       >
-        <ThemeProvider
-          disableTransitionOnChange
-          enableSystem
-          attribute="class"
-          defaultTheme="dark"
-        >
-          <ServerStoreProvider cookieString={cookieString}>
-            <ClientStoreProvider>
-              <WagmiProvider initialState={initialState}>
-                <RenegadeProvider>
+        <WasmProvider>
+          <ThemeProvider
+            disableTransitionOnChange
+            enableSystem
+            attribute="class"
+            defaultTheme="dark"
+          >
+            <ServerStoreProvider cookieString={cookieString}>
+              <ClientStoreProvider>
+                <WagmiProvider initialState={initialState}>
                   <SolanaProvider>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
@@ -153,11 +153,11 @@ export default async function RootLayout({
                       <WalletSidebar side="right" />
                     </SidebarProvider>
                   </SolanaProvider>
-                </RenegadeProvider>
-              </WagmiProvider>
-            </ClientStoreProvider>
-          </ServerStoreProvider>
-        </ThemeProvider>
+                </WagmiProvider>
+              </ClientStoreProvider>
+            </ServerStoreProvider>
+          </ThemeProvider>
+        </WasmProvider>
         <Analytics />
         <Zendesk />
       </body>
