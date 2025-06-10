@@ -21,6 +21,7 @@ import {
 
 import { env } from "@/env/client"
 import { cn } from "@/lib/utils"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
   MAINNET_CHAINS,
@@ -39,7 +40,8 @@ const values = (
 
 export function ChainSelector() {
   const [open, setOpen] = React.useState(false)
-  const { chainId, setChainId } = useServerStore((s) => s)
+  const currentChainId = useCurrentChain()
+  const setChainId = useServerStore((s) => s.setChainId)
 
   return (
     <Popover
@@ -56,10 +58,10 @@ export function ChainSelector() {
           variant="outline"
         >
           <Image
-            alt={values.find((v) => v.value === chainId)?.label ?? ""}
+            alt={values.find((v) => v.value === currentChainId)?.label ?? ""}
             className="mr-2 h-4 w-4 shrink-0"
             height={16}
-            src={values.find((v) => v.value === chainId)?.icon ?? ""}
+            src={values.find((v) => v.value === currentChainId)?.icon ?? ""}
             width={16}
           />
           <ChevronDown
@@ -87,7 +89,7 @@ export function ChainSelector() {
                   <CheckIcon
                     className={cn(
                       "ml-auto h-4 w-4",
-                      chainId === v.value ? "opacity-100" : "opacity-0",
+                      currentChainId === v.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

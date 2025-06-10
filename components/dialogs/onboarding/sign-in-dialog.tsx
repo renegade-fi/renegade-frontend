@@ -30,7 +30,6 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { getConfigFromChainId } from "@/providers/renegade-provider/config"
-import { useClientStore } from "@/providers/state-provider/client-store-provider"
 import {
   useCurrentChain,
   useRememberMe,
@@ -253,8 +252,8 @@ function ErrorWarning({ steps }: { steps: Step[] }) {
 
 function RememberMe() {
   const currentChainId = useCurrentChain()
-  const rememberMe = useRememberMe(currentChainId)
-  const { setRememberMe } = useClientStore((state) => state)
+  const rememberMe = useRememberMe()
+  const setRememberMe = useServerStore((s) => s.setRememberMe)
 
   return (
     <div className="flex items-center space-x-2">

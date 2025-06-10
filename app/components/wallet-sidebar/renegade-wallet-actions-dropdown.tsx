@@ -11,7 +11,6 @@ import {
 import { Label } from "@/components/ui/label"
 
 import { type Wallet } from "@/hooks/use-wallets"
-import { useClientStore } from "@/providers/state-provider/client-store-provider"
 import {
   useConfig,
   useCurrentChain,
@@ -29,8 +28,8 @@ export function RenegadeWalletActionsDropdown({
   const currentChainId = useCurrentChain()
   const resetWallet = useServerStore((state) => state.resetWallet)
   const config = useConfig()
-  const rememberMe = useRememberMe(currentChainId)
-  const setRememberMe = useClientStore((s) => s.setRememberMe)
+  const rememberMe = useRememberMe()
+  const setRememberMe = useServerStore((s) => s.setRememberMe)
 
   const handleRefreshWallet = async () => {
     if (wallet.isConnected && config) {

@@ -7,7 +7,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
 import { cookieToInitialState } from "wagmi"
 
-import { ClearCookie } from "@/app/components/clear-cookie"
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
 import { Footer } from "@/app/components/footer"
@@ -147,7 +146,6 @@ export default async function RootLayout({
                       />
                       <Faucet />
                       <LazyDatadog />
-                      <ClearCookie />
                       <WalletSidebar side="right" />
                     </SidebarProvider>
                   </SolanaProvider>
