@@ -5,6 +5,7 @@ import { useMemo } from "react"
 import { ChainId } from "@renegade-fi/react/constants"
 
 import { getConfigFromChainId } from "../renegade-provider/config"
+import { useWasm } from "../renegade-provider/wasm-provider"
 import { CachedWallet, createEmptyWallet } from "./schema"
 import { useServerStore } from "./server-store-provider"
 
@@ -40,11 +41,12 @@ export function useIsWalletConnected(): boolean {
  * Importantly, this reacts to changes in the wallet and chain id.
  */
 export function useConfig() {
+  const { isInitialized } = useWasm()
   const chainId = useCurrentChain()
   const wallet = useCurrentWallet()
 
   return useMemo(() => {
-    if (!wallet.seed || !wallet.id) return
+    if (!wallet.seed || !wallet.id || !isInitialized) return
     const config = getConfigFromChainId(chainId)
     config.setState((s) => ({
       ...s,
@@ -54,5 +56,5 @@ export function useConfig() {
       status: "in relayer",
     }))
     return config
-  }, [chainId, wallet.id, wallet.seed])
+  }, [chainId, isInitialized, wallet.id, wallet.seed])
 }

@@ -1,4 +1,3 @@
-import { useConfig } from "@renegade-fi/react"
 import { refreshWallet } from "@renegade-fi/react/actions"
 import { Clipboard, RefreshCw, SquareX, UserCheck } from "lucide-react"
 
@@ -13,6 +12,7 @@ import { Label } from "@/components/ui/label"
 
 import { type Wallet } from "@/hooks/use-wallets"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useConfig } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 interface RenegadeWalletActionsDropdownProps {

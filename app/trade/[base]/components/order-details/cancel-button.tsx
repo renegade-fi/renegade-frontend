@@ -1,10 +1,11 @@
-import { UpdateType, useCancelOrder } from "@renegade-fi/react"
+import { UpdateType } from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper"
 
+import { useCancelOrder } from "@/hooks/mutation/use-cancel-order"
 import { usePrepareCancelOrder } from "@/hooks/use-prepare-cancel-order"
 import { constructStartToastMessage } from "@/lib/constants/task"
 import { cn } from "@/lib/utils"
@@ -19,7 +20,7 @@ export function CancelButton({
   isDisabled?: boolean
 }) {
   const { data: request } = usePrepareCancelOrder({ id })
-  const { cancelOrder } = useCancelOrder()
+  const { mutate: cancelOrder } = useCancelOrder()
 
   return (
     <MaintenanceButtonWrapper
