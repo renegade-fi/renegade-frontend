@@ -1,6 +1,6 @@
 import React from "react"
 
-import { OrderMetadata, useOrderHistory } from "@renegade-fi/react"
+import { OrderMetadata } from "@renegade-fi/react"
 
 import {
   generateFillIdentifier,
@@ -8,6 +8,7 @@ import {
 } from "@/app/components/wallet-sidebar/hooks/use-viewed-fills"
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
+import { useOrderHistory } from "@/hooks/query/use-order-history"
 import { syncOrdersWithWalletState } from "@/lib/order"
 import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
 

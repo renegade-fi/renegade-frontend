@@ -16,7 +16,7 @@ import { useWalletWebsocket } from "./use-wallet-websocket"
 
 export function walletQueryKey(options: CachedWallet) {
   return [
-    "backOfQueueWallet",
+    "back-of-queue-wallet",
     {
       scopeKey: options.id,
     },
