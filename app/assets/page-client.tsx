@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { TaskType, UpdateType, useTaskHistory } from "@renegade-fi/react"
+import { TaskType, UpdateType } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
@@ -15,6 +15,7 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
+import { useTaskHistory } from "@/hooks/query/use-task-history"
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { useChainId } from "@/hooks/use-chain-id"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
