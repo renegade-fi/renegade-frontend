@@ -34,13 +34,13 @@ export type ServerActions = {
 export type ServerStore = ServerState & ServerActions
 
 const supportedChains = Object.values(CHAIN_IDS) as ChainId[]
-export const defaultWalletMap: Map<ChainId, CachedWallet> = new Map(
+const defaultWalletMap: Map<ChainId, CachedWallet> = new Map(
   supportedChains.map(
     (chainId) => [chainId, createEmptyWallet()] as [ChainId, CachedWallet],
   ),
 )
 
-export const defaultRememberMeMap: Map<ChainId, boolean> = new Map(
+const defaultRememberMeMap: Map<ChainId, boolean> = new Map(
   supportedChains.map((chainId) => [chainId, false] as [ChainId, boolean]),
 )
 

@@ -128,7 +128,7 @@ export function USDCForm({
   const isMaxBalances = useIsMaxBalances(USDC_L2_TOKEN.address)
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
-  const { setSide } = useServerStore((state) => state)
+  const setSide = useServerStore((s) => s.setSide)
   // undefined network is equivalent to the Renegade chain
   const [network, setNetwork] = React.useState<number | undefined>()
   const [steps, setSteps] = React.useState<TransferStep[]>([])

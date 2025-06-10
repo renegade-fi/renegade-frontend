@@ -78,12 +78,11 @@ export function NewOrderForm({
   closeButton?: React.ReactNode
 }) {
   // Form initializaiton
-  const {
-    order: { side, currency },
-    quoteMint,
-    setSide,
-    setCurrency,
-  } = useServerStore((state) => state)
+  const setSide = useServerStore((s) => s.setSide)
+  const setCurrency = useServerStore((s) => s.setCurrency)
+  const side = useServerStore((s) => s.order.side)
+  const currency = useServerStore((s) => s.order.currency)
+  const quoteMint = useServerStore((s) => s.quoteMint)
   const defaultValues = React.useMemo(
     () => ({
       amount: "",

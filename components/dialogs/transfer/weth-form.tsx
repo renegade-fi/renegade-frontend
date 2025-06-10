@@ -205,7 +205,7 @@ export function WETHForm({
   const wrapRequired =
     parseEther(amount) > (l2Balance ?? BigInt(0)) &&
     parseEther(amount) <= combinedBalance
-  const { setSide } = useServerStore((state) => state)
+  const setSide = useServerStore((s) => s.setSide)
 
   const catchError = (error: Error, message: string) => {
     console.error("Error in WETH form", error)
