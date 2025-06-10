@@ -17,9 +17,9 @@ import {
 
 import { useTaskHistory } from "@/hooks/query/use-task-history"
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
-import { useChainId } from "@/hooks/use-chain-id"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
 import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -34,7 +34,7 @@ export type HistoryData = {
 }
 
 export function PageClient() {
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
     React.useState(true)
   const [showZeroOnChainBalance, setShowZeroOnChainBalance] =

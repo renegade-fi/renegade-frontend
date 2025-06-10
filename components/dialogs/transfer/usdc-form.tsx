@@ -68,7 +68,6 @@ import { Separator } from "@/components/ui/separator"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useChain } from "@/hooks/use-chain"
-import { useChainId } from "@/hooks/use-chain-id"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -93,7 +92,10 @@ import {
 } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { getFormattedChainName, solana } from "@/lib/viem"
-import { useCurrentWallet } from "@/providers/state-provider/hooks"
+import {
+  useCurrentChain,
+  useCurrentWallet,
+} from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
@@ -141,7 +143,7 @@ export function USDCForm({
     },
   })
   const { seed } = useCurrentWallet()
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const publicClient = usePublicClient()
 
   const catchError = (error: Error, message: string) => {

@@ -65,7 +65,6 @@ import {
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
-import { useChainId } from "@/hooks/use-chain-id"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -90,6 +89,7 @@ import {
 } from "@/lib/generated"
 import { ETHEREUM_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 import {
   arbitrumConfig,
@@ -115,7 +115,7 @@ export function WETHForm({
     name: "mint",
   })
   const WETH_L2_TOKEN = resolveAddress(mint as `0x${string}`)
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const { address } = useAccount()
   const { checkChain } = useCheckChain()
   const isMaxBalances = useIsMaxBalances(WETH_L2_TOKEN.address)

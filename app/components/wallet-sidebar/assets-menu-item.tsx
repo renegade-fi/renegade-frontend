@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/sidebar"
 
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
-import { useChainId } from "@/hooks/use-chain-id"
 import { formatCurrency, formatCurrencyFromString } from "@/lib/format"
 import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function AssetsMenuItem() {
-  const chainId = useChainId()
+  const chainId = useCurrentChain()
   const tokenData = useAssetsTableData({
     mints: DISPLAY_TOKENS({ chainId }).map((token) => token.address),
   })
