@@ -6,6 +6,7 @@ import { ChainId } from "@renegade-fi/react/constants"
 
 import { getConfigFromChainId } from "../renegade-provider/config"
 import { useWasm } from "../renegade-provider/wasm-provider"
+import { useClientStore } from "./client-store-provider"
 import { CachedWallet, createEmptyWallet } from "./schema"
 import { useServerStore } from "./server-store-provider"
 
@@ -57,4 +58,11 @@ export function useConfig() {
     }))
     return config
   }, [chainId, isInitialized, wallet.id, wallet.seed])
+}
+
+// --- Client Store --- //
+
+export function useRememberMe(chainId: number): boolean {
+  const v = useClientStore((s) => s.rememberMe[chainId])
+  return v ?? false
 }

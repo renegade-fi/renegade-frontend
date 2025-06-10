@@ -7,7 +7,7 @@ import { AnimatedPrice } from "@/components/animated-price"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 import { resolveAddress } from "@/lib/token"
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useClientStore } from "@/providers/state-provider/client-store-provider"
 
 export function FavoritesBanner() {
   const { favorites } = useClientStore((state) => state)
