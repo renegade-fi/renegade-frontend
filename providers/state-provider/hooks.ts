@@ -50,6 +50,8 @@ export function useConfig() {
       ...s,
       seed: wallet.seed,
       id: wallet.id,
+      chainId,
+      status: "in relayer",
     }))
     return config
   }, [chainId, wallet.id, wallet.seed])

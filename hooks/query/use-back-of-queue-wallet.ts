@@ -9,7 +9,8 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { useConfig, useCurrentWallet } from "@/providers/state-provider/hooks"
+import { useConfig } from "@/providers/state-provider/hooks"
+import { useCurrentWallet } from "@/providers/state-provider/hooks"
 import { CachedWallet } from "@/providers/state-provider/schema"
 
 import { useWalletWebsocket } from "./use-wallet-websocket"

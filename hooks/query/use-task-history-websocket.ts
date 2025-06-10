@@ -1,15 +1,12 @@
 import React from "react"
 
-import {
-  createSignedWebSocketRequest,
-  Task,
-  useWasmInitialized,
-} from "@renegade-fi/react"
+import { createSignedWebSocketRequest, Task } from "@renegade-fi/react"
 import { getSymmetricKey } from "@renegade-fi/react/actions"
 import { WS_TASK_HISTORY_ROUTE } from "@renegade-fi/react/constants"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
-import { useConfig, useCurrentWallet } from "@/providers/state-provider/hooks"
+import { useConfig } from "@/providers/state-provider/hooks"
+import { useCurrentWallet } from "@/providers/state-provider/hooks"
 
 import { parseBigJSON } from "./utils"
 
@@ -21,7 +18,6 @@ export function useTaskHistoryWebSocket(
   parameters: UseTaskHistoryWebsocketParameters,
 ) {
   const { onUpdate } = parameters
-  const isWasmInitialized = useWasmInitialized()
   const { id: walletId } = useCurrentWallet()
   const config = useConfig()
 
@@ -51,8 +47,7 @@ export function useTaskHistoryWebSocket(
   )
 
   React.useEffect(() => {
-    console.trace()
-    if (!enabled || readyState !== ReadyState.OPEN || !isWasmInitialized) return
+    if (!enabled || readyState !== ReadyState.OPEN) return
 
     // Subscribe to wallet updates
     const body = {
@@ -68,5 +63,5 @@ export function useTaskHistoryWebSocket(
     )
 
     sendJsonMessage(subscriptionMessage)
-  }, [config, enabled, isWasmInitialized, readyState, sendJsonMessage])
+  }, [config, enabled, readyState, sendJsonMessage])
 }
