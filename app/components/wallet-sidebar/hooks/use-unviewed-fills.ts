@@ -13,7 +13,7 @@ import { syncOrdersWithWalletState } from "@/lib/order"
 import { useClientStore } from "@/providers/state-provider/client-store-provider"
 
 export function useRecentUnviewedFills() {
-  const { lastVisitTs } = useClientStore((state) => state)
+  const lastVisitTs = useClientStore((s) => s.lastVisitTs)
   const lastVisitBigInt = React.useMemo(
     () => (lastVisitTs ? BigInt(lastVisitTs) : null),
     [lastVisitTs],

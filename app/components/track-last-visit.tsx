@@ -5,7 +5,7 @@ import React from "react"
 import { useClientStore } from "@/providers/state-provider/client-store-provider"
 
 export function TrackLastVisit() {
-  const { setLastVisitTs } = useClientStore((state) => state)
+  const setLastVisitTs = useClientStore((s) => s.setLastVisitTs)
 
   React.useEffect(() => {
     const handleBeforeUnload = () => {
