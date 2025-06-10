@@ -20,16 +20,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { useChain } from "@/hooks/use-chain"
 import { useIsBase } from "@/hooks/use-is-base"
 import { FAUCET_TOOLTIP } from "@/lib/constants/tooltips"
 import { fundList, fundWallet } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function Footer() {
   const { address } = useAccount()
   const { state } = useSidebar()
-  const chainId = useChain()?.id
+  const chainId = useCurrentChain()
   const isBase = useIsBase()
 
   return (
