@@ -17,27 +17,35 @@ import {
 
 import { useChainName } from "@/hooks/use-chain-name"
 import { useNeedsSwitch } from "@/hooks/use-needs-switch"
+import { resolveAddress } from "@/lib/token"
 import { extractSupportedChain } from "@/lib/viem"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function WrongPairNetworkModal() {
-  const baseMint = useServerStore((s) => s.baseMint)
-  const setChainId = useServerStore((s) => s.setChainId)
   const currentChainName = useChainName(true /** short */)
-  const needsSwitch = useNeedsSwitch(baseMint)
-  const { switchChain } = useSwitchChain()
 
-  const token = Token.fromAddress(baseMint)
+  // Find the chain the token is on
+  const baseMint = useServerStore((s) => s.baseMint)
+  const token = resolveAddress(baseMint)
   const tokenChainId = token.chain
-
-  if (!tokenChainId) return null
+  if (!tokenChainId) throw new Error("unreachable") // Each token should have a chain
   const chain = extractSupportedChain(tokenChainId)
   const chainName = chain.name.split(" ")[0]
 
+  const setChainId = useServerStore((s) => s.setChainId)
+  const { switchChain } = useSwitchChain()
+  /** Switch both cached chain and wagmi chain to the token chain */
+  const handleSwitchToTokenChain = () => {
+    setChainId(tokenChainId)
+    switchChain({ chainId: tokenChainId })
+  }
+
+  // If the active pair's chain and the renegade wallet chain are not equal, we need to switch
+  const needsSwitch = useNeedsSwitch(baseMint)
   const open = needsSwitch
   return (
     <Dialog
-      modal
+      modal // Prevents the dialog from being closed by clicking outside
       open={open}
     >
       <DialogContent
@@ -46,7 +54,7 @@ export function WrongPairNetworkModal() {
       >
         <DialogHeader className="space-y-4 px-6 pt-6">
           <DialogTitle className="font-extended">
-            {token.ticker} trading not supported on {currentChainName}
+            {token.ticker} not supported on {currentChainName}
           </DialogTitle>
           <DialogDescription>
             You are currently connected to {currentChainName}.<br />
@@ -66,10 +74,7 @@ export function WrongPairNetworkModal() {
             className="flex-1 items-center justify-center whitespace-normal text-pretty border-0 border-l border-t font-extended text-lg"
             size="xl"
             variant="outline"
-            onClick={() => {
-              setChainId(tokenChainId)
-              switchChain({ chainId: tokenChainId })
-            }}
+            onClick={handleSwitchToTokenChain}
           >
             Switch to {chainName}
           </Button>

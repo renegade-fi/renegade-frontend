@@ -1,15 +1,7 @@
 "use client"
 
-import { ChainId } from "@lifi/sdk"
 import { useIsMutating } from "@tanstack/react-query"
-import {
-  arbitrum,
-  arbitrumSepolia,
-  base,
-  baseSepolia,
-  mainnet,
-} from "viem/chains"
-import { extractChain } from "viem/utils"
+import { mainnet } from "viem/chains"
 import { useChainId, useDisconnect, useSwitchChain } from "wagmi"
 
 import { Button } from "@/components/ui/button"
@@ -32,27 +24,29 @@ import {
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function WrongNetworkModal() {
-  const { disconnect } = useDisconnect()
-  const { switchChain } = useSwitchChain()
-  const isMutatingChain = !!useIsMutating({ mutationKey: ["switchChain"] })
   const wagmiChainId = useChainId()
-
   const currentChainId = useCurrentChain()
   const currentChainName = useChainName(true /** short */)
-  const isSignedIn = useIsWalletConnected()
-  const setChainId = useServerStore((state) => state.setChainId)
-  const resetAllWallets = useServerStore((state) => state.resetAllWallets)
 
-  const isWrongNetwork = wagmiChainId !== currentChainId
+  const { switchChain } = useSwitchChain()
+  /** Switch the Wagmi chain to the cached chain */
+  function handleSwitchToCurrentChain() {
+    switchChain({ chainId: currentChainId })
+  }
 
+  // If the chain is supported, we allow the user to pick the chain they want to use
   const isSupportedChain = useIsSupportedChain(wagmiChainId)
 
-  // If mainnet, assume we are bridging
-  const isMainnet = wagmiChainId === mainnet.id
+  const setChainId = useServerStore((state) => state.setChainId)
+  /**
+   * Switch the cached chain to the Wagmi chain.
+   * Casting to any is safe because this function is only called if `isSupportedChain` is true, meaning we know wagmiChainId is either Arbitrum or Base
+   */
+  function handleSwitchToWagmiChain() {
+    setChainId(wagmiChainId as any)
+  }
 
-  // if true, either arbitrum or base on mainnet
-  // if false, neither
-
+  /** Content for when the chain is supported */
   let supportedChainContent: React.ReactNode
   if (isSupportedChain) {
     const wagmiChainName =
@@ -72,7 +66,7 @@ export function WrongNetworkModal() {
             className="flex-1 border-0 border-t font-extended text-lg"
             size="xl"
             variant="outline"
-            onClick={() => switchChain({ chainId: currentChainId })}
+            onClick={handleSwitchToCurrentChain}
           >
             {currentChainName}
           </Button>
@@ -80,9 +74,7 @@ export function WrongNetworkModal() {
             className="flex-1 items-center justify-center whitespace-normal text-pretty border-0 border-l border-t font-extended text-lg"
             size="xl"
             variant="outline"
-            onClick={() => {
-              setChainId(wagmiChainId as any) // Safe because we know wagmi is either Arbitrum or Base on the right env
-            }}
+            onClick={handleSwitchToWagmiChain}
           >
             {wagmiChainName}
           </Button>
@@ -91,6 +83,15 @@ export function WrongNetworkModal() {
     )
   }
 
+  const { disconnect } = useDisconnect()
+  const resetAllWallets = useServerStore((state) => state.resetAllWallets)
+  /** Disconnect the wallet and clear the cached state */
+  function handleDisconnect() {
+    disconnect()
+    resetAllWallets()
+  }
+
+  /** Content for when the chain is not supported */
   const unsupportedChainContent = (
     <>
       <DialogHeader>
@@ -100,24 +101,29 @@ export function WrongNetworkModal() {
           network to continue.
         </DialogDescription>
       </DialogHeader>
-      <Button onClick={() => switchChain({ chainId: currentChainId })}>
+      <Button onClick={handleSwitchToCurrentChain}>
         Switch to {currentChainName}
       </Button>
-      <Button
-        onClick={() => {
-          disconnect()
-          resetAllWallets()
-        }}
-      >
-        Disconnect
-      </Button>
+      <Button onClick={handleDisconnect}>Disconnect</Button>
     </>
   )
 
-  const open = isWrongNetwork && isSignedIn && !isMutatingChain && !isMainnet
+  // If mainnet, assume we are bridging
+  const isMainnet = wagmiChainId === mainnet.id
+  // If we are switching chains, we don't want to show the modal
+  const isMutatingChain = !!useIsMutating({ mutationKey: ["switchChain"] })
+  const isWrongNetwork = wagmiChainId !== currentChainId
+  const isSignedIn = useIsWalletConnected()
+  /** Open the modal if:
+   * - We are signed in
+   * - We are on the wrong network
+   * - We are not on mainnet
+   * - We are not switching chains
+   */
+  const open = isSignedIn && isWrongNetwork && !isMainnet && !isMutatingChain
   return (
     <Dialog
-      modal
+      modal // Prevents the dialog from being closed by clicking outside
       open={open}
     >
       <DialogContent

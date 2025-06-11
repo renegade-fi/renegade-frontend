@@ -21,10 +21,13 @@ export async function generateStaticParams() {
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ base: string }>
+  searchParams: Promise<{ c?: string }>
 }) {
   const baseTicker = (await params).base
+  const chain = (await searchParams).c ?? undefined
 
   // Hydrate server-side state from cookies
   const serverState = await hydrateServerState()
@@ -35,7 +38,10 @@ export default async function Page({
   const queryClient = new QueryClient()
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <PageClient base={baseTicker} />
+      <PageClient
+        base={baseTicker}
+        chain={chain}
+      />
     </HydrationBoundary>
   )
 }

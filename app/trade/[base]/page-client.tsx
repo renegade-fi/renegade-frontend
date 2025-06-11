@@ -2,7 +2,11 @@
 
 import React from "react"
 
+import { useRouter } from "next/navigation"
+
+import { isSupportedChainId } from "@renegade-fi/react"
 import { useDebounceCallback } from "usehooks-ts"
+import { useSwitchChain } from "wagmi"
 
 import { DepositBanner } from "@/app/components/deposit-banner"
 import { MaintenanceBanner } from "@/app/components/maintenance-banner"
@@ -31,8 +35,9 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart)
 
-export function PageClient({ base }: { base: string }) {
+export function PageClient({ base, chain }: { base: string; chain?: string }) {
   const { base: baseMint, quote: quoteMint } = useResolvePair(base)
+  const router = useRouter()
 
   // Cache the base and quote mint in the server store
   const cachedBaseMint = useServerStore((s) => s.baseMint)
@@ -44,6 +49,19 @@ export function PageClient({ base }: { base: string }) {
       setQuote(quoteMint)
     }
   }, [baseMint, cachedBaseMint, quoteMint, setBase, setQuote])
+
+  // If a chain is provided, cache it and switch to it
+  // Removes the chain parameter from the URL after switching
+  const setChainId = useServerStore((s) => s.setChainId)
+  const { switchChain } = useSwitchChain()
+  React.useEffect(() => {
+    if (!chain) return
+    const chainId = Number.parseInt(chain)
+    if (!isSupportedChainId(chainId)) return
+    setChainId(chainId)
+    switchChain({ chainId })
+    router.replace(`/trade/${base}`)
+  }, [base, chain, router, setChainId, switchChain])
 
   const panels = useServerStore((s) => s.panels)
   const setPanels = useServerStore((s) => s.setPanels)

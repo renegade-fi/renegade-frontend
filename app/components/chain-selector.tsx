@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 import { CheckIcon } from "@radix-ui/react-icons"
 import { ChainId } from "@renegade-fi/react/constants"
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/popover"
 
 import { env } from "@/env/client"
+import { isAddressMultiChain } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
@@ -44,6 +46,33 @@ export function ChainSelector() {
   const currentChainId = useCurrentChain()
   const setChainId = useServerStore((s) => s.setChainId)
   const { switchChain } = useSwitchChain()
+  const baseMint = useServerStore((s) => s.baseMint)
+  const router = useRouter()
+
+  /**
+   * Handles chain selection with dual strategy:
+   * - Multichain tokens: Switch chain directly (no navigation needed)
+   * - Single-chain tokens: Navigate to WETH with chain parameter to avoid
+   *   mismatch modals between token chain and app chain state
+   */
+  const handleChainSelect = (chainValue: string) => {
+    const chainId = Number.parseInt(chainValue) as ChainId
+    const isMultiChain = isAddressMultiChain(baseMint)
+
+    if (!isMultiChain) {
+      // Navigate to WETH (universal fallback) with chain parameter
+      // Page will read 'c' param and set chain state after URL-based token state
+      router.push(`/trade/WETH?c=${chainId}`)
+    } else {
+      // Safe to switch directly - token exists on target chain
+      switchChain({ chainId })
+      setChainId(chainId)
+    }
+
+    setOpen(false)
+  }
+
+  const currentChain = values.find((v) => v.value === currentChainId)
 
   return (
     <Popover
@@ -60,10 +89,10 @@ export function ChainSelector() {
           variant="outline"
         >
           <Image
-            alt={values.find((v) => v.value === currentChainId)?.label ?? ""}
+            alt={currentChain?.label ?? ""}
             className="mr-2 h-4 w-4 shrink-0"
             height={16}
-            src={values.find((v) => v.value === currentChainId)?.icon ?? ""}
+            src={currentChain?.icon ?? ""}
             width={16}
           />
           <ChevronDown
@@ -78,22 +107,19 @@ export function ChainSelector() {
         <Command>
           <CommandList>
             <CommandGroup>
-              {values.map((v) => (
+              {values.map((chain) => (
                 <CommandItem
-                  key={v.value}
-                  value={v.value.toString()}
-                  onSelect={(currentValue) => {
-                    const chainId = Number.parseInt(currentValue) as ChainId
-                    switchChain({ chainId })
-                    setChainId(chainId)
-                    setOpen(false)
-                  }}
+                  key={chain.value}
+                  value={chain.value.toString()}
+                  onSelect={handleChainSelect}
                 >
-                  <span className="flex-1">{v.label}</span>
+                  <span className="flex-1">{chain.label}</span>
                   <CheckIcon
                     className={cn(
                       "ml-auto h-4 w-4",
-                      currentChainId === v.value ? "opacity-100" : "opacity-0",
+                      currentChainId === chain.value
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
                 </CommandItem>
