@@ -4,10 +4,9 @@ import { isSupportedChainId } from "@renegade-fi/react"
 import { getWalletId } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
 import { MutationStatus } from "@tanstack/react-query"
-import { useModal } from "connectkit"
 import { Check, Loader2, X } from "lucide-react"
 import { BaseError } from "viem"
-import { useDisconnect, useSignMessage } from "wagmi"
+import { useDisconnect, useSignMessage, useSwitchChain } from "wagmi"
 
 import {
   NonDeterministicWalletError,
@@ -49,7 +48,6 @@ export function SignInDialog({
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
-  const { setOpen } = useModal()
   const setWallet = useServerStore((state) => state.setWallet)
 
   const {
@@ -112,6 +110,8 @@ export function SignInDialog({
     }
   }, [reset, open])
 
+  const { switchChain } = useSwitchChain()
+
   const onSubmit = async () => {
     if ([signStatus1, signStatus2].some((s) => s === "error")) {
       const err = signMessage1Error || signMessage2Error
@@ -122,6 +122,7 @@ export function SignInDialog({
       }
     }
     reset()
+    switchChain({ chainId: currentChainId })
     signMessage1({
       message: `${ROOT_KEY_MESSAGE_PREFIX} ${currentChainId}`,
     })

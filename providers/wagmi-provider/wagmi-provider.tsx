@@ -22,6 +22,7 @@ createLifiConfig({
   providers: [EVM()],
   // We disable chain preloading and will update chain configuration in runtime
   preloadChains: false,
+  disableVersionCheck: true,
 })
 interface WagmiProviderProps {
   children: React.ReactNode
@@ -44,7 +45,6 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
           options={{
             hideQuestionMarkCTA: true,
             hideTooltips: true,
-            enforceSupportedChains: true,
           }}
           theme="midnight"
           onConnect={() => {

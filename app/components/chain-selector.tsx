@@ -5,6 +5,7 @@ import Image from "next/image"
 import { CheckIcon } from "@radix-ui/react-icons"
 import { ChainId } from "@renegade-fi/react/constants"
 import { ChevronDown } from "lucide-react"
+import { useSwitchChain } from "wagmi"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -42,6 +43,7 @@ export function ChainSelector() {
   const [open, setOpen] = React.useState(false)
   const currentChainId = useCurrentChain()
   const setChainId = useServerStore((s) => s.setChainId)
+  const { switchChain } = useSwitchChain()
 
   return (
     <Popover
@@ -81,7 +83,9 @@ export function ChainSelector() {
                   key={v.value}
                   value={v.value.toString()}
                   onSelect={(currentValue) => {
-                    setChainId(Number.parseInt(currentValue) as ChainId)
+                    const chainId = Number.parseInt(currentValue) as ChainId
+                    switchChain({ chainId })
+                    setChainId(chainId)
                     setOpen(false)
                   }}
                 >
