@@ -1,83 +1,124 @@
 import { useMemo } from "react"
 
+import { formatUnits } from "viem"
 import { arbitrum, base } from "viem/chains"
-import { formatUnits } from "viem/utils"
 
-import { usePriceQueries } from "@/hooks/use-price-queries"
-import { usePricesSnapshot } from "@/hooks/use-prices-snapshot"
+import { usePricesSnapshot } from "@/hooks/use-price-snapshot"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { resolveAddress, resolveTicker } from "@/lib/token"
 
-import { RawTvlData, useTvl } from "./use-tvl"
+import { useTvl } from "./use-tvl"
 
-/** The TVL data for each token, keyed by the ticker */
-type TvlData = Map<string, number>
+type RawTvl = { address: `0x${string}`; tvl: bigint }
+type MergedTvl = {
+  ticker: string
+  baseTvl: bigint
+  arbitrumTvl: bigint
+  totalTvl: bigint
+}
+type PricedTvl = MergedTvl & {
+  baseTvlUsd: number
+  arbitrumTvlUsd: number
+  totalTvlUsd: number
+}
 
-export function useTvlData(chainId: number | undefined) {
-  const { data: arbTvlData } = useTvl(arbitrum.id)
-  const { data: baseTvlData } = useTvl(base.id)
+// --- Helpers --- //
 
-  const combined: RawTvlData[] = useMemo(() => {
-    const map = new Map<string, bigint>()
-    arbTvlData?.forEach((tvl) => {
-      const ticker = resolveAddress(tvl.address).ticker
-      map.set(ticker, tvl.tvl)
-    })
-    baseTvlData?.forEach((tvl) => {
-      const ticker = resolveAddress(tvl.address).ticker
-      const existing = map.get(ticker)
-      if (existing) {
-        map.set(ticker, existing + tvl.tvl)
-      } else {
-        map.set(ticker, tvl.tvl)
-      }
-    })
-    return Array.from(map.entries()).map(([ticker, tvl]) => ({
-      address: resolveTicker(ticker).address,
-      tvl,
-    }))
-  }, [arbTvlData, baseTvlData])
-  const mints = useMemo(() => combined.map((tvl) => tvl.address), [combined])
-  const pricesMap = usePricesSnapshot(mints)
+// Immutable "template" for a new row
+const emptyRow = (ticker: string) => ({
+  ticker,
+  baseTvl: BigInt(0),
+  arbitrumTvl: BigInt(0),
+  totalTvl: BigInt(0),
+})
 
-  if (chainId === arbitrum.id) {
-    const { totalTvlUsd, tvlUsd } = computeTvl(arbTvlData || [], pricesMap)
-    return { totalTvlUsd, tvlUsd }
-  } else if (chainId === base.id) {
-    const { totalTvlUsd, tvlUsd } = computeTvl(baseTvlData || [], pricesMap)
-    return { totalTvlUsd, tvlUsd }
-  }
+type MutableMerged = ReturnType<typeof emptyRow>
 
-  // Merge the TVL data for each chain
-  const { totalTvlUsd, tvlUsd } = computeTvl(combined, pricesMap)
-  return { totalTvlUsd, tvlUsd }
+/**
+ * Push one chain's TVL array into the aggregate map.
+ */
+function accumulateTvlByTicker(
+  src: RawTvl[],
+  field: "arbitrumTvl" | "baseTvl",
+  map: Map<string, MutableMerged>,
+): void {
+  src.forEach(({ address, tvl }) => {
+    const ticker = resolveAddress(address).ticker
+    const row = map.get(ticker) ?? emptyRow(ticker)
+    row[field] = tvl
+    row.totalTvl = row.baseTvl + row.arbitrumTvl
+    map.set(ticker, row)
+  })
 }
 
 /**
- * Compute the total TVL in USD and the TVL data for each token
- * @param tvlData - The TVL data for each token
- * @param prices - The prices for each token
- * @returns The total TVL in USD and the TVL data for each token
+ * Merge Arbitrum and Base TVL arrays into one array keyed by ticker.
  */
-function computeTvl(
-  tvlData: RawTvlData[],
+function mergeByTicker(
+  arb: RawTvl[] | undefined,
+  bas: RawTvl[] | undefined,
+): MergedTvl[] {
+  const map = new Map<string, MutableMerged>()
+
+  if (arb?.length) {
+    accumulateTvlByTicker(arb, "arbitrumTvl", map)
+  }
+  if (bas?.length) {
+    accumulateTvlByTicker(bas, "baseTvl", map)
+  }
+
+  if (map.size === 0) {
+    return []
+  }
+
+  return [...map.values()]
+}
+
+function addUsdValues(
+  merged: MergedTvl[],
   prices: Map<`0x${string}`, number>,
-): {
-  totalTvlUsd: number
-  tvlUsd: TvlData
-} {
-  let totalTvlUsd = 0
-  const tvlUsd: TvlData = new Map()
-  tvlData.forEach((tvl) => {
-    const price = prices.get(tvl.address)
-    if (!price) return
-
-    const token = resolveAddress(tvl.address)
-    const usd = amountTimesPrice(tvl.tvl, price)
-    const formatted = Number(formatUnits(usd, token.decimals))
-
-    totalTvlUsd += formatted
-    tvlUsd.set(token.ticker, formatted)
+): PricedTvl[] {
+  return merged.map((row) => {
+    const { address, decimals } = resolveTicker(row.ticker)
+    const price = prices.get(address)
+    const toUsd = (amount: bigint) =>
+      price ? Number(formatUnits(amountTimesPrice(amount, price), decimals)) : 0
+    return {
+      ...row,
+      baseTvlUsd: toUsd(row.baseTvl),
+      arbitrumTvlUsd: toUsd(row.arbitrumTvl),
+      totalTvlUsd: toUsd(row.totalTvl),
+    }
   })
-  return { totalTvlUsd, tvlUsd }
+}
+
+export function useTvlData(chainId: number): PricedTvl[] {
+  const { data: arbTvl } = useTvl(arbitrum.id)
+  const { data: baseTvl } = useTvl(base.id)
+
+  // Collect all mint addresses we must price
+  const mintAddresses = useMemo(() => {
+    const set = new Set<`0x${string}`>()
+    arbTvl?.forEach((t) => set.add(t.address))
+    baseTvl?.forEach((t) => set.add(t.address))
+    return [...set]
+  }, [arbTvl, baseTvl])
+
+  const prices = usePricesSnapshot(mintAddresses)
+
+  // Merge if chain ID is 0, otherwise filter by chain ID
+  const merged = useMemo(() => {
+    if (chainId === 0) {
+      return mergeByTicker(arbTvl, baseTvl)
+    } else if (chainId === arbitrum.id) {
+      return mergeByTicker(arbTvl, undefined)
+    } else if (chainId === base.id) {
+      return mergeByTicker(undefined, baseTvl)
+    } else {
+      return []
+    }
+  }, [arbTvl, baseTvl, chainId])
+  const priced = useMemo(() => addUsdValues(merged, prices), [merged, prices])
+
+  return priced
 }

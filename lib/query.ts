@@ -47,6 +47,7 @@ export function createCanonicalPriceTopic(mint: `0x${string}`): string {
   return `renegade-${mint}`
 }
 
+/** Create a query key for a live price query. */
 export function createPriceQueryKey({
   exchange,
   base,
@@ -57,16 +58,30 @@ export function createPriceQueryKey({
   quote?: `0x${string}`
 }): string[] {
   if (!exchange || exchange === "renegade") {
-    return ["price", "renegade", base]
+    return ["price", "live", "renegade", base]
   }
   const quote = _quote ?? getDefaultQuote(base, exchange).address
-  return ["price", exchange, base, quote]
+  return ["price", "live", exchange, base, quote]
 }
 
+export function createSnapshotPriceQueryKey({
+  exchange,
+  baseMint,
+  quote: _quote,
+}: {
+  baseMint: `0x${string}`
+  exchange: Exchange
+  quote?: `0x${string}`
+}): string[] {
+  const quote = _quote ?? getDefaultQuote(baseMint, exchange).address
+  return ["price", "snapshot", exchange, baseMint, quote]
+}
+
+/** Converts a price topic from the Price Reporter into a live price query key. */
 export function topicToQueryKey(topic: string): string[] {
   const [exchange, base, quote] = topic.split("-")
   if (exchange === "renegade") {
-    return ["price", "renegade", base]
+    return ["price", "live", "renegade", base]
   }
-  return ["price", exchange, base, quote]
+  return ["price", "live", exchange, base, quote]
 }
