@@ -10,7 +10,7 @@ import {
 } from "@/providers/wagmi-provider/config"
 
 interface ChainSelectorProps {
-  chainId: number
+  chainId: number | undefined
   onChange: (chainId: number) => void
 }
 

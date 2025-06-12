@@ -1,6 +1,7 @@
-import React from "react"
+import React, { useMemo } from "react"
 
 import { Pie, PieChart } from "recharts"
+import { arbitrum, base } from "viem/chains"
 
 import { useTvlData } from "@/app/stats/hooks/use-tvl-data"
 
@@ -92,8 +93,13 @@ const tailwindColors = [
   "rose",
 ]
 
-export function TvlChart({ chainId }: { chainId: number }) {
-  const { cumulativeTvlUsd, tvlUsd } = useTvlData(chainId)
+export function TvlChart({ chainId }: { chainId: number | undefined }) {
+  const { totalTvlUsd, tvlUsd } = useTvlData(chainId)
+  const data = Array.from(tvlUsd.entries()).map(([ticker, data]) => ({
+    name: ticker,
+    data,
+    fill: `var(--color-${ticker})`,
+  }))
 
   const chartConfig = React.useMemo(() => {
     const config: ChartConfig = {}
@@ -116,8 +122,8 @@ export function TvlChart({ chainId }: { chainId: number }) {
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="font-serif text-4xl font-bold tracking-tighter lg:tracking-normal">
-            {cumulativeTvlUsd ? (
-              formatStat(cumulativeTvlUsd)
+            {totalTvlUsd ? (
+              formatStat(totalTvlUsd)
             ) : (
               <Skeleton className="h-10 w-40" />
             )}
@@ -156,7 +162,7 @@ export function TvlChart({ chainId }: { chainId: number }) {
               }}
             />
             <Pie
-              data={tvlUsd}
+              data={data}
               dataKey="data"
               nameKey="name"
             />
