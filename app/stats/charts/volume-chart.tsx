@@ -63,15 +63,22 @@ export function VolumeChart({ chainId }: { chainId: number }) {
   const { data: arbitrumVolumeData } = useVolumeData(arbitrum.id)
   const { data: baseVolumeData } = useVolumeData(base.id)
 
-  const { chartData, cumulativeVolume } = React.useMemo(() => {
-    if (!arbitrumVolumeData || !baseVolumeData)
-      return { chartData: [], cumulativeVolume: 0 }
-    const chartData = computeChartData(arbitrumVolumeData, baseVolumeData)
+  const chartData = React.useMemo(() => {
+    if (!arbitrumVolumeData || !baseVolumeData) return []
+    return computeChartData(arbitrumVolumeData, baseVolumeData)
+  }, [arbitrumVolumeData, baseVolumeData])
+
+  const cumulativeVolume = React.useMemo(() => {
+    if (!chartData || chartData.length < 2) return 0
     const cumArbVol = chartData[chartData.length - 2]?.arbitrumVolume
     const cumBaseVol = chartData[chartData.length - 2]?.baseVolume
-    const cumulativeVolume = cumArbVol + cumBaseVol
-    return { chartData, cumulativeVolume }
-  }, [arbitrumVolumeData, baseVolumeData])
+    if (chainId === arbitrum.id) {
+      return cumArbVol
+    } else if (chainId === base.id) {
+      return cumBaseVol
+    }
+    return cumArbVol + cumBaseVol
+  }, [chainId, chartData])
 
   const cumulativeVolumeLabel = formatStat(cumulativeVolume ?? 0)
 
