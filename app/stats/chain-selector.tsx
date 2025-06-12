@@ -1,49 +1,98 @@
-"use client"
+import * as React from "react"
 
-import Image from "next/image"
+import { CheckIcon } from "@radix-ui/react-icons"
+import { ChevronDown } from "lucide-react"
+import { arbitrum, base } from "viem/chains"
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-
+import { Button } from "@/components/ui/button"
 import {
-  AVAILABLE_CHAINS,
-  CHAIN_LOGOS,
-} from "@/providers/wagmi-provider/config"
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
-interface ChainSelectorProps {
+import { cn } from "@/lib/utils"
+
+const values = [
+  {
+    value: arbitrum.id,
+    label: "Arbitrum",
+  },
+  {
+    value: base.id,
+    label: "Base",
+  },
+  {
+    value: 0,
+    label: "All Chains",
+  },
+]
+
+export function ChainSelector({
+  chainId,
+  onChange,
+}: {
   chainId: number | undefined
   onChange: (chainId: number) => void
-}
-
-export function ChainSelector({ chainId, onChange }: ChainSelectorProps) {
-  const handleChainChange = (value: string) => {
-    if (value) {
-      const chainId = parseInt(value)
-      onChange(chainId)
-    }
-  }
-
+}) {
+  const [open, setOpen] = React.useState(false)
   return (
-    <ToggleGroup
-      className="justify-start"
-      type="single"
-      value={chainId.toString()}
-      onValueChange={handleChainChange}
+    <Popover
+      modal
+      open={open}
+      onOpenChange={setOpen}
     >
-      {AVAILABLE_CHAINS.map((chain) => (
-        <ToggleGroupItem
-          key={chain.id}
-          className="flex items-center gap-2 border-2 px-4 py-2 transition-all hover:bg-accent data-[state=off]:border-transparent data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
-          value={chain.id.toString()}
+      <PopoverTrigger asChild>
+        <Button
+          aria-expanded={open}
+          className="justify-between"
+          role="combobox"
+          size="default"
+          variant="outline"
         >
-          <Image
-            alt={`${chain.name} logo`}
-            className="shrink-0"
-            height={20}
-            src={CHAIN_LOGOS[chain.id]}
-            width={20}
+          {chainId
+            ? values.find((v) => v.value === chainId)?.label
+            : "All Chains"}
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 shrink-0 transition-transform duration-200 ease-in-out",
+              open && "rotate-180",
+            )}
           />
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="min-w-fit p-0">
+        <Command>
+          <CommandList>
+            <CommandGroup>
+              {values.map((chain) => (
+                <CommandItem
+                  key={chain.label}
+                  value={chain.value.toString()}
+                  onSelect={() => {
+                    onChange(chain.value ?? undefined)
+                    setOpen(false)
+                  }}
+                >
+                  <span className="flex-1">{chain.label}</span>
+                  <CheckIcon
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      chainId === chain.value ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   )
 }

@@ -19,9 +19,7 @@ import { AVAILABLE_CHAINS } from "@/providers/wagmi-provider/config"
 
 export function PageClient() {
   const currentChainId = useCurrentChain()
-  const [selectedChainId, setSelectedChainId] = useState<number | undefined>(
-    undefined,
-  )
+  const [selectedChainId, setSelectedChainId] = useState<number>(0)
 
   return (
     <main className="container mb-8 mt-12 flex flex-col gap-12 px-4 lg:px-8">
@@ -31,10 +29,10 @@ export function PageClient() {
             <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
               Time to Fill
             </h1>
-            {/* <ChainSelector
+            <ChainSelector
               chainId={selectedChainId}
               onChange={setSelectedChainId}
-            /> */}
+            />
           </div>
           <div className="relative border py-16">
             <TimeToFillCard chainId={selectedChainId} />

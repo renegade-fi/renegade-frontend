@@ -5,6 +5,8 @@ import { ExternalTransferLogsResponse } from "@/app/api/stats/external-transfer-
 
 import { env } from "@/env/client"
 
+export type TransferData = Map<number, BucketData>
+
 export function useExternalTransferLogs({
   intervalMs = 86400000,
   chainId,
@@ -15,7 +17,7 @@ export function useExternalTransferLogs({
   const queryKey = ["stats", "externalTransferLogs", intervalMs, chainId]
 
   return {
-    ...useQuery<BucketData[], Error>({
+    ...useQuery<TransferData, Error>({
       queryKey,
       queryFn: () => fetchExternalTransferLogs(intervalMs, chainId),
       staleTime: Infinity,
@@ -28,7 +30,7 @@ export function useExternalTransferLogs({
 const fetchExternalTransferLogs = async (
   intervalMs: number,
   chainId: number,
-): Promise<BucketData[]> => {
+): Promise<TransferData> => {
   const response = await fetch(
     `/api/stats/external-transfer-logs?interval=${intervalMs}&chainId=${chainId}`,
   )
@@ -36,5 +38,9 @@ const fetchExternalTransferLogs = async (
     throw new Error("Failed to fetch external transfer logs")
   }
   const res = (await response.json()) as ExternalTransferLogsResponse
-  return res.data
+  const transferData = new Map<number, BucketData>()
+  for (const point of res.data) {
+    transferData.set(Number(point.timestamp), point)
+  }
+  return transferData
 }
