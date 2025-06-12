@@ -7,7 +7,9 @@ import type {
 
 import { env } from "@/env/client"
 
-type UseHistoricalVolumeResult = UseQueryResult<VolumeDataPoint[], Error> & {
+export type VolumeData = Map<number, VolumeDataPoint>
+
+type UseHistoricalVolumeResult = UseQueryResult<VolumeData, Error> & {
   queryKey: readonly ["stats", "historical-volume", number]
 }
 
@@ -18,7 +20,7 @@ export function useVolumeData(chainId: number): UseHistoricalVolumeResult {
   const queryKey = ["stats", "historical-volume", chainId] as const
 
   return {
-    ...useQuery<VolumeDataPoint[], Error>({
+    ...useQuery<VolumeData, Error>({
       queryKey,
       queryFn: () => getHistoricalVolume(chainId),
       staleTime: Infinity,
@@ -30,7 +32,7 @@ export function useVolumeData(chainId: number): UseHistoricalVolumeResult {
 
 export async function getHistoricalVolume(
   chainId: number,
-): Promise<VolumeDataPoint[]> {
+): Promise<VolumeData> {
   const res = await fetch(`/api/stats/historical-volume-kv?chainId=${chainId}`)
 
   if (!res.ok) {
@@ -40,5 +42,14 @@ export async function getHistoricalVolume(
   const data: HistoricalVolumeResponse = await res.json()
 
   // Filter data for entries after 1725321600
-  return data.data.filter((point) => point.timestamp >= 1725321600)
+  const filteredData = data.data.filter(
+    (point) => point.timestamp >= 1725321600,
+  )
+
+  const volumeData = new Map<number, VolumeDataPoint>()
+  for (const point of filteredData) {
+    volumeData.set(point.timestamp, point)
+  }
+
+  return volumeData
 }
