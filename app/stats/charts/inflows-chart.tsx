@@ -73,7 +73,7 @@ function computeChartData(arbitrumData: TransferData, baseData: TransferData) {
   return data
 }
 
-export function InflowsChart({ chainId }: { chainId: number | undefined }) {
+export function InflowsChart({ chainId }: { chainId: number }) {
   const { data: arbitrumData } = useExternalTransferLogs({
     chainId: arbitrum.id,
   })
@@ -100,6 +100,11 @@ export function InflowsChart({ chainId }: { chainId: number | undefined }) {
     })
 
     const netFlow = last24HoursData.reduce((sum, item) => {
+      if (chainId === arbitrum.id) {
+        return sum + item.arbitrumDeposits - item.arbitrumWithdrawals
+      } else if (chainId === base.id) {
+        return sum + item.baseDeposits - item.baseWithdrawals
+      }
       return (
         sum +
         item.arbitrumDeposits +
@@ -110,7 +115,7 @@ export function InflowsChart({ chainId }: { chainId: number | undefined }) {
     }, 0)
 
     return { netFlow }
-  }, [chartData])
+  }, [chainId, chartData])
 
   const isSuccess = netFlowData !== null
 
