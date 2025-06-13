@@ -27,11 +27,7 @@ import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
-
-const tokens = DISPLAY_TOKENS().map((token) => ({
-  value: token.address,
-  label: token.ticker,
-}))
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function TokenSelect({
   direction,
@@ -44,6 +40,12 @@ export function TokenSelect({
 }) {
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
+
+  const chainId = useCurrentChain()
+  const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
+    value: token.address,
+    label: token.ticker,
+  }))
 
   const { data: l2Balances, queryKey } = useOnChainBalances({
     address,

@@ -41,6 +41,7 @@ import { useCancelAllOrders } from "@/hooks/use-cancel-all-orders"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 const statuses = [
   { value: "open", label: "Open" },
@@ -52,11 +53,6 @@ const sides = [
   { value: "buy", label: "Buy" },
   { value: "sell", label: "Sell" },
 ]
-
-const tokens = DISPLAY_TOKENS().map((token) => ({
-  value: token.address,
-  label: token.ticker,
-}))
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<ExtendedOrderMetadata, any>[]
@@ -167,6 +163,12 @@ export function DataTable<TData, TValue>({
   React.useEffect(() => {
     table.getColumn("mint")?.setFilterValue(mint)
   }, [mint, table])
+
+  const chainId = useCurrentChain()
+  const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
+    value: token.address,
+    label: token.ticker,
+  }))
 
   return (
     <>
