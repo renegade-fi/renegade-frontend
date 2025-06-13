@@ -25,7 +25,7 @@ import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useClientStore } from "@/providers/state-provider/client-store-provider"
 import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function TokenSelectDialog({

@@ -1,4 +1,4 @@
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useClientStore } from "@/providers/state-provider/client-store-provider"
 
 export type FillIdentifier = string
 

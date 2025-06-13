@@ -7,7 +7,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
 import { cookieToInitialState } from "wagmi"
 
-import { ClearCookie } from "@/app/components/clear-cookie"
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
 import { Footer } from "@/app/components/footer"
@@ -29,7 +28,7 @@ import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
 import { WasmProvider } from "@/providers/renegade-provider/wasm-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
-import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider.tsx"
+import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { getConfig } from "@/providers/wagmi-provider/config"
@@ -147,7 +146,6 @@ export default async function RootLayout({
                       />
                       <Faucet />
                       <LazyDatadog />
-                      <ClearCookie />
                       <WalletSidebar side="right" />
                     </SidebarProvider>
                   </SolanaProvider>

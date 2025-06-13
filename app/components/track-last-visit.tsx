@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useClientStore } from "@/providers/state-provider/client-store-provider"
 
 export function TrackLastVisit() {
   const { setLastVisitTs } = useClientStore((state) => state)

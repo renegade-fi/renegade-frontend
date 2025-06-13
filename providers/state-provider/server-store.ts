@@ -26,6 +26,7 @@ export type ServerActions = {
   setQuote: (quoteMint: `0x${string}`) => void
   setSide: (side: Side) => void
   setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => void
+  setRememberMe: (chainId: ChainId, remember: boolean) => void
   resetWallet: (chainId?: ChainId) => void
   resetAllWallets: () => void
 }
@@ -33,10 +34,14 @@ export type ServerActions = {
 export type ServerStore = ServerState & ServerActions
 
 const supportedChains = Object.values(CHAIN_IDS) as ChainId[]
-const defaultWalletMap: Map<ChainId, CachedWallet> = new Map(
+export const defaultWalletMap: Map<ChainId, CachedWallet> = new Map(
   supportedChains.map(
     (chainId) => [chainId, createEmptyWallet()] as [ChainId, CachedWallet],
   ),
+)
+
+export const defaultRememberMeMap: Map<ChainId, boolean> = new Map(
+  supportedChains.map((chainId) => [chainId, false] as [ChainId, boolean]),
 )
 
 const DEFAULT_CHAIN = supportedChains[0]
@@ -50,6 +55,7 @@ export const initServerStore = (): ServerState => {
 export const defaultInitState: ServerState = {
   chainId: DEFAULT_CHAIN,
   wallet: defaultWalletMap,
+  rememberMe: defaultRememberMeMap,
   order: {
     side: Side.BUY,
     amount: "",
@@ -98,6 +104,10 @@ export const createServerStore = (
               id,
             }),
           })),
+        setRememberMe: (chainId: ChainId, remember: boolean) =>
+          set((state) => ({
+            rememberMe: new Map(state.rememberMe).set(chainId, remember),
+          })),
         resetWallet: (chainId?: ChainId) =>
           set((state) => ({
             wallet: new Map(state.wallet).set(
@@ -111,6 +121,21 @@ export const createServerStore = (
         name: STORAGE_SERVER_STORE,
         skipHydration: true,
         storage: createStorage(cookieStorage),
+        partialize: (state) => {
+          // Reset wallets based on remember preferences
+          const filteredWallet = new Map()
+          for (const [chainId, walletData] of state.wallet) {
+            const persisted = state.rememberMe.get(chainId)
+            if (persisted) {
+              filteredWallet.set(chainId, walletData)
+            }
+          }
+
+          return {
+            ...state,
+            wallet: filteredWallet,
+          }
+        },
       },
     ),
   )

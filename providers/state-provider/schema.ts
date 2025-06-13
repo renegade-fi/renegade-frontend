@@ -24,9 +24,12 @@ export const zWalletMap = z.map(zChainId, zWallet)
 
 // --- Server State --- //
 
+export const zRememberMeMap = z.map(zChainId, z.boolean())
+
 export const ServerStateSchema = z.object({
   chainId: zChainId,
   wallet: zWalletMap,
+  rememberMe: zRememberMeMap,
   order: z.object({
     side: zSide,
     amount: z.string(),

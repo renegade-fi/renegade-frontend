@@ -30,8 +30,10 @@ import { useMediaQuery } from "@/hooks/use-media-query"
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { getConfigFromChainId } from "@/providers/renegade-provider/config"
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
-import { useCurrentChain } from "@/providers/state-provider/hooks"
+import {
+  useCurrentChain,
+  useRememberMe,
+} from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function SignInDialog({
@@ -249,7 +251,9 @@ function ErrorWarning({ steps }: { steps: Step[] }) {
 }
 
 function RememberMe() {
-  const { rememberMe, setRememberMe } = useClientStore((state) => state)
+  const currentChainId = useCurrentChain()
+  const rememberMe = useRememberMe()
+  const setRememberMe = useServerStore((s) => s.setRememberMe)
 
   return (
     <div className="flex items-center space-x-2">
@@ -258,7 +262,7 @@ function RememberMe() {
         id="remember-me"
         onCheckedChange={(checked) => {
           if (typeof checked === "boolean") {
-            setRememberMe(checked)
+            setRememberMe(currentChainId, checked)
           }
         }}
       />

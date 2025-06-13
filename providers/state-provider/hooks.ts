@@ -19,13 +19,10 @@ export function useCurrentChain(): ChainId {
 /**
  * Returns the wallet entry (seed & id) for the active chain.
  */
+const EMPTY_WALLET = createEmptyWallet()
 export function useCurrentWallet(): CachedWallet {
   const chain = useCurrentChain()
-  return useServerStore((s) => {
-    const wallet = s.wallet.get(chain)
-    if (!wallet) return createEmptyWallet()
-    return wallet
-  })
+  return useServerStore((s) => s.wallet.get(chain) ?? EMPTY_WALLET)
 }
 
 /**
@@ -57,4 +54,10 @@ export function useConfig() {
     }))
     return config
   }, [chainId, isInitialized, wallet.id, wallet.seed])
+}
+
+export function useRememberMe(): boolean {
+  const chainId = useCurrentChain()
+  const rememberMe = useServerStore((s) => s.rememberMe.get(chainId))
+  return rememberMe ?? false
 }
