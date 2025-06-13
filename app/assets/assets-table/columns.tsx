@@ -62,7 +62,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
             }
           }}
         >
-          On-Chain Balance ($)
+          {chainName} Balance ($)
           {column.getIsSorted() === "asc" ? (
             <ChevronUp className="ml-2 h-4 w-4" />
           ) : column.getIsSorted() === "desc" ? (
@@ -113,7 +113,9 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
       const isBase = useIsBase()
       const chainName = useChainName(true /* short */)
 
-      const headerElement = <div className="text-right">On-Chain Balance</div>
+      const headerElement = (
+        <div className="text-right">{chainName} Balance</div>
+      )
 
       return isBase ? (
         headerElement

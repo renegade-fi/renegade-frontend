@@ -99,7 +99,7 @@ export function DataTable<TData, TValue>({
         </div>
         <div className="flex items-center gap-2 lg:ml-auto">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Toggle
                 aria-label="Toggle USD"
                 pressed={
@@ -130,7 +130,7 @@ export function DataTable<TData, TValue>({
             <TooltipContent>USD Value</TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Toggle
                 aria-label="Show zero balances"
                 pressed={!showZeroOnChainBalance && !showZeroRenegadeBalance}
@@ -147,7 +147,7 @@ export function DataTable<TData, TValue>({
             <TooltipContent>Hide zero balances</TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Toggle
                 aria-label="Toggle decimal display"
                 className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
