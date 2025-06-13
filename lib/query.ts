@@ -39,10 +39,7 @@ export function createPriceTopic({
   base: `0x${string}`
   quote?: `0x${string}`
 }): string {
-  if (!exchange || exchange === "renegade") {
-    return `renegade-${base}`
-  }
-  const quote = _quote ?? getDefaultQuote(base, exchange).address
+  const quote = _quote ?? getDefaultQuote(base, exchange ?? "renegade").address
   return `${exchange}-${base}-${quote}`
 }
 

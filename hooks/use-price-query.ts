@@ -1,7 +1,11 @@
 import React from "react"
 
 import { Exchange } from "@renegade-fi/react"
-import { useQuery } from "@tanstack/react-query"
+import {
+  queryOptions,
+  useQuery,
+  type UseQueryOptions,
+} from "@tanstack/react-query"
 
 import { client } from "@/lib/clients/price-reporter"
 import { createPriceQueryKey, createPriceTopic } from "@/lib/query"
@@ -11,39 +15,47 @@ import { usePriceWebSocket } from "./use-price-websocket"
 
 export const STALE_TIME_MS = 60_000
 
+export function priceQueryOptions(
+  baseMint: `0x${string}`,
+  exchange: Exchange = "renegade",
+): UseQueryOptions<number> {
+  const topic = createPriceTopic({ exchange, base: baseMint })
+  const queryKey = createPriceQueryKey({ exchange, base: baseMint })
+
+  return queryOptions<number>({
+    queryKey,
+    queryFn: () => {
+      const [ex, base, quote] = topic.split("-") as [
+        Exchange,
+        `0x${string}`,
+        `0x${string}`,
+      ]
+      return client.getPriceByTopic(ex, base, quote)
+    },
+  })
+}
+
 export function usePriceQuery(
   baseMint: `0x${string}`,
   exchange: Exchange = "renegade",
 ) {
+  const opts = priceQueryOptions(baseMint, exchange)
   const topic = createPriceTopic({ exchange, base: baseMint })
-  const queryKey = createPriceQueryKey({ exchange, base: baseMint })
   const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket()
   const isSupported = isSupportedExchange(baseMint, exchange)
 
   React.useEffect(() => {
-    if (!isSupported) {
-      return
-    }
+    if (!isSupported) return
     subscribeToTopic(topic)
-
-    // Unsubscribe when the component unmounts or when dependencies change
     return () => {
       unsubscribeFromTopic(topic)
     }
-  }, [isSupported, subscribeToTopic, topic, unsubscribeFromTopic])
+  }, [isSupported, subscribeToTopic, unsubscribeFromTopic, topic])
 
   return useQuery<number>({
-    queryKey,
-    queryFn: () => queryFn(topic),
+    ...opts,
     initialData: 0,
     staleTime: STALE_TIME_MS,
     enabled: isSupported,
   })
-}
-
-function queryFn(topic: string) {
-  const exchange = topic.split("-")[0] as Exchange
-  const base = topic.split("-")[1] as `0x${string}`
-  const quote = topic.split("-")[2] as `0x${string}`
-  return client.getPriceByTopic(exchange, base, quote)
 }

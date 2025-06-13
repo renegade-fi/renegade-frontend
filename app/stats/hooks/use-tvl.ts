@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 
+export type RawTvlData = {
+  address: `0x${string}`
+  tvl: bigint
+}
+
 export function useTvl(chainId: number) {
   const queryKey = ["stats", "tvl", chainId]
   return {
-    ...useQuery<{ address: `0x${string}`; tvl: bigint }[], Error>({
+    ...useQuery<RawTvlData[], Error>({
       queryKey,
       queryFn: () => fetchTvlData(chainId),
       staleTime: Infinity,
@@ -12,20 +17,16 @@ export function useTvl(chainId: number) {
   }
 }
 
-const fetchTvlData = async (
-  chainId: number,
-): Promise<{ address: `0x${string}`; tvl: bigint }[]> => {
+const fetchTvlData = async (chainId: number) => {
   const response = await fetch(`/api/stats/tvl?chainId=${chainId}`)
   if (!response.ok) {
     throw new Error("Failed to fetch TVL data")
   }
   const res = await response.json().then((res) =>
-    res.data.map(
-      ({ address, tvl }: { address: `0x${string}`; tvl: string }) => ({
-        address,
-        tvl: BigInt(tvl),
-      }),
-    ),
+    res.data.map(({ address, tvl }: RawTvlData) => ({
+      address,
+      tvl: BigInt(tvl),
+    })),
   )
   return res
 }
