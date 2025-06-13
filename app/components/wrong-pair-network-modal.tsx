@@ -58,7 +58,7 @@ export function WrongPairNetworkModal() {
           </DialogTitle>
           <DialogDescription>
             You are currently connected to {currentChainName}.<br />
-            To trade {token.ticker}, switch to Arbitrum.
+            To trade {token.ticker}, switch to {chainName}.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-row sm:space-x-0">
