@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 import { Info } from "lucide-react"
+import { arbitrum } from "viem/chains"
 
 import { ChainSelector } from "@/app/stats/chain-selector"
 import { InflowsChart } from "@/app/stats/charts/inflows-chart"
@@ -64,7 +65,10 @@ export function PageClient() {
           </h1>
           <TvlChart chainId={selectedChainId} />
         </div>
-        <div className="col-span-1 lg:col-span-2">
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        <div className="col-span-1">
           <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
             Volume
           </h1>
