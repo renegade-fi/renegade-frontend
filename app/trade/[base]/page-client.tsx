@@ -95,7 +95,7 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
             order={2}
           >
             <main>
-              <PriceChartMemo base={baseMint} />
+              <PriceChartMemo baseTicker={base} />
               <Separator />
               <div className="p-6">
                 <DataTable
