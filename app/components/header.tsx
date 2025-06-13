@@ -142,7 +142,6 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center space-x-4 justify-self-end">
-          <ChainSelector />
           {walletReadyState === "READY" ? (
             <>
               <TransferDialog>
@@ -155,6 +154,7 @@ export function Header() {
               </TransferDialog>
             </>
           ) : null}
+          <ChainSelector />
           {arbitrumWallet.isConnected ? (
             <SidebarTrigger />
           ) : (

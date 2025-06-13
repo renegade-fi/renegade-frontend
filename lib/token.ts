@@ -4,6 +4,12 @@ import { getDefaultQuoteTokenOnChain, Token } from "@renegade-fi/token-nextjs"
 import { getAddress, isAddressEqual } from "viem"
 import { mainnet } from "viem/chains"
 
+import { env } from "@/env/client"
+import {
+  MAINNET_CHAINS,
+  TESTNET_CHAINS,
+} from "@/providers/wagmi-provider/config"
+
 import { solana } from "./viem"
 
 export const HIDDEN_TICKERS = ["USDT", "REN"]
@@ -151,4 +157,22 @@ export function isSupportedExchange(mint: `0x${string}`, exchange: Exchange) {
   const token = resolveAddress(mint)
   const supportedExchanges = token.supportedExchanges
   return supportedExchanges.has(exchange)
+}
+
+/** Returns true if the ticker exists on all chains, false otherwise */
+export function isAddressMultiChain(mint: `0x${string}`) {
+  return isTickerMultiChain(resolveAddress(mint).ticker)
+}
+
+/** Returns true if the ticker exists on all chains, false otherwise */
+export function isTickerMultiChain(ticker: string) {
+  const chains =
+    env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "testnet"
+      ? TESTNET_CHAINS
+      : MAINNET_CHAINS
+  for (const chain of chains) {
+    const token = resolveTickerAndChain(ticker, chain.id)
+    if (!token || token.address === zeroAddress) return false
+  }
+  return true
 }

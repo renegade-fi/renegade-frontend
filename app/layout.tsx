@@ -17,6 +17,8 @@ import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
 import { TrackLastVisit } from "@/app/components/track-last-visit"
 import { WalletSidebar } from "@/app/components/wallet-sidebar"
+import { WrongNetworkModal } from "@/app/components/wrong-network-modal"
+import { WrongPairNetworkModal } from "@/app/components/wrong-pair-network-modal"
 import { Zendesk } from "@/app/components/zendesk"
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
@@ -147,6 +149,8 @@ export default async function RootLayout({
                       <Faucet />
                       <LazyDatadog />
                       <WalletSidebar side="right" />
+                      <WrongNetworkModal />
+                      <WrongPairNetworkModal />
                     </SidebarProvider>
                   </SolanaProvider>
                 </WagmiProvider>

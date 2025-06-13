@@ -35,7 +35,6 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
-import { useNeedsSwitch } from "@/hooks/use-needs-switch"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePredictedFees } from "@/hooks/use-predicted-fees"
 import { useWallets } from "@/hooks/use-wallets"
@@ -45,8 +44,6 @@ import { MIDPOINT_TOOLTIP } from "@/lib/constants/tooltips"
 import { formatCurrencyFromString } from "@/lib/format"
 import { getCanonicalExchange, resolveAddress } from "@/lib/token"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
-
-import { SwitchChainButton } from "../switch-chain-button"
 
 const formSchema = z.object({
   amount: z
@@ -175,8 +172,6 @@ export function NewOrderForm({
       }
     })
   }
-
-  const needsSwitch = useNeedsSwitch(base)
 
   return (
     <Form {...form}>
@@ -309,12 +304,7 @@ export function NewOrderForm({
           quoteMint={quoteMint}
         />
 
-        {needsSwitch ? (
-          <SwitchChainButton
-            baseMint={base}
-            className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-          />
-        ) : walletReadyState === "READY" ? (
+        {walletReadyState === "READY" ? (
           <div className="hidden lg:block">
             <MaintenanceButtonWrapper messageKey="place">
               <Button
