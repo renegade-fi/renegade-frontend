@@ -2,8 +2,13 @@ import * as React from "react"
 
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { arbitrum } from "viem/chains"
+import { base } from "viem/chains"
 
-import { useExternalTransferLogs } from "@/app/stats/hooks/use-external-transfer-data"
+import {
+  TransferData,
+  useExternalTransferLogs,
+} from "@/app/stats/hooks/use-external-transfer-data"
 
 import {
   Card,
@@ -22,28 +27,62 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 
+type ChartData = {
+  timestamp: string
+  arbitrumDeposits: number
+  baseDeposits: number
+  arbitrumWithdrawals: number
+  baseWithdrawals: number
+}
+
 const chartConfig = {
-  depositAmount: {
-    label: "Deposits",
+  arbitrumDeposits: {
+    label: "Arbitrum Deposits",
     color: "hsl(var(--chart-blue))",
   },
-  withdrawalAmount: {
-    label: "Withdrawals",
+  baseDeposits: {
+    label: "Base Deposits",
     color: "#FFF",
+  },
+  arbitrumWithdrawals: {
+    label: "Arbitrum Withdrawals",
+    color: "hsl(var(--chart-1))",
+  },
+  baseWithdrawals: {
+    label: "Base Withdrawals",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
 
+function computeChartData(arbitrumData: TransferData, baseData: TransferData) {
+  const data: ChartData[] = []
+  for (const [timestamp, bucket] of arbitrumData.entries()) {
+    const arbitrumDeposits = bucket.depositAmount
+    const arbitrumWithdrawals = bucket.withdrawalAmount * -1
+    const baseDeposits = baseData.get(timestamp)?.depositAmount ?? 0
+    const baseWithdrawals =
+      (baseData.get(timestamp)?.withdrawalAmount ?? 0) * -1
+    data.push({
+      timestamp: timestamp.toString(),
+      arbitrumDeposits,
+      baseDeposits,
+      arbitrumWithdrawals,
+      baseWithdrawals,
+    })
+  }
+  return data
+}
+
 export function InflowsChart({ chainId }: { chainId: number }) {
-  const { data } = useExternalTransferLogs({ chainId })
+  const { data: arbitrumData } = useExternalTransferLogs({
+    chainId: arbitrum.id,
+  })
+  const { data: baseData } = useExternalTransferLogs({ chainId: base.id })
 
   const chartData = React.useMemo(() => {
-    if (!data || !data.length) return []
-    return data?.map((day) => ({
-      timestamp: day.timestamp,
-      depositAmount: day.depositAmount,
-      withdrawalAmount: day.withdrawalAmount * -1,
-    }))
-  }, [data])
+    if (!arbitrumData || !baseData) return []
+    return computeChartData(arbitrumData, baseData)
+  }, [arbitrumData, baseData])
 
   const netFlowData = React.useMemo(() => {
     if (chartData.length === 0) return null
@@ -61,13 +100,27 @@ export function InflowsChart({ chainId }: { chainId: number }) {
     })
 
     const netFlow = last24HoursData.reduce((sum, item) => {
-      return sum + item.depositAmount + item.withdrawalAmount
+      if (chainId === arbitrum.id) {
+        return sum + item.arbitrumDeposits - item.arbitrumWithdrawals
+      } else if (chainId === base.id) {
+        return sum + item.baseDeposits - item.baseWithdrawals
+      }
+      return (
+        sum +
+        item.arbitrumDeposits +
+        item.baseDeposits -
+        item.arbitrumWithdrawals -
+        item.baseWithdrawals
+      )
     }, 0)
 
     return { netFlow }
-  }, [chartData])
+  }, [chainId, chartData])
 
   const isSuccess = netFlowData !== null
+
+  const showOnlyArbitrum = chainId === arbitrum.id
+  const showOnlyBase = chainId === base.id
 
   return (
     <Card className="w-full rounded-none">
@@ -116,7 +169,7 @@ export function InflowsChart({ chainId }: { chainId: number }) {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  className="w-[175px]"
+                  className="w-64"
                   formatter={(value, name, item, index) => {
                     const n = numeral(Math.abs(Number(value))).format(
                       "$0,0.00a",
@@ -146,20 +199,40 @@ export function InflowsChart({ chainId }: { chainId: number }) {
                       timeZone: "UTC",
                     })
                   }}
-                  nameKey="depositAmount"
+                  nameKey="arbitrumDeposits"
                 />
               }
             />
             <ChartLegend content={<ChartLegendContent />} />
 
-            <Bar
-              dataKey="depositAmount"
-              fill={`var(--color-depositAmount)`}
-            />
-            <Bar
-              dataKey="withdrawalAmount"
-              fill={`var(--color-withdrawalAmount)`}
-            />
+            {showOnlyBase ? null : (
+              <Bar
+                dataKey="arbitrumDeposits"
+                fill={`var(--color-arbitrumDeposits)`}
+                stackId="a"
+              />
+            )}
+            {showOnlyBase ? null : (
+              <Bar
+                dataKey="arbitrumWithdrawals"
+                fill={`var(--color-arbitrumWithdrawals)`}
+                stackId="b"
+              />
+            )}
+            {showOnlyArbitrum ? null : (
+              <Bar
+                dataKey="baseDeposits"
+                fill={`var(--color-baseDeposits)`}
+                stackId="a"
+              />
+            )}
+            {showOnlyArbitrum ? null : (
+              <Bar
+                dataKey="baseWithdrawals"
+                fill={`var(--color-baseWithdrawals)`}
+                stackId="b"
+              />
+            )}
           </BarChart>
         </ChartContainer>
       </CardContent>
