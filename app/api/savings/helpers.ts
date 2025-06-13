@@ -101,16 +101,13 @@ export type OrderbookResponseData = {
 // | HELPERS |
 // -----------
 export function calculateSavings(
-  binanceTradeAmounts: TradeAmounts,
+  tradeAmounts: TradeAmounts,
   quantity: number,
   direction: Direction,
   renegadePrice: number,
   renegadeFeeRate: number,
 ): number {
-  const {
-    effectiveBaseAmount: effectiveBinanceBase,
-    effectiveQuoteAmount: effectiveBinanceQuote,
-  } = binanceTradeAmounts
+  const { effectiveBaseAmount, effectiveQuoteAmount } = tradeAmounts
 
   const renegadeQuote = quantity * renegadePrice
 
@@ -122,25 +119,25 @@ export function calculateSavings(
       ? renegadeQuote * (1 - renegadeFeeRate)
       : renegadeQuote
 
-  // Calculate the savings in base/quote amounts transacted between the Binance and Renegade trades.
-  // When buying, we save when we receive more base and send less quote than on Binance.
-  // When selling, we save when we receive more quote and send less base than on Binance.
+  // Calculate the savings in base/quote amounts transacted between the canonical exchange and Renegade trades.
+  // When buying, we save when we receive more base and send less quote than on the canonical exchange.
+  // When selling, we save when we receive more quote and send less base than on the canonical exchange.
   const baseSavings =
     direction === Direction.BUY
-      ? effectiveRenegadeBase - effectiveBinanceBase
-      : effectiveBinanceBase - effectiveRenegadeBase
+      ? effectiveRenegadeBase - effectiveBaseAmount
+      : effectiveBaseAmount - effectiveRenegadeBase
 
   const quoteSavings =
     direction === Direction.SELL
-      ? effectiveRenegadeQuote - effectiveBinanceQuote
-      : effectiveBinanceQuote - effectiveRenegadeQuote
+      ? effectiveRenegadeQuote - effectiveQuoteAmount
+      : effectiveQuoteAmount - effectiveRenegadeQuote
 
   // Represent the total savings via Renegade, denominated in the quote asset, priced at the current midpoint
   return baseSavings * renegadePrice + quoteSavings
 }
 
 /**
- * Construct the Binance orderbook for the given instrument, at the given timestamp.
+ * Construct the canonical exchange's orderbook for the given instrument, at the given timestamp.
  * This is done by fetching the most recent orderbook snapshot relative to the
  * timestamp, then fetching all of the updates between the snapshot and the timestamp,
  * and applying them on top of the snapshot.
@@ -189,7 +186,7 @@ export async function constructOrderbook(
 }
 
 /**
- * Fetches a snapshot of the Binance orderbook for the given pair symbol,
+ * Fetches a snapshot of the canonical exchange's orderbook for the given pair symbol,
  * around the given timestamp (in milliseconds), up to the maximum supported depth (5000 levels).
  */
 async function fetchOrderbookSnapshot(

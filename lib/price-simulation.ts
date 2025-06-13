@@ -39,7 +39,6 @@ export class Orderbook {
   /**
    * Creates an orderbook initialized with the given bids, asks, and fee rate.
    * The bids and asks are assumed to be sorted in descending and ascending order of price, respectively.
-   * The fee rate defaults to 10 bps, the Binance taker fee for traders w/ <20M in monthly trading volume.
    */
   constructor(bids: PriceLevel[], asks: PriceLevel[], feeRate: number = 0.001) {
     this.bids = bids
