@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 
+import { TimeToFillCard } from "./charts/time-to-fill-card"
 import { TvlSection } from "./charts/tvl/tvl-section"
 
 export function PageClient() {
@@ -30,6 +31,7 @@ export function PageClient() {
             />
           </div>
           <div className="relative border py-16">
+            <TimeToFillCard chainId={selectedChainId} />
             <div className="absolute bottom-2 right-4">
               <Button
                 asChild

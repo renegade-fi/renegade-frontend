@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 
 import { Check, ChevronsUpDown } from "lucide-react"
 
@@ -18,23 +18,32 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
+import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
-
-const tokens = DISPLAY_TOKENS({ hideHidden: true, hideStables: true }).map(
-  (token) => ({
-    value: token.address,
-    label: token.ticker,
-  }),
-)
 
 type TokenSelectProps = {
   value: string
-  onChange: (value: `0x${string}`) => void
+  onChange: (value: `${string}`) => void
+  chainId: number
 }
 
-export function TokenSelect({ value, onChange }: TokenSelectProps) {
+export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
   const [open, setOpen] = React.useState(false)
+
+  const tokens = useMemo(() => {
+    const res = new Set<string>(
+      DISPLAY_TOKENS({
+        hideHidden: true,
+        hideStables: true,
+        chainId: chainId ? chainId : undefined,
+      }).map((token) => token.ticker),
+    )
+
+    return Array.from(res).map((ticker) => ({
+      value: ticker,
+      label: ticker,
+    }))
+  }, [chainId])
 
   return (
     <Popover
@@ -52,11 +61,9 @@ export function TokenSelect({ value, onChange }: TokenSelectProps) {
           <TokenIcon
             className="mr-2"
             size={22}
-            ticker={resolveAddress(value as `0x${string}`).ticker}
+            ticker={value}
           />
-          {value
-            ? tokens.find((token) => token.value === value)?.label
-            : "Select token"}
+          {value ? value : "Select token"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

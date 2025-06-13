@@ -21,24 +21,26 @@ interface TimeDisplayValues {
 
 export function TimeToFillCard({ chainId }: { chainId: number }) {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
-  const [selectedToken, setSelectedToken] = React.useState(
-    resolveTicker("WETH").address,
-  )
+  const [selectedToken, setSelectedToken] = React.useState("WETH")
   const [isSell, setIsSell] = React.useState(true)
 
   const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue({
     amount: selectedAmount.toString(),
-    base: selectedToken,
+    base: resolveTicker(selectedToken).address,
     isQuoteCurrency: true,
     isSell,
   })
 
-  const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 500)
+  const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 1000)
+
+  const tokenChainId = useMemo(() => {
+    return resolveTicker(selectedToken).chain ?? 0 // We should always find a chain
+  }, [selectedToken])
 
   const { data: timeToFillMs } = useTimeToFill({
     amount: debouncedUsdValue,
-    mint: selectedToken,
-    chainId,
+    mint: resolveTicker(selectedToken).address,
+    chainId: tokenChainId,
   })
 
   const lastValidValue = useRef<TimeDisplayValues>({
@@ -123,6 +125,7 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
               <Skeleton className="h-8 w-32" />
             )}
             <TokenSelect
+              chainId={chainId}
               value={selectedToken}
               onChange={setSelectedToken}
             />

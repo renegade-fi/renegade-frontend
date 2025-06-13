@@ -42,15 +42,15 @@ const chartConfig = {
   },
   baseDeposits: {
     label: "Base Deposits",
-    color: "#FFF",
+    color: "hsl(var(--chart-1))",
   },
   arbitrumWithdrawals: {
     label: "Arbitrum Withdrawals",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(var(--chart-blue))",
   },
   baseWithdrawals: {
     label: "Base Withdrawals",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
 
@@ -81,8 +81,17 @@ export function InflowsChart({ chainId }: { chainId: number }) {
 
   const chartData = React.useMemo(() => {
     if (!arbitrumData || !baseData) return []
-    return computeChartData(arbitrumData, baseData)
-  }, [arbitrumData, baseData])
+    const data = computeChartData(arbitrumData, baseData)
+    const filteredData = data.filter((item) => {
+      if (!chainId) return true
+      if (chainId === arbitrum.id)
+        return item.arbitrumDeposits > 0 || item.arbitrumWithdrawals > 0
+      if (chainId === base.id)
+        return item.baseDeposits > 0 || item.baseWithdrawals > 0
+      return true
+    })
+    return filteredData
+  }, [arbitrumData, baseData, chainId])
 
   const netFlowData = React.useMemo(() => {
     if (chartData.length === 0) return null
