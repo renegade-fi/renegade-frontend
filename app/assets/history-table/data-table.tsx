@@ -158,7 +158,7 @@ export function DataTable<TData, TValue>({
         ) : null}
         <div className="sm:ml-auto">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Toggle
                 aria-label="Toggle decimal display"
                 className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
