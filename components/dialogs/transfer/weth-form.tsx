@@ -1,5 +1,6 @@
 import * as React from "react"
 
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
@@ -65,8 +66,10 @@ import {
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price"
+import { useChainName } from "@/hooks/use-chain-name"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { useIsBase } from "@/hooks/use-is-base"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
@@ -91,10 +94,7 @@ import { ETHEREUM_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
-import {
-  arbitrumConfig,
-  mainnetConfig,
-} from "@/providers/wagmi-provider/config"
+import { mainnetConfig } from "@/providers/wagmi-provider/config"
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS["WETH"]
 
@@ -164,7 +164,7 @@ export function WETHForm({
   // ETH-specific logic
   const { data: ethL2Balance, queryKey: ethL2BalanceQueryKey } = useBalance({
     address,
-    config: arbitrumConfig,
+    chainId,
   })
   const formattedEthL2Balance = formatEther(ethL2Balance?.value ?? BigInt(0))
   const ethL2BalanceLabel = formatNumber(
@@ -242,10 +242,7 @@ export function WETHForm({
       if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [
-            chainId ? getSDKConfig(chainId).permit2Address : "0x",
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [getSDKConfig(chainId).permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({
@@ -262,7 +259,7 @@ export function WETHForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: chainId ? getSDKConfig(chainId).permit2Address : undefined,
+      spender: getSDKConfig(chainId).permit2Address,
       decimals: WETH_L2_TOKEN.decimals,
     })
 
@@ -279,12 +276,13 @@ export function WETHForm({
   const approveConfirmationStatus = useTransactionConfirmation(
     approveHash,
     async () => {
-      queryClient.invalidateQueries({ queryKey: wethAllowanceQueryKey }),
-        handleDeposit({
-          amount,
-          mint,
-          onSuccess: handleDepositSuccess,
-        })
+      queryClient.invalidateQueries({ queryKey: wethAllowanceQueryKey })
+      setCurrentStep((prev) => prev + 1)
+      handleDeposit({
+        amount,
+        mint,
+        onSuccess: handleDepositSuccess,
+      })
     },
   )
 
@@ -357,6 +355,9 @@ export function WETHForm({
     },
   )
 
+  const chainName = useChainName(true /* short */)
+  const isBase = useIsBase()
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isAmountSufficient = checkAmount(
       queryClient,
@@ -379,7 +380,7 @@ export function WETHForm({
       })
       if (!isBalanceSufficient) {
         form.setError("amount", {
-          message: "Insufficient Arbitrum balance",
+          message: `Insufficient ${chainName} balance`,
         })
         return
       }
@@ -407,10 +408,7 @@ export function WETHForm({
       } else if (allowanceRequired) {
         handleApprove({
           address: WETH_L2_TOKEN.address,
-          args: [
-            chainId ? getSDKConfig(chainId).permit2Address : "0x",
-            UNLIMITED_ALLOWANCE,
-          ],
+          args: [getSDKConfig(chainId).permit2Address, UNLIMITED_ALLOWANCE],
         })
       } else {
         handleDeposit({
@@ -572,7 +570,7 @@ export function WETHForm({
       )
     }
 
-    if (userHasWethL1Balance || userHasEthL1Balance) {
+    if (!isBase && (userHasWethL1Balance || userHasEthL1Balance)) {
       return (
         <BridgePrompt
           formattedL1Balance={formattedWethL1Balance}
@@ -729,14 +727,16 @@ export function WETHForm({
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    Balance&nbsp;on&nbsp;
-                    {isDeposit ? (
+                    Balance on&nbsp;
+                    {isDeposit && chainName ? (
                       <>
-                        <TokenIcon
-                          size={16}
-                          ticker="ARB"
+                        <Image
+                          alt={chainName}
+                          height={16}
+                          src={`/${chainName.toLowerCase()}.svg`}
+                          width={16}
                         />
-                        Arbitrum
+                        {chainName}
                       </>
                     ) : (
                       "Renegade"
@@ -821,7 +821,8 @@ export function WETHForm({
                 className={cn("flex items-start justify-between", {
                   hidden:
                     (!userHasWethL1Balance && !userHasEthL1Balance) ||
-                    !isDeposit,
+                    !isDeposit ||
+                    isBase,
                 })}
               >
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">

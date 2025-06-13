@@ -37,7 +37,7 @@ export function TransferForm({
     },
   })
   // @sehyunc TODO: enable bridge/swap/wrap for Base when implemented
-  if (isTestnet || isBase) {
+  if (isTestnet) {
     return (
       <DefaultForm
         className={className}
@@ -62,7 +62,7 @@ export function TransferForm({
       />
     )
   }
-  if (direction === ExternalTransferDirection.Deposit) {
+  if (direction === ExternalTransferDirection.Deposit && !isBase) {
     if (token.ticker === "USDC") {
       return (
         <USDCForm
