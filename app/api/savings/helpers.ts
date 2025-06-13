@@ -18,8 +18,6 @@ const API_KEY_HEADER = "x-api-key"
 
 /** The search parameter indicating the exchange to make a request for */
 const EXCHANGE_PARAM = "exchange"
-/** The identifier for the Binance exchange in the Amberdata API */
-const BINANCE_EXCHANGE_ID = "binance"
 
 /** The search parameter indicating the timestamp format for the Amberdata API to use */
 const TIME_FORMAT_PARAM = "timeFormat"
@@ -147,15 +145,17 @@ export function calculateSavings(
  * timestamp, then fetching all of the updates between the snapshot and the timestamp,
  * and applying them on top of the snapshot.
  */
-export async function constructBinanceOrderbook(
+export async function constructOrderbook(
   instrument: string,
   timestamp: number,
+  exchange: string,
 ): Promise<OrderbookResponseData> {
-  const snapshot = await fetchBinanceOrderbookSnapshot(instrument, timestamp)
-  const updates = await fetchBinanceOrderbookUpdates(
+  const snapshot = await fetchOrderbookSnapshot(instrument, timestamp, exchange)
+  const updates = await fetchOrderbookUpdates(
     instrument,
     snapshot.timestamp,
     timestamp,
+    exchange,
   )
 
   // Construct an initial orderbook map from the snapshot
@@ -192,23 +192,31 @@ export async function constructBinanceOrderbook(
  * Fetches a snapshot of the Binance orderbook for the given pair symbol,
  * around the given timestamp (in milliseconds), up to the maximum supported depth (5000 levels).
  */
-async function fetchBinanceOrderbookSnapshot(
+async function fetchOrderbookSnapshot(
   instrument: string,
   timestamp: number,
+  exchange: string,
 ): Promise<AmberdataOrderbookSnapshot> {
   // For the search range, we set [timestamp - 1min, timestamp + 1ms).
   // This is to ensure that we get the most recent snapshot inclusive of the timestamp
   const startDate = timestamp - 60000
   const endDate = timestamp + 1
 
-  const req = await amberdataRequest(
-    `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
+  const req = await amberdataRequest({
+    route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
     startDate,
     endDate,
-  )
+    exchange,
+  })
 
   const res = await fetch(req)
+  if (!res.ok) {
+    throw new Error(`Failed to fetch orderbook snapshot: ${res.statusText}`)
+  }
   const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json()
+  if (orderbookRes.payload.data.length === 0) {
+    throw new Error("Server returned empty orderbook snapshot")
+  }
 
   // The Amberdata response contains snapshots in ascending order of timestamp,
   // i.e. most recent is last
@@ -217,19 +225,21 @@ async function fetchBinanceOrderbookSnapshot(
 }
 
 /**
- * Fetches all of the Binance orderbook updates for the given instrument,
+ * Fetches all of the orderbook updates for the given instrument,
  * from the timestamp of the most recent snapshot, to the desired timestamp
  */
-async function fetchBinanceOrderbookUpdates(
+async function fetchOrderbookUpdates(
   instrument: string,
   snapshotTimestamp: number,
   desiredTimestamp: number,
+  exchange: string,
 ): Promise<Array<AmberdataOrderbookUpdate>> {
-  const req = await amberdataRequest(
-    `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
-    snapshotTimestamp,
-    desiredTimestamp,
-  )
+  const req = await amberdataRequest({
+    route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
+    startDate: snapshotTimestamp,
+    endDate: desiredTimestamp,
+    exchange,
+  })
 
   const res = await fetch(req)
   const updatesRes: AmberdataOrderbookUpdateResponse = await res.json()
@@ -243,13 +253,19 @@ async function fetchBinanceOrderbookUpdates(
  * @param startDate - The starting timestamp for the search range, in milliseconds (inclusive)
  * @param endDate - The ending timestamp for the search range, in milliseconds (exclusive)
  */
-async function amberdataRequest(
-  route: string,
-  startDate: number,
-  endDate: number,
-): Promise<Request> {
+async function amberdataRequest({
+  route,
+  startDate,
+  endDate,
+  exchange,
+}: {
+  route: string
+  startDate: number
+  endDate: number
+  exchange: string
+}): Promise<Request> {
   const amberdataUrl = new URL(`${AMBERDATA_BASE_URL}/${route}`)
-  amberdataUrl.searchParams.set(EXCHANGE_PARAM, BINANCE_EXCHANGE_ID)
+  amberdataUrl.searchParams.set(EXCHANGE_PARAM, exchange)
   amberdataUrl.searchParams.set(TIME_FORMAT_PARAM, TIME_FORMAT)
   amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString())
   amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString())
@@ -278,4 +294,25 @@ function convertOrderbookMap(
     .sort((a, b) => a.price - b.price)
 
   return { bids, asks, timestamp }
+}
+
+/**
+ * Fetches the fee rate for the given exchange
+ */
+export function getExchangeFeeRate(exchange: string): number {
+  switch (exchange.toLowerCase()) {
+    case "coinbase":
+      // Coinbase taker fee for traders w/ 100k to 1M in monthly trading volume.
+      // Source: https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees
+      return 0.002
+    // Kraken Pro taker fee for traders w/ 500k to 1M in monthly trading volume.
+    // Source: https://www.kraken.com/features/fee-schedule
+    case "kraken":
+      return 0.0018
+    // Binance taker fee for traders w/ <1M in monthly trading volume.
+    // Source: https://www.binance.com/en/fee/schedule
+    case "binance":
+    default:
+      return 0.001
+  }
 }

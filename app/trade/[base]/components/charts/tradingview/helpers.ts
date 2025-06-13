@@ -56,10 +56,7 @@ export async function fetchBarsForPeriod(
     MAX_PARALLEL_REQUESTS,
   )
 
-  const amberdataExchange =
-    exchangeToAmberdataExchange[
-      exchange as keyof typeof exchangeToAmberdataExchange
-    ]
+  const amberdataExchange = exchangeToAmberdataExchange(exchange)
 
   const allBarsPromises = timeChunks.map((chunk) =>
     fetchBarsForTimeChunk(
