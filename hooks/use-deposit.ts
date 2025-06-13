@@ -39,8 +39,7 @@ export function useDeposit() {
       !walletClient ||
       !mint ||
       !isAddress(mint, { strict: false }) ||
-      !config ||
-      !chainId
+      !config
     )
       return
     const token = resolveAddress(mint as `0x${string}`)

@@ -1,5 +1,4 @@
 import NumberFlow from "@number-flow/react"
-import { useChainId } from "wagmi"
 
 import { Button } from "@/components/ui/button"
 import {

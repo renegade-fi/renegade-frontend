@@ -6,8 +6,8 @@ import { useConfig } from "wagmi"
 import { useCombinedBalances } from "@/hooks/use-combined-balances"
 import { readErc20BalanceOf } from "@/lib/generated"
 import { isTestnet } from "@/lib/viem"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
-import { useChain } from "./use-chain"
 import { useIsBase } from "./use-is-base"
 
 interface UseOnChainBalancesOptions {
@@ -30,7 +30,7 @@ export function useOnChainBalances({
   enabled = true,
 }: UseOnChainBalancesOptions) {
   const config = useConfig()
-  const chainId = useChain()?.id
+  const chainId = useCurrentChain()
   const queries = useQueries({
     queries: mints.map((mint) => ({
       queryKey: [

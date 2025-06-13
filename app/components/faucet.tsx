@@ -4,14 +4,14 @@ import React from "react"
 
 import { useAccount, usePublicClient } from "wagmi"
 
-import { useChain } from "@/hooks/use-chain"
 import { useIsBase } from "@/hooks/use-is-base"
 import { fundList, fundWallet } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function Faucet() {
   const { address } = useAccount()
-  const chainId = useChain()?.id
+  const chainId = useCurrentChain()
   const publicClient = usePublicClient()
   const isBase = useIsBase()
   // Fund on wallet change
