@@ -832,6 +832,7 @@ export function USDCForm({
             txHash: bridgeExecutionStatus?.receiveHash as `0x${string}`,
             txStatus: normalizeStatus(bridgeExecutionStatus?.status),
             label: STEP_CONFIGS[EVMStep.DESTINATION_BRIDGE].label,
+            chainId: STEP_CONFIGS[EVMStep.DESTINATION_BRIDGE].chainId,
           }
         case EVMStep.APPROVE_SWAP:
           return {

@@ -27,12 +27,12 @@ export function getConfig() {
     getDefaultConfig({
       chains,
       transports: {
-        [arbitrum.id]: http(),
-        [arbitrumSepolia.id]: http(),
-        [base.id]: http(),
-        [baseSepolia.id]: http(),
+        [arbitrum.id]: http(`/api/proxy/rpc?id=${arbitrum.id}`),
+        [arbitrumSepolia.id]: http(`/api/proxy/rpc?id=${arbitrumSepolia.id}`),
+        [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
+        [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
         // Needed to support bridge
-        [mainnet.id]: http("/api/proxy/mainnet"),
+        [mainnet.id]: http(`/api/proxy/rpc?chainId=${mainnet.id}`),
       },
       ssr: true,
       storage: createStorage({
@@ -67,7 +67,7 @@ export const CHAIN_LOGOS = {
 export const mainnetConfig = createConfig({
   chains: [mainnet],
   transports: {
-    [mainnet.id]: http("/api/proxy/mainnet"),
+    [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
   },
 })
 
@@ -75,10 +75,10 @@ export const mainnetConfig = createConfig({
 export const arbitrumConfig = createConfig({
   chains: [arbitrum, arbitrumSepolia, baseSepolia, base],
   transports: {
-    [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [baseSepolia.id]: http(),
-    [base.id]: http(),
+    [arbitrum.id]: http(`/api/proxy/rpc?id=${arbitrum.id}`),
+    [arbitrumSepolia.id]: http(`/api/proxy/rpc?id=${arbitrumSepolia.id}`),
+    [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
+    [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
   },
 })
 

@@ -1,4 +1,4 @@
-import { mainnet } from "viem/chains"
+import { arbitrum, mainnet } from "viem/chains"
 
 import { solana } from "@/lib/viem"
 
@@ -35,6 +35,7 @@ export const STEP_CONFIGS: Record<TransferStep, StepConfig> = {
   },
   [EVMStep.DESTINATION_BRIDGE]: {
     label: "Arbitrum transaction",
+    chainId: arbitrum.id,
   },
   [EVMStep.APPROVE_SWAP]: {
     label: "Approve Swap",
