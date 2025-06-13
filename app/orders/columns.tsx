@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
+import { useSavingsAcrossFillsQuery } from "@/hooks/savings/use-savings-across-fills-query"
 import { useIsOrderUndercapitalized } from "@/hooks/use-is-order-undercapitalized"
 import { ExtendedOrderMetadata } from "@/hooks/use-order-table-data"
-import { useSavingsAcrossFillsQuery } from "@/hooks/use-savings-across-fills-query"
 import { Side } from "@/lib/constants/protocol"
 import { UNDERCAPITALIZED_ORDER_TOOLTIP } from "@/lib/constants/tooltips"
 import {
@@ -330,12 +330,9 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
       )
     },
     cell: function Cell({ row }) {
-      const { data } = useSavingsAcrossFillsQuery({
-        order: row.original,
-      })
-      const totalSaved = data?.reduce((acc, result) => acc + result, 0)
+      const totalSavings = useSavingsAcrossFillsQuery(row.original)
       const formatted =
-        Math.max(0, totalSaved) >= 0.01 ? formatCurrency(totalSaved) : "--"
+        Math.max(0, totalSavings) >= 0 ? formatCurrency(totalSavings) : "--"
       return <div className="pr-4 text-right">{formatted}</div>
     },
   },
