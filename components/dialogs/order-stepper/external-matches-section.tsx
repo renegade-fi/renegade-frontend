@@ -14,15 +14,11 @@ import { Switch } from "@/components/ui/switch"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 import { PrivacySpeedSpectrum } from "./components/privacy-speed-spectrum"
 
-export function ExternalMatchesSection(
-  props: NewOrderConfirmationProps & {
-    allowExternalMatches: boolean
-    setAllowExternalMatches: (allowExternalMatches: boolean) => void
-  },
-) {
+export function ExternalMatchesSection(props: NewOrderConfirmationProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const isMobile = useIsMobile()
 
@@ -33,6 +29,13 @@ export function ExternalMatchesSection(
   const handleMouseLeave = () => {
     setIsOpen(false)
   }
+
+  const allowExternalMatches = useServerStore(
+    (state) => state.allowExternalMatches,
+  )
+  const setAllowExternalMatches = useServerStore(
+    (state) => state.setAllowExternalMatches,
+  )
 
   return (
     <Popover
@@ -57,9 +60,9 @@ export function ExternalMatchesSection(
             </div>
           </div>
           <Switch
-            checked={props.allowExternalMatches}
+            checked={allowExternalMatches}
             id="allow-external-matches"
-            onCheckedChange={props.setAllowExternalMatches}
+            onCheckedChange={setAllowExternalMatches}
             onClick={(e) => e.stopPropagation()}
           />
         </div>

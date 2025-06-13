@@ -48,12 +48,7 @@ import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
-export function DefaultStep(
-  props: NewOrderConfirmationProps & {
-    allowExternalMatches: boolean
-    setAllowExternalMatches: (allowExternalMatches: boolean) => void
-  },
-) {
+export function DefaultStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
 
   const baseToken = resolveAddress(props.base)
@@ -67,13 +62,16 @@ export function DefaultStep(
     return decimalCorrectPrice(wcp, baseToken.decimals, quoteToken.decimals)
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
+  const allowExternalMatches = useServerStore(
+    (state) => state.allowExternalMatches,
+  )
   const { data: request } = usePrepareCreateOrder({
     base: props.base,
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
-    allowExternalMatches: props.allowExternalMatches,
+    allowExternalMatches,
   })
 
   const { mutate: createOrder } = useCreateOrder({
@@ -104,11 +102,7 @@ export function DefaultStep(
       </DialogHeader>
       <ScrollArea className="max-h-[70vh]">
         <div className="flex flex-col gap-6 p-6">
-          <ConfirmOrderDisplay
-            {...props}
-            allowExternalMatches={props.allowExternalMatches}
-            setAllowExternalMatches={props.setAllowExternalMatches}
-          />
+          <ConfirmOrderDisplay {...props} />
         </div>
       </ScrollArea>
       <DialogFooter>
@@ -132,12 +126,7 @@ export function DefaultStep(
   )
 }
 
-export function ConfirmOrderDisplay(
-  props: NewOrderConfirmationProps & {
-    allowExternalMatches: boolean
-    setAllowExternalMatches: (allowExternalMatches: boolean) => void
-  },
-) {
+export function ConfirmOrderDisplay(props: NewOrderConfirmationProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const token = resolveAddress(props.base)
   const quoteMint = useServerStore((state) => state.quoteMint)
@@ -212,11 +201,7 @@ export function ConfirmOrderDisplay(
         <FeesSection {...props} />
       </div>
       <div>
-        <ExternalMatchesSection
-          {...props}
-          allowExternalMatches={props.allowExternalMatches}
-          setAllowExternalMatches={props.setAllowExternalMatches}
-        />
+        <ExternalMatchesSection {...props} />
       </div>
       <NoBalanceSlotWarning
         baseMint={props.base}

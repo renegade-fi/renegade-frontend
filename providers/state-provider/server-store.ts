@@ -27,6 +27,7 @@ export type ServerActions = {
   setSide: (side: Side) => void
   setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => void
   setRememberMe: (chainId: ChainId, remember: boolean) => void
+  setAllowExternalMatches: (allowExternalMatches: boolean) => void
   resetWallet: (chainId?: ChainId) => void
   resetAllWallets: () => void
 }
@@ -63,6 +64,7 @@ export const defaultInitState: ServerState = {
   },
   baseMint: WETH.address,
   quoteMint: USDC.address,
+  allowExternalMatches: true,
   panels: { layout: [22, 78] },
 }
 
@@ -108,6 +110,8 @@ export const createServerStore = (
           set((state) => ({
             rememberMe: new Map(state.rememberMe).set(chainId, remember),
           })),
+        setAllowExternalMatches: (allowExternalMatches: boolean) =>
+          set(() => ({ allowExternalMatches })),
         resetWallet: (chainId?: ChainId) =>
           set((state) => ({
             wallet: new Map(state.wallet).set(

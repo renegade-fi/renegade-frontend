@@ -19,7 +19,7 @@ export type UsePrepareCreateOrderParameters = {
   side: "buy" | "sell"
   amount: string
   worstCasePrice: string
-  allowExternalMatches?: boolean
+  allowExternalMatches: boolean
 }
 
 export function usePrepareCreateOrder(
@@ -32,7 +32,7 @@ export function usePrepareCreateOrder(
     side,
     amount,
     worstCasePrice,
-    allowExternalMatches = false,
+    allowExternalMatches,
   } = parameters
   const config = useConfig()
   const { data: wallet, isSuccess } = useBackOfQueueWallet()

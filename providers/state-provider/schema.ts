@@ -37,6 +37,7 @@ export const ServerStateSchema = z.object({
   }),
   baseMint: zHexString,
   quoteMint: zHexString,
+  allowExternalMatches: z.boolean(),
   panels: z.object({
     layout: z.array(z.number()),
   }),
