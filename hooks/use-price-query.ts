@@ -20,10 +20,9 @@ export function priceQueryOptions(
   exchange: Exchange = "renegade",
 ): UseQueryOptions<number> {
   const topic = createPriceTopic({ exchange, base: baseMint })
-  const queryKey = createPriceQueryKey({ exchange, base: baseMint })
 
   return queryOptions<number>({
-    queryKey,
+    queryKey: ["dummy"], // Consumers will replace this with either "live" or "snapshot" price query key
     queryFn: () => {
       const [ex, base, quote] = topic.split("-") as [
         Exchange,
@@ -43,6 +42,7 @@ export function usePriceQuery(
   const topic = createPriceTopic({ exchange, base: baseMint })
   const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket()
   const isSupported = isSupportedExchange(baseMint, exchange)
+  const queryKey = createPriceQueryKey({ exchange, base: baseMint })
 
   React.useEffect(() => {
     if (!isSupported) return
@@ -54,6 +54,7 @@ export function usePriceQuery(
 
   return useQuery<number>({
     ...opts,
+    queryKey,
     initialData: 0,
     staleTime: STALE_TIME_MS,
     enabled: isSupported,
