@@ -64,7 +64,7 @@ export const columns: ColumnDef<TvlRow>[] = [
               }
             }}
           >
-            Base TVL
+            Base
             {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === "desc" ? (
@@ -115,7 +115,7 @@ export const columns: ColumnDef<TvlRow>[] = [
               }
             }}
           >
-            Arbitrum TVL
+            Arbitrum
             {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === "desc" ? (
@@ -166,7 +166,7 @@ export const columns: ColumnDef<TvlRow>[] = [
               }
             }}
           >
-            Total TVL
+            Total
             {column.getIsSorted() === "asc" ? (
               <ChevronUp className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === "desc" ? (

@@ -21,16 +21,16 @@ import { cn } from "@/lib/utils"
 
 const values = [
   {
+    value: 0,
+    label: "All Chains",
+  },
+  {
     value: arbitrum.id,
     label: "Arbitrum",
   },
   {
     value: base.id,
     label: "Base",
-  },
-  {
-    value: 0,
-    label: "All Chains",
   },
 ]
 
@@ -58,10 +58,10 @@ export function ChainSelector({
         >
           {chainId
             ? values.find((v) => v.value === chainId)?.label
-            : "All Chains"}
+            : "All Networks"}
           <ChevronDown
             className={cn(
-              "h-4 w-4 shrink-0 transition-transform duration-200 ease-in-out",
+              "ml-2 h-4 w-4 shrink-0 transition-transform duration-200 ease-in-out",
               open && "rotate-180",
             )}
           />
@@ -76,7 +76,10 @@ export function ChainSelector({
                   key={chain.label}
                   value={chain.value.toString()}
                   onSelect={() => {
-                    onChange(chain.value ?? undefined)
+                    if (chain.value === chainId) {
+                      return
+                    }
+                    onChange(chain.value)
                     setOpen(false)
                   }}
                 >
