@@ -24,7 +24,6 @@ import { decimalCorrectPrice } from "@/lib/utils"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function ConfirmStep(props: NewOrderConfirmationProps) {
-  const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   const { onNext, setTaskId } = useStepper()
 
   const baseToken = resolveAddress(props.base)
@@ -38,6 +37,9 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
     return decimalCorrectPrice(wcp, baseToken.decimals, quoteToken.decimals)
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
+  const allowExternalMatches = useServerStore(
+    (state) => state.allowExternalMatches,
+  )
   const { data: request } = usePrepareCreateOrder({
     base: props.base,
     quote: quoteMint,
@@ -68,11 +70,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
         <DialogTitle className="font-extended">Review Order</DialogTitle>
       </DialogHeader>
       <div className="flex flex-col gap-6 overflow-y-auto p-6">
-        <ConfirmOrderDisplay
-          {...props}
-          allowExternalMatches={allowExternalMatches}
-          setAllowExternalMatches={setAllowExternalMatches}
-        />
+        <ConfirmOrderDisplay {...props} />
       </div>
       <DialogFooter className="mt-auto flex-row p-6 pt-0">
         <DialogClose asChild>

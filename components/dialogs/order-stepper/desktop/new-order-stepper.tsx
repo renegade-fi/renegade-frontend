@@ -18,14 +18,10 @@ export function NewOrderStepperInner({
   ...props
 }: React.PropsWithChildren<NewOrderConfirmationProps>) {
   const { step, open, setOpen } = useStepper()
-  const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   return (
     <Dialog
       open={open}
-      onOpenChange={(open) => {
-        setAllowExternalMatches(false)
-        setOpen(open)
-      }}
+      onOpenChange={setOpen}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
@@ -36,13 +32,7 @@ export function NewOrderStepperInner({
       >
         <div className="flex gap-4">
           <div className="min-w-[425px] flex-1 border bg-background">
-            {step === Step.DEFAULT && (
-              <DefaultStep
-                {...props}
-                allowExternalMatches={allowExternalMatches}
-                setAllowExternalMatches={setAllowExternalMatches}
-              />
-            )}
+            {step === Step.DEFAULT && <DefaultStep {...props} />}
             {step === Step.SUCCESS && <SuccessStepWithoutSavings />}
           </div>
         </div>
