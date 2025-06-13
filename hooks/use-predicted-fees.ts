@@ -7,7 +7,7 @@ import { useSavings } from "@/hooks/use-savings-query"
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 
 export function usePredictedFees(order: NewOrderFormProps) {
-  const { valueInBaseCurrency, valueInQuoteCurrency } = useOrderValue(order)
+  const { valueInQuoteCurrency } = useOrderValue(order)
 
   const feesCalculation = React.useMemo(() => {
     let res = {
@@ -21,23 +21,18 @@ export function usePredictedFees(order: NewOrderFormProps) {
   }, [valueInQuoteCurrency])
 
   // Amount should always be base amount (even if denominated in USDC)
-  const { data, isSuccess } = useSavings({
-    amount: valueInBaseCurrency,
-    base: order.base,
-    isSell: order.isSell,
-    isQuoteCurrency: order.isQuoteCurrency,
-  })
+  const { data: savings, isSuccess } = useSavings(order)
   const [predictedSavings, setPredictedSavings] = React.useState(0)
   React.useEffect(() => {
     setPredictedSavings((prev) => {
-      if (isSuccess && prev !== data.savings) {
-        return data.savings
+      if (isSuccess && prev !== savings) {
+        return savings
       } else if (!order.amount) {
         return 0
       }
       return prev
     })
-  }, [order.amount, data?.savings, isSuccess])
+  }, [isSuccess, order.amount, savings])
 
   return {
     ...feesCalculation,

@@ -7,7 +7,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { useIsBase } from "@/hooks/use-is-base"
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 import {
   FEES_SECTION_FEES,
@@ -33,7 +32,6 @@ export function FeesSection({
   const totalFees = relayerFee + protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : "--"
   const canonicalExchange = getCanonicalExchange(base)
-  const isBase = useIsBase()
 
   return (
     <>
@@ -59,12 +57,7 @@ export function FeesSection({
         </Tooltip>
         <span>{amount ? feeLabel : "--"}</span>
       </div>
-      <div
-        className={cn(
-          "relative justify-between transition-colors",
-          isBase ? "hidden" : "flex",
-        )}
-      >
+      <div className="relative flex justify-between transition-colors">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

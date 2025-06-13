@@ -105,9 +105,17 @@ export const getQuoteTicker = (mint: `0x${string}`) => {
  *
  * Capitalized because this is rendered in the TradingView chart
  */
-export const exchangeToAmberdataExchange = {
-  BINANCE: "binance",
-  COINBASE: "gdax",
-  KRAKEN: "kraken",
-  OKX: "okex",
-} as const
+export function exchangeToAmberdataExchange(exchange: string) {
+  switch (exchange) {
+    case "BINANCE":
+      return "binance"
+    case "COINBASE":
+      return "gdax"
+    case "KRAKEN":
+      return "kraken"
+    case "OKX":
+      return "okex"
+    default:
+      return exchange
+  }
+}

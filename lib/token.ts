@@ -100,12 +100,6 @@ export function getCanonicalExchange(mint: `0x${string}`) {
   )
 }
 
-export const remapToken = (mint: `0x${string}`) => {
-  const token = resolveAddress(mint)
-  const remapped = token.getExchangeTicker("binance") || token.ticker
-  return remapped.toLowerCase()
-}
-
 // Arbitrum One tokens
 export const ADDITIONAL_TOKENS = {
   "USDC.e": Token.create(

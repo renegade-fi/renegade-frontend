@@ -29,10 +29,7 @@ function queryFn(options: {
   const info = getPriceChartInfo(options.mint)
   const exchange = info.exchange.toString()
 
-  const amberdataExchange =
-    exchangeToAmberdataExchange[
-      exchange as keyof typeof exchangeToAmberdataExchange
-    ]
+  const amberdataExchange = exchangeToAmberdataExchange(exchange)
 
   return fetchBars({
     instrument: info.instrument,
