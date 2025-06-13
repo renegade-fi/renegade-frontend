@@ -33,22 +33,23 @@ const PriceChartMemo = React.memo(PriceChart)
 
 export function PageClient({ base }: { base: string }) {
   const { base: baseMint, quote: quoteMint } = useResolvePair(base)
-  const data = useOrderTableData()
-  const {
-    panels,
-    setPanels,
-    baseMint: cachedBaseMint,
-    setBase,
-    setQuote,
-  } = useServerStore((state) => state)
-  const debouncedSetPanels = useDebounceCallback(setPanels, 500)
 
+  // Cache the base and quote mint in the server store
+  const cachedBaseMint = useServerStore((s) => s.baseMint)
+  const setBase = useServerStore((s) => s.setBase)
+  const setQuote = useServerStore((s) => s.setQuote)
   React.useEffect(() => {
     if (cachedBaseMint !== baseMint) {
       setBase(baseMint)
       setQuote(quoteMint)
     }
   }, [baseMint, cachedBaseMint, quoteMint, setBase, setQuote])
+
+  const panels = useServerStore((s) => s.panels)
+  const setPanels = useServerStore((s) => s.setPanels)
+  const debouncedSetPanels = useDebounceCallback(setPanels, 500)
+
+  const data = useOrderTableData()
 
   return (
     <>

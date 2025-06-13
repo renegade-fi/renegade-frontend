@@ -10,7 +10,8 @@ export function generateFillIdentifier(
 }
 
 export function useViewedFills() {
-  const { viewedFills, setViewedFills } = useClientStore((state) => state)
+  const viewedFills = useClientStore((s) => s.viewedFills)
+  const setViewedFills = useClientStore((s) => s.setViewedFills)
 
   const markFillAsViewed = (fillId: FillIdentifier) => {
     if (!viewedFills.includes(fillId)) {

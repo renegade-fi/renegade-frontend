@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 
 import { ChainId } from "@renegade-fi/react/constants"
+import { useShallow } from "zustand/react/shallow"
 
 import { getConfigFromChainId } from "../renegade-provider/config"
 import { useWasm } from "../renegade-provider/wasm-provider"
@@ -16,13 +17,15 @@ export function useCurrentChain(): ChainId {
   return useServerStore((s) => s.chainId)
 }
 
+/** Stable reference to an empty wallet. */
+const EMPTY_WALLET = createEmptyWallet()
+
 /**
  * Returns the wallet entry (seed & id) for the active chain.
  */
-const EMPTY_WALLET = createEmptyWallet()
 export function useCurrentWallet(): CachedWallet {
   const chain = useCurrentChain()
-  return useServerStore((s) => s.wallet.get(chain) ?? EMPTY_WALLET)
+  return useServerStore(useShallow((s) => s.wallet.get(chain) ?? EMPTY_WALLET))
 }
 
 /**

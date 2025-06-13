@@ -141,7 +141,8 @@ function TokenList({
     },
   })
 
-  const { favorites, setFavorites } = useClientStore((state) => state)
+  const favorites = useClientStore((s) => s.favorites)
+  const setFavorites = useClientStore((s) => s.setFavorites)
 
   const chainId = useCurrentChain()
   const processedTokens = React.useMemo(() => {

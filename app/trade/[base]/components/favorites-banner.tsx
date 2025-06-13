@@ -10,7 +10,7 @@ import { resolveAddress } from "@/lib/token"
 import { useClientStore } from "@/providers/state-provider/client-store-provider"
 
 export function FavoritesBanner() {
-  const { favorites } = useClientStore((state) => state)
+  const favorites = useClientStore((s) => s.favorites)
   if (!favorites || !favorites.length) return null
   return (
     <div className="hidden min-h-marquee overflow-hidden lg:block">

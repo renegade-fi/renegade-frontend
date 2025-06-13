@@ -100,7 +100,7 @@ export function DefaultForm({
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
   const queryClient = useQueryClient()
-  const { setSide } = useServerStore((state) => state)
+  const setSide = useServerStore((s) => s.setSide)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
   const isDeposit = direction === ExternalTransferDirection.Deposit
