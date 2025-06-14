@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
 export interface NewOrderConfirmationProps extends NewOrderFormProps {
   onSuccess?: () => void
+  predictedSavingsBps: number
   predictedSavings: number
   relayerFee: number
   protocolFee: number

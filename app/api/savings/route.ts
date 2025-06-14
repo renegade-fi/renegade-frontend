@@ -53,7 +53,6 @@ export async function POST(request: Request) {
       amberdataExchange,
     )
 
-    // TODO: Per-exchange fee rates
     const feeRate = getExchangeFeeRate(exchange)
     const orderbook = new Orderbook(
       orderbookRes.bids,
@@ -78,7 +77,14 @@ export async function POST(request: Request) {
       renegadeFeeRate,
     )
 
-    return Response.json({ savings })
+    // Calculate total trade value in quote currency
+    const totalTradeValue = normalizedAmount * midpointPrice
+
+    // Calculate savings in basis points (bps)
+    const savingsBps =
+      totalTradeValue > 0 ? (savings / totalTradeValue) * 10000 : 0
+
+    return Response.json({ savings, savingsBps })
   } catch (error) {
     return new Response(JSON.stringify({ error }), { status: 500 })
   }

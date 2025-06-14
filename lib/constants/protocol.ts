@@ -13,6 +13,8 @@ export const DEFAULT_MINT = "0x0000000000000000000000000000000000000000"
 export const PROTOCOL_FEE = 0.0002
 // Renegade relayer fee
 export const RELAYER_FEE = 0.0002
+// Total Renegade fee in basis points
+export const TOTAL_RENEGADE_FEE_BPS = (PROTOCOL_FEE + RELAYER_FEE) * 10000
 // Minimum deposit amount (in USD)
 export const MIN_DEPOSIT_AMOUNT = 1
 

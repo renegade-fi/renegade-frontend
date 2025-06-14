@@ -330,10 +330,24 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
       )
     },
     cell: function Cell({ row }) {
-      const totalSavings = useSavingsAcrossFillsQuery(row.original)
-      const formatted =
-        Math.max(0, totalSavings) >= 0 ? formatCurrency(totalSavings) : "--"
-      return <div className="pr-4 text-right">{formatted}</div>
+      const { savings, savingsBps } = useSavingsAcrossFillsQuery(row.original)
+      const formatted = savings > 0 ? formatCurrency(savings) : "--"
+      return (
+        <div className="pr-4 text-right">
+          {savings > 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>{formatted}</div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {savingsBps ? `${Math.round(savingsBps)} bps` : "0 bps"}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            formatted
+          )}
+        </div>
+      )
     },
   },
   {
