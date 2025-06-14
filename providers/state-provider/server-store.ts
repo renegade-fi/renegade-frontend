@@ -65,7 +65,7 @@ export const defaultInitState: ServerState = {
   baseMint: WETH.address,
   quoteMint: USDC.address,
   allowExternalMatches: true,
-  panels: { layout: [22, 78] },
+  panels: { layout: [26, 74] },
 }
 
 export const createServerStore = (
