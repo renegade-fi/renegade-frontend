@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { CheckIcon } from "@radix-ui/react-icons"
 import { ChainId } from "@renegade-fi/react/constants"
@@ -48,6 +48,7 @@ export function ChainSelector() {
   const { switchChain } = useSwitchChain()
   const baseMint = useServerStore((s) => s.baseMint)
   const router = useRouter()
+  const pathname = usePathname()
 
   /**
    * Handles chain selection with dual strategy:
@@ -58,10 +59,10 @@ export function ChainSelector() {
   const handleChainSelect = (chainValue: string) => {
     const chainId = Number.parseInt(chainValue) as ChainId
     const isMultiChain = isAddressMultiChain(baseMint)
+    const isTradePage = pathname.startsWith("/trade")
 
-    if (!isMultiChain) {
-      // Navigate to WETH (universal fallback) with chain parameter
-      // Page will read 'c' param and set chain state after URL-based token state
+    if (!isMultiChain && isTradePage) {
+      // Navigate to WETH (universal fallback) with chain parameter if on trade page
       router.push(`/trade/WETH?c=${chainId}`)
     } else {
       // Safe to switch directly - token exists on target chain
@@ -103,16 +104,26 @@ export function ChainSelector() {
           />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="min-w-fit p-0">
+      <PopoverContent
+        align="end"
+        className="min-w-48 p-0"
+      >
         <Command>
           <CommandList>
             <CommandGroup>
               {values.map((chain) => (
                 <CommandItem
                   key={chain.value}
+                  className="flex items-center gap-2"
                   value={chain.value.toString()}
                   onSelect={handleChainSelect}
                 >
+                  <Image
+                    alt={chain.label}
+                    height={16}
+                    src={chain.icon}
+                    width={16}
+                  />
                   <span className="flex-1">{chain.label}</span>
                   <CheckIcon
                     className={cn(

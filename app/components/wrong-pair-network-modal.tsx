@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { useSwitchChain } from "wagmi"
 
 import { Button } from "@/components/ui/button"
@@ -40,9 +40,12 @@ export function WrongPairNetworkModal() {
     switchChain({ chainId: tokenChainId })
   }
 
-  // If the active pair's chain and the renegade wallet chain are not equal, we need to switch
+  // We need to switch if
+  // - we are on the trade page
+  // - the active pair's chain and the renegade wallet chain are not equal
   const needsSwitch = useNeedsSwitch(baseMint)
-  const open = needsSwitch
+  const isTradePage = usePathname().startsWith("/trade")
+  const open = needsSwitch && isTradePage
   return (
     <Dialog
       modal // Prevents the dialog from being closed by clicking outside
@@ -68,7 +71,7 @@ export function WrongPairNetworkModal() {
             size="xl"
             variant="outline"
           >
-            <Link href={`/trade/WETH`}>Back to {currentChainName}</Link>
+            <Link href={`/trade/WETH`}>Stay on {currentChainName}</Link>
           </Button>
           <Button
             className="flex-1 items-center justify-center whitespace-normal text-pretty border-0 border-l border-t font-extended text-lg"

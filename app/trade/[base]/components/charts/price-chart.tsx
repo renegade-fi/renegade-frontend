@@ -4,9 +4,11 @@ import { ChartingLibraryWidgetOptions } from "@renegade-fi/tradingview-charts"
 
 import TradingViewChart from "@/app/trade/[base]/components/charts/tradingview"
 
-export function PriceChart({ base }: { base: `0x${string}` }) {
+import { resolveTicker } from "@/lib/token"
+
+export function PriceChart({ baseTicker }: { baseTicker: string }) {
   const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
-    symbol: base,
+    symbol: resolveTicker(baseTicker).address,
   }
   return (
     <>
