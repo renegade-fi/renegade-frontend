@@ -3,16 +3,19 @@
 import React from "react"
 
 import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
+import { isSupportedChainId } from "@renegade-fi/react"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { useIsMutating } from "@tanstack/react-query"
 import { ConnectKitProvider } from "connectkit"
 import { verifyMessage } from "viem"
-import { WagmiProvider as Provider, State, useAccount } from "wagmi"
+import { WagmiProvider as Provider, State, useAccount, useChainId } from "wagmi"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
 import { sidebarEvents } from "@/lib/events"
 import { QueryProvider } from "@/providers/query-provider"
 
+import { useCurrentChain } from "../state-provider/hooks"
 import { useServerStore } from "../state-provider/server-store-provider"
 import { getConfig } from "./config"
 import { connectKitTheme } from "./theme"
@@ -74,6 +77,20 @@ function SyncRenegadeWagmiState() {
   const resetAllWallets = useServerStore((state) => state.resetAllWallets)
   const wallets = useServerStore((state) => state.wallet)
   const account = useAccount()
+
+  const currentChainId = useCurrentChain()
+  const wagmiChainId = useChainId()
+  const setChainId = useServerStore((state) => state.setChainId)
+  const isMutatingChain = !!useIsMutating({ mutationKey: ["switchChain"] })
+  // Set current chain to wagmi chain if
+  // - wagmi chain is a supported chain
+  // - wagmi chain is not currently mutating
+  React.useEffect(() => {
+    if (isMutatingChain) return
+    if (wagmiChainId === currentChainId) return
+    if (!isSupportedChainId(wagmiChainId)) return
+    setChainId(wagmiChainId)
+  }, [currentChainId, isMutatingChain, setChainId, wagmiChainId])
 
   React.useEffect(() => {
     async function verifyWallets() {

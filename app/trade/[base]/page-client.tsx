@@ -11,6 +11,7 @@ import { useSwitchChain } from "wagmi"
 import { DepositBanner } from "@/app/components/deposit-banner"
 import { MaintenanceBanner } from "@/app/components/maintenance-banner"
 import { MobileBottomBar } from "@/app/components/mobile-bottom-bar"
+import { WrongPairNetworkModal } from "@/app/components/wrong-pair-network-modal"
 import { columns } from "@/app/orders/columns"
 import { DataTable } from "@/app/orders/data-table"
 import { BBOMarquee } from "@/app/trade/[base]/components/bbo-marquee"
@@ -71,6 +72,7 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
 
   return (
     <>
+      <WrongPairNetworkModal base={base} />
       <MaintenanceBanner />
       <DepositBanner />
       <BBOMarquee base={baseMint} />

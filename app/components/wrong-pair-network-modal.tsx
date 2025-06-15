@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 
 import { useSwitchChain } from "wagmi"
 
@@ -16,17 +15,16 @@ import {
 } from "@/components/ui/dialog"
 
 import { useChainName } from "@/hooks/use-chain-name"
-import { useNeedsSwitch } from "@/hooks/use-needs-switch"
-import { resolveAddress } from "@/lib/token"
+import { isTickerMultiChain, resolveTicker } from "@/lib/token"
 import { extractSupportedChain } from "@/lib/viem"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
-export function WrongPairNetworkModal() {
+export function WrongPairNetworkModal({ base }: { base: string }) {
   const currentChainName = useChainName(true /** short */)
-
-  // Find the chain the token is on
-  const baseMint = useServerStore((s) => s.baseMint)
-  const token = resolveAddress(baseMint)
+  const currentChain = useCurrentChain()
+  const isMultiChain = isTickerMultiChain(base)
+  const token = resolveTicker(base)
   const tokenChainId = token.chain
   if (!tokenChainId) throw new Error("unreachable") // Each token should have a chain
   const chain = extractSupportedChain(tokenChainId)
@@ -43,9 +41,7 @@ export function WrongPairNetworkModal() {
   // We need to switch if
   // - we are on the trade page
   // - the active pair's chain and the renegade wallet chain are not equal
-  const needsSwitch = useNeedsSwitch(baseMint)
-  const isTradePage = usePathname().startsWith("/trade")
-  const open = needsSwitch && isTradePage
+  const open = !isMultiChain && currentChain !== tokenChainId
   return (
     <Dialog
       modal // Prevents the dialog from being closed by clicking outside
