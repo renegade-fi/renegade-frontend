@@ -91,7 +91,7 @@ export function RecentFillsMenuItem() {
                               </div>
                               <Badge
                                 className={cn(
-                                  "pointer-events-none min-w-[50px] text-center",
+                                  "pointer-events-none min-w-[50px] justify-center",
                                   {
                                     "bg-[#1E2F2D] text-[#4DBE95]": isBuy,
                                     "bg-[#331E26] text-[#D84F68]": !isBuy,

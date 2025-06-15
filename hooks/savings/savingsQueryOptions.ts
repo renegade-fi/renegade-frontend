@@ -1,5 +1,10 @@
 import type { QueryKey, UseQueryOptions } from "@tanstack/react-query"
 
+export type SavingsData = {
+  savings: number
+  savingsBps: number
+}
+
 export type SavingsQueryVariables = {
   amount: string // value the backend expects (string / decimal)
   baseMint: `0x${string}`
@@ -9,13 +14,13 @@ export type SavingsQueryVariables = {
   renegadeFeeRate: number
 }
 
-/** Favtory function returning query options for the savings query */
+/** Factory function returning query options for the savings query */
 export function savingsQueryOptions(
   vars: SavingsQueryVariables,
-): UseQueryOptions<number, Error, number, QueryKey> {
+): UseQueryOptions<SavingsData, Error, SavingsData, QueryKey> {
   const queryKey: QueryKey = ["savings", vars]
 
-  const queryFn = async (): Promise<number> => {
+  const queryFn = async (): Promise<SavingsData> => {
     const res = await fetch("/api/savings", {
       method: "POST",
       body: JSON.stringify(vars),
@@ -23,8 +28,8 @@ export function savingsQueryOptions(
 
     if (!res.ok) throw new Error(res.statusText)
 
-    const json = (await res.json()) as { savings: number }
-    return json.savings
+    const json = (await res.json()) as SavingsData
+    return { savings: json.savings, savingsBps: json.savingsBps }
   }
 
   return {

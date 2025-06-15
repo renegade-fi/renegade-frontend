@@ -2,7 +2,10 @@ import { OrderMetadata } from "@renegade-fi/react"
 import { useQueries } from "@tanstack/react-query"
 import { formatUnits } from "viem/utils"
 
-import { savingsQueryOptions } from "@/hooks/savings/savingsQueryOptions"
+import {
+  savingsQueryOptions,
+  type SavingsData,
+} from "@/hooks/savings/savingsQueryOptions"
 import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol"
 import { resolveAddress } from "@/lib/token"
 
@@ -29,7 +32,13 @@ export function useSavingsAcrossFillsQuery(order: OrderMetadata) {
   return useQueries({
     queries,
     combine: (results) => {
-      return results.reduce((acc, cur) => acc + (cur.data ?? 0), 0)
+      return results.reduce(
+        (acc, cur) => ({
+          savings: acc.savings + (cur.data?.savings ?? 0),
+          savingsBps: acc.savingsBps + (cur.data?.savingsBps ?? 0),
+        }),
+        { savings: 0, savingsBps: 0 } as SavingsData,
+      )
     },
   })
 }
