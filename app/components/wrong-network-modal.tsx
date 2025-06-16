@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/dialog"
 
 import { useIsSupportedChain } from "@/hooks/use-is-supported-chain"
-import { useCurrentChain } from "@/providers/state-provider/hooks"
+import {
+  useCurrentChain,
+  useIsWalletConnected,
+} from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function WrongNetworkModal() {
@@ -88,14 +91,20 @@ export function WrongNetworkModal() {
   const currentChainId = useCurrentChain()
   const isWrongNetwork = chain?.id !== currentChainId
   const isSupportedChain = useIsSupportedChain(chain?.id)
+  const isSignedIn = useIsWalletConnected()
   /** Open the modal if:
+   * - We are signed in
    * - We are on the wrong network
    * - We are not on mainnet
    * - We are not switching chains
    * - We are not on a supported chain (auto switch to supported chain)
    */
   const open =
-    isWrongNetwork && !isMainnet && !isMutatingChain && !isSupportedChain
+    isWrongNetwork &&
+    !isMainnet &&
+    !isMutatingChain &&
+    !isSupportedChain &&
+    isSignedIn
   return (
     <Dialog
       modal // Prevents the dialog from being closed by clicking outside
