@@ -43,7 +43,7 @@ export function WrongNetworkModal() {
           Switch or disconnect to continue.
         </DialogDescription>
       </DialogHeader>
-      <div className="flex flex-col gap-4 px-6 pb-6">
+      <div className="flex flex-col gap-4 px-6">
         {supportedChains.map((chain) => {
           return (
             <div
