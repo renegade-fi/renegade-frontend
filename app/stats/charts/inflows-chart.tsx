@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useMemo } from "react"
 
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
@@ -26,6 +27,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
+
+import { extractSupportedChain, getFormattedChainName } from "@/lib/viem"
 
 type ChartData = {
   timestamp: string
@@ -110,15 +113,15 @@ export function InflowsChart({ chainId }: { chainId: number }) {
 
     const netFlow = last24HoursData.reduce((sum, item) => {
       if (chainId === arbitrum.id) {
-        return sum + item.arbitrumDeposits - item.arbitrumWithdrawals
+        return sum + item.arbitrumDeposits + item.arbitrumWithdrawals
       } else if (chainId === base.id) {
-        return sum + item.baseDeposits - item.baseWithdrawals
+        return sum + item.baseDeposits + item.baseWithdrawals
       }
       return (
         sum +
         item.arbitrumDeposits +
-        item.baseDeposits -
-        item.arbitrumWithdrawals -
+        item.baseDeposits +
+        item.arbitrumWithdrawals +
         item.baseWithdrawals
       )
     }, 0)
@@ -127,6 +130,12 @@ export function InflowsChart({ chainId }: { chainId: number }) {
   }, [chainId, chartData])
 
   const isSuccess = netFlowData !== null
+
+  const chainSuffix = useMemo(() => {
+    if (!chainId) return ""
+    const chain = extractSupportedChain(chainId)
+    return ` on ${getFormattedChainName(chain.id)}`
+  }, [chainId])
 
   const showOnlyArbitrum = chainId === arbitrum.id
   const showOnlyBase = chainId === base.id
@@ -142,7 +151,7 @@ export function InflowsChart({ chainId }: { chainId: number }) {
               <Skeleton className="h-10 w-40" />
             )}
           </CardTitle>
-          <CardDescription>24H Net Flow</CardDescription>
+          <CardDescription>24H Net Flow{chainSuffix}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>

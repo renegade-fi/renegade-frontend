@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useMemo } from "react"
 
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
@@ -24,6 +25,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { formatStat } from "@/lib/format"
+import { extractSupportedChain, getFormattedChainName } from "@/lib/viem"
 
 type ChartData = {
   timestamp: string
@@ -63,22 +65,33 @@ export function VolumeChart({ chainId }: { chainId: number }) {
   const { data: arbitrumVolumeData } = useVolumeData(arbitrum.id)
   const { data: baseVolumeData } = useVolumeData(base.id)
 
-  const { chartData, cumulativeVolume } = React.useMemo(() => {
-    if (!arbitrumVolumeData || !baseVolumeData)
-      return { chartData: [], cumulativeVolume: 0 }
+  const chartData = React.useMemo(() => {
+    if (!arbitrumVolumeData || !baseVolumeData) return []
     const chartData = computeChartData(arbitrumVolumeData, baseVolumeData)
-    const cumArbVol = chartData[chartData.length - 2]?.arbitrumVolume
-    const cumBaseVol = chartData[chartData.length - 2]?.baseVolume
-    const cumulativeVolume = cumArbVol + cumBaseVol
     const filteredChartData = chartData.filter((data) => {
       if (chainId === arbitrum.id) return data.arbitrumVolume > 0
       if (chainId === base.id) return data.baseVolume > 0
       return true
     })
-    return { chartData: filteredChartData, cumulativeVolume }
+    return filteredChartData
   }, [arbitrumVolumeData, baseVolumeData, chainId])
 
-  const cumulativeVolumeLabel = formatStat(cumulativeVolume ?? 0)
+  const cumVol = useMemo(() => {
+    if (!chartData) return 0
+    const cumArbVol = chartData[chartData.length - 2]?.arbitrumVolume
+    const cumBaseVol = chartData[chartData.length - 2]?.baseVolume
+    if (chainId === arbitrum.id) return cumArbVol
+    if (chainId === base.id) return cumBaseVol
+    return cumArbVol + cumBaseVol
+  }, [chainId, chartData])
+
+  const cumVolLabel = formatStat(cumVol)
+
+  const chainSuffix = useMemo(() => {
+    if (!chainId) return ""
+    const chain = extractSupportedChain(chainId)
+    return ` on ${getFormattedChainName(chain.id)}`
+  }, [chainId])
 
   const showOnlyArbitrum = chainId === arbitrum.id
   const showOnlyBase = chainId === base.id
@@ -88,13 +101,9 @@ export function VolumeChart({ chainId }: { chainId: number }) {
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="font-serif text-4xl font-bold tracking-tighter lg:tracking-normal">
-            {cumulativeVolume ? (
-              cumulativeVolumeLabel
-            ) : (
-              <Skeleton className="h-10 w-40" />
-            )}
+            {cumVol ? cumVolLabel : <Skeleton className="h-10 w-40" />}
           </CardTitle>
-          <CardDescription>24H Volume</CardDescription>
+          <CardDescription>24H Volume{chainSuffix}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>

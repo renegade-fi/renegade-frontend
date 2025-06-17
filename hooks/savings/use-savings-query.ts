@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { useDebounceValue } from "usehooks-ts"
 
 import type { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
 
@@ -11,8 +12,10 @@ export function useSavings({
   isSell,
   isQuoteCurrency,
 }: NewOrderFormProps) {
+  const [debouncedAmount] = useDebounceValue(amount, 1000)
+
   const opts = savingsQueryOptions({
-    amount,
+    amount: debouncedAmount,
     baseMint: base,
     direction: isSell ? "sell" : "buy",
     quoteTicker: "USDC",

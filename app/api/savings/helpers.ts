@@ -199,12 +199,13 @@ async function fetchOrderbookSnapshot(
   const startDate = timestamp - 60000
   const endDate = timestamp + 1
 
-  const req = await amberdataRequest({
+  const req = amberdataRequest({
     route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
     startDate,
     endDate,
     exchange,
   })
+  console.log("🚀 ~ req:", req.url)
 
   const res = await fetch(req)
   if (!res.ok) {
@@ -212,6 +213,7 @@ async function fetchOrderbookSnapshot(
   }
   const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json()
   if (orderbookRes.payload.data.length === 0) {
+    console.log("Error response: ", orderbookRes)
     throw new Error("Server returned empty orderbook snapshot")
   }
 
@@ -231,7 +233,7 @@ async function fetchOrderbookUpdates(
   desiredTimestamp: number,
   exchange: string,
 ): Promise<Array<AmberdataOrderbookUpdate>> {
-  const req = await amberdataRequest({
+  const req = amberdataRequest({
     route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
     startDate: snapshotTimestamp,
     endDate: desiredTimestamp,
@@ -250,7 +252,7 @@ async function fetchOrderbookUpdates(
  * @param startDate - The starting timestamp for the search range, in milliseconds (inclusive)
  * @param endDate - The ending timestamp for the search range, in milliseconds (exclusive)
  */
-async function amberdataRequest({
+function amberdataRequest({
   route,
   startDate,
   endDate,
@@ -260,7 +262,7 @@ async function amberdataRequest({
   startDate: number
   endDate: number
   exchange: string
-}): Promise<Request> {
+}): Request {
   const amberdataUrl = new URL(`${AMBERDATA_BASE_URL}/${route}`)
   amberdataUrl.searchParams.set(EXCHANGE_PARAM, exchange)
   amberdataUrl.searchParams.set(TIME_FORMAT_PARAM, TIME_FORMAT)

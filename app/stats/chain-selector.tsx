@@ -58,7 +58,7 @@ export function ChainSelector({
         >
           {chainId
             ? values.find((v) => v.value === chainId)?.label
-            : "All Networks"}
+            : "All Chains"}
           <ChevronDown
             className={cn(
               "ml-2 h-4 w-4 shrink-0 transition-transform duration-200 ease-in-out",

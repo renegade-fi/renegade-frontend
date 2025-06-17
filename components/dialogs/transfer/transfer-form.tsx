@@ -49,9 +49,10 @@ export function TransferForm({
     )
   }
 
-  const mint = form.watch("mint")
-  const token = resolveAddress(mint as `0x${string}`)
-  if (token.ticker === "WETH") {
+  if (
+    form.watch("mint") &&
+    resolveAddress(form.watch("mint") as `0x${string}`).ticker === "WETH"
+  ) {
     return (
       <WETHForm
         className={className}
@@ -63,7 +64,7 @@ export function TransferForm({
     )
   }
   if (direction === ExternalTransferDirection.Deposit && !isBase) {
-    if (token.ticker === "USDC") {
+    if (resolveAddress(form.watch("mint") as `0x${string}`).ticker === "USDC") {
       return (
         <USDCForm
           className={className}
