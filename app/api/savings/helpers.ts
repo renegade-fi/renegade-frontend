@@ -19,6 +19,8 @@ const API_KEY_HEADER = "x-api-key"
 /** The search parameter indicating the exchange to make a request for */
 const EXCHANGE_PARAM = "exchange"
 
+/** The search parameter indicating the sort order for the Amberdata API to use */
+const SORT_PARAM = "sortDirection"
 /** The search parameter indicating the timestamp format for the Amberdata API to use */
 const TIME_FORMAT_PARAM = "timeFormat"
 /** The format for timestamps returned from the Amberdata API */
@@ -147,7 +149,7 @@ export async function constructOrderbook(
   timestamp: number,
   exchange: string,
 ): Promise<OrderbookResponseData> {
-  const snapshot = await fetchOrderbookSnapshot(instrument, timestamp, exchange)
+  const snapshot = await fetchOrderbookSnapshot(instrument, exchange)
   const updates = await fetchOrderbookUpdates(
     instrument,
     snapshot.timestamp,
@@ -191,21 +193,14 @@ export async function constructOrderbook(
  */
 async function fetchOrderbookSnapshot(
   instrument: string,
-  timestamp: number,
   exchange: string,
 ): Promise<AmberdataOrderbookSnapshot> {
-  // For the search range, we set [timestamp - 1min, timestamp + 1ms).
-  // This is to ensure that we get the most recent snapshot inclusive of the timestamp
-  const startDate = timestamp - 60000
-  const endDate = timestamp + 1
-
+  // We don't specify a timeframe, most recent snapshot is returned by default
   const req = amberdataRequest({
     route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
-    startDate,
-    endDate,
     exchange,
+    sort: "desc",
   })
-  console.log("🚀 ~ req:", req.url)
 
   const res = await fetch(req)
   if (!res.ok) {
@@ -213,14 +208,11 @@ async function fetchOrderbookSnapshot(
   }
   const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json()
   if (orderbookRes.payload.data.length === 0) {
-    console.log("Error response: ", orderbookRes)
     throw new Error("Server returned empty orderbook snapshot")
   }
 
-  // The Amberdata response contains snapshots in ascending order of timestamp,
-  // i.e. most recent is last
-  const lastIdx = orderbookRes.payload.data.length - 1
-  return orderbookRes.payload.data[lastIdx]
+  // We specify sortDirection=desc, so the most recent snapshot is first
+  return orderbookRes.payload.data[0]
 }
 
 /**
@@ -233,16 +225,23 @@ async function fetchOrderbookUpdates(
   desiredTimestamp: number,
   exchange: string,
 ): Promise<Array<AmberdataOrderbookUpdate>> {
+  // We only request updates on or after the snapshot timestamp
   const req = amberdataRequest({
     route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
-    startDate: snapshotTimestamp,
-    endDate: desiredTimestamp,
     exchange,
+    startDate: snapshotTimestamp,
   })
 
   const res = await fetch(req)
   const updatesRes: AmberdataOrderbookUpdateResponse = await res.json()
-  return updatesRes.payload.data
+
+  // Filter out updates that are outside of the desired timestamp range
+  const filteredUpdates = updatesRes.payload.data.filter(
+    (update) =>
+      update.exchangeTimestamp >= snapshotTimestamp &&
+      update.exchangeTimestamp <= desiredTimestamp,
+  )
+  return filteredUpdates
 }
 
 /**
@@ -250,24 +249,28 @@ async function fetchOrderbookUpdates(
  * setting the search parameters & API key header appropriately.
  *
  * @param startDate - The starting timestamp for the search range, in milliseconds (inclusive)
- * @param endDate - The ending timestamp for the search range, in milliseconds (exclusive)
+ * @param sort - The sort order for the search range, in milliseconds (exclusive)
  */
 function amberdataRequest({
   route,
-  startDate,
-  endDate,
   exchange,
+  startDate,
+  sort = "asc",
 }: {
   route: string
-  startDate: number
-  endDate: number
   exchange: string
+  startDate?: number
+  sort?: "asc" | "desc"
 }): Request {
   const amberdataUrl = new URL(`${AMBERDATA_BASE_URL}/${route}`)
   amberdataUrl.searchParams.set(EXCHANGE_PARAM, exchange)
   amberdataUrl.searchParams.set(TIME_FORMAT_PARAM, TIME_FORMAT)
-  amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString())
-  amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString())
+  if (startDate) {
+    amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString())
+  }
+  if (sort) {
+    amberdataUrl.searchParams.set(SORT_PARAM, sort)
+  }
 
   let amberdataReq = new Request(amberdataUrl)
   amberdataReq.headers.set(API_KEY_HEADER, env.AMBERDATA_API_KEY)

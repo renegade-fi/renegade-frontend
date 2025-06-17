@@ -86,7 +86,6 @@ export async function POST(request: Request) {
 
     return Response.json({ savings, savingsBps })
   } catch (error) {
-    console.error("🚀 ~ POST ~ error:", error)
     return new Response(JSON.stringify({ error }), { status: 500 })
   }
 }

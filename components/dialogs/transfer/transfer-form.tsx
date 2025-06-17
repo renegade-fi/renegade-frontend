@@ -64,7 +64,10 @@ export function TransferForm({
     )
   }
   if (direction === ExternalTransferDirection.Deposit && !isBase) {
-    if (resolveAddress(form.watch("mint") as `0x${string}`).ticker === "USDC") {
+    if (
+      form.watch("mint") &&
+      resolveAddress(form.watch("mint") as `0x${string}`).ticker === "USDC"
+    ) {
       return (
         <USDCForm
           className={className}
