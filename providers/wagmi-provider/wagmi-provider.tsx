@@ -35,6 +35,7 @@ interface WagmiProviderProps {
 export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
   const [config] = React.useState(() => getConfig())
   const [open, setOpen] = React.useState(false)
+  const currentChainId = useCurrentChain()
 
   return (
     <Provider
@@ -48,6 +49,7 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
           options={{
             hideQuestionMarkCTA: true,
             hideTooltips: true,
+            initialChainId: currentChainId,
           }}
           theme="midnight"
           onConnect={() => {
