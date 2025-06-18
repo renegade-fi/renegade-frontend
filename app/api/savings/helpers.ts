@@ -28,6 +28,8 @@ const START_DATE_PARAM = "startDate"
 /** The search parameter indicating the end date for the Amberdata API to use */
 const END_DATE_PARAM = "endDate"
 
+const ONE_HOUR_MS = 3600000
+
 // ---------
 // | TYPES |
 // ---------
@@ -194,10 +196,12 @@ async function fetchOrderbookSnapshot(
   exchange: string,
 ): Promise<AmberdataOrderbookSnapshot> {
   // This is to ensure that we get the most recent snapshot inclusive of the timestamp
+  const startDate = timestamp - ONE_HOUR_MS
   const endDate = timestamp + 1
   const req = amberdataRequest({
     route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
     exchange,
+    startDate,
     endDate,
   })
 
