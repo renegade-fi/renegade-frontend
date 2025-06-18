@@ -12,6 +12,7 @@ export type SavingsQueryVariables = {
   quoteTicker: "USDC"
   isQuoteCurrency: boolean
   renegadeFeeRate: number
+  timestamp?: number
 }
 
 /** Factory function returning query options for the savings query */

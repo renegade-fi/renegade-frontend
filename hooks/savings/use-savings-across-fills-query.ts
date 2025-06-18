@@ -23,6 +23,7 @@ export function useSavingsAcrossFillsQuery(order: OrderMetadata) {
         quoteTicker: "USDC",
         isQuoteCurrency: false,
         renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,
+        timestamp: Number.parseInt(fill.price.timestamp.toString()),
       }),
       staleTime: Infinity,
       gcTime: Infinity,
