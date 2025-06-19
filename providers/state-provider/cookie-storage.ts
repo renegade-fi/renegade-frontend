@@ -1,6 +1,7 @@
 import { deserialize, serialize } from "wagmi"
 import { PersistStorage, StorageValue } from "zustand/middleware/persist"
 
+import { STORAGE_VERSION } from "@/lib/constants/storage"
 import {
   getCookie,
   removeCookie,
@@ -76,7 +77,19 @@ export function cookieToInitialState(key: string, cookie?: string | null) {
   const parsed = parseCookie(decodeURIComponent(cookie), key)
   if (!parsed) return undefined
   try {
-    return deserialize<{ state: ServerState }>(parsed).state
+    const deserialized = deserialize<{ state: ServerState; version?: number }>(
+      parsed,
+    )
+
+    // Check if this is old format data that needs migration
+    if (!deserialized.version || deserialized.version < STORAGE_VERSION) {
+      console.log(
+        `Cookie contains old format data (version: ${deserialized.version || 0}). Using default state for SSR.`,
+      )
+      return undefined // Let the store use default state, migration will happen during rehydration
+    }
+
+    return deserialized.state
   } catch (err) {
     console.error("Error parsing cookie:", err)
     return undefined

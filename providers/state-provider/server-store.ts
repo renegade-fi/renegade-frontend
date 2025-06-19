@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware"
 import { createStore } from "zustand/vanilla"
 
 import { Side } from "@/lib/constants/protocol"
-import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
+import { STORAGE_SERVER_STORE, STORAGE_VERSION } from "@/lib/constants/storage"
 import { resolveTicker } from "@/lib/token"
 import {
   cookieStorage,
@@ -72,14 +72,6 @@ export const defaultInitState: ServerState = {
 export const createServerStore = (
   initState: ServerState = defaultInitState,
 ) => {
-  // let validatedState: ServerState
-  // const validationResult = validateState(initState)
-  // if (validationResult) {
-  //   validatedState = initState
-  // } else {
-  //   validatedState = defaultInitState
-  // }
-
   return createStore<ServerStore>()(
     persist(
       (set) => ({
@@ -124,13 +116,13 @@ export const createServerStore = (
       }),
       {
         name: STORAGE_SERVER_STORE,
-        version: 2, // Current version with Map-based storage
-        migrate: (persistedState: any, version: number): ServerState => {
+        version: STORAGE_VERSION,
+        migrate: (_: any, version: number): ServerState => {
           console.log(
-            `Storage version mismatch detected. Stored: ${version}, Expected: 2`,
+            `Storage version mismatch detected. Stored: ${version}, Expected: ${STORAGE_VERSION}`,
           )
           console.log("Clearing user data and using default state")
-          return defaultInitState // Nuclear option - always return fresh state
+          return defaultInitState
         },
         skipHydration: true,
         storage: createStorage(cookieStorage),
@@ -152,12 +144,4 @@ export const createServerStore = (
       },
     ),
   )
-}
-
-/**
- * Validates the state against the schema.
- */
-function validateState(state: ServerState): boolean {
-  const validationResult = ServerStateSchema.safeParse(state)
-  return validationResult.success
 }
