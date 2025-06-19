@@ -126,7 +126,7 @@ const StepStatus: React.FC<{
     successText?: string;
 }> = ({
     isPending,
-    isSuccess,
+    isSuccess: _isSuccess,
     isCurrentStep,
     link,
     pendingText = "Confirming",

@@ -6,7 +6,7 @@ import { useWallets } from "@/hooks/use-wallets";
 
 export function TableEmptyState({ colSpan, type }: { colSpan: number; type: string }) {
     const { walletReadyState } = useWallets();
-    const { handleClick, content, open, onOpenChange } = useSignInAndConnect();
+    const { handleClick, content: _content, open, onOpenChange } = useSignInAndConnect();
     let message = `No ${type} found.`;
     if (walletReadyState !== "READY") {
         message = `Sign in to view your ${type}.`;

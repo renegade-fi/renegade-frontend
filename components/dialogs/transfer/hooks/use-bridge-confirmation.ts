@@ -33,7 +33,7 @@ export function useBridgeConfirmation(
     hash?: string,
     onConfirm?: (data: typeof defaultValues) => Promise<void>,
 ) {
-    const { data, status } = useQuery({
+    const { data, status: _status } = useQuery({
         queryKey: ["bridge", "status", hash],
         queryFn: () => getStatus({ txHash: hash ?? "" }),
         enabled: !!hash,

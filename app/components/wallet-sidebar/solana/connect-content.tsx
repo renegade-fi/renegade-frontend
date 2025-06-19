@@ -16,7 +16,7 @@ interface ConnectContentProps {
     className?: string;
 }
 
-export function ConnectContent({ className }: ConnectContentProps) {
+export function ConnectContent({ className: _className }: ConnectContentProps) {
     const wallets = useSolanaWallets();
     const { select } = useWallet();
     const isMobile = useIsMobile();

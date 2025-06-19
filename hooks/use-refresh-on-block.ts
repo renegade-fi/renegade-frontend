@@ -4,7 +4,7 @@ import { useBlockNumber } from "wagmi";
 
 const N = BigInt(50);
 
-export function useRefreshOnBlock({ queryKey }: { queryKey: QueryKey }) {
+export function useRefreshOnBlock({ queryKey: _queryKey }: { queryKey: QueryKey }) {
     const _queryClient = useQueryClient();
     const { data } = useBlockNumber({ watch: true });
 

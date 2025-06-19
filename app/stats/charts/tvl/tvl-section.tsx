@@ -12,7 +12,7 @@ import { DataTable } from "./data-table";
 
 export function TvlSection({ chainId }: { chainId: number }) {
     const tvlData = useTvlData(chainId);
-    const { totalTvlUsd, totalBaseTvlUsd, totalArbitrumTvlUsd } = tvlData.reduce(
+    const { totalTvlUsd, totalBaseTvlUsd: _totalBaseTvlUsd, totalArbitrumTvlUsd: _totalArbitrumTvlUsd } = tvlData.reduce(
         (acc, curr) => {
             acc.totalTvlUsd += curr.totalTvlUsd;
             acc.totalBaseTvlUsd += curr.baseTvlUsd;
