@@ -1,16 +1,14 @@
-import React from "react"
-
 import Script from "next/script"
 
 import { ChartingLibraryWidgetOptions } from "@renegade-fi/tradingview-charts"
 
 import TradingViewChart from "@/app/trade/[base]/components/charts/tradingview"
 
-import { remapToken } from "@/lib/token"
+import { resolveTicker } from "@/lib/token"
 
-export function PriceChart({ base }: { base: string }) {
+export function PriceChart({ baseTicker }: { baseTicker: string }) {
   const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
-    symbol: `${remapToken(base)}_usdt`,
+    symbol: resolveTicker(baseTicker).address,
   }
   return (
     <>

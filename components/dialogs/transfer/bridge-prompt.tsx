@@ -2,13 +2,13 @@ import { Token } from "@renegade-fi/token-nextjs"
 import { ExternalLink } from "lucide-react"
 
 import { constructArbitrumBridgeUrl } from "@/components/dialogs/transfer/helpers"
-import { Label } from "@/components/ui/label"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useChainName } from "@/hooks/use-chain-name"
 import { TRANSFER_DIALOG_BRIDGE_TOOLTIP } from "@/lib/constants/tooltips"
 import { cn } from "@/lib/utils"
 
@@ -19,6 +19,7 @@ export function BridgePrompt({
   token?: InstanceType<typeof Token>
   formattedL1Balance: string
 }) {
+  const chainName = useChainName(true /* short */)
   if (!token) return null
   return (
     <Tooltip>
@@ -42,7 +43,9 @@ export function BridgePrompt({
           </div>
         </a>
       </TooltipTrigger>
-      <TooltipContent>{TRANSFER_DIALOG_BRIDGE_TOOLTIP}</TooltipContent>
+      <TooltipContent>
+        {TRANSFER_DIALOG_BRIDGE_TOOLTIP(chainName)}
+      </TooltipContent>
     </Tooltip>
   )
 }

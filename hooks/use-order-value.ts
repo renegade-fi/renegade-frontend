@@ -8,6 +8,8 @@ import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-o
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { amountTimesPrice } from "@/hooks/use-usd-price"
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 /**
  * Hook to calculate the order value in both quote and base currency.
@@ -23,9 +25,10 @@ export function useOrderValue({
   base,
   isQuoteCurrency,
 }: NewOrderFormProps) {
-  const baseToken = Token.findByTicker(base)
-  const quoteToken = Token.findByTicker("USDC")
-  const { data: usdPerBase } = usePriceQuery(baseToken.address)
+  const baseToken = resolveAddress(base)
+  const quoteMint = useServerStore((state) => state.quoteMint)
+  const quoteToken = resolveAddress(quoteMint)
+  const { data: usdPerBase } = usePriceQuery(base)
 
   // Calculate the inverse of the USD price per base token
   const basePerUsd = React.useMemo(() => {

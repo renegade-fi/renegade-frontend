@@ -1,12 +1,10 @@
-import {
-  OrderMetadata,
-  useBackOfQueueWallet,
-  useOrderHistory,
-} from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { OrderMetadata } from "@renegade-fi/react"
 import { formatUnits } from "viem/utils"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
+import { useOrderHistory } from "@/hooks/query/use-order-history"
 import { getVWAP, syncOrdersWithWalletState } from "@/lib/order"
+import { resolveAddress } from "@/lib/token"
 
 export interface ExtendedOrderMetadata extends OrderMetadata {
   usdValue: number
@@ -32,7 +30,7 @@ export function useOrderTableData() {
 
   const extendedOrders: ExtendedOrderMetadata[] = (data || []).map((order) => {
     const vwap = getVWAP(order)
-    const token = Token.findByAddress(order.data.base_mint)
+    const token = resolveAddress(order.data.base_mint)
     const usdValue =
       vwap * Number(formatUnits(order.data.amount, token.decimals))
     return {

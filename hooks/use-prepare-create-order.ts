@@ -1,16 +1,16 @@
 "use client"
 
-import {
-  stringifyForWasm,
-  useBackOfQueueWallet,
-  useConfig,
-} from "@renegade-fi/react"
+import { ConfigRequiredError } from "@renegade-fi/react"
 import { MAX_ORDERS } from "@renegade-fi/react/constants"
-import { Token } from "@renegade-fi/token-nextjs"
 import { useQuery } from "@tanstack/react-query"
 import { toHex } from "viem"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
+import { useConfig } from "@/providers/state-provider/hooks"
+
+import { stringifyForWasm } from "./query/utils"
 
 export type UsePrepareCreateOrderParameters = {
   id?: string
@@ -19,7 +19,7 @@ export type UsePrepareCreateOrderParameters = {
   side: "buy" | "sell"
   amount: string
   worstCasePrice: string
-  allowExternalMatches?: boolean
+  allowExternalMatches: boolean
 }
 
 export function usePrepareCreateOrder(
@@ -32,7 +32,7 @@ export function usePrepareCreateOrder(
     side,
     amount,
     worstCasePrice,
-    allowExternalMatches = false,
+    allowExternalMatches,
   } = parameters
   const config = useConfig()
   const { data: wallet, isSuccess } = useBackOfQueueWallet()
@@ -40,16 +40,14 @@ export function usePrepareCreateOrder(
   return useQuery({
     queryKey: ["prepare", "create-order", parameters],
     queryFn: async () => {
+      if (!config) throw new ConfigRequiredError("usePrepareCreateOrder")
       if (!config.state.seed) throw new Error("Seed is required")
       if (!isSuccess) throw new Error("Failed to fetch wallet.")
       if (wallet.orders.filter((order) => order.amount).length >= MAX_ORDERS)
         throw new Error("Max orders reached.")
       if (!worstCasePrice) throw new Error("Worst case price is required")
 
-      const parsedAmount = safeParseUnits(
-        amount,
-        Token.findByAddress(base).decimals,
-      )
+      const parsedAmount = safeParseUnits(amount, resolveAddress(base).decimals)
       if (parsedAmount instanceof Error)
         throw new Error("Failed to parse amount.")
 
@@ -66,6 +64,6 @@ export function usePrepareCreateOrder(
         allowExternalMatches,
       )
     },
-    enabled: isSuccess && Boolean(config.state.seed),
+    enabled: isSuccess && Boolean(config?.state.seed),
   })
 }

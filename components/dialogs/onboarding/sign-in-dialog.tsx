@@ -1,27 +1,14 @@
 import React from "react"
 
-import { useConfig } from "@renegade-fi/react"
-import {
-  createWallet,
-  getWalletFromRelayer,
-  getWalletId,
-  lookupWallet,
-} from "@renegade-fi/react/actions"
+import { isSupportedChainId } from "@renegade-fi/react"
+import { getWalletId } from "@renegade-fi/react/actions"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { MutationStatus, useMutation } from "@tanstack/react-query"
-import { useModal } from "connectkit"
+import { MutationStatus } from "@tanstack/react-query"
 import { Check, Loader2, X } from "lucide-react"
-import { toast } from "sonner"
 import { BaseError } from "viem"
-import {
-  useChainId,
-  useDisconnect,
-  useSignMessage,
-  useSwitchChain,
-} from "wagmi"
+import { useDisconnect, useSignMessage, useSwitchChain } from "wagmi"
 
 import {
-  ConnectSuccess,
   NonDeterministicWalletError,
   Step,
   isNonDeterministicWalletError,
@@ -39,16 +26,14 @@ import {
 import { Label } from "@/components/ui/label"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import {
-  CREATE_WALLET_START,
-  CREATE_WALLET_SUCCESS,
-  LOOKUP_WALLET_START,
-  LOOKUP_WALLET_SUCCESS,
-} from "@/lib/constants/toast"
 import { sidebarEvents } from "@/lib/events"
 import { cn } from "@/lib/utils"
-import { chain } from "@/lib/viem"
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { getConfigFromChainId } from "@/providers/renegade-provider/config"
+import {
+  useCurrentChain,
+  useRememberMe,
+} from "@/providers/state-provider/hooks"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function SignInDialog({
   open,
@@ -57,16 +42,13 @@ export function SignInDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const currentChainId = useChainId()
-  const { switchChainAsync } = useSwitchChain()
+  const currentChainId = useCurrentChain()
   const { disconnectAsync } = useDisconnect()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const config = useConfig()
-  const [connectLabel, setConnectLabel] = React.useState("Connect to relayer")
   const [currentStep, setCurrentStep] = React.useState<number | undefined>(
     undefined,
   )
-  const { setOpen } = useModal()
+  const setWallet = useServerStore((state) => state.setWallet)
 
   const {
     data: signMessage1Data,
@@ -81,7 +63,7 @@ export function SignInDialog({
       },
       onSuccess() {
         signMessage2({
-          message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+          message: `${ROOT_KEY_MESSAGE_PREFIX} ${currentChainId}`,
         })
       },
     },
@@ -100,101 +82,54 @@ export function SignInDialog({
       onSuccess(data) {
         if (!data || !signMessage1Data) throw new Error("Missing signature")
         if (data !== signMessage1Data) throw NonDeterministicWalletError
-        connectWallet({
-          signature: signMessage1Data,
-        })
+
+        if (!isSupportedChainId(currentChainId)) {
+          throw new Error("Unsupported chain")
+        }
+        const config = getConfigFromChainId(currentChainId)
+        config.setState((x) => ({ ...x, seed: data, status: "in relayer" }))
+        const id = getWalletId(config)
+        setWallet(data, id)
+
+        onOpenChange(false)
+        sidebarEvents.emit("open")
       },
     },
   })
 
-  const {
-    mutate: connectWallet,
-    status: connectStatus,
-    reset: resetConnect,
-    error: connectError,
-  } = useMutation({
-    mutationFn: async (variables: { signature: `0x${string}` }) => {
-      const seed = variables.signature
-      config.setState((x) => ({ ...x, seed }))
-      const id = getWalletId(config)
-      config.setState((x) => ({ ...x, id }))
-
-      try {
-        // GET wallet from relayer
-        const wallet = await getWalletFromRelayer(config)
-        // If success, return
-        if (wallet) {
-          config.setState((x) => ({ ...x, status: "in relayer" }))
-          return ConnectSuccess.ALREADY_INDEXED
-        }
-      } catch (error) {}
-
-      // GET # logs
-      const blinderShare = config.utils.derive_blinder_share(seed)
-      const res = await fetch(`/api/get-logs?blinderShare=${blinderShare}`)
-      if (!res.ok) throw new Error("Failed to query chain")
-      const { logs } = await res.json()
-      // Iff logs === 0, create wallet
-      if (logs === 0) {
-        await createWallet(config)
-        setConnectLabel(CREATE_WALLET_START)
-        return ConnectSuccess.CREATE_WALLET
-      } else if (logs > 0) {
-        await lookupWallet(config)
-        setConnectLabel(LOOKUP_WALLET_START)
-        return ConnectSuccess.LOOKUP_WALLET
-      }
-      throw new Error("Failed to create or lookup wallet")
-    },
-    onMutate() {
-      setCurrentStep(2)
-    },
-    onSuccess(data) {
-      let message = ""
-      if (data === ConnectSuccess.CREATE_WALLET) {
-        message = CREATE_WALLET_SUCCESS
-      } else if (data === ConnectSuccess.LOOKUP_WALLET) {
-        message = LOOKUP_WALLET_SUCCESS
-      } else if (data === ConnectSuccess.ALREADY_INDEXED) {
-        message = "Successfully signed in"
-      }
-      toast.success(message)
-      reset()
-      onOpenChange(false)
-      sidebarEvents.emit("open")
-    },
-  })
-
-  const reset = () => {
+  const reset = React.useCallback(() => {
     reset1()
     reset2()
-    resetConnect()
     setCurrentStep(undefined)
-  }
+  }, [reset1, reset2, setCurrentStep])
+
+  React.useEffect(() => {
+    reset()
+    return () => {
+      reset()
+    }
+  }, [reset, open])
+
+  const { switchChain } = useSwitchChain()
 
   const onSubmit = async () => {
-    if (currentChainId !== chain.id) {
-      await switchChainAsync({ chainId: chain.id })
-    }
-    if (steps.some((step) => step.status === "error")) {
-      const error = steps.find((step) => step.status === "error")
-      if (isNonDeterministicWalletError(error?.error)) {
+    if ([signStatus1, signStatus2].some((s) => s === "error")) {
+      const err = signMessage1Error || signMessage2Error
+      if (isNonDeterministicWalletError((err as BaseError)?.message)) {
         reset()
-        await disconnectAsync().then(() => {
-          onOpenChange(false)
-          // setOpen(true)
-        })
+        await disconnectAsync().then(() => onOpenChange(false))
         return
       }
     }
     reset()
+    switchChain({ chainId: currentChainId })
     signMessage1({
-      message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
+      message: `${ROOT_KEY_MESSAGE_PREFIX} ${currentChainId}`,
     })
   }
 
-  const steps = React.useMemo(() => {
-    return [
+  const steps: Step[] = React.useMemo(
+    () => [
       {
         label: "Generate your Renegade wallet",
         status: signStatus1,
@@ -204,24 +139,12 @@ export function SignInDialog({
         label: "Verify wallet compatibility",
         status: signStatus2,
         error:
-          (signMessage2Error as BaseError)?.shortMessage ??
+          (signMessage2Error as BaseError)?.shortMessage ||
           signMessage2Error?.message,
       },
-      {
-        label: connectLabel,
-        status: connectStatus,
-        error: connectError?.message,
-      },
-    ]
-  }, [
-    connectError?.message,
-    connectLabel,
-    connectStatus,
-    signMessage1Error,
-    signMessage2Error,
-    signStatus1,
-    signStatus2,
-  ])
+    ],
+    [signMessage1Error, signMessage2Error, signStatus1, signStatus2],
+  )
 
   const isDisabled = steps.some((step) => step.status === "pending")
 
@@ -329,7 +252,9 @@ function ErrorWarning({ steps }: { steps: Step[] }) {
 }
 
 function RememberMe() {
-  const { rememberMe, setRememberMe } = useClientStore((state) => state)
+  const currentChainId = useCurrentChain()
+  const rememberMe = useRememberMe()
+  const setRememberMe = useServerStore((s) => s.setRememberMe)
 
   return (
     <div className="flex items-center space-x-2">
@@ -338,7 +263,7 @@ function RememberMe() {
         id="remember-me"
         onCheckedChange={(checked) => {
           if (typeof checked === "boolean") {
-            setRememberMe(checked)
+            setRememberMe(currentChainId, checked)
           }
         }}
       />

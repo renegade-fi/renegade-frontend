@@ -1,7 +1,6 @@
 import React from "react"
 
-import { UpdateType, useCreateOrder } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType } from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -16,18 +15,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+import { useCreateOrder } from "@/hooks/mutation/use-create-order"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { constructStartToastMessage } from "@/lib/constants/task"
+import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 export function ConfirmStep(props: NewOrderConfirmationProps) {
-  const [allowExternalMatches, setAllowExternalMatches] = React.useState(false)
   const { onNext, setTaskId } = useStepper()
 
-  const baseToken = Token.findByTicker(props.base)
-  const quoteToken = Token.findByTicker("USDC")
-  const { data: price } = usePriceQuery(baseToken.address)
+  const baseToken = resolveAddress(props.base)
+  const quoteMint = useServerStore((state) => state.quoteMint)
+  const quoteToken = resolveAddress(quoteMint)
+  const { data: price } = usePriceQuery(props.base)
 
   const worstCasePrice = React.useMemo(() => {
     if (!price) return 0
@@ -35,16 +37,19 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
     return decimalCorrectPrice(wcp, baseToken.decimals, quoteToken.decimals)
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
+  const allowExternalMatches = useServerStore(
+    (state) => state.allowExternalMatches,
+  )
   const { data: request } = usePrepareCreateOrder({
-    base: baseToken.address,
-    quote: quoteToken.address,
+    base: props.base,
+    quote: quoteMint,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
     allowExternalMatches,
   })
 
-  const { createOrder } = useCreateOrder({
+  const { mutate: createOrder } = useCreateOrder({
     mutation: {
       onSuccess(data) {
         props.onSuccess?.()
@@ -65,11 +70,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
         <DialogTitle className="font-extended">Review Order</DialogTitle>
       </DialogHeader>
       <div className="flex flex-col gap-6 overflow-y-auto p-6">
-        <ConfirmOrderDisplay
-          {...props}
-          allowExternalMatches={allowExternalMatches}
-          setAllowExternalMatches={setAllowExternalMatches}
-        />
+        <ConfirmOrderDisplay {...props} />
       </div>
       <DialogFooter className="mt-auto flex-row p-6 pt-0">
         <DialogClose asChild>
@@ -93,7 +94,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
             createOrder({ request })
           }}
         >
-          {props.isSell ? "Sell" : "Buy"} {props.base}
+          {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
         </Button>
       </DialogFooter>
     </>

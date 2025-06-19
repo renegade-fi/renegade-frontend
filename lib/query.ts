@@ -1,6 +1,7 @@
 import { Exchange } from "@renegade-fi/react"
-import { getDefaultQuoteToken } from "@renegade-fi/token-nextjs"
 import { Query, QueryClient } from "@tanstack/react-query"
+
+import { getDefaultQuote } from "./token"
 
 // Helper function defining a global rule for invalidating queries
 // We invalidate queries that are:
@@ -29,25 +30,58 @@ export function shouldInvalidate(query: Query, queryClient: QueryClient) {
   return effectiveStaleTime !== Number.POSITIVE_INFINITY
 }
 
-export function createPriceTopic(
-  exchange: Exchange = "binance",
-  baseMint: `0x${string}`,
-): string {
-  return `${exchange}-${baseMint}-${getDefaultQuoteToken(exchange).address}`
+export function createPriceTopic({
+  exchange,
+  base,
+  quote: _quote,
+}: {
+  exchange?: Exchange
+  base: `0x${string}`
+  quote?: `0x${string}`
+}): string {
+  const quote = _quote ?? getDefaultQuote(base, exchange ?? "renegade").address
+  return `${exchange}-${base}-${quote}`
 }
 
-export function createPriceQueryKey(
-  exchange: Exchange = "binance",
-  baseMint: `0x${string}`,
-): string[] {
-  return ["price", exchange, baseMint, getDefaultQuoteToken(exchange).address]
+export function createCanonicalPriceTopic(mint: `0x${string}`): string {
+  return `renegade-${mint}`
 }
 
+/** Create a query key for a live price query. */
+export function createPriceQueryKey({
+  exchange,
+  base,
+  quote: _quote,
+}: {
+  exchange?: Exchange
+  base: `0x${string}`
+  quote?: `0x${string}`
+}): string[] {
+  if (!exchange || exchange === "renegade") {
+    return ["price", "live", "renegade", base]
+  }
+  const quote = _quote ?? getDefaultQuote(base, exchange).address
+  return ["price", "live", exchange, base, quote]
+}
+
+export function createSnapshotPriceQueryKey({
+  exchange,
+  baseMint,
+  quote: _quote,
+}: {
+  baseMint: `0x${string}`
+  exchange: Exchange
+  quote?: `0x${string}`
+}): string[] {
+  const quote = _quote ?? getDefaultQuote(baseMint, exchange).address
+  return ["price", "snapshot", exchange, baseMint, quote]
+}
+
+/** Converts a price topic from the Price Reporter into a live price query key. */
 export function topicToQueryKey(topic: string): string[] {
-  return ["price", ...topic.split("-")]
-}
-
-export function queryKeyToTopic(queryKey: string[]): string {
-  const [, ...rest] = queryKey
-  return rest.join("-")
+  const [exchange, base, quote] = topic.split("-")
+  if (exchange === "renegade") {
+    return ["price", "live", "renegade", base]
+  }
+  return ["price", "live", exchange, base, quote]
 }

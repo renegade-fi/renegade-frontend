@@ -7,29 +7,33 @@ import type {
 
 import { env } from "@/env/client"
 
-type UseHistoricalVolumeResult = UseQueryResult<VolumeDataPoint[], Error> & {
-  queryKey: readonly ["stats", "historical-volume"]
+export type VolumeData = Map<number, VolumeDataPoint>
+
+type UseHistoricalVolumeResult = UseQueryResult<VolumeData, Error> & {
+  queryKey: readonly ["stats", "historical-volume", number]
 }
 
 /**
  * Hook to fetch all historical volume data.
  */
-export function useVolumeData(): UseHistoricalVolumeResult {
-  const queryKey = ["stats", "historical-volume"] as const
+export function useVolumeData(chainId: number): UseHistoricalVolumeResult {
+  const queryKey = ["stats", "historical-volume", chainId] as const
 
   return {
-    ...useQuery<VolumeDataPoint[], Error>({
+    ...useQuery<VolumeData, Error>({
       queryKey,
-      queryFn: getHistoricalVolume,
+      queryFn: () => getHistoricalVolume(chainId),
       staleTime: Infinity,
-      enabled: env.NEXT_PUBLIC_VERCEL_ENV === "production",
+      enabled: env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet",
     }),
     queryKey,
   }
 }
 
-export async function getHistoricalVolume(): Promise<VolumeDataPoint[]> {
-  const res = await fetch("/api/stats/historical-volume-kv")
+export async function getHistoricalVolume(
+  chainId: number,
+): Promise<VolumeData> {
+  const res = await fetch(`/api/stats/historical-volume-kv?chainId=${chainId}`)
 
   if (!res.ok) {
     throw new Error(`Failed to fetch historical volume data: ${res.statusText}`)
@@ -38,5 +42,14 @@ export async function getHistoricalVolume(): Promise<VolumeDataPoint[]> {
   const data: HistoricalVolumeResponse = await res.json()
 
   // Filter data for entries after 1725321600
-  return data.data.filter((point) => point.timestamp >= 1725321600)
+  const filteredData = data.data.filter(
+    (point) => point.timestamp >= 1725321600,
+  )
+
+  const volumeData = new Map<number, VolumeDataPoint>()
+  for (const point of filteredData) {
+    volumeData.set(point.timestamp, point)
+  }
+
+  return volumeData
 }

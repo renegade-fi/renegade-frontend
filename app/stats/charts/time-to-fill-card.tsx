@@ -10,6 +10,7 @@ import { Slider } from "@/components/animated-slider"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { useOrderValue } from "@/hooks/use-order-value"
+import { resolveTicker } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 interface TimeDisplayValues {
@@ -18,23 +19,28 @@ interface TimeDisplayValues {
   suffix: string
 }
 
-export function TimeToFillCard() {
+export function TimeToFillCard({ chainId }: { chainId: number }) {
   const [selectedAmount, setSelectedAmount] = React.useState<number>(10000)
-  const [selectedTicker, setSelectedToken] = React.useState("WETH")
+  const [selectedToken, setSelectedToken] = React.useState("WETH")
   const [isSell, setIsSell] = React.useState(true)
 
   const { valueInQuoteCurrency, valueInBaseCurrency } = useOrderValue({
     amount: selectedAmount.toString(),
-    base: selectedTicker,
+    base: resolveTicker(selectedToken).address,
     isQuoteCurrency: true,
     isSell,
   })
 
-  const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 500)
+  const [debouncedUsdValue] = useDebounceValue(valueInQuoteCurrency, 1000)
 
-  const { data: timeToFillMs, isLoading } = useTimeToFill({
+  const tokenChainId = useMemo(() => {
+    return resolveTicker(selectedToken).chain ?? 0 // We should always find a chain
+  }, [selectedToken])
+
+  const { data: timeToFillMs } = useTimeToFill({
     amount: debouncedUsdValue,
-    baseTicker: selectedTicker,
+    mint: resolveTicker(selectedToken).address,
+    chainId: tokenChainId,
   })
 
   const lastValidValue = useRef<TimeDisplayValues>({
@@ -119,7 +125,8 @@ export function TimeToFillCard() {
               <Skeleton className="h-8 w-32" />
             )}
             <TokenSelect
-              value={selectedTicker}
+              chainId={chainId}
+              value={selectedToken}
               onChange={setSelectedToken}
             />
             {displayValues.value ? (

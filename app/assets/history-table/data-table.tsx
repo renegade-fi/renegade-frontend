@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { DISPLAY_TOKENS } from "@/lib/token"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -46,11 +47,6 @@ const taskStates: { value: string; label: string }[] = [
   { value: "Completed", label: "Completed" },
   { value: "Failed", label: "Failed" },
 ]
-
-const tokens = DISPLAY_TOKENS().map((token) => ({
-  value: token.address,
-  label: token.ticker,
-}))
 
 const types = [
   { value: "Deposit", label: "Deposit" },
@@ -118,6 +114,12 @@ export function DataTable<TData, TValue>({
     table.getColumn("isWithdrawal")?.setFilterValue(isWithdrawal)
   }, [isWithdrawal, table])
 
+  const chainId = useCurrentChain()
+  const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
+    value: token.address,
+    label: token.ticker,
+  }))
+
   return (
     <>
       <div className="flex flex-wrap items-center gap-2 lg:gap-4">
@@ -156,7 +158,7 @@ export function DataTable<TData, TValue>({
         ) : null}
         <div className="sm:ml-auto">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Toggle
                 aria-label="Toggle decimal display"
                 className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"

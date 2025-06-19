@@ -5,15 +5,23 @@ import { ExternalTransferLogsResponse } from "@/app/api/stats/external-transfer-
 
 import { env } from "@/env/client"
 
-export function useExternalTransferLogs(intervalMs: number = 86400000) {
-  const queryKey = ["stats", "externalTransferLogs", intervalMs]
+export type TransferData = Map<number, BucketData>
+
+export function useExternalTransferLogs({
+  intervalMs = 86400000,
+  chainId,
+}: {
+  intervalMs?: number
+  chainId: number
+}) {
+  const queryKey = ["stats", "externalTransferLogs", intervalMs, chainId]
 
   return {
-    ...useQuery<BucketData[], Error>({
+    ...useQuery<TransferData, Error>({
       queryKey,
-      queryFn: () => fetchExternalTransferLogs(intervalMs),
+      queryFn: () => fetchExternalTransferLogs(intervalMs, chainId),
       staleTime: Infinity,
-      enabled: env.NEXT_PUBLIC_VERCEL_ENV === "production",
+      enabled: env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet",
     }),
     queryKey,
   }
@@ -21,13 +29,18 @@ export function useExternalTransferLogs(intervalMs: number = 86400000) {
 
 const fetchExternalTransferLogs = async (
   intervalMs: number,
-): Promise<BucketData[]> => {
+  chainId: number,
+): Promise<TransferData> => {
   const response = await fetch(
-    `/api/stats/external-transfer-logs?interval=${intervalMs}`,
+    `/api/stats/external-transfer-logs?interval=${intervalMs}&chainId=${chainId}`,
   )
   if (!response.ok) {
     throw new Error("Failed to fetch external transfer logs")
   }
   const res = (await response.json()) as ExternalTransferLogsResponse
-  return res.data
+  const transferData = new Map<number, BucketData>()
+  for (const point of res.data) {
+    transferData.set(Number(point.timestamp), point)
+  }
+  return transferData
 }

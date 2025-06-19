@@ -1,8 +1,8 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { formatUnits, isAddress } from "viem/utils"
 
 import { useToken } from "@/components/dialogs/transfer/hooks/use-token"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { formatNumber } from "@/lib/format"
 
 export function useRenegadeBalance(mint: string) {

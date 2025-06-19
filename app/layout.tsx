@@ -7,7 +7,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Analytics } from "@vercel/analytics/react"
 import { cookieToInitialState } from "wagmi"
 
-import { ClearCookie } from "@/app/components/clear-cookie"
 import { LazyDatadog } from "@/app/components/datadog"
 import { Faucet } from "@/app/components/faucet"
 import { Footer } from "@/app/components/footer"
@@ -18,18 +17,19 @@ import { TailwindIndicator } from "@/app/components/tailwind-indicator"
 import { TaskToaster } from "@/app/components/task-toaster"
 import { TrackLastVisit } from "@/app/components/track-last-visit"
 import { WalletSidebar } from "@/app/components/wallet-sidebar"
-import { WalletSidebarSync } from "@/app/components/wallet-sidebar-sync"
+import { WrongNetworkModal } from "@/app/components/wrong-network-modal"
 import { Zendesk } from "@/app/components/zendesk"
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { WalletIndexCheck } from "@/components/wallet-index-check"
 
 import { constructMetadata } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
-import { RenegadeProvider } from "@/providers/renegade-provider/renegade-provider"
+import { WasmProvider } from "@/providers/renegade-provider/wasm-provider"
 import { SolanaProvider } from "@/providers/solana-provider"
-import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider.tsx"
+import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider"
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { getConfig } from "@/providers/wagmi-provider/config"
@@ -107,20 +107,19 @@ export default async function RootLayout({
       <body
         className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
       >
-        <ThemeProvider
-          disableTransitionOnChange
-          enableSystem
-          attribute="class"
-          defaultTheme="dark"
-        >
-          <ServerStoreProvider cookieString={cookieString}>
-            <ClientStoreProvider>
-              <RenegadeProvider cookieString={cookieString}>
-                <SolanaProvider>
-                  <WagmiProvider initialState={initialState}>
+        <WasmProvider>
+          <ThemeProvider
+            disableTransitionOnChange
+            enableSystem
+            attribute="class"
+            defaultTheme="dark"
+          >
+            <ServerStoreProvider cookieString={cookieString}>
+              <ClientStoreProvider>
+                <WagmiProvider initialState={initialState}>
+                  <SolanaProvider>
                     <SidebarProvider defaultOpen={defaultOpen}>
                       <TrackLastVisit />
-                      <WalletSidebarSync />
                       <TailwindIndicator />
                       <TooltipProvider
                         delayDuration={0}
@@ -129,6 +128,7 @@ export default async function RootLayout({
                         <SidebarInset className="max-w-full">
                           <Header />
                           {children}
+                          <WalletIndexCheck />
                           <Footer />
                         </SidebarInset>
                       </TooltipProvider>
@@ -147,15 +147,15 @@ export default async function RootLayout({
                       />
                       <Faucet />
                       <LazyDatadog />
-                      <ClearCookie />
                       <WalletSidebar side="right" />
+                      <WrongNetworkModal />
                     </SidebarProvider>
-                  </WagmiProvider>
-                </SolanaProvider>
-              </RenegadeProvider>
-            </ClientStoreProvider>
-          </ServerStoreProvider>
-        </ThemeProvider>
+                  </SolanaProvider>
+                </WagmiProvider>
+              </ClientStoreProvider>
+            </ServerStoreProvider>
+          </ThemeProvider>
+        </WasmProvider>
         <Analytics />
         <Zendesk />
       </body>

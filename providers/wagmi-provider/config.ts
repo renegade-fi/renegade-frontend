@@ -1,20 +1,38 @@
 import { http } from "viem"
-import { mainnet, arbitrum, arbitrumSepolia, baseSepolia } from "viem/chains"
-import { createConfig, createStorage, cookieStorage } from "wagmi"
+import type { Chain } from "viem"
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  mainnet,
+} from "viem/chains"
+import { cookieStorage, createConfig, createStorage } from "wagmi"
 
 import { env } from "@/env/client"
 import { getURL } from "@/lib/utils"
-import { chain } from "@/lib/viem"
 
 import getDefaultConfig from "./defaultConfig"
+
+export const MAINNET_CHAINS = [arbitrum, base] as const
+export const TESTNET_CHAINS = [arbitrumSepolia, baseSepolia] as const
+
+const chains: readonly [Chain, ...Chain[]] =
+  env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
+    ? [...MAINNET_CHAINS, mainnet]
+    : [...TESTNET_CHAINS]
 
 export function getConfig() {
   return createConfig(
     getDefaultConfig({
-      chains: [chain, mainnet],
+      chains,
       transports: {
-        [chain.id]: http(),
-        [mainnet.id]: http("/api/proxy/mainnet"),
+        [arbitrum.id]: http(`/api/proxy/rpc?id=${arbitrum.id}`),
+        [arbitrumSepolia.id]: http(`/api/proxy/rpc?id=${arbitrumSepolia.id}`),
+        [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
+        [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
+        // Needed to support bridge
+        [mainnet.id]: http(`/api/proxy/rpc?chainId=${mainnet.id}`),
       },
       ssr: true,
       storage: createStorage({
@@ -22,6 +40,7 @@ export function getConfig() {
       }),
 
       walletConnectProjectId: env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+      coinbaseWalletPreference: "eoaOnly",
 
       appName: "Renegade",
       appDescription: "On-chain dark pool",
@@ -31,20 +50,35 @@ export function getConfig() {
   )
 }
 
+/** Chains available in the environment */
+export const AVAILABLE_CHAINS =
+  env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet"
+    ? MAINNET_CHAINS
+    : TESTNET_CHAINS
+
+/** Chain logo mapping */
+export const CHAIN_LOGOS = {
+  42161: "/arbitrum.svg",
+  421614: "/arbitrum.svg",
+  8453: "/base.svg",
+  84532: "/base.svg",
+} as const
+
 export const mainnetConfig = createConfig({
   chains: [mainnet],
   transports: {
-    [mainnet.id]: http("/api/proxy/mainnet"),
+    [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
   },
 })
 
 // @sehyunc TODO: generalize wagmi config
 export const arbitrumConfig = createConfig({
-  chains: [chain],
+  chains: [arbitrum, arbitrumSepolia, baseSepolia, base],
   transports: {
-    [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [baseSepolia.id]: http(),
+    [arbitrum.id]: http(`/api/proxy/rpc?id=${arbitrum.id}`),
+    [arbitrumSepolia.id]: http(`/api/proxy/rpc?id=${arbitrumSepolia.id}`),
+    [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
+    [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
   },
 })
 

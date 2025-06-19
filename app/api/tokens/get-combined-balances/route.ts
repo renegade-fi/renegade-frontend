@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server"
 
 import { isAddress } from "viem"
+import { arbitrum, arbitrumSepolia, mainnet } from "viem/chains"
 
 import {
+  getAlchemyRpcUrl,
   readErc20BalanceOf,
   readEthBalance,
   readSplBalanceOf,
 } from "@/app/api/utils"
 
+import { env as clientEnv } from "@/env/client"
 import { env } from "@/env/server"
 import {
   ADDITIONAL_TOKENS,
@@ -15,10 +18,16 @@ import {
   ETHEREUM_TOKENS,
   SOLANA_TOKENS,
 } from "@/lib/token"
+import { solana } from "@/lib/viem"
 
 export const runtime = "edge"
 
-const tokens = DISPLAY_TOKENS()
+const tokens = DISPLAY_TOKENS({
+  chainId:
+    clientEnv.NEXT_PUBLIC_CHAIN_ENVIRONMENT == "mainnet"
+      ? arbitrum.id
+      : arbitrumSepolia.id,
+})
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -44,7 +53,11 @@ export async function GET(req: Request) {
     Promise.all(
       tokens.map(async (token) => ({
         ticker: token.ticker,
-        balance: await readErc20BalanceOf(env.RPC_URL, token.address, address),
+        balance: await readErc20BalanceOf(
+          getAlchemyRpcUrl(arbitrum.id),
+          token.address,
+          address,
+        ),
       })),
     ),
 
@@ -53,7 +66,7 @@ export async function GET(req: Request) {
       Object.values(ETHEREUM_TOKENS).map(async (token) => ({
         ticker: token.ticker,
         balance: await readErc20BalanceOf(
-          env.RPC_URL_MAINNET,
+          getAlchemyRpcUrl(mainnet.id),
           token.address,
           address,
         ),
@@ -62,13 +75,13 @@ export async function GET(req: Request) {
 
     // Native ETH balances
     Promise.all([
-      readEthBalance(env.RPC_URL_MAINNET, address),
-      readEthBalance(env.RPC_URL, address),
+      readEthBalance(getAlchemyRpcUrl(mainnet.id), address),
+      readEthBalance(getAlchemyRpcUrl(arbitrum.id), address),
     ]),
 
     // USDC.e balance
     readErc20BalanceOf(
-      env.RPC_URL,
+      getAlchemyRpcUrl(arbitrum.id),
       ADDITIONAL_TOKENS["USDC.e"].address,
       address,
     ),
@@ -76,7 +89,7 @@ export async function GET(req: Request) {
     // Solana USDC balance
     solanaAddress
       ? readSplBalanceOf(
-          env.RPC_URL_SOLANA,
+          getAlchemyRpcUrl(solana.id),
           SOLANA_TOKENS.USDC,
           solanaAddress,
         ).catch(() => BigInt(0))

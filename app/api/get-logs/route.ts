@@ -1,20 +1,38 @@
 import { NextRequest } from "next/server"
 
-import { encodeEventTopics, numberToHex, parseAbiItem, toHex } from "viem"
+import { getSDKConfig } from "@renegade-fi/react"
+import { encodeEventTopics, parseAbiItem, toHex } from "viem"
 
-import { env } from "@/env/server"
-import { sdkConfig } from "@/providers/renegade-provider/config"
+import { getAlchemyRpcUrl } from "@/app/api/utils"
+
+import { getDeployBlock } from "@/lib/viem"
 
 export const runtime = "edge"
 
 export async function GET(req: NextRequest) {
-  try {
-    const blinderShare = BigInt(
-      req.nextUrl.searchParams.get("blinderShare") || "0",
+  const chainIdParam = req.nextUrl.searchParams.get("chainId")
+  const chainId = Number(chainIdParam)
+  if (isNaN(chainId)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid chainId: ${chainIdParam}` }),
+      { status: 400 },
     )
-    if (!blinderShare) {
-      throw new Error("Blinder share is required")
-    }
+  }
+
+  const blinderParam = req.nextUrl.searchParams.get("blinderShare")
+  const blinderShare = BigInt(blinderParam || "0")
+  if (blinderShare === BigInt(0)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid blinderShare: ${blinderParam}` }),
+      { status: 400 },
+    )
+  }
+
+  try {
+    const deployBlock = getDeployBlock(chainId) ?? BigInt(0)
+    const deployBlockHex = toHex(deployBlock)
+    const darkpool = getSDKConfig(chainId).darkpoolAddress
+    const rpcUrl = getAlchemyRpcUrl(chainId)
 
     const topics = encodeEventTopics({
       abi: [
@@ -28,7 +46,7 @@ export async function GET(req: NextRequest) {
     })
 
     // Make raw JSON-RPC call
-    const response = await fetch(env.RPC_URL, {
+    const response = await fetch(rpcUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -37,9 +55,9 @@ export async function GET(req: NextRequest) {
         method: "eth_getLogs",
         params: [
           {
-            address: sdkConfig.darkpoolAddress,
+            address: darkpool,
             topics,
-            fromBlock: toHex(env.ARBITRUM_DEPLOY_BLOCK),
+            fromBlock: deployBlockHex,
           },
         ],
       }),

@@ -12,6 +12,7 @@ import {
 
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { formatCurrencyFromString, formatNumber } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function ReviewWrap({
@@ -19,26 +20,26 @@ export function ReviewWrap({
   minEthToKeepUnwrapped,
   remainingEthBalance,
   wrapAmount,
+  mint,
 }: {
   gasEstimate?: bigint
   minEthToKeepUnwrapped: bigint
   remainingEthBalance: bigint
   wrapAmount: bigint
+  mint: `0x${string}`
 }) {
-  const wethToken = Token.findByTicker("WETH")
-
   const bufferedMinEthToKeepUnwrapped = BigInt(
     Math.round(Number(minEthToKeepUnwrapped) * 0.9),
   )
 
-  const feeEstimate = useUSDPrice(wethToken, gasEstimate ?? BigInt(0))
+  const feeEstimate = useUSDPrice(mint, gasEstimate ?? BigInt(0))
   const formattedFeeEstimate = formatEther(feeEstimate)
-  const amountUSDValue = useUSDPrice(wethToken, wrapAmount)
+  const amountUSDValue = useUSDPrice(mint, wrapAmount)
   const formattedAmountUSDValue = formatCurrencyFromString(
     formatEther(amountUSDValue),
   )
 
-  const remainingUSDValue = useUSDPrice(wethToken, remainingEthBalance)
+  const remainingUSDValue = useUSDPrice(mint, remainingEthBalance)
   const formattedRemainingUSDValue = formatCurrencyFromString(
     formatEther(remainingUSDValue),
   )
@@ -61,6 +62,7 @@ export function ReviewWrap({
     tooltipWarningText = `${formattedRemainingUSDValue}`
   }
 
+  const logoUri = resolveAddress(mint).logoUrl
   return (
     <div className="flex flex-col gap-2 border p-3 text-sm">
       <div className="space-y-3 text-left">
@@ -70,7 +72,7 @@ export function ReviewWrap({
         </div>
       </div>
       <Row
-        imageUri={wethToken.logoUrl}
+        imageUri={logoUri}
         label={`Wrap ETH`}
         value={
           <Tooltip>
@@ -84,7 +86,7 @@ export function ReviewWrap({
         }
       />
       <Row
-        imageUri={wethToken.logoUrl}
+        imageUri={logoUri}
         label={`Receive WETH`}
         value={
           <Tooltip>
@@ -102,7 +104,7 @@ export function ReviewWrap({
         value={formatCurrencyFromString(formattedFeeEstimate)}
       />
       <Row
-        imageUri={wethToken.logoUrl}
+        imageUri={logoUri}
         label={`ETH Remaining`}
         value={
           <Tooltip>

@@ -30,6 +30,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
+import { useIsBase } from "@/hooks/use-is-base"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useSignInAndConnect } from "@/hooks/use-sign-in-and-connect"
 import { useWallets } from "@/hooks/use-wallets"
@@ -40,9 +41,9 @@ export function WalletSidebar({
 }: React.ComponentProps<typeof Sidebar>) {
   const isPWA = useMediaQuery("(display-mode: standalone)")
   const { isMobile } = useSidebar()
-  const { handleClick, content, open, onOpenChange } = useSignInAndConnect()
-  const { solanaWallet, renegadeWallet, arbitrumWallet, walletReadyState } =
-    useWallets()
+  const { handleClick, open, onOpenChange } = useSignInAndConnect()
+  const { solanaWallet, renegadeWallet, arbitrumWallet } = useWallets()
+  const isBase = useIsBase()
 
   return (
     <>
@@ -75,7 +76,7 @@ export function WalletSidebar({
           ) : (
             <ConnectWalletMenuItem
               subtitle=""
-              title="Connect Arbitrum Wallet"
+              title="Connect Wallet"
               onClick={handleClick}
             />
           )}
@@ -87,31 +88,33 @@ export function WalletSidebar({
               <RecentFillsMenuItem />
             </SidebarMenu>
           </SidebarGroup>
-          <SidebarGroup className="mt-auto">
-            <SidebarGroupLabel>Bridge & Deposit</SidebarGroupLabel>
-            {solanaWallet.isConnected ? (
-              <WalletButton
-                dropdownContent={
-                  <SolanaWalletActionsDropdown wallet={solanaWallet} />
-                }
-                wallet={solanaWallet}
-              />
-            ) : (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <ConnectWalletMenuItem
-                    subtitle="To bridge & deposit USDC"
-                    title="Connect Solana Wallet"
-                  />
-                </DialogTrigger>
-                <DialogContent
-                  className={isMobile ? "h-full w-full" : "w-[343px]"}
-                >
-                  <ConnectContent />
-                </DialogContent>
-              </Dialog>
-            )}
-          </SidebarGroup>
+          {!isBase && (
+            <SidebarGroup className="mt-auto">
+              <SidebarGroupLabel>Bridge & Deposit</SidebarGroupLabel>
+              {solanaWallet.isConnected ? (
+                <WalletButton
+                  dropdownContent={
+                    <SolanaWalletActionsDropdown wallet={solanaWallet} />
+                  }
+                  wallet={solanaWallet}
+                />
+              ) : (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <ConnectWalletMenuItem
+                      subtitle="To bridge & deposit USDC"
+                      title="Connect Solana Wallet"
+                    />
+                  </DialogTrigger>
+                  <DialogContent
+                    className={isMobile ? "h-full w-full" : "w-[343px]"}
+                  >
+                    <ConnectContent />
+                  </DialogContent>
+                </Dialog>
+              )}
+            </SidebarGroup>
+          )}
         </SidebarContent>
         <SidebarFooter className={cn("lg:hidden", isPWA && "hidden")}>
           <SidebarMenu>

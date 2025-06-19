@@ -18,9 +18,6 @@ const API_KEY_HEADER = "x-api-key"
 
 /** The search parameter indicating the exchange to make a request for */
 const EXCHANGE_PARAM = "exchange"
-/** The identifier for the Binance exchange in the Amberdata API */
-const BINANCE_EXCHANGE_ID = "binance"
-
 /** The search parameter indicating the timestamp format for the Amberdata API to use */
 const TIME_FORMAT_PARAM = "timeFormat"
 /** The format for timestamps returned from the Amberdata API */
@@ -30,6 +27,8 @@ const TIME_FORMAT = "milliseconds"
 const START_DATE_PARAM = "startDate"
 /** The search parameter indicating the end date for the Amberdata API to use */
 const END_DATE_PARAM = "endDate"
+
+const ONE_HOUR_MS = 3600000
 
 // ---------
 // | TYPES |
@@ -103,16 +102,13 @@ export type OrderbookResponseData = {
 // | HELPERS |
 // -----------
 export function calculateSavings(
-  binanceTradeAmounts: TradeAmounts,
+  tradeAmounts: TradeAmounts,
   quantity: number,
   direction: Direction,
   renegadePrice: number,
   renegadeFeeRate: number,
 ): number {
-  const {
-    effectiveBaseAmount: effectiveBinanceBase,
-    effectiveQuoteAmount: effectiveBinanceQuote,
-  } = binanceTradeAmounts
+  const { effectiveBaseAmount, effectiveQuoteAmount } = tradeAmounts
 
   const renegadeQuote = quantity * renegadePrice
 
@@ -124,38 +120,40 @@ export function calculateSavings(
       ? renegadeQuote * (1 - renegadeFeeRate)
       : renegadeQuote
 
-  // Calculate the savings in base/quote amounts transacted between the Binance and Renegade trades.
-  // When buying, we save when we receive more base and send less quote than on Binance.
-  // When selling, we save when we receive more quote and send less base than on Binance.
+  // Calculate the savings in base/quote amounts transacted between the canonical exchange and Renegade trades.
+  // When buying, we save when we receive more base and send less quote than on the canonical exchange.
+  // When selling, we save when we receive more quote and send less base than on the canonical exchange.
   const baseSavings =
     direction === Direction.BUY
-      ? effectiveRenegadeBase - effectiveBinanceBase
-      : effectiveBinanceBase - effectiveRenegadeBase
+      ? effectiveRenegadeBase - effectiveBaseAmount
+      : effectiveBaseAmount - effectiveRenegadeBase
 
   const quoteSavings =
     direction === Direction.SELL
-      ? effectiveRenegadeQuote - effectiveBinanceQuote
-      : effectiveBinanceQuote - effectiveRenegadeQuote
+      ? effectiveRenegadeQuote - effectiveQuoteAmount
+      : effectiveQuoteAmount - effectiveRenegadeQuote
 
   // Represent the total savings via Renegade, denominated in the quote asset, priced at the current midpoint
   return baseSavings * renegadePrice + quoteSavings
 }
 
 /**
- * Construct the Binance orderbook for the given instrument, at the given timestamp.
+ * Construct the canonical exchange's orderbook for the given instrument, at the given timestamp.
  * This is done by fetching the most recent orderbook snapshot relative to the
  * timestamp, then fetching all of the updates between the snapshot and the timestamp,
  * and applying them on top of the snapshot.
  */
-export async function constructBinanceOrderbook(
+export async function constructOrderbook(
   instrument: string,
   timestamp: number,
+  exchange: string,
 ): Promise<OrderbookResponseData> {
-  const snapshot = await fetchBinanceOrderbookSnapshot(instrument, timestamp)
-  const updates = await fetchBinanceOrderbookUpdates(
+  const snapshot = await fetchOrderbookSnapshot(instrument, timestamp, exchange)
+  const updates = await fetchOrderbookUpdates(
     instrument,
     snapshot.timestamp,
     timestamp,
+    exchange,
   )
 
   // Construct an initial orderbook map from the snapshot
@@ -189,26 +187,32 @@ export async function constructBinanceOrderbook(
 }
 
 /**
- * Fetches a snapshot of the Binance orderbook for the given pair symbol,
+ * Fetches a snapshot of the canonical exchange's orderbook for the given pair symbol,
  * around the given timestamp (in milliseconds), up to the maximum supported depth (5000 levels).
  */
-async function fetchBinanceOrderbookSnapshot(
+async function fetchOrderbookSnapshot(
   instrument: string,
   timestamp: number,
+  exchange: string,
 ): Promise<AmberdataOrderbookSnapshot> {
-  // For the search range, we set [timestamp - 1min, timestamp + 1ms).
   // This is to ensure that we get the most recent snapshot inclusive of the timestamp
-  const startDate = timestamp - 60000
+  const startDate = timestamp - ONE_HOUR_MS
   const endDate = timestamp + 1
-
-  const req = await amberdataRequest(
-    `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
+  const req = amberdataRequest({
+    route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
+    exchange,
     startDate,
     endDate,
-  )
+  })
 
   const res = await fetch(req)
+  if (!res.ok) {
+    throw new Error(`Failed to fetch orderbook snapshot: ${res.statusText}`)
+  }
   const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json()
+  if (orderbookRes.payload.data.length === 0) {
+    throw new Error("Server returned empty orderbook snapshot")
+  }
 
   // The Amberdata response contains snapshots in ascending order of timestamp,
   // i.e. most recent is last
@@ -217,19 +221,22 @@ async function fetchBinanceOrderbookSnapshot(
 }
 
 /**
- * Fetches all of the Binance orderbook updates for the given instrument,
+ * Fetches all of the orderbook updates for the given instrument,
  * from the timestamp of the most recent snapshot, to the desired timestamp
  */
-async function fetchBinanceOrderbookUpdates(
+async function fetchOrderbookUpdates(
   instrument: string,
   snapshotTimestamp: number,
   desiredTimestamp: number,
+  exchange: string,
 ): Promise<Array<AmberdataOrderbookUpdate>> {
-  const req = await amberdataRequest(
-    `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
-    snapshotTimestamp,
-    desiredTimestamp,
-  )
+  // We only request updates on or after the snapshot timestamp
+  const req = amberdataRequest({
+    route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
+    exchange,
+    startDate: snapshotTimestamp,
+    endDate: desiredTimestamp,
+  })
 
   const res = await fetch(req)
   const updatesRes: AmberdataOrderbookUpdateResponse = await res.json()
@@ -243,18 +250,28 @@ async function fetchBinanceOrderbookUpdates(
  * @param startDate - The starting timestamp for the search range, in milliseconds (inclusive)
  * @param endDate - The ending timestamp for the search range, in milliseconds (exclusive)
  */
-async function amberdataRequest(
-  route: string,
-  startDate: number,
-  endDate: number,
-): Promise<Request> {
+function amberdataRequest({
+  route,
+  exchange,
+  startDate,
+  endDate,
+}: {
+  route: string
+  exchange: string
+  startDate?: number
+  endDate?: number
+}): Request {
   const amberdataUrl = new URL(`${AMBERDATA_BASE_URL}/${route}`)
-  amberdataUrl.searchParams.set(EXCHANGE_PARAM, BINANCE_EXCHANGE_ID)
+  amberdataUrl.searchParams.set(EXCHANGE_PARAM, exchange)
   amberdataUrl.searchParams.set(TIME_FORMAT_PARAM, TIME_FORMAT)
-  amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString())
-  amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString())
+  if (startDate) {
+    amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString())
+  }
+  if (endDate) {
+    amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString())
+  }
 
-  let amberdataReq = new Request(amberdataUrl)
+  const amberdataReq = new Request(amberdataUrl)
   amberdataReq.headers.set(API_KEY_HEADER, env.AMBERDATA_API_KEY)
   amberdataReq.headers.set("Accept-Encoding", "gzip")
 
@@ -278,4 +295,25 @@ function convertOrderbookMap(
     .sort((a, b) => a.price - b.price)
 
   return { bids, asks, timestamp }
+}
+
+/**
+ * Fetches the fee rate for the given exchange
+ */
+export function getExchangeFeeRate(exchange: string): number {
+  switch (exchange.toLowerCase()) {
+    case "coinbase":
+      // Coinbase taker fee for traders w/ 100k to 1M in monthly trading volume.
+      // Source: https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees
+      return 0.002
+    // Kraken Pro taker fee for traders w/ 500k to 1M in monthly trading volume.
+    // Source: https://www.kraken.com/features/fee-schedule
+    case "kraken":
+      return 0.0018
+    // Binance taker fee for traders w/ <1M in monthly trading volume.
+    // Source: https://www.binance.com/en/fee/schedule
+    case "binance":
+    default:
+      return 0.001
+  }
 }

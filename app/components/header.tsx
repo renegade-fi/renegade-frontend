@@ -1,5 +1,7 @@
 "use client"
 
+import { useMemo } from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -20,15 +22,27 @@ import {
 } from "@/components/ui/context-menu"
 
 import { useWallets } from "@/hooks/use-wallets"
+import { resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
+
+import { ChainSelector } from "./chain-selector"
 
 export function Header() {
   const pathname = usePathname()
   const { walletReadyState, arbitrumWallet } = useWallets()
-  const {
-    order: { base },
-  } = useServerStore((state) => state)
+  const baseMint = useServerStore((state) => state.baseMint)
+  // Home link should never navigate to token on incorrect chain.
+  // If baseMint is not on current chain, navigate to WETH.
+  const currentChain = useCurrentChain()
+  const homeHref = useMemo(() => {
+    const token = resolveAddress(baseMint)
+    if (token.chain !== currentChain) {
+      return `/trade/WETH`
+    }
+    return `/trade/${token.ticker}`
+  }, [baseMint, currentChain])
 
   return (
     <header className="sticky top-0 z-10 h-20 min-w-full shrink-0 border-b bg-background">
@@ -75,7 +89,7 @@ export function Header() {
         <div className="w-fit">
           <ContextMenu>
             <ContextMenuTrigger>
-              <Link href="/trade">
+              <Link href={homeHref}>
                 <Image
                   priority
                   alt="logo"
@@ -106,7 +120,7 @@ export function Header() {
               "flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground",
               pathname.startsWith("/trade") && "text-foreground",
             )}
-            href={`/trade/${base}`}
+            href={homeHref}
           >
             Trade
           </Link>
@@ -148,6 +162,7 @@ export function Header() {
               </TransferDialog>
             </>
           ) : null}
+          <ChainSelector />
           {arbitrumWallet.isConnected ? (
             <SidebarTrigger />
           ) : (

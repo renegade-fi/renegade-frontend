@@ -4,12 +4,20 @@ import {
   LibrarySymbolInfo,
 } from "@renegade-fi/tradingview-charts"
 
+import { getPriceChartInfo } from "@/lib/amberdata"
+import { client as priceReporterClient } from "@/lib/clients/price-reporter"
 import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time"
 
 import { datafeedConfig } from "./config"
-import { fetchBarsForPeriod, fetchSymbolReferenceInfo } from "./helpers"
+import { fetchBarsForPeriod } from "./helpers"
 
 const lastBarsCache = new Map()
+
+// Calculate pricescale based on price to show 2 significant figures with minimum 2 decimals
+function calculatePricescale(price: number): number {
+  const decimalsNeeded = Math.max(2, -Math.floor(Math.log10(price)) + 1)
+  return Math.pow(10, decimalsNeeded)
+}
 
 export const datafeed = {
   onReady: (callback: any) => {
@@ -31,11 +39,26 @@ export const datafeed = {
     extension,
   ) => {
     try {
-      const symbolItem = await fetchSymbolReferenceInfo(symbolName)
+      const mint = symbolName as `0x${string}`
+      const info = getPriceChartInfo(mint)
+      const exchange = info.exchange.toString()
+      const pair = info.instrument.split("_").join("").toUpperCase()
+
+      // Fetch current price to calculate appropriate pricescale
+      let pricescale = 100 // Default fallback
+      try {
+        const price = await priceReporterClient.getPrice(mint)
+        if (price && price > 0) {
+          pricescale = calculatePricescale(price)
+        }
+      } catch {
+        // Do nothing
+      }
+
       const symbolInfo = {
         data_status: "streaming",
-        description: `${symbolItem.baseSymbol}${symbolItem.quoteSymbol}`,
-        exchange: datafeedConfig.exchanges[0].name,
+        description: pair,
+        exchange,
         format: "price",
         has_intraday: true,
         intraday_multipliers: ["1", "60"],
@@ -44,11 +67,11 @@ export const datafeed = {
         has_weekly_and_monthly: false,
         listed_exchange: "",
         minmov: 1,
-        name: `${symbolItem.baseSymbol}${symbolItem.quoteSymbol}`,
-        pricescale: 100,
+        name: pair,
+        pricescale,
         session: "24x7",
         supported_resolutions: datafeedConfig.supported_resolutions,
-        ticker: `${symbolName}`,
+        ticker: info.instrument,
         timezone: "Etc/UTC",
         type: "crypto",
         volume_precision: 2,
@@ -82,6 +105,7 @@ export const datafeed = {
       if (settings && symbolInfo.ticker) {
         bars = await fetchBarsForPeriod(
           symbolInfo.ticker,
+          symbolInfo.exchange,
           from * 1000,
           to * 1000,
           settings.period,

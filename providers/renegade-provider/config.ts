@@ -1,20 +1,12 @@
-import { createConfig, createStorage, getSDKConfig } from "@renegade-fi/react"
+import { createConfig, getSDKConfig } from "@renegade-fi/react"
+import { ChainId } from "@renegade-fi/react/constants"
 
-import { env } from "@/env/client"
-import { cookieStorage } from "@/lib/cookie"
-import { viemClient } from "@/lib/viem"
-
-export const sdkConfig = getSDKConfig(env.NEXT_PUBLIC_CHAIN_ID)
-
-export const config = createConfig({
-  chainId: sdkConfig.id,
-  darkPoolAddress: sdkConfig.darkpoolAddress,
-  priceReporterUrl: sdkConfig.priceReporterUrl,
-  relayerUrl: sdkConfig.relayerUrl,
-  ssr: true,
-  storage: createStorage({
-    storage: cookieStorage,
-  }),
-  // @sehyunc TODO: remove public client from config instantiation
-  viemClient: viemClient as any,
-})
+export const getConfigFromChainId = (chainId: ChainId) => {
+  const sdkConfig = getSDKConfig(chainId)
+  return createConfig({
+    chainId,
+    darkPoolAddress: sdkConfig.darkpoolAddress,
+    priceReporterUrl: sdkConfig.priceReporterUrl,
+    relayerUrl: sdkConfig.relayerUrl,
+  })
+}

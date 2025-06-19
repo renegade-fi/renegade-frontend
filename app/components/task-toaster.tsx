@@ -2,10 +2,11 @@
 
 import React from "react"
 
-import { Task, useTaskHistoryWebSocket } from "@renegade-fi/react"
+import { Task } from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
+import { useTaskHistoryWebSocket } from "@/hooks/query/use-task-history-websocket"
 import {
   formatTaskState,
   generateCompletionToastMessage,

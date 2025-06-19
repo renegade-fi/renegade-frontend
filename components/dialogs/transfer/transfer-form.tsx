@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Token } from "@renegade-fi/token-nextjs"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -13,7 +12,9 @@ import {
 import { USDCForm } from "@/components/dialogs/transfer/usdc-form"
 import { WETHForm } from "@/components/dialogs/transfer/weth-form"
 
-import { isBase, isTestnet } from "@/lib/viem"
+import { useIsBase } from "@/hooks/use-is-base"
+import { resolveAddress } from "@/lib/token"
+import { isTestnet } from "@/lib/viem"
 
 export function TransferForm({
   className,
@@ -27,6 +28,7 @@ export function TransferForm({
   onSuccess: () => void
   header: React.ReactNode
 }) {
+  const isBase = useIsBase()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,7 +37,7 @@ export function TransferForm({
     },
   })
   // @sehyunc TODO: enable bridge/swap/wrap for Base when implemented
-  if (isTestnet || isBase) {
+  if (isTestnet) {
     return (
       <DefaultForm
         className={className}
@@ -47,7 +49,10 @@ export function TransferForm({
     )
   }
 
-  if (form.watch("mint") === Token.findByTicker("WETH").address) {
+  if (
+    form.watch("mint") &&
+    resolveAddress(form.watch("mint") as `0x${string}`).ticker === "WETH"
+  ) {
     return (
       <WETHForm
         className={className}
@@ -58,8 +63,11 @@ export function TransferForm({
       />
     )
   }
-  if (direction === ExternalTransferDirection.Deposit) {
-    if (form.watch("mint") === Token.findByTicker("USDC").address) {
+  if (direction === ExternalTransferDirection.Deposit && !isBase) {
+    if (
+      form.watch("mint") &&
+      resolveAddress(form.watch("mint") as `0x${string}`).ticker === "USDC"
+    ) {
       return (
         <USDCForm
           className={className}

@@ -2,7 +2,6 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { useBackOfQueueWallet } from "@renegade-fi/react"
 import { Star } from "lucide-react"
 import { useDebounceValue } from "usehooks-ts"
 import { fromHex } from "viem/utils"
@@ -22,17 +21,19 @@ import {
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { formatNumber } from "@/lib/format"
 import { DISPLAY_TOKENS } from "@/lib/token"
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import { useClientStore } from "@/providers/state-provider/client-store-provider"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function TokenSelectDialog({
   children,
-  ticker,
+  mint,
 }: {
   children: React.ReactNode
-  ticker: string
+  mint: `0x${string}`
 }) {
   const [open, setOpen] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -60,8 +61,8 @@ export function TokenSelectDialog({
           <ScrollArea className="max-h-[50vh] min-h-[50vh]">
             <TokenList
               enabled={open}
+              mint={mint}
               searchTerm={debouncedSearchTerm}
-              ticker={ticker}
               onClose={() => setOpen(false)}
             />
           </ScrollArea>
@@ -96,8 +97,8 @@ export function TokenSelectDialog({
         <ScrollArea className="max-h-[calc(100dvh-158px)]">
           <TokenList
             enabled={open}
+            mint={mint}
             searchTerm={debouncedSearchTerm}
-            ticker={ticker}
             onClose={() => setOpen(false)}
           />
         </ScrollArea>
@@ -121,12 +122,12 @@ function TokenList({
   enabled,
   searchTerm,
   onClose,
-  ticker,
+  mint,
 }: {
   enabled: boolean
   searchTerm: string
   onClose: () => void
-  ticker: string
+  mint: `0x${string}`
 }) {
   const { data, status } = useBackOfQueueWallet({
     query: {
@@ -140,12 +141,15 @@ function TokenList({
     },
   })
 
-  const { favorites, setFavorites } = useClientStore((state) => state)
+  const favorites = useClientStore((s) => s.favorites)
+  const setFavorites = useClientStore((s) => s.setFavorites)
 
+  const chainId = useCurrentChain()
   const processedTokens = React.useMemo(() => {
     return DISPLAY_TOKENS({
       hideHidden: true,
       hideStables: true,
+      chainId,
     })
       .sort((a, b) => {
         const balanceA = data?.get(a.address) ?? BigInt(0)
@@ -169,45 +173,44 @@ function TokenList({
           token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           token.ticker.toLowerCase().includes(searchTerm.toLowerCase()),
       )
-  }, [data, searchTerm, favorites])
+  }, [chainId, data, favorites, searchTerm])
 
   return (
     <div className="grid items-start">
       {processedTokens.length ? (
-        processedTokens.map((token, index) => {
+        processedTokens.map((token) => {
           const balance = data?.get(token.address)
           const formattedBalance =
             status === "pending"
               ? "--"
               : formatNumber(balance ?? BigInt(0), token.decimals, true)
           return (
-            <div
+            <Link
               key={token.address}
               className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
-              onClick={() => token.ticker === ticker && onClose()}
+              href={`/trade/${token.ticker}`}
+              onClick={() => {
+                if (token.address === mint) onClose()
+              }}
             >
-              <Link
-                key={token.address}
-                className="w-full"
-                href={`/trade/${token.ticker}`}
-              >
-                <div className="grid grid-cols-[32px_1fr_1fr] items-center gap-4">
-                  <TokenIcon ticker={token.ticker} />
-                  <div>
-                    <p className="text-md font-medium">{token.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {token.ticker}
-                    </p>
-                  </div>
-                  <div className="justify-self-end font-mono">
-                    {formattedBalance}
-                  </div>
+              <div className="grid w-full grid-cols-[32px_2fr_1fr] items-center gap-4">
+                <TokenIcon ticker={token.ticker} />
+                <div>
+                  <p className="text-md font-medium">{token.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {token.ticker}
+                  </p>
                 </div>
-              </Link>
+                <div className="justify-self-end font-mono">
+                  {formattedBalance}
+                </div>
+              </div>
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   if (favorites.includes(token.address)) {
                     setFavorites(
                       favorites.filter((address) => address !== token.address),
@@ -222,7 +225,7 @@ function TokenList({
                   fill={favorites.includes(token.address) ? "white" : "none"}
                 />
               </Button>
-            </div>
+            </Link>
           )
         })
       ) : (

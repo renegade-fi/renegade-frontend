@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 
-import { HISTORICAL_VOLUME_SET_KEY } from "@/app/api/stats/constants"
+import { getHistoricalVolumeSetKey } from "@/app/api/stats/constants"
 import { getAllSetMembers } from "@/app/lib/kv-utils"
 
 import { env } from "@/env/server"
@@ -21,7 +21,20 @@ export const runtime = "edge"
 
 export async function GET(req: NextRequest) {
   try {
-    const allKeys = await getAllSetMembers(HISTORICAL_VOLUME_SET_KEY)
+    // Parse and validate chainId
+    const chainIdParam = req.nextUrl.searchParams.get("chainId")
+    const chainId = Number(chainIdParam)
+    if (!chainIdParam || isNaN(chainId)) {
+      return new Response(
+        JSON.stringify({
+          error: `Invalid or missing chainId: ${chainIdParam}`,
+        }),
+        { status: 400 },
+      )
+    }
+    const setKey = getHistoricalVolumeSetKey(chainId)
+
+    const allKeys = await getAllSetMembers(setKey)
 
     const pipelineBody = JSON.stringify(allKeys.map((key) => ["GET", key]))
 

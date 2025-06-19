@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 
 import { Check, ChevronsUpDown } from "lucide-react"
 
@@ -21,20 +21,29 @@ import {
 import { DISPLAY_TOKENS } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
-const tokens = DISPLAY_TOKENS({ hideHidden: true, hideStables: true }).map(
-  (token) => ({
-    value: token.ticker,
-    label: token.ticker,
-  }),
-)
-
 type TokenSelectProps = {
   value: string
-  onChange: (value: string) => void
+  onChange: (value: `${string}`) => void
+  chainId: number
 }
 
-export function TokenSelect({ value, onChange }: TokenSelectProps) {
+export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
   const [open, setOpen] = React.useState(false)
+
+  const tokens = useMemo(() => {
+    const res = new Set<string>(
+      DISPLAY_TOKENS({
+        hideHidden: true,
+        hideStables: true,
+        chainId: chainId ? chainId : undefined,
+      }).map((token) => token.ticker),
+    )
+
+    return Array.from(res).map((ticker) => ({
+      value: ticker,
+      label: ticker,
+    }))
+  }, [chainId])
 
   return (
     <Popover
@@ -54,9 +63,7 @@ export function TokenSelect({ value, onChange }: TokenSelectProps) {
             size={22}
             ticker={value}
           />
-          {value
-            ? tokens.find((token) => token.value === value)?.label
-            : "Select token"}
+          {value ? value : "Select token"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -71,7 +78,7 @@ export function TokenSelect({ value, onChange }: TokenSelectProps) {
                   key={token.value}
                   value={token.value}
                   onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue)
+                    onChange(currentValue as `0x${string}`)
                     setOpen(false)
                   }}
                 >

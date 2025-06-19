@@ -1,37 +1,29 @@
 import React from "react"
 
-import { PriceReporterClient } from "@renegade-fi/price-reporter"
-import { Exchange } from "@renegade-fi/react"
 import { useQueries } from "@tanstack/react-query"
 import { ReadyState } from "react-use-websocket"
 
-import { createPriceQueryKey, createPriceTopic } from "@/lib/query"
-import { DISPLAY_TOKENS } from "@/lib/token"
-import { environment } from "@/lib/viem"
+import { client } from "@/lib/clients/price-reporter"
+import { createCanonicalPriceTopic, createPriceQueryKey } from "@/lib/query"
 
 import { usePriceWebSocket } from "./use-price-websocket"
 
-const client = PriceReporterClient.new(environment)
-
-export function usePriceQueries(
-  tokens: ReturnType<typeof DISPLAY_TOKENS> = DISPLAY_TOKENS(),
-  exchange: Exchange = "renegade",
-) {
+export function usePriceQueries(mints: `0x${string}`[]) {
   const subscribedTopics = React.useRef<Set<string>>(new Set())
   const { subscribeToTopic, unsubscribeFromTopic, readyState } =
     usePriceWebSocket()
 
   React.useEffect(() => {
     if (readyState === ReadyState.OPEN) {
-      tokens.forEach((token) => {
-        const topic = createPriceTopic(exchange, token.address)
+      mints.forEach((mint) => {
+        const topic = createCanonicalPriceTopic(mint)
         if (!subscribedTopics.current.has(topic)) {
           subscribeToTopic(topic)
           subscribedTopics.current.add(topic)
         }
       })
     }
-  }, [exchange, readyState, subscribeToTopic, tokens])
+  }, [mints, readyState, subscribeToTopic])
 
   React.useEffect(() => {
     const currentTopics = subscribedTopics.current
@@ -43,9 +35,12 @@ export function usePriceQueries(
   }, [unsubscribeFromTopic])
 
   return useQueries({
-    queries: tokens.map((token) => ({
-      queryKey: createPriceQueryKey(exchange, token.address),
-      queryFn: () => client.getPrice(token.address),
+    queries: mints.map((mint) => ({
+      queryKey: createPriceQueryKey({
+        base: mint,
+        exchange: "renegade",
+      }),
+      queryFn: () => client.getPrice(mint),
       initialData: 0,
       staleTime: Infinity,
       retry: false,

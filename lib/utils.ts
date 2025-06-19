@@ -1,12 +1,14 @@
 import { Metadata } from "next/types"
 
 import { Exchange } from "@renegade-fi/react"
-import { getDefaultQuoteToken, Token } from "@renegade-fi/token-nextjs"
+import { getDefaultQuoteToken } from "@renegade-fi/token-nextjs"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 import { env } from "@/env/client"
 import { isTestnet } from "@/lib/viem"
+
+import { isSupportedExchange, resolveAddress } from "./token"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -37,6 +39,7 @@ export const getURL = (path = "") => {
 export const fundWallet = async (
   tokens: { ticker: string; amount: string }[],
   address: `0x${string}`,
+  chainId?: number,
 ) => {
   if (isTestnet) {
     await fetch(`/api/faucet`, {
@@ -47,6 +50,7 @@ export const fundWallet = async (
       body: JSON.stringify({
         tokens,
         address,
+        chainId,
       }),
     })
   }
@@ -208,10 +212,11 @@ export function decimalCorrectPrice(
   return correctedPrice
 }
 
-export function constructExchangeUrl(exchange: Exchange, baseTicker: string) {
-  const remappedBase = Token.findByTicker(
-    baseTicker.toUpperCase(),
-  ).getExchangeTicker(exchange)
+export function constructExchangeUrl(exchange: Exchange, mint: `0x${string}`) {
+  if (!isSupportedExchange(mint, exchange)) {
+    return undefined
+  }
+  const remappedBase = resolveAddress(mint).getExchangeTicker(exchange)
   const remappedQuote =
     getDefaultQuoteToken(exchange).getExchangeTicker(exchange)
   if (!(remappedBase && remappedQuote)) {

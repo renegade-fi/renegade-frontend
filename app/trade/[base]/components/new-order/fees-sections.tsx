@@ -8,29 +8,34 @@ import {
 } from "@/components/ui/tooltip"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
+import { TOTAL_RENEGADE_FEE_BPS } from "@/lib/constants/protocol"
 import {
   FEES_SECTION_FEES,
   FEES_SECTION_TOTAL_SAVINGS,
 } from "@/lib/constants/tooltips"
 import { formatCurrency } from "@/lib/format"
+import { getCanonicalExchange } from "@/lib/token"
 import { cn } from "@/lib/utils"
 
 export function FeesSection({
   predictedSavings,
+  predictedSavingsBps,
   relayerFee,
   protocolFee,
   amount,
+  base,
 }: {
   predictedSavings: number
+  predictedSavingsBps: number
   relayerFee: number
   protocolFee: number
   amount: string
+  base: `0x${string}`
 }) {
   const totalFees = relayerFee + protocolFee
   const feeLabel = totalFees ? formatCurrency(totalFees) : "--"
+  const canonicalExchange = getCanonicalExchange(base)
 
-  const savingsLabel =
-    predictedSavings && amount ? formatCurrency(predictedSavings) : "--"
   return (
     <>
       <div className={cn("flex justify-between transition-colors")}>
@@ -53,9 +58,16 @@ export function FeesSection({
           </TooltipTrigger>
           <TooltipContent>{FEES_SECTION_FEES}</TooltipContent>
         </Tooltip>
-        <span>{amount ? feeLabel : "--"}</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>{amount ? feeLabel : "--"}</span>
+          </TooltipTrigger>
+          <TooltipContent>
+            {amount ? `${TOTAL_RENEGADE_FEE_BPS} bps` : ""}
+          </TooltipContent>
+        </Tooltip>
       </div>
-      <div className={cn("relative flex justify-between transition-colors")}>
+      <div className="relative flex justify-between transition-colors">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -69,7 +81,7 @@ export function FeesSection({
                 rel="noreferrer"
                 target="_blank"
               >
-                Total Savings vs. Binance
+                Total Savings vs. {canonicalExchange}
               </a>
             </Button>
           </TooltipTrigger>
@@ -80,18 +92,35 @@ export function FeesSection({
             "opacity-0": !predictedSavings || !amount,
           })}
         >
-          <NumberFlow
-            format={{
-              style: "currency",
-              currency: "USD",
-              minimumFractionDigits:
-                predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
-              maximumFractionDigits:
-                predictedSavings > 10_000 ? 0 : predictedSavings < 10 ? 4 : 2,
-            }}
-            locales="en-US"
-            value={predictedSavings}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <NumberFlow
+                format={{
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits:
+                    predictedSavings > 10_000
+                      ? 0
+                      : predictedSavings < 10
+                        ? 4
+                        : 2,
+                  maximumFractionDigits:
+                    predictedSavings > 10_000
+                      ? 0
+                      : predictedSavings < 10
+                        ? 4
+                        : 2,
+                }}
+                locales="en-US"
+                value={predictedSavings}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              {predictedSavingsBps
+                ? `${Math.round(predictedSavingsBps)} bps`
+                : "0 bps"}
+            </TooltipContent>
+          </Tooltip>
         </div>
         <span
           className={cn("absolute right-0 transition-opacity", {

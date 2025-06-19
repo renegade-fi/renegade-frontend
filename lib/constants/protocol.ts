@@ -1,13 +1,11 @@
 // Constants
 import { Exchange, TaskState } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { parseUnits } from "viem/utils"
 
+import { resolveTicker } from "../token"
+
 // Min fill size of the quote asset that the relayer will accept
-export const MIN_FILL_SIZE = parseUnits(
-  "1",
-  Token.findByTicker("USDT").decimals,
-)
+export const MIN_FILL_SIZE = parseUnits("1", resolveTicker("USDC").decimals)
 // TODO: [CORRECTNESS] Should fetch from relayer
 // Default mint
 export const DEFAULT_MINT = "0x0000000000000000000000000000000000000000"
@@ -15,8 +13,8 @@ export const DEFAULT_MINT = "0x0000000000000000000000000000000000000000"
 export const PROTOCOL_FEE = 0.0002
 // Renegade relayer fee
 export const RELAYER_FEE = 0.0002
-// Binance base fee
-export const BINANCE_BASE_FEE = 0.001
+// Total Renegade fee in basis points
+export const TOTAL_RENEGADE_FEE_BPS = (PROTOCOL_FEE + RELAYER_FEE) * 10000
 // Minimum deposit amount (in USD)
 export const MIN_DEPOSIT_AMOUNT = 1
 

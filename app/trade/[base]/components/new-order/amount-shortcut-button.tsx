@@ -1,7 +1,5 @@
 import React from "react"
 
-import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { formatUnits } from "viem"
 
 import { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form"
@@ -13,12 +11,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { usePriceQuery } from "@/hooks/use-price-query"
 import { useUSDPrice } from "@/hooks/use-usd-price"
 import { PRICE_DECIMALS } from "@/lib/constants/precision"
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 interface AmountShortcutButtonProps extends NewOrderFormProps {
   className?: string
@@ -35,8 +36,9 @@ export function AmountShortcutButton({
   isSell,
   isQuoteCurrency,
 }: AmountShortcutButtonProps) {
-  const baseToken = Token.findByTicker(base)
-  const quoteToken = Token.findByTicker("USDC")
+  const baseToken = resolveAddress(base)
+  const quoteMint = useServerStore((state) => state.quoteMint)
+  const quoteToken = resolveAddress(quoteMint)
   const { data } = useBackOfQueueWallet({
     query: {
       select: (data) => ({
@@ -103,7 +105,7 @@ export function AmountShortcutButton({
     return shortcutBigInt
   }, [maxBalance, percentage])
 
-  const usdPrice = useUSDPrice(baseToken, shortcut)
+  const usdPrice = useUSDPrice(base, shortcut)
 
   const formattedShortcut = React.useMemo(() => {
     if (isQuoteCurrency && shortcut < MIN_FILL_SIZE) {

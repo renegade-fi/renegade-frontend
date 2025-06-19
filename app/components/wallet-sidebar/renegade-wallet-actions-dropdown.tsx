@@ -1,10 +1,5 @@
-import { useConfig } from "@renegade-fi/react"
-import {
-  disconnect as disconnectRenegade,
-  refreshWallet,
-} from "@renegade-fi/react/actions"
+import { refreshWallet } from "@renegade-fi/react/actions"
 import { Clipboard, RefreshCw, SquareX, UserCheck } from "lucide-react"
-import { useDisconnect } from "wagmi"
 
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -16,7 +11,12 @@ import {
 import { Label } from "@/components/ui/label"
 
 import { type Wallet } from "@/hooks/use-wallets"
-import { useClientStore } from "@/providers/state-provider/client-store-provider.tsx"
+import {
+  useConfig,
+  useCurrentChain,
+  useRememberMe,
+} from "@/providers/state-provider/hooks"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 interface RenegadeWalletActionsDropdownProps {
   wallet: Wallet
@@ -25,12 +25,14 @@ interface RenegadeWalletActionsDropdownProps {
 export function RenegadeWalletActionsDropdown({
   wallet,
 }: RenegadeWalletActionsDropdownProps) {
+  const currentChainId = useCurrentChain()
+  const resetWallet = useServerStore((state) => state.resetWallet)
   const config = useConfig()
-  const { disconnect } = useDisconnect()
-  const { rememberMe, setRememberMe } = useClientStore((state) => state)
+  const rememberMe = useRememberMe()
+  const setRememberMe = useServerStore((s) => s.setRememberMe)
 
   const handleRefreshWallet = async () => {
-    if (wallet.isConnected) {
+    if (wallet.isConnected && config) {
       await refreshWallet(config)
     }
   }
@@ -42,8 +44,7 @@ export function RenegadeWalletActionsDropdown({
   }
 
   const handleDisconnect = () => {
-    disconnectRenegade(config)
-    disconnect()
+    resetWallet()
   }
 
   return (
@@ -71,7 +72,7 @@ export function RenegadeWalletActionsDropdown({
           className="flex items-center"
           onSelect={(e) => {
             e.preventDefault()
-            setRememberMe(!rememberMe)
+            setRememberMe(currentChainId, !rememberMe)
           }}
         >
           <UserCheck />
@@ -80,7 +81,7 @@ export function RenegadeWalletActionsDropdown({
             checked={rememberMe}
             onCheckedChange={(checked) => {
               if (typeof checked === "boolean") {
-                setRememberMe(checked)
+                setRememberMe(currentChainId, checked)
               }
             }}
           />

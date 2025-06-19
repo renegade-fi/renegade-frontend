@@ -3,14 +3,14 @@ import * as React from "react"
 import { Exchange } from "@renegade-fi/react"
 
 import { usePriceQuery } from "@/hooks/use-price-query"
-import { formatCurrency } from "@/lib/format"
+import { formatDynamicCurrency } from "@/lib/format"
 import { getPriceStatus } from "@/lib/price-status"
 import { cn } from "@/lib/utils"
 
 export function AnimatedPrice({
   className,
-  exchange = "binance",
   mint,
+  exchange = "renegade",
 }: {
   className?: string
   exchange?: Exchange
@@ -32,11 +32,6 @@ export function AnimatedPrice({
     }
   }, [price])
 
-  // Temporary fix for Coinbase
-  if (exchange === "coinbase") {
-    return <span className={cn("text-muted-foreground", className)}>--</span>
-  }
-
   const { priceColor } = getPriceStatus({ price, isStale, mint, exchange })
 
   return (
@@ -47,7 +42,7 @@ export function AnimatedPrice({
         "animate-price-red": price < prev.current,
       })}
     >
-      {formatCurrency(price)}
+      {formatDynamicCurrency(price)}
     </span>
   )
 }

@@ -3,8 +3,8 @@ import { NextRequest } from "next/server"
 import {
   BucketData,
   ExternalTransferData,
-  INFLOWS_KEY,
-  INFLOWS_SET_KEY,
+  getInflowsKey,
+  getInflowsSetKey,
 } from "@/app/api/stats/constants"
 import { getAllSetMembers } from "@/app/lib/kv-utils"
 
@@ -17,16 +17,27 @@ function startOfPeriod(timestamp: number, intervalMs: number): number {
 }
 
 export async function GET(req: NextRequest) {
+  // Parse and validate chainId
+  const chainIdParam = req.nextUrl.searchParams.get("chainId")
+  const chainId = Number(chainIdParam)
+  if (isNaN(chainId)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid chainId: ${chainIdParam}` }),
+      { status: 400 },
+    )
+  }
+  const inflowsKey = getInflowsKey(chainId)
+  const inflowsSetKey = getInflowsSetKey(chainId)
   try {
     const intervalMs = parseInt(
       req.nextUrl.searchParams.get("interval") || "86400000",
     )
 
-    const transactionHashes = await getAllSetMembers(INFLOWS_SET_KEY)
+    const transactionHashes = await getAllSetMembers(inflowsSetKey)
 
     // Use fetch pipeline to get all data in a single round-trip
     const pipelineBody = JSON.stringify(
-      transactionHashes.map((hash) => ["GET", `${INFLOWS_KEY}:${hash}`]),
+      transactionHashes.map((hash) => ["GET", `${inflowsKey}:${hash}`]),
     )
 
     const pipelineResponse = await fetch(`${env.KV_REST_API_URL}/pipeline`, {

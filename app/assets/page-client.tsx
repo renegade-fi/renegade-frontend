@@ -2,8 +2,7 @@
 
 import React from "react"
 
-import { TaskType, UpdateType, useTaskHistory } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { TaskType, UpdateType } from "@renegade-fi/react"
 import { Info } from "lucide-react"
 import { formatUnits } from "viem/utils"
 
@@ -16,9 +15,11 @@ import {
   ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip"
 
+import { useTaskHistory } from "@/hooks/query/use-task-history"
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 import { columns as assetColumns } from "./assets-table/columns"
 import { columns as historyColumns } from "./history-table/columns"
@@ -33,13 +34,14 @@ export type HistoryData = {
 }
 
 export function PageClient() {
+  const chainId = useCurrentChain()
   const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] =
     React.useState(true)
   const [showZeroOnChainBalance, setShowZeroOnChainBalance] =
     React.useState(true)
 
   const rawTableData = useAssetsTableData({
-    mints: DISPLAY_TOKENS().map((token) => token.address),
+    mints: DISPLAY_TOKENS({ chainId }).map((token) => token.address),
   })
 
   const filteredTableData = React.useMemo(() => {
@@ -66,7 +68,7 @@ export function PageClient() {
         (task.task_info.update_type === UpdateType.Deposit ||
           task.task_info.update_type === UpdateType.Withdraw)
       ) {
-        const token = Token.findByAddress(task.task_info.mint)
+        const token = resolveAddress(task.task_info.mint)
 
         acc.push({
           status: task.state,

@@ -1,11 +1,13 @@
 import React from "react"
 
-import { useConfig, useWalletId } from "@renegade-fi/react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useAccount, useEnsName } from "wagmi"
 
 import { truncateAddress } from "@/lib/format"
+import { useCurrentWallet } from "@/providers/state-provider/hooks"
 import { mainnetConfig } from "@/providers/wagmi-provider/config"
+
+import { useChain } from "./use-chain"
 
 export interface ConnectedWallet {
   name: string
@@ -36,24 +38,24 @@ export function useWallets() {
   // Using address && connector because initialState loads these from cookies
   // status is "reconnecting" usually, so avoid usign it on page load
   const { address, connector, status } = useAccount()
+  const currentChain = useChain()
   const { publicKey, wallet, connected } = useWallet()
   const { data: ensName } = useEnsName({
     address,
     config: mainnetConfig,
   })
+  const chainSpecifier = currentChain?.name.split(" ")[0].toLowerCase()
 
   // Renegade
-  // Using config.state.seed && walletId because initialState loads these from cookies
-  const config = useConfig()
-  const walletId = useWalletId()
-
+  // Using seed && wallet ID because initialState loads these from cookies
+  const { seed, id } = useCurrentWallet()
   const renegadeWallet: Wallet =
-    config.state.seed && walletId
+    seed && id
       ? {
-          name: "Renegade Wallet ID",
+          name: "Renegade Wallet",
           icon: "/glyph_light.png",
-          id: walletId,
-          label: truncateAddress(walletId),
+          id,
+          label: truncateAddress(id),
           isConnected: true,
         }
       : {
@@ -67,15 +69,15 @@ export function useWallets() {
   const arbitrumWallet: Wallet =
     address && connector
       ? {
-          name: "Arbitrum Address",
-          icon: connector.icon ?? "",
+          name: `${chainSpecifier} Wallet`,
+          icon: `/${chainSpecifier}.svg`,
           id: address,
           label: ensName || truncateAddress(address),
           isConnected: true,
         }
       : {
-          name: "Arbitrum Address",
-          icon: null,
+          name: `${chainSpecifier} Wallet`,
+          icon: `/${chainSpecifier}.svg`,
           id: null,
           label: "Not Connected",
           isConnected: false,
@@ -105,18 +107,16 @@ export function useWallets() {
     switch (status) {
       case "connecting":
       case "reconnecting":
-        return config.state.seed && address && connector
-          ? "READY"
-          : "CONNECTING"
+        return seed && address && connector ? "READY" : "CONNECTING"
 
       case "connected":
-        return config.state.seed && address && connector ? "READY" : "NOT_READY"
+        return seed && address && connector ? "READY" : "NOT_READY"
 
       case "disconnected":
       default:
         return "NOT_READY"
     }
-  }, [address, config.state.seed, connector, status])
+  }, [address, seed, connector, status])
 
   return {
     renegadeWallet,

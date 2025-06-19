@@ -2,21 +2,27 @@ import { useQuery } from "@tanstack/react-query"
 
 import { TimeToFillResponse } from "@/app/api/stats/time-to-fill/route"
 
+import { resolveAddress } from "@/lib/token"
+
 interface TimeToFillParams {
   amount: string
-  baseTicker: string
+  mint: `0x${string}`
+  chainId: number
 }
 
-export function useTimeToFill({ amount, baseTicker }: TimeToFillParams) {
+export function useTimeToFill({ amount, mint, chainId }: TimeToFillParams) {
   return useQuery({
-    queryKey: ["timeToFill", amount, baseTicker],
+    queryKey: ["timeToFill", amount, mint, chainId],
     queryFn: async () => {
+      const ticker = resolveAddress(mint).ticker
       const searchParams = new URLSearchParams({
         amount,
-        baseTicker,
+        baseTicker: ticker,
       })
 
-      const response = await fetch(`/api/stats/time-to-fill?${searchParams}`)
+      const response = await fetch(
+        `/api/stats/time-to-fill?${searchParams}&chainId=${chainId}`,
+      )
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error || "Failed to fetch time to fill")
@@ -34,6 +40,6 @@ export function useTimeToFill({ amount, baseTicker }: TimeToFillParams) {
 
       return data.estimatedMs
     },
-    enabled: Boolean(amount && baseTicker),
+    enabled: Boolean(amount && mint),
   })
 }

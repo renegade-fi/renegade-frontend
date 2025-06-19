@@ -1,8 +1,6 @@
 import * as React from "react"
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { useBackOfQueueWallet } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
 import { isAddress } from "viem"
 import { useAccount } from "wagmi"
 
@@ -22,17 +20,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances"
 import { useRefreshOnBlock } from "@/hooks/use-refresh-on-block"
 import { formatNumber } from "@/lib/format"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
 import { cn } from "@/lib/utils"
-
-const tokens = DISPLAY_TOKENS().map((token) => ({
-  value: token.address,
-  label: token.ticker,
-}))
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function TokenSelect({
   direction,
@@ -45,6 +40,12 @@ export function TokenSelect({
 }) {
   const [open, setOpen] = React.useState(false)
   const { address } = useAccount()
+
+  const chainId = useCurrentChain()
+  const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
+    value: token.address,
+    label: token.ticker,
+  }))
 
   const { data: l2Balances, queryKey } = useOnChainBalances({
     address,
@@ -97,7 +98,7 @@ export function TokenSelect({
         <Command
           filter={(value, search) => {
             if (!isAddress(value)) return 0
-            const token = Token.findByAddress(value)
+            const token = resolveAddress(value)
             if (
               token.name.toLowerCase().includes(search.toLowerCase()) ||
               token.ticker.toLowerCase().includes(search.toLowerCase())
@@ -127,7 +128,7 @@ export function TokenSelect({
                     {formatNumber(
                       displayBalances?.get(t.value as `0x${string}`) ??
                         BigInt(0),
-                      Token.findByAddress(t.value).decimals,
+                      resolveAddress(t.value).decimals,
                     )}
                   </span>
                   <CheckIcon

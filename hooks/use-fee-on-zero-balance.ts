@@ -1,4 +1,4 @@
-import { useBackOfQueueWallet } from "@renegade-fi/react"
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 
 export function useFeeOnZeroBalance() {
   const { data } = useBackOfQueueWallet({

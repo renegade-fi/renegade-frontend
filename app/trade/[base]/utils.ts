@@ -1,30 +1,55 @@
-import { Exchange } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
-import { QueryClient } from "@tanstack/react-query"
+import { headers } from "next/headers"
 
-import { createPriceQueryKey } from "@/lib/query"
-import { remapToken } from "@/lib/token"
-import { getURL } from "@/lib/utils"
+import { STORAGE_SERVER_STORE } from "@/lib/constants/storage"
+import { resolveAddress, resolveTicker, zeroAddress } from "@/lib/token"
+import { cookieToInitialState } from "@/providers/state-provider/cookie-storage"
+import type { ServerState } from "@/providers/state-provider/schema"
+import { defaultInitState } from "@/providers/state-provider/server-store"
 
-export async function prefetchPrice(
-  queryClient: QueryClient,
-  baseMint: `0x${string}`,
-  exchange: Exchange = "binance",
-) {
-  const queryKey = createPriceQueryKey(exchange, baseMint)
+export const FALLBACK_TICKER = "WETH"
 
-  await queryClient.prefetchQuery({
-    queryKey,
-    queryFn: async () => {
-      const ticker = remapToken(Token.findByAddress(baseMint).ticker)
+/**
+ * Resolves a ticker to the ticker to redirect to, if necessary
+ * @param ticker - The ticker to resolve
+ * @param serverState - The server state
+ * @returns The resolved ticker or undefined if no redirect is necessary
+ */
+export function getTickerRedirect(
+  ticker: string,
+  serverState: ServerState,
+): string | undefined {
+  const fallbackTicker = getFallbackTicker(serverState)
+  const token = resolveTicker(ticker)
 
-      if (exchange === "binance") {
-        const url = `${getURL()}/api/proxy/amberdata?path=/market/spot/prices/pairs/${ticker}_usdt/latest&exchange=binance`
+  // Fallback if no token found
+  if (token.address === zeroAddress) return fallbackTicker
+  // Check if stablecoin
+  if (token.isStablecoin()) return fallbackTicker
+  // Check casing
+  if (token.ticker !== ticker) return token.ticker
+  return
+}
 
-        const res = await fetch(url)
-        const data = await res.json()
-        return data.payload.price
-      }
-    },
-  })
+/**
+ * Gets the cached ticker from server state, with fallback to WETH
+ */
+export function getFallbackTicker(serverState: ServerState): string {
+  if (serverState.baseMint) {
+    const baseToken = resolveAddress(serverState.baseMint)
+    return baseToken.ticker
+  }
+  return FALLBACK_TICKER
+}
+
+/**
+ * Hydrates server state from cookies
+ */
+export async function hydrateServerState(): Promise<ServerState> {
+  const headersList = await headers()
+  const cookieString = headersList.get("cookie")
+    ? decodeURIComponent(headersList.get("cookie") ?? "")
+    : ""
+  const initialState =
+    cookieToInitialState(STORAGE_SERVER_STORE, cookieString) ?? defaultInitState
+  return initialState
 }

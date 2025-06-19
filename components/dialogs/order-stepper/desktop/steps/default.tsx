@@ -1,8 +1,7 @@
 import React from "react"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType, useCreateOrder } from "@renegade-fi/react"
-import { Token } from "@renegade-fi/token-nextjs"
+import { UpdateType } from "@renegade-fi/react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -32,6 +31,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
+import { useCreateOrder } from "@/hooks/mutation/use-create-order"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useOrderValue } from "@/hooks/use-order-value"
 import { usePrepareCreateOrder } from "@/hooks/use-prepare-create-order"
@@ -44,18 +44,16 @@ import {
   formatNumber,
   safeParseUnits,
 } from "@/lib/format"
+import { resolveAddress } from "@/lib/token"
 import { decimalCorrectPrice } from "@/lib/utils"
+import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
-export function DefaultStep(
-  props: NewOrderConfirmationProps & {
-    allowExternalMatches: boolean
-    setAllowExternalMatches: (allowExternalMatches: boolean) => void
-  },
-) {
+export function DefaultStep(props: NewOrderConfirmationProps) {
   const { onNext, setTaskId } = useStepper()
 
-  const baseToken = Token.findByTicker(props.base)
-  const quoteToken = Token.findByTicker("USDC")
+  const baseToken = resolveAddress(props.base)
+  const quoteMint = useServerStore((state) => state.quoteMint)
+  const quoteToken = resolveAddress(quoteMint)
   const { data: price } = usePriceQuery(baseToken.address)
 
   const worstCasePrice = React.useMemo(() => {
@@ -64,16 +62,19 @@ export function DefaultStep(
     return decimalCorrectPrice(wcp, baseToken.decimals, quoteToken.decimals)
   }, [baseToken.decimals, price, props.isSell, quoteToken.decimals])
 
+  const allowExternalMatches = useServerStore(
+    (state) => state.allowExternalMatches,
+  )
   const { data: request } = usePrepareCreateOrder({
-    base: baseToken.address,
+    base: props.base,
     quote: quoteToken.address,
     side: props.isSell ? "sell" : "buy",
     amount: props.amount,
     worstCasePrice: worstCasePrice.toFixed(18),
-    allowExternalMatches: props.allowExternalMatches,
+    allowExternalMatches,
   })
 
-  const { createOrder } = useCreateOrder({
+  const { mutate: createOrder } = useCreateOrder({
     mutation: {
       onSuccess(data) {
         props.onSuccess?.()
@@ -101,11 +102,7 @@ export function DefaultStep(
       </DialogHeader>
       <ScrollArea className="max-h-[70vh]">
         <div className="flex flex-col gap-6 p-6">
-          <ConfirmOrderDisplay
-            {...props}
-            allowExternalMatches={props.allowExternalMatches}
-            setAllowExternalMatches={props.setAllowExternalMatches}
-          />
+          <ConfirmOrderDisplay {...props} />
         </div>
       </ScrollArea>
       <DialogFooter>
@@ -122,21 +119,17 @@ export function DefaultStep(
             createOrder({ request })
           }}
         >
-          {props.isSell ? "Sell" : "Buy"} {props.base}
+          {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
         </Button>
       </DialogFooter>
     </>
   )
 }
 
-export function ConfirmOrderDisplay(
-  props: NewOrderConfirmationProps & {
-    allowExternalMatches: boolean
-    setAllowExternalMatches: (allowExternalMatches: boolean) => void
-  },
-) {
+export function ConfirmOrderDisplay(props: NewOrderConfirmationProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const token = Token.findByTicker(props.base)
+  const token = resolveAddress(props.base)
+  const quoteMint = useServerStore((state) => state.quoteMint)
   const parsedAmount = safeParseUnits(props.amount, token.decimals)
   const formattedAmount = formatNumber(
     parsedAmount instanceof Error ? BigInt(0) : parsedAmount,
@@ -158,9 +151,9 @@ export function ConfirmOrderDisplay(
         </div>
         <div className="flex items-center justify-between">
           <div className="font-serif text-3xl font-bold">
-            {formattedAmount} {props.base}
+            {formattedAmount} {token.ticker}
           </div>
-          <TokenIcon ticker={props.base} />
+          <TokenIcon ticker={token.ticker} />
         </div>
       </div>
       <div className="space-y-3">
@@ -208,23 +201,20 @@ export function ConfirmOrderDisplay(
         <FeesSection {...props} />
       </div>
       <div>
-        <ExternalMatchesSection
-          {...props}
-          allowExternalMatches={props.allowExternalMatches}
-          setAllowExternalMatches={props.setAllowExternalMatches}
-        />
+        <ExternalMatchesSection {...props} />
       </div>
       <NoBalanceSlotWarning
+        baseMint={props.base}
         className="text-sm text-orange-400"
         isSell={props.isSell}
-        ticker={props.base}
+        quoteMint={quoteMint}
       />
       <InsufficientWarning
         richColors
         amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
         baseMint={token.address}
         className="text-sm text-orange-400"
-        quoteMint={Token.findByTicker("USDC").address}
+        quoteMint={quoteMint}
         side={props.isSell ? Side.SELL : Side.BUY}
       />
     </>

@@ -1,9 +1,11 @@
 import * as React from "react"
+import { useMemo } from "react"
 
 import numeral from "numeral"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { arbitrum, base } from "viem/chains"
 
-import { useVolumeData } from "@/app/stats/hooks/use-volume-data"
+import { useVolumeData, VolumeData } from "@/app/stats/hooks/use-volume-data"
 
 import {
   Card,
@@ -15,61 +17,93 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { formatStat } from "@/lib/format"
+import { extractSupportedChain, getFormattedChainName } from "@/lib/viem"
+
+type ChartData = {
+  timestamp: string
+  arbitrumVolume: number
+  baseVolume: number
+}
 
 const chartConfig = {
-  volume: {
-    label: "Volume",
+  arbitrumVolume: {
+    label: "Arbitrum Volume",
     color: "hsl(var(--chart-blue))",
+  },
+  baseVolume: {
+    label: "Base Volume",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
 
-/**
- * Rounds the given timestamp to the next day at midnight (UTC)
- * @param timestamp Unix timestamp in seconds
- * @returns Unix timestamp in seconds for the next day at midnight
- */
-function roundToNextDay(timestamp: number): number {
-  const date = new Date(timestamp * 1000)
-  date.setUTCHours(24, 0, 0, 0)
-  return Math.floor(date.getTime() / 1000)
+function computeChartData(
+  arbitrumVolumeData: VolumeData,
+  baseVolumeData: VolumeData,
+) {
+  const data: ChartData[] = []
+  if (!arbitrumVolumeData) return data
+  for (const [timestamp, arbitrumDataPoint] of arbitrumVolumeData.entries()) {
+    const baseDataPoint = baseVolumeData?.get(timestamp) ?? null
+    data.push({
+      timestamp: (timestamp * 1000).toString(),
+      arbitrumVolume: arbitrumDataPoint.volume,
+      baseVolume: baseDataPoint?.volume ?? 0,
+    })
+  }
+  return data
 }
 
-const timePeriod = {
-  year: 365 * 24 * 60 * 60,
-  month: 30 * 24 * 60 * 60,
-  day: 24 * 60 * 60,
-} as const
+export function VolumeChart({ chainId }: { chainId: number }) {
+  const { data: arbitrumVolumeData } = useVolumeData(arbitrum.id)
+  const { data: baseVolumeData } = useVolumeData(base.id)
 
-export function VolumeChart() {
-  const now = roundToNextDay(Math.floor(Date.now() / 1000)) // Current time in seconds
-  const { data } = useVolumeData()
+  const chartData = React.useMemo(() => {
+    if (!arbitrumVolumeData || !baseVolumeData) return []
+    const chartData = computeChartData(arbitrumVolumeData, baseVolumeData)
+    const filteredChartData = chartData.filter((data) => {
+      if (chainId === arbitrum.id) return data.arbitrumVolume > 0
+      if (chainId === base.id) return data.baseVolume > 0
+      return true
+    })
+    return filteredChartData
+  }, [arbitrumVolumeData, baseVolumeData, chainId])
 
-  const chartData = data?.map((dataPoint) => ({
-    timestamp: (dataPoint.timestamp * 1000).toString(),
-    volume: dataPoint.volume,
-  }))
+  const cumVol = useMemo(() => {
+    if (!chartData) return 0
+    const cumArbVol = chartData[chartData.length - 2]?.arbitrumVolume
+    const cumBaseVol = chartData[chartData.length - 2]?.baseVolume
+    if (chainId === arbitrum.id) return cumArbVol
+    if (chainId === base.id) return cumBaseVol
+    return cumArbVol + cumBaseVol
+  }, [chainId, chartData])
 
-  const cumulativeVolume = chartData?.[chartData.length - 2]?.volume
-  const cumulativeVolumeLabel = formatStat(cumulativeVolume ?? 0)
+  const cumVolLabel = formatStat(cumVol)
+
+  const chainSuffix = useMemo(() => {
+    if (!chainId) return ""
+    const chain = extractSupportedChain(chainId)
+    return ` on ${getFormattedChainName(chain.id)}`
+  }, [chainId])
+
+  const showOnlyArbitrum = chainId === arbitrum.id
+  const showOnlyBase = chainId === base.id
 
   return (
     <Card className="w-full rounded-none">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="font-serif text-4xl font-bold tracking-tighter lg:tracking-normal">
-            {cumulativeVolume ? (
-              cumulativeVolumeLabel
-            ) : (
-              <Skeleton className="h-10 w-40" />
-            )}
+            {cumVol ? cumVolLabel : <Skeleton className="h-10 w-40" />}
           </CardTitle>
-          <CardDescription>24H Volume</CardDescription>
+          <CardDescription>24H Volume{chainSuffix}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
@@ -104,7 +138,7 @@ export function VolumeChart() {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  className="w-[150px]"
+                  className="w-64"
                   formatter={(value, name, item, index) => {
                     const n = numeral(value).format("$0,0.00a")
                     return (
@@ -122,6 +156,17 @@ export function VolumeChart() {
                         <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
                           {n}
                         </div>
+                        {index === 1 && (
+                          <div className="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground">
+                            Total
+                            <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
+                              {numeral(
+                                item.payload.arbitrumVolume +
+                                  item.payload.baseVolume,
+                              ).format("$0,0.00a")}
+                            </div>
+                          </div>
+                        )}
                       </>
                     )
                   }}
@@ -132,14 +177,25 @@ export function VolumeChart() {
                       timeZone: "UTC",
                     })
                   }}
-                  nameKey="volume"
+                  nameKey="arbitrumVolume"
                 />
               }
             />
-            <Bar
-              dataKey="volume"
-              fill={`var(--color-volume)`}
-            />
+            <ChartLegend content={<ChartLegendContent />} />
+            {showOnlyBase ? null : (
+              <Bar
+                dataKey="arbitrumVolume"
+                fill={`var(--color-arbitrumVolume)`}
+                stackId="a"
+              />
+            )}
+            {showOnlyArbitrum ? null : (
+              <Bar
+                dataKey="baseVolume"
+                fill={`var(--color-baseVolume)`}
+                stackId="a"
+              />
+            )}
           </BarChart>
         </ChartContainer>
       </CardContent>

@@ -1,21 +1,22 @@
 import React from "react"
 
-import { useBackOfQueueWallet, useConfig } from "@renegade-fi/react"
+import { getSDKConfig } from "@renegade-fi/react"
 import { deposit, getPkRootScalars } from "@renegade-fi/react/actions"
-import { Token } from "@renegade-fi/token-nextjs"
 import { MutationStatus } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { isAddress } from "viem"
 import { useWalletClient } from "wagmi"
 
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet"
 import { FAILED_DEPOSIT_MSG } from "@/lib/constants/task"
 import { safeParseUnits } from "@/lib/format"
 import { signPermit2 } from "@/lib/permit2"
-import { chain } from "@/lib/viem"
-import { sdkConfig } from "@/providers/renegade-provider/config"
+import { resolveAddress } from "@/lib/token"
+import { useConfig, useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function useDeposit() {
   const config = useConfig()
+  const chainId = useCurrentChain()
   const { data: walletClient } = useWalletClient()
   const [status, setStatus] = React.useState<MutationStatus>("idle")
   const { data: keychainNonce } = useBackOfQueueWallet({
@@ -34,8 +35,14 @@ export function useDeposit() {
     amount: string
     onSuccess?: ({ taskId }: { taskId: string }) => void
   }) {
-    if (!walletClient || !mint || !isAddress(mint, { strict: false })) return
-    const token = Token.findByAddress(mint as `0x${string}`)
+    if (
+      !walletClient ||
+      !mint ||
+      !isAddress(mint, { strict: false }) ||
+      !config
+    )
+      return
+    const token = resolveAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)
     if (parsedAmount instanceof Error) {
       toast.error("Deposit amount is invalid")
@@ -49,9 +56,9 @@ export function useDeposit() {
     // Generate Permit2 Signature
     const { signature, nonce, deadline } = await signPermit2({
       amount: parsedAmount,
-      chainId: chain.id,
-      spender: sdkConfig.darkpoolAddress,
-      permit2Address: sdkConfig.permit2Address,
+      chainId,
+      spender: getSDKConfig(chainId).darkpoolAddress,
+      permit2Address: getSDKConfig(chainId).permit2Address,
       token,
       walletClient,
       pkRoot,

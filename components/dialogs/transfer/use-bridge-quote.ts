@@ -1,17 +1,17 @@
-import { QuoteRequest, getQuote, getStatus } from "@lifi/sdk"
-import { Token } from "@renegade-fi/token-nextjs"
+import { QuoteRequest, getQuote } from "@lifi/sdk"
 import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
 import { useQuery } from "@tanstack/react-query"
 import { mainnet } from "viem/chains"
-import { useAccount } from "wagmi"
+import { useAccount, useConfig } from "wagmi"
 
 import { safeParseUnits } from "@/lib/format"
-import { chain, solana } from "@/lib/viem"
+import { resolveAddress } from "@/lib/token"
+import { solana } from "@/lib/viem"
 
 export interface UseBridgeParams {
-  fromChain: number
+  fromChain?: number
   fromMint: string
-  toChain: number
+  toChain?: number
   toMint: `0x${string}`
   amount: string
   enabled?: boolean
@@ -56,19 +56,20 @@ function useParams({
   fromChain,
   toChain,
 }: UseBridgeParams): QuoteRequest | undefined {
+  const config = useConfig()
+  const evmChains = [mainnet, ...config.chains]
   const { address } = useAccount()
   const { publicKey: solanaWallet } = useSolanaWallet()
-  // @ts-ignore
-  const fromAddress = [mainnet.id, chain.id].includes(fromChain)
+  const fromAddress = evmChains.some((chain) => chain.id === fromChain)
     ? address
     : fromChain === solana.id
       ? solanaWallet?.toString()
       : undefined
-  if (!fromAddress || !toMint || !Number(amount)) {
+  if (!fromAddress || !toMint || !Number(amount) || !fromChain || !toChain) {
     return undefined
   }
 
-  const token = Token.findByAddress(toMint)
+  const token = resolveAddress(toMint)
   const parsedAmount = safeParseUnits(amount, token.decimals)
 
   if (parsedAmount instanceof Error) {

@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles"
 
-export function NewOrderPanel({ base }: { base: string }) {
+export function NewOrderPanel({ base }: { base: `0x${string}` }) {
   const [open, setOpen] = React.useState(false)
   const [lockedFormValues, setLockedFormValues] =
     React.useState<NewOrderConfirmationProps | null>(null)

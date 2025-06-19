@@ -20,13 +20,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { useIsBase } from "@/hooks/use-is-base"
 import { FAUCET_TOOLTIP } from "@/lib/constants/tooltips"
 import { fundList, fundWallet } from "@/lib/utils"
 import { isTestnet } from "@/lib/viem"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function Footer() {
   const { address } = useAccount()
   const { state } = useSidebar()
+  const chainId = useCurrentChain()
+  const isBase = useIsBase()
 
   return (
     <footer className="relative hidden min-h-20 min-w-full bg-background before:absolute before:left-0 before:right-0 before:top-0 before:h-[1px] before:bg-border lg:block">
@@ -56,7 +60,7 @@ export function Footer() {
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
-          {isTestnet && (
+          {isTestnet && !isBase && (
             <Tooltip>
               <TooltipTrigger
                 asChild
@@ -73,15 +77,18 @@ export function Footer() {
                       return
                     }
 
-                    toast.promise(fundWallet(fundList.slice(0, 2), address), {
-                      loading: "Funding account...",
-                      success: "Successfully funded account.",
-                      error:
-                        "Funding failed: An unexpected error occurred. Please try again.",
-                    })
+                    toast.promise(
+                      fundWallet(fundList.slice(0, 2), address, chainId),
+                      {
+                        loading: "Funding account...",
+                        success: "Successfully funded account.",
+                        error:
+                          "Funding failed: An unexpected error occurred. Please try again.",
+                      },
+                    )
 
                     // Fund additional wallets in background
-                    fundWallet(fundList.slice(2), address)
+                    fundWallet(fundList.slice(2), address, chainId)
                   }}
                 >
                   Faucet

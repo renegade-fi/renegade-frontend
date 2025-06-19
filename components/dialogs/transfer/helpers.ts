@@ -1,15 +1,14 @@
-import { Config } from "@renegade-fi/react"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { Token } from "@renegade-fi/token-nextjs"
 import { QueryClient } from "@tanstack/react-query"
 import invariant from "tiny-invariant"
-import { formatUnits, isAddress } from "viem"
+import { formatUnits, isAddress, PublicClient } from "viem"
 import { z } from "zod"
 
 import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
 import { safeParseUnits } from "@/lib/format"
 import { createPriceQueryKey } from "@/lib/query"
-import { chain, extractSupportedChain, viemClient } from "@/lib/viem"
+import { resolveAddress } from "@/lib/token"
+import { extractSupportedChain } from "@/lib/viem"
 
 export enum ExternalTransferDirection {
   Deposit,
@@ -36,11 +35,13 @@ export const formSchema = z.object({
 export function checkAmount(
   queryClient: QueryClient,
   amount: string,
-  baseToken?: InstanceType<typeof Token>,
+  mint?: `0x${string}`,
 ) {
-  if (!baseToken) return false
+  if (!mint) return false
   const usdPrice = queryClient.getQueryData<number>(
-    createPriceQueryKey("binance", baseToken.address),
+    createPriceQueryKey({
+      base: mint,
+    }),
   )
   if (!usdPrice) return false
   const amountInUsd = Number(amount) * usdPrice
@@ -58,7 +59,7 @@ export function checkBalance({
     return false
   }
   try {
-    const token = Token.findByAddress(mint as `0x${string}`)
+    const token = resolveAddress(mint as `0x${string}`)
     const parsedAmount = safeParseUnits(amount, token.decimals)
     if (parsedAmount instanceof Error) {
       return false
@@ -79,7 +80,7 @@ export function isMaxBalance({
     return false
   }
   try {
-    const token = Token.findByAddress(mint as `0x${string}`)
+    const token = resolveAddress(mint as `0x${string}`)
     const formattedAmount = formatUnits(balance, token.decimals)
     return amount === formattedAmount
   } catch (error) {
@@ -119,10 +120,10 @@ export function normalizeStatus(
   }
 }
 
-export function getExplorerLink(
-  txHash: string,
-  chainId: number = chain.id,
-): string {
+export function getExplorerLink(txHash: string, chainId?: number) {
+  if (!chainId) {
+    return
+  }
   const _chain = extractSupportedChain(chainId)
 
   const explorerUrl = _chain.blockExplorers?.default.url
@@ -132,15 +133,22 @@ export function getExplorerLink(
   return `${explorerUrl}/tx/${txHash}`
 }
 
-export function verifyRecipientAddress(config: Config, recipient?: string) {
-  invariant(config.state.seed, "Seed is required")
+export function verifyRecipientAddress(
+  publicClient?: PublicClient,
+  seed?: `0x${string}`,
+  recipient?: string,
+  chainId?: number,
+) {
+  invariant(publicClient, "Public client is required")
+  invariant(seed, "Seed is required")
   invariant(
     recipient && isAddress(recipient),
     "Recipient is required and must be a valid address",
   )
-  return viemClient.verifyMessage({
+  invariant(chainId, "Chain ID is required")
+  return publicClient.verifyMessage({
     address: recipient,
-    message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
-    signature: config.state.seed,
+    message: `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`,
+    signature: seed,
   })
 }

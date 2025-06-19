@@ -1,40 +1,62 @@
 import React from "react"
 
-import { PriceReporterClient } from "@renegade-fi/price-reporter"
 import { Exchange } from "@renegade-fi/react"
-import { useQuery } from "@tanstack/react-query"
+import {
+  queryOptions,
+  useQuery,
+  type UseQueryOptions,
+} from "@tanstack/react-query"
 
+import { client } from "@/lib/clients/price-reporter"
 import { createPriceQueryKey, createPriceTopic } from "@/lib/query"
-import { environment } from "@/lib/viem"
+import { isSupportedExchange } from "@/lib/token"
 
 import { usePriceWebSocket } from "./use-price-websocket"
 
-const STALE_TIME_MS = 60_000
+export const STALE_TIME_MS = 60_000
 
-const client = PriceReporterClient.new(environment)
+export function priceQueryOptions(
+  baseMint: `0x${string}`,
+  exchange: Exchange = "renegade",
+): UseQueryOptions<number> {
+  const topic = createPriceTopic({ exchange, base: baseMint })
+
+  return queryOptions<number>({
+    queryKey: ["dummy"], // Consumers will replace this with either "live" or "snapshot" price query key
+    queryFn: () => {
+      const [ex, base, quote] = topic.split("-") as [
+        Exchange,
+        `0x${string}`,
+        `0x${string}`,
+      ]
+      return client.getPriceByTopic(ex, base, quote)
+    },
+  })
+}
 
 export function usePriceQuery(
   baseMint: `0x${string}`,
-  exchange: Exchange = "binance",
+  exchange: Exchange = "renegade",
 ) {
-  const topic = createPriceTopic(exchange, baseMint)
-  const queryKey = createPriceQueryKey(exchange, baseMint)
+  const opts = priceQueryOptions(baseMint, exchange)
+  const topic = createPriceTopic({ exchange, base: baseMint })
   const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket()
+  const isSupported = isSupportedExchange(baseMint, exchange)
+  const queryKey = createPriceQueryKey({ exchange, base: baseMint })
 
   React.useEffect(() => {
+    if (!isSupported) return
     subscribeToTopic(topic)
-
-    // Unsubscribe when the component unmounts or when dependencies change
     return () => {
       unsubscribeFromTopic(topic)
     }
-  }, [subscribeToTopic, unsubscribeFromTopic, topic])
+  }, [isSupported, subscribeToTopic, unsubscribeFromTopic, topic])
 
   return useQuery<number>({
+    ...opts,
     queryKey,
-    queryFn: () => client.getPrice(baseMint),
     initialData: 0,
     staleTime: STALE_TIME_MS,
-    retry: false,
+    enabled: isSupported,
   })
 }

@@ -1,9 +1,9 @@
 import * as React from "react"
 
-import { usePathname, useRouter } from "next/navigation"
+import Image from "next/image"
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { UpdateType } from "@renegade-fi/react"
+import { UpdateType, getSDKConfig } from "@renegade-fi/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertCircle, Check, Loader2 } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
@@ -58,8 +58,10 @@ import {
 } from "@/components/ui/tooltip"
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required"
+import { useChainName } from "@/hooks/use-chain-name"
 import { useCheckChain } from "@/hooks/use-check-chain"
 import { useDeposit } from "@/hooks/use-deposit"
+import { useIsBase } from "@/hooks/use-is-base"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { useTransactionConfirmation } from "@/hooks/use-transaction-confirmation"
 import { useWaitForTask } from "@/hooks/use-wait-for-task"
@@ -74,7 +76,7 @@ import { catchErrorWithToast } from "@/lib/constants/toast"
 import { TRANSFER_DIALOG_L1_BALANCE_TOOLTIP } from "@/lib/constants/tooltips"
 import { useWriteErc20Approve } from "@/lib/generated"
 import { cn } from "@/lib/utils"
-import { sdkConfig } from "@/providers/renegade-provider/config"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 import { useServerStore } from "@/providers/state-provider/server-store-provider"
 
 const catchError = (error: Error, message: string) => {
@@ -94,12 +96,11 @@ export function DefaultForm({
   form: UseFormReturn<z.infer<typeof formSchema>>
   header: React.ReactNode
 }) {
+  const chainId = useCurrentChain()
   const { checkChain } = useCheckChain()
   const isDesktop = useMediaQuery("(min-width: 1024px)")
-  const isTradePage = usePathname().includes("/trade")
   const queryClient = useQueryClient()
-  const router = useRouter()
-  const { setSide } = useServerStore((state) => state)
+  const setSide = useServerStore((s) => s.setSide)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [steps, setSteps] = React.useState<string[]>([])
   const isDeposit = direction === ExternalTransferDirection.Deposit
@@ -154,7 +155,7 @@ export function DefaultForm({
     useAllowanceRequired({
       amount: amount.toString(),
       mint,
-      spender: sdkConfig.permit2Address,
+      spender: chainId ? getSDKConfig(chainId).permit2Address : undefined,
       decimals: l2Token?.decimals ?? 0,
     })
 
@@ -220,8 +221,15 @@ export function DefaultForm({
     onSuccess?.()
   }
 
+  const chainName = useChainName(true /* short */)
+  const isBase = useIsBase()
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const isAmountSufficient = checkAmount(queryClient, values.amount, l2Token)
+    const isAmountSufficient = checkAmount(
+      queryClient,
+      values.amount,
+      l2Token?.address,
+    )
 
     if (isDeposit) {
       if (!isAmountSufficient) {
@@ -238,7 +246,7 @@ export function DefaultForm({
       })
       if (!isBalanceSufficient) {
         form.setError("amount", {
-          message: "Insufficient Arbitrum balance",
+          message: `Insufficient ${chainName} balance`,
         })
         return
       }
@@ -257,7 +265,10 @@ export function DefaultForm({
       if (allowanceRequired && l2Token?.address) {
         await handleApprove({
           address: l2Token.address,
-          args: [sdkConfig.permit2Address, UNLIMITED_ALLOWANCE],
+          args: [
+            chainId ? getSDKConfig(chainId).permit2Address : "0x",
+            UNLIMITED_ALLOWANCE,
+          ],
         })
       } else {
         handleDeposit({
@@ -499,14 +510,24 @@ export function DefaultForm({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  Balance&nbsp;on&nbsp;
-                  {isDeposit ? (
+                  Balance on&nbsp;
+                  {isDeposit && chainName ? (
                     <>
-                      <TokenIcon
-                        size={16}
-                        ticker="ARB"
-                      />
-                      Arbitrum
+                      <div
+                        className={cn("overflow-hidden rounded-full")}
+                        style={{
+                          width: 16,
+                          height: 16,
+                        }}
+                      >
+                        <Image
+                          alt={chainName}
+                          height={16}
+                          src={`/${chainName.toLowerCase()}.svg`}
+                          width={16}
+                        />
+                      </div>
+                      {chainName}
                     </>
                   ) : (
                     "Renegade"
@@ -546,7 +567,11 @@ export function DefaultForm({
 
             <div
               className={cn("flex justify-between", {
-                hidden: !userHasL1Balance || !isDeposit || !l1Token?.address,
+                hidden:
+                  !userHasL1Balance ||
+                  !isDeposit ||
+                  !l1Token?.address ||
+                  isBase,
               })}
             >
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -588,7 +613,11 @@ export function DefaultForm({
 
             <div
               className={cn({
-                hidden: !userHasL1Balance || !isDeposit || !l1Token?.address,
+                hidden:
+                  !userHasL1Balance ||
+                  !isDeposit ||
+                  !l1Token?.address ||
+                  isBase,
               })}
             >
               <BridgePrompt

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 
-import { Token } from "@renegade-fi/token-nextjs"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { parseUnits } from "viem"
 import { z } from "zod"
+
+import { resolveAddress } from "@/lib/token"
 
 import { formSchema } from "./helpers"
 
@@ -12,8 +13,6 @@ interface SwapState {
   usdceToSwap?: string
   usdcBalance: bigint
 }
-
-const baseToken = Token.findByTicker("USDC")
 
 export function useSwapState(
   form: UseFormReturn<z.infer<typeof formSchema>>,
@@ -34,7 +33,8 @@ export function useSwapState(
   useEffect(() => {
     const { unsubscribe } = form.watch((value, { name, type }) => {
       if (name === "amount") {
-        const parsedAmount = parseUnits(value.amount ?? "0", baseToken.decimals)
+        const token = resolveAddress(form.getValues("mint") as `0x${string}`)
+        const parsedAmount = parseUnits(value.amount ?? "0", token.decimals)
         const combinedBalance =
           (usdcBalance ?? BigInt(0)) + (usdceBalance ?? BigInt(0))
 

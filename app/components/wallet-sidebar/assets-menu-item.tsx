@@ -2,8 +2,7 @@ import * as React from "react"
 
 import Link from "next/link"
 
-import { Token } from "@renegade-fi/token-nextjs"
-import { ChevronRight, PieChart } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 import {
   Collapsible,
@@ -20,11 +19,13 @@ import {
 
 import { useAssetsTableData } from "@/hooks/use-assets-table-data"
 import { formatCurrency, formatCurrencyFromString } from "@/lib/format"
-import { DISPLAY_TOKENS } from "@/lib/token"
+import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token"
+import { useCurrentChain } from "@/providers/state-provider/hooks"
 
 export function AssetsMenuItem() {
+  const chainId = useCurrentChain()
   const tokenData = useAssetsTableData({
-    mints: DISPLAY_TOKENS().map((token) => token.address),
+    mints: DISPLAY_TOKENS({ chainId }).map((token) => token.address),
   })
 
   const totalRenegadeBalanceUsd = React.useMemo(() => {
@@ -56,7 +57,7 @@ export function AssetsMenuItem() {
                 return Number(b.renegadeUsdValue) - Number(a.renegadeUsdValue)
               })
               .map((token) => {
-                const tokenInfo = Token.findByAddress(token.mint)
+                const tokenInfo = resolveAddress(token.mint)
                 return (
                   <SidebarMenuSubItem key={token.mint}>
                     <SidebarMenuSubButton asChild>

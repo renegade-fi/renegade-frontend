@@ -3,58 +3,39 @@
 import React from "react"
 
 import { EVM, createConfig as createLifiConfig } from "@lifi/sdk"
-import { useConfig } from "@renegade-fi/react"
-import { disconnect } from "@renegade-fi/react/actions"
+import { isSupportedChainId } from "@renegade-fi/react"
 import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
+import { useIsMutating } from "@tanstack/react-query"
 import { ConnectKitProvider } from "connectkit"
-import {
-  WagmiProvider as Provider,
-  State,
-  useAccount,
-  useConnect,
-  useConnections,
-  useDisconnect,
-  useReconnect,
-} from "wagmi"
+import { verifyMessage } from "viem"
+import { WagmiProvider as Provider, State, useAccount, useChainId } from "wagmi"
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog"
 
 import { sidebarEvents } from "@/lib/events"
-import { chain, viemClient } from "@/lib/viem"
 import { QueryProvider } from "@/providers/query-provider"
 
+import { useCurrentChain } from "../state-provider/hooks"
+import { useServerStore } from "../state-provider/server-store-provider"
 import { getConfig } from "./config"
+import { connectKitTheme } from "./theme"
 
 createLifiConfig({
   integrator: "renegade.fi",
   providers: [EVM()],
   // We disable chain preloading and will update chain configuration in runtime
   preloadChains: false,
+  disableVersionCheck: true,
 })
-
-const connectKitTheme = {
-  "--ck-body-background": "hsl(var(--background))",
-  "--ck-border-radius": "0",
-  "--ck-font-family": "var(--font-sans-extended)",
-  "--ck-primary-button-background": "hsl(var(--background))",
-  "--ck-primary-button-border-radius": "0",
-  "--ck-body-color": "hsl(var(--foreground))",
-  "--ck-body-color-muted": "hsl(var(--muted-foreground))",
-  "--ck-body-color-muted-hover": "hsl(var(--foreground))",
-  "--ck-qr-dot-color": "hsl(var(--chart-blue))",
-  "--ck-secondary-button-background": "hsl(var(--background))",
-  "--ck-qr-border-color": "hsl(var(--border))",
-  "--ck-overlay-background": "rgba(0,0,0,.8)",
-}
-
 interface WagmiProviderProps {
   children: React.ReactNode
   initialState?: State
 }
 
 export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
-  const [open, setOpen] = React.useState(false)
   const [config] = React.useState(() => getConfig())
+  const [open, setOpen] = React.useState(false)
+  const currentChainId = useCurrentChain()
 
   return (
     <Provider
@@ -68,7 +49,7 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
           options={{
             hideQuestionMarkCTA: true,
             hideTooltips: true,
-            enforceSupportedChains: true,
+            initialChainId: currentChainId,
           }}
           theme="midnight"
           onConnect={() => {
@@ -88,59 +69,55 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
   )
 }
 
+/**
+ * Cookie state is the source of truth for chain and wallet data, therefore we must make sure Wagmi state stays in sync.
+ *
+ * We verify derived seeds against the active account. If none exists, we clear the cached state.
+ */
 function SyncRenegadeWagmiState() {
-  const config = useConfig()
-  const { connector, chainId, isDisconnected } = useAccount()
-  const connections = useConnections()
-  const { connect: connectWagmi } = useConnect()
-  const { disconnectAsync: disconnectWagmi } = useDisconnect()
-  const { reconnectAsync: reconnectWagmi } = useReconnect()
+  const resetWallet = useServerStore((state) => state.resetWallet)
+  const resetAllWallets = useServerStore((state) => state.resetAllWallets)
+  const wallets = useServerStore((state) => state.wallet)
+  const account = useAccount()
 
-  // Handles the case where Renegade wallet is connected, but wagmi wallet is not
-  // Required because effect below does not catch locked wallet case
+  const currentChainId = useCurrentChain()
+  const wagmiChainId = useChainId()
+  const setChainId = useServerStore((state) => state.setChainId)
+  const isMutatingChain = !!useIsMutating({ mutationKey: ["switchChain"] })
+  // Set current chain to wagmi chain if
+  // - wagmi chain is a supported chain
+  // - wagmi chain is not currently mutating
   React.useEffect(() => {
-    if (isDisconnected && config.state.seed) {
-      console.log("Wallet disconnected: wallet not connected and seed exists")
-      console.log(
-        `Wallet disconnected: found ${connections.length} connections. Attempting to reconnect.`,
-      )
-      reconnectWagmi().then((conns) => {
-        if (conns.length === 0) {
-          console.log("Wallet disconnected: failed to reconnect")
-          disconnect(config)
-        } else {
-          console.log("Wallet disconnected: successfully reconnected")
+    if (isMutatingChain) return
+    if (wagmiChainId === currentChainId) return
+    if (!isSupportedChainId(wagmiChainId)) return
+    setChainId(wagmiChainId)
+  }, [currentChainId, isMutatingChain, setChainId, wagmiChainId])
+
+  React.useEffect(() => {
+    async function verifyWallets() {
+      const address = account.address
+      if (!address) {
+        resetAllWallets()
+        return
+      }
+
+      for (const [chainId, wallet] of wallets) {
+        if (!wallet.seed) continue
+        const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`
+        const signature = wallet.seed
+        const valid = await verifyMessage({
+          address,
+          message,
+          signature,
+        })
+        if (!valid) {
+          resetWallet(chainId)
         }
-      })
+      }
     }
-  }, [config, connections.length, isDisconnected, reconnectWagmi])
-
-  // When switching accounts in a wallet, we need to ensure the new account
-  // is the one that originally generated the seed in storage. This effect:
-  // 1. Verifies the current account can sign the stored seed
-  // 2. Disconnects both wagmi and renegade if verification fails
-  React.useEffect(() => {
-    if (!connections.length || !config.state.seed) return
-
-    viemClient
-      .verifyMessage({
-        address: connections[0].accounts[0],
-        message: `${ROOT_KEY_MESSAGE_PREFIX} ${chain.id}`,
-        signature: config.state.seed,
-      })
-      .then((verified) => {
-        if (!verified) {
-          console.log("Client disconnect reason: active account changed")
-          // disconnectWagmi()
-          disconnect(config)
-        }
-      })
-      .catch(() => {
-        console.log("Client disconnect reason: failed to verify signature")
-        disconnectWagmi()
-        disconnect(config)
-      })
-  }, [config, config.state.seed, connections, disconnectWagmi])
+    verifyWallets()
+  }, [account.address, resetAllWallets, resetWallet, wallets])
 
   return null
 }

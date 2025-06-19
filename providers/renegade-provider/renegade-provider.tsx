@@ -1,26 +1,37 @@
 "use client"
 
-import { RenegadeProvider as Provider } from "@renegade-fi/react"
-import { cookieToInitialState } from "@renegade-fi/react"
+import React, { useMemo } from "react"
 
-import { config } from "./config"
+import { RenegadeProvider as Provider } from "@renegade-fi/react"
+
+import { useCurrentChain, useCurrentWallet } from "../state-provider/hooks"
+import { getConfigFromChainId } from "./config"
 
 interface RenegadeProviderProps {
   children: React.ReactNode
-  cookieString?: string
 }
 
-export function RenegadeProvider({
-  children,
-  cookieString,
-}: RenegadeProviderProps) {
-  const initialState = cookieToInitialState(config, cookieString)
+export function RenegadeProvider({ children }: RenegadeProviderProps) {
+  const { seed, id } = useCurrentWallet()
+  const chainId = useCurrentChain()
+  const config = useMemo(() => {
+    if (chainId && seed && id) {
+      const config = getConfigFromChainId(chainId)
+      config.setState((x) => ({
+        ...x,
+        seed,
+        status: "in relayer",
+        id,
+        chainId,
+      }))
+      return config
+    }
+  }, [chainId, seed, id])
 
   return (
     <Provider
       config={config}
-      initialState={initialState}
-      reconnectOnMount
+      reconnectOnMount={false}
     >
       {children}
     </Provider>

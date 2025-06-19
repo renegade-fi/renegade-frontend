@@ -1,5 +1,6 @@
 import { PanelRight } from "lucide-react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 
@@ -7,7 +8,7 @@ import { useWallets } from "@/hooks/use-wallets"
 
 export function SidebarTrigger() {
   const { toggleSidebar } = useSidebar()
-  const { arbitrumWallet } = useWallets()
+  const { arbitrumWallet: wallet } = useWallets()
 
   return (
     <Button
@@ -15,8 +16,10 @@ export function SidebarTrigger() {
       variant="outline"
       onClick={toggleSidebar}
     >
-      <PanelRight className="h-4 w-4" />
-      <span>{arbitrumWallet.label}</span>
+      <span className="flex items-center justify-center gap-2">
+        <PanelRight className="h-4 w-4" />
+        {wallet.label}
+      </span>
     </Button>
   )
 }
