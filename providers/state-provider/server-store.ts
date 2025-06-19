@@ -124,6 +124,14 @@ export const createServerStore = (
       }),
       {
         name: STORAGE_SERVER_STORE,
+        version: 2, // Current version with Map-based storage
+        migrate: (persistedState: any, version: number): ServerState => {
+          console.log(
+            `Storage version mismatch detected. Stored: ${version}, Expected: 2`,
+          )
+          console.log("Clearing user data and using default state")
+          return defaultInitState // Nuclear option - always return fresh state
+        },
         skipHydration: true,
         storage: createStorage(cookieStorage),
         partialize: (state) => {
