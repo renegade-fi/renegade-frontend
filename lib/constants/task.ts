@@ -246,7 +246,7 @@ export function generateFailedToastMessage(task: Task) {
             break;
         }
         case TaskType.SettleMatch: {
-            token = resolveAddress(taskInfo.base); // base is available for SettleMatch
+            const token = resolveAddress(taskInfo.base); // base is available for SettleMatch
             const actionVerb = taskInfo.is_sell ? "sell" : "buy";
             message = `Failed to ${actionVerb} ${formatNumber(
                 taskInfo.volume,

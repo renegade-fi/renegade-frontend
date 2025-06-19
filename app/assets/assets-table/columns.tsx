@@ -14,7 +14,7 @@ import { formatCurrencyFromString, formatNumber } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 
 declare module "@tanstack/react-table" {
-    interface TableMeta<_TData extends RowData> {
+    interface TableMeta<TData extends RowData> {
         isLongFormat: boolean;
     }
 }
