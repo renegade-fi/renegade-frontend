@@ -13,7 +13,8 @@ export interface ExtendedOrderMetadata extends OrderMetadata {
 export function useOrderTableData() {
     const { data: orderIds } = useBackOfQueueWallet({
         query: {
-            select: (data) => data.orders.map((order) => order.id),
+            // Filter out orders with 0 amount
+            select: (data) => data.orders.filter((order) => order.amount).map((order) => order.id),
         },
     });
     const { data } = useOrderHistory({
