@@ -10,6 +10,7 @@ import {
   createStorage,
 } from "@/providers/state-provider/cookie-storage"
 
+import { AVAILABLE_CHAINS } from "../wagmi-provider/config"
 import {
   CachedWallet,
   createEmptyWallet,
@@ -45,7 +46,7 @@ const defaultRememberMeMap: Map<ChainId, boolean> = new Map(
   supportedChains.map((chainId) => [chainId, false] as [ChainId, boolean]),
 )
 
-const DEFAULT_CHAIN = supportedChains[0]
+const DEFAULT_CHAIN = AVAILABLE_CHAINS[0].id
 const WETH = resolveTicker("WETH")
 const USDC = resolveTicker("USDC")
 
