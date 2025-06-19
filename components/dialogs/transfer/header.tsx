@@ -10,11 +10,9 @@ import { cn } from "@/lib/utils";
 export function Header({
     direction,
     setDirection,
-    mint: _mint,
 }: {
     direction: ExternalTransferDirection;
     setDirection: (direction: ExternalTransferDirection) => void;
-    mint: `0x${string}`;
 }) {
     const isDesktop = useMediaQuery("(min-width: 1024px)");
 

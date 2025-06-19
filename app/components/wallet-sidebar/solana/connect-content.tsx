@@ -12,11 +12,9 @@ import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { truncateAddress } from "@/lib/format";
 
-interface ConnectContentProps {
-    className?: string;
-}
+type ConnectContentProps = {};
 
-export function ConnectContent({ className: _className }: ConnectContentProps) {
+export function ConnectContent({}: ConnectContentProps) {
     const wallets = useSolanaWallets();
     const { select } = useWallet();
     const isMobile = useIsMobile();

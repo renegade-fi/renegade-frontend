@@ -7,7 +7,7 @@ import { useMaintenanceMode } from "@/hooks/use-maintenance-mode";
 const isProduction = env.NEXT_PUBLIC_VERCEL_ENV === "production";
 
 export function MaintenanceBanner() {
-    const { data: maintenanceMode, isLoading: _isLoading } = useMaintenanceMode();
+    const { data: maintenanceMode } = useMaintenanceMode();
     const [isVisible, setIsVisible] = React.useState(false);
 
     React.useEffect(() => {
