@@ -1,1 +1,1 @@
-export const PRICE_DECIMALS = 18
+export const PRICE_DECIMALS = 18;

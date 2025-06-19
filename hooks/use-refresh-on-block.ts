@@ -1,18 +1,17 @@
-import React from "react"
+import { type QueryKey, useQueryClient } from "@tanstack/react-query";
+import React from "react";
+import { useBlockNumber } from "wagmi";
 
-import { QueryKey, useQueryClient } from "@tanstack/react-query"
-import { useBlockNumber } from "wagmi"
-
-const N = BigInt(50)
+const N = BigInt(50);
 
 export function useRefreshOnBlock({ queryKey }: { queryKey: QueryKey }) {
-  const queryClient = useQueryClient()
-  const { data } = useBlockNumber({ watch: true })
+    const _queryClient = useQueryClient();
+    const { data } = useBlockNumber({ watch: true });
 
-  React.useEffect(() => {
-    if (data && data % N === BigInt(0)) {
-      // Disable for more granular control over invalidations
-      // queryClient.invalidateQueries({ queryKey })
-    }
-  }, [data, queryClient, queryKey])
+    React.useEffect(() => {
+        if (data && data % N === BigInt(0)) {
+            // Disable for more granular control over invalidations
+            // queryClient.invalidateQueries({ queryKey })
+        }
+    }, [data]);
 }

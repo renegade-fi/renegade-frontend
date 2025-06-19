@@ -1,48 +1,44 @@
-import { OrderMetadata } from "@renegade-fi/react"
+import type { OrderMetadata } from "@renegade-fi/react";
 
-import { amountTimesPrice } from "@/hooks/use-usd-price"
-import { decimalNormalizePrice } from "@/lib/utils"
+import { amountTimesPrice } from "@/hooks/use-usd-price";
+import { decimalNormalizePrice } from "@/lib/utils";
 
-import { resolveAddress } from "./token"
+import { resolveAddress } from "./token";
 
 export function getVWAP(order: OrderMetadata): number {
-  if (order.fills.length === 0) {
-    return 0
-  }
+    if (order.fills.length === 0) {
+        return 0;
+    }
 
-  const token = resolveAddress(order.data.base_mint)
-  const quoteToken = resolveAddress(order.data.quote_mint)
+    const token = resolveAddress(order.data.base_mint);
+    const quoteToken = resolveAddress(order.data.quote_mint);
 
-  let totalVolume = BigInt(0)
-  let totalValue = BigInt(0)
+    let totalVolume = BigInt(0);
+    let totalValue = BigInt(0);
 
-  for (const fill of order.fills) {
-    const fillVolume = fill.amount
-    const fillValue = amountTimesPrice(
-      fill.amount,
-      decimalNormalizePrice(
-        fill.price.price,
-        token.decimals,
-        quoteToken.decimals,
-      ),
-    )
+    for (const fill of order.fills) {
+        const fillVolume = fill.amount;
+        const fillValue = amountTimesPrice(
+            fill.amount,
+            decimalNormalizePrice(fill.price.price, token.decimals, quoteToken.decimals),
+        );
 
-    totalVolume += fillVolume
-    totalValue += fillValue
-  }
+        totalVolume += fillVolume;
+        totalValue += fillValue;
+    }
 
-  if (totalVolume === BigInt(0)) {
-    return 0
-  }
+    if (totalVolume === BigInt(0)) {
+        return 0;
+    }
 
-  return Number(totalValue) / Number(totalVolume)
+    return Number(totalValue) / Number(totalVolume);
 }
 
 interface SyncOrdersWithWalletStateParams {
-  /** The map of orders to filter */
-  orders: Map<string, OrderMetadata>
-  /** Optional array of order IDs that exist in the wallet's current state */
-  walletOrderIds?: string[]
+    /** The map of orders to filter */
+    orders: Map<string, OrderMetadata>;
+    /** Optional array of order IDs that exist in the wallet's current state */
+    walletOrderIds?: string[];
 }
 
 /**
@@ -65,15 +61,15 @@ interface SyncOrdersWithWalletStateParams {
  * ```
  */
 export function syncOrdersWithWalletState({
-  orders,
-  walletOrderIds,
+    orders,
+    walletOrderIds,
 }: SyncOrdersWithWalletStateParams): Map<string, OrderMetadata> {
-  return new Map(
-    Array.from(orders.entries()).filter(([_, order]) => {
-      const isTerminal = order.state === "Filled" || order.state === "Cancelled"
-      if (isTerminal) return true
+    return new Map(
+        Array.from(orders.entries()).filter(([_, order]) => {
+            const isTerminal = order.state === "Filled" || order.state === "Cancelled";
+            if (isTerminal) return true;
 
-      return walletOrderIds?.includes(order.id) ?? false
-    }),
-  )
+            return walletOrderIds?.includes(order.id) ?? false;
+        }),
+    );
 }

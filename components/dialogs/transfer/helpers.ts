@@ -1,154 +1,147 @@
-import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants"
-import { QueryClient } from "@tanstack/react-query"
-import invariant from "tiny-invariant"
-import { formatUnits, isAddress, PublicClient } from "viem"
-import { z } from "zod"
+import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants";
+import type { QueryClient } from "@tanstack/react-query";
+import invariant from "tiny-invariant";
+import { formatUnits, isAddress, type PublicClient } from "viem";
+import { z } from "zod";
 
-import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol"
-import { safeParseUnits } from "@/lib/format"
-import { createPriceQueryKey } from "@/lib/query"
-import { resolveAddress } from "@/lib/token"
-import { extractSupportedChain } from "@/lib/viem"
+import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol";
+import { safeParseUnits } from "@/lib/format";
+import { createPriceQueryKey } from "@/lib/query";
+import { resolveAddress } from "@/lib/token";
+import { extractSupportedChain } from "@/lib/viem";
 
 export enum ExternalTransferDirection {
-  Deposit,
-  Withdraw,
+    Deposit,
+    Withdraw,
 }
 
 export const formSchema = z.object({
-  amount: z
-    .string()
-    .min(1, { message: "Amount is required" })
-    .refine(
-      (value) => {
-        const num = parseFloat(value)
-        return !isNaN(num) && num > 0
-      },
-      { message: "Amount must be greater than zero" },
-    ),
-  mint: z.string().min(1, {
-    message: "Token is required",
-  }),
-})
+    amount: z
+        .string()
+        .min(1, { message: "Amount is required" })
+        .refine(
+            (value) => {
+                const num = parseFloat(value);
+                return !Number.isNaN(num) && num > 0;
+            },
+            { message: "Amount must be greater than zero" },
+        ),
+    mint: z.string().min(1, {
+        message: "Token is required",
+    }),
+});
 
 // Return true if the amount is greater than or equal to the minimum deposit amount (1 USDC)
-export function checkAmount(
-  queryClient: QueryClient,
-  amount: string,
-  mint?: `0x${string}`,
-) {
-  if (!mint) return false
-  const usdPrice = queryClient.getQueryData<number>(
-    createPriceQueryKey({
-      base: mint,
-    }),
-  )
-  if (!usdPrice) return false
-  const amountInUsd = Number(amount) * usdPrice
-  return amountInUsd >= MIN_DEPOSIT_AMOUNT
+export function checkAmount(queryClient: QueryClient, amount: string, mint?: `0x${string}`) {
+    if (!mint) return false;
+    const usdPrice = queryClient.getQueryData<number>(
+        createPriceQueryKey({
+            base: mint,
+        }),
+    );
+    if (!usdPrice) return false;
+    const amountInUsd = Number(amount) * usdPrice;
+    return amountInUsd >= MIN_DEPOSIT_AMOUNT;
 }
 
 // Returns true if the amount is less than or equal to the balance
 // Returns false if the amount is greater than the balance or if the amount is invalid
 export function checkBalance({
-  amount,
-  mint,
-  balance,
+    amount,
+    mint,
+    balance,
 }: z.infer<typeof formSchema> & { balance?: bigint }) {
-  if (!balance) {
-    return false
-  }
-  try {
-    const token = resolveAddress(mint as `0x${string}`)
-    const parsedAmount = safeParseUnits(amount, token.decimals)
-    if (parsedAmount instanceof Error) {
-      return false
+    if (!balance) {
+        return false;
     }
-    return parsedAmount <= balance
-  } catch (error) {
-    return false
-  }
+    try {
+        const token = resolveAddress(mint as `0x${string}`);
+        const parsedAmount = safeParseUnits(amount, token.decimals);
+        if (parsedAmount instanceof Error) {
+            return false;
+        }
+        return parsedAmount <= balance;
+    } catch (_error) {
+        return false;
+    }
 }
 
 // Returns true iff the amount is equal to the balance
 export function isMaxBalance({
-  amount,
-  mint,
-  balance,
+    amount,
+    mint,
+    balance,
 }: z.infer<typeof formSchema> & { balance?: bigint }) {
-  if (!balance) {
-    return false
-  }
-  try {
-    const token = resolveAddress(mint as `0x${string}`)
-    const formattedAmount = formatUnits(balance, token.decimals)
-    return amount === formattedAmount
-  } catch (error) {
-    return false
-  }
+    if (!balance) {
+        return false;
+    }
+    try {
+        const token = resolveAddress(mint as `0x${string}`);
+        const formattedAmount = formatUnits(balance, token.decimals);
+        return amount === formattedAmount;
+    } catch (_error) {
+        return false;
+    }
 }
 
-export function constructArbitrumBridgeUrl(
-  amount: string,
-  mint?: `0x${string}`,
-) {
-  const base = new URL("https://bridge.arbitrum.io/")
-  base.searchParams.set("amount", amount)
-  base.searchParams.set("destinationChain", "arbitrum-one")
-  base.searchParams.set("sourceChain", "ethereum")
-  if (mint) {
-    base.searchParams.set("token", mint)
-  }
+export function constructArbitrumBridgeUrl(amount: string, mint?: `0x${string}`) {
+    const base = new URL("https://bridge.arbitrum.io/");
+    base.searchParams.set("amount", amount);
+    base.searchParams.set("destinationChain", "arbitrum-one");
+    base.searchParams.set("sourceChain", "ethereum");
+    if (mint) {
+        base.searchParams.set("token", mint);
+    }
 
-  return base.toString()
+    return base.toString();
 }
 
 export function normalizeStatus(
-  status?: "NOT_FOUND" | "INVALID" | "PENDING" | "DONE" | "FAILED",
+    status?: "NOT_FOUND" | "INVALID" | "PENDING" | "DONE" | "FAILED",
 ): "error" | "pending" | "success" | undefined {
-  if (!status) return undefined
-  switch (status) {
-    case "NOT_FOUND":
-      return undefined
-    case "INVALID":
-    case "FAILED":
-      return "error"
-    case "DONE":
-      return "success"
-    default:
-      return "pending"
-  }
+    if (!status) return undefined;
+    switch (status) {
+        case "NOT_FOUND":
+            return undefined;
+        case "INVALID":
+        case "FAILED":
+            return "error";
+        case "DONE":
+            return "success";
+        default:
+            return "pending";
+    }
 }
 
 export function getExplorerLink(txHash: string, chainId?: number) {
-  if (!chainId) {
-    return
-  }
-  const _chain = extractSupportedChain(chainId)
+    if (!chainId) {
+        return;
+    }
+    const _chain = extractSupportedChain(chainId);
 
-  const explorerUrl = _chain.blockExplorers?.default.url
-  if (!explorerUrl) {
-    throw new Error(`No block explorer URL found for chain ${_chain.name}`)
-  }
-  return `${explorerUrl}/tx/${txHash}`
+    const explorerUrl = _chain.blockExplorers?.default.url;
+    if (!explorerUrl) {
+        throw new Error(`No block explorer URL found for chain ${_chain.name}`);
+    }
+    return `${explorerUrl}/tx/${txHash}`;
 }
 
 export function verifyRecipientAddress(
-  publicClient?: PublicClient,
-  seed?: `0x${string}`,
-  recipient?: string,
-  chainId?: number,
+    publicClient?: PublicClient,
+    seed?: `0x${string}`,
+    recipient?: string,
+    chainId?: number,
 ) {
-  invariant(publicClient, "Public client is required")
-  invariant(seed, "Seed is required")
-  invariant(
-    recipient && isAddress(recipient),
-    "Recipient is required and must be a valid address",
-  )
-  invariant(chainId, "Chain ID is required")
-  return publicClient.verifyMessage({
-    address: recipient,
-    message: `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`,
-    signature: seed,
-  })
+    invariant(publicClient, "Public client is required");
+    invariant(seed, "Seed is required");
+    invariant(
+        recipient && isAddress(recipient),
+        "Recipient is required and must be a valid address",
+    );
+    invariant(chainId, "Chain ID is required");
+    return publicClient.verifyMessage({
+        address: recipient,
+        message: `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`,
+        signature: seed,
+    });
 }

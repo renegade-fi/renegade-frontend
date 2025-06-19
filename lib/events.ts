@@ -1,5 +1,5 @@
-import { createNanoEvents } from "nanoevents"
+import { createNanoEvents } from "nanoevents";
 
 export const sidebarEvents = createNanoEvents<{
-  open: () => void
-}>()
+    open: () => void;
+}>();

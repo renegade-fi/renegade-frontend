@@ -1,66 +1,66 @@
-import { createEnv } from "@t3-oss/env-nextjs"
-import { z } from "zod/v4"
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod/v4";
 
-import { zHexString } from "./schema"
+import { zHexString } from "./schema";
 
 export const env = createEnv({
-  server: {
-    // ================================
-    // Chain & RPC Configuration
-    // ================================
+    server: {
+        // ================================
+        // Chain & RPC Configuration
+        // ================================
 
-    /** Alchemy API key for multi-chain RPC access */
-    ALCHEMY_API_KEY: z.string().min(1),
+        /** Alchemy API key for multi-chain RPC access */
+        ALCHEMY_API_KEY: z.string().min(1),
 
-    // ================================
-    // External Services
-    // ================================
+        // ================================
+        // External Services
+        // ================================
 
-    /** Amberdata API key for blockchain analytics */
-    AMBERDATA_API_KEY: z.string().min(1),
+        /** Amberdata API key for blockchain analytics */
+        AMBERDATA_API_KEY: z.string().min(1),
 
-    /** Bot server API keys */
-    ARBITRUM_BOT_SERVER_API_KEY: z.string().min(1),
-    BASE_BOT_SERVER_API_KEY: z.string().min(1),
+        /** Bot server API keys */
+        ARBITRUM_BOT_SERVER_API_KEY: z.string().min(1),
+        BASE_BOT_SERVER_API_KEY: z.string().min(1),
 
-    // ================================
-    // Monitoring
-    // ================================
-    /** Datadog service name */
-    DD_SERVICE: z.string().min(1),
+        // ================================
+        // Monitoring
+        // ================================
+        /** Datadog service name */
+        DD_SERVICE: z.string().min(1),
 
-    /** Datadog application key */
-    DD_APP_KEY: z.string().min(1),
+        /** Datadog application key */
+        DD_APP_KEY: z.string().min(1),
 
-    /** Datadog API key */
-    DD_API_KEY: z.string().min(1),
+        /** Datadog API key */
+        DD_API_KEY: z.string().min(1),
 
-    // ================================
-    // Storage
-    // ================================
+        // ================================
+        // Storage
+        // ================================
 
-    /** Vercel KV read-only access token */
-    KV_REST_API_READ_ONLY_TOKEN: z.string().optional(),
+        /** Vercel KV read-only access token */
+        KV_REST_API_READ_ONLY_TOKEN: z.string().optional(),
 
-    /** Vercel KV read/write access token */
-    KV_REST_API_TOKEN: z.string().optional(),
+        /** Vercel KV read/write access token */
+        KV_REST_API_TOKEN: z.string().optional(),
 
-    /** Vercel KV REST API endpoint URL */
-    KV_REST_API_URL: z.url().optional(),
+        /** Vercel KV REST API endpoint URL */
+        KV_REST_API_URL: z.url().optional(),
 
-    /** Vercel KV connection URL */
-    KV_URL: z.string().optional(),
+        /** Vercel KV connection URL */
+        KV_URL: z.string().optional(),
 
-    /** Vercel Edge Config URL */
-    EDGE_CONFIG: z.url(),
+        /** Vercel Edge Config URL */
+        EDGE_CONFIG: z.url(),
 
-    // ================================
-    // Development
-    // ================================
+        // ================================
+        // Development
+        // ================================
 
-    /** Private key for development/testing */
-    DEV_PRIVATE_KEY: zHexString.optional(),
-  },
+        /** Private key for development/testing */
+        DEV_PRIVATE_KEY: zHexString.optional(),
+    },
 
-  experimental__runtimeEnv: process.env,
-})
+    experimental__runtimeEnv: process.env,
+});
