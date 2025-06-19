@@ -1,55 +1,51 @@
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
+import { type UseQueryResult, useQuery } from "@tanstack/react-query";
 
 import type {
-  HistoricalVolumeResponse,
-  VolumeDataPoint,
-} from "@/app/api/stats/historical-volume-kv/route"
+    HistoricalVolumeResponse,
+    VolumeDataPoint,
+} from "@/app/api/stats/historical-volume-kv/route";
 
-import { env } from "@/env/client"
+import { env } from "@/env/client";
 
-export type VolumeData = Map<number, VolumeDataPoint>
+export type VolumeData = Map<number, VolumeDataPoint>;
 
 type UseHistoricalVolumeResult = UseQueryResult<VolumeData, Error> & {
-  queryKey: readonly ["stats", "historical-volume", number]
-}
+    queryKey: readonly ["stats", "historical-volume", number];
+};
 
 /**
  * Hook to fetch all historical volume data.
  */
 export function useVolumeData(chainId: number): UseHistoricalVolumeResult {
-  const queryKey = ["stats", "historical-volume", chainId] as const
+    const queryKey = ["stats", "historical-volume", chainId] as const;
 
-  return {
-    ...useQuery<VolumeData, Error>({
-      queryKey,
-      queryFn: () => getHistoricalVolume(chainId),
-      staleTime: Infinity,
-      enabled: env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet",
-    }),
-    queryKey,
-  }
+    return {
+        ...useQuery<VolumeData, Error>({
+            queryKey,
+            queryFn: () => getHistoricalVolume(chainId),
+            staleTime: Infinity,
+            enabled: env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet",
+        }),
+        queryKey,
+    };
 }
 
-export async function getHistoricalVolume(
-  chainId: number,
-): Promise<VolumeData> {
-  const res = await fetch(`/api/stats/historical-volume-kv?chainId=${chainId}`)
+export async function getHistoricalVolume(chainId: number): Promise<VolumeData> {
+    const res = await fetch(`/api/stats/historical-volume-kv?chainId=${chainId}`);
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch historical volume data: ${res.statusText}`)
-  }
+    if (!res.ok) {
+        throw new Error(`Failed to fetch historical volume data: ${res.statusText}`);
+    }
 
-  const data: HistoricalVolumeResponse = await res.json()
+    const data: HistoricalVolumeResponse = await res.json();
 
-  // Filter data for entries after 1725321600
-  const filteredData = data.data.filter(
-    (point) => point.timestamp >= 1725321600,
-  )
+    // Filter data for entries after 1725321600
+    const filteredData = data.data.filter((point) => point.timestamp >= 1725321600);
 
-  const volumeData = new Map<number, VolumeDataPoint>()
-  for (const point of filteredData) {
-    volumeData.set(point.timestamp, point)
-  }
+    const volumeData = new Map<number, VolumeDataPoint>();
+    for (const point of filteredData) {
+        volumeData.set(point.timestamp, point);
+    }
 
-  return volumeData
+    return volumeData;
 }

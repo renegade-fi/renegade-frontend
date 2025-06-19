@@ -1,34 +1,33 @@
-import React from "react"
+import React from "react";
 
-import { Config, useWaitForTransactionReceipt } from "wagmi"
+import { type Config, useWaitForTransactionReceipt } from "wagmi";
 
-import { CONFIRMATIONS } from "@/lib/constants/protocol"
+import { CONFIRMATIONS } from "@/lib/constants/protocol";
 
 export function useTransactionConfirmation(
-  hash?: `0x${string}`,
-  onConfirm?: () => void,
-  config?: Config,
+    hash?: `0x${string}`,
+    onConfirm?: () => void,
+    config?: Config,
 ) {
-  const { isSuccess, status } = useWaitForTransactionReceipt({
-    config,
-    hash,
-    confirmations: CONFIRMATIONS,
-  })
+    const { isSuccess, status } = useWaitForTransactionReceipt({
+        config,
+        hash,
+        confirmations: CONFIRMATIONS,
+    });
 
-  const [isConfirmationHandled, setIsConfirmationHandled] =
-    React.useState(false)
+    const [isConfirmationHandled, setIsConfirmationHandled] = React.useState(false);
 
-  React.useEffect(() => {
-    if (isSuccess && hash && !isConfirmationHandled) {
-      onConfirm?.()
-      setIsConfirmationHandled(true)
-    }
-  }, [hash, isSuccess, onConfirm, isConfirmationHandled])
+    React.useEffect(() => {
+        if (isSuccess && hash && !isConfirmationHandled) {
+            onConfirm?.();
+            setIsConfirmationHandled(true);
+        }
+    }, [hash, isSuccess, onConfirm, isConfirmationHandled]);
 
-  // If hash changes, should run onConfirm
-  React.useEffect(() => {
-    setIsConfirmationHandled(false)
-  }, [hash])
+    // If hash changes, should run onConfirm
+    React.useEffect(() => {
+        setIsConfirmationHandled(false);
+    }, []);
 
-  return status
+    return status;
 }

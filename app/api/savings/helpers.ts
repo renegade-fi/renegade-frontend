@@ -1,34 +1,34 @@
-import { env } from "@/env/server"
-import { PriceLevel, TradeAmounts } from "@/lib/price-simulation"
-import { Direction } from "@/lib/types"
+import { env } from "@/env/server";
+import type { PriceLevel, TradeAmounts } from "@/lib/price-simulation";
+import { Direction } from "@/lib/types";
 
 // -------------
 // | CONSTANTS |
 // -------------
 
 /** The URL of the Amberdata REST API */
-const AMBERDATA_BASE_URL = "https://api.amberdata.com"
+const AMBERDATA_BASE_URL = "https://api.amberdata.com";
 /** The API endpoint for spot market orderbook snapshots */
-const AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE = "markets/spot/order-book-snapshots"
+const AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE = "markets/spot/order-book-snapshots";
 /** The API endpoint for spot market orderbook updates */
-const AMBERDATA_ORDERBOOK_UPDATES_ROUTE = "markets/spot/order-book-events"
+const AMBERDATA_ORDERBOOK_UPDATES_ROUTE = "markets/spot/order-book-events";
 
 /** The Amberdata API key header */
-const API_KEY_HEADER = "x-api-key"
+const API_KEY_HEADER = "x-api-key";
 
 /** The search parameter indicating the exchange to make a request for */
-const EXCHANGE_PARAM = "exchange"
+const EXCHANGE_PARAM = "exchange";
 /** The search parameter indicating the timestamp format for the Amberdata API to use */
-const TIME_FORMAT_PARAM = "timeFormat"
+const TIME_FORMAT_PARAM = "timeFormat";
 /** The format for timestamps returned from the Amberdata API */
-const TIME_FORMAT = "milliseconds"
+const TIME_FORMAT = "milliseconds";
 
 /** The search parameter indicating the start date for the Amberdata API to use */
-const START_DATE_PARAM = "startDate"
+const START_DATE_PARAM = "startDate";
 /** The search parameter indicating the end date for the Amberdata API to use */
-const END_DATE_PARAM = "endDate"
+const END_DATE_PARAM = "endDate";
 
-const ONE_HOUR_MS = 3600000
+const ONE_HOUR_MS = 3600000;
 
 // ---------
 // | TYPES |
@@ -40,17 +40,17 @@ const ONE_HOUR_MS = 3600000
  * we are interested in.
  */
 type AmberdataOrderbookSnapshotResponse = {
-  payload: {
-    data: AmberdataOrderbookSnapshot[]
-  }
-}
+    payload: {
+        data: AmberdataOrderbookSnapshot[];
+    };
+};
 
 /** Amberdata's format for an orderbook snapshot */
 type AmberdataOrderbookSnapshot = {
-  timestamp: number
-  ask: AmberdataPriceLevel[]
-  bid: AmberdataPriceLevel[]
-}
+    timestamp: number;
+    ask: AmberdataPriceLevel[];
+    bid: AmberdataPriceLevel[];
+};
 
 /**
  * Amberdata's API response for an orderbook update.
@@ -58,83 +58,81 @@ type AmberdataOrderbookSnapshot = {
  * we are interested in.
  */
 type AmberdataOrderbookUpdateResponse = {
-  payload: {
-    data: AmberdataOrderbookUpdate[]
-  }
-}
+    payload: {
+        data: AmberdataOrderbookUpdate[];
+    };
+};
 
 /** Amberdata's format for an orderbook update */
 type AmberdataOrderbookUpdate = {
-  exchangeTimestamp: number
-  ask: AmberdataPriceLevel[]
-  bid: AmberdataPriceLevel[]
-}
+    exchangeTimestamp: number;
+    ask: AmberdataPriceLevel[];
+    bid: AmberdataPriceLevel[];
+};
 
 /**
  * Amberdata's format for an orderbook price level
  */
 type AmberdataPriceLevel = {
-  price: number
-  volume: number
-}
+    price: number;
+    volume: number;
+};
 
 /**
  * An intermediary representation of an orderbook, mapping prices to quantities.
  * This is useful for applying updates onto a snapshot efficiently.
  */
 type OrderbookMap = {
-  bids: {
-    [price: number]: number
-  }
-  asks: {
-    [price: number]: number
-  }
-}
+    bids: {
+        [price: number]: number;
+    };
+    asks: {
+        [price: number]: number;
+    };
+};
 
 /** The reponse data from this route */
 export type OrderbookResponseData = {
-  timestamp: number
-  bids: PriceLevel[]
-  asks: PriceLevel[]
-}
+    timestamp: number;
+    bids: PriceLevel[];
+    asks: PriceLevel[];
+};
 
 // -----------
 // | HELPERS |
 // -----------
 export function calculateSavings(
-  tradeAmounts: TradeAmounts,
-  quantity: number,
-  direction: Direction,
-  renegadePrice: number,
-  renegadeFeeRate: number,
+    tradeAmounts: TradeAmounts,
+    quantity: number,
+    direction: Direction,
+    renegadePrice: number,
+    renegadeFeeRate: number,
 ): number {
-  const { effectiveBaseAmount, effectiveQuoteAmount } = tradeAmounts
+    const { effectiveBaseAmount, effectiveQuoteAmount } = tradeAmounts;
 
-  const renegadeQuote = quantity * renegadePrice
+    const renegadeQuote = quantity * renegadePrice;
 
-  const effectiveRenegadeBase =
-    direction === Direction.BUY ? quantity * (1 - renegadeFeeRate) : quantity
+    const effectiveRenegadeBase =
+        direction === Direction.BUY ? quantity * (1 - renegadeFeeRate) : quantity;
 
-  const effectiveRenegadeQuote =
-    direction === Direction.SELL
-      ? renegadeQuote * (1 - renegadeFeeRate)
-      : renegadeQuote
+    const effectiveRenegadeQuote =
+        direction === Direction.SELL ? renegadeQuote * (1 - renegadeFeeRate) : renegadeQuote;
 
-  // Calculate the savings in base/quote amounts transacted between the canonical exchange and Renegade trades.
-  // When buying, we save when we receive more base and send less quote than on the canonical exchange.
-  // When selling, we save when we receive more quote and send less base than on the canonical exchange.
-  const baseSavings =
-    direction === Direction.BUY
-      ? effectiveRenegadeBase - effectiveBaseAmount
-      : effectiveBaseAmount - effectiveRenegadeBase
+    // Calculate the savings in base/quote amounts transacted between the canonical exchange and Renegade trades.
+    // When buying, we save when we receive more base and send less quote than on the canonical exchange.
+    // When selling, we save when we receive more quote and send less base than on the canonical exchange.
+    const baseSavings =
+        direction === Direction.BUY
+            ? effectiveRenegadeBase - effectiveBaseAmount
+            : effectiveBaseAmount - effectiveRenegadeBase;
 
-  const quoteSavings =
-    direction === Direction.SELL
-      ? effectiveRenegadeQuote - effectiveQuoteAmount
-      : effectiveQuoteAmount - effectiveRenegadeQuote
+    const quoteSavings =
+        direction === Direction.SELL
+            ? effectiveRenegadeQuote - effectiveQuoteAmount
+            : effectiveQuoteAmount - effectiveRenegadeQuote;
 
-  // Represent the total savings via Renegade, denominated in the quote asset, priced at the current midpoint
-  return baseSavings * renegadePrice + quoteSavings
+    // Represent the total savings via Renegade, denominated in the quote asset, priced at the current midpoint
+    return baseSavings * renegadePrice + quoteSavings;
 }
 
 /**
@@ -144,46 +142,46 @@ export function calculateSavings(
  * and applying them on top of the snapshot.
  */
 export async function constructOrderbook(
-  instrument: string,
-  timestamp: number,
-  exchange: string,
+    instrument: string,
+    timestamp: number,
+    exchange: string,
 ): Promise<OrderbookResponseData> {
-  const snapshot = await fetchOrderbookSnapshot(instrument, timestamp, exchange)
-  const updates = await fetchOrderbookUpdates(
-    instrument,
-    snapshot.timestamp,
-    timestamp,
-    exchange,
-  )
+    const snapshot = await fetchOrderbookSnapshot(instrument, timestamp, exchange);
+    const updates = await fetchOrderbookUpdates(
+        instrument,
+        snapshot.timestamp,
+        timestamp,
+        exchange,
+    );
 
-  // Construct an initial orderbook map from the snapshot
-  let orderbookMap: OrderbookMap = {
-    bids: {},
-    asks: {},
-  }
-  snapshot.bid.forEach((level) => {
-    orderbookMap.bids[level.price] = level.volume
-  })
-  snapshot.ask.forEach((level) => {
-    orderbookMap.asks[level.price] = level.volume
-  })
+    // Construct an initial orderbook map from the snapshot
+    const orderbookMap: OrderbookMap = {
+        bids: {},
+        asks: {},
+    };
+    snapshot.bid.forEach((level) => {
+        orderbookMap.bids[level.price] = level.volume;
+    });
+    snapshot.ask.forEach((level) => {
+        orderbookMap.asks[level.price] = level.volume;
+    });
 
-  // Apply the updates to the map
-  // (they are given in ascending order by time, i.e. most recent is last)
-  updates.forEach((update) => {
-    update.bid.forEach((level) => {
-      orderbookMap.bids[level.price] = level.volume
-    })
-    update.ask.forEach((level) => {
-      orderbookMap.asks[level.price] = level.volume
-    })
-  })
+    // Apply the updates to the map
+    // (they are given in ascending order by time, i.e. most recent is last)
+    updates.forEach((update) => {
+        update.bid.forEach((level) => {
+            orderbookMap.bids[level.price] = level.volume;
+        });
+        update.ask.forEach((level) => {
+            orderbookMap.asks[level.price] = level.volume;
+        });
+    });
 
-  // Use the timestamp of the most recent update
-  const lastUpdateIdx = updates.length - 1
-  const finalTimestamp = updates[lastUpdateIdx].exchangeTimestamp
+    // Use the timestamp of the most recent update
+    const lastUpdateIdx = updates.length - 1;
+    const finalTimestamp = updates[lastUpdateIdx].exchangeTimestamp;
 
-  return convertOrderbookMap(orderbookMap, finalTimestamp)
+    return convertOrderbookMap(orderbookMap, finalTimestamp);
 }
 
 /**
@@ -191,33 +189,33 @@ export async function constructOrderbook(
  * around the given timestamp (in milliseconds), up to the maximum supported depth (5000 levels).
  */
 async function fetchOrderbookSnapshot(
-  instrument: string,
-  timestamp: number,
-  exchange: string,
+    instrument: string,
+    timestamp: number,
+    exchange: string,
 ): Promise<AmberdataOrderbookSnapshot> {
-  // This is to ensure that we get the most recent snapshot inclusive of the timestamp
-  const startDate = timestamp - ONE_HOUR_MS
-  const endDate = timestamp + 1
-  const req = amberdataRequest({
-    route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
-    exchange,
-    startDate,
-    endDate,
-  })
+    // This is to ensure that we get the most recent snapshot inclusive of the timestamp
+    const startDate = timestamp - ONE_HOUR_MS;
+    const endDate = timestamp + 1;
+    const req = amberdataRequest({
+        route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
+        exchange,
+        startDate,
+        endDate,
+    });
 
-  const res = await fetch(req)
-  if (!res.ok) {
-    throw new Error(`Failed to fetch orderbook snapshot: ${res.statusText}`)
-  }
-  const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json()
-  if (orderbookRes.payload.data.length === 0) {
-    throw new Error("Server returned empty orderbook snapshot")
-  }
+    const res = await fetch(req);
+    if (!res.ok) {
+        throw new Error(`Failed to fetch orderbook snapshot: ${res.statusText}`);
+    }
+    const orderbookRes: AmberdataOrderbookSnapshotResponse = await res.json();
+    if (orderbookRes.payload.data.length === 0) {
+        throw new Error("Server returned empty orderbook snapshot");
+    }
 
-  // The Amberdata response contains snapshots in ascending order of timestamp,
-  // i.e. most recent is last
-  const lastIdx = orderbookRes.payload.data.length - 1
-  return orderbookRes.payload.data[lastIdx]
+    // The Amberdata response contains snapshots in ascending order of timestamp,
+    // i.e. most recent is last
+    const lastIdx = orderbookRes.payload.data.length - 1;
+    return orderbookRes.payload.data[lastIdx];
 }
 
 /**
@@ -225,22 +223,22 @@ async function fetchOrderbookSnapshot(
  * from the timestamp of the most recent snapshot, to the desired timestamp
  */
 async function fetchOrderbookUpdates(
-  instrument: string,
-  snapshotTimestamp: number,
-  desiredTimestamp: number,
-  exchange: string,
+    instrument: string,
+    snapshotTimestamp: number,
+    desiredTimestamp: number,
+    exchange: string,
 ): Promise<Array<AmberdataOrderbookUpdate>> {
-  // We only request updates on or after the snapshot timestamp
-  const req = amberdataRequest({
-    route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
-    exchange,
-    startDate: snapshotTimestamp,
-    endDate: desiredTimestamp,
-  })
+    // We only request updates on or after the snapshot timestamp
+    const req = amberdataRequest({
+        route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
+        exchange,
+        startDate: snapshotTimestamp,
+        endDate: desiredTimestamp,
+    });
 
-  const res = await fetch(req)
-  const updatesRes: AmberdataOrderbookUpdateResponse = await res.json()
-  return updatesRes.payload.data
+    const res = await fetch(req);
+    const updatesRes: AmberdataOrderbookUpdateResponse = await res.json();
+    return updatesRes.payload.data;
 }
 
 /**
@@ -251,69 +249,63 @@ async function fetchOrderbookUpdates(
  * @param endDate - The ending timestamp for the search range, in milliseconds (exclusive)
  */
 function amberdataRequest({
-  route,
-  exchange,
-  startDate,
-  endDate,
+    route,
+    exchange,
+    startDate,
+    endDate,
 }: {
-  route: string
-  exchange: string
-  startDate?: number
-  endDate?: number
+    route: string;
+    exchange: string;
+    startDate?: number;
+    endDate?: number;
 }): Request {
-  const amberdataUrl = new URL(`${AMBERDATA_BASE_URL}/${route}`)
-  amberdataUrl.searchParams.set(EXCHANGE_PARAM, exchange)
-  amberdataUrl.searchParams.set(TIME_FORMAT_PARAM, TIME_FORMAT)
-  if (startDate) {
-    amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString())
-  }
-  if (endDate) {
-    amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString())
-  }
+    const amberdataUrl = new URL(`${AMBERDATA_BASE_URL}/${route}`);
+    amberdataUrl.searchParams.set(EXCHANGE_PARAM, exchange);
+    amberdataUrl.searchParams.set(TIME_FORMAT_PARAM, TIME_FORMAT);
+    if (startDate) {
+        amberdataUrl.searchParams.set(START_DATE_PARAM, startDate.toString());
+    }
+    if (endDate) {
+        amberdataUrl.searchParams.set(END_DATE_PARAM, endDate.toString());
+    }
 
-  const amberdataReq = new Request(amberdataUrl)
-  amberdataReq.headers.set(API_KEY_HEADER, env.AMBERDATA_API_KEY)
-  amberdataReq.headers.set("Accept-Encoding", "gzip")
+    const amberdataReq = new Request(amberdataUrl);
+    amberdataReq.headers.set(API_KEY_HEADER, env.AMBERDATA_API_KEY);
+    amberdataReq.headers.set("Accept-Encoding", "gzip");
 
-  return amberdataReq
+    return amberdataReq;
 }
 
 /** Converts an orderbook map to a valid orderbook response */
-function convertOrderbookMap(
-  orderbookMap: OrderbookMap,
-  timestamp: number,
-): OrderbookResponseData {
-  // Filter out the empty levels & sort in expected order
-  const bids = Object.entries(orderbookMap.bids)
-    .filter(([_price, volume]) => volume > 0)
-    .map(([price, quantity]) => ({ price: parseFloat(price), quantity }))
-    .sort((a, b) => b.price - a.price)
+function convertOrderbookMap(orderbookMap: OrderbookMap, timestamp: number): OrderbookResponseData {
+    // Filter out the empty levels & sort in expected order
+    const bids = Object.entries(orderbookMap.bids)
+        .filter(([_price, volume]) => volume > 0)
+        .map(([price, quantity]) => ({ price: parseFloat(price), quantity }))
+        .sort((a, b) => b.price - a.price);
 
-  const asks = Object.entries(orderbookMap.asks)
-    .filter(([_price, volume]) => volume > 0)
-    .map(([price, quantity]) => ({ price: parseFloat(price), quantity }))
-    .sort((a, b) => a.price - b.price)
+    const asks = Object.entries(orderbookMap.asks)
+        .filter(([_price, volume]) => volume > 0)
+        .map(([price, quantity]) => ({ price: parseFloat(price), quantity }))
+        .sort((a, b) => a.price - b.price);
 
-  return { bids, asks, timestamp }
+    return { bids, asks, timestamp };
 }
 
 /**
  * Fetches the fee rate for the given exchange
  */
 export function getExchangeFeeRate(exchange: string): number {
-  switch (exchange.toLowerCase()) {
-    case "coinbase":
-      // Coinbase taker fee for traders w/ 100k to 1M in monthly trading volume.
-      // Source: https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees
-      return 0.002
-    // Kraken Pro taker fee for traders w/ 500k to 1M in monthly trading volume.
-    // Source: https://www.kraken.com/features/fee-schedule
-    case "kraken":
-      return 0.0018
-    // Binance taker fee for traders w/ <1M in monthly trading volume.
-    // Source: https://www.binance.com/en/fee/schedule
-    case "binance":
-    default:
-      return 0.001
-  }
+    switch (exchange.toLowerCase()) {
+        case "coinbase":
+            // Coinbase taker fee for traders w/ 100k to 1M in monthly trading volume.
+            // Source: https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees
+            return 0.002;
+        // Kraken Pro taker fee for traders w/ 500k to 1M in monthly trading volume.
+        // Source: https://www.kraken.com/features/fee-schedule
+        case "kraken":
+            return 0.0018;
+        default:
+            return 0.001;
+    }
 }
