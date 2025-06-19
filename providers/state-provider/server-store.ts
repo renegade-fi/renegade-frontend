@@ -72,18 +72,18 @@ export const defaultInitState: ServerState = {
 export const createServerStore = (
   initState: ServerState = defaultInitState,
 ) => {
-  let validatedState: ServerState
-  const validationResult = validateState(initState)
-  if (validationResult) {
-    validatedState = initState
-  } else {
-    validatedState = defaultInitState
-  }
+  // let validatedState: ServerState
+  // const validationResult = validateState(initState)
+  // if (validationResult) {
+  //   validatedState = initState
+  // } else {
+  //   validatedState = defaultInitState
+  // }
 
   return createStore<ServerStore>()(
     persist(
       (set) => ({
-        ...validatedState,
+        ...initState,
         setAmount: (amount: string) =>
           set((state) => ({ order: { ...state.order, amount } })),
         setBase: (baseMint: `0x${string}`) =>
