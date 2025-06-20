@@ -1,6 +1,6 @@
 "use client";
 
-import { type Popover as PopoverPrimitive, type Tooltip as TooltipPrimitive } from "radix-ui";
+import type { Popover as PopoverPrimitive, Tooltip as TooltipPrimitive } from "radix-ui";
 
 import type React from "react";
 import { createContext, useContext } from "react";
