@@ -1,7 +1,7 @@
 import type { LiFiStep } from "@lifi/sdk";
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDownIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { motion } from "framer-motion";
+import { Accordion as AccordionPrimitive } from "radix-ui";
 import React from "react";
 import { formatUnits } from "viem/utils";
 

@@ -1,14 +1,11 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { UpdateType } from "@renegade-fi/react";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
-
 import { FeesSection } from "@/app/trade/[base]/components/new-order/fees-sections";
 import { NoBalanceSlotWarning } from "@/app/trade/[base]/components/new-order/no-balance-slot-warning";
 import { InsufficientWarning } from "@/app/trade/[base]/components/order-details/insufficient-warning";
 import { orderFormEvents } from "@/app/trade/[base]/events/order-events";
-
 import {
     type NewOrderConfirmationProps,
     useStepper,
@@ -24,6 +21,7 @@ import {
 } from "@/components/ui/responsive-tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useCreateOrder } from "@/hooks/mutation/use-create-order";
 import { useMediaQuery } from "@/hooks/use-media-query";
