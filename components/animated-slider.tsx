@@ -1,8 +1,8 @@
 import NumberFlow, { type NumberFlowProps } from "@number-flow/react";
-import * as RadixSlider from "@radix-ui/react-slider";
 import clsx from "clsx/lite";
+import { Slider as SliderPrimitive } from "radix-ui";
 
-interface SliderProps extends RadixSlider.SliderProps {
+interface SliderProps extends SliderPrimitive.SliderProps {
     numberFlowClassName?: string;
     numberFlowFormat?: NumberFlowProps["format"];
 }
@@ -15,15 +15,15 @@ export function Slider({
     ...props
 }: SliderProps) {
     return (
-        <RadixSlider.Root
+        <SliderPrimitive.Root
             {...props}
             className={clsx(className, "relative flex h-5 touch-none select-none items-center")}
             value={value}
         >
-            <RadixSlider.Track className="relative h-[3px] grow rounded-full bg-zinc-100 dark:bg-zinc-800">
-                <RadixSlider.Range className="absolute h-full rounded-full bg-black dark:bg-white" />
-            </RadixSlider.Track>
-            <RadixSlider.Thumb
+            <SliderPrimitive.Track className="relative h-[3px] grow rounded-full bg-zinc-100 dark:bg-zinc-800">
+                <SliderPrimitive.Range className="absolute h-full rounded-full bg-black dark:bg-white" />
+            </SliderPrimitive.Track>
+            <SliderPrimitive.Thumb
                 aria-label="Volume"
                 className="relative block h-5 w-5 cursor-grab rounded-[1rem] bg-white shadow-md ring ring-black/10 active:cursor-grabbing"
             >
@@ -47,7 +47,7 @@ export function Slider({
                         value={value[0]}
                     />
                 )}
-            </RadixSlider.Thumb>
-        </RadixSlider.Root>
+            </SliderPrimitive.Thumb>
+        </SliderPrimitive.Root>
     );
 }
