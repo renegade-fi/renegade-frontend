@@ -1,8 +1,6 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type { TaskState } from "@renegade-fi/react";
 import { AlertCircle, Check, Loader2 } from "lucide-react";
 import * as React from "react";
-
 import { useStepper } from "@/components/dialogs/order-stepper/desktop/new-order-stepper";
 import { DidYouKnowContent } from "@/components/did-you-know-content";
 import { OrderStatusDisplay } from "@/components/order-status-display";
@@ -14,6 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useTaskHistoryWebSocket } from "@/hooks/query/use-task-history-websocket";
 

@@ -1,4 +1,3 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getSDKConfig, UpdateType } from "@renegade-fi/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Check, Loader2 } from "lucide-react";
@@ -8,7 +7,6 @@ import { type UseFormReturn, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { mainnet } from "viem/chains";
 import type { z } from "zod";
-
 import { TokenSelect } from "@/components/dialogs/token-select";
 import { BridgePrompt } from "@/components/dialogs/transfer/bridge-prompt";
 import {
@@ -50,6 +48,7 @@ import {
     ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required";
 import { useChainName } from "@/hooks/use-chain-name";

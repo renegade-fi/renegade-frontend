@@ -1,12 +1,10 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
 import { AssetsSection } from "@/app/trade/[base]/components/new-order/assets-section";
 import { NewOrderForm } from "@/app/trade/[base]/components/new-order/new-order-form";
-
 import type { NewOrderConfirmationProps } from "@/components/dialogs/order-stepper/desktop/new-order-stepper";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
 

@@ -1,8 +1,7 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { Button } from "@/components/ui/button";
 import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";

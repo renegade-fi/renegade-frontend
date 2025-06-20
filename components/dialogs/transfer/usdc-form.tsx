@@ -1,4 +1,3 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getSDKConfig, UpdateType } from "@renegade-fi/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Check, Loader2 } from "lucide-react";
@@ -10,7 +9,6 @@ import { formatUnits, isAddress, parseUnits } from "viem";
 import { mainnet } from "viem/chains";
 import { useAccount, usePublicClient, useSendTransaction, useSwitchChain } from "wagmi";
 import type { z } from "zod";
-
 import { TokenSelect } from "@/components/dialogs/token-select";
 import { BridgePromptEthereum } from "@/components/dialogs/transfer/bridge-prompt-ethereum";
 import { BridgePromptSolana } from "@/components/dialogs/transfer/bridge-prompt-solana";
@@ -59,6 +57,7 @@ import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required";
 import { useChain } from "@/hooks/use-chain";

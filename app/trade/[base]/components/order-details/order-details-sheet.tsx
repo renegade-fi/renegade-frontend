@@ -1,9 +1,6 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type { OrderMetadata } from "@renegade-fi/react";
-
 import { DetailsContent } from "@/app/trade/[base]/components/order-details/details-content";
 import { EmptyContent } from "@/app/trade/[base]/components/order-details/empty-content";
-
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -23,6 +20,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useMediaQuery } from "@/hooks/use-media-query";
 

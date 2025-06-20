@@ -1,10 +1,8 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Book } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -15,6 +13,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { HELP_CENTER_BASE_URL } from "@/lib/constants/articles";
 

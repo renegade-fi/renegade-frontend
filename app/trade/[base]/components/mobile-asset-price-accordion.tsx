@@ -1,5 +1,5 @@
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
+import { Accordion as AccordionPrimitive } from "radix-ui";
 
 import { AnimatedPrice } from "@/components/animated-price";
 import { TokenSelectDialog } from "@/components/dialogs/token-select-dialog";
