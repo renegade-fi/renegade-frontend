@@ -77,8 +77,8 @@
         "recharts": "2.15.0",
         "sonner": "^1.5.0",
         "tailwind-merge": "^2.3.0",
-        "tailwindcss-animate": "^1.0.7",
         "tiny-invariant": "^1.3.3",
+        "tw-animate-css": "^1.0.1",
         "usehooks-ts": "^3.1.0",
         "vaul": "0.9.1",
         "viem": "2.23.11",
@@ -89,6 +89,8 @@
     "devDependencies": {
         "@biomejs/biome": "2.0.0",
         "@tanstack/react-query-devtools": "5.29.2",
+        "@tailwindcss/postcss": "^4.0.0",
+        "@tailwindcss/vite": "^4.0.0",
         "@types/json-bigint": "^1.0.4",
         "@types/node": "^20",
         "@types/numeral": "^2.0.5",
@@ -98,7 +100,7 @@
         "@wagmi/cli": "^2.1.10",
         "jiti": "^1.21.0",
         "postcss": "^8",
-        "tailwindcss": "^3.4.1",
+        "tw-animate-css": "^1.0.1",
         "typescript": "^5"
     },
     "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee",
