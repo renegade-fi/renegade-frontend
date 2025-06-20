@@ -1,4 +1,3 @@
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getSDKConfig, UpdateType } from "@renegade-fi/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Check, Loader2 } from "lucide-react";
@@ -11,7 +10,6 @@ import { encodeFunctionData, formatEther, parseEther } from "viem";
 import { mainnet } from "viem/chains";
 import { useAccount, useBalance, useEstimateGas } from "wagmi";
 import type { z } from "zod";
-
 import { TokenSelect } from "@/components/dialogs/token-select";
 import { BridgePrompt } from "@/components/dialogs/transfer/bridge-prompt";
 import {
@@ -57,6 +55,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 import { useAllowanceRequired } from "@/hooks/use-allowance-required";
 import { useBasePerQuotePrice } from "@/hooks/use-base-per-usd-price";
