@@ -16,6 +16,14 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+
+      - name: Run Biome
+        run: biome ci .
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -49,12 +57,6 @@ jobs:
         run: pnpm install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PKG_GITHUB_TOKEN }}
-
-      - name: Run linting
-        run: pnpm run lint
-
-      - name: Run formatting check
-        run: pnpm prettier --check .
 
       - name: Run type checking
         run: pnpm run typecheck

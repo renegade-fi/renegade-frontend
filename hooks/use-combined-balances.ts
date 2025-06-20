@@ -1,57 +1,52 @@
-import { useWallet } from "@solana/wallet-adapter-react"
-import { useQuery } from "@tanstack/react-query"
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useQuery } from "@tanstack/react-query";
 
-import { resolveTickerAndChain } from "@/lib/token"
-import { useCurrentChain } from "@/providers/state-provider/hooks"
+import { resolveTickerAndChain } from "@/lib/token";
+import { useCurrentChain } from "@/providers/state-provider/hooks";
 
-async function fetchCombinedBalances(
-  address: `0x${string}`,
-  solanaAddress?: string,
-) {
-  const params = new URLSearchParams({
-    address: address,
-  })
+async function fetchCombinedBalances(address: `0x${string}`, solanaAddress?: string) {
+    const params = new URLSearchParams({
+        address: address,
+    });
 
-  if (solanaAddress) {
-    params.append("solanaAddress", solanaAddress)
-  }
+    if (solanaAddress) {
+        params.append("solanaAddress", solanaAddress);
+    }
 
-  const response = await fetch(
-    `/api/tokens/get-combined-balances?${params.toString()}`,
-  )
-  if (!response.ok) {
-    throw new Error("Failed to fetch combined balances")
-  }
-  return response.json()
+    const response = await fetch(`/api/tokens/get-combined-balances?${params.toString()}`);
+    if (!response.ok) {
+        throw new Error("Failed to fetch combined balances");
+    }
+    return response.json();
 }
 
 export function useCombinedBalances({
-  address,
-  enabled = true,
+    address,
+    enabled = true,
 }: {
-  address?: `0x${string}`
-  enabled?: boolean
+    address?: `0x${string}`;
+    enabled?: boolean;
 }) {
-  const chainId = useCurrentChain()
-  const { publicKey } = useWallet()
-  const solanaAddress = publicKey?.toBase58()
-  const queryKey = ["combinedBalances", address, solanaAddress]
+    const chainId = useCurrentChain();
+    const { publicKey } = useWallet();
+    const solanaAddress = publicKey?.toBase58();
+    const queryKey = ["combinedBalances", address, solanaAddress];
 
-  return {
-    queryKey,
-    ...useQuery<Map<`0x${string}`, bigint>, Error>({
-      queryKey,
-      queryFn: () => fetchCombinedBalances(address!, solanaAddress),
-      enabled: !!address && enabled,
-      select: (data) =>
-        Object.entries(data).reduce((acc, [key, value]) => {
-          const token = resolveTickerAndChain(key, chainId)
-          if (!token) {
-            return acc
-          }
-          acc.set(token.address, BigInt(value))
-          return acc
-        }, new Map<`0x${string}`, bigint>()),
-    }),
-  }
+    return {
+        queryKey,
+        ...useQuery<Map<`0x${string}`, bigint>, Error>({
+            queryKey,
+            queryFn: () => fetchCombinedBalances(address!, solanaAddress),
+            enabled: !!address && enabled,
+            select: (data) =>
+                Object.entries(data).reduce((acc, [key, value]) => {
+                    const token = resolveTickerAndChain(key, chainId);
+                    if (!token) {
+                        return acc;
+                    }
+                    acc.set(token.address, BigInt(value));
+                    return acc;
+                }, new Map<`0x${string}`, bigint>()),
+        }),
+    };
 }

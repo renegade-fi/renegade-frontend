@@ -1,11 +1,11 @@
-import { createPublicClient, http } from "viem"
+import { createPublicClient, http } from "viem";
 
-import { useChain } from "./use-chain"
+import { useChain } from "./use-chain";
 
 export function usePublicClient() {
-  const chain = useChain()
-  return createPublicClient({
-    chain,
-    transport: http(),
-  })
+    const chain = useChain();
+    return createPublicClient({
+        chain,
+        transport: http(),
+    });
 }

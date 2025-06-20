@@ -1,0 +1,75 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "ignoreUnknown": false,
+        "includes": [
+            "**",
+            "!node_modules",
+            "!.next",
+            "!dist",
+            "!build",
+            "!coverage",
+            "!.turbo",
+            "!public",
+            "!**/*.d.ts"
+        ]
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 100
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "style": {
+                "noNonNullAssertion": "off"
+            },
+            "suspicious": {
+                "noExplicitAny": "off",
+                "noShadowRestrictedNames": "off",
+                "noImplicitAnyLet": "off",
+                "noDocumentCookie": "off",
+                "noTemplateCurlyInString": "off",
+                "noArrayIndexKey": "off"
+            },
+            "complexity": {
+                "noUselessFragments": "off"
+            },
+            "correctness": {
+                "noUnusedFunctionParameters": "off",
+                "noUnusedVariables": "off"
+            },
+            "a11y": {
+                "useSemanticElements": "off",
+                "useHtmlLang": "off",
+                "useButtonType": "off",
+                "useKeyWithClickEvents": "off",
+                "noStaticElementInteractions": "off",
+                "useFocusableInteractive": "off",
+                "noSvgWithoutTitle": "off"
+            },
+            "nursery": {
+                "useUniqueElementIds": "off"
+            },
+            "security": {
+                "noDangerouslySetInnerHtml": "off"
+            }
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

@@ -1,13 +1,13 @@
 export interface LocalOrder {
-  id: string
-  base: string
-  quote: string
-  side: string
-  amount: string
-  timestamp: number
+    id: string;
+    base: string;
+    quote: string;
+    side: string;
+    amount: string;
+    timestamp: number;
 }
 
 export enum Direction {
-  BUY = "buy",
-  SELL = "sell",
+    BUY = "buy",
+    SELL = "sell",
 }
