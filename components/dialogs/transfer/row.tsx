@@ -17,7 +17,7 @@ export function Row({
             <span className="text-muted-foreground">{label}</span>
             <div className="flex items-center gap-1">
                 {imageUri && (
-                    <Image alt="" className="flex-shrink-0" height={16} src={imageUri} width={16} />
+                    <Image alt="" className="shrink-0" height={16} src={imageUri} width={16} />
                 )}
                 {typeof value === "string" ? <span>{value}</span> : value}
                 {url && <ExternalLinkIcon className="h-4 w-4" />}

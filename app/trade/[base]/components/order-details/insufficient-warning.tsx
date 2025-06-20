@@ -47,7 +47,7 @@ export function InsufficientWarning({
                 className,
             )}
         >
-            <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
+            <div className="h-2 w-2 rounded-full bg-yellow" />
             <span>Only part of the order will be filled.</span>
         </div>
     );

@@ -31,7 +31,7 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent hideCloseButton className="w-[300px] p-0 !duration-100" side="left">
+            <SheetContent hideCloseButton className="w-[300px] p-0 duration-100!" side="left">
                 <SheetHeader>
                     <VisuallyHidden>
                         <SheetTitle>Menu</SheetTitle>

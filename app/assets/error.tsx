@@ -42,7 +42,7 @@ export default function Error({
                         Press{" "}
                         <span
                             className={cn(
-                                "center h-5 w-fit min-w-[1.25rem] rounded-md border border-foreground/20 px-1 text-xs text-foreground/50",
+                                "center h-5 w-fit min-w-5 rounded-md border border-foreground/20 px-1 text-xs text-foreground/50",
                             )}
                         >
                             <span>↩</span>

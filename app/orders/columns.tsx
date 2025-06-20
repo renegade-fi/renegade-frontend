@@ -61,7 +61,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                     <div className="flex items-center justify-center">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="h-2 w-2 rounded-full bg-[var(--color-yellow)]" />
+                                <div className="h-2 w-2 rounded-full bg-yellow" />
                             </TooltipTrigger>
                             <TooltipContent>
                                 {UNDERCAPITALIZED_ORDER_TOOLTIP({ ticker: token.ticker })}

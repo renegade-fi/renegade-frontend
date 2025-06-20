@@ -37,7 +37,7 @@ export function Header({
                     </Button>
                     <Button
                         className={cn(
-                            "border-l-1 flex-1 border-y-0 border-r-0 font-extended text-lg font-bold",
+                            "border-l flex-1 border-y-0 border-r-0 font-extended text-lg font-bold",
                             direction === ExternalTransferDirection.Withdraw
                                 ? "text-primary"
                                 : "text-muted-foreground",

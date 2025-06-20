@@ -3,7 +3,7 @@ export function TailwindIndicator() {
         return null;
     }
     return (
-        <div className="fixed right-0 top-0 z-50 rounded-bl bg-pink-500 px-2 font-mono text-white shadow-md">
+        <div className="fixed right-0 top-0 z-50 rounded-bl-lg bg-pink-500 px-2 font-mono text-white shadow-md">
             <span className="sm:hidden">default</span>
             <span className="hidden sm:inline md:hidden">sm</span>
             <span className="hidden md:inline lg:hidden">md</span>

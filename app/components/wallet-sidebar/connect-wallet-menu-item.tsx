@@ -17,7 +17,7 @@ export function ConnectWalletMenuItem({ title, subtitle, onClick }: ConnectWalle
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     size="lg"
                 >
-                    <Avatar className="h-8 w-8 rounded-lg border-[1px] border-dashed border-muted-foreground/50 bg-muted/50">
+                    <Avatar className="h-8 w-8 rounded-lg border border-dashed border-muted-foreground/50 bg-muted/50">
                         <AvatarFallback className="rounded-lg bg-transparent">
                             <Plus className="h-4 w-4 text-muted-foreground/50" />
                         </AvatarFallback>

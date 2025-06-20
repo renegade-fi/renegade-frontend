@@ -13,7 +13,7 @@ export default async function Page() {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <ScrollArea className="flex-grow" type="always">
+            <ScrollArea className="grow" type="always">
                 <PageClient />
             </ScrollArea>
         </HydrationBoundary>

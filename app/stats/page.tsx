@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Page() {
     return (
-        <ScrollArea className="flex-grow" type="always">
+        <ScrollArea className="grow" type="always">
             <PageClient />
         </ScrollArea>
     );

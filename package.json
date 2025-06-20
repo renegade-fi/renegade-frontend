@@ -45,6 +45,7 @@
         "@renegade-fi/price-reporter": "0.0.26",
         "@renegade-fi/react": "0.6.21",
         "@renegade-fi/token-nextjs": "^0.1.11",
+        "@renegade-fi/tradingview-charts": "0.27.6",
         "@solana/wallet-adapter-base": "^0.9.23",
         "@solana/wallet-adapter-react": "^0.15.35",
         "@solana/wallet-adapter-wallets": "^0.19.32",
@@ -87,9 +88,8 @@
     },
     "devDependencies": {
         "@biomejs/biome": "2.0.0",
+        "@tailwindcss/postcss": "^4.1.10",
         "@tanstack/react-query-devtools": "5.29.2",
-        "@tailwindcss/postcss": "^4.0.0",
-        "@tailwindcss/vite": "^4.0.0",
         "@types/json-bigint": "^1.0.4",
         "@types/node": "^20",
         "@types/numeral": "^2.0.5",

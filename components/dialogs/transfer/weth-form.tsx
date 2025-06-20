@@ -729,7 +729,7 @@ export function WETHForm({
                                         <ResponsiveTooltipTrigger
                                             asChild
                                             className={cn(
-                                                "!pointer-events-auto",
+                                                "pointer-events-auto!",
                                                 maxAmountToWrap < BigInt(0) ? "" : "cursor-pointer",
                                             )}
                                         >

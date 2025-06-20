@@ -46,7 +46,7 @@ export function MaintenanceButtonWrapper({
         <ResponsiveTooltip>
             <ResponsiveTooltipTrigger
                 asChild={!isMobile}
-                className={cn("!pointer-events-auto", triggerClassName)}
+                className={cn("pointer-events-auto!", triggerClassName)}
             >
                 {buttonWithMaintenance}
             </ResponsiveTooltipTrigger>

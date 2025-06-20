@@ -28,7 +28,7 @@ export function Footer() {
     const isBase = useIsBase();
 
     return (
-        <footer className="relative hidden min-h-20 min-w-full bg-background before:absolute before:left-0 before:right-0 before:top-0 before:h-[1px] before:bg-border lg:block">
+        <footer className="relative hidden min-h-20 min-w-full bg-background before:absolute before:left-0 before:right-0 before:top-0 before:h-px before:bg-border lg:block">
             <div className="grid min-h-20 grid-cols-2 items-center">
                 <div className="hidden items-center pl-6 lg:flex">
                     <ContextMenu>

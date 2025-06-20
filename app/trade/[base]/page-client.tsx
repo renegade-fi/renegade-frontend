@@ -72,7 +72,7 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
             <DepositBanner />
             <BBOMarquee base={baseMint} />
             <MobileAssetPriceAccordion base={baseMint} />
-            <ScrollArea className="flex-grow">
+            <ScrollArea className="grow">
                 <ResizablePanelGroup
                     direction="horizontal"
                     onLayout={(layout) => debouncedSetPanels(layout)}
