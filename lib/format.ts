@@ -14,7 +14,7 @@ export const formatRelativeTimestamp = (timestamp: number) => {
     return dayjs(timestamp).fromNow();
 };
 
-export const precisionFormatter = new Intl.NumberFormat("en", {
+const precisionFormatter = new Intl.NumberFormat("en", {
     notation: "standard",
     // @ts-ignore
     roundingPriority: "morePrecision",
@@ -23,7 +23,7 @@ export const precisionFormatter = new Intl.NumberFormat("en", {
     useGrouping: false,
 });
 
-export const longPrecisionFormatter = new Intl.NumberFormat("en", {
+const longPrecisionFormatter = new Intl.NumberFormat("en", {
     notation: "standard",
     // @ts-ignore
     roundingPriority: "morePrecision",
@@ -74,7 +74,7 @@ export const formatTimestamp = (timestamp: number, locale: string = "en-US") => 
     });
 };
 
-export const percentageFormatter = new Intl.NumberFormat("en", {
+const percentageFormatter = new Intl.NumberFormat("en", {
     style: "percent",
     maximumFractionDigits: 2,
     useGrouping: false,
@@ -103,21 +103,6 @@ export const formatOrderState = {
     [OrderState.Filled]: "Filled",
     [OrderState.SettlingMatch]: "Settling Order...",
 } as const;
-
-export const formatStatus = (status: UseStatusReturnType) => {
-    switch (status) {
-        case "in relayer":
-            return "Connected";
-        case "connecting":
-            return "Connecting";
-        case "creating wallet":
-            return "Creating wallet";
-        case "disconnected":
-            return "Disconnected";
-        default:
-            return "Unknown";
-    }
-};
 
 export const safeParseUnits = (value: number | string, decimals: number) => {
     try {
@@ -161,11 +146,6 @@ export const truncateAddress = (address: string, chars: number = 4) => {
     if (!address || address.length <= chars * 2) return address;
     return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
 };
-
-export function formatDuration(ms: number | undefined): string | undefined {
-    if (!ms) return undefined;
-    return dayjs.duration(ms, "milliseconds").humanize();
-}
 
 // Format currency with dynamic precision based on magnitude
 export function formatDynamicCurrency(value: number): string {

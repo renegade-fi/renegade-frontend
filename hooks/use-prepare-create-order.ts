@@ -12,7 +12,7 @@ import { useConfig } from "@/providers/state-provider/hooks";
 
 import { stringifyForWasm } from "./query/utils";
 
-export type UsePrepareCreateOrderParameters = {
+type UsePrepareCreateOrderParameters = {
     id?: string;
     base: `0x${string}`;
     quote: `0x${string}`;

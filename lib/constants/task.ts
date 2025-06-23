@@ -5,39 +5,6 @@ import { formatNumber } from "@/lib/format";
 
 import { resolveAddress } from "../token";
 
-export const WITHDRAW_TOAST_ID = (mint: `0x${string}`, amount: bigint) =>
-    `withdraw-${mint}-${amount}`;
-
-export const START_DEPOSIT_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
-    `Depositing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`;
-
-export const START_WITHDRAWAL_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
-    `Withdrawing ${formatNumber(amount, mint.decimals)} ${mint.ticker}...`;
-
-export const START_PLACE_ORDER_MSG = (
-    base: InstanceType<typeof Token>,
-    amount: bigint,
-    side: string,
-) =>
-    `Placing Order to ${side.toLowerCase()} ${formatNumber(
-        amount,
-        base.decimals,
-    )} ${base.ticker}...`;
-
-export const START_CANCEL_ORDER_MSG = (
-    base: InstanceType<typeof Token>,
-    amount: bigint,
-    side: string,
-) =>
-    `Cancelling Order to ${side.toLowerCase()} ${formatNumber(
-        amount,
-        base.decimals,
-    )} ${base.ticker}...`;
-
-export const START_REFRESH_WALLET_MSG = "Refreshing wallet to on-chain state...";
-
-export const QUEUED_REFRESH_WALLET_MSG = "Queued: Refreshing wallet...";
-
 export const FAILED_DEPOSIT_MSG = (
     mint: InstanceType<typeof Token>,
     amount: bigint,
@@ -49,44 +16,6 @@ export const FAILED_DEPOSIT_MSG = (
 
 export const FAILED_WITHDRAWAL_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
     `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${mint.ticker}. Please try again.`;
-
-export const FAILED_PLACE_ORDER_MSG = (
-    base: InstanceType<typeof Token>,
-    amount: bigint,
-    side: string,
-    reason?: string,
-) =>
-    `Failed to place order to ${side.toLowerCase()} ${formatNumber(
-        amount,
-        base.decimals,
-    )} ${base.ticker}. ${reason ?? "Please try again"}.`;
-
-export const FAILED_CANCEL_ORDER_MSG = (
-    base: InstanceType<typeof Token>,
-    amount: bigint,
-    side: string,
-) =>
-    `Failed to cancel order to ${side.toLowerCase()} ${formatNumber(
-        amount,
-        base.decimals,
-    )} ${base.ticker}. Please try again.`;
-
-export const FAILED_REFRESH_WALLET_MSG = "Failed to refresh wallet.";
-
-export const getReadableState = (state: OrderState) => {
-    switch (state) {
-        case OrderState.Created:
-            return "Open";
-        case OrderState.Matching:
-            return "Open";
-        case OrderState.SettlingMatch:
-            return "Settling";
-        case OrderState.Filled:
-            return "Filled";
-        case OrderState.Cancelled:
-            return "Cancelled";
-    }
-};
 
 export const formatTaskState = (state: TaskState) => {
     return {

@@ -5,7 +5,7 @@ import { STORAGE_VERSION } from "@/lib/constants/storage";
 import { getCookie, removeCookie, setCookie } from "@/providers/state-provider/cookie-actions";
 import type { ServerState } from "@/providers/state-provider/schema";
 
-export type BaseStorage = {
+type BaseStorage = {
     getItem(key: string): string | null | undefined | Promise<string | null | undefined>;
     setItem(key: string, value: string): void | Promise<void>;
     removeItem(key: string): void | Promise<void>;
@@ -60,7 +60,7 @@ export function createStorage<T>(storage: BaseStorage): PersistStorage<T> {
     };
 }
 
-export function parseCookie(cookie: string, key: string) {
+function parseCookie(cookie: string, key: string) {
     const keyValue = cookie.split("; ").find((x) => x.startsWith(`${key}=`));
     if (!keyValue) return undefined;
     return keyValue.substring(key.length + 1);

@@ -5,7 +5,7 @@ import React from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useConfig, useCurrentWallet } from "@/providers/state-provider/hooks";
 
-export type UseOrderHistoryWebsocketParameters = {
+type UseOrderHistoryWebsocketParameters = {
     onUpdate: (order: OrderMetadata) => void;
 };
 

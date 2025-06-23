@@ -10,8 +10,6 @@ export function getLastProcessedBlockKey(chainId: number): string {
     return `stats:inflows:${chainId}:last_processed_block`;
 }
 
-export const BLOCK_CHUNK_SIZE = 10; // Adjust this value based on rate limit constraints
-
 export type ExternalTransferData = {
     timestamp: number;
     amount: number;
@@ -38,7 +36,7 @@ export function getHistoricalVolumeSetKey(chainId: number): string {
 
 // Flows
 
-export const NET_FLOW_KEY = "net_flow_24h";
+const NET_FLOW_KEY = "net_flow_24h";
 
 export function getNetFlowKey(chainId: number): string {
     return `${NET_FLOW_KEY}:${chainId}`;

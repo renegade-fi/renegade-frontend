@@ -14,7 +14,7 @@ export interface NewOrderConfirmationProps extends NewOrderFormProps {
     protocolFee: number;
 }
 
-export function NewOrderStepperInner({
+function NewOrderStepperInner({
     children,
     ...props
 }: React.PropsWithChildren<NewOrderConfirmationProps>) {
@@ -39,7 +39,7 @@ export function NewOrderStepperInner({
     );
 }
 
-export enum Step {
+enum Step {
     DEFAULT,
     SUCCESS,
 }

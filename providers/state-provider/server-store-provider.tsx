@@ -12,11 +12,11 @@ import {
     type ServerStore,
 } from "@/providers/state-provider/server-store";
 
-export type ServerStoreApi = ReturnType<typeof createServerStore>;
+type ServerStoreApi = ReturnType<typeof createServerStore>;
 
 const ServerStoreContext = createContext<ServerStoreApi | undefined>(undefined);
 
-export interface ServerStoreProviderProps {
+interface ServerStoreProviderProps {
     children: ReactNode;
     cookieString?: string;
 }

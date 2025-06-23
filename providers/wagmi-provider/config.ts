@@ -48,29 +48,10 @@ export function getConfig() {
 export const AVAILABLE_CHAINS =
     env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? MAINNET_CHAINS : TESTNET_CHAINS;
 
-/** Chain logo mapping */
-export const CHAIN_LOGOS = {
-    42161: "/arbitrum.svg",
-    421614: "/arbitrum.svg",
-    8453: "/base.svg",
-    84532: "/base.svg",
-} as const;
-
 export const mainnetConfig = createConfig({
     chains: [mainnet],
     transports: {
         [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
-    },
-});
-
-// @sehyunc TODO: generalize wagmi config
-export const arbitrumConfig = createConfig({
-    chains: [arbitrum, arbitrumSepolia, baseSepolia, base],
-    transports: {
-        [arbitrum.id]: http(`/api/proxy/rpc?id=${arbitrum.id}`),
-        [arbitrumSepolia.id]: http(`/api/proxy/rpc?id=${arbitrumSepolia.id}`),
-        [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
-        [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
     },
 });
 

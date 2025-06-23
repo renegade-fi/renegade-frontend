@@ -9,7 +9,7 @@ import { MAINNET_CHAINS, TESTNET_CHAINS } from "@/providers/wagmi-provider/confi
 
 import { solana } from "./viem";
 
-export const HIDDEN_TICKERS = ["USDT", "REN"];
+const HIDDEN_TICKERS = ["USDT", "REN"];
 
 export const DISPLAY_TOKENS = (
     options: {

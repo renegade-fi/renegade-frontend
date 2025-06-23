@@ -8,7 +8,7 @@ import type { CachedWallet } from "@/providers/state-provider/schema";
 
 import { parseBigJSON } from "./utils";
 
-export type UseWalletWebsocketParameters = {
+type UseWalletWebsocketParameters = {
     onUpdate: (wallet: CachedWallet) => void;
 };
 

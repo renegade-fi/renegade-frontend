@@ -26,7 +26,7 @@ export const solana = defineChain({
     },
 });
 
-export type SupportedChainId =
+type SupportedChainId =
     | typeof mainnet.id
     | typeof arbitrum.id
     | typeof arbitrumSepolia.id

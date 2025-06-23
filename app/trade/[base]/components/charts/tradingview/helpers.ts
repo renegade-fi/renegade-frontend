@@ -20,7 +20,7 @@ export async function makeAmberApiRequest(url: URL, options?: RequestInit) {
     }
 }
 
-export function formatBars(bars: any[]): Bar[] {
+function formatBars(bars: any[]): Bar[] {
     if (!bars || bars.length === 0) {
         return [];
     }

@@ -9,8 +9,6 @@ import defaultConnectors from "./defaultConnectors";
 // TODO: Move these to a provider rather than global variable
 let globalAppName: string;
 let globalAppIcon: string;
-export const getAppName = () => globalAppName;
-export const getAppIcon = () => globalAppIcon;
 
 type DefaultConfigProps = {
     appName: string;

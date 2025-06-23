@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-export type RawTvlData = {
+type RawTvlData = {
     address: `0x${string}`;
     tvl: bigint;
 };

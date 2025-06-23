@@ -4,13 +4,13 @@ import { createStore } from "zustand/vanilla";
 import { STORAGE_CLIENT_STORE } from "@/lib/constants/storage";
 
 // State that can be hydrated after initial render, as opposed to ServerState
-export type ClientState = {
+type ClientState = {
     favorites: string[];
     lastVisitTs: string;
     viewedFills: string[];
 };
 
-export type ClientActions = {
+type ClientActions = {
     setFavorites: (favorites: string[]) => void;
     setLastVisitTs: (lastVisitTs: string) => void;
     setViewedFills: (viewedFills: string[]) => void;
@@ -22,7 +22,7 @@ export const initClientStore = (): ClientState => {
     return defaultInitState;
 };
 
-export const defaultInitState: ClientState = {
+const defaultInitState: ClientState = {
     favorites: [],
     lastVisitTs: "",
     viewedFills: [],

@@ -91,7 +91,7 @@ export function getPriceChartInfo(mint: `0x${string}`) {
 /**
  * Returns Amberdata specific quote ticker for a given mint
  */
-export const getQuoteTicker = (mint: `0x${string}`) => {
+const getQuoteTicker = (mint: `0x${string}`) => {
     const token = resolveAddress(mint);
     const canonicalExchange = token.canonicalExchange;
     if (["coinbase", "kraken"].includes(canonicalExchange)) {

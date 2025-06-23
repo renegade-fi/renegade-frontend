@@ -5,7 +5,7 @@ import { useAccount } from "wagmi";
 import { safeParseUnits } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 
-export interface UseSwapParams {
+interface UseSwapParams {
     fromMint: `0x${string}`;
     toMint: `0x${string}`;
     amount: string;

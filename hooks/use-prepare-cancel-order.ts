@@ -9,7 +9,7 @@ import { useConfig } from "@/providers/state-provider/hooks";
 
 import { stringifyForWasm } from "./query/utils";
 
-export type UsePrepareCancelOrderParameters = CancelOrderParameters;
+type UsePrepareCancelOrderParameters = CancelOrderParameters;
 
 export function usePrepareCancelOrder(parameters: UsePrepareCancelOrderParameters) {
     const { id } = parameters;

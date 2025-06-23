@@ -7,7 +7,7 @@ import { useConfig, useCurrentWallet } from "@/providers/state-provider/hooks";
 
 import { parseBigJSON } from "./utils";
 
-export type UseTaskHistoryWebsocketParameters = {
+type UseTaskHistoryWebsocketParameters = {
     onUpdate: (task: Task) => void;
 };
 

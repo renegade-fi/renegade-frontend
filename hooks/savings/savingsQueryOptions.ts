@@ -5,7 +5,7 @@ export type SavingsData = {
     savingsBps: number;
 };
 
-export type SavingsQueryVariables = {
+type SavingsQueryVariables = {
     amount: string; // value the backend expects (string / decimal)
     baseMint: `0x${string}`;
     direction: "buy" | "sell";

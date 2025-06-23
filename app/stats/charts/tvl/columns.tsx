@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { formatCurrency, formatNumber } from "@/lib/format";
 import { resolveTicker } from "@/lib/token";
 
-export type TvlRow = {
+type TvlRow = {
     /** The ticker of the token */
     ticker: string;
     /** Non-decimal corrected amount of TVL on Base */

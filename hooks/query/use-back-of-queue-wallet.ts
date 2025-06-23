@@ -13,7 +13,7 @@ import type { CachedWallet } from "@/providers/state-provider/schema";
 
 import { useWalletWebsocket } from "./use-wallet-websocket";
 
-export function walletQueryKey(options: CachedWallet) {
+function walletQueryKey(options: CachedWallet) {
     return [
         "back-of-queue-wallet",
         {

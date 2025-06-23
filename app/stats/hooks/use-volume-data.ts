@@ -30,7 +30,7 @@ export function useVolumeData(chainId: number): UseHistoricalVolumeResult {
     };
 }
 
-export async function getHistoricalVolume(chainId: number): Promise<VolumeData> {
+async function getHistoricalVolume(chainId: number): Promise<VolumeData> {
     const res = await fetch(`/api/stats/historical-volume-kv?chainId=${chainId}`);
 
     if (!res.ok) {

@@ -2,7 +2,7 @@ import type { Token } from "@renegade-fi/token-nextjs";
 import { hashTypedData, type TypedDataDomain, verifyTypedData, type WalletClient } from "viem";
 import { publicKeyToAddress, recoverPublicKey } from "viem/utils";
 
-export function millisecondsToSeconds(milliseconds: number): number {
+function millisecondsToSeconds(milliseconds: number): number {
     return Math.floor(milliseconds / 1000);
 }
 

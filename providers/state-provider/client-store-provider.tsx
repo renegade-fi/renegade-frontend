@@ -10,11 +10,11 @@ import {
     initClientStore,
 } from "@/providers/state-provider/client-store";
 
-export type ClientStoreApi = ReturnType<typeof createClientStore>;
+type ClientStoreApi = ReturnType<typeof createClientStore>;
 
 const ClientStoreContext = createContext<ClientStoreApi | undefined>(undefined);
 
-export interface ClientStoreProviderProps {
+interface ClientStoreProviderProps {
     children: ReactNode;
 }
 

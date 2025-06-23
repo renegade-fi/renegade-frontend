@@ -19,7 +19,7 @@ export enum SVMStep {
 
 export type TransferStep = EVMStep | SVMStep;
 
-export interface StepConfig {
+interface StepConfig {
     label: string;
     chainId?: number;
 }

@@ -8,7 +8,7 @@ import { mainnetConfig } from "@/providers/wagmi-provider/config";
 
 import { useChain } from "./use-chain";
 
-export interface ConnectedWallet {
+interface ConnectedWallet {
     name: string;
     icon: string;
     id: string;
@@ -16,7 +16,7 @@ export interface ConnectedWallet {
     isConnected: true;
 }
 
-export interface DisconnectedWallet {
+interface DisconnectedWallet {
     name: string;
     icon: string | null;
     id: null;
@@ -26,11 +26,13 @@ export interface DisconnectedWallet {
 
 export type Wallet = ConnectedWallet | DisconnectedWallet;
 
-export enum WalletReadyState {
-    READY,
-    CONNECTING,
-    NOT_READY,
-}
+const WalletReadyState = {
+    READY: "READY",
+    CONNECTING: "CONNECTING",
+    NOT_READY: "NOT_READY",
+} as const;
+
+type WalletReadyState = (typeof WalletReadyState)[keyof typeof WalletReadyState];
 
 export function useWallets() {
     // Wagmi
@@ -99,7 +101,7 @@ export function useWallets() {
               };
 
     // More specifically, wallet ready state on page load (may update after hydration)
-    const walletReadyState = React.useMemo((): "READY" | "CONNECTING" | "NOT_READY" => {
+    const walletReadyState = React.useMemo((): WalletReadyState => {
         switch (status) {
             case "connecting":
             case "reconnecting":

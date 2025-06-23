@@ -13,9 +13,3 @@ export const NonDeterministicWalletError = new Error(
 export function isNonDeterministicWalletError(error?: string) {
     return error === NonDeterministicWalletError.message;
 }
-
-export enum ConnectSuccess {
-    CREATE_WALLET,
-    LOOKUP_WALLET,
-    ALREADY_INDEXED,
-}

@@ -38,7 +38,7 @@ export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
     );
 };
 
-export function SyncSolanaWagmiState() {
+function SyncSolanaWagmiState() {
     const chainId = useChainId();
     const { disconnect } = useWallet();
 

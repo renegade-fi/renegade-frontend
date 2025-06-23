@@ -8,7 +8,7 @@ import { safeParseUnits } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 import { solana } from "@/lib/viem";
 
-export interface UseBridgeParams {
+interface UseBridgeParams {
     fromChain?: number;
     fromMint: string;
     toChain?: number;

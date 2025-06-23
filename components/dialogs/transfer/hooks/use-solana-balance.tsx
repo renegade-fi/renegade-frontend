@@ -13,7 +13,7 @@ function useSolanaToken(ticker: string) {
     return new PublicKey(SOLANA_TOKENS[ticker as keyof typeof SOLANA_TOKENS]);
 }
 
-export function useTokenAccount(ticker: string) {
+function useTokenAccount(ticker: string) {
     const { connection } = useConnection();
     const { publicKey } = useWallet();
     const mint = useSolanaToken(ticker);
@@ -34,13 +34,7 @@ export function useTokenAccount(ticker: string) {
     });
 }
 
-export function useSolanaBalance({
-    ticker,
-    enabled = true,
-}: {
-    ticker: string;
-    enabled?: boolean;
-}) {
+function useSolanaBalance({ ticker, enabled = true }: { ticker: string; enabled?: boolean }) {
     const { connection } = useConnection();
     const { publicKey } = useWallet();
     const { data: tokenAccountAddress } = useTokenAccount(ticker);

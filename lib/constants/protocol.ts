@@ -7,8 +7,6 @@ import { resolveTicker } from "../token";
 // Min fill size of the quote asset that the relayer will accept
 export const MIN_FILL_SIZE = parseUnits("1", resolveTicker("USDC").decimals);
 // TODO: [CORRECTNESS] Should fetch from relayer
-// Default mint
-export const DEFAULT_MINT = "0x0000000000000000000000000000000000000000";
 // Renegade protocol fee
 export const PROTOCOL_FEE = 0.0002;
 // Renegade relayer fee

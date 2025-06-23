@@ -15,7 +15,7 @@ import type { CachedWallet } from "@/providers/state-provider/schema";
 
 import { useTaskHistoryWebSocket } from "./use-task-history-websocket";
 
-export function taskHistoryQueryKey(options: CachedWallet) {
+function taskHistoryQueryKey(options: CachedWallet) {
     return [
         "task-history",
         {

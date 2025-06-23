@@ -1,6 +1,6 @@
 import { useClientStore } from "@/providers/state-provider/client-store-provider";
 
-export type FillIdentifier = string;
+type FillIdentifier = string;
 
 export function generateFillIdentifier(orderId: string, fillTimestamp: bigint): FillIdentifier {
     return `${orderId}-${fillTimestamp}`;

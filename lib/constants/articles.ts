@@ -1,5 +1,5 @@
 export const HELP_CENTER_BASE_URL = "https://help.renegade.fi/hc/en-us";
-export const HELP_CENTER_ARTICLES_BASE_URL = `${HELP_CENTER_BASE_URL}/articles`;
+const HELP_CENTER_ARTICLES_BASE_URL = `${HELP_CENTER_BASE_URL}/articles`;
 
 export const HELP_CENTER_ARTICLES = {
     FEES: {
@@ -31,6 +31,3 @@ export const HELP_CENTER_ARTICLES = {
         url: `${HELP_CENTER_ARTICLES_BASE_URL}/35455732014355-What-are-External-Matches`,
     },
 } as const;
-
-// Type for article keys
-export type HelpCenterArticle = keyof typeof HELP_CENTER_ARTICLES;

@@ -10,7 +10,7 @@ import { cookieStorage, createStorage } from "@/providers/state-provider/cookie-
 import { AVAILABLE_CHAINS } from "../wagmi-provider/config";
 import { type CachedWallet, createEmptyWallet, type ServerState } from "./schema";
 
-export type ServerActions = {
+type ServerActions = {
     setAmount: (amount: string) => void;
     setBase: (baseMint: `0x${string}`) => void;
     setChainId: (chainId: ChainId) => void;

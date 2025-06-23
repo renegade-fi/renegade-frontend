@@ -3,7 +3,7 @@ import type { Exchange } from "@renegade-fi/react";
 import { isSupportedExchange } from "./token";
 
 /** Mapping of token price statuses with text, statusColor, and priceColor. */
-export const PRICE_STATUSES = {
+const PRICE_STATUSES = {
     live: {
         text: "LIVE",
         statusColor: "text-green-price",

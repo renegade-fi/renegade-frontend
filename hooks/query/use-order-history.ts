@@ -11,7 +11,7 @@ import type { CachedWallet } from "@/providers/state-provider/schema";
 
 import { useOrderHistoryWebSocket } from "./use-order-history-websocket";
 
-export function orderHistoryQueryKey(options: CachedWallet) {
+function orderHistoryQueryKey(options: CachedWallet) {
     return [
         "order-history",
         {

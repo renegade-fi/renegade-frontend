@@ -6,7 +6,7 @@ import { DefaultStep } from "@/components/dialogs/order-stepper/mobile/steps/def
 import { SuccessStepWithoutSavings } from "@/components/dialogs/order-stepper/mobile/steps/success-without-savings";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
-export function NewOrderStepperInner({
+function NewOrderStepperInner({
     children,
     ...props
 }: React.PropsWithChildren<{
@@ -38,7 +38,7 @@ export function NewOrderStepperInner({
     );
 }
 
-export enum Step {
+enum Step {
     DEFAULT,
     CONFIRM,
     SUCCESS,
