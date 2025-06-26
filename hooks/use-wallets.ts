@@ -1,11 +1,9 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import React from "react";
+import { mainnet } from "viem/chains";
 import { useAccount, useEnsName } from "wagmi";
-
 import { truncateAddress } from "@/lib/format";
 import { useCurrentWallet } from "@/providers/state-provider/hooks";
-import { mainnetConfig } from "@/providers/wagmi-provider/config";
-
 import { useChain } from "./use-chain";
 
 interface ConnectedWallet {
@@ -43,7 +41,7 @@ export function useWallets() {
     const { publicKey, wallet, connected } = useWallet();
     const { data: ensName } = useEnsName({
         address,
-        config: mainnetConfig,
+        chainId: mainnet.id,
     });
     const chainSpecifier = currentChain?.name.split(" ")[0].toLowerCase();
 

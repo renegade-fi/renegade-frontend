@@ -79,7 +79,6 @@ import { cn } from "@/lib/utils";
 import { getFormattedChainName, solana } from "@/lib/viem";
 import { useCurrentChain, useCurrentWallet } from "@/providers/state-provider/hooks";
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
-import { mainnetConfig } from "@/providers/wagmi-provider/config";
 
 import { EVMStep, STEP_CONFIGS, SVMStep, type TransferStep } from "./types";
 
@@ -252,7 +251,7 @@ export function USDCForm({
     } = useReadErc20Allowance({
         address: USDC_L1_TOKEN.address,
         args: [address ?? "0x", (bridgeQuote?.estimate.approvalAddress ?? "0x") as `0x${string}`],
-        config: mainnetConfig,
+        chainId: mainnet.id,
         query: {
             select: (data) => {
                 const parsedAmount = safeParseUnits(amount, USDC_L1_TOKEN?.decimals ?? 0);
@@ -296,7 +295,7 @@ export function USDCForm({
                 ),
             );
         },
-        mainnetConfig,
+        mainnet.id,
     );
 
     // Solana Bridge
@@ -368,7 +367,7 @@ export function USDCForm({
             queryClient.invalidateQueries({ queryKey: usdcL1BalanceQueryKey });
             setCurrentStep((prev) => prev + 1);
         },
-        mainnetConfig,
+        mainnet.id,
     );
 
     const { data: bridgeExecutionStatus } = useBridgeConfirmation(bridgeHash, async (bridge) => {

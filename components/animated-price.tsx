@@ -15,12 +15,12 @@ export function AnimatedPrice({
     exchange?: Exchange;
     mint: `0x${string}`;
 }) {
-    const { data: price, isStale } = usePriceQuery(mint, exchange);
-    const prev = React.useRef(price);
+    const { data: price, isStale, isSuccess } = usePriceQuery(mint, exchange);
+    const prev = React.useRef(price ?? 0);
     const [animationKey, setAnimationKey] = React.useState(0);
 
     React.useEffect(() => {
-        if (price !== prev.current) {
+        if (isSuccess && price !== prev.current) {
             // Use requestAnimationFrame to batch DOM updates
             requestAnimationFrame(() => {
                 setAnimationKey((prevKey) => prevKey + 1);
@@ -29,7 +29,7 @@ export function AnimatedPrice({
                 });
             });
         }
-    }, [price]);
+    }, [isSuccess, price]);
 
     const { priceColor } = getPriceStatus({ price, isStale, mint, exchange });
 
@@ -37,11 +37,11 @@ export function AnimatedPrice({
         <span
             key={animationKey}
             className={cn("transition-colors", className, priceColor, {
-                "animate-price-green": price > prev.current,
-                "animate-price-red": price < prev.current,
+                "animate-price-green": isSuccess && price > prev.current,
+                "animate-price-red": isSuccess && price < prev.current,
             })}
         >
-            {formatDynamicCurrency(price)}
+            {formatDynamicCurrency(price ?? 0)}
         </span>
     );
 }

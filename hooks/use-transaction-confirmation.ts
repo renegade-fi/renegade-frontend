@@ -1,16 +1,16 @@
 import React from "react";
 
-import { type Config, useWaitForTransactionReceipt } from "wagmi";
+import { useWaitForTransactionReceipt } from "wagmi";
 
 import { CONFIRMATIONS } from "@/lib/constants/protocol";
 
 export function useTransactionConfirmation(
     hash?: `0x${string}`,
     onConfirm?: () => void,
-    config?: Config,
+    chainId?: number,
 ) {
     const { isSuccess, status } = useWaitForTransactionReceipt({
-        config,
+        chainId,
         hash,
         confirmations: CONFIRMATIONS,
     });

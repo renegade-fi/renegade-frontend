@@ -26,7 +26,7 @@ export function getConfig() {
                 [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
                 [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
                 // Needed to support bridge
-                [mainnet.id]: http(`/api/proxy/rpc?chainId=${mainnet.id}`),
+                [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
             },
             ssr: true,
             storage: createStorage({
@@ -47,13 +47,6 @@ export function getConfig() {
 /** Chains available in the environment */
 export const AVAILABLE_CHAINS =
     env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? MAINNET_CHAINS : TESTNET_CHAINS;
-
-export const mainnetConfig = createConfig({
-    chains: [mainnet],
-    transports: {
-        [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
-    },
-});
 
 declare module "wagmi" {
     interface Register {
