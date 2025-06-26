@@ -1,4 +1,4 @@
-import { OrderState, type Task, type TaskState, TaskType, UpdateType } from "@renegade-fi/react";
+import { type Task, type TaskState, TaskType, UpdateType } from "@renegade-fi/react";
 import type { Token } from "@renegade-fi/token-nextjs";
 
 import { formatNumber } from "@/lib/format";

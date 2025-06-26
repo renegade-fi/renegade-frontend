@@ -84,7 +84,6 @@ import { ETHEREUM_TOKENS, resolveAddress } from "@/lib/token";
 import { cn } from "@/lib/utils";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
-import { mainnetConfig } from "@/providers/wagmi-provider/config";
 
 const WETH_L1_TOKEN = ETHEREUM_TOKENS.WETH;
 
@@ -162,7 +161,7 @@ export function WETHForm({
 
     const { data: ethL1Balance, status: ethL1BalanceStatus } = useBalance({
         address,
-        config: mainnetConfig,
+        chainId: mainnet.id,
     });
     const formattedEthL1Balance = formatEther(ethL1Balance?.value ?? BigInt(0));
     const ethL1BalanceLabel = formatNumber(ethL1Balance?.value ?? BigInt(0), 18, true);

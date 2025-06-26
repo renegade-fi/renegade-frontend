@@ -1,11 +1,9 @@
 import type { Token } from "@renegade-fi/token-nextjs";
-import { mainnet } from "viem/chains";
 import { formatUnits } from "viem/utils";
 import { useAccount } from "wagmi";
 
 import { formatNumber } from "@/lib/format";
 import { useReadErc20BalanceOf } from "@/lib/generated";
-import { mainnetConfig } from "@/providers/wagmi-provider/config";
 
 export function useChainBalance({
     chainId,
@@ -20,7 +18,6 @@ export function useChainBalance({
     const { data: balance, queryKey } = useReadErc20BalanceOf({
         address: token?.address,
         args: [address ?? "0x"],
-        config: chainId === mainnet.id ? mainnetConfig : undefined,
         chainId,
         query: {
             enabled: enabled && !!token && !!address,

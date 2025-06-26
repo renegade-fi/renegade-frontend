@@ -10,7 +10,7 @@ export function useUSDPrice(
 ) {
     const { data: price } = usePriceQuery(mint);
     return React.useMemo(() => {
-        const result = amountTimesPrice(amount, price);
+        const result = amountTimesPrice(amount, price ?? 0);
 
         return result;
     }, [amount, price]);
