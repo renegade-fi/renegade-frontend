@@ -42,6 +42,10 @@ The first proof-of-concept has been built entirely under `app/ramp/`.
    * `TransactionManager` is a dumb component that renders the current steps.  
    * `page.tsx` is the sandbox page with a "Start Dummy Deposit" button.
 
+6. **Token registry integration**  
+   * `token-registry.ts` – pulls dynamic tokens from `@renegade-fi/token-nextjs` and layers on canonical main-net overrides.  
+   * Exports `getTokenMeta`, the lookup used by `TransactionController`.
+
 ### Rationale for design choices
 
 * **Functional > Class for stateless code.**  Easier unit-testing, clearer data-flow.
@@ -51,26 +55,23 @@ The first proof-of-concept has been built entirely under `app/ramp/`.
 
 ### Next steps & TODOs
 
-1. **Token integration**  
-   • Load real raw token list from `@renegade-fi/token-nextjs` and wire overlay config.
-
-2. **EvmStepRunner implementation**  
+1. **EvmStepRunner implementation**  
    • Inject `publicClient` / `walletClient`.  
    • Handle each `StepType` with real on-chain calls and `waitForTransactionReceipt`.
 
-3. **Error handling / retries**  
+2. **Error handling / retries**  
    • Design step-level retry strategy and UI affordance.  
    • Map common RPC errors to user-friendly messages.
 
-4. **UI polish**  
+3. **UI polish**  
    • Replace list with a `TransactionStepper` component.  
    • Add "Clear" / "Dismiss" button that calls `controller.reset()`.
 
-5. **Testing**  
+4. **Testing**  
    • Unit tests for builders and store.  
    • Integration test using a mocked runner.
 
-6. **Docs & code comments**  
+5. **Docs & code comments**  
    • Document public surfaces with JSDoc.  
    • Expand this spec as modules mature.
 

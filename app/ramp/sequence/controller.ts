@@ -24,6 +24,7 @@ export class TransactionController {
     ) {}
 
     start(intent: SequenceIntent): void {
+        console.debug("[RAMP] controller.start", intent);
         /* start */
         if (this.running) return;
         const steps = buildSequence(intent, this.getTokenMeta);
@@ -34,6 +35,7 @@ export class TransactionController {
     }
 
     resume(): void {
+        console.debug("[RAMP] controller.resume");
         /* resume */
         const existing = this.store.getState().sequence;
         if (this.running) return;

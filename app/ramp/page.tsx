@@ -5,7 +5,7 @@ import { TransactionController } from "./sequence/controller";
 import { EvmStepRunner } from "./sequence/evm-step-runner";
 import type { SequenceIntent } from "./sequence/models";
 import { SequenceStoreProvider, useSequenceStoreApi } from "./sequence/sequence-store-provider";
-import { createTokenRules } from "./sequence/token-rules";
+import { getTokenMeta } from "./sequence/token-registry";
 import { TransactionManager } from "./transaction-manager";
 
 export default function RampPage() {
@@ -21,14 +21,6 @@ function RampSandbox() {
 
     // Build controller & deps once
     const controller = useMemo(() => {
-        const rawTokens: any[] = [];
-        const overlay = {
-            TEST: {
-                1: { deposit: true, withdraw: true },
-            },
-        } as const;
-
-        const getTokenMeta = createTokenRules(rawTokens, overlay);
         const runner = new EvmStepRunner();
         const updateCb = () => {
             /* no-op */
@@ -46,7 +38,7 @@ function RampSandbox() {
             userAddress: "0x0000000000000000000000000000000000000000",
             fromChain: 1,
             toChain: 1,
-            tokenSymbol: "TEST",
+            tokenTicker: "USDC",
             amountAtomic: BigInt(1),
         };
         controller.start(intent);

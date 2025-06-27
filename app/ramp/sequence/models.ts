@@ -30,6 +30,6 @@ export interface SequenceIntent {
     userAddress: `0x${string}`;
     fromChain: number;
     toChain: number;
-    tokenSymbol: string;
+    tokenTicker: string;
     amountAtomic: bigint;
 }

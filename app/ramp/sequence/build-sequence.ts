@@ -12,7 +12,7 @@ function uuid() {
  */
 export function buildSequence(intent: SequenceIntent, getToken: GetTokenMeta): TxStep[] {
     // Validate token exists on fromChain (throws otherwise)
-    const tokenMetaFrom = getToken(intent.tokenSymbol, intent.fromChain);
+    const tokenMetaFrom = getToken(intent.tokenTicker, intent.fromChain);
 
     const makeStep = (type: TxStep["type"], chainId: number): TxStep => ({
         id: uuid(),

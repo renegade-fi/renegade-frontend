@@ -1,12 +1,9 @@
 /** Token rule utilities (functional version) */
 
-export type RawToken = {
-    symbol: string;
-    chainId: number;
-    address?: `0x${string}`;
-    decimals?: number;
-    [key: string]: unknown;
-};
+import type { Token as TokenClass } from "@renegade-fi/token-nextjs";
+
+// Instance type of the Token class exported by the package
+export type TokenInstance = InstanceType<typeof TokenClass>;
 
 export type OperationRule = Partial<{
     swap: true;
@@ -18,10 +15,10 @@ export type OperationRule = Partial<{
     permit2: true;
 }>;
 
-// symbol -> chainId -> rule
+// ticker -> chainId -> rule
 export type TokenRuleMap = Record<string, Partial<Record<number, OperationRule>>>;
 
-export interface TokenMeta extends RawToken {
+export type TokenMeta = TokenInstance & {
     // operation booleans
     swap: boolean;
     bridge: boolean;
@@ -30,9 +27,13 @@ export interface TokenMeta extends RawToken {
     deposit: boolean;
     withdraw: boolean;
     permit2: boolean;
-}
+};
 
-const DEFAULT_META_FLAGS: Omit<TokenMeta, keyof RawToken> = {
+// Flags default – cast to any to strip token fields from type list
+const DEFAULT_META_FLAGS: Pick<
+    TokenMeta,
+    "swap" | "bridge" | "wrap" | "unwrap" | "deposit" | "withdraw" | "permit2"
+> = {
     swap: false,
     bridge: false,
     wrap: false,
@@ -42,57 +43,58 @@ const DEFAULT_META_FLAGS: Omit<TokenMeta, keyof RawToken> = {
     permit2: false,
 };
 
-export type GetTokenMeta = (symbol: string, chainId: number) => TokenMeta;
+export type GetTokenMeta = (ticker: string, chainId: number) => TokenMeta;
 
 /**
  * Build a token-rule lookup function. Pure & stateless after creation.
  */
 export function createTokenRules(
-    rawTokenList: RawToken[],
+    rawTokenList: TokenInstance[],
     ruleOverlay: TokenRuleMap,
 ): GetTokenMeta {
     const map: Map<string, Map<number, TokenMeta>> = new Map();
 
     // Seed from raw list
     for (const token of rawTokenList) {
-        const symbol = token.symbol;
-        const chainMeta = map.get(symbol) ?? new Map<number, TokenMeta>();
-        chainMeta.set(token.chainId, {
-            ...token,
+        const chainId = token.chain;
+        if (chainId === undefined) continue; // Skip tokens without chain context
+
+        const ticker = token.ticker;
+        const chainMeta = map.get(ticker) ?? new Map<number, TokenMeta>();
+        chainMeta.set(chainId, {
+            // Spread retains enumerable props on the token instance
+            ...(token as any),
             ...DEFAULT_META_FLAGS,
         } as TokenMeta);
-        map.set(symbol, chainMeta);
+        map.set(ticker, chainMeta);
     }
 
-    // Apply overlay
-    for (const [symbol, chainRules] of Object.entries(ruleOverlay)) {
-        const chainMeta = map.get(symbol) ?? new Map<number, TokenMeta>();
+    // Apply overlay only to already-seeded tokens
+    for (const [ticker, chainRules] of Object.entries(ruleOverlay)) {
+        const chainMeta = map.get(ticker);
+        if (!chainMeta) continue; // Unknown ticker in overlay; skip
+
         for (const [chainIdStr, ops] of Object.entries(chainRules)) {
             const chainId = Number(chainIdStr);
-            const existing: TokenMeta =
-                chainMeta.get(chainId) ??
-                ({
-                    symbol,
-                    chainId,
-                    ...DEFAULT_META_FLAGS,
-                } as TokenMeta);
+            const existing = chainMeta.get(chainId);
+            if (!existing) continue; // Unknown chain for ticker; skip
+
             chainMeta.set(chainId, {
                 ...existing,
                 ...ops,
-            });
+            } as TokenMeta);
         }
-        map.set(symbol, chainMeta);
     }
 
     // Final lookup fn
-    return (symbol: string, chainId: number): TokenMeta => {
-        const chainMeta = map.get(symbol);
+    return (ticker: string, chainId: number): TokenMeta => {
+        const chainMeta = map.get(ticker);
         if (!chainMeta) {
-            throw new Error(`TokenRules: unknown symbol ${symbol}`);
+            throw new Error(`TokenRules: unknown ticker ${ticker}`);
         }
         const meta = chainMeta.get(chainId);
         if (!meta) {
-            throw new Error(`TokenRules: symbol ${symbol} not listed on chain ${chainId}`);
+            throw new Error(`TokenRules: ticker ${ticker} not listed on chain ${chainId}`);
         }
         return meta;
     };
