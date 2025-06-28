@@ -12,7 +12,6 @@ export type OperationRule = Partial<{
     unwrap: true;
     deposit: true;
     withdraw: true;
-    permit2: true;
 }>;
 
 // ticker -> chainId -> rule
@@ -20,19 +19,19 @@ export type TokenRuleMap = Record<string, Partial<Record<number, OperationRule>>
 
 export type TokenMeta = TokenInstance & {
     // operation booleans
+    address: `0x${string}`;
     swap: boolean;
     bridge: boolean;
     wrap: boolean;
     unwrap: boolean;
     deposit: boolean;
     withdraw: boolean;
-    permit2: boolean;
 };
 
 // Flags default – cast to any to strip token fields from type list
 const DEFAULT_META_FLAGS: Pick<
     TokenMeta,
-    "swap" | "bridge" | "wrap" | "unwrap" | "deposit" | "withdraw" | "permit2"
+    "swap" | "bridge" | "wrap" | "unwrap" | "deposit" | "withdraw"
 > = {
     swap: false,
     bridge: false,
@@ -40,7 +39,6 @@ const DEFAULT_META_FLAGS: Pick<
     unwrap: false,
     deposit: false,
     withdraw: false,
-    permit2: false,
 };
 
 export type GetTokenMeta = (ticker: string, chainId: number) => TokenMeta;
@@ -61,9 +59,10 @@ export function createTokenRules(
 
         const ticker = token.ticker;
         const chainMeta = map.get(ticker) ?? new Map<number, TokenMeta>();
+        const addr = (token as any).address ?? (token as any)._address;
         chainMeta.set(chainId, {
-            // Spread retains enumerable props on the token instance
             ...(token as any),
+            address: addr as `0x${string}`,
             ...DEFAULT_META_FLAGS,
         } as TokenMeta);
         map.set(ticker, chainMeta);

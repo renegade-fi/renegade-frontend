@@ -2,6 +2,7 @@
 
 import { Token as TokenClass } from "@renegade-fi/token-nextjs";
 import { useMemo, useState } from "react";
+import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { useControllerContext } from "./controller-context";
 import type { SequenceIntent } from "./sequence/models";
 import { getTokenMeta } from "./sequence/token-registry";
@@ -30,11 +31,13 @@ export function IntentForm() {
     const { controller } = useControllerContext();
 
     // Form state
-    const [kind, setKind] = useState<SequenceIntent["kind"]>("DEPOSIT");
+    type Action = "DEPOSIT" | "WITHDRAW" | "BRIDGE";
+
+    const [action, setAction] = useState<Action>("DEPOSIT");
     const [tokenTicker, setTokenTicker] = useState<string>("USDC");
     const [amount, setAmount] = useState<string>("1");
-    const [fromChain, setFromChain] = useState<string>("1");
-    const [toChain, setToChain] = useState<string>("1");
+    const currentChain = useCurrentChain();
+    const [toChain, setToChain] = useState<string>(currentChain?.toString() ?? "1");
 
     const tickers = useMemo(() => uniqueSortedTickers(), []);
 
@@ -44,11 +47,13 @@ export function IntentForm() {
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        const fromChain = currentChain ?? 1;
+
         const intent: SequenceIntent = {
-            kind,
+            kind: action === "WITHDRAW" ? "WITHDRAW" : "DEPOSIT",
             userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: Number(fromChain),
-            toChain: Number(toChain),
+            fromChain,
+            toChain: action === "BRIDGE" ? Number(toChain) : fromChain,
             tokenTicker,
             amountAtomic: BigInt(amount),
         };
@@ -59,19 +64,20 @@ export function IntentForm() {
         runIntent({
             kind: "DEPOSIT",
             userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: 1,
-            toChain: 1,
+            fromChain: currentChain ?? 1,
+            toChain: currentChain ?? 1,
             tokenTicker: "USDC",
             amountAtomic: BigInt(1),
         });
     }
 
     function presetBridge() {
+        // Example: bridge from current chain to Ethereum main-net
         runIntent({
             kind: "DEPOSIT",
             userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: 1,
-            toChain: 10,
+            fromChain: currentChain ?? 1,
+            toChain: 1,
             tokenTicker: "USDC",
             amountAtomic: BigInt(1),
         });
@@ -86,11 +92,12 @@ export function IntentForm() {
                 <select
                     className="border rounded px-2 py-1"
                     id="intent-action-select"
-                    value={kind}
-                    onChange={(e) => setKind(e.target.value as SequenceIntent["kind"])}
+                    value={action}
+                    onChange={(e) => setAction(e.target.value as Action)}
                 >
                     <option value="DEPOSIT">Deposit</option>
                     <option value="WITHDRAW">Withdraw</option>
+                    <option value="BRIDGE">Cross-Chain Deposit</option>
                 </select>
             </div>
 
@@ -104,8 +111,8 @@ export function IntentForm() {
                     value={tokenTicker}
                     onChange={(e) => setTokenTicker(e.target.value)}
                 >
-                    {tickers.map((t) => (
-                        <option key={t} value={t}>
+                    {tickers.map((t, i) => (
+                        <option key={`${t}-${i}`} value={t}>
                             {t}
                         </option>
                     ))}
@@ -127,28 +134,20 @@ export function IntentForm() {
                 />
             </div>
 
-            <div className="flex gap-2 items-center">
-                <label className="text-sm font-medium" htmlFor="intent-from-chain-input">
-                    From&nbsp;Chain
-                </label>
-                <input
-                    type="number"
-                    className="border rounded px-2 py-1 w-24"
-                    id="intent-from-chain-input"
-                    value={fromChain}
-                    onChange={(e) => setFromChain(e.target.value)}
-                />
-                <label className="text-sm font-medium" htmlFor="intent-to-chain-input">
-                    To&nbsp;Chain
-                </label>
-                <input
-                    type="number"
-                    className="border rounded px-2 py-1 w-24"
-                    id="intent-to-chain-input"
-                    value={toChain}
-                    onChange={(e) => setToChain(e.target.value)}
-                />
-            </div>
+            {action === "BRIDGE" && (
+                <div className="flex gap-2 items-center">
+                    <label className="text-sm font-medium" htmlFor="intent-to-chain-input">
+                        Destination&nbsp;Chain&nbsp;ID
+                    </label>
+                    <input
+                        type="number"
+                        className="border rounded px-2 py-1 w-24"
+                        id="intent-to-chain-input"
+                        value={toChain}
+                        onChange={(e) => setToChain(e.target.value)}
+                    />
+                </div>
+            )}
 
             <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
                 Run

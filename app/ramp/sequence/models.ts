@@ -19,10 +19,15 @@ export interface TxStep {
     id: string;
     type: StepType;
     chainId: number;
-    token: `0x${string}`;
+    mint: `0x${string}`;
     amount: bigint;
     status: StepStatus;
     txHash?: `0x${string}`;
+    /**
+     * Off-chain Renegade task identifier (returned by deposit/withdraw API).
+     * Present only for steps that interact via the task queue rather than an on-chain tx.
+     */
+    taskId?: string;
 }
 
 export interface SequenceIntent {

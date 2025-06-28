@@ -57,7 +57,7 @@ export function TransactionStepper() {
                             <tr key={s.id} className="border-t border-gray-200">
                                 <td className="py-1 capitalize">{s.type.toLowerCase()}</td>
                                 <td className="py-1">{s.chainId}</td>
-                                <td className="py-1">{s.token.slice(0, 6)}…</td>
+                                <td className="py-1">{s.mint.slice(0, 6)}…</td>
                                 <td className="py-1">{s.amount.toString()}</td>
                                 <td className={`py-1 font-medium ${statusColor(s.status)}`}>
                                     {s.status}
