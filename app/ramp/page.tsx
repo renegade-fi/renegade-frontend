@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { usePublicClient, useWalletClient } from "wagmi";
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useConfig } from "@/providers/state-provider/hooks";
 import { ControllerProvider } from "./controller-context";
 import { IntentForm } from "./intent-form";
@@ -24,19 +25,29 @@ function RampSandbox() {
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
     const config = useConfig();
+    const { data: keychainNonce } = useBackOfQueueWallet({
+        query: {
+            select: (wallet) => wallet.key_chain.nonce,
+        },
+    });
 
     const ready = Boolean(walletClient && publicClient && config);
 
     // Build controller & runner; may be null if not ready
     const contextValue = useMemo(() => {
         if (!ready) return null;
-        const r = new EvmStepRunner(walletClient!, publicClient!, config!);
+        const r = new EvmStepRunner(
+            walletClient!,
+            publicClient!,
+            config!,
+            keychainNonce ?? BigInt(0),
+        );
         const updateCb = () => {
             /* no-op */
         };
         const c = new TransactionController(updateCb, storeApi, getTokenMeta, r);
         return { controller: c, runner: r } as const;
-    }, [ready, storeApi, walletClient, publicClient, config]);
+    }, [ready, storeApi, walletClient, publicClient, config, keychainNonce]);
 
     // Resume any persisted sequence once controller exists
     useEffect(() => {

@@ -22,6 +22,8 @@ export class EvmStepRunner {
         private readonly walletClient: WalletClient,
         private readonly publicClient: PublicClient,
         private readonly renegadeConfig: Config,
+        /** Key-chain nonce for the current Renegade wallet (used in pkRoot witness). */
+        private readonly keychainNonce: bigint = BigInt(0),
     ) {}
 
     async run(step: TxStep): Promise<TxStep> {
@@ -99,8 +101,8 @@ export class EvmStepRunner {
         // Resolve token metadata (address/decimals) for permit witness
         const token = resolveAddress(step.mint);
 
-        // pkRoot is required for the deposit witness; using nonce = 0 for now.
-        const pkRoot = getPkRootScalars(this.renegadeConfig, { nonce: BigInt(0) });
+        // Derive pkRoot for the deposit witness using the latest key-chain nonce.
+        const pkRoot = getPkRootScalars(this.renegadeConfig, { nonce: this.keychainNonce });
 
         const { signature, nonce, deadline } = await signPermit2({
             amount: step.amount,

@@ -3,20 +3,20 @@
 import { Token } from "@renegade-fi/token-nextjs";
 import { useMemo, useState } from "react";
 import { parseUnits } from "viem";
-import { useCurrentChain } from "@/providers/state-provider/hooks";
-import { useControllerContext } from "./controller-context";
-import type { SequenceIntent } from "./sequence/models";
-import { getTokenMeta } from "./sequence/token-registry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
     Select,
-    SelectTrigger,
-    SelectValue,
     SelectContent,
     SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
+import { useCurrentChain } from "@/providers/state-provider/hooks";
+import { useControllerContext } from "./controller-context";
+import type { SequenceIntent } from "./sequence/models";
+import { getTokenMeta } from "./sequence/token-registry";
 
 const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 

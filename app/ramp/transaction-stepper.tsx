@@ -2,20 +2,20 @@
 
 import { useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { useControllerContext } from "./controller-context";
 import type { TxStep } from "./sequence/models";
 import { useSequenceStore } from "./sequence/sequence-store-provider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-} from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
 
 function statusColor(status: TxStep["status"]): string {
     switch (status) {
