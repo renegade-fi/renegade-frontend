@@ -1,7 +1,8 @@
 "use client";
 
-import { Token as TokenClass } from "@renegade-fi/token-nextjs";
+import { Token } from "@renegade-fi/token-nextjs";
 import { useMemo, useState } from "react";
+import { parseUnits } from "viem";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { useControllerContext } from "./controller-context";
 import type { SequenceIntent } from "./sequence/models";
@@ -13,17 +14,9 @@ function uniqueSortedTickers(): string[] {
     // Collect tickers from token registry for dropdown.
     // This keeps the demo dynamic without hard-coding.
     const tickers = new Set<string>();
-    (TokenClass.getAllTokens() as any[]).forEach((t) => tickers.add(t.ticker));
-    try {
-        // Attempt to add canonical overrides (gracefully ignore if missing)
-        const known = [
-            getTokenMeta("USDC", 1),
-            // add others as needed
-        ];
-        known.forEach((k) => tickers.add(k.ticker));
-    } catch (err) {
-        /* ignore */
-    }
+    (Token.getAllTokens() as any[]).forEach((t) => tickers.add(t.ticker));
+    // Ensure commonly-used tickers appear even if not in the dynamic list
+    tickers.add("USDC");
     return Array.from(tickers).sort();
 }
 
@@ -49,13 +42,32 @@ export function IntentForm() {
         e.preventDefault();
         const fromChain = currentChain ?? 1;
 
+        // Resolve token metadata & decimals on-demand
+        const tokenMeta = getTokenMeta(tokenTicker, fromChain);
+        const decimals = Token.fromAddressOnChain(tokenMeta.address, fromChain).decimals;
+
+        let atomic: bigint;
+        try {
+            atomic = parseUnits(amount, decimals);
+        } catch (err) {
+            alert("Invalid amount format");
+            return;
+        }
+        console.log("parse: ", {
+            amount,
+            atomic,
+            parsed: parseUnits(amount, decimals),
+            decimals,
+            meta: tokenMeta,
+        });
+
         const intent: SequenceIntent = {
             kind: action === "WITHDRAW" ? "WITHDRAW" : "DEPOSIT",
             userAddress: DEFAULT_USER_ADDRESS,
             fromChain,
             toChain: action === "BRIDGE" ? Number(toChain) : fromChain,
             tokenTicker,
-            amountAtomic: BigInt(amount),
+            amountAtomic: atomic,
         };
         runIntent(intent);
     }

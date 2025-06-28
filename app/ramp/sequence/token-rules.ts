@@ -6,20 +6,20 @@ import type { Token as TokenClass } from "@renegade-fi/token-nextjs";
 export type TokenInstance = InstanceType<typeof TokenClass>;
 
 export type OperationRule = Partial<{
-    swap: true;
-    bridge: true;
-    wrap: true;
-    unwrap: true;
-    deposit: true;
-    withdraw: true;
+    swap: boolean;
+    bridge: boolean;
+    wrap: boolean;
+    unwrap: boolean;
+    deposit: boolean;
+    withdraw: boolean;
 }>;
 
 // ticker -> chainId -> rule
 export type TokenRuleMap = Record<string, Partial<Record<number, OperationRule>>>;
 
-export type TokenMeta = TokenInstance & {
-    // operation booleans
+export type TokenMeta = {
     address: `0x${string}`;
+    chain: number;
     swap: boolean;
     bridge: boolean;
     wrap: boolean;
@@ -28,7 +28,7 @@ export type TokenMeta = TokenInstance & {
     withdraw: boolean;
 };
 
-// Flags default – cast to any to strip token fields from type list
+// Flags default – keeps the full list explicit for readability
 const DEFAULT_META_FLAGS: Pick<
     TokenMeta,
     "swap" | "bridge" | "wrap" | "unwrap" | "deposit" | "withdraw"
@@ -61,8 +61,8 @@ export function createTokenRules(
         const chainMeta = map.get(ticker) ?? new Map<number, TokenMeta>();
         const addr = (token as any).address ?? (token as any)._address;
         chainMeta.set(chainId, {
-            ...(token as any),
             address: addr as `0x${string}`,
+            chain: chainId,
             ...DEFAULT_META_FLAGS,
         } as TokenMeta);
         map.set(ticker, chainMeta);
