@@ -5,6 +5,17 @@ import { useShallow } from "zustand/react/shallow";
 import { useControllerContext } from "./controller-context";
 import type { TxStep } from "./sequence/models";
 import { useSequenceStore } from "./sequence/sequence-store-provider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import {
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
+} from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
 
 function statusColor(status: TxStep["status"]): string {
     switch (status) {
@@ -28,8 +39,7 @@ export function TransactionStepper() {
     // UI checkbox state mirrors runner.shouldFailNext
     const [failNext, setFailNext] = useState(false);
 
-    function handleFailToggle(e: React.ChangeEvent<HTMLInputElement>) {
-        const checked = e.target.checked;
+    function handleFailToggle(checked: boolean) {
         setFailNext(checked);
         runner.shouldFailNext = checked;
     }
@@ -40,47 +50,55 @@ export function TransactionStepper() {
         <section className="mt-8">
             <h2 className="text-lg font-semibold">Transaction Steps</h2>
             {formattedSteps.length === 0 ? (
-                <p className="text-sm text-gray-500 mt-2">No sequence running.</p>
+                <p className="text-sm text-muted-foreground mt-2">No sequence running.</p>
             ) : (
-                <table className="w-full mt-2 text-sm">
-                    <thead>
-                        <tr className="text-left text-xs text-gray-600">
-                            <th className="py-1">Type</th>
-                            <th className="py-1">Chain</th>
-                            <th className="py-1">Token</th>
-                            <th className="py-1">Amount</th>
-                            <th className="py-1">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <Table className="w-full mt-2 text-sm">
+                    <TableHeader>
+                        <TableRow className="text-xs text-muted-foreground">
+                            <TableHead>Type</TableHead>
+                            <TableHead>Chain</TableHead>
+                            <TableHead>Token</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {formattedSteps.map((s) => (
-                            <tr key={s.id} className="border-t border-gray-200">
-                                <td className="py-1 capitalize">{s.type.toLowerCase()}</td>
-                                <td className="py-1">{s.chainId}</td>
-                                <td className="py-1">{s.mint.slice(0, 6)}…</td>
-                                <td className="py-1">{s.amount.toString()}</td>
-                                <td className={`py-1 font-medium ${statusColor(s.status)}`}>
+                            <TableRow key={s.id}>
+                                <TableCell className="capitalize">{s.type.toLowerCase()}</TableCell>
+                                <TableCell>{s.chainId}</TableCell>
+                                <TableCell>{s.mint.slice(0, 6)}…</TableCell>
+                                <TableCell>{s.amount.toString()}</TableCell>
+                                <TableCell className={`${statusColor(s.status)} font-medium`}>
                                     {s.status}
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             )}
 
             <details className="mt-4">
                 <summary className="cursor-pointer select-none">Debug</summary>
                 <div className="mt-2 space-y-2">
-                    <label className="flex items-center gap-2 text-xs">
-                        <input type="checkbox" checked={failNext} onChange={handleFailToggle} />
-                        Fail next step
-                    </label>
-                    <button
-                        className="text-xs text-blue-600 underline"
+                    <div className="flex items-center gap-2 text-xs">
+                        <Checkbox
+                            id="fail-next"
+                            checked={failNext}
+                            onCheckedChange={(c) => handleFailToggle(Boolean(c))}
+                        />
+                        <Label htmlFor="fail-next" className="text-xs">
+                            Fail next step
+                        </Label>
+                    </div>
+                    <Button
+                        variant="link"
+                        size="sm"
+                        className="p-0 text-xs"
                         onClick={() => controller.reset()}
                     >
                         Clear Sequence
-                    </button>
+                    </Button>
                     {/* <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
                         {JSON.stringify(serialize(formattedSteps), null, 2)}
                     </pre> */}

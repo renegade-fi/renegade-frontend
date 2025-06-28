@@ -7,6 +7,16 @@ import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { useControllerContext } from "./controller-context";
 import type { SequenceIntent } from "./sequence/models";
 import { getTokenMeta } from "./sequence/token-registry";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
 
 const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 
@@ -96,90 +106,76 @@ export function IntentForm() {
     }
 
     return (
-        <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="flex gap-2 items-center">
-                <label className="text-sm font-medium" htmlFor="intent-action-select">
-                    Action
-                </label>
-                <select
-                    className="border rounded px-2 py-1"
-                    id="intent-action-select"
-                    value={action}
-                    onChange={(e) => setAction(e.target.value as Action)}
-                >
-                    <option value="DEPOSIT">Deposit</option>
-                    <option value="WITHDRAW">Withdraw</option>
-                    <option value="BRIDGE">Cross-Chain Deposit</option>
-                </select>
+        <form className="space-y-4 w-full" onSubmit={handleSubmit}>
+            {/* Action */}
+            <div className="space-y-2">
+                <Label htmlFor="intent-action-select">Action</Label>
+                <Select value={action} onValueChange={(v) => setAction(v as Action)}>
+                    <SelectTrigger id="intent-action-select" className="w-full">
+                        <SelectValue placeholder="Select action" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="DEPOSIT">Deposit</SelectItem>
+                        <SelectItem value="WITHDRAW">Withdraw</SelectItem>
+                        <SelectItem value="BRIDGE">Cross-Chain Deposit</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
-            <div className="flex gap-2 items-center">
-                <label className="text-sm font-medium" htmlFor="intent-token-select">
-                    Token
-                </label>
-                <select
-                    className="border rounded px-2 py-1 flex-1"
-                    id="intent-token-select"
-                    value={tokenTicker}
-                    onChange={(e) => setTokenTicker(e.target.value)}
-                >
-                    {tickers.map((t, i) => (
-                        <option key={`${t}-${i}`} value={t}>
-                            {t}
-                        </option>
-                    ))}
-                </select>
+            {/* Token */}
+            <div className="space-y-2">
+                <Label htmlFor="intent-token-select">Token</Label>
+                <Select value={tokenTicker} onValueChange={setTokenTicker}>
+                    <SelectTrigger id="intent-token-select" className="w-full">
+                        <SelectValue placeholder="Select token" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {tickers.map((t, i) => (
+                            <SelectItem key={`${t}-${i}`} value={t}>
+                                {t}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
-            <div className="flex gap-2 items-center">
-                <label className="text-sm font-medium" htmlFor="intent-amount-input">
-                    Amount
-                </label>
-                <input
+            {/* Amount */}
+            <div className="space-y-2">
+                <Label htmlFor="intent-amount-input">Amount</Label>
+                <Input
+                    id="intent-amount-input"
                     type="number"
                     min="0"
                     step="1"
-                    className="border rounded px-2 py-1 w-32"
-                    id="intent-amount-input"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                 />
             </div>
 
+            {/* Destination chain (Bridge only) */}
             {action === "BRIDGE" && (
-                <div className="flex gap-2 items-center">
-                    <label className="text-sm font-medium" htmlFor="intent-to-chain-input">
-                        Destination&nbsp;Chain&nbsp;ID
-                    </label>
-                    <input
-                        type="number"
-                        className="border rounded px-2 py-1 w-24"
+                <div className="space-y-2">
+                    <Label htmlFor="intent-to-chain-input">Destination Chain ID</Label>
+                    <Input
                         id="intent-to-chain-input"
+                        type="number"
                         value={toChain}
                         onChange={(e) => setToChain(e.target.value)}
                     />
                 </div>
             )}
 
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+            <Button type="submit" className="w-full">
                 Run
-            </button>
+            </Button>
 
-            <div className="flex gap-2 mt-2">
-                <button
-                    type="button"
-                    onClick={presetDeposit}
-                    className="px-3 py-1 bg-gray-200 rounded text-sm"
-                >
+            <div className="flex gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={presetDeposit}>
                     Preset Deposit
-                </button>
-                <button
-                    type="button"
-                    onClick={presetBridge}
-                    className="px-3 py-1 bg-gray-200 rounded text-sm"
-                >
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={presetBridge}>
                     Preset Bridge
-                </button>
+                </Button>
             </div>
         </form>
     );
