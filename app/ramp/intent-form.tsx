@@ -63,13 +63,6 @@ export function IntentForm() {
             alert("Invalid amount format");
             return;
         }
-        console.log("parse: ", {
-            amount,
-            atomic,
-            parsed: parseUnits(amount, decimals),
-            decimals,
-            meta: tokenMeta,
-        });
 
         const intent: SequenceIntent = {
             kind: action === "WITHDRAW" ? "WITHDRAW" : "DEPOSIT",
@@ -80,29 +73,6 @@ export function IntentForm() {
             amountAtomic: atomic,
         };
         runIntent(intent);
-    }
-
-    function presetDeposit() {
-        runIntent({
-            kind: "DEPOSIT",
-            userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: currentChain ?? 1,
-            toChain: currentChain ?? 1,
-            tokenTicker: "USDC",
-            amountAtomic: BigInt(1),
-        });
-    }
-
-    function presetBridge() {
-        // Example: bridge from current chain to Ethereum main-net
-        runIntent({
-            kind: "DEPOSIT",
-            userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: currentChain ?? 1,
-            toChain: 1,
-            tokenTicker: "USDC",
-            amountAtomic: BigInt(1),
-        });
     }
 
     return (
@@ -168,15 +138,6 @@ export function IntentForm() {
             <Button type="submit" className="w-full">
                 Run
             </Button>
-
-            <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={presetDeposit}>
-                    Preset Deposit
-                </Button>
-                <Button type="button" variant="outline" size="sm" onClick={presetBridge}>
-                    Preset Bridge
-                </Button>
-            </div>
         </form>
     );
 }

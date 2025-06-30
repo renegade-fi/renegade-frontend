@@ -9,7 +9,6 @@ import { IntentForm } from "./intent-form";
 import { TransactionController } from "./sequence/controller";
 import { EvmStepRunner } from "./sequence/evm-step-runner";
 import { SequenceStoreProvider, useSequenceStoreApi } from "./sequence/sequence-store-provider";
-import { getTokenMeta } from "./sequence/token-registry";
 import { TransactionStepper } from "./transaction-stepper";
 
 export default function RampPage() {
@@ -45,7 +44,7 @@ function RampSandbox() {
         const updateCb = () => {
             /* no-op */
         };
-        const c = new TransactionController(updateCb, storeApi, getTokenMeta, r);
+        const c = new TransactionController(updateCb, storeApi, r);
         return { controller: c, runner: r } as const;
     }, [ready, storeApi, walletClient, publicClient, config, keychainNonce]);
 

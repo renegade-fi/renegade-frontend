@@ -1,5 +1,5 @@
 import type { SequenceIntent, TxStep } from "./models";
-import type { GetTokenMeta } from "./token-rules";
+import { getTokenMeta } from "./token-registry";
 
 function uuid() {
     return typeof crypto !== "undefined"
@@ -10,11 +10,11 @@ function uuid() {
 /**
  * Pure builder converting an intent into a deterministic list of steps.
  */
-export function buildSequence(intent: SequenceIntent, getToken: GetTokenMeta): TxStep[] {
+export function buildSequence(intent: SequenceIntent): TxStep[] {
     // Utility to fetch token address for a given chain. Falls back to zero address and logs a warning.
     const tokenOn = (chainId: number): `0x${string}` => {
         try {
-            const meta = getToken(intent.tokenTicker, chainId);
+            const meta = getTokenMeta(intent.tokenTicker, chainId);
             if (!meta.address) {
                 console.warn(
                     `[BUILD] token meta missing address`,

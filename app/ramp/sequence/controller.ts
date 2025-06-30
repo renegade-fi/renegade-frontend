@@ -3,7 +3,6 @@ import { buildSequence } from "./build-sequence";
 import type { EvmStepRunner } from "./evm-step-runner";
 import type { SequenceIntent, TxStep } from "./models";
 import type { SequenceStore } from "./sequence-store";
-import type { GetTokenMeta } from "./token-rules";
 import { TransactionSequence } from "./transaction-sequence";
 
 export type UpdateCallback = (steps: readonly TxStep[]) => void;
@@ -19,7 +18,6 @@ export class TransactionController {
         private readonly update: UpdateCallback,
         // zustand store api containing sequence & actions
         private readonly store: StoreApi<SequenceStore>,
-        private readonly getTokenMeta: GetTokenMeta,
         private readonly runner: EvmStepRunner,
     ) {}
 
@@ -27,7 +25,7 @@ export class TransactionController {
         console.debug("[RAMP] controller.start", intent);
         /* start */
         if (this.running) return;
-        const steps = buildSequence(intent, this.getTokenMeta);
+        const steps = buildSequence(intent);
         this.sequence = new TransactionSequence(crypto.randomUUID(), steps);
         this.persist();
         this.emit();
