@@ -20,6 +20,15 @@ export function PageClient() {
         <main className="container mb-8 mt-12 flex flex-col gap-12 px-4 lg:px-8">
             <div className="grid grid-cols-1 gap-4">
                 <div className="col-span-1">
+                    <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
+                        Volume
+                    </h1>
+                    <VolumeChart chainId={selectedChainId} />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+                <div className="col-span-1">
                     <div className="mb-4 mt-6 flex items-center justify-between">
                         <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
                             Time to Fill
@@ -54,15 +63,6 @@ export function PageClient() {
                         Total Value Deposited
                     </h1>
                     <TvlSection chainId={selectedChainId} />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-                <div className="col-span-1">
-                    <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
-                        Volume
-                    </h1>
-                    <VolumeChart chainId={selectedChainId} />
                 </div>
             </div>
 
