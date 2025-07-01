@@ -15,4 +15,14 @@ export const BRIDGED_TOKENS: TokenInstance[] = [
         "",
         42161,
     ) as TokenInstance,
+    TokenClass.create(
+        "Tether USD",
+        "USDT",
+        "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        6,
+        {},
+        {},
+        "",
+        42161,
+    ) as TokenInstance,
 ];

@@ -7,7 +7,7 @@ export const TOKEN_RULE_OVERLAY: TokenRuleMap = {
     USDC: {
         42161: {
             swap: true,
-            swapFrom: ["USDC.e"],
+            swapFrom: ["USDC.e", "USDT"],
         },
     },
 };
