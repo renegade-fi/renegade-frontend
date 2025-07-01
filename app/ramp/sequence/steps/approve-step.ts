@@ -1,3 +1,4 @@
+import { writeContract } from "wagmi/actions";
 import { erc20Abi } from "@/lib/generated";
 import type { StepExecutionContext } from "../models";
 import { BaseStep } from "../models";
@@ -15,8 +16,7 @@ export class ApproveStep extends BaseStep {
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
 
-        const wallet = await ctx.getWalletClient(this.chainId);
-        const owner = wallet.account?.address;
+        const owner = ctx.getWagmiAddress();
         if (!owner) throw new Error("Wallet account not found");
 
         // 1. Check current allowance.
@@ -42,7 +42,9 @@ export class ApproveStep extends BaseStep {
             account: owner,
         });
 
-        const txHash = await wallet.writeContract(request);
+        // const txHash = await wc.writeContract(request);
+        const wagmiConfig = ctx.wagmiConfig;
+        const txHash = await writeContract(wagmiConfig, request);
         await pc.waitForTransactionReceipt({ hash: txHash });
 
         this.status = "CONFIRMED";

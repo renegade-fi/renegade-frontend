@@ -17,7 +17,6 @@ export async function buildSequence(
     intent: SequenceIntent,
     ctx: StepExecutionContext,
 ): Promise<Step[]> {
-    console.log("🚀 ~ intent:", intent);
     // Helper to fetch token address on chain; falls back to zero.
     const tokenOn = (ticker: string, chainId: number): `0x${string}` => {
         try {
@@ -86,8 +85,7 @@ export async function buildSequence(
             const approvalReq = await step.approvalRequirement(ctx);
             if (approvalReq) {
                 let needsApprove = true;
-                const wallet = await ctx.getWalletClient(step.chainId);
-                const owner = wallet.account?.address;
+                const owner = ctx.getWagmiAddress();
                 if (owner) {
                     try {
                         const pc = ctx.getPublicClient(step.chainId);
@@ -100,18 +98,6 @@ export async function buildSequence(
                         });
 
                         needsApprove = allowance < approvalReq.amount;
-
-                        if (step.type === "SWAP" || step.type === "BRIDGE") {
-                            console.log("build approve debug", {
-                                chainId: step.chainId,
-                                allowance,
-                                owner,
-                                spender: approvalReq.spender,
-                                amount: approvalReq.amount,
-                                address: step.mint,
-                                needsApprove,
-                            });
-                        }
                     } catch {
                         // If allowance check fails, treat as insufficient (conservative)
                         needsApprove = true;

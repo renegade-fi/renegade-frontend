@@ -1,4 +1,5 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
+import { sendTransaction } from "wagmi/actions";
 import { requestBestRoute } from "../lifi";
 import type { StepExecutionContext } from "../models";
 import { BaseStep } from "../models";
@@ -28,8 +29,7 @@ export class SwapTxStep extends BaseStep {
 
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {
-            const wallet = await ctx.getWalletClient(this.chainId);
-            const owner = wallet.account?.address;
+            const owner = ctx.getWagmiAddress();
             if (!owner) throw new Error("SwapTxStep: wallet not connected");
 
             this.route = await requestBestRoute({
@@ -65,8 +65,7 @@ export class SwapTxStep extends BaseStep {
 
         // ---------- Ensure route exists ----------
         if (!this.route) {
-            const wallet = await ctx.getWalletClient(this.chainId);
-            const owner = wallet.account?.address;
+            const owner = ctx.getWagmiAddress();
             if (!owner) throw new Error("SwapTxStep: wallet not connected");
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
@@ -91,10 +90,11 @@ export class SwapTxStep extends BaseStep {
         if (!txRequest) {
             throw new Error("SwapTxStep: route missing transaction request");
         }
-        const wc = await ctx.getWalletClient(this.chainId);
+        const wagmiConfig = ctx.wagmiConfig;
         // @ts-expect-error
-        const txHash = await wc.sendTransaction({
+        const txHash = await sendTransaction(wagmiConfig, {
             ...txRequest,
+            type: "legacy",
         });
 
         this.txHash = txHash;

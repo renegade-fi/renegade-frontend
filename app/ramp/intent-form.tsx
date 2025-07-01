@@ -55,17 +55,18 @@ export function IntentForm() {
     const tickers = useMemo(() => uniqueSortedTickers(), []);
 
     // Source token options based on operation token's swapFrom metadata
+    // Includes self
     const sourceTokenOptions = useMemo(() => {
         try {
             const meta = getTokenMeta(operationToken, operationChain);
             if (meta.swapFrom && meta.swapFrom.length > 0) {
-                return meta.swapFrom;
+                return [...meta.swapFrom, operationToken];
             }
         } catch {
             // ignore errors – fall back to full list
         }
-        return tickers;
-    }, [operationToken, operationChain, tickers]);
+        return [operationToken];
+    }, [operationToken, operationChain]);
 
     // Ensure sourceToken stays valid as options change
     if (sourceTokenOptions.length > 0 && !sourceTokenOptions.includes(sourceToken)) {

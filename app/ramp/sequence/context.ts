@@ -1,6 +1,7 @@
 import type { Config as RenegadeConfig } from "@renegade-fi/react";
-import { createPublicClient, http, type PublicClient, type WalletClient } from "viem";
+import { createPublicClient, http, type PublicClient } from "viem";
 import type { Config as WagmiConfig } from "wagmi";
+import { getAccount, getChainId } from "wagmi/actions";
 import { extractSupportedChain } from "@/lib/viem";
 import type { StepExecutionContext } from "./models";
 
@@ -8,7 +9,6 @@ import type { StepExecutionContext } from "./models";
 // Keeps client creation and wallet-chain switching logic in one place for clarity.
 
 export function makeExecutionContext(
-    baseWalletClient: WalletClient,
     renegadeConfig: RenegadeConfig,
     wagmiConfig: WagmiConfig,
     keychainNonce: bigint,
@@ -29,16 +29,20 @@ export function makeExecutionContext(
         return pcCache.get(chainId)!;
     }
 
-    async function getWalletClient(chainId: number): Promise<WalletClient> {
-        if (baseWalletClient.chain?.id !== chainId) {
-            await baseWalletClient.switchChain({ id: chainId });
-        }
-        return baseWalletClient;
+    function getWagmiChainId(): number {
+        return getChainId(wagmiConfig);
+    }
+
+    function getWagmiAddress(): `0x${string}` {
+        const address = getAccount(wagmiConfig).address;
+        if (!address) throw new Error("Wallet account not found");
+        return address;
     }
 
     return {
         getPublicClient,
-        getWalletClient,
+        getWagmiAddress,
+        getWagmiChainId,
         renegadeConfig,
         wagmiConfig,
         keychainNonce,

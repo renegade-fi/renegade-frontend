@@ -61,8 +61,9 @@ export interface SequenceIntent {
 
 import type { Config as RenegadeConfig } from "@renegade-fi/react";
 // -------------------- New runnable step abstractions --------------------
-import { formatUnits, type PublicClient, type WalletClient } from "viem";
+import { formatUnits, type PublicClient } from "viem";
 import type { Config as WagmiConfig } from "wagmi";
+import { getChainId, switchChain } from "wagmi/actions";
 import { getTokenMeta } from "./token-registry";
 
 /**
@@ -71,11 +72,12 @@ import { getTokenMeta } from "./token-registry";
 export interface StepExecutionContext {
     /** Get (memoized) read-only client for any chain. */
     getPublicClient(chainId: number): PublicClient;
-    /** Switch wallet to `chainId` if necessary and return it. */
-    getWalletClient(chainId: number): Promise<WalletClient>;
     // Existing non-client fields
     renegadeConfig: RenegadeConfig;
     wagmiConfig: WagmiConfig;
+    getWagmiChainId(): number;
+    getWagmiAddress(): `0x${string}`;
+
     keychainNonce: bigint;
     permit: Partial<{
         nonce: bigint;
@@ -133,7 +135,17 @@ export abstract class BaseStep implements Step {
      * chain switch from the wallet client.
      */
     protected async ensureCorrectChain(ctx: StepExecutionContext): Promise<void> {
-        await ctx.getWalletClient(this.chainId); // switches if needed
+        const wagmiChain = getChainId(ctx.wagmiConfig);
+        console.log("switch chain debug", {
+            needsSwitch: wagmiChain !== this.chainId,
+            currentChain: wagmiChain,
+            targetChain: this.chainId,
+        });
+        if (wagmiChain !== this.chainId) {
+            await switchChain(ctx.wagmiConfig, {
+                chainId: this.chainId,
+            });
+        }
     }
 
     /**

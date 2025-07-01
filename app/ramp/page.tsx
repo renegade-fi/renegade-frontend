@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useConfig as useWagmiConfig, useWalletClient } from "wagmi";
+import { useConfig as useWagmiConfig } from "wagmi";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useConfig } from "@/providers/state-provider/hooks";
 import { ControllerProvider } from "./controller-context";
@@ -23,7 +23,6 @@ function RampSandbox() {
     const storeApi = useSequenceStoreApi();
     const config = useConfig();
     const wagmiConfig = useWagmiConfig();
-    const { data: walletClient } = useWalletClient();
     const { data: keychainNonce } = useBackOfQueueWallet({
         query: {
             select: (wallet) => wallet.key_chain.nonce,
@@ -35,18 +34,13 @@ function RampSandbox() {
     // Build controller; may be null if not ready
     const contextValue = useMemo(() => {
         if (!ready) return null;
-        const ctx = makeExecutionContext(
-            walletClient!,
-            config!,
-            wagmiConfig,
-            keychainNonce ?? BigInt(0),
-        );
+        const ctx = makeExecutionContext(config!, wagmiConfig, keychainNonce ?? BigInt(0));
         const updateCb = (_steps: readonly any[]) => {
             /* no-op */
         };
         const c = new TransactionController(updateCb, storeApi, ctx);
         return { controller: c } as const;
-    }, [ready, storeApi, config, keychainNonce, wagmiConfig, walletClient]);
+    }, [ready, storeApi, config, keychainNonce, wagmiConfig]);
 
     // Resume any persisted sequence once controller exists
     // useEffect(() => {

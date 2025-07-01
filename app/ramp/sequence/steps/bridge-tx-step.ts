@@ -1,4 +1,5 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
+import { sendTransaction } from "wagmi/actions";
 import { requestBestRoute } from "../lifi";
 import type { StepExecutionContext } from "../models";
 import { BaseStep } from "../models";
@@ -35,8 +36,7 @@ export class BridgeTxStep extends BaseStep {
      */
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {
-            const wallet = await ctx.getWalletClient(this.chainId);
-            const owner = wallet.account?.address;
+            const owner = ctx.getWagmiAddress();
             if (!owner) throw new Error("BridgeTxStep: wallet not connected");
 
             this.route = await requestBestRoute({
@@ -66,8 +66,7 @@ export class BridgeTxStep extends BaseStep {
 
         // ---------- Ensure route exists ----------
         if (!this.route) {
-            const wallet = await ctx.getWalletClient(this.chainId);
-            const owner = wallet.account?.address;
+            const owner = ctx.getWagmiAddress();
             if (!owner) throw new Error("BridgeTxStep: wallet not connected");
 
             this.route = await requestBestRoute({
@@ -80,23 +79,18 @@ export class BridgeTxStep extends BaseStep {
             });
         }
 
-        const firstStep: any = this.route?.steps?.[0];
+        const firstStep = this.route?.steps?.[0];
         if (!firstStep) throw new Error("BridgeTxStep: no steps in LI.FI route");
 
         // ---------- Execute bridge transaction ----------
-        const populatedStep: any = await getStepTransaction(firstStep);
+        const populatedStep = await getStepTransaction(firstStep);
 
-        const txRequest =
-            populatedStep?.execution?.toContractCall?.transactionRequest ??
-            populatedStep?.transactionRequest ??
-            undefined;
+        const txRequest = populatedStep?.transactionRequest;
         if (!txRequest) throw new Error("BridgeTxStep: route missing transaction request");
 
-        const wallet = await ctx.getWalletClient(this.chainId);
-        const txHash = await wallet.sendTransaction({
-            ...txRequest,
-            type: "legacy", // maintain consistency with SwapTxStep
-        } as any);
+        const wagmiConfig = ctx.wagmiConfig;
+        // @ts-expect-error
+        const txHash = await sendTransaction(wagmiConfig, txRequest);
 
         this.txHash = txHash;
         const pc = ctx.getPublicClient(this.chainId);

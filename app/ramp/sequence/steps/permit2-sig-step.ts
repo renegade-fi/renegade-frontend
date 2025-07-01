@@ -1,9 +1,10 @@
 import { getSDKConfig } from "@renegade-fi/react";
 import { getPkRootScalars } from "@renegade-fi/react/actions";
-import { signPermit2 } from "@/lib/permit2";
+import { signTypedData } from "wagmi/actions";
 import { resolveAddress } from "@/lib/token";
 import type { StepExecutionContext } from "../models";
 import { BaseStep } from "../models";
+import { constructPermit2SigningData } from "./permit2-helpers";
 
 export class Permit2SigStep extends BaseStep {
     public signature?: `0x${string}`;
@@ -16,25 +17,35 @@ export class Permit2SigStep extends BaseStep {
 
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
+
         const sdkCfg = getSDKConfig(this.chainId);
         const token = resolveAddress(this.mint);
         const pkRoot = getPkRootScalars(ctx.renegadeConfig, { nonce: ctx.keychainNonce });
-        const wallet = await ctx.getWalletClient(this.chainId);
-        const { signature, nonce, deadline } = await signPermit2({
-            amount: this.amount,
+
+        // Construct signing data
+        const { domain, message, types, primaryType } = constructPermit2SigningData({
             chainId: this.chainId,
-            spender: sdkCfg.darkpoolAddress,
             permit2Address: sdkCfg.permit2Address,
-            token,
-            walletClient: wallet,
-            pkRoot,
-        } as any);
+            tokenAddress: token.address,
+            amount: this.amount,
+            spender: sdkCfg.darkpoolAddress,
+            pkRoot: pkRoot as unknown as readonly [bigint, bigint, bigint, bigint],
+        });
+
+        // Generate signature
+        const signature = await signTypedData(ctx.wagmiConfig, {
+            domain,
+            types,
+            primaryType,
+            message,
+        });
+
         this.signature = signature;
-        this.nonce = nonce;
-        this.deadline = deadline;
+        this.nonce = message.nonce;
+        this.deadline = message.deadline;
 
         // Persist in execution context for downstream steps
-        ctx.permit = { signature, nonce, deadline };
+        ctx.permit = { signature, nonce: message.nonce, deadline: message.deadline };
 
         this.status = "CONFIRMED";
     }
