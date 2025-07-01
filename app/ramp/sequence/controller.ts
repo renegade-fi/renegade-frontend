@@ -1,11 +1,10 @@
 import type { StoreApi } from "zustand";
 import { buildSequence } from "./build-sequence";
-import type { EvmStepRunner } from "./evm-step-runner";
-import type { SequenceIntent, TxStep } from "./models";
+import type { SequenceIntent, Step, StepExecutionContext } from "./models";
 import type { SequenceStore } from "./sequence-store";
 import { TransactionSequence } from "./transaction-sequence";
 
-export type UpdateCallback = (steps: readonly TxStep[]) => void;
+export type UpdateCallback = (steps: readonly Step[]) => void;
 
 /**
  * Coordinates execution of a transaction sequence and persists it via zustand store.
@@ -18,14 +17,14 @@ export class TransactionController {
         private readonly update: UpdateCallback,
         // zustand store api containing sequence & actions
         private readonly store: StoreApi<SequenceStore>,
-        private readonly runner: EvmStepRunner,
+        private readonly ctx: StepExecutionContext,
     ) {}
 
-    start(intent: SequenceIntent): void {
-        console.debug("[RAMP] controller.start", intent);
+    async start(intent: SequenceIntent): Promise<void> {
         /* start */
         if (this.running) return;
-        const steps = buildSequence(intent);
+        const steps = await buildSequence(intent, this.ctx);
+        console.log("🚀 ~ TransactionController ~ start ~ steps:", steps);
         this.sequence = new TransactionSequence(crypto.randomUUID(), steps);
         this.persist();
         this.emit();
@@ -33,7 +32,6 @@ export class TransactionController {
     }
 
     resume(): void {
-        console.debug("[RAMP] controller.resume");
         /* resume */
         const existing = this.store.getState().sequence;
         if (this.running) return;
@@ -73,9 +71,8 @@ export class TransactionController {
                 this.emit();
 
                 // Execute
-                let updated: TxStep;
                 try {
-                    updated = await this.runner.run(step);
+                    await step.run(this.ctx);
                     /* confirmed */
                 } catch (err) {
                     console.error(err);
@@ -85,8 +82,8 @@ export class TransactionController {
                     return; // stop on failure
                 }
 
-                // Persist success state
-                this.sequence.patch(step.id, updated);
+                // Persist success state (step has mutated itself)
+                this.sequence.patch(step.id, {});
                 this.persist();
                 this.emit();
 

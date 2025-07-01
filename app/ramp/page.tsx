@@ -7,7 +7,7 @@ import { useConfig } from "@/providers/state-provider/hooks";
 import { ControllerProvider } from "./controller-context";
 import { IntentForm } from "./intent-form";
 import { TransactionController } from "./sequence/controller";
-import { EvmStepRunner } from "./sequence/evm-step-runner";
+import type { StepExecutionContext } from "./sequence/models";
 import { SequenceStoreProvider, useSequenceStoreApi } from "./sequence/sequence-store-provider";
 import { TransactionStepper } from "./transaction-stepper";
 
@@ -32,20 +32,21 @@ function RampSandbox() {
 
     const ready = Boolean(walletClient && publicClient && config);
 
-    // Build controller & runner; may be null if not ready
+    // Build controller; may be null if not ready
     const contextValue = useMemo(() => {
         if (!ready) return null;
-        const r = new EvmStepRunner(
-            walletClient!,
-            publicClient!,
-            config!,
-            keychainNonce ?? BigInt(0),
-        );
-        const updateCb = () => {
+        const ctx: StepExecutionContext = {
+            walletClient: walletClient!,
+            publicClient: publicClient!,
+            renegadeConfig: config!,
+            keychainNonce: keychainNonce ?? BigInt(0),
+            permit: {},
+        };
+        const updateCb = (_steps: readonly any[]) => {
             /* no-op */
         };
-        const c = new TransactionController(updateCb, storeApi, r);
-        return { controller: c, runner: r } as const;
+        const c = new TransactionController(updateCb, storeApi, ctx);
+        return { controller: c } as const;
     }, [ready, storeApi, walletClient, publicClient, config, keychainNonce]);
 
     // Resume any persisted sequence once controller exists

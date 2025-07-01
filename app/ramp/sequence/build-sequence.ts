@@ -1,75 +1,99 @@
-import type { SequenceIntent, TxStep } from "./models";
+import { erc20Abi } from "@/lib/generated";
+import type { BaseStep, SequenceIntent, Step, StepExecutionContext } from "./models";
+import { ApproveStep } from "./steps/approve-step";
+import { BridgeTxStep } from "./steps/bridge-tx-step";
+import { ChainSwitchStep } from "./steps/chain-switch-step";
+import { DepositTxStep } from "./steps/deposit-tx-step";
+import { Permit2SigStep } from "./steps/permit2-sig-step";
+import { WithdrawTxStep } from "./steps/withdraw-tx-step";
 import { getTokenMeta } from "./token-registry";
 
-function uuid() {
-    return typeof crypto !== "undefined"
-        ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2);
-}
-
 /**
- * Pure builder converting an intent into a deterministic list of steps.
+ * Builds an ordered list of Step instances for the given intent.
+ * Performs on-chain allowance checks and only inserts an APPROVE step when
+ * the existing allowance for the spender is insufficient.
  */
-export function buildSequence(intent: SequenceIntent): TxStep[] {
-    // Utility to fetch token address for a given chain. Falls back to zero address and logs a warning.
+export async function buildSequence(
+    intent: SequenceIntent,
+    ctx: StepExecutionContext,
+): Promise<Step[]> {
+    // Helper to fetch token address on chain; falls back to zero.
     const tokenOn = (chainId: number): `0x${string}` => {
         try {
             const meta = getTokenMeta(intent.tokenTicker, chainId);
-            if (!meta.address) {
-                console.warn(
-                    `[BUILD] token meta missing address`,
-                    intent.tokenTicker,
-                    chainId,
-                    meta,
-                );
-                return "0x0000000000000000000000000000000000000000";
-            }
-            return meta.address as `0x${string}`;
-        } catch (err) {
-            console.warn(
-                `[BUILD] token lookup failed for`,
-                intent.tokenTicker,
-                `on chain`,
-                chainId,
-                err,
-            );
+            return (meta.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+        } catch {
             return "0x0000000000000000000000000000000000000000";
         }
     };
 
-    const makeStep = (type: TxStep["type"], chainId: number): TxStep => {
-        const step: TxStep = {
-            id: uuid(),
-            type,
-            chainId,
-            mint: tokenOn(chainId),
-            amount: intent.amountAtomic,
-            status: "PENDING",
-        };
-        console.debug("[BUILD]", type, chainId, step.mint);
-        return step;
-    };
+    const coreSteps: Step[] = [];
 
-    const steps: TxStep[] = [];
+    // Always switch to fromChain first to prepare wallet context.
+    coreSteps.push(new ChainSwitchStep(intent.fromChain));
 
-    const finalAction: TxStep["type"] = intent.kind === "DEPOSIT" ? "DEPOSIT" : "WITHDRAW";
-
-    // If bridging (fromChain -> toChain)
+    // Bridging path
     if (intent.fromChain !== intent.toChain) {
-        // 1. BRIDGE on fromChain (mainnet → L2)
-        steps.push(makeStep("BRIDGE", intent.fromChain));
-
-        // 2. APPROVE on destination chain, required before deposit/withdraw
-        steps.push(makeStep("APPROVE", intent.toChain));
-    } else {
-        // No bridge needed; approve on the same chain
-        steps.push(makeStep("APPROVE", intent.fromChain));
+        // Bridge token on fromChain
+        coreSteps.push(
+            new BridgeTxStep(intent.fromChain, tokenOn(intent.fromChain), intent.amountAtomic),
+        );
+        // Switch to destination chain
+        coreSteps.push(new ChainSwitchStep(intent.toChain));
     }
 
-    // 3. WRAP/UNWRAP TBD
+    // Final action
+    if (intent.kind === "DEPOSIT") {
+        coreSteps.push(
+            new DepositTxStep(intent.toChain, tokenOn(intent.toChain), intent.amountAtomic),
+        );
+    } else {
+        coreSteps.push(
+            new WithdrawTxStep(intent.toChain, tokenOn(intent.toChain), intent.amountAtomic),
+        );
+    }
 
-    // 4. Final action (deposit or withdraw) always on toChain
-    steps.push(makeStep(finalAction, intent.toChain));
+    // ---------------- Insert prerequisite steps ----------------
+    const ordered: Step[] = [];
+    for (const step of coreSteps) {
+        const ctor = step.constructor as typeof BaseStep;
 
-    return steps;
+        // Approval requirement (allowance-aware)
+        if (ctor.needsApproval) {
+            const approvalInfo = ctor.needsApproval(step.chainId, step.mint);
+            if (approvalInfo) {
+                let needsApprove = true; // default to true until proven sufficient
+                try {
+                    const owner = ctx.walletClient.account?.address;
+                    if (owner && ctx.publicClient.chain?.id === step.chainId) {
+                        const allowance: bigint = await ctx.publicClient.readContract({
+                            abi: erc20Abi,
+                            address: step.mint,
+                            functionName: "allowance",
+                            args: [owner, approvalInfo.spender],
+                        });
+                        needsApprove = allowance < step.amount;
+                    }
+                } catch {
+                    // If allowance check fails, keep needsApprove = true (conservative)
+                }
+
+                if (needsApprove) {
+                    ordered.push(
+                        new ApproveStep(step.chainId, step.mint, step.amount, approvalInfo.spender),
+                    );
+                }
+            }
+        }
+
+        // Permit2 requirement
+        if (ctor.needsPermit2) {
+            ordered.push(new Permit2SigStep(step.chainId, step.mint, step.amount));
+        }
+
+        // Finally, the original step
+        ordered.push(step);
+    }
+
+    return ordered;
 }

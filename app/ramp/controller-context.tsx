@@ -3,11 +3,9 @@
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import type { TransactionController } from "./sequence/controller";
-import type { EvmStepRunner } from "./sequence/evm-step-runner";
 
 export interface ControllerContextValue {
     controller: TransactionController;
-    runner: EvmStepRunner;
 }
 
 const ControllerContext = createContext<ControllerContextValue | null>(null);

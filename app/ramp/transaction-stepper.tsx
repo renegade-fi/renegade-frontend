@@ -1,10 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
     Table,
     TableBody,
@@ -14,10 +12,10 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useControllerContext } from "./controller-context";
-import type { TxStep } from "./sequence/models";
+import type { Step } from "./sequence/models";
 import { useSequenceStore } from "./sequence/sequence-store-provider";
 
-function statusColor(status: TxStep["status"]): string {
+function statusColor(status: Step["status"]): string {
     switch (status) {
         case "PENDING":
             return "text-gray-500";
@@ -34,15 +32,7 @@ function statusColor(status: TxStep["status"]): string {
 
 export function TransactionStepper() {
     const steps = useSequenceStore(useShallow((s) => s.sequence?.all() ?? []));
-    const { runner, controller } = useControllerContext();
-
-    // UI checkbox state mirrors runner.shouldFailNext
-    const [failNext, setFailNext] = useState(false);
-
-    function handleFailToggle(checked: boolean) {
-        setFailNext(checked);
-        runner.shouldFailNext = checked;
-    }
+    const { controller } = useControllerContext();
 
     const formattedSteps = useMemo(() => steps, [steps]);
 
@@ -78,32 +68,16 @@ export function TransactionStepper() {
                 </Table>
             )}
 
-            <details className="mt-4">
-                <summary className="cursor-pointer select-none">Debug</summary>
-                <div className="mt-2 space-y-2">
-                    <div className="flex items-center gap-2 text-xs">
-                        <Checkbox
-                            id="fail-next"
-                            checked={failNext}
-                            onCheckedChange={(c) => handleFailToggle(Boolean(c))}
-                        />
-                        <Label htmlFor="fail-next" className="text-xs">
-                            Fail next step
-                        </Label>
-                    </div>
-                    <Button
-                        variant="link"
-                        size="sm"
-                        className="p-0 text-xs"
-                        onClick={() => controller.reset()}
-                    >
-                        Clear Sequence
-                    </Button>
-                    {/* <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-                        {JSON.stringify(serialize(formattedSteps), null, 2)}
-                    </pre> */}
-                </div>
-            </details>
+            <div className="mt-4">
+                <Button
+                    variant="link"
+                    size="sm"
+                    className="p-0 text-xs"
+                    onClick={() => controller.reset()}
+                >
+                    Clear Sequence
+                </Button>
+            </div>
         </section>
     );
 }

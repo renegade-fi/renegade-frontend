@@ -1,13 +1,13 @@
 "use client";
 
 import { useShallow } from "zustand/react/shallow";
-import type { TxStep } from "./sequence/models";
+import type { Step } from "./sequence/models";
 import { useSequenceStore } from "./sequence/sequence-store-provider";
 
 export function TransactionManager() {
     const steps = useSequenceStore(
         useShallow((s) => (s.sequence ? s.sequence.all() : [])),
-    ) as readonly TxStep[];
+    ) as readonly Step[];
 
     return (
         <div className="space-y-2 mt-4">
