@@ -1,0 +1,112 @@
+import { getStepTransaction, type Route } from "@lifi/sdk";
+import { requestBestRoute } from "../lifi";
+import type { StepExecutionContext } from "../models";
+import { BaseStep } from "../models";
+
+/**
+ * Executes an on-chain swap using a LI.FI route.
+ * Currently assumes a single swap step on the source chain.
+ */
+export class SwapTxStep extends BaseStep {
+    private readonly dstChain: number;
+    private readonly toMint: `0x${string}`;
+    private route?: Route;
+
+    constructor(
+        fromChain: number,
+        toChain: number,
+        fromMint: `0x${string}`,
+        toMint: `0x${string}`,
+        amount: bigint,
+        route?: Route,
+    ) {
+        super(crypto.randomUUID(), "SWAP", fromChain, fromMint, amount);
+        this.dstChain = toChain;
+        this.toMint = toMint;
+        this.route = route;
+    }
+
+    override async approvalRequirement(ctx: StepExecutionContext) {
+        if (!this.route) {
+            const owner = ctx.walletClient.account?.address;
+            if (!owner) throw new Error("SwapTxStep: wallet not connected");
+
+            this.route = await requestBestRoute({
+                fromChainId: this.chainId,
+                toChainId: this.dstChain,
+                fromTokenAddress: this.mint,
+                toTokenAddress: this.toMint,
+                fromAmount: this.amount.toString(),
+                fromAddress: owner,
+            });
+        }
+
+        const firstStep = this.route?.steps?.[0];
+        if (!firstStep) return undefined;
+
+        const approvalAddress: `0x${string}` | undefined = firstStep?.estimate
+            ?.approvalAddress as `0x${string}`;
+        const approvalAmountRaw = firstStep.action.fromAmount;
+        const approvalAmount: bigint = BigInt(approvalAmountRaw);
+
+        console.log("step approve debug", {
+            approvalAddress,
+            approvalAmount,
+            amount: this.amount,
+            mint: this.mint,
+        });
+        return approvalAddress ? { spender: approvalAddress, amount: approvalAmount } : undefined;
+    }
+
+    async run(ctx: StepExecutionContext): Promise<void> {
+        // Ensure wallet is on the source chain (where the swap starts)
+        await this.ensureCorrectChain(ctx);
+
+        // ---------- Ensure route exists ----------
+        if (!this.route) {
+            const owner = ctx.walletClient.account?.address;
+            if (!owner) throw new Error("SwapTxStep: wallet not connected");
+            this.route = await requestBestRoute({
+                fromChainId: this.chainId,
+                toChainId: this.dstChain,
+                fromTokenAddress: this.mint,
+                toTokenAddress: this.toMint,
+                fromAmount: this.amount.toString(),
+                fromAddress: owner,
+            });
+        }
+
+        const firstStep: any = this.route?.steps?.[0];
+        if (!firstStep) {
+            throw new Error("SwapTxStep: no steps in LI.FI route");
+        }
+
+        // ---------- Execute swap transaction ----------
+        // Fetch transaction data for the step (required; route steps come without it)
+        const populatedStep: any = await getStepTransaction(firstStep);
+
+        const txRequest =
+            populatedStep?.execution?.toContractCall?.transactionRequest ??
+            populatedStep?.transactionRequest ??
+            undefined;
+        if (!txRequest) {
+            throw new Error("SwapTxStep: route missing transaction request");
+        }
+        console.log("🚀 ~ SwapTxStep ~ run ~ txRequest:", txRequest);
+
+        const txHash = await ctx.walletClient.sendTransaction({
+            ...txRequest,
+            type: "legacy",
+        } as any);
+
+        this.txHash = txHash;
+        // Wait for confirmation
+        await ctx.publicClient.waitForTransactionReceipt({ hash: txHash });
+
+        this.status = "CONFIRMED";
+    }
+
+    override toJSON(): Record<string, unknown> {
+        return { ...super.toJSON(), dstChain: this.dstChain, toMint: this.toMint };
+    }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useConfig } from "@/providers/state-provider/hooks";
@@ -50,11 +50,11 @@ function RampSandbox() {
     }, [ready, storeApi, walletClient, publicClient, config, keychainNonce]);
 
     // Resume any persisted sequence once controller exists
-    useEffect(() => {
-        if (contextValue) {
-            contextValue.controller.resume();
-        }
-    }, [contextValue]);
+    // useEffect(() => {
+    //     if (contextValue) {
+    //         contextValue.controller.resume();
+    //     }
+    // }, [contextValue]);
 
     if (!contextValue) {
         return (

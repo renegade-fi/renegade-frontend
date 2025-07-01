@@ -6,16 +6,14 @@ import { BaseStep } from "../models";
 
 export class DepositTxStep extends BaseStep {
     static override needsPermit2 = true;
-    static override needsApproval = (
-        chainId: number,
-        _mint: `0x${string}`,
-    ): { spender: `0x${string}` } => {
-        const cfg = getSDKConfig(chainId);
-        return { spender: cfg.permit2Address as `0x${string}` };
-    };
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
         super(crypto.randomUUID(), "DEPOSIT", chainId, mint, amount);
+    }
+
+    override async approvalRequirement() {
+        const cfg = getSDKConfig(this.chainId);
+        return { spender: cfg.permit2Address as `0x${string}`, amount: this.amount };
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {

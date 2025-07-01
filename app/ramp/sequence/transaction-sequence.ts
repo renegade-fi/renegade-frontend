@@ -3,6 +3,7 @@ import { ApproveStep } from "./steps/approve-step";
 import { BridgeTxStep } from "./steps/bridge-tx-step";
 import { DepositTxStep } from "./steps/deposit-tx-step";
 import { Permit2SigStep } from "./steps/permit2-sig-step";
+import { SwapTxStep } from "./steps/swap-tx-step";
 import { WithdrawTxStep } from "./steps/withdraw-tx-step";
 
 function reviveStep(data: any): Step {
@@ -27,6 +28,15 @@ function reviveStep(data: any): Step {
             break;
         case "WITHDRAW":
             step = new WithdrawTxStep(chainId, mint, amount) as Step;
+            break;
+        case "SWAP":
+            step = new SwapTxStep(
+                chainId,
+                data.dstChain as number,
+                mint,
+                data.toMint as `0x${string}`,
+                amount,
+            ) as Step;
             break;
         default:
             throw new Error(`Unknown step type ${type}`);
