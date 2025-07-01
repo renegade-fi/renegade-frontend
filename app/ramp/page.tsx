@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePublicClient, useWalletClient } from "wagmi";
+import { useConfig as useWagmiConfig, useWalletClient } from "wagmi";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useConfig } from "@/providers/state-provider/hooks";
 import { ControllerProvider } from "./controller-context";
 import { IntentForm } from "./intent-form";
+import { makeExecutionContext } from "./sequence/context";
 import { TransactionController } from "./sequence/controller";
-import type { StepExecutionContext } from "./sequence/models";
 import { SequenceStoreProvider, useSequenceStoreApi } from "./sequence/sequence-store-provider";
 import { TransactionStepper } from "./transaction-stepper";
 
@@ -21,33 +21,32 @@ export default function RampPage() {
 
 function RampSandbox() {
     const storeApi = useSequenceStoreApi();
-    const { data: walletClient } = useWalletClient();
-    const publicClient = usePublicClient();
     const config = useConfig();
+    const wagmiConfig = useWagmiConfig();
+    const { data: walletClient } = useWalletClient();
     const { data: keychainNonce } = useBackOfQueueWallet({
         query: {
             select: (wallet) => wallet.key_chain.nonce,
         },
     });
 
-    const ready = Boolean(walletClient && publicClient && config);
+    const ready = Boolean(config);
 
     // Build controller; may be null if not ready
     const contextValue = useMemo(() => {
         if (!ready) return null;
-        const ctx: StepExecutionContext = {
-            walletClient: walletClient!,
-            publicClient: publicClient!,
-            renegadeConfig: config!,
-            keychainNonce: keychainNonce ?? BigInt(0),
-            permit: {},
-        };
+        const ctx = makeExecutionContext(
+            walletClient!,
+            config!,
+            wagmiConfig,
+            keychainNonce ?? BigInt(0),
+        );
         const updateCb = (_steps: readonly any[]) => {
             /* no-op */
         };
         const c = new TransactionController(updateCb, storeApi, ctx);
         return { controller: c } as const;
-    }, [ready, storeApi, walletClient, publicClient, config, keychainNonce]);
+    }, [ready, storeApi, config, keychainNonce, wagmiConfig, walletClient]);
 
     // Resume any persisted sequence once controller exists
     // useEffect(() => {

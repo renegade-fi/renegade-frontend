@@ -59,18 +59,23 @@ export interface SequenceIntent {
     amountAtomic: bigint;
 }
 
-import type { Config } from "@renegade-fi/react";
+import type { Config as RenegadeConfig } from "@renegade-fi/react";
 // -------------------- New runnable step abstractions --------------------
 import { formatUnits, type PublicClient, type WalletClient } from "viem";
+import type { Config as WagmiConfig } from "wagmi";
 import { getTokenMeta } from "./token-registry";
 
 /**
  * Shared execution context passed into every Step.run().
  */
 export interface StepExecutionContext {
-    walletClient: WalletClient;
-    publicClient: PublicClient;
-    renegadeConfig: Config;
+    /** Get (memoized) read-only client for any chain. */
+    getPublicClient(chainId: number): PublicClient;
+    /** Switch wallet to `chainId` if necessary and return it. */
+    getWalletClient(chainId: number): Promise<WalletClient>;
+    // Existing non-client fields
+    renegadeConfig: RenegadeConfig;
+    wagmiConfig: WagmiConfig;
     keychainNonce: bigint;
     permit: Partial<{
         nonce: bigint;
@@ -128,9 +133,7 @@ export abstract class BaseStep implements Step {
      * chain switch from the wallet client.
      */
     protected async ensureCorrectChain(ctx: StepExecutionContext): Promise<void> {
-        if (ctx.walletClient.chain?.id !== this.chainId) {
-            await ctx.walletClient.switchChain({ id: this.chainId });
-        }
+        await ctx.getWalletClient(this.chainId); // switches if needed
     }
 
     /**

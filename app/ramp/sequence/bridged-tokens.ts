@@ -1,3 +1,4 @@
+import type { ChainId } from "@renegade-fi/react/constants";
 import { Token as TokenClass } from "@renegade-fi/token-nextjs";
 import type { TokenInstance } from "./token-rules";
 
@@ -24,5 +25,15 @@ export const BRIDGED_TOKENS: TokenInstance[] = [
         {},
         "",
         42161,
+    ) as TokenInstance,
+    TokenClass.create(
+        "USD Coin",
+        "USDC",
+        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        6,
+        {},
+        {},
+        "",
+        1 as unknown as ChainId,
     ) as TokenInstance,
 ];

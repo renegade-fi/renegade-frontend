@@ -15,11 +15,13 @@ export class ApproveStep extends BaseStep {
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
 
-        const owner = ctx.walletClient.account?.address;
+        const wallet = await ctx.getWalletClient(this.chainId);
+        const owner = wallet.account?.address;
         if (!owner) throw new Error("Wallet account not found");
 
         // 1. Check current allowance.
-        const allowance = await ctx.publicClient.readContract({
+        const pc = ctx.getPublicClient(this.chainId);
+        const allowance = await pc.readContract({
             abi: erc20Abi,
             address: this.mint,
             functionName: "allowance",
@@ -32,7 +34,7 @@ export class ApproveStep extends BaseStep {
         }
 
         // 2. Approve
-        const { request } = await ctx.publicClient.simulateContract({
+        const { request } = await pc.simulateContract({
             abi: erc20Abi,
             address: this.mint,
             functionName: "approve",
@@ -40,8 +42,8 @@ export class ApproveStep extends BaseStep {
             account: owner,
         });
 
-        const txHash = await ctx.walletClient.writeContract(request);
-        await ctx.publicClient.waitForTransactionReceipt({ hash: txHash });
+        const txHash = await wallet.writeContract(request);
+        await pc.waitForTransactionReceipt({ hash: txHash });
 
         this.status = "CONFIRMED";
         this.txHash = txHash;

@@ -7,6 +7,7 @@ import { useIsMutating } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import React from "react";
 import { verifyMessage } from "viem";
+import { arbitrum, base, mainnet } from "viem/chains";
 import { WagmiProvider as Provider, type State, useAccount, useChainId } from "wagmi";
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog";
@@ -25,6 +26,12 @@ createLifiConfig({
     // We disable chain preloading and will update chain configuration in runtime
     preloadChains: false,
     disableVersionCheck: true,
+    rpcUrls: {
+        [arbitrum.id]: [`/api/proxy/rpc?id=${arbitrum.id}`],
+        [base.id]: [`/api/proxy/rpc?id=${base.id}`],
+        // Needed to support bridge
+        [mainnet.id]: [`/api/proxy/rpc?chainId=${mainnet.id}`],
+    },
 });
 interface WagmiProviderProps {
     children: React.ReactNode;

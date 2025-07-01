@@ -15,7 +15,13 @@ function reviveStep(data: any): Step {
     let step: Step;
     switch (type) {
         case "BRIDGE":
-            step = new BridgeTxStep(chainId, mint, amount) as Step;
+            step = new BridgeTxStep(
+                chainId,
+                data.dstChain as number,
+                mint,
+                data.toMint as `0x${string}`,
+                amount,
+            ) as Step;
             break;
         case "APPROVE":
             step = new ApproveStep(chainId, mint, amount, data.spender as `0x${string}`) as Step;

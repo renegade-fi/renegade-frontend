@@ -25,9 +25,11 @@ export class DepositTxStep extends BaseStep {
             throw new Error("Permit is not set");
         }
 
+        const wallet = await ctx.getWalletClient(this.chainId);
+
         // Call deposit action
         const { taskId } = await deposit(ctx.renegadeConfig, {
-            fromAddr: ctx.walletClient.account!.address,
+            fromAddr: wallet.account!.address,
             mint: token.address,
             amount: this.amount,
             permitNonce: ctx.permit.nonce,

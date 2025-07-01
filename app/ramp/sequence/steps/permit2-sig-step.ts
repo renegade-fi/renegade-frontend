@@ -19,13 +19,14 @@ export class Permit2SigStep extends BaseStep {
         const sdkCfg = getSDKConfig(this.chainId);
         const token = resolveAddress(this.mint);
         const pkRoot = getPkRootScalars(ctx.renegadeConfig, { nonce: ctx.keychainNonce });
+        const wallet = await ctx.getWalletClient(this.chainId);
         const { signature, nonce, deadline } = await signPermit2({
             amount: this.amount,
             chainId: this.chainId,
             spender: sdkCfg.darkpoolAddress,
             permit2Address: sdkCfg.permit2Address,
             token,
-            walletClient: ctx.walletClient,
+            walletClient: wallet,
             pkRoot,
         } as any);
         this.signature = signature;

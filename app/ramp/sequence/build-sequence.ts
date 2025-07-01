@@ -17,6 +17,7 @@ export async function buildSequence(
     intent: SequenceIntent,
     ctx: StepExecutionContext,
 ): Promise<Step[]> {
+    console.log("🚀 ~ intent:", intent);
     // Helper to fetch token address on chain; falls back to zero.
     const tokenOn = (ticker: string, chainId: number): `0x${string}` => {
         try {
@@ -51,7 +52,9 @@ export async function buildSequence(
             coreSteps.push(
                 new BridgeTxStep(
                     intent.fromChain,
+                    intent.toChain,
                     tokenOn(intent.toTicker, intent.fromChain),
+                    tokenOn(intent.toTicker, intent.toChain),
                     intent.amountAtomic,
                 ),
             );
@@ -83,18 +86,24 @@ export async function buildSequence(
             const approvalReq = await step.approvalRequirement(ctx);
             if (approvalReq) {
                 let needsApprove = true;
-                const owner = ctx.walletClient.account?.address;
-                if (owner && ctx.publicClient.chain?.id === step.chainId) {
+                const wallet = await ctx.getWalletClient(step.chainId);
+                const owner = wallet.account?.address;
+                if (owner) {
                     try {
-                        const allowance: bigint = await ctx.publicClient.readContract({
+                        const pc = ctx.getPublicClient(step.chainId);
+
+                        const allowance: bigint = await pc.readContract({
                             abi: erc20Abi,
                             address: step.mint,
                             functionName: "allowance",
                             args: [owner, approvalReq.spender],
                         });
+
                         needsApprove = allowance < approvalReq.amount;
-                        if (step.type === "SWAP") {
+
+                        if (step.type === "SWAP" || step.type === "BRIDGE") {
                             console.log("build approve debug", {
+                                chainId: step.chainId,
                                 allowance,
                                 owner,
                                 spender: approvalReq.spender,

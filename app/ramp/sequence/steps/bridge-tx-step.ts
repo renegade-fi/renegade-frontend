@@ -1,15 +1,111 @@
+import { getStepTransaction, type Route } from "@lifi/sdk";
+import { requestBestRoute } from "../lifi";
 import type { StepExecutionContext } from "../models";
 import { BaseStep } from "../models";
 
+/**
+ * Executes a cross-chain bridge transaction using a LI.FI route.
+ *
+ * For now we assume the route requires a single on-chain transaction on the
+ * source chain; the bridging protocol then handles the remainder off-chain.
+ */
 export class BridgeTxStep extends BaseStep {
-    constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
-        super(crypto.randomUUID(), "BRIDGE", chainId, mint, amount);
+    private readonly dstChain: number;
+    private readonly toMint: `0x${string}`;
+    private route?: Route;
+
+    constructor(
+        fromChain: number,
+        toChain: number,
+        fromMint: `0x${string}`,
+        toMint: `0x${string}`,
+        amount: bigint,
+        route?: Route,
+    ) {
+        super(crypto.randomUUID(), "BRIDGE", fromChain, fromMint, amount);
+        this.dstChain = toChain;
+        this.toMint = toMint;
+        this.route = route;
+    }
+
+    /**
+     * Determine if this step needs an ERC-20 approval before execution. We do
+     * this by inspecting the first step of the LI.FI route and returning the
+     * spender + amount if required.
+     */
+    override async approvalRequirement(ctx: StepExecutionContext) {
+        if (!this.route) {
+            const wallet = await ctx.getWalletClient(this.chainId);
+            const owner = wallet.account?.address;
+            if (!owner) throw new Error("BridgeTxStep: wallet not connected");
+
+            this.route = await requestBestRoute({
+                fromChainId: this.chainId,
+                toChainId: this.dstChain,
+                fromTokenAddress: this.mint,
+                toTokenAddress: this.toMint,
+                fromAmount: this.amount.toString(),
+                fromAddress: owner,
+            });
+        }
+
+        const firstStep = this.route?.steps?.[0];
+        if (!firstStep) return undefined;
+
+        const approvalAddress: `0x${string}` | undefined = firstStep?.estimate
+            ?.approvalAddress as `0x${string}`;
+        const approvalAmountRaw = firstStep.action.fromAmount;
+        const approvalAmount: bigint = BigInt(approvalAmountRaw);
+
+        return approvalAddress ? { spender: approvalAddress, amount: approvalAmount } : undefined;
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
+        // Ensure wallet is connected to the source chain
         await this.ensureCorrectChain(ctx);
-        // TODO: implement real bridge logic (e.g., hop, layerzero, etc.)
-        console.warn("BridgeTxStep.run() not implemented; marking confirmed for now");
+
+        // ---------- Ensure route exists ----------
+        if (!this.route) {
+            const wallet = await ctx.getWalletClient(this.chainId);
+            const owner = wallet.account?.address;
+            if (!owner) throw new Error("BridgeTxStep: wallet not connected");
+
+            this.route = await requestBestRoute({
+                fromChainId: this.chainId,
+                toChainId: this.dstChain,
+                fromTokenAddress: this.mint,
+                toTokenAddress: this.toMint,
+                fromAmount: this.amount.toString(),
+                fromAddress: owner,
+            });
+        }
+
+        const firstStep: any = this.route?.steps?.[0];
+        if (!firstStep) throw new Error("BridgeTxStep: no steps in LI.FI route");
+
+        // ---------- Execute bridge transaction ----------
+        const populatedStep: any = await getStepTransaction(firstStep);
+
+        const txRequest =
+            populatedStep?.execution?.toContractCall?.transactionRequest ??
+            populatedStep?.transactionRequest ??
+            undefined;
+        if (!txRequest) throw new Error("BridgeTxStep: route missing transaction request");
+
+        const wallet = await ctx.getWalletClient(this.chainId);
+        const txHash = await wallet.sendTransaction({
+            ...txRequest,
+            type: "legacy", // maintain consistency with SwapTxStep
+        } as any);
+
+        this.txHash = txHash;
+        const pc = ctx.getPublicClient(this.chainId);
+        await pc.waitForTransactionReceipt({ hash: txHash });
+
         this.status = "CONFIRMED";
+    }
+
+    override toJSON(): Record<string, unknown> {
+        return { ...super.toJSON(), dstChain: this.dstChain, toMint: this.toMint };
     }
 }

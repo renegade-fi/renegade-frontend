@@ -28,7 +28,8 @@ export class SwapTxStep extends BaseStep {
 
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {
-            const owner = ctx.walletClient.account?.address;
+            const wallet = await ctx.getWalletClient(this.chainId);
+            const owner = wallet.account?.address;
             if (!owner) throw new Error("SwapTxStep: wallet not connected");
 
             this.route = await requestBestRoute({
@@ -64,7 +65,8 @@ export class SwapTxStep extends BaseStep {
 
         // ---------- Ensure route exists ----------
         if (!this.route) {
-            const owner = ctx.walletClient.account?.address;
+            const wallet = await ctx.getWalletClient(this.chainId);
+            const owner = wallet.account?.address;
             if (!owner) throw new Error("SwapTxStep: wallet not connected");
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
@@ -83,25 +85,22 @@ export class SwapTxStep extends BaseStep {
 
         // ---------- Execute swap transaction ----------
         // Fetch transaction data for the step (required; route steps come without it)
-        const populatedStep: any = await getStepTransaction(firstStep);
+        const populatedStep = await getStepTransaction(firstStep);
 
-        const txRequest =
-            populatedStep?.execution?.toContractCall?.transactionRequest ??
-            populatedStep?.transactionRequest ??
-            undefined;
+        const txRequest = populatedStep?.transactionRequest ?? undefined;
         if (!txRequest) {
             throw new Error("SwapTxStep: route missing transaction request");
         }
-        console.log("🚀 ~ SwapTxStep ~ run ~ txRequest:", txRequest);
-
-        const txHash = await ctx.walletClient.sendTransaction({
+        const wc = await ctx.getWalletClient(this.chainId);
+        // @ts-expect-error
+        const txHash = await wc.sendTransaction({
             ...txRequest,
-            type: "legacy",
-        } as any);
+        });
 
         this.txHash = txHash;
         // Wait for confirmation
-        await ctx.publicClient.waitForTransactionReceipt({ hash: txHash });
+        const pc = ctx.getPublicClient(this.chainId);
+        await pc.waitForTransactionReceipt({ hash: txHash });
 
         this.status = "CONFIRMED";
     }
