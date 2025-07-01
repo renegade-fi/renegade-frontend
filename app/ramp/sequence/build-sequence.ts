@@ -29,7 +29,9 @@ export async function buildSequence(
 
     const coreSteps: Step[] = [];
 
+    // ---------------- Build core steps (no approval/permit yet) ----------------
     if (intent.kind === "SWAP") {
+        // 1. Swap on the source chain
         const fromAddress = tokenOn(intent.fromTicker!, intent.fromChain);
         const toAddress = tokenOn(intent.toTicker, intent.toChain);
         coreSteps.push(
@@ -41,8 +43,10 @@ export async function buildSequence(
                 intent.amountAtomic,
             ),
         );
-    } else {
-        // Bridging path
+        // 2. Always deposit the swapped token on the destination chain
+        coreSteps.push(new DepositTxStep(intent.toChain, toAddress, intent.amountAtomic));
+    } else if (intent.kind === "DEPOSIT") {
+        // Optional bridge if source and destination chains differ
         if (intent.fromChain !== intent.toChain) {
             coreSteps.push(
                 new BridgeTxStep(
@@ -52,24 +56,23 @@ export async function buildSequence(
                 ),
             );
         }
-
-        if (intent.kind === "DEPOSIT") {
-            coreSteps.push(
-                new DepositTxStep(
-                    intent.toChain,
-                    tokenOn(intent.toTicker, intent.toChain),
-                    intent.amountAtomic,
-                ),
-            );
-        } else {
-            coreSteps.push(
-                new WithdrawTxStep(
-                    intent.toChain,
-                    tokenOn(intent.toTicker, intent.toChain),
-                    intent.amountAtomic,
-                ),
-            );
-        }
+        // Final deposit on the destination chain
+        coreSteps.push(
+            new DepositTxStep(
+                intent.toChain,
+                tokenOn(intent.toTicker, intent.toChain),
+                intent.amountAtomic,
+            ),
+        );
+    } else {
+        // WITHDRAW – never combined with bridges per spec
+        coreSteps.push(
+            new WithdrawTxStep(
+                intent.fromChain,
+                tokenOn(intent.toTicker, intent.fromChain),
+                intent.amountAtomic,
+            ),
+        );
     }
 
     // ---------------- Insert prerequisite steps ----------------
