@@ -15,6 +15,7 @@ export class Permit2SigStep extends BaseStep {
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
+        await this.ensureCorrectChain(ctx);
         const sdkCfg = getSDKConfig(this.chainId);
         const token = resolveAddress(this.mint);
         const pkRoot = getPkRootScalars(ctx.renegadeConfig, { nonce: ctx.keychainNonce });

@@ -46,22 +46,20 @@ export function TransactionStepper() {
                     <TableHeader>
                         <TableRow className="text-xs text-muted-foreground">
                             <TableHead>Type</TableHead>
-                            <TableHead>Chain</TableHead>
-                            <TableHead>Token</TableHead>
-                            <TableHead>Amount</TableHead>
+                            <TableHead>Details</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Chain</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {formattedSteps.map((s) => (
                             <TableRow key={s.id}>
-                                <TableCell className="capitalize">{s.type.toLowerCase()}</TableCell>
-                                <TableCell>{s.chainId}</TableCell>
-                                <TableCell>{s.mint.slice(0, 6)}…</TableCell>
-                                <TableCell>{s.amount.toString()}</TableCell>
+                                <TableCell className="capitalize">{s.name}</TableCell>
+                                <TableCell>{s.details}</TableCell>
                                 <TableCell className={`${statusColor(s.status)} font-medium`}>
                                     {s.status}
                                 </TableCell>
+                                <TableCell>{s.chain}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

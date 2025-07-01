@@ -13,6 +13,8 @@ export class ApproveStep extends BaseStep {
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
+        await this.ensureCorrectChain(ctx);
+
         const owner = ctx.walletClient.account?.address;
         if (!owner) throw new Error("Wallet account not found");
 

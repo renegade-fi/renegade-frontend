@@ -1,7 +1,6 @@
 import type { Step } from "./models";
 import { ApproveStep } from "./steps/approve-step";
 import { BridgeTxStep } from "./steps/bridge-tx-step";
-import { ChainSwitchStep } from "./steps/chain-switch-step";
 import { DepositTxStep } from "./steps/deposit-tx-step";
 import { Permit2SigStep } from "./steps/permit2-sig-step";
 import { WithdrawTxStep } from "./steps/withdraw-tx-step";
@@ -15,12 +14,7 @@ function reviveStep(data: any): Step {
     let step: Step;
     switch (type) {
         case "BRIDGE":
-            // Distinguish chain switch (amount === 0) vs actual bridge tx.
-            if (amount === BigInt(0)) {
-                step = new ChainSwitchStep(chainId) as Step;
-            } else {
-                step = new BridgeTxStep(chainId, mint, amount) as Step;
-            }
+            step = new BridgeTxStep(chainId, mint, amount) as Step;
             break;
         case "APPROVE":
             step = new ApproveStep(chainId, mint, amount, data.spender as `0x${string}`) as Step;

@@ -2,7 +2,6 @@ import { erc20Abi } from "@/lib/generated";
 import type { BaseStep, SequenceIntent, Step, StepExecutionContext } from "./models";
 import { ApproveStep } from "./steps/approve-step";
 import { BridgeTxStep } from "./steps/bridge-tx-step";
-import { ChainSwitchStep } from "./steps/chain-switch-step";
 import { DepositTxStep } from "./steps/deposit-tx-step";
 import { Permit2SigStep } from "./steps/permit2-sig-step";
 import { WithdrawTxStep } from "./steps/withdraw-tx-step";
@@ -29,17 +28,12 @@ export async function buildSequence(
 
     const coreSteps: Step[] = [];
 
-    // Always switch to fromChain first to prepare wallet context.
-    coreSteps.push(new ChainSwitchStep(intent.fromChain));
-
     // Bridging path
     if (intent.fromChain !== intent.toChain) {
         // Bridge token on fromChain
         coreSteps.push(
             new BridgeTxStep(intent.fromChain, tokenOn(intent.fromChain), intent.amountAtomic),
         );
-        // Switch to destination chain
-        coreSteps.push(new ChainSwitchStep(intent.toChain));
     }
 
     // Final action

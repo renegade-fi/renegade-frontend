@@ -6,7 +6,8 @@ export class WithdrawTxStep extends BaseStep {
         super(crypto.randomUUID(), "WITHDRAW", chainId, mint, amount);
     }
 
-    async run(_ctx: StepExecutionContext): Promise<void> {
+    async run(ctx: StepExecutionContext): Promise<void> {
+        await this.ensureCorrectChain(ctx);
         // TODO: implement Renegade withdraw logic
         console.warn("WithdrawTxStep.run() not implemented; marking confirmed for now");
         this.status = "CONFIRMED";

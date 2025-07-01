@@ -6,7 +6,8 @@ export class BridgeTxStep extends BaseStep {
         super(crypto.randomUUID(), "BRIDGE", chainId, mint, amount);
     }
 
-    async run(_ctx: StepExecutionContext): Promise<void> {
+    async run(ctx: StepExecutionContext): Promise<void> {
+        await this.ensureCorrectChain(ctx);
         // TODO: implement real bridge logic (e.g., hop, layerzero, etc.)
         console.warn("BridgeTxStep.run() not implemented; marking confirmed for now");
         this.status = "CONFIRMED";

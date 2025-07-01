@@ -26,6 +26,12 @@ export interface Step {
     status: StepStatus;
     txHash?: `0x${string}`;
     taskId?: string;
+    /** Human-friendly display name (e.g., "Approve"). */
+    readonly name: string;
+    /** Additional details for UI display (token + amount). */
+    readonly details: string;
+    /** Convenience alias for `chainId`. */
+    readonly chain: number;
     run(ctx: StepExecutionContext): Promise<void>;
 }
 
@@ -38,9 +44,10 @@ export interface SequenceIntent {
     amountAtomic: bigint;
 }
 
+import { resolveAddress } from "@/lib/token";
 import type { Config } from "@renegade-fi/react";
 // -------------------- New runnable step abstractions --------------------
-import type { PublicClient, WalletClient } from "viem";
+import { formatUnits, type PublicClient, type WalletClient } from "viem";
 
 /**
  * Shared execution context passed into every Step.run().
@@ -80,6 +87,42 @@ export abstract class BaseStep implements Step {
         public txHash?: `0x${string}`,
         public taskId?: string,
     ) {}
+
+    // ---------- New UI helper getters ----------
+
+    /** Title-case version of the step type (e.g., "Approve"). */
+    get name(): string {
+        // Replace underscores with spaces, lowercase, then capitalize first letter of each word
+        return this.type
+            .split("_")
+            .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+            .join(" ");
+    }
+
+    /** Concise amount + token snippet (e.g., "1000 0x1234…"). */
+    get details(): string {
+        // Show bigint as decimal and mint shortened
+        const token = resolveAddress(this.mint);
+        const formattedAmount = formatUnits(this.amount, token.decimals);
+        return `${formattedAmount} ${token.ticker}`;
+    }
+
+    /** Alias for chainId to simplify UI code. */
+    get chain(): number {
+        return this.chainId;
+    }
+
+    /**
+     * Utility invoked by concrete steps to guarantee the wallet is connected to
+     * the correct chain before continuing execution. If the wallet is already
+     * on the expected chain this is a cheap no-op; otherwise we request a
+     * chain switch from the wallet client.
+     */
+    protected async ensureCorrectChain(ctx: StepExecutionContext): Promise<void> {
+        if (ctx.walletClient.chain?.id !== this.chainId) {
+            await ctx.walletClient.switchChain({ id: this.chainId });
+        }
+    }
 
     /** Each concrete subclass must implement its action logic. */
     abstract run(ctx: StepExecutionContext): Promise<void>;

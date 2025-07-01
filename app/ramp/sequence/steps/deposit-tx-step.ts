@@ -19,6 +19,8 @@ export class DepositTxStep extends BaseStep {
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
+        await this.ensureCorrectChain(ctx);
+
         const token = resolveAddress(this.mint);
 
         if (!ctx.permit || !ctx.permit.nonce || !ctx.permit.deadline || !ctx.permit.signature) {
