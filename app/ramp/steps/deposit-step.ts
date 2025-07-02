@@ -3,6 +3,7 @@ import { deposit } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
+import { Prereq } from "./prereq-types";
 
 /**
  * Renegade deposit step requiring Permit2 signature.
@@ -11,6 +12,7 @@ import { BaseStep } from "./base-step";
  */
 export class DepositStep extends BaseStep {
     static override needsPermit2 = true;
+    static override prereqs = [Prereq.APPROVAL, Prereq.PERMIT2];
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
         super(crypto.randomUUID(), "DEPOSIT", chainId, mint, amount);

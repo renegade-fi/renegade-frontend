@@ -1,11 +1,11 @@
-import { erc20Abi } from "@/lib/generated";
 import { zeroAddress } from "@/lib/token";
-import type { BaseStep } from "../steps";
+import { type BaseStep, LiFiLegStep } from "../steps";
 import { ApproveStep } from "../steps/approve-step";
 import { DepositStep } from "../steps/deposit-step";
 import { requestBestRoute } from "../steps/internal/lifi";
-import { buildStepsFromLiFiRoute } from "../steps/internal/lifi-builder";
 import { Permit2Step } from "../steps/internal/permit2-step";
+import { PayFeesStep } from "../steps/pay-fees-step";
+import { Prereq } from "../steps/prereq-types";
 import { WithdrawStep } from "../steps/withdraw-step";
 import { getTokenByTicker } from "../token-registry";
 import type { SequenceIntent, Step, StepExecutionContext } from "../types";
@@ -55,7 +55,7 @@ async function buildDepositSteps(
             fromAddress: owner,
         });
 
-        const lifiSteps = await buildStepsFromLiFiRoute(route);
+        const lifiSteps = route.steps?.map((leg) => new LiFiLegStep(leg)) ?? [];
         ordered.push(...lifiSteps);
     }
 
@@ -88,70 +88,41 @@ function buildWithdrawSteps(intent: SequenceIntent): Step[] {
     ];
 }
 
-/**
- * Checks if approval is needed and adds approval step if required.
- */
-async function checkAndAddApprovalStep(
-    step: Step,
-    ctx: StepExecutionContext,
-): Promise<Step | null> {
-    let approvalReq;
-    try {
-        approvalReq = await step.approvalRequirement(ctx);
-    } catch {
-        // If approval requirement check fails, proceed without approval step
-        return null;
-    }
-
-    if (!approvalReq) {
-        return null;
-    }
-
-    const owner = ctx.getWagmiAddress();
-    if (!owner) {
-        // No owner available, assume approval needed (conservative approach)
-        return new ApproveStep(step.chainId, step.mint, approvalReq.amount, approvalReq.spender);
-    }
-
-    try {
-        const publicClient = ctx.getPublicClient(step.chainId);
-        const allowance: bigint = await publicClient.readContract({
-            abi: erc20Abi,
-            address: step.mint,
-            functionName: "allowance",
-            args: [owner, approvalReq.spender],
-        });
-
-        const needsApproval = allowance < approvalReq.amount;
-        if (!needsApproval) {
-            return null;
-        }
-
-        return new ApproveStep(step.chainId, step.mint, approvalReq.amount, approvalReq.spender);
-    } catch {
-        // If allowance check fails, assume approval needed (conservative approach)
-        return new ApproveStep(step.chainId, step.mint, approvalReq.amount, approvalReq.spender);
-    }
-}
+// -------------------- Prerequisite Framework --------------------
 
 /**
- * Adds all prerequisite steps (approval and permit2) for a given step.
+ * Map prereq flag -> function that returns zero or more prerequisite steps.
  */
-async function addPrerequisiteSteps(
+const prereqHandlers: Record<
+    Prereq,
+    (step: Step, ctx: StepExecutionContext, intent: SequenceIntent) => Promise<Step[]>
+> = {
+    async [Prereq.APPROVAL](step, ctx) {
+        const req = await step.approvalRequirement(ctx);
+        if (!req) return [];
+        const approve = new ApproveStep(step.chainId, step.mint, req.amount, req.spender);
+        return (await approve.isNeeded(ctx)) ? [approve] : [];
+    },
+    async [Prereq.PERMIT2](step) {
+        const ctor = step.constructor as typeof BaseStep;
+        return ctor.needsPermit2 ? [new Permit2Step(step.chainId, step.mint, step.amount)] : [];
+    },
+    async [Prereq.PAY_FEES](_step, ctx, intent) {
+        return (await PayFeesStep.isNeeded(ctx, intent)) ? [new PayFeesStep(intent.fromChain)] : [];
+    },
+};
+
+async function addPrerequisites(
     step: Step,
     ctx: StepExecutionContext,
-    ordered: Step[],
-): Promise<void> {
-    // Add approval step if needed
-    const approvalStep = await checkAndAddApprovalStep(step, ctx);
-    if (approvalStep) {
-        ordered.push(approvalStep);
-    }
-
-    // Add permit2 step if needed
-    const stepConstructor = step.constructor as typeof BaseStep;
-    if (stepConstructor.needsPermit2) {
-        ordered.push(new Permit2Step(step.chainId, step.mint, step.amount));
+    intent: SequenceIntent,
+    out: Step[],
+) {
+    const ctor = step.constructor as typeof BaseStep;
+    const prereqs: Prereq[] = ctor.prereqs ?? [];
+    for (const p of prereqs) {
+        const extras = await prereqHandlers[p](step, ctx, intent);
+        out.push(...extras);
     }
 }
 
@@ -178,10 +149,8 @@ export async function buildSequence(
     // Insert prerequisite steps for each core step
     const orderedSteps: Step[] = [];
     for (const step of coreSteps) {
-        // LiFiLeg steps already come with precomputed approvals; skip adding them again.
-        if (step.type !== "LIFI_LEG" && step.type !== "APPROVE") {
-            await addPrerequisiteSteps(step, ctx, orderedSteps);
-        }
+        // LiFiLeg step may still request approval via prereqs so no special-case skip.
+        await addPrerequisites(step, ctx, intent, orderedSteps);
         orderedSteps.push(step);
     }
 

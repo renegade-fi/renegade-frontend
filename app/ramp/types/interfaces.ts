@@ -20,7 +20,8 @@ export type StepType =
     | "LIFI_LEG" // generic step representing a LI.FI route leg
     // Deprecated – kept for backward-compat; no longer instantiated by the sequence builder
     | "DEPOSIT"
-    | "WITHDRAW";
+    | "WITHDRAW"
+    | "PAY_FEES";
 
 /** Execution status of a transaction step. */
 export type StepStatus =

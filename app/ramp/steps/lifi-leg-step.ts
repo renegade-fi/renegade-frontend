@@ -1,7 +1,9 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
+import { zeroAddress } from "@/lib/token";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
+import { Prereq } from "./prereq-types";
 
 /**
  * Generic step that executes a single leg of a LI.FI route.
@@ -10,6 +12,8 @@ import { BaseStep } from "./base-step";
  * report its allowance requirement during sequence construction.
  */
 export class LiFiLegStep extends BaseStep {
+    static override prereqs = [Prereq.APPROVAL];
+
     private readonly leg: Route["steps"][number];
 
     constructor(leg: Route["steps"][number]) {
@@ -32,10 +36,20 @@ export class LiFiLegStep extends BaseStep {
         | undefined
     > {
         const approvalAddress = this.leg.estimate?.approvalAddress as `0x${string}` | undefined;
-        if (!approvalAddress) return undefined;
 
-        const approvalAmountRaw = this.leg.action.fromAmount;
-        const approvalAmount = BigInt(approvalAmountRaw);
+        // Native ETH legs (or absence of approval address) do not need ERC-20 approval.
+        const LIFI_NATIVE_ETH_SENTINEL =
+            "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" as `0x${string}`;
+
+        if (
+            !approvalAddress ||
+            this.mint.toLowerCase() === zeroAddress.toLowerCase() ||
+            this.mint.toLowerCase() === LIFI_NATIVE_ETH_SENTINEL
+        ) {
+            return undefined;
+        }
+
+        const approvalAmount = BigInt(this.leg.action.fromAmount);
         return { spender: approvalAddress, amount: approvalAmount };
     }
 

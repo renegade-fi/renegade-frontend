@@ -44,9 +44,9 @@ export function IntentForm() {
     type Operation = "DEPOSIT" | "WITHDRAW";
 
     const [operation, setOperation] = useState<Operation>("DEPOSIT");
-    const [operationToken, setOperationToken] = useState<string>("WETH");
-    const [sourceToken, setSourceToken] = useState<string>("ETH");
-    const [amount, setAmount] = useState<string>("0.001");
+    const [operationToken, setOperationToken] = useState<string>("USDC");
+    const [sourceToken, setSourceToken] = useState<string>("USDT");
+    const [amount, setAmount] = useState<string>("1");
     const [isPureDeposit, setIsPureDeposit] = useState<boolean>(false);
     const currentChain = useCurrentChain();
 

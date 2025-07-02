@@ -61,6 +61,29 @@ export class ApproveStep extends BaseStep {
         this.txHash = txHash;
     }
 
+    /**
+     * Determines if this approval transaction is actually required. We perform
+     * the allowance read here rather than in the builder so the logic stays
+     * encapsulated in the step itself.
+     */
+    override async isNeeded(ctx: StepExecutionContext): Promise<boolean> {
+        let owner: `0x${string}`;
+        try {
+            owner = ctx.getWagmiAddress();
+        } catch {
+            return true; // no wallet
+        }
+
+        const pc = ctx.getPublicClient(this.chainId);
+        const allowance = await pc.readContract({
+            abi: erc20Abi,
+            address: this.mint,
+            functionName: "allowance",
+            args: [owner, this.spender],
+        });
+        return allowance < this.amount;
+    }
+
     override toJSON(): Record<string, unknown> {
         return { ...super.toJSON(), spender: this.spender };
     }

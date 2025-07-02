@@ -2,6 +2,7 @@ import { ApproveStep } from "../../steps/approve-step";
 import { DepositStep } from "../../steps/deposit-step";
 import { Permit2Step } from "../../steps/internal/permit2-step";
 import { LiFiLegStep } from "../../steps/lifi-leg-step";
+import { PayFeesStep } from "../../steps/pay-fees-step";
 import { WithdrawStep } from "../../steps/withdraw-step";
 import type { Step } from "../../types";
 
@@ -27,6 +28,9 @@ function reviveStep(data: any): Step {
             break;
         case "WITHDRAW":
             step = new WithdrawStep(chainId, mint, amount) as Step;
+            break;
+        case "PAY_FEES":
+            step = new PayFeesStep(chainId) as Step;
             break;
         default:
             throw new Error(`Unknown step type ${type}`);

@@ -1,7 +1,15 @@
 import { formatUnits } from "viem";
 import { getChainId, switchChain } from "wagmi/actions";
 import { getTokenByAddress } from "../token-registry";
-import type { Step, StepDisplayInfo, StepExecutionContext, StepStatus, StepType } from "../types";
+import type {
+    SequenceIntent,
+    Step,
+    StepDisplayInfo,
+    StepExecutionContext,
+    StepStatus,
+    StepType,
+} from "../types";
+import type { Prereq } from "./prereq-types";
 
 /**
  * Token resolution result with explicit success/failure states.
@@ -21,6 +29,29 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
      * Indicates if this step requires a Permit2 signature.
      */
     static needsPermit2?: boolean;
+
+    /**
+     * Prerequisites this step requires to be fulfilled *before* it executes.
+     * The sequence builder will consult these flags and inject the matching
+     * prerequisite steps automatically.
+     */
+    static prereqs: Prereq[] = [];
+
+    /**
+     * For prerequisite steps that decide globally (without instantiation) if
+     * they should be included – e.g. PayFeesStep.
+     */
+    static async isNeeded(_ctx: StepExecutionContext, _intent?: SequenceIntent): Promise<boolean> {
+        return true;
+    }
+
+    /**
+     * For prerequisite steps that need their specific parameters – e.g.
+     * ApproveStep (requires token, amount, spender).
+     */
+    async isNeeded(_ctx: StepExecutionContext): Promise<boolean> {
+        return true;
+    }
 
     constructor(
         public id: string,
