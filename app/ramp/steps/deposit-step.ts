@@ -1,10 +1,10 @@
 import { getSDKConfig } from "@renegade-fi/react";
 import { deposit } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
-import type { StepExecutionContext } from "../models";
-import { BaseStep } from "../models";
+import type { StepExecutionContext } from "../types";
+import { BaseStep } from "./base-step";
 
-export class DepositTxStep extends BaseStep {
+export class DepositStep extends BaseStep {
     static override needsPermit2 = true;
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {

@@ -1,8 +1,8 @@
 import type { StoreApi } from "zustand";
-import { buildSequence } from "./build-sequence";
-import type { SequenceIntent, Step, StepExecutionContext, StepStatus } from "./models";
-import type { SequenceStore } from "./sequence-store";
-import { TransactionSequence } from "./transaction-sequence";
+import { buildSequence } from "../sequence-builder";
+import type { SequenceStore } from "../storage";
+import type { SequenceIntent, Step, StepExecutionContext, StepStatus } from "../types";
+import { TransactionSequence } from "./internal/transaction-sequence";
 
 export type UpdateCallback = (steps: readonly Step[]) => void;
 

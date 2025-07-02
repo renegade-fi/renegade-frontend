@@ -1,7 +1,7 @@
 import { writeContract } from "wagmi/actions";
 import { erc20Abi } from "@/lib/generated";
-import type { StepExecutionContext } from "../models";
-import { BaseStep } from "../models";
+import type { StepExecutionContext } from "../types";
+import { BaseStep } from "./base-step";
 
 export class ApproveStep extends BaseStep {
     constructor(

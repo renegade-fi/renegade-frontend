@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
-import type { TransactionController } from "./sequence/controller";
+import type { TransactionController } from "./controller";
 
 export interface ControllerContextValue {
     controller: TransactionController;

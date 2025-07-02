@@ -2,11 +2,11 @@ import { getSDKConfig } from "@renegade-fi/react";
 import { getPkRootScalars } from "@renegade-fi/react/actions";
 import { signTypedData } from "wagmi/actions";
 import { resolveAddress } from "@/lib/token";
-import type { StepExecutionContext } from "../models";
-import { BaseStep } from "../models";
+import type { StepExecutionContext } from "../../types";
+import { BaseStep } from "../base-step";
 import { constructPermit2SigningData } from "./permit2-helpers";
 
-export class Permit2SigStep extends BaseStep {
+export class Permit2Step extends BaseStep {
     public signature?: `0x${string}`;
     public nonce?: bigint;
     public deadline?: bigint;

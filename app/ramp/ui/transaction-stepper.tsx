@@ -11,9 +11,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { useControllerContext } from "./controller-context";
-import type { Step, StepWithDisplay } from "./sequence/models";
-import { useSequenceStore } from "./sequence/sequence-store-provider";
+import { useSequenceStore } from "../storage/sequence-store-provider";
+import { useControllerContext } from "../transaction-control/controller-context";
+import type { Step, StepWithDisplay } from "../types";
 
 /**
  * Step with UI display information.

@@ -1,13 +1,7 @@
 import { formatUnits } from "viem";
 import { getChainId, switchChain } from "wagmi/actions";
-import type {
-    Step,
-    StepDisplayInfo,
-    StepExecutionContext,
-    StepStatus,
-    StepType,
-} from "./interfaces";
-import { getTokenByAddress } from "./token-registry";
+import { getTokenByAddress } from "../token-registry";
+import type { Step, StepDisplayInfo, StepExecutionContext, StepStatus, StepType } from "../types";
 
 /**
  * Token resolution result with explicit success/failure states.

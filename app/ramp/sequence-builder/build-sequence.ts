@@ -1,12 +1,13 @@
 import { erc20Abi } from "@/lib/generated";
-import type { BaseStep, SequenceIntent, Step, StepExecutionContext } from "./models";
-import { ApproveStep } from "./steps/approve-step";
-import { BridgeTxStep } from "./steps/bridge-tx-step";
-import { DepositTxStep } from "./steps/deposit-tx-step";
-import { Permit2SigStep } from "./steps/permit2-sig-step";
-import { SwapTxStep } from "./steps/swap-tx-step";
-import { WithdrawTxStep } from "./steps/withdraw-tx-step";
-import { getTokenByTicker } from "./token-registry";
+import type { BaseStep } from "../steps";
+import { ApproveStep } from "../steps/approve-step";
+import { BridgeStep } from "../steps/bridge-step";
+import { DepositStep } from "../steps/deposit-step";
+import { Permit2Step } from "../steps/internal/permit2-step";
+import { SwapStep } from "../steps/swap-step";
+import { WithdrawStep } from "../steps/withdraw-step";
+import { getTokenByTicker } from "../token-registry";
+import type { SequenceIntent, Step, StepExecutionContext } from "../types";
 
 /**
  * Helper to fetch token address on chain; falls back to zero address.
@@ -31,14 +32,8 @@ function buildSwapSteps(intent: SequenceIntent): Step[] {
     const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
 
     return [
-        new SwapTxStep(
-            intent.fromChain,
-            intent.toChain,
-            fromAddress,
-            toAddress,
-            intent.amountAtomic,
-        ),
-        new DepositTxStep(intent.toChain, toAddress, intent.amountAtomic),
+        new SwapStep(intent.fromChain, intent.toChain, fromAddress, toAddress, intent.amountAtomic),
+        new DepositStep(intent.toChain, toAddress, intent.amountAtomic),
     ];
 }
 
@@ -57,7 +52,7 @@ function buildDepositSteps(intent: SequenceIntent): Step[] {
     const needsBridge = intent.fromChain !== intent.toChain;
     if (needsBridge) {
         steps.push(
-            new BridgeTxStep(
+            new BridgeStep(
                 intent.fromChain,
                 intent.toChain,
                 getTokenAddress(intent.toTicker, intent.fromChain),
@@ -69,7 +64,7 @@ function buildDepositSteps(intent: SequenceIntent): Step[] {
 
     // Always add deposit step
     steps.push(
-        new DepositTxStep(
+        new DepositStep(
             intent.toChain,
             getTokenAddress(intent.toTicker, intent.toChain),
             intent.amountAtomic,
@@ -89,7 +84,7 @@ function buildWithdrawSteps(intent: SequenceIntent): Step[] {
     }
 
     return [
-        new WithdrawTxStep(
+        new WithdrawStep(
             intent.fromChain,
             getTokenAddress(intent.toTicker, intent.fromChain),
             intent.amountAtomic,
@@ -162,7 +157,7 @@ async function addPrerequisiteSteps(
     // Add permit2 step if needed
     const stepConstructor = step.constructor as typeof BaseStep;
     if (stepConstructor.needsPermit2) {
-        ordered.push(new Permit2SigStep(step.chainId, step.mint, step.amount));
+        ordered.push(new Permit2Step(step.chainId, step.mint, step.amount));
     }
 }
 

@@ -1,16 +1,14 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { requestBestRoute } from "../lifi";
-import type { StepExecutionContext } from "../models";
-import { BaseStep } from "../models";
+import { requestBestRoute } from "../integrations/internal/lifi";
+import type { StepExecutionContext } from "../types";
+import { BaseStep } from "./base-step";
 
 /**
- * Executes a cross-chain bridge transaction using a LI.FI route.
- *
- * For now we assume the route requires a single on-chain transaction on the
- * source chain; the bridging protocol then handles the remainder off-chain.
+ * Executes an on-chain swap using a LI.FI route.
+ * Currently assumes a single swap step on the source chain.
  */
-export class BridgeTxStep extends BaseStep {
+export class SwapStep extends BaseStep {
     private readonly dstChain: number;
     private readonly toMint: `0x${string}`;
     private route?: Route;
@@ -23,21 +21,16 @@ export class BridgeTxStep extends BaseStep {
         amount: bigint,
         route?: Route,
     ) {
-        super(crypto.randomUUID(), "BRIDGE", fromChain, fromMint, amount);
+        super(crypto.randomUUID(), "SWAP", fromChain, fromMint, amount);
         this.dstChain = toChain;
         this.toMint = toMint;
         this.route = route;
     }
 
-    /**
-     * Determine if this step needs an ERC-20 approval before execution. We do
-     * this by inspecting the first step of the LI.FI route and returning the
-     * spender + amount if required.
-     */
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {
             const owner = ctx.getWagmiAddress();
-            if (!owner) throw new Error("BridgeTxStep: wallet not connected");
+            if (!owner) throw new Error("SwapStep: wallet not connected");
 
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
@@ -57,18 +50,23 @@ export class BridgeTxStep extends BaseStep {
         const approvalAmountRaw = firstStep.action.fromAmount;
         const approvalAmount: bigint = BigInt(approvalAmountRaw);
 
+        console.log("step approve debug", {
+            approvalAddress,
+            approvalAmount,
+            amount: this.amount,
+            mint: this.mint,
+        });
         return approvalAddress ? { spender: approvalAddress, amount: approvalAmount } : undefined;
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
-        // Ensure wallet is connected to the source chain
+        // Ensure wallet is on the source chain (where the swap starts)
         await this.ensureCorrectChain(ctx);
 
         // ---------- Ensure route exists ----------
         if (!this.route) {
             const owner = ctx.getWagmiAddress();
-            if (!owner) throw new Error("BridgeTxStep: wallet not connected");
-
+            if (!owner) throw new Error("SwapStep: wallet not connected");
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
                 toChainId: this.dstChain,
@@ -79,20 +77,28 @@ export class BridgeTxStep extends BaseStep {
             });
         }
 
-        const firstStep = this.route?.steps?.[0];
-        if (!firstStep) throw new Error("BridgeTxStep: no steps in LI.FI route");
+        const firstStep: any = this.route?.steps?.[0];
+        if (!firstStep) {
+            throw new Error("SwapStep: no steps in LI.FI route");
+        }
 
-        // ---------- Execute bridge transaction ----------
+        // ---------- Execute swap transaction ----------
+        // Fetch transaction data for the step (required; route steps come without it)
         const populatedStep = await getStepTransaction(firstStep);
 
-        const txRequest = populatedStep?.transactionRequest;
-        if (!txRequest) throw new Error("BridgeTxStep: route missing transaction request");
-
+        const txRequest = populatedStep?.transactionRequest ?? undefined;
+        if (!txRequest) {
+            throw new Error("SwapStep: route missing transaction request");
+        }
         const wagmiConfig = ctx.wagmiConfig;
         // @ts-expect-error
-        const txHash = await sendTransaction(wagmiConfig, txRequest);
+        const txHash = await sendTransaction(wagmiConfig, {
+            ...txRequest,
+            type: "legacy",
+        });
 
         this.txHash = txHash;
+        // Wait for confirmation
         const pc = ctx.getPublicClient(this.chainId);
         await pc.waitForTransactionReceipt({ hash: txHash });
 

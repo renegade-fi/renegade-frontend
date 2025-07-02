@@ -16,9 +16,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
-import { useControllerContext } from "./controller-context";
-import type { SequenceIntent } from "./sequence/models";
-import { getSwapInputsFor, getTokenByTicker } from "./sequence/token-registry";
+import { getSwapInputsFor, getTokenByTicker } from "../token-registry";
+import { useControllerContext } from "../transaction-control/controller-context";
+import type { SequenceIntent } from "../types";
 
 const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 

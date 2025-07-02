@@ -4,12 +4,12 @@ import { useMemo } from "react";
 import { useConfig as useWagmiConfig } from "wagmi";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useConfig } from "@/providers/state-provider/hooks";
-import { ControllerProvider } from "./controller-context";
-import { IntentForm } from "./intent-form";
-import { makeExecutionContext } from "./sequence/context";
-import { TransactionController } from "./sequence/controller";
-import { SequenceStoreProvider, useSequenceStoreApi } from "./sequence/sequence-store-provider";
-import { TransactionStepper } from "./transaction-stepper";
+import { SequenceStoreProvider, useSequenceStoreApi } from "./storage/sequence-store-provider";
+import { TransactionController } from "./transaction-control/controller";
+import { ControllerProvider } from "./transaction-control/controller-context";
+import { makeExecutionContext } from "./transaction-control/execution-context";
+import { IntentForm } from "./ui/intent-form";
+import { TransactionStepper } from "./ui/transaction-stepper";
 
 export default function RampPage() {
     return (

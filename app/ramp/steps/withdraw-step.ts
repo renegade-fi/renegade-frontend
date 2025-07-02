@@ -1,7 +1,7 @@
-import type { StepExecutionContext } from "../models";
-import { BaseStep } from "../models";
+import type { StepExecutionContext } from "../types";
+import { BaseStep } from "./base-step";
 
-export class WithdrawTxStep extends BaseStep {
+export class WithdrawStep extends BaseStep {
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
         super(crypto.randomUUID(), "WITHDRAW", chainId, mint, amount);
     }
@@ -9,7 +9,7 @@ export class WithdrawTxStep extends BaseStep {
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
         // TODO: implement Renegade withdraw logic
-        console.warn("WithdrawTxStep.run() not implemented; marking confirmed for now");
+        console.warn("WithdrawStep.run() not implemented; marking confirmed for now");
         this.status = "CONFIRMED";
     }
 }

@@ -3,7 +3,7 @@ import { createPublicClient, http, type PublicClient } from "viem";
 import type { Config as WagmiConfig } from "wagmi";
 import { getAccount, getChainId } from "wagmi/actions";
 import { extractSupportedChain } from "@/lib/viem";
-import type { StepExecutionContext } from "./models";
+import type { StepExecutionContext } from "../types";
 
 // Factory to build a StepExecutionContext that supports multi-chain operations.
 // Keeps client creation and wallet-chain switching logic in one place for clarity.

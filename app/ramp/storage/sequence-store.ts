@@ -2,7 +2,7 @@ import { deserialize, serialize } from "wagmi";
 import { type PersistStorage, persist, type StorageValue } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
 
-import { TransactionSequence } from "./transaction-sequence";
+import { TransactionSequence } from "../transaction-control/internal/transaction-sequence";
 
 // -------------------- Types --------------------
 export type SequenceState = {

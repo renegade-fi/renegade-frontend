@@ -1,10 +1,10 @@
-import type { Step } from "./models";
-import { ApproveStep } from "./steps/approve-step";
-import { BridgeTxStep } from "./steps/bridge-tx-step";
-import { DepositTxStep } from "./steps/deposit-tx-step";
-import { Permit2SigStep } from "./steps/permit2-sig-step";
-import { SwapTxStep } from "./steps/swap-tx-step";
-import { WithdrawTxStep } from "./steps/withdraw-tx-step";
+import { ApproveStep } from "../../steps/approve-step";
+import { BridgeStep } from "../../steps/bridge-step";
+import { DepositStep } from "../../steps/deposit-step";
+import { Permit2Step } from "../../steps/internal/permit2-step";
+import { SwapStep } from "../../steps/swap-step";
+import { WithdrawStep } from "../../steps/withdraw-step";
+import type { Step } from "../../types";
 
 function reviveStep(data: any): Step {
     const type: string = data.type;
@@ -15,7 +15,7 @@ function reviveStep(data: any): Step {
     let step: Step;
     switch (type) {
         case "BRIDGE":
-            step = new BridgeTxStep(
+            step = new BridgeStep(
                 chainId,
                 data.dstChain as number,
                 mint,
@@ -27,16 +27,16 @@ function reviveStep(data: any): Step {
             step = new ApproveStep(chainId, mint, amount, data.spender as `0x${string}`) as Step;
             break;
         case "PERMIT2_SIG":
-            step = new Permit2SigStep(chainId, mint, amount) as Step;
+            step = new Permit2Step(chainId, mint, amount) as Step;
             break;
         case "DEPOSIT":
-            step = new DepositTxStep(chainId, mint, amount) as Step;
+            step = new DepositStep(chainId, mint, amount) as Step;
             break;
         case "WITHDRAW":
-            step = new WithdrawTxStep(chainId, mint, amount) as Step;
+            step = new WithdrawStep(chainId, mint, amount) as Step;
             break;
         case "SWAP":
-            step = new SwapTxStep(
+            step = new SwapStep(
                 chainId,
                 data.dstChain as number,
                 mint,
