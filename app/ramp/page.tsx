@@ -31,7 +31,6 @@ function RampSandbox() {
 
     const ready = Boolean(config);
 
-    // Build controller; may be null if not ready
     const contextValue = useMemo(() => {
         if (!ready) return null;
         const ctx = makeExecutionContext(config!, wagmiConfig, keychainNonce ?? BigInt(0));
@@ -41,13 +40,6 @@ function RampSandbox() {
         const c = new TransactionController(updateCb, storeApi, ctx);
         return { controller: c } as const;
     }, [ready, storeApi, config, keychainNonce, wagmiConfig]);
-
-    // Resume any persisted sequence once controller exists
-    // useEffect(() => {
-    //     if (contextValue) {
-    //         contextValue.controller.resume();
-    //     }
-    // }, [contextValue]);
 
     if (!contextValue) {
         return (

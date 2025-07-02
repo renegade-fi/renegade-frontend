@@ -4,6 +4,7 @@ import type { SequenceStore } from "../storage";
 import type { SequenceIntent, Step, StepExecutionContext, StepStatus } from "../types";
 import { TransactionSequence } from "./internal/transaction-sequence";
 
+/** Callback for step updates. */
 export type UpdateCallback = (steps: readonly Step[]) => void;
 
 /**
@@ -25,7 +26,10 @@ interface ValidationResult {
 }
 
 /**
- * Coordinates execution of a transaction sequence and persists it via zustand store.
+ * Coordinates execution of transaction sequences with persistence.
+ *
+ * Manages step execution, state updates, and error handling for
+ * multi-step transaction flows.
  */
 export class TransactionController {
     private sequence: TransactionSequence | null = null;
@@ -38,6 +42,9 @@ export class TransactionController {
         private readonly ctx: StepExecutionContext,
     ) {}
 
+    /**
+     * Start a new transaction sequence from an intent.
+     */
     async start(intent: SequenceIntent): Promise<void> {
         const validation = this.canStart();
         if (!validation.valid) {
@@ -52,6 +59,9 @@ export class TransactionController {
         void this.runLoop();
     }
 
+    /**
+     * Resume a persisted sequence from storage.
+     */
     resume(): void {
         const validation = this.canResume();
         if (!validation.valid) {
@@ -66,7 +76,7 @@ export class TransactionController {
     }
 
     /**
-     * Manually clear the current sequence and store entry. UI can call after user dismisses results.
+     * Clear the current sequence and reset state.
      */
     reset() {
         this.sequence = null;

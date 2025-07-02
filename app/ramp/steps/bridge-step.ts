@@ -10,10 +10,9 @@ const NO_STEPS_IN_ROUTE = "BridgeStep: no steps in LI.FI route";
 const MISSING_TX_REQUEST = "BridgeStep: route missing transaction request";
 
 /**
- * Executes a cross-chain bridge transaction using a LI.FI route.
+ * Cross-chain bridge transaction step using LI.FI protocol.
  *
- * For now we assume the route requires a single on-chain transaction on the
- * source chain; the bridging protocol then handles the remainder off-chain.
+ * Bridges tokens between different chains using optimal routes.
  */
 export class BridgeStep extends BaseStep {
     private readonly dstChain: number;
@@ -35,9 +34,7 @@ export class BridgeStep extends BaseStep {
     }
 
     /**
-     * Determine if this step needs an ERC-20 approval before execution. We do
-     * this by inspecting the first step of the LI.FI route and returning the
-     * spender + amount if required.
+     * Determine if ERC-20 approval is needed by inspecting the route.
      */
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {

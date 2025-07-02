@@ -1,6 +1,11 @@
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
 
+/**
+ * Renegade withdrawal step.
+ *
+ * Withdraws tokens from the Renegade darkpool to a user's wallet.
+ */
 export class WithdrawStep extends BaseStep {
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
         super(crypto.randomUUID(), "WITHDRAW", chainId, mint, amount);

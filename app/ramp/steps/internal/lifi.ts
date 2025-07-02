@@ -4,7 +4,7 @@ import { getRoutes, type RoutesRequest } from "@lifi/sdk";
 const NO_ROUTES_ERROR = "LI.FI: no routes returned";
 
 /**
- * Request the best route (first element of sorted routes) from LI.FI.
+ * Request the best route from LI.FI for token bridging or swapping.
  */
 export async function requestBestRoute(request: RoutesRequest) {
     const res = await getRoutes(request);

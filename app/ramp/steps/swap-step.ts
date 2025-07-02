@@ -10,8 +10,9 @@ const NO_STEPS_IN_ROUTE = "SwapStep: no steps in LI.FI route";
 const MISSING_TX_REQUEST = "SwapStep: route missing transaction request";
 
 /**
- * Executes an on-chain swap using a LI.FI route.
- * Currently assumes a single swap step on the source chain.
+ * On-chain token swap step using LI.FI protocol.
+ *
+ * Executes token swaps on the same or different chains.
  */
 export class SwapStep extends BaseStep {
     private readonly dstChain: number;

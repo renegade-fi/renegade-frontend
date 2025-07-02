@@ -34,6 +34,12 @@ function statusColor(status: Step["status"]): string {
     }
 }
 
+/**
+ * Displays current transaction sequence steps in a table.
+ *
+ * Shows step type, details, status, and chain for each step
+ * in the active sequence.
+ */
 export function TransactionStepper() {
     // Cast to StepWithDisplay since BaseStep implements both interfaces
     const steps = useSequenceStore(useShallow((s) => s.sequence?.all() ?? [])) as StepWithDisplay[];

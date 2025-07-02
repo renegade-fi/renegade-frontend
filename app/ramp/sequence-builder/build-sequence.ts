@@ -18,8 +18,6 @@ const UNSUPPORTED_INTENT = (kind: string) => `Unsupported intent kind: ${kind}`;
 
 /**
  * Helper to fetch token address on chain; falls back to zero address.
- * Applies: Cognitive Load Reduction - Extract meaningful intermediates
- * Applies: Control Flow - Push ifs up (null handling moved to caller)
  */
 function getTokenAddress(ticker: string, chainId: number): `0x${string}` {
     const token = getTokenByTicker(ticker, chainId);
@@ -28,7 +26,6 @@ function getTokenAddress(ticker: string, chainId: number): `0x${string}` {
 
 /**
  * Builds steps for SWAP intent.
- * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Deep modules
  */
 function buildSwapSteps(intent: SequenceIntent): Step[] {
     if (intent.kind !== "SWAP") {
@@ -46,7 +43,6 @@ function buildSwapSteps(intent: SequenceIntent): Step[] {
 
 /**
  * Builds steps for DEPOSIT intent.
- * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Deep modules
  */
 function buildDepositSteps(intent: SequenceIntent): Step[] {
     if (intent.kind !== "DEPOSIT") {
@@ -83,7 +79,6 @@ function buildDepositSteps(intent: SequenceIntent): Step[] {
 
 /**
  * Builds steps for WITHDRAW intent.
- * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Deep modules
  */
 function buildWithdrawSteps(intent: SequenceIntent): Step[] {
     if (intent.kind !== "WITHDRAW") {
@@ -101,7 +96,6 @@ function buildWithdrawSteps(intent: SequenceIntent): Step[] {
 
 /**
  * Checks if approval is needed and adds approval step if required.
- * Applies: Cognitive Load Reduction - Extract complex logic, Control Flow - Early returns
  */
 async function checkAndAddApprovalStep(
     step: Step,
@@ -148,7 +142,6 @@ async function checkAndAddApprovalStep(
 
 /**
  * Adds all prerequisite steps (approval and permit2) for a given step.
- * Applies: Cognitive Load Reduction - Single responsibility, Control Flow - Happy path
  */
 async function addPrerequisiteSteps(
     step: Step,
@@ -169,14 +162,16 @@ async function addPrerequisiteSteps(
 }
 
 /**
- * Builds an ordered list of Step instances for the given intent.
- * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Main function as dispatcher
+ * Build an ordered sequence of transaction steps from a user intent.
+ *
+ * Analyzes the intent type and generates all necessary steps including
+ * approvals, permit2 signatures, bridges, swaps, and deposits.
  */
 export async function buildSequence(
     intent: SequenceIntent,
     ctx: StepExecutionContext,
 ): Promise<Step[]> {
-    // Build core steps based on intent type (push ifs up)
+    // Build core steps based on intent type
     let coreSteps: Step[];
     if (intent.kind === "SWAP") {
         coreSteps = buildSwapSteps(intent);

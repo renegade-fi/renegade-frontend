@@ -59,22 +59,31 @@ function reviveStep(data: any): Step {
     return step;
 }
 
+/**
+ * @internal
+ * Manages an ordered sequence of transaction steps.
+ *
+ * Provides methods for step traversal, updates, and serialization.
+ */
 export class TransactionSequence {
     constructor(
         public readonly id: string,
         private steps: Step[],
     ) {}
 
+    /** Get all steps in the sequence. */
     all(): readonly Step[] {
         return [...this.steps];
     }
 
+    /** Get the next step that needs execution. */
     next(): Step | undefined {
         return this.steps.find((s) =>
             ["PENDING", "WAITING_FOR_USER", "SUBMITTED", "CONFIRMING"].includes(s.status),
         );
     }
 
+    /** Update a step by ID with partial fields. */
     patch(stepId: string, fields: Partial<Step>): Step {
         const idx = this.steps.findIndex((s) => s.id === stepId);
         if (idx === -1) throw new Error(`Step ${stepId} not found`);
@@ -83,10 +92,12 @@ export class TransactionSequence {
         return updated;
     }
 
+    /** Check if all steps are confirmed. */
     isComplete(): boolean {
         return this.steps.every((s) => s.status === "CONFIRMED");
     }
 
+    /** Serialize to JSON for persistence. */
     toJSON(): unknown {
         return {
             id: this.id,
@@ -94,6 +105,7 @@ export class TransactionSequence {
         };
     }
 
+    /** Deserialize from JSON to reconstruct sequence. */
     static from(raw: any): TransactionSequence {
         const revivedSteps: Step[] = (raw.steps as any[]).map(reviveStep);
         return new TransactionSequence(raw.id, revivedSteps);

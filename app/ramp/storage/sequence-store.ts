@@ -8,15 +8,18 @@ import { TransactionSequence } from "../transaction-control/internal/transaction
 const STORAGE_KEY = "ramp.sequence";
 
 // -------------------- Types --------------------
+/** State shape for sequence storage. */
 export type SequenceState = {
     sequence: TransactionSequence | null;
 };
 
+/** Actions for managing sequence state. */
 export type SequenceActions = {
     setSequence: (seq: TransactionSequence) => void;
     clear: () => void;
 };
 
+/** Complete store type combining state and actions. */
 export type SequenceStore = SequenceState & SequenceActions;
 
 // -------------------- Persist storage helper --------------------
@@ -58,6 +61,9 @@ export const defaultSequenceState: SequenceState = {
     sequence: null,
 };
 
+/**
+ * Create a Zustand store for persisting transaction sequences.
+ */
 export const createSequenceStore = (initState: SequenceState = defaultSequenceState) =>
     createStore<SequenceStore>()(
         persist(

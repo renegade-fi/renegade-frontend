@@ -14,16 +14,11 @@ interface TokenInfo {
 }
 
 /**
- * Base implementation for transaction steps.
- *
- * Provides common functionality while keeping the interface simple.
- * Implements both execution and display concerns with clear separation.
+ * Base implementation for all transaction steps.
  */
 export abstract class BaseStep implements Step, StepDisplayInfo {
     /**
-     * Flag helper for build-time Permit2 signature insertion.
-     * If `needsPermit2` is true, a Permit2SigStep will be inserted immediately before
-     * this step by the sequence builder.
+     * Indicates if this step requires a Permit2 signature.
      */
     static needsPermit2?: boolean;
 
@@ -38,20 +33,12 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
         public taskId?: string,
     ) {}
 
-    // ---------- UI Display Information (StepDisplayInfo implementation) ----------
-
-    /**
-     * Human-friendly display name derived from step type.
-     * Applies cognitive load reduction by providing self-descriptive names.
-     */
+    /** Human-friendly display name derived from step type. */
     get name(): string {
         return this.formatStepTypeName(this.type);
     }
 
-    /**
-     * Token amount and ticker for UI display.
-     * Uses explicit token resolution with meaningful error handling.
-     */
+    /** Token amount and ticker for UI display. */
     get details(): string {
         const tokenInfo = this.resolveTokenInfo();
         const formattedAmount = this.formatTokenAmount(tokenInfo);
@@ -59,9 +46,7 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
         return `${formattedAmount} ${tokenInfo.ticker}`;
     }
 
-    /**
-     * Convenience alias for chainId to simplify UI code.
-     */
+    /** Chain ID alias for UI convenience. */
     get chain(): number {
         return this.chainId;
     }
@@ -94,7 +79,6 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
 
     /**
      * Format token amount using resolved token information.
-     * Separated from token resolution for better testability and clarity.
      */
     private formatTokenAmount(tokenInfo: TokenInfo): string {
         return formatUnits(this.amount, tokenInfo.decimals);
@@ -102,7 +86,6 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
 
     /**
      * Convert step type to human-friendly display name.
-     * Extracts formatting logic to reduce cognitive load in the getter.
      */
     private formatStepTypeName(stepType: StepType): string {
         return stepType
@@ -111,13 +94,10 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
             .join(" ");
     }
 
-    // ---------- Chain Management (Control Flow Improvements) ----------
+    // ---------- Chain Management ----------
 
     /**
-     * Ensure wallet is connected to the correct chain before step execution.
-     *
-     * Applies "push ifs up" with early return and meaningful intermediates.
-     * Uses self-descriptive variable names to reduce working memory load.
+     * Ensure wallet is connected to the correct chain before execution.
      */
     protected async ensureCorrectChain(ctx: StepExecutionContext): Promise<void> {
         const currentChainId = getChainId(ctx.wagmiConfig);
@@ -143,12 +123,7 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
 
     // ---------- Step Interface Implementation ----------
 
-    /**
-     * Default implementation: no approval required.
-     *
-     * Subclasses that need token approval should override this method.
-     * Clear interface contract reduces cognitive load for implementers.
-     */
+    /** Default: no approval required. Override in subclasses as needed. */
     async approvalRequirement(_ctx: StepExecutionContext): Promise<
         | {
               spender: `0x${string}`;
@@ -159,22 +134,12 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
         return undefined;
     }
 
-    /**
-     * Each concrete subclass must implement its execution logic.
-     *
-     * Abstract method ensures all steps provide their core functionality
-     * while keeping the base class focused on common concerns.
-     */
+    /** Execute the step's core logic. Must be implemented by subclasses. */
     abstract run(ctx: StepExecutionContext): Promise<void>;
 
     // ---------- Serialization Support ----------
 
-    /**
-     * Serialize to plain JSON for persistence.
-     *
-     * Provides simple data export without exposing internal complexity.
-     * Focuses on essential state for reconstruction.
-     */
+    /** Serialize to plain JSON for persistence. */
     toJSON(): Record<string, unknown> {
         const { id, type, chainId, mint, amount, status, txHash, taskId } = this;
         return { id, type, chainId, mint, amount, status, txHash, taskId };

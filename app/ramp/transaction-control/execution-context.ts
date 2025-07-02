@@ -5,9 +5,11 @@ import { getAccount, getChainId } from "wagmi/actions";
 import { extractSupportedChain } from "@/lib/viem";
 import type { StepExecutionContext } from "../types";
 
-// Factory to build a StepExecutionContext that supports multi-chain operations.
-// Keeps client creation and wallet-chain switching logic in one place for clarity.
-
+/**
+ * Create an execution context for multi-chain transaction steps.
+ *
+ * Provides memoized chain clients and wallet access methods.
+ */
 export function makeExecutionContext(
     renegadeConfig: RenegadeConfig,
     wagmiConfig: WagmiConfig,

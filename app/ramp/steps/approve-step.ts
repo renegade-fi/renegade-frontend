@@ -3,6 +3,11 @@ import { erc20Abi } from "@/lib/generated";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
 
+/**
+ * ERC20 token approval step.
+ *
+ * Handles setting token allowances for spender contracts before transfers.
+ */
 export class ApproveStep extends BaseStep {
     constructor(
         chainId: number,
@@ -42,7 +47,6 @@ export class ApproveStep extends BaseStep {
             account: owner,
         });
 
-        // const txHash = await wc.writeContract(request);
         const wagmiConfig = ctx.wagmiConfig;
         const txHash = await writeContract(wagmiConfig, request);
         await pc.waitForTransactionReceipt({ hash: txHash });

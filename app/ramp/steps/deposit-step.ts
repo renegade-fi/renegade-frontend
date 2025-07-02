@@ -4,6 +4,11 @@ import { resolveAddress } from "@/lib/token";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
 
+/**
+ * Renegade deposit step requiring Permit2 signature.
+ *
+ * Deposits tokens into the Renegade darkpool using a signed permit.
+ */
 export class DepositStep extends BaseStep {
     static override needsPermit2 = true;
 

@@ -8,13 +8,16 @@ function millisecondsToSeconds(milliseconds: number): number {
     return Math.floor(milliseconds / MILLISECONDS_PER_SECOND);
 }
 
+/** Token permissions type structure for Permit2. */
 export const TOKEN_PERMISSIONS = [
     { name: "token", type: "address" },
     { name: "amount", type: "uint256" },
 ] as const;
 
+/** Deposit witness type structure for Renegade. */
 export const DEPOSIT_WITNESS = [{ name: "pkRoot", type: "uint256[4]" }] as const;
 
+/** Complete type definitions for Permit2 witness transfer. */
 export const PERMIT_WITNESS_TRANSFER_FROM_TYPES = {
     PermitWitnessTransferFrom: [
         { name: "permitted", type: "TokenPermissions" },
@@ -27,6 +30,9 @@ export const PERMIT_WITNESS_TRANSFER_FROM_TYPES = {
     DepositWitness: DEPOSIT_WITNESS,
 } as const;
 
+/**
+ * Construct EIP-712 signing data for Permit2 witness transfer.
+ */
 export function constructPermit2SigningData({
     chainId,
     permit2Address,

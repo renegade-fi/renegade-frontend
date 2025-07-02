@@ -1,3 +1,7 @@
+/**
+ * Transaction execution control and orchestration.
+ */
+
 // Public exports
 
 export type { UpdateCallback } from "./controller";

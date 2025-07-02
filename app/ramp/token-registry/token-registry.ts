@@ -7,7 +7,7 @@
 
 import { Token as TokenClass } from "@renegade-fi/token-nextjs";
 
-// Clean, minimal token type
+/** Token metadata with operation capabilities. */
 export type Token = {
     ticker: string;
     decimals: number;

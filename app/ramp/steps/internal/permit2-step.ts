@@ -6,6 +6,12 @@ import type { StepExecutionContext } from "../../types";
 import { BaseStep } from "../base-step";
 import { constructPermit2SigningData } from "./permit2-helpers";
 
+/**
+ * @internal
+ * Permit2 signature step for Renegade deposits.
+ *
+ * Generates EIP-712 typed data signature for gasless token transfers.
+ */
 export class Permit2Step extends BaseStep {
     public signature?: `0x${string}`;
     public nonce?: bigint;

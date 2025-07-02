@@ -11,6 +11,7 @@ import type { Config as WagmiConfig } from "wagmi";
 
 // ---------- Core Type Definitions ----------
 
+/** Supported transaction step types. */
 export type StepType =
     | "APPROVE"
     | "PERMIT2_SIG"
@@ -21,6 +22,7 @@ export type StepType =
     | "WITHDRAW"
     | "SWAP";
 
+/** Execution status of a transaction step. */
 export type StepStatus =
     | "PENDING" // not started
     | "WAITING_FOR_USER" // wallet opened
@@ -29,14 +31,15 @@ export type StepStatus =
     | "CONFIRMED"
     | "FAILED";
 
+/** User intent for creating a transaction sequence. */
 export interface SequenceIntent {
     kind: "DEPOSIT" | "WITHDRAW" | "SWAP";
     userAddress: `0x${string}`;
     fromChain: number;
     toChain: number;
-    /** Input token for swap, or deposit/withdraw token */
+    /** Input token ticker for swaps. */
     fromTicker?: string;
-    /** Target token for swap, or deposit/withdraw token */
+    /** Target token ticker. */
     toTicker: string;
     amountAtomic: bigint;
 }
@@ -44,13 +47,10 @@ export interface SequenceIntent {
 // ---------- Execution Interfaces ----------
 
 /**
- * Shared execution context passed into every Step.run().
- *
- * Provides all necessary tools for step execution while keeping
- * the interface focused and easy to understand.
+ * Execution context providing tools and configuration for step execution.
  */
 export interface StepExecutionContext {
-    /** Get (memoized) read-only client for any chain. */
+    /** Get memoized read-only client for any chain. */
     getPublicClient(chainId: number): PublicClient;
 
     // Wallet and configuration access
@@ -114,20 +114,15 @@ export interface Step {
  * on presentation without understanding execution details.
  */
 export interface StepDisplayInfo {
-    /** Human-friendly display name (e.g., "Approve"). */
+    /** Human-friendly display name. */
     readonly name: string;
-    /** Additional details for UI display (token + amount). */
+    /** Token amount and ticker for display. */
     readonly details: string;
-    /** Convenience alias for `chainId`. */
+    /** Chain ID alias. */
     readonly chain: number;
 }
 
 /**
- * Step with UI display information.
- *
- * Our BaseStep implements both Step and StepDisplayInfo interfaces,
- * so this type represents the complete step with all capabilities.
- * This is the type typically used by UI components that need both
- * execution state and display formatting.
+ * Complete step with execution and display capabilities.
  */
 export type StepWithDisplay = Step & StepDisplayInfo;

@@ -1,3 +1,7 @@
+/**
+ * Transaction step implementations for various on-chain operations.
+ */
+
 // Public exports - step classes
 
 export { ApproveStep } from "./approve-step";

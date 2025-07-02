@@ -13,6 +13,9 @@ interface Props {
     children: ReactNode;
 }
 
+/**
+ * Provider component for sequence store context.
+ */
 export function SequenceStoreProvider({ children }: Props) {
     const storeRef = useRef<SequenceStoreApi | null>(null);
 
@@ -27,6 +30,9 @@ export function SequenceStoreProvider({ children }: Props) {
     );
 }
 
+/**
+ * Hook to access sequence store with a selector.
+ */
 export function useSequenceStore<T>(selector: (state: SequenceStore) => T): T {
     const store = useContext(SequenceStoreContext);
     if (!store) {
@@ -35,7 +41,9 @@ export function useSequenceStore<T>(selector: (state: SequenceStore) => T): T {
     return useStore(store, selector);
 }
 
-// Direct access to the underlying zustand store (rarely needed)
+/**
+ * Hook to access the underlying Zustand store API directly.
+ */
 export function useSequenceStoreApi() {
     const store = useContext(SequenceStoreContext);
     if (!store) {

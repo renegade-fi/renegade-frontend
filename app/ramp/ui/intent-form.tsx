@@ -31,6 +31,12 @@ function uniqueSortedTickers(): string[] {
     return Array.from(tickers).sort();
 }
 
+/**
+ * Form component for creating transaction intents.
+ *
+ * Provides UI for selecting operation type, tokens, chains, and amounts
+ * to generate transaction sequences.
+ */
 export function IntentForm() {
     const { controller } = useControllerContext();
 
