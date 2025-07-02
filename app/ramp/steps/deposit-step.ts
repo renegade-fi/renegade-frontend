@@ -10,7 +10,6 @@ import { BaseStep } from "./base-step";
  * Deposits tokens into the Renegade darkpool using a signed permit.
  */
 export class DepositStep extends BaseStep {
-    static override needsPermit2 = true;
     static override prereqs = [Prereq.APPROVAL, Prereq.PERMIT2];
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {

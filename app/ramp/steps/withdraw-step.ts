@@ -5,8 +5,6 @@ import { BaseStep } from "./base-step";
 
 /**
  * Renegade withdrawal step.
- *
- * Withdraws tokens from the Renegade darkpool to a user's wallet.
  */
 export class WithdrawStep extends BaseStep {
     static override prereqs = [Prereq.PAY_FEES];

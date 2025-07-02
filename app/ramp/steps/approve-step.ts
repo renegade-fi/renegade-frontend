@@ -1,7 +1,7 @@
 import { writeContract } from "wagmi/actions";
 import { erc20Abi } from "@/lib/generated";
 import { USDT_MAINNET_ADDRESS, usdtAbi } from "@/lib/usdtAbi";
-import type { StepExecutionContext } from "../types";
+import type { SequenceIntent, StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
 
 /**
@@ -62,11 +62,9 @@ export class ApproveStep extends BaseStep {
     }
 
     /**
-     * Determines if this approval transaction is actually required. We perform
-     * the allowance read here rather than in the builder so the logic stays
-     * encapsulated in the step itself.
+     * Determines if this approval transaction is actually required.
      */
-    override async isNeeded(ctx: StepExecutionContext): Promise<boolean> {
+    override async isNeeded(ctx: StepExecutionContext, _intent?: SequenceIntent): Promise<boolean> {
         let owner: `0x${string}`;
         try {
             owner = ctx.getWagmiAddress();

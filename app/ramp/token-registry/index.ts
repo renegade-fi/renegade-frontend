@@ -1,8 +1,6 @@
 /**
  * Token registry for managing supported tokens and their capabilities.
  */
-
-// Public exports
 export {
     getSwapInputsFor,
     getToken,

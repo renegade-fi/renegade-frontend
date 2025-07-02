@@ -13,14 +13,9 @@ export class PayFeesStep extends BaseStep {
     static override prereqs = [];
 
     /**
-     * Decide globally if PayFeesStep is required (called by builder before
-     * step instantiation). Fetches the Renegade wallet and checks if any fee
-     * balances are outstanding.
+     * Decide if fee payment is required for the current context.
      */
-    static override async isNeeded(
-        ctx: StepExecutionContext,
-        _intent?: SequenceIntent,
-    ): Promise<boolean> {
+    override async isNeeded(ctx: StepExecutionContext, _intent?: SequenceIntent): Promise<boolean> {
         try {
             const wallet = await getBackOfQueueWallet(ctx.renegadeConfig);
             return wallet.balances.some(

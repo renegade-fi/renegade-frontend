@@ -2,8 +2,6 @@
  * Persistent storage for transaction sequences using Zustand.
  */
 
-// Public exports
-
 export type { SequenceActions, SequenceState, SequenceStore } from "./sequence-store";
 export {
     SequenceStoreProvider,

@@ -58,7 +58,7 @@ async function buildDepositSteps(
         ordered.push(...lifiSteps);
     }
 
-    // Append the Renegade deposit step (and its prerequisites handled later)
+    // Append the Renegade deposit step
     ordered.push(
         new DepositStep(
             intent.toChain,
@@ -96,18 +96,19 @@ const prereqHandlers: Record<
     Prereq,
     (step: Step, ctx: StepExecutionContext, intent: SequenceIntent) => Promise<Step[]>
 > = {
-    async [Prereq.APPROVAL](step, ctx) {
+    async [Prereq.APPROVAL](step, ctx, intent) {
         const req = await step.approvalRequirement(ctx);
         if (!req) return [];
         const approve = new ApproveStep(step.chainId, step.mint, req.amount, req.spender);
-        return (await approve.isNeeded(ctx)) ? [approve] : [];
+        return (await approve.isNeeded(ctx, intent)) ? [approve] : [];
     },
-    async [Prereq.PERMIT2](step) {
-        const ctor = step.constructor as typeof BaseStep;
-        return ctor.needsPermit2 ? [new Permit2Step(step.chainId, step.mint, step.amount)] : [];
+    async [Prereq.PERMIT2](step, ctx, intent) {
+        const permit = new Permit2Step(step.chainId, step.mint, step.amount);
+        return (await permit.isNeeded(ctx, intent)) ? [permit] : [];
     },
     async [Prereq.PAY_FEES](_step, ctx, intent) {
-        return (await PayFeesStep.isNeeded(ctx, intent)) ? [new PayFeesStep(intent.fromChain)] : [];
+        const pay = new PayFeesStep(intent.fromChain);
+        return (await pay.isNeeded(ctx, intent)) ? [pay] : [];
     },
 };
 
@@ -148,7 +149,6 @@ export async function buildSequence(
     // Insert prerequisite steps for each core step
     const orderedSteps: Step[] = [];
     for (const step of coreSteps) {
-        // LiFiLeg step may still request approval via prereqs so no special-case skip.
         await addPrerequisites(step, ctx, intent, orderedSteps);
         orderedSteps.push(step);
     }

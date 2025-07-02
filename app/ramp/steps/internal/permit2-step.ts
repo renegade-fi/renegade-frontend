@@ -13,10 +13,6 @@ import { constructPermit2SigningData } from "./permit2-helpers";
  * Generates EIP-712 typed data signature for gasless token transfers.
  */
 export class Permit2Step extends BaseStep {
-    public signature?: `0x${string}`;
-    public nonce?: bigint;
-    public deadline?: bigint;
-
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
         super(crypto.randomUUID(), "PERMIT2_SIG", chainId, mint, amount);
     }
@@ -45,10 +41,6 @@ export class Permit2Step extends BaseStep {
             primaryType,
             message,
         });
-
-        this.signature = signature;
-        this.nonce = message.nonce;
-        this.deadline = message.deadline;
 
         // Persist in execution context for downstream steps
         ctx.permit = { signature, nonce: message.nonce, deadline: message.deadline };
