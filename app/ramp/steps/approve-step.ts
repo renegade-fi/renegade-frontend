@@ -25,7 +25,7 @@ export class ApproveStep extends BaseStep {
         const owner = ctx.getWagmiAddress();
         if (!owner) throw new Error("Wallet account not found");
 
-        // 1. Check current allowance.
+        // Check current allowance.
         const pc = ctx.getPublicClient(this.chainId);
         const allowance = await pc.readContract({
             abi: erc20Abi,
@@ -36,17 +36,15 @@ export class ApproveStep extends BaseStep {
 
         if (allowance >= this.amount) {
             this.status = "CONFIRMED";
-            return; // nothing to do
+            return;
         }
 
-        // 2. Approve
-        // Mainnet USDT omits the bool return value, so switch to the
-        // special-case ABI when interacting with it. All other tokens
-        // continue to use the standard ERC-20 ABI.
+        // Mainnet USDT omits the bool return value, so switch to the special-case ABI when interacting with it.
+        // All other tokens continue to use the standard ERC-20 ABI.
         const isUsdt = this.chainId === 1 && this.mint.toLowerCase() === USDT_MAINNET_ADDRESS;
-
         const abiOverride = isUsdt ? usdtAbi : erc20Abi;
 
+        // Approve
         const { request } = await pc.simulateContract({
             abi: abiOverride,
             address: this.mint,

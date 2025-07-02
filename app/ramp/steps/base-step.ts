@@ -104,13 +104,6 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
         const targetChainId = this.chainId;
         const chainSwitchRequired = currentChainId !== targetChainId;
 
-        console.log("switch chain debug", {
-            needsSwitch: chainSwitchRequired,
-            currentChain: currentChainId,
-            targetChain: targetChainId,
-        });
-
-        // Early return if no chain switch needed (happy path)
         if (!chainSwitchRequired) {
             return;
         }

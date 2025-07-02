@@ -88,6 +88,15 @@ function loadAllTokens(): Token[] {
             canWithdraw: true,
             canBridge: true,
         },
+        {
+            ticker: "ETH",
+            decimals: 18,
+            address: "0x0000000000000000000000000000000000000000",
+            chainId: 42161,
+            canSwap: true,
+            swapInto: ["WETH"],
+            canBridge: true,
+        },
     );
 
     return tokens;

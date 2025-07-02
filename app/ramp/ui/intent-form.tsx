@@ -4,8 +4,8 @@ import { Token } from "@renegade-fi/token-nextjs";
 import { useMemo, useState } from "react";
 import { parseUnits } from "viem";
 import { useChains } from "wagmi";
+import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
     Select,
@@ -44,9 +44,9 @@ export function IntentForm() {
     type Operation = "DEPOSIT" | "WITHDRAW";
 
     const [operation, setOperation] = useState<Operation>("DEPOSIT");
-    const [operationToken, setOperationToken] = useState<string>("USDC");
-    const [sourceToken, setSourceToken] = useState<string>("USDC.e");
-    const [amount, setAmount] = useState<string>("1");
+    const [operationToken, setOperationToken] = useState<string>("WETH");
+    const [sourceToken, setSourceToken] = useState<string>("ETH");
+    const [amount, setAmount] = useState<string>("0.001");
     const [isPureDeposit, setIsPureDeposit] = useState<boolean>(false);
     const currentChain = useCurrentChain();
 
@@ -249,11 +249,10 @@ export function IntentForm() {
             {/* Amount */}
             <div className="space-y-2">
                 <Label htmlFor="amount-input">Amount</Label>
-                <Input
+                <NumberInput
                     id="amount-input"
                     type="number"
                     min="0"
-                    step="1"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                 />

@@ -24,7 +24,7 @@ export class LiFiLegStep extends BaseStep {
      * Determine if ERC-20 approval is required for this leg.
      * Uses static information already present in the leg object – no network I/O.
      */
-    override async approvalRequirement(_ctx: StepExecutionContext): Promise<
+    override async approvalRequirement(): Promise<
         | {
               spender: `0x${string}`;
               amount: bigint;

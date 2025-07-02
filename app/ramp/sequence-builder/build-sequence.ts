@@ -54,9 +54,8 @@ async function buildDepositSteps(
             fromAmount: intent.amountAtomic.toString(),
             fromAddress: owner,
         });
-        console.log("🚀 ~ route:", route);
 
-        const lifiSteps = await buildStepsFromLiFiRoute(route, ctx);
+        const lifiSteps = await buildStepsFromLiFiRoute(route);
         ordered.push(...lifiSteps);
     }
 
