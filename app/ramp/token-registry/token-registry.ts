@@ -63,11 +63,19 @@ function loadAllTokens(): Token[] {
             canSwap: true,
             swapInto: ["USDC"], // Can swap to USDC
         },
+        // {
+        //     ticker: "USDT",
+        //     decimals: 6,
+        //     address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        //     chainId: 42161,
+        //     canSwap: true,
+        //     swapInto: ["USDC"], // Can swap to USDC
+        // },
         {
             ticker: "USDT",
             decimals: 6,
-            address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-            chainId: 42161,
+            address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+            chainId: 1,
             canSwap: true,
             swapInto: ["USDC"], // Can swap to USDC
         },

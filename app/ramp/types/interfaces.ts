@@ -17,10 +17,10 @@ export type StepType =
     | "PERMIT2_SIG"
     | "WRAP"
     | "UNWRAP"
-    | "BRIDGE"
+    | "LIFI_LEG" // generic step representing a LI.FI route leg
+    // Deprecated – kept for backward-compat; no longer instantiated by the sequence builder
     | "DEPOSIT"
-    | "WITHDRAW"
-    | "SWAP";
+    | "WITHDRAW";
 
 /** Execution status of a transaction step. */
 export type StepStatus =
@@ -33,7 +33,8 @@ export type StepStatus =
 
 /** User intent for creating a transaction sequence. */
 export interface SequenceIntent {
-    kind: "DEPOSIT" | "WITHDRAW" | "SWAP";
+    /** Kind of intent. */
+    kind: "DEPOSIT" | "WITHDRAW";
     userAddress: `0x${string}`;
     fromChain: number;
     toChain: number;

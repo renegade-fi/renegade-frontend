@@ -1,5 +1,6 @@
 import { writeContract } from "wagmi/actions";
 import { erc20Abi } from "@/lib/generated";
+import { USDT_MAINNET_ADDRESS, usdtAbi } from "@/lib/usdtAbi";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
 
@@ -39,8 +40,15 @@ export class ApproveStep extends BaseStep {
         }
 
         // 2. Approve
+        // Mainnet USDT omits the bool return value, so switch to the
+        // special-case ABI when interacting with it. All other tokens
+        // continue to use the standard ERC-20 ABI.
+        const isUsdt = this.chainId === 1 && this.mint.toLowerCase() === USDT_MAINNET_ADDRESS;
+
+        const abiOverride = isUsdt ? usdtAbi : erc20Abi;
+
         const { request } = await pc.simulateContract({
-            abi: erc20Abi,
+            abi: abiOverride,
             address: this.mint,
             functionName: "approve",
             args: [this.spender, this.amount],

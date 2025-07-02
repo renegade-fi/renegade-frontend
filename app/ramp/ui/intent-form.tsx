@@ -131,45 +131,13 @@ export function IntentForm() {
             return;
         }
 
-        // For DEPOSIT operations, determine what steps are needed
-        const needsBridge = tokenChain !== operationChain;
-        const needsSwap = sourceToken !== operationToken;
-
-        if (needsSwap) {
-            // Need to swap from source token to operation token
-            const intent: SequenceIntent = {
-                kind: "SWAP",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: needsBridge ? tokenChain : operationChain,
-                toChain: operationChain,
-                fromTicker: sourceToken,
-                toTicker: operationToken,
-                amountAtomic: atomic,
-            };
-            runIntent(intent);
-            return;
-        }
-
-        if (needsBridge) {
-            // Token needs to be bridged from token chain to operation chain
-            const intent: SequenceIntent = {
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: tokenChain,
-                toChain: operationChain,
-                toTicker: operationToken,
-                amountAtomic: atomic,
-            };
-            runIntent(intent);
-            return;
-        }
-
-        // Simple deposit - token is already on the right chain and same as operation token
+        // Generic deposit intent – LI.FI routing will handle any token or chain differences
         const intent: SequenceIntent = {
             kind: "DEPOSIT",
             userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: operationChain,
+            fromChain: tokenChain,
             toChain: operationChain,
+            fromTicker: sourceToken,
             toTicker: operationToken,
             amountAtomic: atomic,
         };

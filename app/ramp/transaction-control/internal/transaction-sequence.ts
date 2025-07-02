@@ -1,8 +1,7 @@
 import { ApproveStep } from "../../steps/approve-step";
-import { BridgeStep } from "../../steps/bridge-step";
 import { DepositStep } from "../../steps/deposit-step";
 import { Permit2Step } from "../../steps/internal/permit2-step";
-import { SwapStep } from "../../steps/swap-step";
+import { LiFiLegStep } from "../../steps/lifi-leg-step";
 import { WithdrawStep } from "../../steps/withdraw-step";
 import type { Step } from "../../types";
 
@@ -14,14 +13,8 @@ function reviveStep(data: any): Step {
 
     let step: Step;
     switch (type) {
-        case "BRIDGE":
-            step = new BridgeStep(
-                chainId,
-                data.dstChain as number,
-                mint,
-                data.toMint as `0x${string}`,
-                amount,
-            ) as Step;
+        case "LIFI_LEG":
+            step = new LiFiLegStep(data.leg) as Step;
             break;
         case "APPROVE":
             step = new ApproveStep(chainId, mint, amount, data.spender as `0x${string}`) as Step;
@@ -34,15 +27,6 @@ function reviveStep(data: any): Step {
             break;
         case "WITHDRAW":
             step = new WithdrawStep(chainId, mint, amount) as Step;
-            break;
-        case "SWAP":
-            step = new SwapStep(
-                chainId,
-                data.dstChain as number,
-                mint,
-                data.toMint as `0x${string}`,
-                amount,
-            ) as Step;
             break;
         default:
             throw new Error(`Unknown step type ${type}`);

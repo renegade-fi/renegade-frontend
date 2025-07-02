@@ -2,16 +2,15 @@ import { erc20Abi } from "@/lib/generated";
 import { zeroAddress } from "@/lib/token";
 import type { BaseStep } from "../steps";
 import { ApproveStep } from "../steps/approve-step";
-import { BridgeStep } from "../steps/bridge-step";
 import { DepositStep } from "../steps/deposit-step";
+import { requestBestRoute } from "../steps/internal/lifi";
+import { buildStepsFromLiFiRoute } from "../steps/internal/lifi-builder";
 import { Permit2Step } from "../steps/internal/permit2-step";
-import { SwapStep } from "../steps/swap-step";
 import { WithdrawStep } from "../steps/withdraw-step";
 import { getTokenByTicker } from "../token-registry";
 import type { SequenceIntent, Step, StepExecutionContext } from "../types";
 
 // Error messages
-const INVALID_SWAP_INTENT = "Invalid intent kind for swap steps";
 const INVALID_DEPOSIT_INTENT = "Invalid intent kind for deposit steps";
 const INVALID_WITHDRAW_INTENT = "Invalid intent kind for withdraw steps";
 const UNSUPPORTED_INTENT = (kind: string) => `Unsupported intent kind: ${kind}`;
@@ -25,48 +24,44 @@ function getTokenAddress(ticker: string, chainId: number): `0x${string}` {
 }
 
 /**
- * Builds steps for SWAP intent.
- */
-function buildSwapSteps(intent: SequenceIntent): Step[] {
-    if (intent.kind !== "SWAP") {
-        throw new Error(INVALID_SWAP_INTENT);
-    }
-
-    const fromAddress = getTokenAddress(intent.fromTicker!, intent.fromChain);
-    const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
-
-    return [
-        new SwapStep(intent.fromChain, intent.toChain, fromAddress, toAddress, intent.amountAtomic),
-        new DepositStep(intent.toChain, toAddress, intent.amountAtomic),
-    ];
-}
-
-/**
  * Builds steps for DEPOSIT intent.
+ * If routing is required (token or chain mismatch), we call LI.FI to find the best route
+ * and convert each leg into executable steps. Finally, we append the Renegade DepositStep.
  */
-function buildDepositSteps(intent: SequenceIntent): Step[] {
+async function buildDepositSteps(
+    intent: SequenceIntent,
+    ctx: StepExecutionContext,
+): Promise<Step[]> {
     if (intent.kind !== "DEPOSIT") {
         throw new Error(INVALID_DEPOSIT_INTENT);
     }
+    const ordered: Step[] = [];
 
-    const steps: Step[] = [];
+    // Determine if routing is required (token or chain mismatch)
+    const sourceTicker = intent.fromTicker ?? intent.toTicker;
+    const needsRouting = intent.fromChain !== intent.toChain || sourceTicker !== intent.toTicker;
 
-    // Add bridge step if chains differ
-    const needsBridge = intent.fromChain !== intent.toChain;
-    if (needsBridge) {
-        steps.push(
-            new BridgeStep(
-                intent.fromChain,
-                intent.toChain,
-                getTokenAddress(intent.toTicker, intent.fromChain),
-                getTokenAddress(intent.toTicker, intent.toChain),
-                intent.amountAtomic,
-            ),
-        );
+    if (needsRouting) {
+        const owner = ctx.getWagmiAddress();
+        const fromAddress = getTokenAddress(sourceTicker, intent.fromChain);
+        const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
+
+        const route = await requestBestRoute({
+            fromChainId: intent.fromChain,
+            toChainId: intent.toChain,
+            fromTokenAddress: fromAddress,
+            toTokenAddress: toAddress,
+            fromAmount: intent.amountAtomic.toString(),
+            fromAddress: owner,
+        });
+        console.log("🚀 ~ route:", route);
+
+        const lifiSteps = await buildStepsFromLiFiRoute(route, ctx);
+        ordered.push(...lifiSteps);
     }
 
-    // Always add deposit step
-    steps.push(
+    // Append the Renegade deposit step (and its prerequisites handled later)
+    ordered.push(
         new DepositStep(
             intent.toChain,
             getTokenAddress(intent.toTicker, intent.toChain),
@@ -74,7 +69,7 @@ function buildDepositSteps(intent: SequenceIntent): Step[] {
         ),
     );
 
-    return steps;
+    return ordered;
 }
 
 /**
@@ -173,10 +168,8 @@ export async function buildSequence(
 ): Promise<Step[]> {
     // Build core steps based on intent type
     let coreSteps: Step[];
-    if (intent.kind === "SWAP") {
-        coreSteps = buildSwapSteps(intent);
-    } else if (intent.kind === "DEPOSIT") {
-        coreSteps = buildDepositSteps(intent);
+    if (intent.kind === "DEPOSIT") {
+        coreSteps = await buildDepositSteps(intent, ctx);
     } else if (intent.kind === "WITHDRAW") {
         coreSteps = buildWithdrawSteps(intent);
     } else {
@@ -186,7 +179,10 @@ export async function buildSequence(
     // Insert prerequisite steps for each core step
     const orderedSteps: Step[] = [];
     for (const step of coreSteps) {
-        await addPrerequisiteSteps(step, ctx, orderedSteps);
+        // LiFiLeg steps already come with precomputed approvals; skip adding them again.
+        if (step.type !== "LIFI_LEG" && step.type !== "APPROVE") {
+            await addPrerequisiteSteps(step, ctx, orderedSteps);
+        }
         orderedSteps.push(step);
     }
 
