@@ -1,4 +1,9 @@
-import { type ExtendedTransactionInfo, getStatus, getStepTransaction, type Route } from "@lifi/sdk";
+import {
+    type ExtendedTransactionInfo,
+    getStepTransaction,
+    type Route,
+    type StatusResponse,
+} from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
 import { zeroAddress } from "@/lib/token";
 import { Prereq, type StepExecutionContext } from "../types";
@@ -20,7 +25,17 @@ export class LiFiLegStep extends BaseStep {
         const chainId = leg.action.fromChainId;
         const mint = leg.action.fromToken.address as `0x${string}`;
         const amount = BigInt(leg.action.fromAmount);
-        super(crypto.randomUUID(), "LIFI_LEG", chainId, mint, amount);
+        super(
+            crypto.randomUUID(),
+            "LIFI_LEG",
+            chainId,
+            mint,
+            amount,
+            "PENDING",
+            undefined,
+            undefined,
+            "lifi",
+        );
         this.leg = leg;
         this.isFinalLeg = isFinalLeg;
     }
@@ -71,37 +86,21 @@ export class LiFiLegStep extends BaseStep {
         const txHash = await sendTransaction(wagmiConfig, { ...txRequest, type: "legacy" } as any);
 
         this.txHash = txHash;
-        const pc = ctx.getPublicClient(this.chainId);
-        await pc.waitForTransactionReceipt({ hash: txHash });
 
-        // If this is the final leg of the bridge, resolve the actual received amount.
-        if (this.isFinalLeg) {
-            try {
-                let attempts = 0;
-                const maxAttempts = 300; // ~5 minutes at 1s interval
-                let statusRes = await getStatus({ txHash: txHash as string });
+        // Use centralized await logic
+        const statusRes = (await this.awaitCompletion(ctx)) as StatusResponse | undefined;
 
-                while (
-                    !["DONE", "FAILED", "INVALID"].includes(statusRes.status) &&
-                    attempts < maxAttempts
-                ) {
-                    await new Promise((r) => setTimeout(r, 1000));
-                    statusRes = await getStatus({ txHash: txHash as string });
-                    attempts++;
-                }
-
-                console.log("LiFi Step Completed", statusRes);
-                if (statusRes.status === "DONE" && "receiving" in statusRes) {
-                    // @ts-ignore – runtime guard
-                    const amtStr = (statusRes.receiving as ExtendedTransactionInfo).amount ?? "0";
-                    ctx.data.lifiFinalAmount = BigInt(amtStr);
-                }
-            } catch (err) {
-                console.warn("LiFiLegStep: failed to fetch final amount", err);
-            }
+        // After confirmation, capture final amount if this is last leg
+        if (
+            this.isFinalLeg &&
+            statusRes &&
+            statusRes.status === "DONE" &&
+            "receiving" in statusRes
+        ) {
+            // @ts-ignore runtime guard
+            const amtStr = (statusRes.receiving as ExtendedTransactionInfo).amount ?? "0";
+            ctx.data.lifiFinalAmount = BigInt(amtStr);
         }
-
-        this.status = "CONFIRMED";
     }
 
     override toJSON(): Record<string, unknown> {

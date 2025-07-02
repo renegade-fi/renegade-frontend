@@ -1,4 +1,4 @@
-import { getBackOfQueueWallet, getTaskStatus, payFees } from "@renegade-fi/react/actions";
+import { getBackOfQueueWallet, payFees } from "@renegade-fi/react/actions";
 import { zeroAddress } from "@/lib/token";
 import type { SequenceIntent, StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
@@ -29,7 +29,17 @@ export class PayFeesStep extends BaseStep {
 
     constructor(chainId: number) {
         // Uses zero address + 0 amount placeholders; not displayed to user
-        super(crypto.randomUUID(), "PAY_FEES", chainId, zeroAddress as `0x${string}`, BigInt(0));
+        super(
+            crypto.randomUUID(),
+            "PAY_FEES",
+            chainId,
+            zeroAddress as `0x${string}`,
+            BigInt(0),
+            "PENDING",
+            undefined,
+            undefined,
+            "renegade",
+        );
     }
 
     /** No token amount to display for fee payment. */
@@ -45,34 +55,14 @@ export class PayFeesStep extends BaseStep {
         const taskId: string | undefined = (result as any)?.taskId;
 
         if (!taskId) {
-            this.status = "CONFIRMED";
+            // No asynchronous task created
+            this.awaitMode = "none";
+            await this.awaitCompletion(ctx);
             return;
         }
 
         this.taskId = taskId;
-        this.status = "SUBMITTED";
 
-        await this.waitForRenegadeTask(ctx.renegadeConfig, taskId, () => {
-            this.status = "CONFIRMING";
-        });
-
-        this.status = "CONFIRMED";
-    }
-
-    private async waitForRenegadeTask(
-        cfg: any,
-        taskId: string,
-        onProgress?: (state: string) => void,
-    ): Promise<void> {
-        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-        while (true) {
-            const task = await getTaskStatus(cfg, { id: taskId });
-            const state = (task as any).state ?? (task as any).status;
-            if (!state) return;
-            if (state === "Completed") return;
-            if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
-            onProgress?.(state);
-            await sleep(3000);
-        }
+        await this.awaitCompletion(ctx);
     }
 }

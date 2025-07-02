@@ -1,5 +1,5 @@
 import { getSDKConfig } from "@renegade-fi/react";
-import { deposit, getTaskStatus } from "@renegade-fi/react/actions";
+import { deposit } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
 import { Prereq, type StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
@@ -13,7 +13,17 @@ export class DepositStep extends BaseStep {
     static override prereqs = [Prereq.APPROVAL, Prereq.PERMIT2];
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
-        super(crypto.randomUUID(), "DEPOSIT", chainId, mint, amount);
+        super(
+            crypto.randomUUID(),
+            "DEPOSIT",
+            chainId,
+            mint,
+            amount,
+            "PENDING",
+            undefined,
+            undefined,
+            "renegade",
+        );
     }
 
     override async approvalRequirement() {
@@ -50,29 +60,7 @@ export class DepositStep extends BaseStep {
         });
 
         this.taskId = taskId;
-        this.status = "SUBMITTED";
 
-        await this.waitForRenegadeTask(ctx.renegadeConfig, taskId, () => {
-            this.status = "CONFIRMING";
-        });
-
-        this.status = "CONFIRMED";
-    }
-
-    private async waitForRenegadeTask(
-        cfg: any,
-        taskId: string,
-        onProgress?: (state: string) => void,
-    ): Promise<void> {
-        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-        while (true) {
-            const task = await getTaskStatus(cfg, { id: taskId });
-            const state = (task as any).state ?? (task as any).status;
-            if (!state) return;
-            if (state === "Completed") return;
-            if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
-            onProgress?.(state);
-            await sleep(3000);
-        }
+        await this.awaitCompletion(ctx);
     }
 }

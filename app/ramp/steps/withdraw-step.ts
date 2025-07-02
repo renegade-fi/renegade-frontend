@@ -1,4 +1,4 @@
-import { getTaskStatus, withdraw } from "@renegade-fi/react/actions";
+import { withdraw } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
 import { Prereq, type StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
@@ -10,7 +10,17 @@ export class WithdrawStep extends BaseStep {
     static override prereqs = [Prereq.PAY_FEES];
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
-        super(crypto.randomUUID(), "WITHDRAW", chainId, mint, amount);
+        super(
+            crypto.randomUUID(),
+            "WITHDRAW",
+            chainId,
+            mint,
+            amount,
+            "PENDING",
+            undefined,
+            undefined,
+            "renegade",
+        );
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
@@ -28,32 +38,8 @@ export class WithdrawStep extends BaseStep {
         });
 
         this.taskId = taskId;
-        this.status = "SUBMITTED";
 
-        // Poll for completion
-        await this.waitForRenegadeTask(ctx.renegadeConfig, taskId, () => {
-            this.status = "CONFIRMING";
-        });
-
-        this.status = "FAILED";
-    }
-
-    // Helper: wait for task completion
-    async waitForRenegadeTask(
-        cfg: any,
-        taskId: string,
-        onProgress?: (state: string) => void,
-    ): Promise<void> {
-        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-        while (true) {
-            const task = await getTaskStatus(cfg, { id: taskId });
-            const state = (task as any).state ?? (task as any).status;
-            console.log("🚀 ~ WithdrawStep ~ task:", task);
-            if (!state) return; // Unable to fetch state; assume success
-            if (state === "Completed") return;
-            if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
-            onProgress?.(state);
-            await sleep(3000);
-        }
+        // Centralized await completion
+        await this.awaitCompletion(ctx);
     }
 }
