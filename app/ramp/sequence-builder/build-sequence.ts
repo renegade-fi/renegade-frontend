@@ -41,17 +41,19 @@ async function buildDepositSteps(
     const needsRouting = intent.fromChain !== intent.toChain || sourceTicker !== intent.toTicker;
 
     if (needsRouting) {
-        const owner = ctx.getWagmiAddress();
+        const owner = ctx.getOnchainAddress(intent.fromChain);
+        const evmAddress = ctx.getEvmAddress();
         const fromAddress = getTokenAddress(sourceTicker, intent.fromChain);
         const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
 
         const route = await requestBestRoute({
-            fromChainId: intent.fromChain,
-            toChainId: intent.toChain,
-            fromTokenAddress: fromAddress,
-            toTokenAddress: toAddress,
-            fromAmount: intent.amountAtomic.toString(),
             fromAddress: owner,
+            fromAmount: intent.amountAtomic.toString(),
+            fromChainId: intent.fromChain,
+            fromTokenAddress: fromAddress,
+            toAddress: evmAddress,
+            toChainId: intent.toChain,
+            toTokenAddress: toAddress,
         });
 
         const lifiSteps =
@@ -101,17 +103,19 @@ async function buildWithdrawSteps(
     const needsRouting = intent.fromChain !== intent.toChain || sourceTicker !== intent.toTicker;
 
     if (needsRouting) {
-        const owner = ctx.getWagmiAddress();
+        const owner = ctx.getOnchainAddress(intent.fromChain);
+        const evmAddress = ctx.getEvmAddress();
         const fromAddress = getTokenAddress(sourceTicker, intent.fromChain);
         const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
 
         const route = await requestBestRoute({
-            fromChainId: intent.fromChain,
-            toChainId: intent.toChain,
-            fromTokenAddress: fromAddress,
-            toTokenAddress: toAddress,
-            fromAmount: intent.amountAtomic.toString(),
             fromAddress: owner,
+            fromAmount: intent.amountAtomic.toString(),
+            fromChainId: intent.fromChain,
+            fromTokenAddress: fromAddress,
+            toAddress: evmAddress,
+            toChainId: intent.toChain,
+            toTokenAddress: toAddress,
         });
 
         const lifiSteps =

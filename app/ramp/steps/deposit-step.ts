@@ -37,7 +37,7 @@ export class DepositStep extends BaseStep {
             throw new Error("Permit is not set");
         }
 
-        const owner = ctx.getWagmiAddress();
+        const owner = ctx.getOnchainAddress(this.chainId) as `0x${string}`;
 
         // Call deposit action
         const { taskId } = await deposit(ctx.renegadeConfig, {

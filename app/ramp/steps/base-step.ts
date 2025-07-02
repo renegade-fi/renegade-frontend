@@ -2,6 +2,7 @@ import { getStatus } from "@lifi/sdk";
 import { getTaskStatus } from "@renegade-fi/react/actions";
 import { formatUnits } from "viem";
 import { getChainId, switchChain } from "wagmi/actions";
+import { solana } from "@/lib/viem";
 import { getTokenByAddress } from "../token-registry";
 import type {
     Prereq,
@@ -12,6 +13,7 @@ import type {
     StepStatus,
     StepType,
 } from "../types";
+import { awaitSolanaConfirmation } from "./internal/solana";
 
 /**
  * Interface used for formatting
@@ -49,7 +51,7 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
 
     // Runtime state—does not belong in constructor parameters
     public status: StepStatus = "PENDING";
-    public txHash?: `0x${string}`;
+    public txHash?: string;
     public taskId?: string;
 
     constructor(
@@ -128,18 +130,19 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
      * Ensure wallet is connected to the correct chain before execution.
      */
     protected async ensureCorrectChain(ctx: StepExecutionContext): Promise<void> {
-        const currentChainId = getChainId(ctx.wagmiConfig);
         const targetChainId = this.chainId;
-        const chainSwitchRequired = currentChainId !== targetChainId;
 
-        if (!chainSwitchRequired) {
+        // Do not attempt wagmi chain switch for Solana legs – different connector.
+        if (targetChainId === solana.id) {
             return;
         }
 
-        // Perform chain switch only when necessary
-        await switchChain(ctx.wagmiConfig, {
-            chainId: targetChainId,
-        });
+        const currentChainId = getChainId(ctx.wagmiConfig);
+        if (currentChainId === targetChainId) {
+            return; // already on correct EVM chain
+        }
+
+        await switchChain(ctx.wagmiConfig, { chainId: targetChainId });
     }
 
     // ---------- Step Interface Implementation ----------
@@ -203,7 +206,13 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
                     return undefined as AwaitResultMap[M];
                 }
                 this.status = "SUBMITTED";
-                await this.waitForTxReceipt(ctx.getPublicClient(this.chainId), this.txHash);
+
+                if (this.chainId === solana.id && ctx.connection) {
+                    // Solana confirmation path
+                    await awaitSolanaConfirmation(this.txHash as string, ctx.connection);
+                } else {
+                    await this.waitForTxReceipt(ctx.getPublicClient(this.chainId), this.txHash);
+                }
                 this.status = "CONFIRMED";
                 return undefined as AwaitResultMap[M];
             case "lifi": {
@@ -239,12 +248,12 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
         }
     }
 
-    private async waitForTxReceipt(publicClient: any, hash: `0x${string}`): Promise<void> {
+    private async waitForTxReceipt(publicClient: any, hash: string): Promise<void> {
         this.status = "CONFIRMING";
-        await publicClient.waitForTransactionReceipt({ hash });
+        await publicClient.waitForTransactionReceipt({ hash: hash as `0x${string}` });
     }
 
-    private async waitForLiFiStatus(txHash: `0x${string}`): Promise<LifiStatus> {
+    private async waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
         let attempts = 0;
         const maxAttempts = 300; // 5 min at 1s intervals
         let statusRes = await getStatus({ txHash: txHash as string });

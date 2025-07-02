@@ -1,5 +1,6 @@
 "use client";
 
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useMemo } from "react";
 import { useConfig as useWagmiConfig } from "wagmi";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
@@ -29,17 +30,38 @@ function RampSandbox() {
         },
     });
 
+    // Solana hooks
+    const { connection } = useConnection();
+    const { signTransaction, publicKey } = useWallet();
+    const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
+
     const ready = Boolean(config);
 
     const contextValue = useMemo(() => {
         if (!ready) return null;
-        const ctx = makeExecutionContext(config!, wagmiConfig, keychainNonce ?? BigInt(0));
+        const ctx = makeExecutionContext(
+            config!,
+            wagmiConfig,
+            keychainNonce ?? BigInt(0),
+            connection,
+            signTransaction ?? undefined,
+            solanaAddress,
+        );
         const updateCb = (_steps: readonly any[]) => {
             /* no-op */
         };
         const c = new TransactionController(updateCb, storeApi, ctx);
         return { controller: c } as const;
-    }, [ready, storeApi, config, keychainNonce, wagmiConfig]);
+    }, [
+        ready,
+        storeApi,
+        config,
+        keychainNonce,
+        wagmiConfig,
+        connection,
+        signTransaction,
+        solanaAddress,
+    ]);
 
     if (!contextValue) {
         return (

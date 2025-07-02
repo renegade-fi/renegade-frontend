@@ -5,6 +5,7 @@ import { parseUnits } from "viem";
 import { arbitrum, base, mainnet } from "viem/chains";
 import { Button } from "@/components/ui/button";
 import { zeroAddress } from "@/lib/token";
+import { solana } from "@/lib/viem";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { getTokenByTicker } from "../token-registry";
 import { useControllerContext } from "../transaction-control/controller-context";
@@ -34,6 +35,18 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
     const wethDecimals = getTokenByTicker("WETH", toChainId)?.decimals ?? 18;
 
     return [
+        {
+            label: `Deposit 1.1 USDC from Solana to ${chainName}`,
+            intent: {
+                kind: "DEPOSIT",
+                userAddress: DEFAULT_USER_ADDRESS,
+                fromChain: solana.id,
+                toChain: toChainId,
+                fromTicker: "USDC",
+                toTicker: "USDC",
+                amountAtomic: parseUnits("1.1", usdcDecimals),
+            },
+        },
         {
             label: `Deposit 1.1 USDC from Mainnet to ${chainName}`,
             intent: {

@@ -22,7 +22,7 @@ export class ApproveStep extends BaseStep {
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
 
-        const owner = ctx.getWagmiAddress();
+        const owner = ctx.getOnchainAddress(this.chainId);
         if (!owner) throw new Error("Wallet account not found");
 
         // Check current allowance.
@@ -67,7 +67,7 @@ export class ApproveStep extends BaseStep {
     override async isNeeded(ctx: StepExecutionContext, _intent?: SequenceIntent): Promise<boolean> {
         let owner: `0x${string}`;
         try {
-            owner = ctx.getWagmiAddress();
+            owner = ctx.getOnchainAddress(this.chainId);
         } catch {
             return true; // no wallet
         }

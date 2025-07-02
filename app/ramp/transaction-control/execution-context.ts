@@ -1,9 +1,13 @@
 import type { Config as RenegadeConfig } from "@renegade-fi/react";
+import type { Connection, VersionedTransaction } from "@solana/web3.js";
 import { createPublicClient, http, type PublicClient } from "viem";
 import type { Config as WagmiConfig } from "wagmi";
 import { getAccount, getChainId } from "wagmi/actions";
-import { extractSupportedChain } from "@/lib/viem";
+import { extractSupportedChain, solana } from "@/lib/viem";
 import type { StepExecutionContext } from "../types";
+
+// Solana signer type from wallet-adapter
+type SolanaSigner = (tx: VersionedTransaction) => Promise<VersionedTransaction>;
 
 /**
  * Create an execution context for multi-chain transaction steps.
@@ -14,6 +18,9 @@ export function makeExecutionContext(
     renegadeConfig: RenegadeConfig,
     wagmiConfig: WagmiConfig,
     keychainNonce: bigint,
+    connection?: Connection,
+    signTransaction?: SolanaSigner,
+    solanaAddress?: string,
 ): StepExecutionContext {
     // Memoised per-chain public clients
     const pcCache = new Map<number, PublicClient>();
@@ -35,20 +42,33 @@ export function makeExecutionContext(
         return getChainId(wagmiConfig);
     }
 
-    function getWagmiAddress(): `0x${string}` {
+    function getOnchainAddress(chainId: number): string {
+        if (chainId === solana.id) {
+            if (!solanaAddress) throw new Error("Solana wallet account not found");
+            return solanaAddress;
+        }
         const address = getAccount(wagmiConfig).address;
         if (!address) throw new Error("Wallet account not found");
         return address;
     }
 
+    function getEvmAddress(): `0x${string}` {
+        const address = getAccount(wagmiConfig).address;
+        if (!address) throw new Error("EVM wallet account not found");
+        return address;
+    }
+
     return {
         getPublicClient,
-        getWagmiAddress,
+        getOnchainAddress,
+        getEvmAddress,
         getWagmiChainId,
         renegadeConfig,
         wagmiConfig,
         keychainNonce,
         permit: {},
         data: {},
+        connection,
+        signTransaction,
     };
 }

@@ -16,7 +16,7 @@ export class WithdrawStep extends BaseStep {
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
 
-        const owner = ctx.getWagmiAddress();
+        const owner = ctx.getOnchainAddress(this.chainId) as `0x${string}`;
         if (!owner) throw new Error("Wallet account not found");
 
         const token = resolveAddress(this.mint);

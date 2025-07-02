@@ -6,8 +6,10 @@ import {
 } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
 import { zeroAddress } from "@/lib/token";
+import { solana } from "@/lib/viem";
 import { Prereq, type StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
+import { sendSolanaTransaction } from "./internal/solana";
 
 /**
  * Generic step that executes a single leg of a LI.FI route.
@@ -25,7 +27,8 @@ export class LiFiLegStep extends BaseStep {
         const chainId = leg.action.fromChainId;
         const mint = leg.action.fromToken.address as `0x${string}`;
         const amount = BigInt(leg.action.fromAmount);
-        super(crypto.randomUUID(), "LIFI_LEG", chainId, mint, amount, "lifi");
+        const awaitMode = chainId === solana.id ? "chain" : "lifi";
+        super(crypto.randomUUID(), "LIFI_LEG", chainId, mint, amount, awaitMode);
         this.leg = leg;
         this.isFinalLeg = isFinalLeg;
     }
@@ -41,6 +44,11 @@ export class LiFiLegStep extends BaseStep {
           }
         | undefined
     > {
+        // Solana SPL tokens (or native SOL) do not use ERC-20 style approvals.
+        if (this.chainId === solana.id) {
+            return undefined;
+        }
+
         const approvalAddress = this.leg.estimate?.approvalAddress as `0x${string}` | undefined;
 
         // Native ETH legs (or absence of approval address) do not need ERC-20 approval.
@@ -72,13 +80,33 @@ export class LiFiLegStep extends BaseStep {
             throw new Error("LiFiLegStep: missing transaction request");
         }
 
-        const wagmiConfig = ctx.wagmiConfig;
-        const txHash = await sendTransaction(wagmiConfig, { ...txRequest, type: "legacy" } as any);
+        let statusRes: StatusResponse | undefined;
 
-        this.txHash = txHash;
+        if (this.chainId === solana.id && ctx.connection && ctx.signTransaction) {
+            // Solana execution path
+            const signature = await sendSolanaTransaction(
+                txRequest,
+                ctx.connection,
+                ctx.signTransaction,
+            );
+            this.txHash = signature;
 
-        // Use centralized await logic
-        const statusRes = (await this.awaitCompletion(ctx)) as StatusResponse | undefined;
+            // Await according to awaitMode ("chain")
+            await this.awaitCompletion(ctx);
+            statusRes = undefined; // LiFi status not needed for chain awaitMode
+        } else {
+            // EVM execution path
+            const wagmiConfig = ctx.wagmiConfig;
+            const txHash = await sendTransaction(wagmiConfig, {
+                ...txRequest,
+                type: "legacy",
+            } as any);
+
+            this.txHash = txHash as string;
+
+            // Use centralized await logic (lifi)
+            statusRes = (await this.awaitCompletion(ctx)) as StatusResponse | undefined;
+        }
 
         // After confirmation, capture final amount if this is last leg
         if (

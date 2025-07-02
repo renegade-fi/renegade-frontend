@@ -65,7 +65,15 @@ export interface StepExecutionContext {
     renegadeConfig: RenegadeConfig;
     wagmiConfig: WagmiConfig;
     getWagmiChainId(): number;
-    getWagmiAddress(): `0x${string}`;
+    /**
+     * Return the wallet address appropriate for the given chain.
+     * - EVM chains → 0x-prefixed hex address
+     * - Solana → base-58 address
+     */
+    getOnchainAddress(chainId: number): string;
+
+    /** Explicitly return the connected EVM wallet address (0x-prefixed). */
+    getEvmAddress(): `0x${string}`;
 
     // Transaction context
     keychainNonce: bigint;
@@ -82,6 +90,14 @@ export interface StepExecutionContext {
     data: {
         lifiFinalAmount?: bigint;
     };
+
+    /** Optional Solana RPC connection (present when user has connected a Solana wallet) */
+    connection?: import("@solana/web3.js").Connection;
+
+    /** Optional signer function for Solana VersionedTransactions */
+    signTransaction?: (
+        tx: import("@solana/web3.js").VersionedTransaction,
+    ) => Promise<import("@solana/web3.js").VersionedTransaction>;
 }
 
 /**
@@ -98,7 +114,10 @@ export interface Step {
     mint: `0x${string}`;
     amount: bigint;
     status: StepStatus;
-    txHash?: `0x${string}`;
+    /**
+     * Transaction hash or signature. Hex string for EVM chains, base58 for Solana.
+     */
+    txHash?: string;
     taskId?: string;
 
     /**

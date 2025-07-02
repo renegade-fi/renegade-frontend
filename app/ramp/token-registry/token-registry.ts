@@ -6,6 +6,7 @@
  */
 
 import { Token as TokenClass } from "@renegade-fi/token-nextjs";
+import { solana } from "@/lib/viem";
 
 /** Token metadata with operation capabilities. */
 export type Token = {
@@ -82,8 +83,10 @@ function loadAllTokens(): Token[] {
         {
             ticker: "USDC",
             decimals: 6,
-            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-            chainId: 1, // Ethereum mainnet
+            // address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" as `0x${string}`,
+            // chainId: 1, // Ethereum mainnet
+            chainId: solana.id,
             canDeposit: true,
             canWithdraw: true,
             canBridge: true,
