@@ -15,7 +15,7 @@ function reviveStep(data: any): Step {
     let step: Step;
     switch (type) {
         case "LIFI_LEG":
-            step = new LiFiLegStep(data.leg) as Step;
+            step = new LiFiLegStep(data.leg, data.isFinalLeg ?? false) as Step;
             break;
         case "APPROVE":
             step = new ApproveStep(chainId, mint, amount, data.spender as `0x${string}`) as Step;

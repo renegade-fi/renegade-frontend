@@ -49,5 +49,6 @@ export function makeExecutionContext(
         wagmiConfig,
         keychainNonce,
         permit: {},
+        data: {},
     };
 }

@@ -74,6 +74,14 @@ export interface StepExecutionContext {
         deadline: bigint;
         signature: `0x${string}`;
     }>;
+
+    /**
+     * Mutable bag for lightweight data hand-offs between steps.
+     * Currently used to pass the final received amount from LiFi steps.
+     */
+    data: {
+        lifiFinalAmount?: bigint;
+    };
 }
 
 /**

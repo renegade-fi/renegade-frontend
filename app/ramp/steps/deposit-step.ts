@@ -18,10 +18,17 @@ export class DepositStep extends BaseStep {
 
     override async approvalRequirement() {
         const cfg = getSDKConfig(this.chainId);
-        return { spender: cfg.permit2Address as `0x${string}`, amount: this.amount };
+        // Approve a large allowance to avoid insufficiency if the final received amount exceeds expectation
+        const maxUint256 = BigInt(2) ** BigInt(256) - BigInt(1);
+        return { spender: cfg.permit2Address as `0x${string}`, amount: maxUint256 };
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
+        // Update amount from LiFi result if available
+        if (ctx.data.lifiFinalAmount) {
+            this.amount = ctx.data.lifiFinalAmount;
+        }
+
         await this.ensureCorrectChain(ctx);
 
         const token = resolveAddress(this.mint);

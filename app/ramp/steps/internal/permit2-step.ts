@@ -18,6 +18,11 @@ export class Permit2Step extends BaseStep {
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
+        // If LiFi provided a final amount, use it instead of the preliminary one
+        if (ctx.data.lifiFinalAmount) {
+            this.amount = ctx.data.lifiFinalAmount;
+        }
+
         await this.ensureCorrectChain(ctx);
 
         const sdkCfg = getSDKConfig(this.chainId);

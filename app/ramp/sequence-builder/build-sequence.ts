@@ -54,7 +54,11 @@ async function buildDepositSteps(
             fromAddress: owner,
         });
 
-        const lifiSteps = route.steps?.map((leg) => new LiFiLegStep(leg)) ?? [];
+        const lifiSteps =
+            route.steps?.map((leg, idx) => {
+                const isFinalLeg = idx === (route.steps?.length ?? 0) - 1;
+                return new LiFiLegStep(leg, isFinalLeg);
+            }) ?? [];
         ordered.push(...lifiSteps);
     }
 

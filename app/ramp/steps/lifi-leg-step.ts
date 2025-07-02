@@ -1,4 +1,4 @@
-import { getStepTransaction, type Route } from "@lifi/sdk";
+import { type ExtendedTransactionInfo, getStatus, getStepTransaction, type Route } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
 import { zeroAddress } from "@/lib/token";
 import { Prereq, type StepExecutionContext } from "../types";
@@ -14,13 +14,15 @@ export class LiFiLegStep extends BaseStep {
     static override prereqs = [Prereq.APPROVAL];
 
     private readonly leg: Route["steps"][number];
+    private readonly isFinalLeg: boolean;
 
-    constructor(leg: Route["steps"][number]) {
+    constructor(leg: Route["steps"][number], isFinalLeg = false) {
         const chainId = leg.action.fromChainId;
         const mint = leg.action.fromToken.address as `0x${string}`;
         const amount = BigInt(leg.action.fromAmount);
         super(crypto.randomUUID(), "LIFI_LEG", chainId, mint, amount);
         this.leg = leg;
+        this.isFinalLeg = isFinalLeg;
     }
 
     /**
@@ -72,10 +74,37 @@ export class LiFiLegStep extends BaseStep {
         const pc = ctx.getPublicClient(this.chainId);
         await pc.waitForTransactionReceipt({ hash: txHash });
 
+        // If this is the final leg of the bridge, resolve the actual received amount.
+        if (this.isFinalLeg) {
+            try {
+                let attempts = 0;
+                const maxAttempts = 300; // ~5 minutes at 1s interval
+                let statusRes = await getStatus({ txHash: txHash as string });
+
+                while (
+                    !["DONE", "FAILED", "INVALID"].includes(statusRes.status) &&
+                    attempts < maxAttempts
+                ) {
+                    await new Promise((r) => setTimeout(r, 1000));
+                    statusRes = await getStatus({ txHash: txHash as string });
+                    attempts++;
+                }
+
+                console.log("LiFi Step Completed", statusRes);
+                if (statusRes.status === "DONE" && "receiving" in statusRes) {
+                    // @ts-ignore – runtime guard
+                    const amtStr = (statusRes.receiving as ExtendedTransactionInfo).amount ?? "0";
+                    ctx.data.lifiFinalAmount = BigInt(amtStr);
+                }
+            } catch (err) {
+                console.warn("LiFiLegStep: failed to fetch final amount", err);
+            }
+        }
+
         this.status = "CONFIRMED";
     }
 
     override toJSON(): Record<string, unknown> {
-        return { ...super.toJSON(), leg: this.leg };
+        return { ...super.toJSON(), leg: this.leg, isFinalLeg: this.isFinalLeg };
     }
 }
