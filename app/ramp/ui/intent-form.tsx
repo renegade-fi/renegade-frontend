@@ -1,266 +1,95 @@
 "use client";
 
-import { Token } from "@renegade-fi/token-nextjs";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { parseUnits } from "viem";
-import { useChains } from "wagmi";
-import { NumberInput } from "@/components/number-input";
+import { arbitrum, base, mainnet } from "viem/chains";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { zeroAddress } from "@/lib/token";
-import { useCurrentChain } from "@/providers/state-provider/hooks";
-import { getSwapInputsFor, getTokenByTicker } from "../token-registry";
+import { getTokenByTicker } from "../token-registry";
 import { useControllerContext } from "../transaction-control/controller-context";
 import type { SequenceIntent } from "../types";
 
+/**
+ * Hard-coded testing address – replace with real wallet address when needed.
+ */
 const DEFAULT_USER_ADDRESS = zeroAddress as `0x${string}`;
 
-function uniqueSortedTickers(): string[] {
-    // Collect tickers from token registry for dropdown.
-    // This keeps the demo dynamic without hard-coding.
-    const tickers = new Set<string>();
-    (Token.getAllTokens() as any[]).forEach((t) => tickers.add(t.ticker));
-    return Array.from(tickers).sort();
+/**
+ * Build a list of predefined SequenceIntents for quick testing.
+ */
+function buildPresetIntents(): Array<{ label: string; intent: SequenceIntent }> {
+    // Deposit 1 USDC on Arbitrum
+    const usdcDecimals = getTokenByTicker("USDC", arbitrum.id)?.decimals ?? 6;
+    const usdtDecimals = getTokenByTicker("USDT", mainnet.id)?.decimals ?? 6;
+
+    // Withdraw 0.001 WETH on Arbitrum
+    const wethDecimals = getTokenByTicker("WETH", arbitrum.id)?.decimals ?? 18;
+
+    return [
+        {
+            label: "Deposit 1 USDT from Mainnet to Arbitrum",
+            intent: {
+                kind: "DEPOSIT",
+                userAddress: DEFAULT_USER_ADDRESS,
+                fromChain: mainnet.id,
+                toChain: arbitrum.id,
+                fromTicker: "USDT",
+                toTicker: "USDC",
+                amountAtomic: parseUnits("1", usdtDecimals),
+            },
+        },
+        {
+            label: "Deposit 1 USDT from Mainnet to Base",
+            intent: {
+                kind: "DEPOSIT",
+                userAddress: DEFAULT_USER_ADDRESS,
+                fromChain: mainnet.id,
+                toChain: base.id,
+                fromTicker: "USDT",
+                toTicker: "USDC",
+                amountAtomic: parseUnits("1", usdtDecimals),
+            },
+        },
+        {
+            label: "Deposit 1 USDC on Arbitrum",
+            intent: {
+                kind: "DEPOSIT",
+                userAddress: DEFAULT_USER_ADDRESS,
+                fromChain: arbitrum.id,
+                toChain: arbitrum.id,
+                toTicker: "USDC",
+                amountAtomic: parseUnits("1", usdcDecimals),
+            },
+        },
+        {
+            label: "Withdraw 0.001 WETH on Arbitrum",
+            intent: {
+                kind: "WITHDRAW",
+                userAddress: DEFAULT_USER_ADDRESS,
+                fromChain: arbitrum.id,
+                toChain: arbitrum.id,
+                toTicker: "WETH",
+                amountAtomic: parseUnits("0.001", wethDecimals),
+            },
+        },
+    ];
 }
 
 /**
- * Form component for creating transaction intents.
- *
- * Provides UI for selecting operation type, tokens, chains, and amounts
- * to generate transaction sequences.
+ * IntentForm – now a collection of one-click buttons for each preset intent.
  */
 export function IntentForm() {
     const { controller } = useControllerContext();
 
-    // Form state
-    type Operation = "DEPOSIT" | "WITHDRAW";
-
-    const [operation, setOperation] = useState<Operation>("DEPOSIT");
-    const [operationToken, setOperationToken] = useState<string>("USDC");
-    const [sourceToken, setSourceToken] = useState<string>("USDT");
-    const [amount, setAmount] = useState<string>("1");
-    const [isPureDeposit, setIsPureDeposit] = useState<boolean>(false);
-    const currentChain = useCurrentChain();
-
-    // Wagmi chains for selector options
-    const chains = useChains();
-
-    // Operation chain - where the deposit/withdraw should occur
-    const [operationChain, setOperationChain] = useState<number>(currentChain ?? 1);
-
-    // Token chain - where the source token is coming from
-    const [tokenChain, setTokenChain] = useState<number>(currentChain ?? 1);
-
-    const tickers = useMemo(() => uniqueSortedTickers(), []);
-
-    // Source token options based on operation token's swap inputs
-    // Includes self token
-    const sourceTokenOptions = useMemo(() => {
-        const operationTokenObj = getTokenByTicker(operationToken, operationChain);
-        if (operationTokenObj) {
-            const swapInputs = getSwapInputsFor(operationTokenObj);
-            if (swapInputs.length > 0) {
-                return [...swapInputs.map((t) => t.ticker), operationToken];
-            }
-        }
-        return [operationToken];
-    }, [operationToken, operationChain]);
-
-    // Ensure sourceToken stays valid as options change
-    if (sourceTokenOptions.length > 0 && !sourceTokenOptions.includes(sourceToken)) {
-        setSourceToken(sourceTokenOptions[0]);
-    }
-
-    function runIntent(intent: SequenceIntent) {
-        controller.start(intent);
-    }
-
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-
-        // Get token metadata for parsing amount
-        const sourceTokenObj = getTokenByTicker(sourceToken, tokenChain);
-        if (!sourceTokenObj) {
-            alert("Invalid token selected");
-            return;
-        }
-        const decimals = sourceTokenObj.decimals;
-
-        let atomic: bigint;
-        try {
-            atomic = parseUnits(amount, decimals);
-        } catch (err) {
-            alert("Invalid amount format");
-            return;
-        }
-
-        if (operation === "WITHDRAW") {
-            // Withdrawals are simple - no bridge or swap
-            const intent: SequenceIntent = {
-                kind: "WITHDRAW",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: operationChain,
-                toChain: operationChain,
-                toTicker: operationToken,
-                amountAtomic: atomic,
-            };
-            runIntent(intent);
-            return;
-        }
-
-        // Check if pure deposit is enabled
-        if (isPureDeposit) {
-            // Pure deposit - skip all bridge/swap logic
-            const intent: SequenceIntent = {
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: operationChain,
-                toChain: operationChain,
-                toTicker: operationToken,
-                amountAtomic: atomic,
-            };
-            runIntent(intent);
-            return;
-        }
-
-        // Generic deposit intent – LI.FI routing will handle any token or chain differences
-        const intent: SequenceIntent = {
-            kind: "DEPOSIT",
-            userAddress: DEFAULT_USER_ADDRESS,
-            fromChain: tokenChain,
-            toChain: operationChain,
-            fromTicker: sourceToken,
-            toTicker: operationToken,
-            amountAtomic: atomic,
-        };
-        runIntent(intent);
-    }
+    const presets = useMemo(buildPresetIntents, []);
 
     return (
-        <form className="space-y-4 w-full" onSubmit={handleSubmit}>
-            {/* Operation */}
-            <div className="space-y-2">
-                <Label htmlFor="operation-select">Operation</Label>
-                <Select value={operation} onValueChange={(v) => setOperation(v as Operation)}>
-                    <SelectTrigger id="operation-select" className="w-full">
-                        <SelectValue placeholder="Select operation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="DEPOSIT">Deposit</SelectItem>
-                        <SelectItem value="WITHDRAW">Withdraw</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Pure Deposit Toggle */}
-            {operation === "DEPOSIT" && (
-                <div className="flex items-center space-x-2">
-                    <Switch
-                        id="pure-deposit"
-                        checked={isPureDeposit}
-                        onCheckedChange={setIsPureDeposit}
-                    />
-                    <Label htmlFor="pure-deposit">Pure Deposit Only (Skip Bridge/Swap)</Label>
-                </div>
-            )}
-
-            {/* Operation Chain */}
-            <div className="space-y-2">
-                <Label htmlFor="operation-chain-select">Operation Chain</Label>
-                <Select
-                    value={operationChain.toString()}
-                    onValueChange={(v) => setOperationChain(Number(v))}
-                >
-                    <SelectTrigger id="operation-chain-select" className="w-full">
-                        <SelectValue placeholder="Select operation chain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {chains.map((c) => (
-                            <SelectItem key={c.id} value={c.id.toString()}>
-                                {c.name} ({c.id})
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Operation Token */}
-            <div className="space-y-2">
-                <Label htmlFor="operation-token-select">Operation Token</Label>
-                <Select value={operationToken} onValueChange={setOperationToken}>
-                    <SelectTrigger id="operation-token-select" className="w-full">
-                        <SelectValue placeholder="Select operation token" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {tickers.map((t, i) => (
-                            <SelectItem key={`${t}-${i}`} value={t}>
-                                {t}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Source Token */}
-            <div className="space-y-2">
-                <Label htmlFor="source-token-select">Source Token</Label>
-                <Select value={sourceToken} onValueChange={setSourceToken}>
-                    <SelectTrigger id="source-token-select" className="w-full">
-                        <SelectValue placeholder="Select source token" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {sourceTokenOptions.map((t, i) => (
-                            <SelectItem key={`${t}-${i}`} value={t}>
-                                {t}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Token Chain */}
-            <div className="space-y-2">
-                <Label htmlFor="token-chain-select">Token Chain</Label>
-                <Select
-                    value={tokenChain.toString()}
-                    onValueChange={(v) => setTokenChain(Number(v))}
-                >
-                    <SelectTrigger id="token-chain-select" className="w-full">
-                        <SelectValue placeholder="Select token chain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {chains.map((c) => (
-                            <SelectItem key={c.id} value={c.id.toString()}>
-                                {c.name} ({c.id})
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Amount */}
-            <div className="space-y-2">
-                <Label htmlFor="amount-input">Amount</Label>
-                <NumberInput
-                    id="amount-input"
-                    type="number"
-                    min="0"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                />
-            </div>
-
-            <Button type="submit" className="w-full">
-                {operation === "DEPOSIT" ? "Deposit" : "Withdraw"}
-            </Button>
-        </form>
+        <div className="space-y-3 w-full">
+            {presets.map(({ label, intent }) => (
+                <Button key={label} className="w-full" onClick={() => controller.start(intent)}>
+                    {label}
+                </Button>
+            ))}
+        </div>
     );
 }
