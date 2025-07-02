@@ -64,7 +64,7 @@ import type { Config as RenegadeConfig } from "@renegade-fi/react";
 import { formatUnits, type PublicClient } from "viem";
 import type { Config as WagmiConfig } from "wagmi";
 import { getChainId, switchChain } from "wagmi/actions";
-import { getTokenMeta } from "./token-registry";
+import { getTokenByAddress } from "./token-registry";
 
 /**
  * Shared execution context passed into every Step.run().
@@ -115,12 +115,15 @@ export abstract class BaseStep implements Step {
             .join(" ");
     }
 
-    /** Concise amount + token snippet (e.g., "1000 0x1234…"). */
+    /** Concise amount + token snippet (e.g., "1000 USDC"). */
     get details(): string {
-        // Show bigint as decimal using token metadata (supports bridged tokens)
-        const meta = getTokenMeta(this.mint, this.chainId);
-        const formattedAmount = formatUnits(this.amount, meta.decimals);
-        return `${formattedAmount} ${meta.ticker}`;
+        // Show bigint as decimal using token metadata
+        // Applies: Control Flow - Push ifs up (graceful fallback if token not found)
+        const token = getTokenByAddress(this.mint, this.chainId);
+        const decimals = token?.decimals ?? 18; // Sensible default
+        const ticker = token?.ticker ?? "UNKNOWN";
+        const formattedAmount = formatUnits(this.amount, decimals);
+        return `${formattedAmount} ${ticker}`;
     }
 
     /** Alias for chainId to simplify UI code. */

@@ -18,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { useControllerContext } from "./controller-context";
 import type { SequenceIntent } from "./sequence/models";
-import { getTokenMeta } from "./sequence/token-registry";
+import { getSwapInputsFor, getTokenByTicker } from "./sequence/token-registry";
 
 const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 
@@ -54,16 +54,15 @@ export function IntentForm() {
 
     const tickers = useMemo(() => uniqueSortedTickers(), []);
 
-    // Source token options based on operation token's swapFrom metadata
-    // Includes self
+    // Source token options based on operation token's swap inputs
+    // Includes self token
     const sourceTokenOptions = useMemo(() => {
-        try {
-            const meta = getTokenMeta(operationToken, operationChain);
-            if (meta.swapFrom && meta.swapFrom.length > 0) {
-                return [...meta.swapFrom, operationToken];
+        const operationTokenObj = getTokenByTicker(operationToken, operationChain);
+        if (operationTokenObj) {
+            const swapInputs = getSwapInputsFor(operationTokenObj);
+            if (swapInputs.length > 0) {
+                return [...swapInputs.map((t) => t.ticker), operationToken];
             }
-        } catch {
-            // ignore errors – fall back to full list
         }
         return [operationToken];
     }, [operationToken, operationChain]);
@@ -80,9 +79,13 @@ export function IntentForm() {
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        // Get token metadata for the operation chain
-        const tokenMeta = getTokenMeta(sourceToken, tokenChain);
-        const decimals = tokenMeta.decimals;
+        // Get token metadata for parsing amount
+        const sourceTokenObj = getTokenByTicker(sourceToken, tokenChain);
+        if (!sourceTokenObj) {
+            alert("Invalid token selected");
+            return;
+        }
+        const decimals = sourceTokenObj.decimals;
 
         let atomic: bigint;
         try {

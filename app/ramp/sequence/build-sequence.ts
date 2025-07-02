@@ -6,128 +6,192 @@ import { DepositTxStep } from "./steps/deposit-tx-step";
 import { Permit2SigStep } from "./steps/permit2-sig-step";
 import { SwapTxStep } from "./steps/swap-tx-step";
 import { WithdrawTxStep } from "./steps/withdraw-tx-step";
-import { getTokenMeta } from "./token-registry";
+import { getTokenByTicker } from "./token-registry";
+
+/**
+ * Helper to fetch token address on chain; falls back to zero address.
+ * Applies: Cognitive Load Reduction - Extract meaningful intermediates
+ * Applies: Control Flow - Push ifs up (null handling moved to caller)
+ */
+function getTokenAddress(ticker: string, chainId: number): `0x${string}` {
+    const token = getTokenByTicker(ticker, chainId);
+    return token?.address ?? "0x0000000000000000000000000000000000000000";
+}
+
+/**
+ * Builds steps for SWAP intent.
+ * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Deep modules
+ */
+function buildSwapSteps(intent: SequenceIntent): Step[] {
+    if (intent.kind !== "SWAP") {
+        throw new Error("Invalid intent kind for swap steps");
+    }
+
+    const fromAddress = getTokenAddress(intent.fromTicker!, intent.fromChain);
+    const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
+
+    return [
+        new SwapTxStep(
+            intent.fromChain,
+            intent.toChain,
+            fromAddress,
+            toAddress,
+            intent.amountAtomic,
+        ),
+        new DepositTxStep(intent.toChain, toAddress, intent.amountAtomic),
+    ];
+}
+
+/**
+ * Builds steps for DEPOSIT intent.
+ * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Deep modules
+ */
+function buildDepositSteps(intent: SequenceIntent): Step[] {
+    if (intent.kind !== "DEPOSIT") {
+        throw new Error("Invalid intent kind for deposit steps");
+    }
+
+    const steps: Step[] = [];
+
+    // Add bridge step if chains differ
+    const needsBridge = intent.fromChain !== intent.toChain;
+    if (needsBridge) {
+        steps.push(
+            new BridgeTxStep(
+                intent.fromChain,
+                intent.toChain,
+                getTokenAddress(intent.toTicker, intent.fromChain),
+                getTokenAddress(intent.toTicker, intent.toChain),
+                intent.amountAtomic,
+            ),
+        );
+    }
+
+    // Always add deposit step
+    steps.push(
+        new DepositTxStep(
+            intent.toChain,
+            getTokenAddress(intent.toTicker, intent.toChain),
+            intent.amountAtomic,
+        ),
+    );
+
+    return steps;
+}
+
+/**
+ * Builds steps for WITHDRAW intent.
+ * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Deep modules
+ */
+function buildWithdrawSteps(intent: SequenceIntent): Step[] {
+    if (intent.kind !== "WITHDRAW") {
+        throw new Error("Invalid intent kind for withdraw steps");
+    }
+
+    return [
+        new WithdrawTxStep(
+            intent.fromChain,
+            getTokenAddress(intent.toTicker, intent.fromChain),
+            intent.amountAtomic,
+        ),
+    ];
+}
+
+/**
+ * Checks if approval is needed and adds approval step if required.
+ * Applies: Cognitive Load Reduction - Extract complex logic, Control Flow - Early returns
+ */
+async function checkAndAddApprovalStep(
+    step: Step,
+    ctx: StepExecutionContext,
+): Promise<Step | null> {
+    let approvalReq;
+    try {
+        approvalReq = await step.approvalRequirement(ctx);
+    } catch {
+        // If approval requirement check fails, proceed without approval step
+        return null;
+    }
+
+    if (!approvalReq) {
+        return null;
+    }
+
+    const owner = ctx.getWagmiAddress();
+    if (!owner) {
+        // No owner available, assume approval needed (conservative approach)
+        return new ApproveStep(step.chainId, step.mint, approvalReq.amount, approvalReq.spender);
+    }
+
+    try {
+        const publicClient = ctx.getPublicClient(step.chainId);
+        const allowance: bigint = await publicClient.readContract({
+            abi: erc20Abi,
+            address: step.mint,
+            functionName: "allowance",
+            args: [owner, approvalReq.spender],
+        });
+
+        const needsApproval = allowance < approvalReq.amount;
+        if (!needsApproval) {
+            return null;
+        }
+
+        return new ApproveStep(step.chainId, step.mint, approvalReq.amount, approvalReq.spender);
+    } catch {
+        // If allowance check fails, assume approval needed (conservative approach)
+        return new ApproveStep(step.chainId, step.mint, approvalReq.amount, approvalReq.spender);
+    }
+}
+
+/**
+ * Adds all prerequisite steps (approval and permit2) for a given step.
+ * Applies: Cognitive Load Reduction - Single responsibility, Control Flow - Happy path
+ */
+async function addPrerequisiteSteps(
+    step: Step,
+    ctx: StepExecutionContext,
+    ordered: Step[],
+): Promise<void> {
+    // Add approval step if needed
+    const approvalStep = await checkAndAddApprovalStep(step, ctx);
+    if (approvalStep) {
+        ordered.push(approvalStep);
+    }
+
+    // Add permit2 step if needed
+    const stepConstructor = step.constructor as typeof BaseStep;
+    if (stepConstructor.needsPermit2) {
+        ordered.push(new Permit2SigStep(step.chainId, step.mint, step.amount));
+    }
+}
 
 /**
  * Builds an ordered list of Step instances for the given intent.
- * Performs on-chain allowance checks and only inserts an APPROVE step when
- * the existing allowance for the spender is insufficient.
+ * Applies: Control Flow - Push ifs up, Cognitive Load Reduction - Main function as dispatcher
  */
 export async function buildSequence(
     intent: SequenceIntent,
     ctx: StepExecutionContext,
 ): Promise<Step[]> {
-    // Helper to fetch token address on chain; falls back to zero.
-    const tokenOn = (ticker: string, chainId: number): `0x${string}` => {
-        try {
-            const meta = getTokenMeta(ticker, chainId);
-            return (meta.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
-        } catch {
-            return "0x0000000000000000000000000000000000000000";
-        }
-    };
-
-    const coreSteps: Step[] = [];
-
-    // ---------------- Build core steps (no approval/permit yet) ----------------
+    // Build core steps based on intent type (push ifs up)
+    let coreSteps: Step[];
     if (intent.kind === "SWAP") {
-        // 1. Swap on the source chain
-        const fromAddress = tokenOn(intent.fromTicker!, intent.fromChain);
-        const toAddress = tokenOn(intent.toTicker, intent.toChain);
-        coreSteps.push(
-            new SwapTxStep(
-                intent.fromChain,
-                intent.toChain,
-                fromAddress,
-                toAddress,
-                intent.amountAtomic,
-            ),
-        );
-        // 2. Always deposit the swapped token on the destination chain
-        coreSteps.push(new DepositTxStep(intent.toChain, toAddress, intent.amountAtomic));
+        coreSteps = buildSwapSteps(intent);
     } else if (intent.kind === "DEPOSIT") {
-        // Optional bridge if source and destination chains differ
-        if (intent.fromChain !== intent.toChain) {
-            coreSteps.push(
-                new BridgeTxStep(
-                    intent.fromChain,
-                    intent.toChain,
-                    tokenOn(intent.toTicker, intent.fromChain),
-                    tokenOn(intent.toTicker, intent.toChain),
-                    intent.amountAtomic,
-                ),
-            );
-        }
-        // Final deposit on the destination chain
-        coreSteps.push(
-            new DepositTxStep(
-                intent.toChain,
-                tokenOn(intent.toTicker, intent.toChain),
-                intent.amountAtomic,
-            ),
-        );
+        coreSteps = buildDepositSteps(intent);
+    } else if (intent.kind === "WITHDRAW") {
+        coreSteps = buildWithdrawSteps(intent);
     } else {
-        // WITHDRAW – never combined with bridges per spec
-        coreSteps.push(
-            new WithdrawTxStep(
-                intent.fromChain,
-                tokenOn(intent.toTicker, intent.fromChain),
-                intent.amountAtomic,
-            ),
-        );
+        throw new Error(`Unsupported intent kind: ${intent.kind}`);
     }
 
-    // ---------------- Insert prerequisite steps ----------------
-    const ordered: Step[] = [];
+    // Insert prerequisite steps for each core step
+    const orderedSteps: Step[] = [];
     for (const step of coreSteps) {
-        // ---------- Allowance requirement (instance-based) ----------
-        try {
-            const approvalReq = await step.approvalRequirement(ctx);
-            if (approvalReq) {
-                let needsApprove = true;
-                const owner = ctx.getWagmiAddress();
-                if (owner) {
-                    try {
-                        const pc = ctx.getPublicClient(step.chainId);
-
-                        const allowance: bigint = await pc.readContract({
-                            abi: erc20Abi,
-                            address: step.mint,
-                            functionName: "allowance",
-                            args: [owner, approvalReq.spender],
-                        });
-
-                        needsApprove = allowance < approvalReq.amount;
-                    } catch {
-                        // If allowance check fails, treat as insufficient (conservative)
-                        needsApprove = true;
-                    }
-                }
-
-                if (needsApprove) {
-                    ordered.push(
-                        new ApproveStep(
-                            step.chainId,
-                            step.mint,
-                            approvalReq.amount,
-                            approvalReq.spender,
-                        ),
-                    );
-                }
-            }
-        } catch {
-            // Ignore approvalRequirement errors; proceed conservatively without inserting approve step.
-        }
-
-        // ---------- Permit2 requirement ----------
-        const ctor = step.constructor as typeof BaseStep;
-        if (ctor.needsPermit2) {
-            ordered.push(new Permit2SigStep(step.chainId, step.mint, step.amount));
-        }
-
-        // Finally, the original step
-        ordered.push(step);
+        await addPrerequisiteSteps(step, ctx, orderedSteps);
+        orderedSteps.push(step);
     }
 
-    return ordered;
+    return orderedSteps;
 }
