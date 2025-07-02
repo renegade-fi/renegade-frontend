@@ -1,7 +1,11 @@
 import type { TypedDataDomain } from "viem";
 
+// Constants
+const PERMIT_DEADLINE_MINUTES = 30;
+const MILLISECONDS_PER_SECOND = 1000;
+
 function millisecondsToSeconds(milliseconds: number): number {
-    return Math.floor(milliseconds / 1000);
+    return Math.floor(milliseconds / MILLISECONDS_PER_SECOND);
 }
 
 export const TOKEN_PERMISSIONS = [
@@ -51,7 +55,11 @@ export function constructPermit2SigningData({
         },
         spender,
         nonce: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)),
-        deadline: BigInt(millisecondsToSeconds(Date.now() + 1000 * 60 * 30)),
+        deadline: BigInt(
+            millisecondsToSeconds(
+                Date.now() + MILLISECONDS_PER_SECOND * 60 * PERMIT_DEADLINE_MINUTES,
+            ),
+        ),
         witness: { pkRoot },
     } as const;
 

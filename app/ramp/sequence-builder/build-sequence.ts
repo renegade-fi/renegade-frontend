@@ -1,4 +1,5 @@
 import { erc20Abi } from "@/lib/generated";
+import { zeroAddress } from "@/lib/token";
 import type { BaseStep } from "../steps";
 import { ApproveStep } from "../steps/approve-step";
 import { BridgeStep } from "../steps/bridge-step";
@@ -9,6 +10,12 @@ import { WithdrawStep } from "../steps/withdraw-step";
 import { getTokenByTicker } from "../token-registry";
 import type { SequenceIntent, Step, StepExecutionContext } from "../types";
 
+// Error messages
+const INVALID_SWAP_INTENT = "Invalid intent kind for swap steps";
+const INVALID_DEPOSIT_INTENT = "Invalid intent kind for deposit steps";
+const INVALID_WITHDRAW_INTENT = "Invalid intent kind for withdraw steps";
+const UNSUPPORTED_INTENT = (kind: string) => `Unsupported intent kind: ${kind}`;
+
 /**
  * Helper to fetch token address on chain; falls back to zero address.
  * Applies: Cognitive Load Reduction - Extract meaningful intermediates
@@ -16,7 +23,7 @@ import type { SequenceIntent, Step, StepExecutionContext } from "../types";
  */
 function getTokenAddress(ticker: string, chainId: number): `0x${string}` {
     const token = getTokenByTicker(ticker, chainId);
-    return token?.address ?? "0x0000000000000000000000000000000000000000";
+    return token?.address ?? (zeroAddress as `0x${string}`);
 }
 
 /**
@@ -25,7 +32,7 @@ function getTokenAddress(ticker: string, chainId: number): `0x${string}` {
  */
 function buildSwapSteps(intent: SequenceIntent): Step[] {
     if (intent.kind !== "SWAP") {
-        throw new Error("Invalid intent kind for swap steps");
+        throw new Error(INVALID_SWAP_INTENT);
     }
 
     const fromAddress = getTokenAddress(intent.fromTicker!, intent.fromChain);
@@ -43,7 +50,7 @@ function buildSwapSteps(intent: SequenceIntent): Step[] {
  */
 function buildDepositSteps(intent: SequenceIntent): Step[] {
     if (intent.kind !== "DEPOSIT") {
-        throw new Error("Invalid intent kind for deposit steps");
+        throw new Error(INVALID_DEPOSIT_INTENT);
     }
 
     const steps: Step[] = [];
@@ -80,7 +87,7 @@ function buildDepositSteps(intent: SequenceIntent): Step[] {
  */
 function buildWithdrawSteps(intent: SequenceIntent): Step[] {
     if (intent.kind !== "WITHDRAW") {
-        throw new Error("Invalid intent kind for withdraw steps");
+        throw new Error(INVALID_WITHDRAW_INTENT);
     }
 
     return [
@@ -178,7 +185,7 @@ export async function buildSequence(
     } else if (intent.kind === "WITHDRAW") {
         coreSteps = buildWithdrawSteps(intent);
     } else {
-        throw new Error(`Unsupported intent kind: ${intent.kind}`);
+        throw new Error(UNSUPPORTED_INTENT(intent.kind));
     }
 
     // Insert prerequisite steps for each core step

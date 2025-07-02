@@ -1,8 +1,13 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { requestBestRoute } from "../integrations/internal/lifi";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
+import { requestBestRoute } from "./internal/lifi";
+
+// Error messages
+const WALLET_NOT_CONNECTED = "BridgeStep: wallet not connected";
+const NO_STEPS_IN_ROUTE = "BridgeStep: no steps in LI.FI route";
+const MISSING_TX_REQUEST = "BridgeStep: route missing transaction request";
 
 /**
  * Executes a cross-chain bridge transaction using a LI.FI route.
@@ -37,7 +42,7 @@ export class BridgeStep extends BaseStep {
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {
             const owner = ctx.getWagmiAddress();
-            if (!owner) throw new Error("BridgeStep: wallet not connected");
+            if (!owner) throw new Error(WALLET_NOT_CONNECTED);
 
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
@@ -67,7 +72,7 @@ export class BridgeStep extends BaseStep {
         // ---------- Ensure route exists ----------
         if (!this.route) {
             const owner = ctx.getWagmiAddress();
-            if (!owner) throw new Error("BridgeStep: wallet not connected");
+            if (!owner) throw new Error(WALLET_NOT_CONNECTED);
 
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
@@ -80,13 +85,13 @@ export class BridgeStep extends BaseStep {
         }
 
         const firstStep = this.route?.steps?.[0];
-        if (!firstStep) throw new Error("BridgeStep: no steps in LI.FI route");
+        if (!firstStep) throw new Error(NO_STEPS_IN_ROUTE);
 
         // ---------- Execute bridge transaction ----------
         const populatedStep = await getStepTransaction(firstStep);
 
         const txRequest = populatedStep?.transactionRequest;
-        if (!txRequest) throw new Error("BridgeStep: route missing transaction request");
+        if (!txRequest) throw new Error(MISSING_TX_REQUEST);
 
         const wagmiConfig = ctx.wagmiConfig;
         // @ts-expect-error

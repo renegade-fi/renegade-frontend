@@ -15,12 +15,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { zeroAddress } from "@/lib/token";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { getSwapInputsFor, getTokenByTicker } from "../token-registry";
 import { useControllerContext } from "../transaction-control/controller-context";
 import type { SequenceIntent } from "../types";
 
-const DEFAULT_USER_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
+const DEFAULT_USER_ADDRESS = zeroAddress as `0x${string}`;
 
 function uniqueSortedTickers(): string[] {
     // Collect tickers from token registry for dropdown.

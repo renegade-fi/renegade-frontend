@@ -1,8 +1,13 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { requestBestRoute } from "../integrations/internal/lifi";
 import type { StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
+import { requestBestRoute } from "./internal/lifi";
+
+// Error messages
+const WALLET_NOT_CONNECTED = "SwapStep: wallet not connected";
+const NO_STEPS_IN_ROUTE = "SwapStep: no steps in LI.FI route";
+const MISSING_TX_REQUEST = "SwapStep: route missing transaction request";
 
 /**
  * Executes an on-chain swap using a LI.FI route.
@@ -30,7 +35,7 @@ export class SwapStep extends BaseStep {
     override async approvalRequirement(ctx: StepExecutionContext) {
         if (!this.route) {
             const owner = ctx.getWagmiAddress();
-            if (!owner) throw new Error("SwapStep: wallet not connected");
+            if (!owner) throw new Error(WALLET_NOT_CONNECTED);
 
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
@@ -66,7 +71,7 @@ export class SwapStep extends BaseStep {
         // ---------- Ensure route exists ----------
         if (!this.route) {
             const owner = ctx.getWagmiAddress();
-            if (!owner) throw new Error("SwapStep: wallet not connected");
+            if (!owner) throw new Error(WALLET_NOT_CONNECTED);
             this.route = await requestBestRoute({
                 fromChainId: this.chainId,
                 toChainId: this.dstChain,
@@ -79,7 +84,7 @@ export class SwapStep extends BaseStep {
 
         const firstStep: any = this.route?.steps?.[0];
         if (!firstStep) {
-            throw new Error("SwapStep: no steps in LI.FI route");
+            throw new Error(NO_STEPS_IN_ROUTE);
         }
 
         // ---------- Execute swap transaction ----------
@@ -88,7 +93,7 @@ export class SwapStep extends BaseStep {
 
         const txRequest = populatedStep?.transactionRequest ?? undefined;
         if (!txRequest) {
-            throw new Error("SwapStep: route missing transaction request");
+            throw new Error(MISSING_TX_REQUEST);
         }
         const wagmiConfig = ctx.wagmiConfig;
         // @ts-expect-error

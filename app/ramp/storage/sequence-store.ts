@@ -4,6 +4,9 @@ import { createStore } from "zustand/vanilla";
 
 import { TransactionSequence } from "../transaction-control/internal/transaction-sequence";
 
+// -------------------- Constants --------------------
+const STORAGE_KEY = "ramp.sequence";
+
 // -------------------- Types --------------------
 export type SequenceState = {
     sequence: TransactionSequence | null;
@@ -68,7 +71,7 @@ export const createSequenceStore = (initState: SequenceState = defaultSequenceSt
                 },
             }),
             {
-                name: "ramp.sequence",
+                name: STORAGE_KEY,
                 storage: localStorageStorage,
             },
         ),
