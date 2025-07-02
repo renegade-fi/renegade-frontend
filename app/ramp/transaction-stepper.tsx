@@ -12,9 +12,13 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useControllerContext } from "./controller-context";
-import type { Step } from "./sequence/models";
+import type { Step, StepWithDisplay } from "./sequence/models";
 import { useSequenceStore } from "./sequence/sequence-store-provider";
 
+/**
+ * Step with UI display information.
+ * Our BaseStep implements both Step and StepDisplayInfo interfaces.
+ */
 function statusColor(status: Step["status"]): string {
     switch (status) {
         case "PENDING":
@@ -31,9 +35,11 @@ function statusColor(status: Step["status"]): string {
 }
 
 export function TransactionStepper() {
-    const steps = useSequenceStore(useShallow((s) => s.sequence?.all() ?? []));
+    // Cast to StepWithDisplay since BaseStep implements both interfaces
+    const steps = useSequenceStore(useShallow((s) => s.sequence?.all() ?? [])) as StepWithDisplay[];
     const { controller } = useControllerContext();
 
+    // Apply cognitive load reduction - meaningful intermediate for UI formatting
     const formattedSteps = useMemo(() => steps, [steps]);
 
     return (
