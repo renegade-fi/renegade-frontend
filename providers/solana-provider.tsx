@@ -7,6 +7,7 @@ import { clusterApiUrl } from "@solana/web3.js";
 import { type FC, type PropsWithChildren, useEffect } from "react";
 import { base, baseSepolia } from "viem/chains";
 import { useChainId } from "wagmi";
+import { solana } from "@/lib/viem";
 
 /**
  * Wallets that implement either of these standards will be available automatically.
@@ -24,7 +25,7 @@ const wallets: Adapter[] = [];
 
 const endpoint =
     typeof window !== "undefined"
-        ? new URL("/api/proxy/solana", window.location.origin).toString()
+        ? new URL(`/api/proxy/rpc?id=${solana.id}`, window.location.origin).toString()
         : clusterApiUrl(WalletAdapterNetwork.Mainnet);
 
 export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
