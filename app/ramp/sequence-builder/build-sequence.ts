@@ -5,10 +5,9 @@ import { DepositStep } from "../steps/deposit-step";
 import { requestBestRoute } from "../steps/internal/lifi";
 import { Permit2Step } from "../steps/internal/permit2-step";
 import { PayFeesStep } from "../steps/pay-fees-step";
-import { Prereq } from "../steps/prereq-types";
 import { WithdrawStep } from "../steps/withdraw-step";
 import { getTokenByTicker } from "../token-registry";
-import type { SequenceIntent, Step, StepExecutionContext } from "../types";
+import { Prereq, type SequenceIntent, type Step, type StepExecutionContext } from "../types";
 
 // Error messages
 const INVALID_DEPOSIT_INTENT = "Invalid intent kind for deposit steps";

@@ -2,6 +2,7 @@ import { formatUnits } from "viem";
 import { getChainId, switchChain } from "wagmi/actions";
 import { getTokenByAddress } from "../token-registry";
 import type {
+    Prereq,
     SequenceIntent,
     Step,
     StepDisplayInfo,
@@ -9,7 +10,6 @@ import type {
     StepStatus,
     StepType,
 } from "../types";
-import type { Prereq } from "./prereq-types";
 
 /**
  * Token resolution result with explicit success/failure states.

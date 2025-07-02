@@ -1,8 +1,7 @@
 import { withdraw } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
-import type { StepExecutionContext } from "../types";
+import { Prereq, type StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
-import { Prereq } from "./prereq-types";
 
 /**
  * Renegade withdrawal step.

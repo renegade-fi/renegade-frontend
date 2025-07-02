@@ -4,6 +4,8 @@
  * Provides interfaces for steps, intents, execution contexts, and UI display.
  */
 
+import { Prereq } from "./interfaces";
+
 // Public exports - interfaces and types
 export type {
     SequenceIntent,
@@ -14,3 +16,5 @@ export type {
     StepType,
     StepWithDisplay,
 } from "./interfaces";
+
+export { Prereq };

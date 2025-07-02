@@ -11,26 +11,32 @@ import type { Config as WagmiConfig } from "wagmi";
 
 // ---------- Core Type Definitions ----------
 
-/** Supported transaction step types. */
-export type StepType =
-    | "APPROVE"
-    | "PERMIT2_SIG"
-    | "WRAP"
-    | "UNWRAP"
-    | "LIFI_LEG" // generic step representing a LI.FI route leg
-    // Deprecated – kept for backward-compat; no longer instantiated by the sequence builder
-    | "DEPOSIT"
-    | "WITHDRAW"
-    | "PAY_FEES";
+/** Supported transaction step types.
+ *
+ * Runtime values live in STEP_TYPES; StepType is derived to keep a single source of truth.
+ */
+export const STEP_TYPES = {
+    APPROVE: "APPROVE",
+    PERMIT2_SIG: "PERMIT2_SIG",
+    WRAP: "WRAP",
+    UNWRAP: "UNWRAP",
+    LIFI_LEG: "LIFI_LEG",
+    DEPOSIT: "DEPOSIT",
+    WITHDRAW: "WITHDRAW",
+    PAY_FEES: "PAY_FEES",
+} as const;
+export type StepType = (typeof STEP_TYPES)[keyof typeof STEP_TYPES];
 
 /** Execution status of a transaction step. */
-export type StepStatus =
-    | "PENDING" // not started
-    | "WAITING_FOR_USER" // wallet opened
-    | "SUBMITTED" // tx hash obtained
-    | "CONFIRMING" // receipt polling
-    | "CONFIRMED"
-    | "FAILED";
+export const STEP_STATUSES = {
+    PENDING: "PENDING",
+    WAITING_FOR_USER: "WAITING_FOR_USER",
+    SUBMITTED: "SUBMITTED",
+    CONFIRMING: "CONFIRMING",
+    CONFIRMED: "CONFIRMED",
+    FAILED: "FAILED",
+} as const;
+export type StepStatus = (typeof STEP_STATUSES)[keyof typeof STEP_STATUSES];
 
 /** User intent for creating a transaction sequence. */
 export interface SequenceIntent {
@@ -128,3 +134,15 @@ export interface StepDisplayInfo {
  * Complete step with execution and display capabilities.
  */
 export type StepWithDisplay = Step & StepDisplayInfo;
+
+/**
+ * Prerequisite flags requested by core steps.
+ * The constant object enables runtime access (e.g. Prereq.APPROVAL),
+ * while the `Prereq` type is derived for compile-time checks.
+ */
+export const Prereq = {
+    APPROVAL: "APPROVAL",
+    PERMIT2: "PERMIT2",
+    PAY_FEES: "PAY_FEES",
+} as const;
+export type Prereq = (typeof Prereq)[keyof typeof Prereq];

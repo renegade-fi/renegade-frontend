@@ -1,9 +1,8 @@
 import { getStepTransaction, type Route } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
 import { zeroAddress } from "@/lib/token";
-import type { StepExecutionContext } from "../types";
+import { Prereq, type StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
-import { Prereq } from "./prereq-types";
 
 /**
  * Generic step that executes a single leg of a LI.FI route.
