@@ -77,18 +77,53 @@ async function buildDepositSteps(
 /**
  * Builds steps for WITHDRAW intent.
  */
-function buildWithdrawSteps(intent: SequenceIntent): Step[] {
+async function buildWithdrawSteps(
+    intent: SequenceIntent,
+    ctx: StepExecutionContext,
+): Promise<Step[]> {
     if (intent.kind !== "WITHDRAW") {
         throw new Error(INVALID_WITHDRAW_INTENT);
     }
 
-    return [
+    const ordered: Step[] = [];
+
+    // Always start with the Renegade withdrawal step
+    const sourceTicker = intent.fromTicker ?? intent.toTicker; // default to toTicker if unspecified
+    ordered.push(
         new WithdrawStep(
             intent.fromChain,
-            getTokenAddress(intent.toTicker, intent.fromChain),
+            getTokenAddress(sourceTicker, intent.fromChain),
             intent.amountAtomic,
         ),
-    ];
+    );
+
+    // Determine if routing is required after withdrawal (chain or ticker mismatch)
+    const needsRouting = intent.fromChain !== intent.toChain || sourceTicker !== intent.toTicker;
+
+    if (needsRouting) {
+        const owner = ctx.getWagmiAddress();
+        const fromAddress = getTokenAddress(sourceTicker, intent.fromChain);
+        const toAddress = getTokenAddress(intent.toTicker, intent.toChain);
+
+        const route = await requestBestRoute({
+            fromChainId: intent.fromChain,
+            toChainId: intent.toChain,
+            fromTokenAddress: fromAddress,
+            toTokenAddress: toAddress,
+            fromAmount: intent.amountAtomic.toString(),
+            fromAddress: owner,
+        });
+
+        const lifiSteps =
+            route.steps?.map((leg, idx) => {
+                const isFinalLeg = idx === (route.steps?.length ?? 0) - 1;
+                return new LiFiLegStep(leg, isFinalLeg);
+            }) ?? [];
+
+        ordered.push(...lifiSteps);
+    }
+
+    return ordered;
 }
 
 // -------------------- Prerequisite Framework --------------------
@@ -145,7 +180,7 @@ export async function buildSequence(
     if (intent.kind === "DEPOSIT") {
         coreSteps = await buildDepositSteps(intent, ctx);
     } else if (intent.kind === "WITHDRAW") {
-        coreSteps = buildWithdrawSteps(intent);
+        coreSteps = await buildWithdrawSteps(intent, ctx);
     } else {
         throw new Error(UNSUPPORTED_INTENT(intent.kind));
     }

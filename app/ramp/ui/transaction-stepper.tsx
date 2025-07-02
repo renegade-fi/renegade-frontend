@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Button } from "@/components/ui/button";
 import {
     Table,
     TableBody,
@@ -77,17 +76,6 @@ export function TransactionStepper() {
                     </TableBody>
                 </Table>
             )}
-
-            <div className="mt-4">
-                <Button
-                    variant="link"
-                    size="sm"
-                    className="p-0 text-xs"
-                    onClick={() => controller.reset()}
-                >
-                    Clear Sequence
-                </Button>
-            </div>
         </section>
     );
 }

@@ -80,6 +80,18 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
                 amountAtomic: parseUnits("0.001", wethDecimals),
             },
         },
+        {
+            label: `Withdraw 0.001 WETH → ETH on ${chainName}`,
+            intent: {
+                kind: "WITHDRAW",
+                userAddress: DEFAULT_USER_ADDRESS,
+                fromChain: toChainId,
+                toChain: toChainId,
+                fromTicker: "WETH",
+                toTicker: "ETH",
+                amountAtomic: parseUnits("0.001", wethDecimals),
+            },
+        },
     ];
 }
 

@@ -1,4 +1,4 @@
-import { getBackOfQueueWallet, payFees } from "@renegade-fi/react/actions";
+import { getBackOfQueueWallet, getTaskStatus, payFees } from "@renegade-fi/react/actions";
 import { zeroAddress } from "@/lib/token";
 import type { SequenceIntent, StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
@@ -39,7 +39,40 @@ export class PayFeesStep extends BaseStep {
 
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
-        await payFees(ctx.renegadeConfig);
+        const result = await payFees(ctx.renegadeConfig);
+
+        // payFees may return a taskId (object) or nothing. Handle both.
+        const taskId: string | undefined = (result as any)?.taskId;
+
+        if (!taskId) {
+            this.status = "CONFIRMED";
+            return;
+        }
+
+        this.taskId = taskId;
+        this.status = "SUBMITTED";
+
+        await this.waitForRenegadeTask(ctx.renegadeConfig, taskId, () => {
+            this.status = "CONFIRMING";
+        });
+
         this.status = "CONFIRMED";
+    }
+
+    private async waitForRenegadeTask(
+        cfg: any,
+        taskId: string,
+        onProgress?: (state: string) => void,
+    ): Promise<void> {
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        while (true) {
+            const task = await getTaskStatus(cfg, { id: taskId });
+            const state = (task as any).state ?? (task as any).status;
+            if (!state) return;
+            if (state === "Completed") return;
+            if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
+            onProgress?.(state);
+            await sleep(3000);
+        }
     }
 }

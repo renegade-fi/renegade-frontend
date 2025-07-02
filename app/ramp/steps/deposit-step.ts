@@ -1,5 +1,5 @@
 import { getSDKConfig } from "@renegade-fi/react";
-import { deposit } from "@renegade-fi/react/actions";
+import { deposit, getTaskStatus } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
 import { Prereq, type StepExecutionContext } from "../types";
 import { BaseStep } from "./base-step";
@@ -50,6 +50,29 @@ export class DepositStep extends BaseStep {
         });
 
         this.taskId = taskId;
+        this.status = "SUBMITTED";
+
+        await this.waitForRenegadeTask(ctx.renegadeConfig, taskId, () => {
+            this.status = "CONFIRMING";
+        });
+
         this.status = "CONFIRMED";
+    }
+
+    private async waitForRenegadeTask(
+        cfg: any,
+        taskId: string,
+        onProgress?: (state: string) => void,
+    ): Promise<void> {
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        while (true) {
+            const task = await getTaskStatus(cfg, { id: taskId });
+            const state = (task as any).state ?? (task as any).status;
+            if (!state) return;
+            if (state === "Completed") return;
+            if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
+            onProgress?.(state);
+            await sleep(3000);
+        }
     }
 }
