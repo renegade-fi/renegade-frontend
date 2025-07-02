@@ -35,9 +35,6 @@ export class PayFeesStep extends BaseStep {
             chainId,
             zeroAddress as `0x${string}`,
             BigInt(0),
-            "PENDING",
-            undefined,
-            undefined,
             "renegade",
         );
     }

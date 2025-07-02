@@ -25,17 +25,7 @@ export class LiFiLegStep extends BaseStep {
         const chainId = leg.action.fromChainId;
         const mint = leg.action.fromToken.address as `0x${string}`;
         const amount = BigInt(leg.action.fromAmount);
-        super(
-            crypto.randomUUID(),
-            "LIFI_LEG",
-            chainId,
-            mint,
-            amount,
-            "PENDING",
-            undefined,
-            undefined,
-            "lifi",
-        );
+        super(crypto.randomUUID(), "LIFI_LEG", chainId, mint, amount, "lifi");
         this.leg = leg;
         this.isFinalLeg = isFinalLeg;
     }

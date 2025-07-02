@@ -13,17 +13,7 @@ export class DepositStep extends BaseStep {
     static override prereqs = [Prereq.APPROVAL, Prereq.PERMIT2];
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
-        super(
-            crypto.randomUUID(),
-            "DEPOSIT",
-            chainId,
-            mint,
-            amount,
-            "PENDING",
-            undefined,
-            undefined,
-            "renegade",
-        );
+        super(crypto.randomUUID(), "DEPOSIT", chainId, mint, amount, "renegade");
     }
 
     override async approvalRequirement() {

@@ -47,16 +47,18 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
      */
     static prereqs: Prereq[] = [];
 
+    // Runtime state—does not belong in constructor parameters
+    public status: StepStatus = "PENDING";
+    public txHash?: `0x${string}`;
+    public taskId?: string;
+
     constructor(
         public id: string,
         public type: StepType,
         public chainId: number,
         public mint: `0x${string}`,
         public amount: bigint,
-        public status: StepStatus = "PENDING",
-        public txHash?: `0x${string}`,
-        public taskId?: string,
-        public awaitMode: AwaitMode = "none",
+        public awaitMode: AwaitMode,
     ) {}
 
     /** Human-friendly display name derived from step type. */

@@ -10,17 +10,7 @@ export class WithdrawStep extends BaseStep {
     static override prereqs = [Prereq.PAY_FEES];
 
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
-        super(
-            crypto.randomUUID(),
-            "WITHDRAW",
-            chainId,
-            mint,
-            amount,
-            "PENDING",
-            undefined,
-            undefined,
-            "renegade",
-        );
+        super(crypto.randomUUID(), "WITHDRAW", chainId, mint, amount, "renegade");
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {

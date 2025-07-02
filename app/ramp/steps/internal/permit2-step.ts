@@ -14,7 +14,7 @@ import { constructPermit2SigningData } from "./permit2-helpers";
  */
 export class Permit2Step extends BaseStep {
     constructor(chainId: number, mint: `0x${string}`, amount: bigint) {
-        super(crypto.randomUUID(), "PERMIT2_SIG", chainId, mint, amount);
+        super(crypto.randomUUID(), "PERMIT2_SIG", chainId, mint, amount, "none");
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {

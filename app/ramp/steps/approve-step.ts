@@ -16,7 +16,7 @@ export class ApproveStep extends BaseStep {
         amount: bigint,
         private readonly spender: `0x${string}`,
     ) {
-        super(crypto.randomUUID(), "APPROVE", chainId, mint, amount);
+        super(crypto.randomUUID(), "APPROVE", chainId, mint, amount, "chain");
     }
 
     async run(ctx: StepExecutionContext): Promise<void> {
