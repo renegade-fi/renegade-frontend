@@ -1,23 +1,42 @@
 "use client";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { parseUnits } from "viem";
 import { arbitrum, base, mainnet } from "viem/chains";
-import { useConfig as useWagmiConfig } from "wagmi";
-import { getTokenByTicker } from "@/app/rampv2/token-registry/registry";
+import { useAccount, useConfig as useWagmiConfig } from "wagmi";
+import {
+    getAllBridgeableTokens,
+    getTokenByAddress,
+    getTokenByTicker,
+} from "@/app/rampv2/token-registry/registry";
+import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
+import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
+import { cn } from "@/lib/utils";
+import { solana } from "@/lib/viem";
 import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
+import { BalanceRow } from "./components/balance-row";
+import { MaxButton } from "./components/max-button";
+import { NetworkSelect } from "./components/network-select";
+import { TokenSelect } from "./components/token-select";
 import { Intent } from "./core/intent";
 import { makeTaskContext } from "./core/make-task-context";
 import { planTasks } from "./planner/task-planner";
 import { TaskQueue } from "./queue/task-queue";
+import { getAllTokens, type Token } from "./token-registry";
+
+const direction = ExternalTransferDirection.Deposit;
 
 export default function RampV2Page() {
     const renegadeConfig = useRenegadeConfig();
     const wagmiConfig = useWagmiConfig();
-    const chainId = useCurrentChain();
+    const currentChain = useCurrentChain();
+    const { address } = useAccount();
 
     const { data: keychainNonce } = useBackOfQueueWallet({
         query: { select: (w) => w.key_chain.nonce },
@@ -28,38 +47,85 @@ export default function RampV2Page() {
     const { signTransaction, publicKey } = useWallet();
     const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
 
-    const [running, setRunning] = useState(false);
-    const [log, setLog] = useState<string[]>([]);
-    const addLog = (m: string) => setLog((l) => [...l, m]);
+    const [isBridge, setIsBridge] = useState(true);
+    // Selected source network (undefined = current chain).
+    const [network, setNetwork] = useState<number>(mainnet.id);
+    const [mint, setMint] = useState("");
+    const [amount, setAmount] = useState("");
 
-    const presets = useMemo(() => buildPresetIntents(chainId), [chainId]);
-
-    async function runIntent(intent: Intent) {
-        if (!renegadeConfig) return;
-        setRunning(true);
-        try {
-            const ctx = makeTaskContext(
-                renegadeConfig,
-                wagmiConfig,
-                keychainNonce ?? BigInt(0),
-                connection,
-                signTransaction ?? undefined,
-                solanaAddress,
-            );
-            const tasks = await planTasks(intent, ctx);
-            console.log("🚀 ~ runIntent ~ tasks:", tasks);
-            const queue = new TaskQueue(tasks);
-            await queue.run();
-            addLog(`${intent.kind} finished`);
-        } catch (err) {
-            console.error(err);
-            addLog(`Error: ${(err as Error).message}`);
-        } finally {
-            setRunning(false);
+    // Derive token list based on network selection
+    const availableTokens = useMemo<Token[]>(() => {
+        if (isBridge) {
+            return getAllBridgeableTokens(network);
         }
+        return getAllTokens(currentChain);
+    }, [currentChain, isBridge, network]);
+
+    const availableNetworks = useMemo(() => {
+        return [solana.id, mainnet.id, arbitrum.id, base.id].filter((id) => id !== currentChain);
+    }, [currentChain]);
+
+    const { intent, taskCtx } = useMemo(() => {
+        if (!renegadeConfig || !wagmiConfig || !address)
+            return { intent: undefined, taskCtx: undefined };
+        const sourceToken = getTokenByAddress(mint, network);
+        if (!sourceToken) return { intent: undefined, taskCtx: undefined };
+        const operatingToken = getTokenByTicker(sourceToken.ticker, currentChain);
+        if (!operatingToken) return { intent: undefined, taskCtx: undefined };
+        const ctx = makeTaskContext(
+            renegadeConfig,
+            wagmiConfig,
+            keychainNonce ?? BigInt(0),
+            connection,
+            signTransaction ?? undefined,
+            solanaAddress,
+        );
+        const intent = new Intent({
+            kind: direction === ExternalTransferDirection.Deposit ? "DEPOSIT" : "WITHDRAW",
+            fromChain: network,
+            fromAddress: ctx.getOnchainAddress(network),
+            toAddress: ctx.getOnchainAddress(currentChain),
+            toChain: currentChain,
+            fromTokenAddress: sourceToken.address,
+            toTokenAddress: operatingToken.address,
+            amountAtomic: parseUnits(amount, sourceToken.decimals),
+        });
+        return {
+            intent,
+            taskCtx: ctx,
+        };
+    }, [
+        address,
+        currentChain,
+        network,
+        mint,
+        amount,
+        renegadeConfig,
+        wagmiConfig,
+        keychainNonce,
+        connection,
+        signTransaction,
+        solanaAddress,
+    ]);
+
+    // TODO: may need config in query key (chain switch)
+    const { data: tasks, status } = useQuery({
+        queryKey: ["ramp", { ...intent?.toJson() }],
+        queryFn: () => {
+            if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
+            return planTasks(intent, taskCtx);
+        },
+        enabled: !!intent && !!taskCtx && !!intent.amountAtomic,
+    });
+
+    function handleSubmit() {
+        if (!tasks) return;
+        const queue = new TaskQueue(tasks);
+        queue.run();
     }
 
-    if (!renegadeConfig) {
+    // TODO: Might need dynamic message for solana address
+    if (!renegadeConfig || !address || !solanaAddress) {
         return (
             <main className="p-6 max-w-lg mx-auto">
                 <h1 className="text-2xl font-bold">Ramp v2 Demo</h1>
@@ -68,131 +134,109 @@ export default function RampV2Page() {
         );
     }
 
+    const chainDependentAddress = network === solana.id ? solanaAddress : address;
     return (
-        <main className="p-6 max-w-lg mx-auto">
-            <h1 className="text-2xl font-bold">Ramp v2 Demo</h1>
-            <section className="mt-6 space-y-3 w-full">
-                {presets.map(({ label, intent }) => (
+        <main className="p-6 max-w-xl mx-auto">
+            <section className="mt-6 w-full">
+                <div className="flex flex-row border-b border-border">
                     <Button
-                        key={label}
-                        className="w-full"
-                        disabled={running}
-                        onClick={() => runIntent(intent)}
+                        className={cn(
+                            "flex-1 border-0 font-extended text-lg font-bold",
+                            isBridge ? "text-primary" : "text-muted-foreground",
+                        )}
+                        size="xl"
+                        variant="outline"
+                        onClick={() => setIsBridge(true)}
                     >
-                        {label}
+                        Bridge
                     </Button>
-                ))}
-            </section>
-            <section className="mt-6 space-y-2">
-                {log.map((l, i) => (
-                    <p key={i} className="text-sm">
-                        {l}
-                    </p>
-                ))}
+                    <Button
+                        className={cn(
+                            "flex-1 border-0 font-extended text-lg font-bold",
+                            !isBridge ? "text-primary" : "text-muted-foreground",
+                        )}
+                        size="xl"
+                        variant="outline"
+                        onClick={() => setIsBridge(false)}
+                    >
+                        Deposit
+                    </Button>
+                </div>
+
+                <div className="space-y-6 pt-6">
+                    {/* Network selector */}
+                    {isBridge ? (
+                        <div className="flex flex-col gap-2">
+                            <Label>Network</Label>
+                            <NetworkSelect
+                                value={network}
+                                onChange={setNetwork}
+                                networks={availableNetworks}
+                            />
+                        </div>
+                    ) : null}
+
+                    <div className="flex flex-col gap-2">
+                        <Label>Token</Label>
+                        <TokenSelect
+                            tokens={availableTokens}
+                            direction={direction}
+                            value={mint}
+                            onChange={setMint}
+                            chainId={network}
+                            owner={chainDependentAddress}
+                            config={wagmiConfig}
+                            connection={connection}
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <Label>Amount</Label>
+                        <div className="relative">
+                            <NumberInput
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                placeholder="0.00"
+                                className="pr-12 rounded-none font-mono"
+                            />
+                            <MaxButton
+                                chainId={network}
+                                mint={mint}
+                                owner={chainDependentAddress}
+                                config={wagmiConfig}
+                                connection={connection}
+                                onClick={setAmount}
+                            />
+                        </div>
+                    </div>
+
+                    <BalanceRow
+                        chainId={network}
+                        mint={mint}
+                        owner={chainDependentAddress}
+                        config={wagmiConfig}
+                        connection={connection}
+                        onClick={setAmount}
+                    />
+
+                    <div className="w-full flex">
+                        <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
+                            <Button
+                                className="flex-1 border-0 border-t font-extended text-2xl"
+                                size="xl"
+                                type="submit"
+                                variant="outline"
+                                onClick={handleSubmit}
+                                disabled={status !== "success"}
+                            >
+                                {direction === ExternalTransferDirection.Deposit
+                                    ? "Deposit"
+                                    : "Withdraw"}
+                            </Button>
+                        </MaintenanceButtonWrapper>
+                    </div>
+                </div>
             </section>
         </main>
     );
-}
-
-import { zeroAddress } from "@/lib/token";
-import { solana } from "@/lib/viem";
-
-const DEFAULT_USER_ADDRESS = zeroAddress as `0x${string}`;
-
-function buildPresetIntents(toChainId: number): Array<{ label: string; intent: Intent }> {
-    const chainNames: Record<number, string> = {
-        [arbitrum.id]: "Arbitrum",
-        [base.id]: "Base",
-        [mainnet.id]: "Mainnet",
-    };
-    const chainName = chainNames[toChainId] ?? `Chain ${toChainId}`;
-
-    const usdcDecimals = getTokenByTicker("USDC", toChainId)?.decimals ?? 6;
-    const usdtDecimals = getTokenByTicker("USDT", toChainId)?.decimals ?? 6;
-    const wethDecimals = getTokenByTicker("WETH", toChainId)?.decimals ?? 18;
-
-    return [
-        {
-            label: `Deposit 1.1 USDC from Solana to ${chainName}`,
-            intent: new Intent({
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: solana.id,
-                toChain: toChainId,
-                fromTicker: "USDC",
-                toTicker: "USDC",
-                amountAtomic: parseUnits("1.1", usdcDecimals),
-            }),
-        },
-        {
-            label: `Deposit 1.1 USDC from Mainnet to ${chainName}`,
-            intent: new Intent({
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: mainnet.id,
-                toChain: toChainId,
-                fromTicker: "USDC",
-                toTicker: "USDC",
-                amountAtomic: parseUnits("1.1", usdcDecimals),
-            }),
-        },
-        {
-            label: `Deposit 1 USDT from Mainnet to ${chainName}`,
-            intent: new Intent({
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: mainnet.id,
-                toChain: toChainId,
-                fromTicker: "USDT",
-                toTicker: "USDC",
-                amountAtomic: parseUnits("1", usdtDecimals),
-            }),
-        },
-        {
-            label: `Deposit 1.1 USDC on ${chainName}`,
-            intent: new Intent({
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: toChainId,
-                toChain: toChainId,
-                toTicker: "USDC",
-                amountAtomic: parseUnits("1.1", usdcDecimals),
-            }),
-        },
-        {
-            label: `Deposit 0.001 ETH on ${chainName}`,
-            intent: new Intent({
-                kind: "DEPOSIT",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: toChainId,
-                toChain: toChainId,
-                fromTicker: "ETH",
-                toTicker: "WETH",
-                amountAtomic: parseUnits("0.001", wethDecimals),
-            }),
-        },
-        {
-            label: `Withdraw 0.001 WETH on ${chainName}`,
-            intent: new Intent({
-                kind: "WITHDRAW",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: toChainId,
-                toChain: toChainId,
-                toTicker: "WETH",
-                amountAtomic: parseUnits("0.001", wethDecimals),
-            }),
-        },
-        {
-            label: `Withdraw 0.001 WETH → ETH on ${chainName}`,
-            intent: new Intent({
-                kind: "WITHDRAW",
-                userAddress: DEFAULT_USER_ADDRESS,
-                fromChain: toChainId,
-                toChain: toChainId,
-                fromTicker: "WETH",
-                toTicker: "ETH",
-                amountAtomic: parseUnits("0.001", wethDecimals),
-            }),
-        },
-    ];
 }

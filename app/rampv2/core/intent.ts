@@ -1,24 +1,26 @@
-import { getTokenByTicker } from "@/app/rampv2/token-registry/registry";
+import type { getRoutes } from "@lifi/sdk";
 
 export type IntentKind = "DEPOSIT" | "WITHDRAW";
 
 export class Intent {
     /* ========= raw fields ========= */
     readonly kind!: IntentKind;
-    readonly userAddress!: `0x${string}`;
     readonly fromChain!: number;
     readonly toChain!: number;
-    readonly fromTicker?: string;
-    readonly toTicker!: string;
+    readonly fromTokenAddress!: string;
+    readonly toTokenAddress!: string;
     readonly amountAtomic!: bigint;
+    readonly fromAddress!: string;
+    readonly toAddress!: string;
 
     constructor(params: {
         kind: IntentKind;
-        userAddress: `0x${string}`;
         fromChain: number;
+        fromAddress: string;
+        fromTokenAddress: string;
         toChain: number;
-        fromTicker?: string;
-        toTicker: string;
+        toAddress: string;
+        toTokenAddress: string;
         amountAtomic: bigint;
     }) {
         Object.assign(this, params);
@@ -31,22 +33,32 @@ export class Intent {
     isWithdraw() {
         return this.kind === "WITHDRAW";
     }
-    sourceTicker(): string {
-        return this.fromTicker ?? this.toTicker;
-    }
     needsRouting(): boolean {
-        return this.fromChain !== this.toChain || this.sourceTicker() !== this.toTicker;
+        return this.fromChain !== this.toChain || this.fromTokenAddress !== this.toTokenAddress;
     }
 
-    /** Resolve token address on a chain (falls back to zero address) */
-    private tokenAddress(ticker: string, chainId: number): `0x${string}` {
-        const token = getTokenByTicker(ticker, chainId);
-        return (token?.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
+    toJson() {
+        return {
+            kind: this.kind,
+            fromChain: this.fromChain,
+            fromAddress: this.fromAddress,
+            fromTokenAddress: this.fromTokenAddress,
+            toChain: this.toChain,
+            toAddress: this.toAddress,
+            toTokenAddress: this.toTokenAddress,
+            amountAtomic: this.amountAtomic.toString(),
+        };
     }
-    fromTokenAddress(): `0x${string}` {
-        return this.tokenAddress(this.sourceTicker(), this.fromChain);
-    }
-    toTokenAddress(): `0x${string}` {
-        return this.tokenAddress(this.toTicker, this.toChain);
+
+    toLifiRouteRequest(): Parameters<typeof getRoutes>[0] {
+        return {
+            fromChainId: this.fromChain,
+            toChainId: this.toChain,
+            fromAmount: this.amountAtomic.toString(),
+            fromTokenAddress: this.fromTokenAddress,
+            toTokenAddress: this.toTokenAddress,
+            fromAddress: this.fromAddress,
+            toAddress: this.toAddress,
+        };
     }
 }

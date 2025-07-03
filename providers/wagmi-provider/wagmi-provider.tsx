@@ -30,7 +30,7 @@ createLifiConfig({
         [arbitrum.id]: [`/api/proxy/rpc?id=${arbitrum.id}`],
         [base.id]: [`/api/proxy/rpc?id=${base.id}`],
         // Needed to support bridge
-        [mainnet.id]: [`/api/proxy/rpc?chainId=${mainnet.id}`],
+        [mainnet.id]: [`/api/proxy/rpc?id=${mainnet.id}`],
     },
 });
 interface WagmiProviderProps {

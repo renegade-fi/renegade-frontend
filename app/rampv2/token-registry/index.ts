@@ -2,6 +2,7 @@
  * Token registry for managing supported tokens and their capabilities.
  */
 export {
+    getAllTokens,
     getSwapInputsFor,
     getTokenByAddress,
     getTokenByTicker,

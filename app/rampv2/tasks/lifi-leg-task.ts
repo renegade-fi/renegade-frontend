@@ -85,7 +85,6 @@ export class LiFiLegTask implements Task<LiFiLegDescriptor, LiFiLegState, LiFiLe
         if (this.chainId === solana.id) return undefined;
         // Native ETH does not require approval.
         if (this.mint === zeroAddress) return undefined;
-        console.log("approvalRequirement", { mint: this.mint, zeroAddress });
         const approvalAddr = this.descriptor.leg.estimate?.approvalAddress as
             | `0x${string}`
             | undefined;

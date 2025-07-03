@@ -21,11 +21,11 @@ async function requestBestRoute(req: Parameters<typeof getRoutes>[0]): Promise<R
 // ---------------- Prerequisite Handling ----------------
 
 const prereqMap: Record<TaskType, Prereq[]> = {
-    [TASK_TYPES.DEPOSIT]: [Prereq.PERMIT2],
+    [TASK_TYPES.DEPOSIT]: [Prereq.APPROVAL, Prereq.PERMIT2],
     [TASK_TYPES.WITHDRAW]: [Prereq.PAY_FEES],
     [TASK_TYPES.LIFI_LEG]: [Prereq.APPROVAL],
     [TASK_TYPES.PAY_FEES]: [],
-    [TASK_TYPES.PERMIT2_SIG]: [Prereq.APPROVAL],
+    [TASK_TYPES.PERMIT2_SIG]: [],
     [TASK_TYPES.APPROVE]: [],
 };
 
@@ -93,6 +93,7 @@ async function prerequisitesFor(
                     }
 
                     if (chainId !== undefined && mint !== undefined) {
+                        console.log("checking approval", chainId, mint, spender, amount);
                         if (await ApproveTask.isNeeded(ctx, chainId, mint, spender, amount)) {
                             extras.push(ApproveTask.create(chainId, mint, amount, spender, ctx));
                         }
@@ -135,15 +136,7 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
     const coreTasks: PlannedTask[] = [];
 
     if (intent.needsRouting()) {
-        const r = await requestBestRoute({
-            fromChainId: intent.fromChain,
-            toChainId: intent.toChain,
-            fromAmount: intent.amountAtomic.toString(),
-            fromTokenAddress: intent.fromTokenAddress(),
-            toTokenAddress: intent.toTokenAddress(),
-            fromAddress: ctx.getOnchainAddress(intent.fromChain),
-            toAddress: ctx.getEvmAddress(),
-        });
+        const r = await requestBestRoute(intent.toLifiRouteRequest());
 
         r.steps.forEach((leg, idx) => {
             const isFinal = idx === r.steps.length - 1;
@@ -152,8 +145,14 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
     }
 
     // Always finish with deposit
+    // TODO: Validate isAddress since only ERC20 can be deposited
     coreTasks.push(
-        DepositTask.create(intent.toChain, intent.toTokenAddress(), intent.amountAtomic, ctx),
+        DepositTask.create(
+            intent.toChain,
+            intent.toTokenAddress as `0x${string}`,
+            intent.amountAtomic,
+            ctx,
+        ),
     );
 
     // Inject prereqs
@@ -168,8 +167,14 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
     const coreTasks: PlannedTask[] = [];
 
     // Start with withdraw
+    // TODO: Validate isAddress since only ERC20 can be withdrawn
     coreTasks.push(
-        WithdrawTask.create(intent.fromChain, intent.fromTokenAddress(), intent.amountAtomic, ctx),
+        WithdrawTask.create(
+            intent.fromChain,
+            intent.fromTokenAddress as `0x${string}`,
+            intent.amountAtomic,
+            ctx,
+        ),
     );
 
     if (!intent.needsRouting()) {
@@ -181,15 +186,7 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
         return ordered;
     }
 
-    const route = await requestBestRoute({
-        fromChainId: intent.fromChain,
-        toChainId: intent.toChain,
-        fromAmount: intent.amountAtomic.toString(),
-        fromTokenAddress: intent.fromTokenAddress(),
-        toTokenAddress: intent.toTokenAddress(),
-        fromAddress: ctx.getEvmAddress(),
-        toAddress: ctx.getOnchainAddress(intent.toChain),
-    });
+    const route = await requestBestRoute(intent.toLifiRouteRequest());
 
     route.steps.forEach((leg, idx) => {
         const isFinal = idx === route.steps.length - 1;

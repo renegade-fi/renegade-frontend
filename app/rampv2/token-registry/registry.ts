@@ -9,6 +9,7 @@ export type Token = {
     ticker: string;
     decimals: number;
     address: `0x${string}`;
+    name: string;
     chainId: number;
     // Operation capabilities
     canDeposit: boolean;
@@ -58,6 +59,7 @@ function convertTokenInstance(tokenInstance: InstanceType<typeof TokenClass>): T
         decimals,
         address,
         chainId,
+        name: tokenInstance.name,
         // Default: Renegade-compatible tokens can deposit/withdraw
         canDeposit: true,
         canWithdraw: true,
@@ -91,4 +93,12 @@ export function getTokenByTicker(ticker: string, chainId: number): Token | null 
  */
 export function getSwapInputsFor(targetToken: Token): Token[] {
     return ALL_TOKENS.filter((token) => token.swapInto?.includes(targetToken.ticker) ?? false);
+}
+
+export function getAllTokens(chainId: number): Token[] {
+    return ALL_TOKENS.filter((token) => token.chainId === chainId);
+}
+
+export function getAllBridgeableTokens(chainId: number): Token[] {
+    return getAllTokens(chainId).filter((token) => token.canBridge);
 }
