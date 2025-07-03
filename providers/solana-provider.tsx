@@ -2,11 +2,9 @@
 
 import type { Adapter } from "@solana/wallet-adapter-base";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { ConnectionProvider, useWallet, WalletProvider } from "@solana/wallet-adapter-react";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { clusterApiUrl } from "@solana/web3.js";
-import { type FC, type PropsWithChildren, useEffect } from "react";
-import { base, baseSepolia } from "viem/chains";
-import { useChainId } from "wagmi";
+import type { FC, PropsWithChildren } from "react";
 import { solana } from "@/lib/viem";
 
 /**
@@ -33,21 +31,7 @@ export const SolanaProvider: FC<PropsWithChildren> = ({ children }) => {
         <ConnectionProvider endpoint={endpoint}>
             <WalletProvider autoConnect wallets={wallets}>
                 {children}
-                <SyncSolanaWagmiState />
             </WalletProvider>
         </ConnectionProvider>
     );
 };
-
-function SyncSolanaWagmiState() {
-    const chainId = useChainId();
-    const { disconnect } = useWallet();
-
-    useEffect(() => {
-        if ([base.id, baseSepolia.id].includes(chainId as any)) {
-            disconnect();
-        }
-    }, [chainId, disconnect]);
-
-    return null;
-}
