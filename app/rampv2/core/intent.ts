@@ -1,4 +1,4 @@
-import { getTokenByTicker } from "@/app/rampv2/token-registry/token-registry";
+import { getTokenByTicker } from "@/app/rampv2/token-registry/registry";
 
 export type IntentKind = "DEPOSIT" | "WITHDRAW";
 

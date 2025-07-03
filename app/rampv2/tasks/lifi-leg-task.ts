@@ -130,7 +130,10 @@ export class LiFiLegTask implements Task<LiFiLegDescriptor, LiFiLegState, LiFiLe
                     await awaitSolanaConfirmation(this._txHash, this.ctx.connection);
                     this._state = LiFiLegState.Completed;
                 } else {
-                    await waitForTxReceipt(this.ctx.getPublicClient(this.chainId), this._txHash);
+                    await waitForTxReceipt(
+                        this.ctx.getPublicClient(this.chainId),
+                        this._txHash as `0x${string}`,
+                    );
                     this._state = LiFiLegState.Confirming;
                 }
                 break;

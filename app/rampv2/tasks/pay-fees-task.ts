@@ -41,7 +41,7 @@ export class PayFeesTask implements Task<PayFeesDescriptor, PayFeesState, PayFee
         try {
             const wallet = await getBackOfQueueWallet(ctx.renegadeConfig);
             return wallet.balances.some(
-                (b: any) => b.protocol_fee_balance > BigInt(0) || b.relayer_fee_balance > BigInt(0),
+                (b) => b.protocol_fee_balance > BigInt(0) || b.relayer_fee_balance > BigInt(0),
             );
         } catch {
             return true; // be conservative

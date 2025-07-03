@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { parseUnits } from "viem";
 import { arbitrum, base, mainnet } from "viem/chains";
 import { useConfig as useWagmiConfig } from "wagmi";
-import { getTokenByTicker } from "@/app/rampv2/token-registry/token-registry";
+import { getTokenByTicker } from "@/app/rampv2/token-registry/registry";
 import { Button } from "@/components/ui/button";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";

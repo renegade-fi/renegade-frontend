@@ -1,7 +1,11 @@
+import { getStatus } from "@lifi/sdk";
 import { getTaskHistory, getTaskStatus } from "@renegade-fi/react/actions";
-export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any> {
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+import type { PublicClient } from "viem";
 
+const POLL_INTERVAL = 1000;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any> {
     while (true) {
         try {
             // Primary strategy: poll the task status endpoint.
@@ -19,19 +23,20 @@ export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any
                     if (state === "Completed") return task;
                     if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
                 }
-                await sleep(3000);
+                await sleep(POLL_INTERVAL);
             }
         }
-        await sleep(3000);
+        await sleep(POLL_INTERVAL);
     }
 }
 
 /** Await an on-chain transaction receipt via viem PublicClient. */
-export async function waitForTxReceipt(publicClient: any, hash: string): Promise<void> {
-    await publicClient.waitForTransactionReceipt({ hash: hash as `0x${string}` });
+export async function waitForTxReceipt(
+    publicClient: PublicClient,
+    hash: `0x${string}`,
+): Promise<void> {
+    await publicClient.waitForTransactionReceipt({ hash });
 }
-
-import { getStatus } from "@lifi/sdk";
 
 export type LifiStatus = Awaited<ReturnType<typeof getStatus>>;
 
@@ -41,7 +46,7 @@ export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
     const maxAttempts = 300; // 5 min @ 1s
     let statusRes = await getStatus({ txHash });
     while (!["DONE", "FAILED", "INVALID"].includes(statusRes.status) && attempts < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 1000));
+        await sleep(POLL_INTERVAL);
         statusRes = await getStatus({ txHash });
         attempts++;
     }
