@@ -2,9 +2,9 @@ import { getSDKConfig } from "@renegade-fi/react";
 import { getPkRootScalars } from "@renegade-fi/react/actions";
 import { signTypedData } from "wagmi/actions";
 import { resolveAddress } from "@/lib/token";
-import type { StepExecutionContext } from "../../types";
-import { BaseStep } from "../base-step";
-import { constructPermit2SigningData } from "./permit2-helpers";
+import type { StepExecutionContext } from "../types";
+import { BaseStep } from "./base-step";
+import { constructPermit2SigningData } from "./internal/permit2-helpers";
 
 /**
  * @internal

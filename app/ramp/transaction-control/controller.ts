@@ -1,7 +1,7 @@
 import type { StoreApi } from "zustand";
 import { buildSequence } from "../sequence-builder";
 import type { SequenceStore } from "../storage";
-import type { SequenceIntent, Step, StepExecutionContext, StepStatus } from "../types";
+import { SequenceIntent, type Step, type StepExecutionContext, type StepStatus } from "../types";
 import { TransactionSequence } from "./internal/transaction-sequence";
 
 /** Callback for step updates. */
@@ -45,13 +45,14 @@ export class TransactionController {
     /**
      * Start a new transaction sequence from an intent.
      */
-    async start(intent: SequenceIntent): Promise<void> {
+    async start(intentRaw: SequenceIntent): Promise<void> {
         const validation = this.canStart();
         if (!validation.valid) {
             console.warn(`Cannot start sequence: ${validation.reason}`);
             return;
         }
 
+        const intent = SequenceIntent.from(intentRaw);
         const steps = await buildSequence(intent, this.ctx);
         console.log("🚀 ~ TransactionController ~ start ~ steps:", steps);
         this.sequence = new TransactionSequence(crypto.randomUUID(), steps);

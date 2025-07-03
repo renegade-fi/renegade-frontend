@@ -1,9 +1,7 @@
-import { getStatus } from "@lifi/sdk";
-import { getTaskStatus } from "@renegade-fi/react/actions";
-import { formatUnits } from "viem";
+import type { getStatus } from "@lifi/sdk";
+import type { getTaskStatus } from "@renegade-fi/react/actions";
 import { getChainId, switchChain } from "wagmi/actions";
 import { solana } from "@/lib/viem";
-import { getTokenByAddress } from "../token-registry";
 import type {
     Prereq,
     SequenceIntent,
@@ -14,15 +12,13 @@ import type {
     StepType,
 } from "../types";
 import { awaitSolanaConfirmation } from "./internal/solana";
+import { formatStepTypeName, formatTokenAmount, resolveTokenInfo } from "./internal/token-utils";
+import { waitForLiFiStatus, waitForRenegadeTask, waitForTxReceipt } from "./internal/waiters";
 
 /**
  * Interface used for formatting
  */
-interface TokenInfo {
-    decimals: number;
-    ticker: string;
-    isFound: boolean;
-}
+// (TokenInfo type and related helpers relocated to ./internal/token-utils)
 
 // Await-completion strategy for a step
 export type AwaitMode = "none" | "renegade" | "chain" | "lifi";
@@ -65,63 +61,19 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
 
     /** Human-friendly display name derived from step type. */
     get name(): string {
-        return this.formatStepTypeName(this.type);
+        return formatStepTypeName(this.type);
     }
 
     /** Token amount and ticker for UI display. */
     get details(): string {
-        const tokenInfo = this.resolveTokenInfo();
-        const formattedAmount = this.formatTokenAmount(tokenInfo);
-
+        const tokenInfo = resolveTokenInfo(this.mint, this.chainId);
+        const formattedAmount = formatTokenAmount(this.amount, tokenInfo);
         return `${formattedAmount} ${tokenInfo.ticker}`;
     }
 
     /** Chain ID alias for UI convenience. */
     get chain(): number {
         return this.chainId;
-    }
-
-    // ---------- Private Helper Methods (Cognitive Load Reduction) ----------
-
-    /**
-     * Resolve token information with explicit fallback handling.
-     * Applies "push ifs up" by centralizing token resolution logic.
-     */
-    private resolveTokenInfo(): TokenInfo {
-        const token = getTokenByAddress(this.mint, this.chainId);
-
-        // Early return for successful resolution
-        if (token) {
-            return {
-                decimals: token.decimals,
-                ticker: token.ticker,
-                isFound: true,
-            };
-        }
-
-        // Explicit fallback with self-descriptive defaults
-        return {
-            decimals: 18, // Standard ERC20 default
-            ticker: "UNKNOWN",
-            isFound: false,
-        };
-    }
-
-    /**
-     * Format token amount using resolved token information.
-     */
-    private formatTokenAmount(tokenInfo: TokenInfo): string {
-        return formatUnits(this.amount, tokenInfo.decimals);
-    }
-
-    /**
-     * Convert step type to human-friendly display name.
-     */
-    private formatStepTypeName(stepType: StepType): string {
-        return stepType
-            .split("_")
-            .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-            .join(" ");
     }
 
     // ---------- Chain Management ----------
@@ -186,85 +138,54 @@ export abstract class BaseStep implements Step, StepDisplayInfo {
     protected async awaitCompletion<M extends AwaitMode>(
         ctx: StepExecutionContext,
     ): Promise<AwaitResultMap[M]> {
-        switch (this.awaitMode) {
-            case "none":
+        const handlers = {
+            none: async (): Promise<AwaitResultMap[M]> => {
                 this.status = "CONFIRMED";
                 return undefined as AwaitResultMap[M];
-            case "renegade": {
+            },
+            renegade: async (): Promise<AwaitResultMap[M]> => {
                 if (!this.taskId) {
                     this.status = "CONFIRMED";
                     return undefined as AwaitResultMap[M];
                 }
                 this.status = "SUBMITTED";
-                const task = await this.waitForRenegadeTask(ctx.renegadeConfig, this.taskId);
+                const task = await waitForRenegadeTask(ctx.renegadeConfig, this.taskId);
                 this.status = "CONFIRMED";
                 return task as AwaitResultMap[M];
-            }
-            case "chain":
+            },
+            chain: async (): Promise<AwaitResultMap[M]> => {
                 if (!this.txHash) {
                     this.status = "CONFIRMED";
                     return undefined as AwaitResultMap[M];
                 }
                 this.status = "SUBMITTED";
-
+                this.status = "CONFIRMING";
                 if (this.chainId === solana.id && ctx.connection) {
-                    // Solana confirmation path
                     await awaitSolanaConfirmation(this.txHash as string, ctx.connection);
                 } else {
-                    await this.waitForTxReceipt(ctx.getPublicClient(this.chainId), this.txHash);
+                    await waitForTxReceipt(ctx.getPublicClient(this.chainId), this.txHash);
                 }
                 this.status = "CONFIRMED";
                 return undefined as AwaitResultMap[M];
-            case "lifi": {
+            },
+            lifi: async (): Promise<AwaitResultMap[M]> => {
                 if (!this.txHash) {
                     this.status = "CONFIRMED";
                     return undefined as AwaitResultMap[M];
                 }
                 this.status = "SUBMITTED";
-                await this.waitForTxReceipt(ctx.getPublicClient(this.chainId), this.txHash);
-                // After on-chain tx confirmed, poll LiFi backend
+                await waitForTxReceipt(ctx.getPublicClient(this.chainId), this.txHash);
                 this.status = "CONFIRMING";
-                const lifiStatus = await this.waitForLiFiStatus(this.txHash);
+                const lifiStatus = await waitForLiFiStatus(this.txHash);
                 if (lifiStatus.status === "DONE") {
                     this.status = "CONFIRMED";
                 } else {
                     throw new Error(`LiFi route failed with status ${lifiStatus.status}`);
                 }
-                // Type assertion safe: lifiStatus matches map for mode 'lifi'
                 return lifiStatus as AwaitResultMap[M];
-            }
-        }
-    }
+            },
+        } as const;
 
-    private async waitForRenegadeTask(cfg: any, taskId: string): Promise<RenegadeTask> {
-        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-        this.status = "CONFIRMING";
-        while (true) {
-            const task = await getTaskStatus(cfg, { id: taskId });
-            const state = (task as any).state ?? (task as any).status;
-            if (state === "Completed") return task;
-            if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
-            await sleep(3000);
-        }
-    }
-
-    private async waitForTxReceipt(publicClient: any, hash: string): Promise<void> {
-        this.status = "CONFIRMING";
-        await publicClient.waitForTransactionReceipt({ hash: hash as `0x${string}` });
-    }
-
-    private async waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
-        let attempts = 0;
-        const maxAttempts = 300; // 5 min at 1s intervals
-        let statusRes = await getStatus({ txHash: txHash as string });
-        while (
-            !["DONE", "FAILED", "INVALID"].includes(statusRes.status) &&
-            attempts < maxAttempts
-        ) {
-            await new Promise((r) => setTimeout(r, 1000));
-            statusRes = await getStatus({ txHash: txHash as string });
-            attempts++;
-        }
-        return statusRes;
+        return handlers[this.awaitMode]();
     }
 }

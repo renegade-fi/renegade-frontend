@@ -22,7 +22,7 @@ export class ApproveStep extends BaseStep {
     async run(ctx: StepExecutionContext): Promise<void> {
         await this.ensureCorrectChain(ctx);
 
-        const owner = ctx.getOnchainAddress(this.chainId);
+        const owner = ctx.getOnchainAddress(this.chainId) as `0x${string}`;
         if (!owner) throw new Error("Wallet account not found");
 
         // Check current allowance.
@@ -65,12 +65,7 @@ export class ApproveStep extends BaseStep {
      * Determines if this approval transaction is actually required.
      */
     override async isNeeded(ctx: StepExecutionContext, _intent?: SequenceIntent): Promise<boolean> {
-        let owner: `0x${string}`;
-        try {
-            owner = ctx.getOnchainAddress(this.chainId);
-        } catch {
-            return true; // no wallet
-        }
+        const owner = ctx.getOnchainAddress(this.chainId) as `0x${string}`;
 
         const pc = ctx.getPublicClient(this.chainId);
         const allowance = await pc.readContract({

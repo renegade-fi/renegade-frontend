@@ -1,6 +1,8 @@
 import type { Config as RenegadeConfig } from "@renegade-fi/react";
 import type { PublicClient } from "viem";
 import type { Config as WagmiConfig } from "wagmi";
+import { zeroAddress } from "@/lib/token";
+import { getTokenByTicker } from "../token-registry";
 
 /**
  * All type definitions for the transaction sequence system.
@@ -38,18 +40,103 @@ export const STEP_STATUSES = {
 } as const;
 export type StepStatus = (typeof STEP_STATUSES)[keyof typeof STEP_STATUSES];
 
-/** User intent for creating a transaction sequence. */
-export interface SequenceIntent {
+/**
+ * Canonical data + behaviour representation of a user transaction intent.
+ *
+ * Combines the former plain interface and helper wrapper so that callers work
+ * with a single concept, reducing cognitive overhead.
+ */
+export class SequenceIntent {
     /** Kind of intent. */
-    kind: "DEPOSIT" | "WITHDRAW";
-    userAddress: `0x${string}`;
-    fromChain: number;
-    toChain: number;
+    readonly kind: "DEPOSIT" | "WITHDRAW";
+    readonly userAddress: `0x${string}`;
+    readonly fromChain: number;
+    readonly toChain: number;
     /** Input token ticker for swaps. */
-    fromTicker?: string;
+    readonly fromTicker?: string;
     /** Target token ticker. */
-    toTicker: string;
-    amountAtomic: bigint;
+    readonly toTicker: string;
+    readonly amountAtomic: bigint;
+
+    constructor(params: {
+        kind: "DEPOSIT" | "WITHDRAW";
+        userAddress: `0x${string}`;
+        fromChain: number;
+        toChain: number;
+        fromTicker?: string;
+        toTicker: string;
+        amountAtomic: bigint;
+    }) {
+        this.kind = params.kind;
+        this.userAddress = params.userAddress;
+        this.fromChain = params.fromChain;
+        this.toChain = params.toChain;
+        this.fromTicker = params.fromTicker;
+        this.toTicker = params.toTicker;
+        this.amountAtomic = params.amountAtomic;
+    }
+
+    /** Factory accepting either an existing SequenceIntent or a plain object. */
+    static from(
+        raw: SequenceIntent | ConstructorParameters<typeof SequenceIntent>[0],
+    ): SequenceIntent {
+        return raw instanceof SequenceIntent ? raw : new SequenceIntent(raw);
+    }
+
+    // ---------- Helper / Query Methods ----------
+
+    isDeposit(): boolean {
+        return this.kind === "DEPOSIT";
+    }
+
+    isWithdraw(): boolean {
+        return this.kind === "WITHDRAW";
+    }
+
+    /** Source token ticker (explicit fromTicker or fallback to toTicker). */
+    sourceTicker(): string {
+        return this.fromTicker ?? this.toTicker;
+    }
+
+    /** Determine if routing (bridge/swap) is required. */
+    needsRouting(): boolean {
+        return this.fromChain !== this.toChain || this.sourceTicker() !== this.toTicker;
+    }
+
+    /** Resolve token address on a chain (falls back to zero address). */
+    tokenAddress(ticker: string, chainId: number): `0x${string}` {
+        const token = getTokenByTicker(ticker, chainId);
+        return token?.address ?? (zeroAddress as `0x${string}`);
+    }
+
+    fromTokenAddress(): `0x${string}` {
+        return this.tokenAddress(this.sourceTicker(), this.fromChain);
+    }
+
+    toTokenAddress(): `0x${string}` {
+        return this.tokenAddress(this.toTicker, this.toChain);
+    }
+
+    /** Plain-object serialisation for storage or network transport. */
+    toJSON(): {
+        kind: "DEPOSIT" | "WITHDRAW";
+        userAddress: `0x${string}`;
+        fromChain: number;
+        toChain: number;
+        fromTicker?: string;
+        toTicker: string;
+        amountAtomic: bigint;
+    } {
+        return {
+            kind: this.kind,
+            userAddress: this.userAddress,
+            fromChain: this.fromChain,
+            toChain: this.toChain,
+            fromTicker: this.fromTicker,
+            toTicker: this.toTicker,
+            amountAtomic: this.amountAtomic,
+        };
+    }
 }
 
 // ---------- Execution Interfaces ----------

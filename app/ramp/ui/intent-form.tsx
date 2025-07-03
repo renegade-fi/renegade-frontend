@@ -9,7 +9,7 @@ import { solana } from "@/lib/viem";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { getTokenByTicker } from "../token-registry";
 import { useControllerContext } from "../transaction-control/controller-context";
-import type { SequenceIntent } from "../types";
+import { SequenceIntent } from "../types";
 
 /**
  * Hard-coded testing address – replace with real wallet address when needed.
@@ -37,7 +37,7 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
     return [
         {
             label: `Deposit 1.1 USDC from Solana to ${chainName}`,
-            intent: {
+            intent: SequenceIntent.from({
                 kind: "DEPOSIT",
                 userAddress: DEFAULT_USER_ADDRESS,
                 fromChain: solana.id,
@@ -45,11 +45,11 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
                 fromTicker: "USDC",
                 toTicker: "USDC",
                 amountAtomic: parseUnits("1.1", usdcDecimals),
-            },
+            }),
         },
         {
             label: `Deposit 1.1 USDC from Mainnet to ${chainName}`,
-            intent: {
+            intent: SequenceIntent.from({
                 kind: "DEPOSIT",
                 userAddress: DEFAULT_USER_ADDRESS,
                 fromChain: mainnet.id,
@@ -57,11 +57,11 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
                 fromTicker: "USDC",
                 toTicker: "USDC",
                 amountAtomic: parseUnits("1.1", usdcDecimals),
-            },
+            }),
         },
         {
             label: `Deposit 1 USDT from Mainnet to ${chainName}`,
-            intent: {
+            intent: SequenceIntent.from({
                 kind: "DEPOSIT",
                 userAddress: DEFAULT_USER_ADDRESS,
                 fromChain: mainnet.id,
@@ -69,33 +69,33 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
                 fromTicker: "USDT",
                 toTicker: "USDC",
                 amountAtomic: parseUnits("1", usdtDecimals),
-            },
+            }),
         },
         {
             label: `Deposit 1 USDC on ${chainName}`,
-            intent: {
+            intent: SequenceIntent.from({
                 kind: "DEPOSIT",
                 userAddress: DEFAULT_USER_ADDRESS,
                 fromChain: toChainId,
                 toChain: toChainId,
                 toTicker: "USDC",
                 amountAtomic: parseUnits("1", usdcDecimals),
-            },
+            }),
         },
         {
             label: `Withdraw 0.001 WETH on ${chainName}`,
-            intent: {
+            intent: SequenceIntent.from({
                 kind: "WITHDRAW",
                 userAddress: DEFAULT_USER_ADDRESS,
                 fromChain: toChainId,
                 toChain: toChainId,
                 toTicker: "WETH",
                 amountAtomic: parseUnits("0.001", wethDecimals),
-            },
+            }),
         },
         {
             label: `Withdraw 0.001 WETH → ETH on ${chainName}`,
-            intent: {
+            intent: SequenceIntent.from({
                 kind: "WITHDRAW",
                 userAddress: DEFAULT_USER_ADDRESS,
                 fromChain: toChainId,
@@ -103,7 +103,7 @@ function buildPresetIntents(toChainId: number): Array<{ label: string; intent: S
                 fromTicker: "WETH",
                 toTicker: "ETH",
                 amountAtomic: parseUnits("0.001", wethDecimals),
-            },
+            }),
         },
     ];
 }
