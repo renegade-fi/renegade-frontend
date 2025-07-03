@@ -65,10 +65,6 @@ export class Permit2SigTask implements Task<PermitSigDescriptor, PermitSigState,
         return this._state;
     }
 
-    commitPoint() {
-        return PermitSigState.Completed;
-    }
-
     completed() {
         return this._state === PermitSigState.Completed;
     }

@@ -29,12 +29,6 @@ export interface Task<D = unknown, S = unknown, E extends TaskError = TaskError>
     /** Current state-machine variant. */
     state(): S;
 
-    /**
-     * First state that cannot be rolled back.  Once the task reaches this point
-     * the executor could, in future, commit to consensus storage.
-     */
-    commitPoint(): S;
-
     /** Convenience: `state() === completedState` */
     completed(): boolean;
 
@@ -43,9 +37,6 @@ export interface Task<D = unknown, S = unknown, E extends TaskError = TaskError>
      * internally; the executor is responsible for repeated invocations.
      */
     step(): Promise<void>;
-
-    /** Skip the queue if this returns true. Currently unused. */
-    bypassQueue?(): boolean;
 
     /** Optional finaliser invoked exactly once after success or fatal failure. */
     cleanup?(success: boolean): Promise<void>;

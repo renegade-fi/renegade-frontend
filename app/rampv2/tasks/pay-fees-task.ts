@@ -65,10 +65,6 @@ export class PayFeesTask implements Task<PayFeesDescriptor, PayFeesState, PayFee
         return this._state;
     }
 
-    commitPoint() {
-        return PayFeesState.Submitted;
-    }
-
     completed() {
         return this._state === PayFeesState.Completed;
     }

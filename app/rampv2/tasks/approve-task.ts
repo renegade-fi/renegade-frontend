@@ -95,10 +95,6 @@ export class ApproveTask implements Task<ApproveDescriptor, ApproveState, Approv
         return this._state;
     }
 
-    commitPoint() {
-        return ApproveState.Submitted;
-    }
-
     completed() {
         return this._state === ApproveState.Completed;
     }

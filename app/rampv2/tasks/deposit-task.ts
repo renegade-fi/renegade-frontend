@@ -69,10 +69,6 @@ export class DepositTask implements Task<DepositDescriptor, DepositState, Deposi
         return this._state;
     }
 
-    commitPoint() {
-        return DepositState.Submitted;
-    }
-
     completed() {
         return this._state === DepositState.Completed;
     }

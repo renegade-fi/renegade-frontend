@@ -65,10 +65,6 @@ export class WithdrawTask implements Task<WithdrawDescriptor, WithdrawState, Wit
         return this._state;
     }
 
-    commitPoint() {
-        return WithdrawState.Submitted;
-    }
-
     completed() {
         return this._state === WithdrawState.Completed;
     }

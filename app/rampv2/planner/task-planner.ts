@@ -21,11 +21,11 @@ async function requestBestRoute(req: Parameters<typeof getRoutes>[0]): Promise<R
 // ---------------- Prerequisite Handling ----------------
 
 const prereqMap: Record<TaskType, Prereq[]> = {
-    [TASK_TYPES.DEPOSIT]: [Prereq.APPROVAL, Prereq.PERMIT2],
+    [TASK_TYPES.DEPOSIT]: [Prereq.PERMIT2],
     [TASK_TYPES.WITHDRAW]: [Prereq.PAY_FEES],
     [TASK_TYPES.LIFI_LEG]: [Prereq.APPROVAL],
     [TASK_TYPES.PAY_FEES]: [],
-    [TASK_TYPES.PERMIT2_SIG]: [],
+    [TASK_TYPES.PERMIT2_SIG]: [Prereq.APPROVAL],
     [TASK_TYPES.APPROVE]: [],
 };
 
@@ -38,6 +38,23 @@ export type PlannedTask =
     | Permit2SigTask
     | ApproveTask;
 
+// Helper type for tasks that expose an approvalRequirement() method
+// and a simple type-guard so the compiler can treat them safely.
+type HasApprovalRequirement = {
+    approvalRequirement: () =>
+        | { spender: `0x${string}`; amount: bigint }
+        | Promise<{ spender: `0x${string}`; amount: bigint } | undefined>
+        | undefined;
+};
+function hasApprovalRequirement(task: PlannedTask): task is PlannedTask & HasApprovalRequirement {
+    return (
+        // Use the in-operator to avoid casting to any while still performing a
+        // runtime check. Only DepositTask and LiFiLegTask satisfy this.
+        "approvalRequirement" in task &&
+        typeof (task as Partial<HasApprovalRequirement>).approvalRequirement === "function"
+    );
+}
+
 async function prerequisitesFor(
     task: PlannedTask,
     ctx: TaskContext,
@@ -49,11 +66,9 @@ async function prerequisitesFor(
     for (const flag of flags) {
         switch (flag) {
             case Prereq.APPROVAL: {
-                const req =
-                    "approvalRequirement" in task &&
-                    typeof (task as any).approvalRequirement === "function"
-                        ? await (task as any).approvalRequirement()
-                        : undefined;
+                const req = hasApprovalRequirement(task)
+                    ? await task.approvalRequirement()
+                    : undefined;
                 if (req) {
                     const { spender, amount } = req;
 

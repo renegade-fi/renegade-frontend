@@ -1,16 +1,12 @@
 import { getTaskHistory, getTaskStatus } from "@renegade-fi/react/actions";
-
 export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any> {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-    // Helper to normalise state field across API versions
-    const extractState = (task: any) => (task as any).state ?? (task as any).status;
 
     while (true) {
         try {
             // Primary strategy: poll the task status endpoint.
             const task = await getTaskStatus(cfg, { id: taskId });
-            const state = extractState(task);
+            const state = task.state;
             if (state === "Completed") return task;
             if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
         } catch (_) {
@@ -19,7 +15,7 @@ export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any
                 const history = await getTaskHistory(cfg);
                 const task = history?.get(taskId);
                 if (task) {
-                    const state = extractState(task);
+                    const state = task.state;
                     if (state === "Completed") return task;
                     if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
                 }
