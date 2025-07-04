@@ -2,7 +2,8 @@ import type { ExtendedTransactionInfo, Route } from "@lifi/sdk";
 import { getStepTransaction } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
 import { solana } from "@/lib/viem";
-import type { TaskError as BaseTaskError, Task } from "../core/task";
+import type { TaskError as BaseTaskError } from "../core/task";
+import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
@@ -35,7 +36,7 @@ class LiFiLegError extends Error implements BaseTaskError {
     }
 }
 
-export class LiFiLegTask implements Task<LiFiLegDescriptor, LiFiLegState, LiFiLegError> {
+export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegError> {
     private _state: LiFiLegState = LiFiLegState.Pending;
     private _txHash?: string;
 
@@ -47,6 +48,7 @@ export class LiFiLegTask implements Task<LiFiLegDescriptor, LiFiLegState, LiFiLe
         public readonly descriptor: LiFiLegDescriptor,
         private readonly ctx: TaskContext,
     ) {
+        super();
         this.chainId = descriptor.leg.action.fromChainId;
         this.mint = descriptor.leg.action.fromToken.address as `0x${string}`;
         this.amount = BigInt(descriptor.leg.action.fromAmount);

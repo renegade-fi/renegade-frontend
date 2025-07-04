@@ -4,10 +4,14 @@ import { erc20Abi } from "@/lib/generated";
 import { zeroAddress } from "@/lib/token";
 import { USDT_MAINNET_ADDRESS, usdtAbi } from "@/lib/usdtAbi";
 import { solana } from "@/lib/viem";
-import type { TaskError as BaseTaskError, Task } from "../core/task";
+import type { TaskError as BaseTaskError } from "../core/task";
+import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
+import type { PlannedTask } from "../planner/task-planner";
+import type { DepositTask } from "./deposit-task";
 import { ensureCorrectChain } from "./helpers/evm-utils";
+import type { LiFiLegTask } from "./lifi-leg-task";
 
 export interface ApproveDescriptor {
     readonly id: string;
@@ -36,14 +40,16 @@ class ApproveError extends Error implements BaseTaskError {
     }
 }
 
-export class ApproveTask implements Task<ApproveDescriptor, ApproveState, ApproveError> {
+export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveError> {
     private _state: ApproveState = ApproveState.Pending;
     private _txHash?: `0x${string}`;
 
     constructor(
         public readonly descriptor: ApproveDescriptor,
         private readonly ctx: TaskContext,
-    ) {}
+    ) {
+        super();
+    }
 
     static create(
         chainId: number,
@@ -121,7 +127,7 @@ export class ApproveTask implements Task<ApproveDescriptor, ApproveState, Approv
      * Determine if *this specific instance* of ApproveTask should stay in the plan.
      * Falls back to `true` on any unexpected error to be conservative.
      */
-    async isNeeded(): Promise<boolean> {
+    async isNeeded(_ctx: TaskContext): Promise<boolean> {
         const { chainId, mint, spender, amount } = this.descriptor;
         try {
             const pc = this.ctx.getPublicClient(chainId);
@@ -149,13 +155,10 @@ export class ApproveTask implements Task<ApproveDescriptor, ApproveState, Approv
      * Helper to derive an ApproveTask from a core planned task. Returns undefined
      * if no approval is relevant (e.g. spender undefined, native token, Solana).
      */
-    static fromCoreTask(
-        task: import("../planner/task-planner").PlannedTask,
-        ctx: TaskContext,
-    ): ApproveTask | undefined {
+    static fromCoreTask(task: PlannedTask, ctx: TaskContext): ApproveTask | undefined {
         switch (task.descriptor.type) {
             case TASK_TYPES.DEPOSIT: {
-                const dep = task as import("./deposit-task").DepositTask;
+                const dep = task as DepositTask;
                 const { chainId, mint, amount } = dep.descriptor;
                 // Use a large allowance to avoid insufficiency later.
                 // const maxUint256 = (BigInt(1) << BigInt(256)) - BigInt(1);
@@ -163,7 +166,7 @@ export class ApproveTask implements Task<ApproveDescriptor, ApproveState, Approv
                 return ApproveTask.create(chainId, mint, amount, spender, ctx);
             }
             case TASK_TYPES.LIFI_LEG: {
-                const legTask = task as import("./lifi-leg-task").LiFiLegTask;
+                const legTask = task as LiFiLegTask;
                 const { chainId, mint, amount } = legTask;
                 if (chainId === solana.id) return undefined;
                 if (mint === zeroAddress) return undefined; // native ETH

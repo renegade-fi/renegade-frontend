@@ -3,7 +3,8 @@ import { getPkRootScalars } from "@renegade-fi/react/actions";
 import { signTypedData } from "wagmi/actions";
 import { constructPermit2SigningData } from "@/app/rampv2/tasks/helpers/permit2-helpers";
 import { resolveAddress } from "@/lib/token";
-import type { TaskError as BaseTaskError, Task } from "../core/task";
+import type { TaskError as BaseTaskError } from "../core/task";
+import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
@@ -33,13 +34,15 @@ class PermitSigError extends Error implements BaseTaskError {
     }
 }
 
-export class Permit2SigTask implements Task<PermitSigDescriptor, PermitSigState, PermitSigError> {
+export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, PermitSigError> {
     private _state: PermitSigState = PermitSigState.Pending;
 
     constructor(
         public readonly descriptor: PermitSigDescriptor,
         private readonly ctx: TaskContext,
-    ) {}
+    ) {
+        super();
+    }
 
     static create(
         chainId: number,
@@ -70,7 +73,7 @@ export class Permit2SigTask implements Task<PermitSigDescriptor, PermitSigState,
     }
 
     /** Permit2 signature is always required once present in the plan. */
-    async isNeeded(): Promise<boolean> {
+    async isNeeded(_ctx: TaskContext): Promise<boolean> {
         return true;
     }
 

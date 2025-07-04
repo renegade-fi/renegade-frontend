@@ -1,5 +1,6 @@
 import { getBackOfQueueWallet, payFees } from "@renegade-fi/react/actions";
-import type { TaskError as BaseTaskError, Task } from "../core/task";
+import type { TaskError as BaseTaskError } from "../core/task";
+import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { waitForRenegadeTask } from "./helpers/waiters";
@@ -28,14 +29,16 @@ class PayFeesError extends Error implements BaseTaskError {
     }
 }
 
-export class PayFeesTask implements Task<PayFeesDescriptor, PayFeesState, PayFeesError> {
+export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesError> {
     private _state: PayFeesState = PayFeesState.Pending;
     private _taskId?: string;
 
     constructor(
         public readonly descriptor: PayFeesDescriptor,
         private readonly ctx: TaskContext,
-    ) {}
+    ) {
+        super();
+    }
 
     static create(chainId: number, ctx: TaskContext): PayFeesTask {
         const desc: PayFeesDescriptor = {
@@ -61,7 +64,7 @@ export class PayFeesTask implements Task<PayFeesDescriptor, PayFeesState, PayFee
     /**
      * Decide whether this PayFeesTask should be kept in the plan.
      */
-    async isNeeded(): Promise<boolean> {
+    async isNeeded(_ctx: TaskContext): Promise<boolean> {
         try {
             const wallet = await getBackOfQueueWallet(this.ctx.renegadeConfig);
             return wallet.balances.some(

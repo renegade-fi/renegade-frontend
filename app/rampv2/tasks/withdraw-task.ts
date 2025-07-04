@@ -1,6 +1,7 @@
 import { withdraw } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
-import type { TaskError as BaseTaskError, Task } from "../core/task";
+import type { TaskError as BaseTaskError } from "../core/task";
+import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
@@ -32,14 +33,16 @@ class WithdrawError extends Error implements BaseTaskError {
     }
 }
 
-export class WithdrawTask implements Task<WithdrawDescriptor, WithdrawState, WithdrawError> {
+export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, WithdrawError> {
     private _state: WithdrawState = WithdrawState.Pending;
     private _taskId?: string;
 
     constructor(
         public readonly descriptor: WithdrawDescriptor,
         private readonly ctx: TaskContext,
-    ) {}
+    ) {
+        super();
+    }
 
     static create(
         chainId: number,

@@ -1,3 +1,5 @@
+import type { TaskContext } from "./task-context";
+
 export interface TaskError extends Error {
     /**
      * Indicates whether the task can be safely retried when this error is
@@ -19,28 +21,32 @@ export interface TaskError extends Error {
  *                {@link TaskError} so the executor can decide whether to
  *                retry.
  */
-export interface Task<D = unknown, S = unknown, E extends TaskError = TaskError> {
+export abstract class Task<D = unknown, S = unknown, E extends TaskError = TaskError> {
     /** Serialisable description of the task. Useful for persistence & logging. */
-    readonly descriptor: D;
+    abstract readonly descriptor: D;
 
     /** Human-readable name for dashboards, logs, etc. */
-    name(): string;
+    abstract name(): string;
 
     /** Current state-machine variant. */
-    state(): S;
+    abstract state(): S;
 
     /** Convenience: `state() === completedState` */
-    completed(): boolean;
+    abstract completed(): boolean;
 
     /**
      * Advance the internal state by **at most** one transition.  Must never loop
      * internally; the executor is responsible for repeated invocations.
      */
-    step(): Promise<void>;
+    abstract step(): Promise<void>;
 
-    /** Optional finaliser invoked exactly once after success or fatal failure. */
-    cleanup?(success: boolean): Promise<void>;
+    /** Finaliser invoked exactly once after success or fatal failure. */
+    cleanup(_success: boolean): Promise<void> {
+        return Promise.resolve();
+    }
 
-    /** Optional hint for the planner: return false if this task can be skipped. */
-    isNeeded?(ctx: import("./task-context").TaskContext): Promise<boolean> | boolean;
+    /** Hint for the planner: return false if this task can be skipped. */
+    isNeeded(_ctx: TaskContext): Promise<boolean> | boolean {
+        return true;
+    }
 }

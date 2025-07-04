@@ -81,14 +81,11 @@ async function prerequisitesFor(
 async function filterNeeded(tasks: Task[], ctx: TaskContext): Promise<Task[]> {
     const neededFlags = await Promise.all(
         tasks.map(async (t) => {
-            if (typeof (t as any).isNeeded === "function") {
-                try {
-                    return await (t as any).isNeeded(ctx);
-                } catch {
-                    return true; // fallback: keep task if error occurs
-                }
+            try {
+                return await t.isNeeded(ctx);
+            } catch {
+                return true; // fallback: keep task if error occurs
             }
-            return true; // tasks without isNeeded are always kept
         }),
     );
     return tasks.filter((_, i) => neededFlags[i]);
