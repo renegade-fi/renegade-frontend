@@ -1,4 +1,3 @@
-import { getSDKConfig } from "@renegade-fi/react";
 import { deposit } from "@renegade-fi/react/actions";
 import { resolveAddress } from "@/lib/token";
 import type { TaskError as BaseTaskError, Task } from "../core/task";
@@ -71,21 +70,6 @@ export class DepositTask implements Task<DepositDescriptor, DepositState, Deposi
 
     completed() {
         return this._state === DepositState.Completed;
-    }
-
-    /**
-     * Describe the allowance this deposit needs. Used by the planner to decide
-     * whether an approval transaction should be queued ahead of the deposit.
-     */
-    approvalRequirement() {
-        const cfg = getSDKConfig(this.descriptor.chainId);
-        // Approve a very large allowance so a subsequent LiFi swap that yields
-        // slightly more than expected does not cause insufficiency.
-        const maxUint256 = (BigInt(1) << BigInt(256)) - BigInt(1);
-        return {
-            spender: cfg.permit2Address as `0x${string}`,
-            amount: maxUint256,
-        } as const;
     }
 
     async step(): Promise<void> {

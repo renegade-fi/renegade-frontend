@@ -142,6 +142,7 @@ export default function DepositForm() {
             return planTasks(intent, taskCtx);
         },
         enabled: !!intent && !!taskCtx && !!intent.amountAtomic && Object.keys(balances).length > 0,
+        staleTime: 0,
     });
 
     const { data: minRemainingEthBalance } = useQuery({
@@ -150,7 +151,7 @@ export default function DepositForm() {
             chainId: currentChain,
             approvals: 100,
         }),
-        enabled: isETH(mint, network),
+        enabled: isETH(swapToken, network),
     });
 
     function handleSubmit() {

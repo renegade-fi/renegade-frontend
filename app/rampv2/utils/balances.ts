@@ -23,29 +23,3 @@ export function buildBalancesCache(params: {
     }
     return cache;
 }
-
-/**
- * Compute how much of the swap token can be swapped while leaving a minimum remainder.
- * This is a direct extraction of the pure logic previously embedded in the page component.
- */
-export function computeSwapAmount(
-    intendedDepositAmount: bigint,
-    availableSwapTokenBalance: bigint,
-    availableDepositTokenBalance: bigint,
-    minRemainingSwapTokenBalance: bigint,
-): bigint {
-    // How much additional deposit-token do we need?
-    const swapNeeded =
-        intendedDepositAmount > availableDepositTokenBalance
-            ? intendedDepositAmount - availableDepositTokenBalance
-            : BigInt(0);
-
-    // How much swap-token can we safely spend while leaving the required remainder?
-    const maxSwappable =
-        availableSwapTokenBalance > minRemainingSwapTokenBalance
-            ? availableSwapTokenBalance - minRemainingSwapTokenBalance
-            : BigInt(0);
-
-    // We can only swap what is both needed and affordable.
-    return swapNeeded < maxSwappable ? swapNeeded : maxSwappable;
-}

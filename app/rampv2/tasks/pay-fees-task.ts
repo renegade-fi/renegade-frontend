@@ -37,17 +37,6 @@ export class PayFeesTask implements Task<PayFeesDescriptor, PayFeesState, PayFee
         private readonly ctx: TaskContext,
     ) {}
 
-    static async isNeeded(ctx: TaskContext): Promise<boolean> {
-        try {
-            const wallet = await getBackOfQueueWallet(ctx.renegadeConfig);
-            return wallet.balances.some(
-                (b) => b.protocol_fee_balance > BigInt(0) || b.relayer_fee_balance > BigInt(0),
-            );
-        } catch {
-            return true; // be conservative
-        }
-    }
-
     static create(chainId: number, ctx: TaskContext): PayFeesTask {
         const desc: PayFeesDescriptor = {
             id: crypto.randomUUID(),
@@ -67,6 +56,20 @@ export class PayFeesTask implements Task<PayFeesDescriptor, PayFeesState, PayFee
 
     completed() {
         return this._state === PayFeesState.Completed;
+    }
+
+    /**
+     * Decide whether this PayFeesTask should be kept in the plan.
+     */
+    async isNeeded(): Promise<boolean> {
+        try {
+            const wallet = await getBackOfQueueWallet(this.ctx.renegadeConfig);
+            return wallet.balances.some(
+                (b) => b.protocol_fee_balance > BigInt(0) || b.relayer_fee_balance > BigInt(0),
+            );
+        } catch {
+            return true; // be conservative
+        }
     }
 
     async step(): Promise<void> {

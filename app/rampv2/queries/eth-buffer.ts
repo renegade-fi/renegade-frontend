@@ -56,5 +56,6 @@ export function approveBufferQueryOptions(params: ApproveBufferParams) {
             const bufferWei = approveGas * gasPrice * BigInt(params.approvals);
             return formatEther(bufferWei);
         },
+        retry: true,
     });
 }

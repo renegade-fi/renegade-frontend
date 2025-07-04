@@ -1,7 +1,6 @@
 import type { ExtendedTransactionInfo, Route } from "@lifi/sdk";
 import { getStepTransaction } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { zeroAddress } from "@/lib/token";
 import { solana } from "@/lib/viem";
 import type { TaskError as BaseTaskError, Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
@@ -73,24 +72,6 @@ export class LiFiLegTask implements Task<LiFiLegDescriptor, LiFiLegState, LiFiLe
 
     completed() {
         return this._state === LiFiLegState.Completed;
-    }
-
-    /**
-     * Return spender/amount for allowances required before executing this leg.
-     * If the LI.FI API does not indicate an approval address, no approval is
-     * required.
-     */
-    approvalRequirement() {
-        // Solana SPL tokens (or native SOL) do not use ERC-20 style approvals.
-        if (this.chainId === solana.id) return undefined;
-        // Native ETH does not require approval.
-        if (this.mint === zeroAddress) return undefined;
-        const approvalAddr = this.descriptor.leg.estimate?.approvalAddress as
-            | `0x${string}`
-            | undefined;
-        if (!approvalAddr) return undefined;
-        const amount = BigInt(this.descriptor.leg.action.fromAmount);
-        return { spender: approvalAddr, amount } as const;
     }
 
     async step(): Promise<void> {

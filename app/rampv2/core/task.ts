@@ -40,4 +40,7 @@ export interface Task<D = unknown, S = unknown, E extends TaskError = TaskError>
 
     /** Optional finaliser invoked exactly once after success or fatal failure. */
     cleanup?(success: boolean): Promise<void>;
+
+    /** Optional hint for the planner: return false if this task can be skipped. */
+    isNeeded?(ctx: import("./task-context").TaskContext): Promise<boolean> | boolean;
 }

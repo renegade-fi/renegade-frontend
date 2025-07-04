@@ -43,23 +43,6 @@ export type PlannedTask =
     | Permit2SigTask
     | ApproveTask;
 
-// Helper type for tasks that expose an approvalRequirement() method
-// and a simple type-guard so the compiler can treat them safely.
-type HasApprovalRequirement = {
-    approvalRequirement: () =>
-        | { spender: `0x${string}`; amount: bigint }
-        | Promise<{ spender: `0x${string}`; amount: bigint } | undefined>
-        | undefined;
-};
-function hasApprovalRequirement(task: PlannedTask): task is PlannedTask & HasApprovalRequirement {
-    return (
-        // Use the in-operator to avoid casting to any while still performing a
-        // runtime check. Only DepositTask and LiFiLegTask satisfy this.
-        "approvalRequirement" in task &&
-        typeof (task as Partial<HasApprovalRequirement>).approvalRequirement === "function"
-    );
-}
-
 async function prerequisitesFor(
     task: PlannedTask,
     ctx: TaskContext,
@@ -71,39 +54,8 @@ async function prerequisitesFor(
     for (const flag of flags) {
         switch (flag) {
             case Prereq.APPROVAL: {
-                const req = hasApprovalRequirement(task)
-                    ? await task.approvalRequirement()
-                    : undefined;
-                if (req) {
-                    const { spender, amount } = req;
-
-                    let chainId: number | undefined;
-                    let mint: `0x${string}` | undefined;
-
-                    switch (task.descriptor.type) {
-                        case TASK_TYPES.DEPOSIT: {
-                            const dep = task as DepositTask;
-                            chainId = dep.descriptor.chainId;
-                            mint = dep.descriptor.mint;
-                            break;
-                        }
-                        case TASK_TYPES.LIFI_LEG: {
-                            const leg = task as LiFiLegTask;
-                            chainId = leg.chainId;
-                            mint = leg.mint;
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-
-                    if (chainId !== undefined && mint !== undefined) {
-                        if (await ApproveTask.isNeeded(ctx, chainId, mint, spender, amount)) {
-                            console.log("ApproveTask.create", chainId, mint, amount, spender, ctx);
-                            extras.push(ApproveTask.create(chainId, mint, amount, spender, ctx));
-                        }
-                    }
-                }
+                const approve = ApproveTask.fromCoreTask(task, ctx);
+                if (approve) extras.push(approve);
                 break;
             }
             case Prereq.PERMIT2: {
@@ -114,9 +66,7 @@ async function prerequisitesFor(
                 break;
             }
             case Prereq.PAY_FEES: {
-                if (await PayFeesTask.isNeeded(ctx)) {
-                    extras.push(PayFeesTask.create(intent.fromChain, ctx));
-                }
+                extras.push(PayFeesTask.create(intent.fromChain, ctx));
                 break;
             }
             default:
@@ -125,6 +75,23 @@ async function prerequisitesFor(
     }
 
     return extras;
+}
+
+/** Filter out unneeded tasks in a single parallel sweep. */
+async function filterNeeded(tasks: Task[], ctx: TaskContext): Promise<Task[]> {
+    const neededFlags = await Promise.all(
+        tasks.map(async (t) => {
+            if (typeof (t as any).isNeeded === "function") {
+                try {
+                    return await (t as any).isNeeded(ctx);
+                } catch {
+                    return true; // fallback: keep task if error occurs
+                }
+            }
+            return true; // tasks without isNeeded are always kept
+        }),
+    );
+    return tasks.filter((_, i) => neededFlags[i]);
 }
 
 export async function planTasks(intent: Intent, ctx: TaskContext): Promise<Task[]> {
@@ -197,11 +164,14 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
         ),
     );
 
-    // Inject prereqs
-    const ordered: Task[] = [];
+    // Inject prereqs then filter
+    let ordered: Task[] = [];
     for (const t of coreTasks) {
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
+    console.log("task order pre-filter", ordered);
+    ordered = await filterNeeded(ordered, ctx);
+    console.log("task order post-filter", ordered);
     return ordered;
 }
 
@@ -224,11 +194,6 @@ async function getSwapRoute(intent: Intent, ctx: TaskContext): Promise<Route | u
         intent.amountAtomic > initialBal ? intent.amountAtomic - initialBal : BigInt(0);
 
     if (shortfall > BigInt(0)) {
-        console.log("planning step debug", {
-            shortfall,
-            initialBal,
-            intentAmount: intent.amountAtomic,
-        });
         // Build a route request identical to intent.toLifiRouteRequest() but with shortfall.
         const routeReq = intent.toLifiRouteRequest();
         routeReq.fromAmount = shortfall.toString();
@@ -253,10 +218,11 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
 
     if (!intent.needsRouting()) {
         // inject prereqs then return
-        const ordered: Task[] = [];
+        let ordered: Task[] = [];
         for (const t of coreTasks) {
             ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
         }
+        ordered = await filterNeeded(ordered, ctx);
         return ordered;
     }
 
@@ -267,9 +233,10 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
         coreTasks.push(LiFiLegTask.create(leg, isFinal, ctx));
     });
 
-    const ordered: Task[] = [];
+    let ordered: Task[] = [];
     for (const t of coreTasks) {
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
+    ordered = await filterNeeded(ordered, ctx);
     return ordered;
 }

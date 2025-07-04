@@ -69,6 +69,11 @@ export class Permit2SigTask implements Task<PermitSigDescriptor, PermitSigState,
         return this._state === PermitSigState.Completed;
     }
 
+    /** Permit2 signature is always required once present in the plan. */
+    async isNeeded(): Promise<boolean> {
+        return true;
+    }
+
     async step(): Promise<void> {
         if (this._state !== PermitSigState.Pending)
             throw new PermitSigError("Already completed", false);
