@@ -18,8 +18,9 @@ import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/sta
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { TokenSelect } from "../components/token-select";
+import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { createSwapIntent, isETH } from "../helpers";
+import { isETH } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
@@ -112,7 +113,7 @@ export default function DepositForm() {
 
         if (!swapToken) return { intent: undefined, taskCtx: ctx } as const;
 
-        const intent = createSwapIntent(ctx, {
+        const intent = Intent.newSwapIntent(ctx, {
             swapToken,
             depositMint: mint,
             chainId: network,

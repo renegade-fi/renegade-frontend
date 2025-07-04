@@ -20,8 +20,8 @@ import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { NetworkSelect } from "../components/network-select";
 import { TokenSelect } from "../components/token-select";
+import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { createBridgeIntent } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
@@ -97,7 +97,7 @@ export default function BridgeForm() {
             balances,
         );
 
-        const intent = createBridgeIntent(ctx, {
+        const intent = Intent.newBridgeIntent(ctx, {
             mint,
             sourceChain: network,
             currentChain,
