@@ -169,7 +169,48 @@ async function getWalletBalance(
 
 async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
     const coreTasks: PlannedTask[] = [];
+    const bridgeNeeded = intent.fromChain !== intent.toChain;
+    const swapNeeded = intent.fromTokenAddress !== intent.toTokenAddress;
 
+    let route: Route | undefined;
+    if (bridgeNeeded) {
+        route = await getBridgeRoute(intent, ctx);
+    } else if (swapNeeded) {
+        route = await getSwapRoute(intent, ctx);
+    }
+
+    if (route) {
+        route.steps.forEach((leg, idx) => {
+            const isFinal = idx === route.steps.length - 1;
+            coreTasks.push(LiFiLegTask.create(leg, isFinal, ctx));
+        });
+    }
+
+    // Always finish with deposit
+    // TODO: Validate isAddress since only ERC20 can be deposited
+    coreTasks.push(
+        DepositTask.create(
+            intent.toChain,
+            intent.toTokenAddress as `0x${string}`,
+            intent.amountAtomic,
+            ctx,
+        ),
+    );
+
+    // Inject prereqs
+    const ordered: Task[] = [];
+    for (const t of coreTasks) {
+        ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
+    }
+    return ordered;
+}
+
+async function getBridgeRoute(intent: Intent, ctx: TaskContext): Promise<Route> {
+    const routeReq = intent.toLifiRouteRequest();
+    return requestBestRoute(routeReq);
+}
+
+async function getSwapRoute(intent: Intent, ctx: TaskContext): Promise<Route | undefined> {
     // Determine how much of the desired deposit is already available.
     const owner = ctx.getOnchainAddress(intent.toChain);
     const initialBal = await getWalletBalance(
@@ -192,31 +233,8 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
         const routeReq = intent.toLifiRouteRequest();
         routeReq.fromAmount = shortfall.toString();
 
-        const r = await requestBestRoute(routeReq);
-
-        r.steps.forEach((leg, idx) => {
-            const isFinal = idx === r.steps.length - 1;
-            coreTasks.push(LiFiLegTask.create(leg, isFinal, ctx));
-        });
+        return requestBestRoute(routeReq);
     }
-
-    // Always finish with deposit
-    // TODO: Validate isAddress since only ERC20 can be deposited
-    coreTasks.push(
-        DepositTask.create(
-            intent.toChain,
-            intent.toTokenAddress as `0x${string}`,
-            intent.amountAtomic,
-            ctx,
-        ),
-    );
-
-    // Inject prereqs
-    const ordered: Task[] = [];
-    for (const t of coreTasks) {
-        ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
-    }
-    return ordered;
 }
 
 async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {

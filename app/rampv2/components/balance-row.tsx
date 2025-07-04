@@ -5,10 +5,6 @@ import { TooltipButton } from "@/components/tooltip-button";
 import { cn } from "@/lib/utils";
 import { isETH } from "../helpers";
 import {
-    approveBufferQueryOptions,
-    type QueryParams as EthBufferQueryParams,
-} from "../queries/eth-buffer";
-import {
     type QueryParams as OnChainBalanceQueryParams,
     onChainBalanceQuery,
 } from "../queries/on-chain-balance";
@@ -17,9 +13,10 @@ import { getTokenByAddress } from "../token-registry";
 interface Props {
     onClick: (amount: string) => void;
     hideNetworkLabel?: boolean;
+    minRemainingEthBalance?: string;
 }
 
-export function BalanceRow(props: Props & OnChainBalanceQueryParams & EthBufferQueryParams) {
+export function BalanceRow(props: Props & OnChainBalanceQueryParams) {
     const { data: balance, isSuccess } = useQuery({
         ...onChainBalanceQuery(props),
     });
@@ -29,20 +26,12 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & EthBufferQ
         ? `${balance.decimalCorrected} ${balance.ticker}`
         : "--";
 
-    const { data: minRemainingEthBalance } = useQuery({
-        ...approveBufferQueryOptions({
-            config: props.config,
-            chainId: props.chainId,
-            approvals: 100,
-        }),
-    });
-
     function handleClick() {
         if (isSuccess) {
             const isEth = isETH(props.mint, props.chainId);
             if (isEth) {
                 // Compute swap value leaving at least the minimum ETH buffer untouched
-                const bufferWei = parseEther(minRemainingEthBalance ?? "0");
+                const bufferWei = parseEther(props.minRemainingEthBalance ?? "0");
                 const swapAmount = balance.raw - bufferWei;
                 if (swapAmount > BigInt(0)) {
                     const formatted = formatEther(swapAmount);

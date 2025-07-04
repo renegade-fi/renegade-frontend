@@ -61,6 +61,7 @@ export function onChainBalanceQuery(params: QueryParams) {
             const rounded = formatNumber(raw, maybeToken.decimals);
             return { raw, decimalCorrected, rounded, ticker: maybeToken.ticker };
         },
+        staleTime: 0,
     });
 }
 

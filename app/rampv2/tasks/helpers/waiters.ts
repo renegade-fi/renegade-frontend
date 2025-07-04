@@ -42,13 +42,36 @@ export type LifiStatus = Awaited<ReturnType<typeof getStatus>>;
 
 /** Poll LiFi backend until it returns a terminal status. */
 export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
+    // Detect whether an error from the LiFi SDK indicates the transaction hash
+    // has simply not propagated yet (HTTP 404 / NotFound) versus a fatal issue.
+    const isNotFoundError = (e: unknown): boolean =>
+        e instanceof Error &&
+        (e.message?.includes("404") ||
+            e.message?.toLowerCase().includes("notfound") ||
+            e.message?.toLowerCase().includes("not found"));
+
     let attempts = 0;
     const maxAttempts = 300; // 5 min @ 1s
-    let statusRes = await getStatus({ txHash });
-    while (!["DONE", "FAILED", "INVALID"].includes(statusRes.status) && attempts < maxAttempts) {
-        await sleep(POLL_INTERVAL);
-        statusRes = await getStatus({ txHash });
+    let statusRes: LifiStatus | undefined;
+
+    while (attempts < maxAttempts) {
+        try {
+            statusRes = await getStatus({ txHash });
+
+            if (["DONE", "FAILED", "INVALID"].includes(statusRes.status)) {
+                return statusRes;
+            }
+        } catch (err) {
+            if (!isNotFoundError(err)) {
+                // Bubble up non-transient errors immediately.
+                throw err;
+            }
+            // Otherwise, treat as "status not yet available" and continue polling.
+        }
+
         attempts++;
+        await sleep(POLL_INTERVAL);
     }
-    return statusRes;
+
+    throw new Error("LiFi status polling timed out after 5 minutes");
 }
