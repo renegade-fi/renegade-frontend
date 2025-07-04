@@ -20,7 +20,7 @@ import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { NetworkSelect } from "../components/network-select";
 import { TokenSelect } from "../components/token-select";
-import { makeTaskContext } from "../core/make-task-context";
+import { TaskContext } from "../core/task-context";
 import { createBridgeIntent } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
@@ -87,7 +87,7 @@ export default function BridgeForm() {
         if (!renegadeConfig || !wagmiConfig || !address)
             return { intent: undefined, taskCtx: undefined } as const;
 
-        const ctx = makeTaskContext(
+        const ctx = TaskContext.new(
             renegadeConfig,
             wagmiConfig,
             keychainNonce ?? BigInt(0),

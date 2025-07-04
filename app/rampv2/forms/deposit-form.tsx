@@ -18,7 +18,7 @@ import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/sta
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { TokenSelect } from "../components/token-select";
-import { makeTaskContext } from "../core/make-task-context";
+import { TaskContext } from "../core/task-context";
 import { createSwapIntent, isETH } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
@@ -100,7 +100,7 @@ export default function DepositForm() {
         if (!renegadeConfig || !wagmiConfig || !address)
             return { intent: undefined, taskCtx: undefined } as const;
 
-        const ctx = makeTaskContext(
+        const ctx = TaskContext.new(
             renegadeConfig,
             wagmiConfig,
             keychainNonce ?? BigInt(0),
@@ -151,7 +151,7 @@ export default function DepositForm() {
             chainId: currentChain,
             approvals: 100,
         }),
-        enabled: isETH(swapToken, network),
+        enabled: swapToken ? isETH(swapToken, network) : false,
     });
 
     function handleSubmit() {
