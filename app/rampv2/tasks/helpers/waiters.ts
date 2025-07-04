@@ -1,12 +1,29 @@
 import { getStatus } from "@lifi/sdk";
+import type { Config as RenegadeConfig } from "@renegade-fi/react";
 import { getTaskHistory, getTaskStatus } from "@renegade-fi/react/actions";
 import type { PublicClient } from "viem";
 
 const POLL_INTERVAL = 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any> {
-    while (true) {
+/* Polling helper */
+async function pollUntil<T>(
+    fn: () => Promise<T | undefined>,
+    maxAttempts: number = Infinity,
+): Promise<T> {
+    let attempts = 0;
+    while (attempts < maxAttempts) {
+        const result = await fn();
+        if (result !== undefined) return result;
+        attempts++;
+        await sleep(POLL_INTERVAL);
+    }
+    throw new Error("Polling timed out");
+}
+
+/** Poll Renegade backend until a task is completed or failed. */
+export async function waitForRenegadeTask(cfg: RenegadeConfig, taskId: string): Promise<any> {
+    const task = await pollUntil(async () => {
         try {
             // Primary strategy: poll the task status endpoint.
             const task = await getTaskStatus(cfg, { id: taskId });
@@ -15,22 +32,20 @@ export async function waitForRenegadeTask(cfg: any, taskId: string): Promise<any
             if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
         } catch (_) {
             // Fallback: getTaskStatus failed (e.g. 404). Switch to polling the history map.
-            while (true) {
-                const history = await getTaskHistory(cfg);
-                const task = history?.get(taskId);
-                if (task) {
-                    const state = task.state;
-                    if (state === "Completed") return task;
-                    if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
-                }
-                await sleep(POLL_INTERVAL);
+            const history = await getTaskHistory(cfg);
+            const task = history?.get(taskId);
+            if (task) {
+                const state = task.state;
+                if (state === "Completed") return task;
+                if (state === "Failed") throw new Error(`Renegade task ${taskId} failed`);
             }
         }
-        await sleep(POLL_INTERVAL);
-    }
+        return undefined;
+    });
+    return task;
 }
 
-/** Await an on-chain transaction receipt via viem PublicClient. */
+/** Poll on-chain until a transaction is confirmed. */
 export async function waitForTxReceipt(
     publicClient: PublicClient,
     hash: `0x${string}`,
@@ -54,7 +69,7 @@ export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
     const maxAttempts = 300; // 5 min @ 1s
     let statusRes: LifiStatus | undefined;
 
-    while (attempts < maxAttempts) {
+    statusRes = await pollUntil(async () => {
         try {
             statusRes = await getStatus({ txHash });
 
@@ -70,8 +85,8 @@ export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
         }
 
         attempts++;
-        await sleep(POLL_INTERVAL);
-    }
+        return undefined;
+    }, maxAttempts);
 
-    throw new Error("LiFi status polling timed out after 5 minutes");
+    return statusRes;
 }
