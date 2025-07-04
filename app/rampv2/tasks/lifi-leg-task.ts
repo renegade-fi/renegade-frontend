@@ -142,10 +142,12 @@ export class LiFiLegTask implements Task<LiFiLegDescriptor, LiFiLegState, LiFiLe
                 const status = await waitForLiFiStatus(this._txHash);
                 if (status.status !== "DONE")
                     throw new LiFiLegError(`LiFi status ${status.status}`, true);
-                // capture final amount
                 if (this.descriptor.isFinalLeg && "receiving" in status) {
                     const amtStr = (status.receiving as ExtendedTransactionInfo).amount ?? "0";
-                    this.ctx.data.lifiFinalAmount = BigInt(amtStr);
+                    const toChainId = this.descriptor.leg.action.toChainId;
+                    const toTokenAddress = this.descriptor.leg.action.toToken
+                        .address as `0x${string}`;
+                    this.ctx.routeOutput(toChainId, toTokenAddress, BigInt(amtStr));
                 }
                 this._state = LiFiLegState.Completed;
                 break;

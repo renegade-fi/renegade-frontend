@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { formatEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { NetworkLabel } from "@/components/dialogs/transfer/network-display";
 import { TooltipButton } from "@/components/tooltip-button";
 import { cn } from "@/lib/utils";
 import { isETH } from "../helpers";
 import {
+    approveBufferQueryOptions,
     type QueryParams as EthBufferQueryParams,
-    ethBufferQueryOptions,
 } from "../queries/eth-buffer";
 import {
     type QueryParams as OnChainBalanceQueryParams,
@@ -30,9 +30,10 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & EthBufferQ
         : "--";
 
     const { data: minRemainingEthBalance } = useQuery({
-        ...ethBufferQueryOptions({
+        ...approveBufferQueryOptions({
             config: props.config,
             chainId: props.chainId,
+            approvals: 100,
         }),
     });
 
@@ -40,13 +41,9 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & EthBufferQ
         if (isSuccess) {
             const isEth = isETH(props.mint, props.chainId);
             if (isEth) {
-                // Compute swap value such that the remaining balance is greater than the minimum remaining balance
-                const swapAmount = balance.raw - (minRemainingEthBalance ?? BigInt(0));
-                console.log("swapAmount", {
-                    minRemainingEthBalance,
-                    balance: balance.raw,
-                    swapAmount,
-                });
+                // Compute swap value leaving at least the minimum ETH buffer untouched
+                const bufferWei = parseEther(minRemainingEthBalance ?? "0");
+                const swapAmount = balance.raw - bufferWei;
                 if (swapAmount > BigInt(0)) {
                     const formatted = formatEther(swapAmount);
                     props.onClick(formatted);

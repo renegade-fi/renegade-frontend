@@ -93,9 +93,12 @@ export class DepositTask implements Task<DepositDescriptor, DepositState, Deposi
 
         switch (this._state) {
             case DepositState.Pending: {
-                if (this.ctx.data.lifiFinalAmount) {
-                    this._finalAmount = this.ctx.data.lifiFinalAmount;
-                }
+                this._finalAmount = this.ctx.getExpectedBalance(chainId, mint);
+                console.log("deposit task", {
+                    chainId,
+                    mint,
+                    finalAmount: this._finalAmount,
+                });
 
                 await ensureCorrectChain(this.ctx, chainId);
 

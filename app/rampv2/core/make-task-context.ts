@@ -17,11 +17,17 @@ export function makeTaskContext(
     renegadeConfig: RenegadeConfig,
     wagmiConfig: WagmiConfig,
     keychainNonce: bigint,
-    connection?: Connection,
-    signTransaction?: SolanaSigner,
-    solanaAddress?: string,
+    connection: Connection | undefined,
+    signTransaction: SolanaSigner | undefined,
+    solanaAddress: string | undefined,
+    balances: Record<string, bigint>,
 ): TaskContext {
     const pcCache = new Map<number, PublicClient>();
+    const routeOutputs: Record<string, bigint> = {};
+
+    function key(chain: number, tok: string) {
+        return `${chain}-${tok.toLowerCase()}`;
+    }
 
     function getPublicClient(chainId: number): PublicClient {
         if (!pcCache.has(chainId)) {
@@ -60,7 +66,25 @@ export function makeTaskContext(
         keychainNonce,
         permit: {},
         data: {},
+        balances,
+        routeOutputs,
         connection,
         signTransaction,
+
+        /** ================= balance helpers ================= */
+        routeOutput(chainId, token, delta) {
+            const k = key(chainId, token);
+            routeOutputs[k] = (routeOutputs[k] ?? BigInt(0)) + delta;
+        },
+
+        getWalletSnapshot(chainId, token) {
+            const k = key(chainId, token);
+            return balances[k] ?? BigInt(0);
+        },
+
+        getExpectedBalance(chainId, token) {
+            const k = key(chainId, token);
+            return (balances[k] ?? BigInt(0)) + (routeOutputs[k] ?? BigInt(0));
+        },
     };
 }

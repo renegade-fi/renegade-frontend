@@ -1,9 +1,12 @@
+import { getSDKConfig } from "@renegade-fi/react";
 import { queryOptions } from "@tanstack/react-query";
-import { zeroAddress } from "viem";
+import { encodeFunctionData, formatEther } from "viem";
 import type { Config } from "wagmi";
-import { estimateGas } from "wagmi/actions";
+import { estimateGas, getGasPrice } from "wagmi/actions";
+import { erc20Abi } from "@/lib/generated";
+import { resolveTicker } from "@/lib/token";
 
-const MULTIPLIER = 10;
+const USDC_ADDRESS = resolveTicker("USDC").address as `0x${string}`;
 
 export interface QueryParams {
     config: Config;
@@ -16,21 +19,42 @@ export interface QueryParams {
     account?: `0x${string}`;
 }
 
-export function ethBufferQueryOptions(params: QueryParams) {
+export interface ApproveBufferParams {
+    config: Config;
+    chainId: number;
+    approvals: number;
+}
+
+export function approveBufferQueryOptions(params: ApproveBufferParams) {
+    const sdkCfg = getSDKConfig(params.chainId);
+    const spender = sdkCfg.permit2Address as `0x${string}`;
+    const amount = BigInt(1) << (BigInt(256) - BigInt(1));
     return queryOptions({
         queryKey: [
-            "ethBuffer",
-            { chainId: params.chainId, account: params.account, multiplier: MULTIPLIER },
+            "approveBuffer",
+            {
+                chainId: params.chainId,
+                approvals: params.approvals,
+            },
         ],
         queryFn: async () => {
-            const gas = await estimateGas(params.config, {
-                account: params.account,
-                // Self-transfer if account provided; otherwise zero address is fine.
-                to: (params.account ?? zeroAddress) as `0x${string}`,
-                value: BigInt(0),
-                chainId: params.chainId,
+            const approveCalldata = encodeFunctionData({
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [spender, amount],
             });
-            return gas * BigInt(MULTIPLIER);
+
+            const [gasPrice, approveGas] = await Promise.all([
+                getGasPrice(params.config),
+                estimateGas(params.config, {
+                    to: USDC_ADDRESS,
+                    data: approveCalldata,
+                    chainId: params.chainId,
+                }),
+            ]);
+
+            const bufferWei = approveGas * gasPrice * BigInt(params.approvals);
+            return formatEther(bufferWei);
         },
     });
 }

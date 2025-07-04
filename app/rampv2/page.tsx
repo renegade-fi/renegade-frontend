@@ -19,8 +19,9 @@ import { BalanceRow } from "./components/balance-row";
 import { MaxButton } from "./components/max-button";
 import { NetworkSelect } from "./components/network-select";
 import { TokenSelect } from "./components/token-select";
+import { balanceKey } from "./core/balance-utils";
 import { makeTaskContext } from "./core/make-task-context";
-import { createBridgeIntent } from "./helpers";
+import { createBridgeIntent, createSwapIntent } from "./helpers";
 import { planTasks } from "./planner/task-planner";
 import { onChainBalanceQuery } from "./queries/on-chain-balance";
 import { TaskQueue } from "./queue/task-queue";
@@ -68,10 +69,48 @@ export default function RampV2Page() {
         return getSwapInputsFor(mint, network);
     }, [isBridge, mint, network]);
 
+    // First candidate swap token (if any)
+    const swapToken = availableSwappableTokens[0]?.address;
+
     // Networks that can be bridged from
     const availableNetworks = useMemo(() => {
         return [solana.id, mainnet.id, arbitrum.id, base.id].filter((id) => id !== currentChain);
     }, [currentChain]);
+
+    const chainDependentAddress = network === solana.id ? solanaAddress : address;
+
+    const { data: availableDepositBalance } = useQuery({
+        ...onChainBalanceQuery({
+            chainId: network,
+            mint,
+            owner: chainDependentAddress!,
+            config: wagmiConfig,
+            connection,
+        }),
+    });
+
+    const { data: availableSwapBalance } = useQuery({
+        ...onChainBalanceQuery({
+            chainId: network,
+            mint: swapToken ?? "",
+            owner: chainDependentAddress!,
+            config: wagmiConfig,
+            connection,
+        }),
+        enabled: !!swapToken && !!chainDependentAddress,
+    });
+
+    // Build balances cache – MUST come before we build task context
+    const balances = useMemo<Record<string, bigint>>(() => {
+        const cache: Record<string, bigint> = {};
+        if (mint) {
+            cache[balanceKey(network, mint)] = availableDepositBalance?.raw ?? BigInt(0);
+        }
+        if (swapToken) {
+            cache[balanceKey(network, swapToken)] = availableSwapBalance?.raw ?? BigInt(0);
+        }
+        return cache;
+    }, [network, mint, swapToken, availableDepositBalance?.raw, availableSwapBalance?.raw]);
 
     const { intent, taskCtx } = useMemo(() => {
         if (!renegadeConfig || !wagmiConfig || !address)
@@ -83,13 +122,25 @@ export default function RampV2Page() {
             connection,
             signTransaction ?? undefined,
             solanaAddress,
+            balances,
         );
-        const intent = createBridgeIntent(ctx, {
-            mint,
-            sourceChain: network,
-            currentChain,
-            amount,
-        });
+        let intent;
+        if (isBridge) {
+            intent = createBridgeIntent(ctx, {
+                mint,
+                sourceChain: network,
+                currentChain,
+                amount,
+            });
+        } else {
+            if (!swapToken) return { intent: undefined, taskCtx: ctx };
+            intent = createSwapIntent(ctx, {
+                swapToken,
+                depositMint: mint,
+                chainId: network,
+                amount,
+            });
+        }
         return {
             intent,
             taskCtx: ctx,
@@ -106,6 +157,9 @@ export default function RampV2Page() {
         connection,
         signTransaction,
         solanaAddress,
+        balances,
+        isBridge,
+        swapToken,
     ]);
 
     // TODO: may need config in query key (chain switch)
@@ -115,7 +169,7 @@ export default function RampV2Page() {
             if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
             return planTasks(intent, taskCtx);
         },
-        enabled: !!intent && !!taskCtx && !!intent.amountAtomic,
+        enabled: !!intent && !!taskCtx && !!intent.amountAtomic && Object.keys(balances).length > 0,
     });
 
     function handleSubmit() {
@@ -157,15 +211,6 @@ export default function RampV2Page() {
         return swapNeeded < maxSwappable ? swapNeeded : maxSwappable;
     }
 
-    const chainDependentAddress = network === solana.id ? solanaAddress : address;
-    const { data: availableDepositBalance } = useQuery({
-        ...onChainBalanceQuery({
-            chainId: network,
-            mint,
-            owner: chainDependentAddress!,
-        }),
-    });
-
     /**
      * Set the amount to the sum of the input and the available balance of the deposit token,
      * taking into consideration the minimum remaining balance of the swap token.
@@ -178,7 +223,7 @@ export default function RampV2Page() {
     }
 
     // TODO: Might need dynamic message for solana address
-    if (!renegadeConfig || !address || !solanaAddress || !chainDependentAddress) {
+    if (!renegadeConfig || !chainDependentAddress) {
         return (
             <main className="p-6 max-w-lg mx-auto">
                 <h1 className="text-2xl font-bold">Ramp v2 Demo</h1>

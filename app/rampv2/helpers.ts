@@ -39,3 +39,44 @@ export function createBridgeIntent(
     });
     return intent;
 }
+
+/**
+ * Create an Intent that represents swapping `swapToken` into `depositMint` on
+ * the same chain and then depositing the result.
+ *
+ * The intent encodes:
+ *   fromTokenAddress = swapToken
+ *   toTokenAddress   = depositMint
+ *   fromChain == toChain == chainId
+ *
+ * @remarks Returns `undefined` if either token metadata cannot be resolved.
+ */
+export function createSwapIntent(
+    ctx: TaskContext,
+    params: {
+        swapToken: string; // token we currently hold / will swap from
+        depositMint: string; // token we ultimately deposit
+        chainId: number;
+        amount: string; // human-readable units of depositMint
+    },
+) {
+    const { swapToken, depositMint, chainId, amount } = params;
+
+    const fromToken = getTokenByAddress(swapToken, chainId);
+    if (!fromToken) return undefined;
+    const toToken = getTokenByAddress(depositMint, chainId);
+    if (!toToken) return undefined;
+
+    const intent = new Intent({
+        kind: "DEPOSIT",
+        fromChain: chainId,
+        toChain: chainId,
+        fromAddress: ctx.getOnchainAddress(chainId),
+        toAddress: ctx.getOnchainAddress(chainId),
+        fromTokenAddress: fromToken.address,
+        toTokenAddress: toToken.address,
+        amountAtomic: parseUnits(amount, toToken.decimals),
+    });
+
+    return intent;
+}

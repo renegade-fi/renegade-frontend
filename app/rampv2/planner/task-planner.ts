@@ -1,8 +1,13 @@
 import { getRoutes, type Route } from "@lifi/sdk";
+import { getBalance } from "wagmi/actions";
+import { readErc20BalanceOf } from "@/lib/generated";
+import { solana } from "@/lib/viem";
+import { balanceKey } from "../core/balance-utils";
 import type { Intent } from "../core/intent";
 import type { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
+import { isETH } from "../helpers";
 import { ApproveTask } from "../tasks/approve-task";
 import { DepositTask } from "../tasks/deposit-task";
 import { LiFiLegTask } from "../tasks/lifi-leg-task";
@@ -94,6 +99,7 @@ async function prerequisitesFor(
 
                     if (chainId !== undefined && mint !== undefined) {
                         if (await ApproveTask.isNeeded(ctx, chainId, mint, spender, amount)) {
+                            console.log("ApproveTask.create", chainId, mint, amount, spender, ctx);
                             extras.push(ApproveTask.create(chainId, mint, amount, spender, ctx));
                         }
                     }
@@ -131,11 +137,62 @@ export async function planTasks(intent: Intent, ctx: TaskContext): Promise<Task[
     throw new Error(`Unsupported intent kind: ${intent.kind}`);
 }
 
+async function getWalletBalance(
+    ctx: TaskContext,
+    chainId: number,
+    token: `0x${string}`,
+    owner: string,
+): Promise<bigint> {
+    const key = balanceKey(chainId, token);
+    if (key in ctx.balances) return ctx.balances[key];
+
+    // Fallback – should rarely happen for ramp flows.
+    if (chainId === solana.id) {
+        // Solana support not implemented in planner cache fallback.
+        return BigInt(0);
+    }
+
+    if (isETH(token, chainId)) {
+        const bal = await getBalance(ctx.wagmiConfig, {
+            address: owner as `0x${string}`,
+        });
+        return bal.value;
+    }
+
+    const bal = await readErc20BalanceOf(ctx.wagmiConfig, {
+        address: token,
+        args: [owner as `0x${string}`],
+        chainId,
+    });
+    return bal;
+}
+
 async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
     const coreTasks: PlannedTask[] = [];
 
-    if (intent.needsRouting()) {
-        const r = await requestBestRoute(intent.toLifiRouteRequest());
+    // Determine how much of the desired deposit is already available.
+    const owner = ctx.getOnchainAddress(intent.toChain);
+    const initialBal = await getWalletBalance(
+        ctx,
+        intent.toChain,
+        intent.toTokenAddress as `0x${string}`,
+        owner,
+    );
+
+    const shortfall =
+        intent.amountAtomic > initialBal ? intent.amountAtomic - initialBal : BigInt(0);
+
+    if (shortfall > BigInt(0)) {
+        console.log("planning step debug", {
+            shortfall,
+            initialBal,
+            intentAmount: intent.amountAtomic,
+        });
+        // Build a route request identical to intent.toLifiRouteRequest() but with shortfall.
+        const routeReq = intent.toLifiRouteRequest();
+        routeReq.fromAmount = shortfall.toString();
+
+        const r = await requestBestRoute(routeReq);
 
         r.steps.forEach((leg, idx) => {
             const isFinal = idx === r.steps.length - 1;

@@ -73,10 +73,15 @@ export class Permit2SigTask implements Task<PermitSigDescriptor, PermitSigState,
         if (this._state !== PermitSigState.Pending)
             throw new PermitSigError("Already completed", false);
 
-        const { chainId, mint, amount } = this.descriptor;
+        const { chainId, mint } = this.descriptor;
         await ensureCorrectChain(this.ctx, chainId);
 
-        const finalAmount = this.ctx.data.lifiFinalAmount ?? amount;
+        const finalAmount = this.ctx.getExpectedBalance(chainId, mint);
+        console.log("permit2 calculate final amount", {
+            chainId,
+            mint,
+            finalAmount,
+        });
 
         const sdkCfg = getSDKConfig(chainId);
         const token = resolveAddress(mint);

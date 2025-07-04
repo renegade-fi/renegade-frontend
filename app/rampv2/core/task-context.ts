@@ -36,10 +36,34 @@ export interface TaskContext {
         signature: `0x${string}`;
     }>;
 
-    /** Scratch space for lightweight hand-offs (e.g., LiFi final amount) */
-    data: {
-        lifiFinalAmount?: bigint;
-    };
+    /** Scratch space for miscellaneous task-to-task hand-offs. Intentionally
+     * untyped so that individual tasks can store throw-away values without
+     * forcing a shared schema. */
+    data: Record<string, unknown>;
+
+    /**
+     * Snapshot of the wallet balances supplied by the UI *before* any route
+     * executes. Keys follow `balanceKey(chainId, token)`.
+     */
+    balances: Record<string, bigint>;
+
+    /**
+     * Accumulated outputs produced by executed LI.FI routes. Keys follow the
+     * same convention as `balances`.
+     */
+    routeOutputs: Record<string, bigint>;
+
+    /**
+     * Add `delta` Wei of `token` on `chainId` coming from a completed LI.FI
+     * route (swap or bridge).
+     */
+    routeOutput(chainId: number, token: string, delta: bigint): void;
+
+    /** Return the wallet snapshot the UI passed in; 0n if unknown. */
+    getWalletSnapshot(chainId: number, token: string): bigint;
+
+    /** Return wallet snapshot + accumulated route outputs. */
+    getExpectedBalance(chainId: number, token: string): bigint;
 
     /** Optional signer function for Solana VersionedTransactions */
     signTransaction?: (
