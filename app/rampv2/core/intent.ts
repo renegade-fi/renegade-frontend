@@ -136,4 +136,41 @@ export class Intent {
             amountAtomic: parseUnits(amount, toToken.decimals),
         });
     }
+
+    static newWithdrawIntent(
+        ctx: TaskContext,
+        params: {
+            mint: string; // token to withdraw
+            chainId: number;
+            amount: string; // human-readable units of token
+            unwrapToEth?: boolean;
+        },
+    ): Intent | undefined {
+        const { mint, chainId, amount, unwrapToEth = false } = params;
+
+        const token = getTokenByAddress(mint, chainId);
+        if (!token) return undefined;
+
+        const owner = ctx.getOnchainAddress(chainId);
+
+        let toTokenAddress = token.address;
+
+        if (unwrapToEth && token.ticker === "WETH") {
+            const ethToken = getTokenByTicker("ETH", chainId);
+            if (ethToken) {
+                toTokenAddress = ethToken.address;
+            }
+        }
+
+        return new Intent({
+            kind: "WITHDRAW",
+            fromChain: chainId,
+            toChain: chainId,
+            fromAddress: owner,
+            toAddress: owner,
+            fromTokenAddress: token.address,
+            toTokenAddress: toTokenAddress,
+            amountAtomic: parseUnits(amount, token.decimals),
+        });
+    }
 }

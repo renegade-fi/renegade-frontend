@@ -10,6 +10,7 @@ import { useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks
 
 import BridgeForm from "./forms/bridge-form";
 import DepositForm from "./forms/deposit-form";
+import WithdrawForm from "./forms/withdraw-form";
 
 export default function RampV2Page() {
     const renegadeConfig = useRenegadeConfig();
@@ -18,7 +19,7 @@ export default function RampV2Page() {
     const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
 
     // "deposit" is the default tab
-    const [mode, setMode] = useState<"bridge" | "deposit">("deposit");
+    const [mode, setMode] = useState<"bridge" | "deposit" | "withdraw">("deposit");
 
     // Guard: require wallet connection + renegade config
     if (!renegadeConfig || (!address && !solanaAddress)) {
@@ -57,10 +58,27 @@ export default function RampV2Page() {
                     >
                         Deposit
                     </Button>
+                    <Button
+                        className={cn(
+                            "flex-1 border-0 font-extended text-lg font-bold",
+                            mode === "withdraw" ? "text-primary" : "text-muted-foreground",
+                        )}
+                        size="xl"
+                        variant="outline"
+                        onClick={() => setMode("withdraw")}
+                    >
+                        Withdraw
+                    </Button>
                 </div>
 
                 {/* Render selected form */}
-                {mode === "bridge" ? <BridgeForm /> : <DepositForm />}
+                {mode === "bridge" ? (
+                    <BridgeForm />
+                ) : mode === "deposit" ? (
+                    <DepositForm />
+                ) : (
+                    <WithdrawForm />
+                )}
             </section>
         </main>
     );

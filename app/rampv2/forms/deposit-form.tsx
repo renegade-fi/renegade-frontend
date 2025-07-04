@@ -68,7 +68,7 @@ export default function DepositForm() {
             chainId: network,
             mint,
             owner: chainDependentAddress!,
-            config: wagmiConfig,
+            wagmiConfig,
             connection,
         }),
         enabled: !!mint && !!chainDependentAddress,
@@ -79,7 +79,7 @@ export default function DepositForm() {
             chainId: network,
             mint: swapToken ?? "",
             owner: chainDependentAddress!,
-            config: wagmiConfig,
+            wagmiConfig,
             connection,
         }),
         enabled: !!swapToken && !!chainDependentAddress,
@@ -184,8 +184,9 @@ export default function DepositForm() {
                     onChange={setMint}
                     chainId={network}
                     owner={chainDependentAddress}
-                    config={wagmiConfig}
+                    wagmiConfig={wagmiConfig}
                     connection={connection}
+                    renegadeConfig={renegadeConfig}
                 />
             </div>
 
@@ -203,7 +204,7 @@ export default function DepositForm() {
                         chainId={network}
                         mint={mint}
                         owner={chainDependentAddress}
-                        config={wagmiConfig}
+                        wagmiConfig={wagmiConfig}
                         connection={connection}
                         onClick={setAmount}
                     />
@@ -215,8 +216,10 @@ export default function DepositForm() {
                 <BalanceRow
                     chainId={network}
                     mint={mint}
+                    direction={direction}
                     owner={chainDependentAddress}
-                    config={wagmiConfig}
+                    wagmiConfig={wagmiConfig}
+                    renegadeConfig={renegadeConfig}
                     connection={connection}
                     onClick={setAmount}
                 />
@@ -225,8 +228,10 @@ export default function DepositForm() {
                     <BalanceRow
                         chainId={network}
                         mint={availableSwappableTokens[0].address}
+                        direction={direction}
                         owner={chainDependentAddress}
-                        config={wagmiConfig}
+                        wagmiConfig={wagmiConfig}
+                        renegadeConfig={renegadeConfig}
                         connection={connection}
                         onClick={handleSetCombinedAmount}
                         hideNetworkLabel

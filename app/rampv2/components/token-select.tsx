@@ -13,11 +13,17 @@ import {
     CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { onChainBalanceQuery, type QueryParams } from "../queries/on-chain-balance";
+import {
+    type QueryParams as OnChainBalanceQueryParams,
+    onChainBalanceQuery,
+} from "../queries/on-chain-balance";
+import {
+    type QueryParams as RenegadeBalanceQueryParams,
+    renegadeBalanceQuery,
+} from "../queries/renegade-balance";
 import { getTokenByAddress, type Token } from "../token-registry";
 
 interface Props {
@@ -30,14 +36,15 @@ interface Props {
 
 export function TokenSelect({
     owner,
-    config,
+    wagmiConfig,
     direction,
     chainId,
     onChange,
     tokens,
     value,
     connection,
-}: Props & Omit<QueryParams, "mint">) {
+    renegadeConfig,
+}: Props & Omit<OnChainBalanceQueryParams, "mint"> & Omit<RenegadeBalanceQueryParams, "mint">) {
     const [open, setOpen] = React.useState(false);
 
     const displayTokens = tokens.map((token) => ({
@@ -52,7 +59,7 @@ export function TokenSelect({
                     owner,
                     mint: t.value as `0x${string}`,
                     chainId: chainId,
-                    config: config,
+                    wagmiConfig,
                     connection,
                 }),
             };
@@ -67,11 +74,22 @@ export function TokenSelect({
         },
     });
 
-    const { data: renegadeBalances } = useBackOfQueueWallet({
-        query: {
-            enabled: open && direction === ExternalTransferDirection.Withdraw,
-            select: (data) =>
-                new Map(data.balances.map((balance) => [balance.mint, balance.amount])),
+    const renegadeBalances = useQueries({
+        queries: displayTokens.map((t) => {
+            return {
+                ...renegadeBalanceQuery({
+                    mint: t.value as `0x${string}`,
+                    renegadeConfig,
+                }),
+            };
+        }),
+        combine: (results) => {
+            return new Map<`0x${string}`, bigint>(
+                displayTokens.map((t, i) => [
+                    t.value as `0x${string}`,
+                    results[i].data?.raw ?? BigInt(0),
+                ]),
+            );
         },
     });
     const displayBalances =

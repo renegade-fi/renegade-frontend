@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatEther, parseEther } from "viem";
+import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NetworkLabel } from "@/components/dialogs/transfer/network-display";
 import { TooltipButton } from "@/components/tooltip-button";
 import { cn } from "@/lib/utils";
@@ -8,37 +9,58 @@ import {
     type QueryParams as OnChainBalanceQueryParams,
     onChainBalanceQuery,
 } from "../queries/on-chain-balance";
+import {
+    type QueryParams as RenegadeBalanceQueryParams,
+    renegadeBalanceQuery,
+} from "../queries/renegade-balance";
 import { getTokenByAddress } from "../token-registry";
 
 interface Props {
     onClick: (amount: string) => void;
     hideNetworkLabel?: boolean;
     minRemainingEthBalance?: string;
+    direction: ExternalTransferDirection;
 }
 
-export function BalanceRow(props: Props & OnChainBalanceQueryParams) {
-    const { data: balance, isSuccess } = useQuery({
+export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBalanceQueryParams) {
+    const { data: onChainBalance, isSuccess: onChainBalanceSuccess } = useQuery({
         ...onChainBalanceQuery(props),
     });
 
-    const roundedLabel = isSuccess ? `${balance.rounded} ${balance.ticker}` : "--";
-    const decimalCorrectedLabel = isSuccess
-        ? `${balance.decimalCorrected} ${balance.ticker}`
-        : "--";
+    const { data: renegadeBalance, isSuccess: renegadeBalanceSuccess } = useQuery({
+        ...renegadeBalanceQuery(props),
+    });
+    const isSuccess = onChainBalanceSuccess && renegadeBalanceSuccess;
+
+    let roundedLabel = "--";
+    let decimalCorrectedLabel = "--";
+    if (isSuccess) {
+        if (props.direction === ExternalTransferDirection.Deposit) {
+            roundedLabel = `${onChainBalance?.rounded} ${onChainBalance?.ticker}`;
+            decimalCorrectedLabel = `${onChainBalance?.decimalCorrected} ${onChainBalance?.ticker}`;
+        } else {
+            roundedLabel = `${renegadeBalance?.rounded} ${renegadeBalance?.ticker}`;
+            decimalCorrectedLabel = `${renegadeBalance?.decimalCorrected} ${renegadeBalance?.ticker}`;
+        }
+    }
 
     function handleClick() {
         if (isSuccess) {
             const isEth = isETH(props.mint, props.chainId);
-            if (isEth) {
+            if (isEth && props.direction === ExternalTransferDirection.Deposit) {
                 // Compute swap value leaving at least the minimum ETH buffer untouched
                 const bufferWei = parseEther(props.minRemainingEthBalance ?? "0");
-                const swapAmount = balance.raw - bufferWei;
+                const swapAmount = onChainBalance?.raw - bufferWei;
                 if (swapAmount > BigInt(0)) {
                     const formatted = formatEther(swapAmount);
                     props.onClick(formatted);
                 }
             } else {
-                props.onClick(balance.decimalCorrected);
+                props.onClick(
+                    props.direction === ExternalTransferDirection.Deposit
+                        ? (onChainBalance?.decimalCorrected ?? "0")
+                        : (renegadeBalance?.decimalCorrected ?? "0"),
+                );
             }
         }
     }
@@ -54,7 +76,7 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams) {
                 )}
             >
                 Balance on&nbsp;
-                <NetworkLabel chainId={props.chainId} />
+                {props.direction ? <NetworkLabel chainId={props.chainId} /> : "Renegade"}
             </div>
             <div className="flex items-center">
                 <TooltipButton

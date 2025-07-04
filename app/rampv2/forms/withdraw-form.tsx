@@ -3,22 +3,20 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { arbitrum, base, mainnet } from "viem/chains";
 import { useAccount, useConfig as useWagmiConfig } from "wagmi";
 
-import { getAllBridgeableTokens } from "@/app/rampv2/token-registry/registry";
+import { canUnwrapToEth, getAllTokens } from "@/app/rampv2/token-registry";
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import { solana } from "@/lib/viem";
 import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
-
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
-import { NetworkSelect } from "../components/network-select";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
@@ -27,42 +25,33 @@ import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
 import { buildBalancesCache } from "../utils/balances";
 
-const direction = ExternalTransferDirection.Deposit;
+const direction = ExternalTransferDirection.Withdraw;
 
-export default function BridgeForm() {
+export default function WithdrawForm() {
     const renegadeConfig = useRenegadeConfig();
     const wagmiConfig = useWagmiConfig();
     const currentChain = useCurrentChain();
     const { address } = useAccount();
-
-    const { data: keychainNonce } = useBackOfQueueWallet({
-        query: { select: (w) => w.key_chain.nonce },
-    });
 
     const { connection } = useConnection();
     const { signTransaction, publicKey } = useWallet();
     const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
 
     // ---- Local state ------------------------------------------------------
-    const [bridgeNetwork, setBridgeNetwork] = useState<number>(mainnet.id);
     const [mint, setMint] = useState("");
     const [amount, setAmount] = useState("");
+    const [unwrapToEth, setUnwrapToEth] = useState(false);
 
     // -----------------------------------------------------------------------
-    const network = bridgeNetwork;
+    const network = currentChain;
 
-    // Token list based on selected bridge network
-    const availableTokens = useMemo(() => getAllBridgeableTokens(network), [network]);
-
-    // Networks that can be bridged from (exclude currentChain)
-    const availableNetworks = useMemo(() => {
-        return [solana.id, mainnet.id, arbitrum.id, base.id].filter((id) => id !== currentChain);
-    }, [currentChain]);
+    // Token list based on current chain
+    const availableTokens = useMemo(() => getAllTokens(currentChain), [currentChain]);
 
     const chainDependentAddress = (network as number) === solana.id ? solanaAddress : address;
 
-    // -----------------------------------------------------------------------
-    const { data: availableDepositBalance } = useQuery({
+    // On-chain balances ------------------------------------------------------
+    const { data: availableWithdrawBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: network,
             mint,
@@ -78,55 +67,60 @@ export default function BridgeForm() {
             buildBalancesCache({
                 network,
                 depositMint: mint,
-                depositRaw: availableDepositBalance?.raw,
+                depositRaw: availableWithdrawBalance?.raw,
             }),
-        [network, mint, availableDepositBalance?.raw],
+        [network, mint, availableWithdrawBalance?.raw],
     );
 
+    // Determine if the selected token supports unwrapping (WETH → ETH)
+    const canUnwrap = useMemo(() => canUnwrapToEth(mint, network as number), [mint, network]);
+
+    /* ---------------- Intent & Task Planning ---------------- */
     const { intent, taskCtx } = useMemo(() => {
-        if (!renegadeConfig || !wagmiConfig || !address)
+        if (!renegadeConfig || !wagmiConfig || !chainDependentAddress)
             return { intent: undefined, taskCtx: undefined } as const;
 
         const ctx = TaskContext.new(
             renegadeConfig,
             wagmiConfig,
-            keychainNonce ?? BigInt(0),
+            BigInt(0), // keychainNonce not needed for withdraw
             connection,
             signTransaction ?? undefined,
             solanaAddress,
             balances,
         );
 
-        const intent = Intent.newBridgeIntent(ctx, {
+        const intent = Intent.newWithdrawIntent(ctx, {
             mint,
-            sourceChain: network,
-            currentChain,
+            chainId: network,
             amount,
+            unwrapToEth: unwrapToEth && canUnwrap,
         });
 
         return { intent, taskCtx: ctx } as const;
     }, [
         renegadeConfig,
         wagmiConfig,
-        address,
-        keychainNonce,
+        chainDependentAddress,
         connection,
         signTransaction,
         solanaAddress,
         balances,
         mint,
         network,
-        currentChain,
         amount,
+        canUnwrap,
+        unwrapToEth,
     ]);
 
     const { data: tasks, status } = useQuery({
-        queryKey: ["ramp-bridge", { ...intent?.toJson?.() }],
+        queryKey: ["ramp-withdraw", { ...intent?.toJson?.() }],
         queryFn: () => {
             if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
             return planTasks(intent, taskCtx);
         },
         enabled: !!intent && !!taskCtx && !!intent.amountAtomic && Object.keys(balances).length > 0,
+        staleTime: 0,
     });
 
     function handleSubmit() {
@@ -136,21 +130,11 @@ export default function BridgeForm() {
     }
 
     if (!renegadeConfig || !chainDependentAddress) {
-        return null; // Parent component shows the connect-wallet message.
+        return null; // Parent component handles connect-wallet UI.
     }
 
     return (
         <div className="space-y-6 pt-6">
-            {/* Network selector */}
-            <div className="flex flex-col gap-2">
-                <Label>Network</Label>
-                <NetworkSelect
-                    value={bridgeNetwork}
-                    onChange={setBridgeNetwork}
-                    networks={availableNetworks}
-                />
-            </div>
-
             {/* Token selector */}
             <div className="flex flex-col gap-2">
                 <Label>Token</Label>
@@ -200,6 +184,29 @@ export default function BridgeForm() {
                 direction={direction}
             />
 
+            {/* Unwrap switch (WETH → ETH) */}
+            {canUnwrap ? (
+                <div className={cn("items-center justify-between border p-3, flex")}>
+                    <div className="space-y-0.5">
+                        <Label className="" htmlFor="unwrap">
+                            Withdraw ETH
+                        </Label>
+                        <div className="text-[0.8rem] text-muted-foreground">
+                            Receive native ETH instead of wrapped ETH
+                        </div>
+                    </div>
+                    <Switch
+                        checked={unwrapToEth}
+                        id="unwrap"
+                        onCheckedChange={(checked) => {
+                            if (typeof checked === "boolean") {
+                                setUnwrapToEth(checked);
+                            }
+                        }}
+                    />
+                </div>
+            ) : null}
+
             {/* Submit */}
             <div className="w-full flex">
                 <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
@@ -211,7 +218,7 @@ export default function BridgeForm() {
                         onClick={handleSubmit}
                         disabled={status !== "success"}
                     >
-                        Bridge
+                        Withdraw
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>

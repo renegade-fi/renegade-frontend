@@ -1,4 +1,5 @@
 import { Token as TokenClass } from "@renegade-fi/token-nextjs";
+import { solana } from "@/lib/viem";
 import { RAMP_TOKENS } from "./tokens";
 
 // Initialize token registry
@@ -103,4 +104,14 @@ export function getAllTokens(chainId: number): Token[] {
 
 export function getAllBridgeableTokens(chainId: number): Token[] {
     return getAllTokens(chainId).filter((token) => token.canBridge);
+}
+
+/**
+ * Determine if a given mint on a chain represents WETH that can be unwrapped
+ * into native ETH.  Currently only applies to EVM chains (non-Solana) where
+ * the token ticker equals "WETH".
+ */
+export function canUnwrapToEth(mint: string, chainId: number): boolean {
+    const token = getTokenByAddress(mint, chainId);
+    return token?.ticker === "WETH" && chainId !== solana.id;
 }
