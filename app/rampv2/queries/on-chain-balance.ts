@@ -2,9 +2,11 @@ import { type Connection, PublicKey } from "@solana/web3.js";
 import { queryOptions } from "@tanstack/react-query";
 import { formatUnits } from "viem";
 import type { Config } from "wagmi";
+import { getBalance } from "wagmi/actions";
 import { formatNumber } from "@/lib/format";
 import { readErc20BalanceOf } from "@/lib/generated";
 import { solana } from "@/lib/viem";
+import { isETH } from "../helpers";
 import { getTokenByAddress } from "../token-registry";
 
 export interface QueryParams {
@@ -37,6 +39,12 @@ export function onChainBalanceQuery(params: QueryParams) {
                 return balance;
             } else {
                 if (!params.config) throw new Error("Wagmi config is required to read EVM balance");
+                if (isETH(params.mint, params.chainId)) {
+                    const balance = await getBalance(params.config, {
+                        address: params.owner as `0x${string}`,
+                    });
+                    return balance.value;
+                }
                 const balance = await readErc20BalanceOf(params.config, {
                     address: params.mint as `0x${string}`,
                     args: [params.owner as `0x${string}`],

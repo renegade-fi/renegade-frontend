@@ -93,7 +93,6 @@ async function prerequisitesFor(
                     }
 
                     if (chainId !== undefined && mint !== undefined) {
-                        console.log("checking approval", chainId, mint, spender, amount);
                         if (await ApproveTask.isNeeded(ctx, chainId, mint, spender, amount)) {
                             extras.push(ApproveTask.create(chainId, mint, amount, spender, ctx));
                         }

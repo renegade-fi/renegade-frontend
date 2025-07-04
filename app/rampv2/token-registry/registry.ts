@@ -91,7 +91,9 @@ export function getTokenByTicker(ticker: string, chainId: number): Token | null 
 /**
  * Get tokens that can swap into the given token
  */
-export function getSwapInputsFor(targetToken: Token): Token[] {
+export function getSwapInputsFor(mint: string, chainId: number): Token[] {
+    const targetToken = getTokenByAddress(mint, chainId);
+    if (!targetToken) return [];
     return ALL_TOKENS.filter((token) => token.swapInto?.includes(targetToken.ticker) ?? false);
 }
 
