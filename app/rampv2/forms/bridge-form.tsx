@@ -126,7 +126,7 @@ export default function BridgeForm() {
             if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
             return planTasks(intent, taskCtx);
         },
-        enabled: !!intent && !!taskCtx && !!intent.amountAtomic && Object.keys(balances).length > 0,
+        enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
     });
 
     function handleSubmit() {

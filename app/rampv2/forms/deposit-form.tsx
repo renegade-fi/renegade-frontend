@@ -142,7 +142,7 @@ export default function DepositForm() {
             if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
             return planTasks(intent, taskCtx);
         },
-        enabled: !!intent && !!taskCtx && !!intent.amountAtomic && Object.keys(balances).length > 0,
+        enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
         staleTime: 0,
     });
 

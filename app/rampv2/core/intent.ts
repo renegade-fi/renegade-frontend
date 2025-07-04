@@ -6,17 +6,16 @@ import type { TaskContext } from "./task-context";
 export type IntentKind = "DEPOSIT" | "WITHDRAW";
 
 export class Intent {
-    /* ========= raw fields ========= */
-    readonly kind!: IntentKind;
-    readonly fromChain!: number;
-    readonly toChain!: number;
-    readonly fromTokenAddress!: string;
-    readonly toTokenAddress!: string;
-    readonly amountAtomic!: bigint;
-    readonly fromAddress!: string;
-    readonly toAddress!: string;
+    readonly kind: IntentKind;
+    readonly fromChain: number;
+    readonly toChain: number;
+    readonly fromTokenAddress: string;
+    readonly toTokenAddress: string;
+    readonly amountAtomic: bigint;
+    readonly fromAddress: string;
+    readonly toAddress: string;
 
-    constructor(params: {
+    private constructor(params: {
         kind: IntentKind;
         fromChain: number;
         fromAddress: string;
@@ -26,7 +25,14 @@ export class Intent {
         toTokenAddress: string;
         amountAtomic: bigint;
     }) {
-        Object.assign(this, params);
+        this.kind = params.kind;
+        this.fromChain = params.fromChain;
+        this.fromAddress = params.fromAddress;
+        this.fromTokenAddress = params.fromTokenAddress;
+        this.toChain = params.toChain;
+        this.toAddress = params.toAddress;
+        this.toTokenAddress = params.toTokenAddress;
+        this.amountAtomic = params.amountAtomic;
     }
 
     /* ========= helpers ========= */
@@ -65,8 +71,6 @@ export class Intent {
         };
     }
 
-    /* ========= factory helpers (idiomatic new*) ========= */
-
     /**
      * Create an Intent that represents bridging a token from `sourceChain` to the
      * current operating chain (`currentChain`).
@@ -90,6 +94,9 @@ export class Intent {
         const operatingToken = getTokenByTicker(sourceToken.ticker, currentChain);
         if (!operatingToken) return undefined;
 
+        const amountAtomic = parseUnits(amount, sourceToken.decimals);
+        if (amountAtomic === BigInt(0)) return undefined;
+
         return new Intent({
             kind: "DEPOSIT",
             fromChain: sourceChain,
@@ -98,7 +105,7 @@ export class Intent {
             toAddress: ctx.getOnchainAddress(currentChain),
             fromTokenAddress: sourceToken.address,
             toTokenAddress: operatingToken.address,
-            amountAtomic: parseUnits(amount, sourceToken.decimals),
+            amountAtomic: amountAtomic,
         });
     }
 
@@ -125,6 +132,9 @@ export class Intent {
         const toToken = getTokenByAddress(depositMint, chainId);
         if (!toToken) return undefined;
 
+        const amountAtomic = parseUnits(amount, toToken.decimals);
+        if (amountAtomic === BigInt(0)) return undefined;
+
         return new Intent({
             kind: "DEPOSIT",
             fromChain: chainId,
@@ -133,7 +143,7 @@ export class Intent {
             toAddress: ctx.getOnchainAddress(chainId),
             fromTokenAddress: fromToken.address,
             toTokenAddress: toToken.address,
-            amountAtomic: parseUnits(amount, toToken.decimals),
+            amountAtomic: amountAtomic,
         });
     }
 
@@ -162,6 +172,9 @@ export class Intent {
             }
         }
 
+        const amountAtomic = parseUnits(amount, token.decimals);
+        if (amountAtomic === BigInt(0)) return undefined;
+
         return new Intent({
             kind: "WITHDRAW",
             fromChain: chainId,
@@ -170,7 +183,7 @@ export class Intent {
             toAddress: owner,
             fromTokenAddress: token.address,
             toTokenAddress: toTokenAddress,
-            amountAtomic: parseUnits(amount, token.decimals),
+            amountAtomic: amountAtomic,
         });
     }
 }
