@@ -1,20 +1,13 @@
 "use client";
 
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useAccount, useConfig as useWagmiConfig } from "wagmi";
-
 import { getAllTokens, getSwapInputsFor } from "@/app/rampv2/token-registry";
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
-import { solana } from "@/lib/viem";
-import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
-
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { TokenSelect } from "../components/token-select";
@@ -25,78 +18,77 @@ import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
+import type { RampEnv } from "../types";
 import { buildBalancesCache } from "../utils/balances";
 
 const direction = ExternalTransferDirection.Deposit;
 
-export default function DepositForm() {
-    const renegadeConfig = useRenegadeConfig();
-    const wagmiConfig = useWagmiConfig();
-    const currentChain = useCurrentChain();
-    const { address } = useAccount();
+interface Props {
+    env: RampEnv;
+}
 
-    const { data: keychainNonce } = useBackOfQueueWallet({
-        query: { select: (w) => w.key_chain.nonce },
-    });
+export default function DepositForm({ env }: Props) {
+    const {
+        renegadeConfig,
+        wagmiConfig,
+        connection,
+        keychainNonce,
+        currentChain,
+        evmAddress: address,
+        solanaAddress,
+        solanaSignTx,
+    } = env;
 
-    const { connection } = useConnection();
-    const { signTransaction, publicKey } = useWallet();
-    const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
-
-    // ---- Local state ------------------------------------------------------
+    // --- Local State --- //
     const [mint, setMint] = useState("");
     const [amount, setAmount] = useState("");
 
-    // -----------------------------------------------------------------------
-    const network = currentChain;
-
-    // Token list based on current chain
+    // --- Token List --- //
     const availableTokens = useMemo(() => getAllTokens(currentChain), [currentChain]);
 
     const availableSwappableTokens = useMemo(
-        () => getSwapInputsFor(mint, network),
-        [mint, network],
+        () => getSwapInputsFor(mint, currentChain),
+        [mint, currentChain],
     );
 
     const swapToken = availableSwappableTokens[0]?.address;
 
-    const chainDependentAddress = (network as number) === solana.id ? solanaAddress : address;
-
-    // On-chain balances ------------------------------------------------------
+    // --- On-chain Balances --- //
     const { data: availableDepositBalance } = useQuery({
         ...onChainBalanceQuery({
-            chainId: network,
+            chainId: currentChain,
             mint,
-            owner: chainDependentAddress!,
+            owner: address,
             wagmiConfig,
             connection,
         }),
-        enabled: !!mint && !!chainDependentAddress,
+        enabled: !!mint,
     });
 
     const { data: availableSwapBalance } = useQuery({
         ...onChainBalanceQuery({
-            chainId: network,
+            chainId: currentChain,
             mint: swapToken ?? "",
-            owner: chainDependentAddress!,
+            owner: address,
             wagmiConfig,
             connection,
         }),
-        enabled: !!swapToken && !!chainDependentAddress,
+        enabled: !!swapToken,
     });
 
     const balances = useMemo(
         () =>
             buildBalancesCache({
-                network,
+                network: currentChain,
                 depositMint: mint,
                 depositRaw: availableDepositBalance?.raw,
                 swapMint: swapToken,
                 swapRaw: availableSwapBalance?.raw,
             }),
-        [network, mint, swapToken, availableDepositBalance?.raw, availableSwapBalance?.raw],
+        [currentChain, mint, swapToken, availableDepositBalance?.raw, availableSwapBalance?.raw],
     );
 
+    // --- Intent & Task Planning --- //
     const { intent, taskCtx } = useMemo(() => {
         if (!renegadeConfig || !wagmiConfig || !address)
             return { intent: undefined, taskCtx: undefined } as const;
@@ -106,8 +98,8 @@ export default function DepositForm() {
             wagmiConfig,
             keychainNonce ?? BigInt(0),
             connection,
-            signTransaction ?? undefined,
-            solanaAddress,
+            solanaSignTx ?? undefined,
+            solanaAddress ?? undefined,
             balances,
         );
 
@@ -116,7 +108,7 @@ export default function DepositForm() {
         const intent = Intent.newSwapIntent(ctx, {
             swapToken,
             depositMint: mint,
-            chainId: network,
+            chainId: currentChain,
             amount,
         });
 
@@ -127,12 +119,12 @@ export default function DepositForm() {
         address,
         keychainNonce,
         connection,
-        signTransaction,
+        solanaSignTx,
         solanaAddress,
         balances,
         swapToken,
         mint,
-        network,
+        currentChain,
         amount,
     ]);
 
@@ -152,7 +144,7 @@ export default function DepositForm() {
             chainId: currentChain,
             approvals: 100,
         }),
-        enabled: swapToken ? isETH(swapToken, network) : false,
+        enabled: swapToken ? isETH(swapToken, currentChain) : false,
     });
 
     function handleSubmit() {
@@ -168,10 +160,6 @@ export default function DepositForm() {
         setAmount(combined.toString());
     }
 
-    if (!renegadeConfig || !chainDependentAddress) {
-        return null; // Parent handles connect-wallet UI.
-    }
-
     return (
         <div className="space-y-6 pt-6">
             {/* Token selector */}
@@ -182,8 +170,8 @@ export default function DepositForm() {
                     direction={direction}
                     value={mint}
                     onChange={setMint}
-                    chainId={network}
-                    owner={chainDependentAddress}
+                    chainId={currentChain}
+                    owner={address}
                     wagmiConfig={wagmiConfig}
                     connection={connection}
                     renegadeConfig={renegadeConfig}
@@ -201,9 +189,9 @@ export default function DepositForm() {
                         className="pr-12 rounded-none font-mono"
                     />
                     <MaxButton
-                        chainId={network}
+                        chainId={currentChain}
                         mint={mint}
-                        owner={chainDependentAddress}
+                        owner={address}
                         wagmiConfig={wagmiConfig}
                         connection={connection}
                         onClick={setAmount}
@@ -214,10 +202,10 @@ export default function DepositForm() {
             {/* Balances */}
             <div>
                 <BalanceRow
-                    chainId={network}
+                    chainId={currentChain}
                     mint={mint}
                     direction={direction}
-                    owner={chainDependentAddress}
+                    owner={address}
                     wagmiConfig={wagmiConfig}
                     renegadeConfig={renegadeConfig}
                     connection={connection}
@@ -226,10 +214,10 @@ export default function DepositForm() {
 
                 {availableSwappableTokens.length > 0 ? (
                     <BalanceRow
-                        chainId={network}
+                        chainId={currentChain}
                         mint={availableSwappableTokens[0].address}
                         direction={direction}
-                        owner={chainDependentAddress}
+                        owner={address}
                         wagmiConfig={wagmiConfig}
                         renegadeConfig={renegadeConfig}
                         connection={connection}

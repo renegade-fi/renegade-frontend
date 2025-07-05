@@ -1,28 +1,43 @@
 "use client";
 
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useConfig as useWagmiConfig } from "wagmi";
 
 import { Button } from "@/components/ui/button";
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { cn } from "@/lib/utils";
-import { useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
-
+import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
 import BridgeForm from "./forms/bridge-form";
 import DepositForm from "./forms/deposit-form";
 import WithdrawForm from "./forms/withdraw-form";
+import type { RampEnv } from "./types";
 
 export default function RampV2Page() {
+    /* ---------------- Collect shared context ---------------- */
     const renegadeConfig = useRenegadeConfig();
-    const { address } = useAccount();
-    const { publicKey } = useWallet();
-    const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
+    const wagmiConfig = useWagmiConfig();
+    const currentChain = useCurrentChain();
 
-    // "deposit" is the default tab
+    const { address } = useAccount();
+
+    const { connection } = useConnection();
+    const { publicKey, signTransaction } = useWallet();
+    const solanaAddress = publicKey ? publicKey.toBase58() : null;
+
+    const { data: keychainNonce } = useBackOfQueueWallet({
+        query: { select: (w) => w.key_chain.nonce },
+    });
+
+    /* ---------------- Local state (tab) ---------------- */
     const [mode, setMode] = useState<"bridge" | "deposit" | "withdraw">("deposit");
 
-    // Guard: require wallet connection + renegade config
-    if (!renegadeConfig || (!address && !solanaAddress)) {
+    /* ---------------- Single guard ---------------- */
+    const evmAddress = address; // must exist to proceed
+
+    const missingEssential = !renegadeConfig || !wagmiConfig || !evmAddress;
+
+    if (missingEssential) {
         return (
             <main className="p-6 max-w-lg mx-auto">
                 <h1 className="text-2xl font-bold">Ramp v2 Demo</h1>
@@ -30,6 +45,18 @@ export default function RampV2Page() {
             </main>
         );
     }
+
+    /* ---------------- Build env ---------------- */
+    const env: RampEnv = {
+        renegadeConfig,
+        wagmiConfig,
+        connection,
+        keychainNonce: keychainNonce ?? BigInt(0),
+        currentChain,
+        evmAddress: evmAddress as `0x${string}`,
+        solanaAddress, // may be null
+        solanaSignTx: signTransaction ?? null,
+    };
 
     return (
         <main>
@@ -73,11 +100,11 @@ export default function RampV2Page() {
 
                 {/* Render selected form */}
                 {mode === "bridge" ? (
-                    <BridgeForm />
+                    <BridgeForm env={env} />
                 ) : mode === "deposit" ? (
-                    <DepositForm />
+                    <DepositForm env={env} />
                 ) : (
-                    <WithdrawForm />
+                    <WithdrawForm env={env} />
                 )}
             </section>
         </main>

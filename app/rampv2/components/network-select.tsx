@@ -18,17 +18,28 @@ interface NetworkSelectProps {
     value: number;
     onChange: (value: number) => void;
     networks: Array<number>;
+    /**
+     * Networks that should appear in the list but be disabled.
+     * Assumes mutual exclusion with `networks`.
+     */
+    disabledNetworks?: Array<number>;
 }
 
-export function NetworkSelect({ value, onChange, networks }: NetworkSelectProps) {
+export function NetworkSelect({
+    value,
+    onChange,
+    networks,
+    disabledNetworks = [],
+}: NetworkSelectProps) {
     const [open, setOpen] = React.useState(false);
     const isDesktop = useMediaQuery("(min-width: 1024px)");
 
     const networkLabels = useMemo(() => {
-        return networks.map((network) => {
+        const allNetworks = [...networks, ...disabledNetworks];
+        return allNetworks.map((network) => {
             return { label: getFormattedChainName(network), value: network };
         });
-    }, [networks]);
+    }, [networks, disabledNetworks]);
 
     return (
         <Popover modal open={open} onOpenChange={setOpen}>
@@ -52,24 +63,35 @@ export function NetworkSelect({ value, onChange, networks }: NetworkSelectProps)
                     <CommandList>
                         <CommandEmpty>No network found.</CommandEmpty>
                         <CommandGroup>
-                            {networkLabels.map((network) => (
-                                <CommandItem
-                                    key={network.value}
-                                    value={network.value.toString()}
-                                    onSelect={(currentValue) => {
-                                        onChange(Number(currentValue));
-                                        setOpen(false);
-                                    }}
-                                >
-                                    <span className="flex-1">{network.label}</span>
-                                    <CheckIcon
-                                        className={cn(
-                                            "ml-auto h-4 w-4",
-                                            value === network.value ? "opacity-100" : "opacity-0",
-                                        )}
-                                    />
-                                </CommandItem>
-                            ))}
+                            {networkLabels.map((network) => {
+                                const isDisabled = disabledNetworks.includes(network.value);
+                                return (
+                                    <CommandItem
+                                        key={network.value}
+                                        value={network.value.toString()}
+                                        disabled={isDisabled}
+                                        onSelect={(currentValue) => {
+                                            if (isDisabled) return;
+                                            onChange(Number(currentValue));
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <span className="flex-1">
+                                            {isDisabled
+                                                ? `${network.label} - Connect wallet to bridge`
+                                                : network.label}
+                                        </span>
+                                        <CheckIcon
+                                            className={cn(
+                                                "ml-auto h-4 w-4",
+                                                value === network.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
+                                            )}
+                                        />
+                                    </CommandItem>
+                                );
+                            })}
                         </CommandGroup>
                     </CommandList>
                 </Command>

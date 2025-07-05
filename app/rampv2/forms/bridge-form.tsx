@@ -1,10 +1,8 @@
 "use client";
 
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { arbitrum, base, mainnet } from "viem/chains";
-import { useAccount, useConfig as useWagmiConfig } from "wagmi";
 
 import { getAllBridgeableTokens } from "@/app/rampv2/token-registry/registry";
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
@@ -12,10 +10,7 @@ import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { solana } from "@/lib/viem";
-import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
-
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { NetworkSelect } from "../components/network-select";
@@ -25,43 +20,54 @@ import { TaskContext } from "../core/task-context";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
+import type { RampEnv } from "../types";
 import { buildBalancesCache } from "../utils/balances";
 
 const direction = ExternalTransferDirection.Deposit;
 
-export default function BridgeForm() {
-    const renegadeConfig = useRenegadeConfig();
-    const wagmiConfig = useWagmiConfig();
-    const currentChain = useCurrentChain();
-    const { address } = useAccount();
+interface Props {
+    env: RampEnv;
+}
 
-    const { data: keychainNonce } = useBackOfQueueWallet({
-        query: { select: (w) => w.key_chain.nonce },
-    });
+export default function BridgeForm({ env }: Props) {
+    const {
+        renegadeConfig,
+        wagmiConfig,
+        connection,
+        keychainNonce,
+        currentChain,
+        evmAddress: address,
+        solanaAddress,
+        solanaSignTx,
+    } = env;
 
-    const { connection } = useConnection();
-    const { signTransaction, publicKey } = useWallet();
-    const solanaAddress = publicKey ? publicKey.toBase58() : undefined;
-
-    // ---- Local state ------------------------------------------------------
-    const [bridgeNetwork, setBridgeNetwork] = useState<number>(mainnet.id);
+    const [network, setNetwork] = useState<number>(mainnet.id);
     const [mint, setMint] = useState("");
     const [amount, setAmount] = useState("");
-
-    // -----------------------------------------------------------------------
-    const network = bridgeNetwork;
 
     // Token list based on selected bridge network
     const availableTokens = useMemo(() => getAllBridgeableTokens(network), [network]);
 
     // Networks that can be bridged from (exclude currentChain)
-    const availableNetworks = useMemo(() => {
-        return [solana.id, mainnet.id, arbitrum.id, base.id].filter((id) => id !== currentChain);
-    }, [currentChain]);
+    // If user lacks a connected Solana wallet, show Solana as disabled.
+    const { availableNetworks, disabledNetworks } = useMemo(() => {
+        // Always consider these EVM chains as potentially enabled.
+        const baseNetworks: number[] = [mainnet.id];
 
-    const chainDependentAddress = (network as number) === solana.id ? solanaAddress : address;
+        const enabled: number[] = baseNetworks.filter((id) => id !== currentChain);
+        const disabled: number[] = [];
 
-    // -----------------------------------------------------------------------
+        // Handle Solana separately so we can disable when no wallet is connected.
+        if (solana.id !== currentChain) {
+            if (solanaAddress) enabled.push(solana.id);
+            else disabled.push(solana.id);
+        }
+
+        return { availableNetworks: enabled, disabledNetworks: disabled } as const;
+    }, [currentChain, solanaAddress]);
+
+    const chainDependentAddress = network === solana.id ? (solanaAddress ?? undefined) : address;
+
     const { data: availableDepositBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: network,
@@ -92,8 +98,8 @@ export default function BridgeForm() {
             wagmiConfig,
             keychainNonce ?? BigInt(0),
             connection,
-            signTransaction ?? undefined,
-            solanaAddress,
+            solanaSignTx ?? undefined,
+            solanaAddress ?? undefined,
             balances,
         );
 
@@ -111,7 +117,7 @@ export default function BridgeForm() {
         address,
         keychainNonce,
         connection,
-        signTransaction,
+        solanaSignTx,
         solanaAddress,
         balances,
         mint,
@@ -135,8 +141,13 @@ export default function BridgeForm() {
         queue.run();
     }
 
-    if (!renegadeConfig || !chainDependentAddress) {
-        return null; // Parent component shows the connect-wallet message.
+    // Parent page guarantees evmAddress; if route requires solana and it's missing, show banner.
+    if (network === solana.id && !solanaAddress) {
+        return (
+            <p className="p-4 text-center text-muted-foreground">
+                Connect a Solana wallet to bridge from Solana.
+            </p>
+        );
     }
 
     return (
@@ -145,9 +156,10 @@ export default function BridgeForm() {
             <div className="flex flex-col gap-2">
                 <Label>Network</Label>
                 <NetworkSelect
-                    value={bridgeNetwork}
-                    onChange={setBridgeNetwork}
+                    value={network}
+                    onChange={setNetwork}
                     networks={availableNetworks}
+                    disabledNetworks={disabledNetworks}
                 />
             </div>
 
@@ -160,7 +172,7 @@ export default function BridgeForm() {
                     value={mint}
                     onChange={setMint}
                     chainId={network}
-                    owner={chainDependentAddress}
+                    owner={chainDependentAddress!}
                     wagmiConfig={wagmiConfig}
                     connection={connection}
                     renegadeConfig={renegadeConfig}
@@ -180,7 +192,7 @@ export default function BridgeForm() {
                     <MaxButton
                         chainId={network}
                         mint={mint}
-                        owner={chainDependentAddress}
+                        owner={chainDependentAddress!}
                         wagmiConfig={wagmiConfig}
                         connection={connection}
                         onClick={setAmount}
@@ -192,7 +204,7 @@ export default function BridgeForm() {
             <BalanceRow
                 chainId={network}
                 mint={mint}
-                owner={chainDependentAddress}
+                owner={chainDependentAddress!}
                 wagmiConfig={wagmiConfig}
                 renegadeConfig={renegadeConfig}
                 connection={connection}
@@ -211,7 +223,7 @@ export default function BridgeForm() {
                         onClick={handleSubmit}
                         disabled={status !== "success"}
                     >
-                        Bridge
+                        Bridge & Deposit
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
