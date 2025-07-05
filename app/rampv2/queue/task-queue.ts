@@ -1,7 +1,7 @@
 import type { Emitter } from "nanoevents";
 import { createNanoEvents } from "nanoevents";
 import type { Task } from "../core/task";
-import { TaskDriver, type TaskDriverEvents } from "../task-driver/task-driver";
+import { TaskDriver, type TaskDriverEvents } from "../driver/task-driver";
 
 type TaskQueueEvents = TaskDriverEvents & {
     queueStart: () => void;

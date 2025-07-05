@@ -1,13 +1,12 @@
-import { getRoutes, type Route } from "@lifi/sdk";
+import { getRoutes, type Route, type RouteOptions } from "@lifi/sdk";
 import { getBalance } from "wagmi/actions";
 import { readErc20BalanceOf } from "@/lib/generated";
 import { solana } from "@/lib/viem";
-import { balanceKey } from "../core/balance-utils";
 import type { Intent } from "../core/intent";
 import type { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
-import { isETH } from "../helpers";
+import { balanceKey, isETH } from "../helpers";
 import { ApproveTask } from "../tasks/approve-task";
 import { DepositTask } from "../tasks/deposit-task";
 import { LiFiLegTask } from "../tasks/lifi-leg-task";
@@ -18,7 +17,19 @@ import { Prereq } from "./prereqs";
 
 /** Request best LI.FI route; thin wrapper mirroring v1 */
 async function requestBestRoute(req: Parameters<typeof getRoutes>[0]): Promise<Route> {
-    const res = await getRoutes(req);
+    const DEFAULT_ROUTE_OPTIONS: Partial<RouteOptions> = {
+        exchanges: {
+            deny: ["sushiswap"],
+            allow: ["1inch"],
+        },
+    };
+    const res = await getRoutes({
+        ...req,
+        options: {
+            ...DEFAULT_ROUTE_OPTIONS,
+            ...req.options,
+        },
+    });
     if (!res.routes?.length) throw new Error("LiFi: no routes returned");
     return res.routes[0] as Route;
 }

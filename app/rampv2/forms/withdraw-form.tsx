@@ -15,12 +15,12 @@ import { MaxButton } from "../components/max-button";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
+import { buildBalancesCache } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
-import { buildBalancesCache } from "../utils/balances";
 
 const direction = ExternalTransferDirection.Withdraw;
 
@@ -124,6 +124,12 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
+    // --- Dynamic button label --- //
+    const submitLabel = useMemo(
+        () => (unwrapToEth && canUnwrap ? "Withdraw & Unwrap" : "Withdraw"),
+        [unwrapToEth, canUnwrap],
+    );
+
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
         const queue = new TaskQueue(tasks);
@@ -219,7 +225,7 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
                         onClick={handleSubmit}
                         disabled={status !== "success"}
                     >
-                        Withdraw
+                        {submitLabel}
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>

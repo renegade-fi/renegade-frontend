@@ -1,3 +1,4 @@
+import { getAddress } from "viem";
 import { arbitrum, base, mainnet } from "viem/chains";
 import { solana } from "@/lib/viem";
 import type { Token } from "./registry";
@@ -16,6 +17,28 @@ export const RAMP_TOKENS = {
             canWithdraw: false,
             canSwap: true,
             swapInto: ["WETH"],
+            canBridge: false,
+        },
+        "USDC.e": {
+            address: getAddress("0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"),
+            decimals: 6,
+            ticker: "USDC.e",
+            name: "Bridged USDC",
+            canDeposit: false,
+            canWithdraw: false,
+            canSwap: true,
+            swapInto: ["USDC"],
+            canBridge: false,
+        },
+        USDT: {
+            name: "Tether USD",
+            ticker: "USDT",
+            address: getAddress("0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"),
+            decimals: 6,
+            canDeposit: false,
+            canWithdraw: false,
+            canSwap: true,
+            swapInto: ["USDC"],
             canBridge: false,
         },
     },

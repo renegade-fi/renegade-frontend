@@ -2,15 +2,47 @@ import type { LiFiStep, Route } from "@lifi/sdk";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDownIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { motion } from "framer-motion";
+import { ExternalLinkIcon } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 import { formatUnits } from "viem/utils";
 import { useAccount, useBalance } from "wagmi";
-import { Row } from "@/components/dialogs/transfer/row";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNumber, truncateAddress } from "@/lib/format";
 import { resolveTicker } from "@/lib/token";
 import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem";
-import { isETH } from "../helpers";
+import { isBridge, isETH, isSwap } from "../helpers";
+
+export function Row({
+    label,
+    value,
+    imageUri,
+    url,
+}: {
+    label: string;
+    value: string | React.ReactNode;
+    imageUri?: string;
+    url?: string;
+}) {
+    return (
+        <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">{label}</span>
+            <div className="flex items-center gap-1">
+                {imageUri && (
+                    <Image
+                        alt=""
+                        className="flex-shrink-0 rounded-full object-cover"
+                        height={16}
+                        src={imageUri}
+                        width={16}
+                    />
+                )}
+                {typeof value === "string" ? <span>{value}</span> : value}
+                {url && <ExternalLinkIcon className="h-4 w-4" />}
+            </div>
+        </div>
+    );
+}
 
 interface Props {
     route: Route;
@@ -32,12 +64,8 @@ function Layout({ children, animationKey }: { children: React.ReactNode; animati
 
 export function ReviewRoute({ route }: Props) {
     // Identify bridge and swap legs (at most one each for our planner output)
-    const bridgeStep = route.steps.find((s) => s.action.fromChainId !== s.action.toChainId);
-    const swapStep = route.steps.find(
-        (s) =>
-            s.action.fromChainId === s.action.toChainId &&
-            s.action.fromToken.address.toLowerCase() !== s.action.toToken.address.toLowerCase(),
-    );
+    const bridgeStep = isBridge(route);
+    const swapStep = isSwap(route);
 
     if (!bridgeStep && !swapStep) return null;
 

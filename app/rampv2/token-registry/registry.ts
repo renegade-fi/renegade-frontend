@@ -95,7 +95,11 @@ export function getTokenByTicker(ticker: string, chainId: number): Token | null 
 export function getSwapInputsFor(mint: string, chainId: number): Token[] {
     const targetToken = getTokenByAddress(mint, chainId);
     if (!targetToken) return [];
-    return ALL_TOKENS.filter((token) => token.swapInto?.includes(targetToken.ticker) ?? false);
+    return ALL_TOKENS.filter((token) => {
+        const includes = token.swapInto?.includes(targetToken.ticker);
+        const sameChain = token.chainId === chainId;
+        return includes && sameChain;
+    });
 }
 
 export function getAllTokens(chainId: number): Token[] {

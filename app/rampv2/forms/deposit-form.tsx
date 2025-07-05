@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { getAllTokens, getSwapInputsFor } from "@/app/rampv2/token-registry";
+import { getAllTokens, getSwapInputsFor, type Token } from "@/app/rampv2/token-registry";
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,12 @@ import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { isETH } from "../helpers";
+import { buildBalancesCache, isETH, isWrap } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
-import { buildBalancesCache } from "../utils/balances";
 
 const direction = ExternalTransferDirection.Deposit;
 
@@ -42,18 +41,20 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     } = env;
 
     // --- Local State --- //
+    // Token to deposit
     const [mint, setMint] = useState("");
+    // Token to swap into mint
+    const [swapToken, setSwapToken] = useState<string>("");
     const [amount, setAmount] = useState("");
 
     // --- Token List --- //
     const availableTokens = useMemo(() => getAllTokens(currentChain), [currentChain]);
 
-    const availableSwappableTokens = useMemo(
-        () => getSwapInputsFor(mint, currentChain),
+    const availableSwapToken: Token | undefined = useMemo(
+        () => getSwapInputsFor(mint, currentChain)[0],
         [mint, currentChain],
     );
-
-    const swapToken = availableSwappableTokens[0]?.address;
+    console.log("🚀 ~ DepositForm ~ availableSwapToken:", availableSwapToken);
 
     // --- On-chain Balances --- //
     const { data: availableDepositBalance } = useQuery({
@@ -150,6 +151,11 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
+    const submitLabel = useMemo(() => {
+        if (!route) return "Deposit";
+        return isWrap(route) ? "Wrap & Deposit" : "Swap & Deposit";
+    }, [route]);
+
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
         const queue = new TaskQueue(tasks);
@@ -220,21 +226,28 @@ export default function DepositForm({ env, onQueueStart }: Props) {
                     onClick={setAmount}
                 />
 
-                {availableSwappableTokens.length > 0 ? (
+                {availableSwapToken && (
                     <BalanceRow
+                        key={availableSwapToken.address}
                         chainId={currentChain}
-                        mint={availableSwappableTokens[0].address}
+                        mint={availableSwapToken.address}
                         direction={direction}
                         owner={address}
                         wagmiConfig={wagmiConfig}
                         renegadeConfig={renegadeConfig}
                         connection={connection}
-                        onClick={handleSetCombinedAmount}
+                        onClick={(value) => {
+                            setSwapToken(availableSwapToken.address);
+                            handleSetCombinedAmount(value);
+                        }}
                         hideNetworkLabel
                         minRemainingEthBalance={minRemainingEthBalance}
                     />
-                ) : null}
+                )}
             </div>
+
+            {/* Review Route Panel */}
+            {route ? <ReviewRoute route={route} /> : null}
 
             {/* Submit */}
             <div className="w-full flex">
@@ -247,13 +260,10 @@ export default function DepositForm({ env, onQueueStart }: Props) {
                         onClick={handleSubmit}
                         disabled={status !== "success"}
                     >
-                        Deposit
+                        {submitLabel}
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
-
-            {/* Review Route Panel */}
-            {route ? <ReviewRoute route={route} /> : null}
         </div>
     );
 }

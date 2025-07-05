@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { getTaskStateLabel } from "../helpers";
 import type { TaskQueue } from "../queue/task-queue";
-import { getTaskStateLabel } from "../utils/task-state-label";
 
 interface TaskQueueStatusProps {
     queue: TaskQueue;

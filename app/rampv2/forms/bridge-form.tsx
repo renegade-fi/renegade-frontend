@@ -18,12 +18,12 @@ import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
+import { buildBalancesCache } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
-import { buildBalancesCache } from "../utils/balances";
 
 const direction = ExternalTransferDirection.Deposit;
 
@@ -222,6 +222,9 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                 direction={direction}
             />
 
+            {/* Review Route Panel */}
+            {route ? <ReviewRoute route={route} /> : null}
+
             {/* Submit */}
             <div className="w-full flex">
                 <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
@@ -237,9 +240,6 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
-
-            {/* Review Route Panel */}
-            {route ? <ReviewRoute route={route} /> : null}
         </div>
     );
 }
