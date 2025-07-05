@@ -111,12 +111,35 @@ export function getSwapInputsFor(mint: string, chainId: number): Token[] {
     });
 }
 
+/** Returns all tokens */
 export function getAllTokens(chainId: number): Token[] {
     return ALL_TOKENS.filter((token) => token.chainId === chainId);
 }
 
+/** Returns tokens that can be bridged from the given chain */
 export function getAllBridgeableTokens(chainId: number): Token[] {
     return getAllTokens(chainId).filter((token) => token.canBridge);
+}
+
+/** Returns tokens that can be deposited into the given chain */
+export function getDepositTokens(chainId: number): Token[] {
+    return getAllTokens(chainId).filter((token) => token.canDeposit);
+}
+
+/** Returns pairs of tokens (A, B) that can be swapped A -> B */
+export function getSwapPairs(chainId: number): Array<[Token, Token]> {
+    const pairs: Array<[Token, Token]> = [];
+    for (const token of getAllTokens(chainId)) {
+        if (token.canSwap) {
+            for (const swapTo of token.swapInto) {
+                const swapToToken = getTokenByTicker(swapTo, chainId);
+                if (swapToToken) {
+                    pairs.push([token, swapToToken]);
+                }
+            }
+        }
+    }
+    return pairs;
 }
 
 /**

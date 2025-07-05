@@ -25,6 +25,7 @@ import {
     renegadeBalanceQuery,
 } from "../queries/renegade-balance";
 import { getTokenByAddress, type Token } from "../token-registry";
+import { getSwapPairs } from "../token-registry/registry";
 
 interface Props {
     direction: ExternalTransferDirection;
@@ -74,6 +75,36 @@ export function TokenSelect({
         },
     });
 
+    // Construct Map<address, balance> for balances to add
+    // For deposit, this is balances of tokens that can swap into the selected token
+    // For bridge, this is balances of tokens that can be bridged from the selected token
+    const swapPairs = getSwapPairs(chainId).filter(([a]) => a.ticker !== "USDT");
+    const additionalBalances = useQueries({
+        queries: swapPairs.map(([a, b]) => {
+            return {
+                ...onChainBalanceQuery({
+                    owner,
+                    mint: a.address as `0x${string}`,
+                    chainId: chainId,
+                    wagmiConfig,
+                    connection,
+                }),
+            };
+        }),
+        combine: (results) => {
+            // Aggregate balances so that multiple swap-from tokens mapping to the same
+            // swap-to token get summed rather than overwritten.
+            const map = new Map<`0x${string}`, bigint>();
+            swapPairs.forEach(([a, b], i) => {
+                const key = b.address as `0x${string}`;
+                const existing = map.get(key) ?? BigInt(0);
+                const value = results[i].data?.raw ?? BigInt(0);
+                map.set(key, (map.get(key) ?? BigInt(0)) + value);
+            });
+            return map;
+        },
+    });
+
     const renegadeBalances = useQueries({
         queries: displayTokens.map((t) => {
             return {
@@ -94,6 +125,22 @@ export function TokenSelect({
     });
     const displayBalances =
         direction === ExternalTransferDirection.Deposit ? onChainBalances : renegadeBalances;
+
+    // When depositing, show on-chain balance **plus** any swap-in balances so the user
+    // sees their true available amount. Memoised to avoid recalculation every render.
+    const totalDepositBalances = React.useMemo(() => {
+        if (direction !== ExternalTransferDirection.Deposit) return displayBalances;
+        const map = new Map(displayBalances);
+        additionalBalances?.forEach((value, key) => {
+            map.set(key, (map.get(key) ?? BigInt(0)) + value);
+        });
+        return map;
+    }, [direction, displayBalances, additionalBalances]);
+
+    const getDisplayBalance = React.useCallback(
+        (addr: `0x${string}`) => totalDepositBalances?.get(addr) ?? BigInt(0),
+        [totalDepositBalances],
+    );
 
     const isDesktop = useMediaQuery("(min-width: 1024px)");
 
@@ -144,8 +191,7 @@ export function TokenSelect({
                                     <span className="flex-1">{t.label}</span>
                                     <span className="flex-1 pr-2 text-right">
                                         {formatNumber(
-                                            displayBalances?.get(t.value as `0x${string}`) ??
-                                                BigInt(0),
+                                            getDisplayBalance(t.value as `0x${string}`),
                                             getTokenByAddress(t.value, chainId)?.decimals ?? 0,
                                         )}
                                     </span>

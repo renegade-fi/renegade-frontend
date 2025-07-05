@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
-    getAllTokens,
     getSwapInputsFor,
     getTokenByAddress,
     getTokenByTicker,
@@ -25,6 +24,7 @@ import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
+import { getDepositTokens } from "../token-registry/registry";
 import type { RampEnv } from "../types";
 
 const direction = ExternalTransferDirection.Deposit;
@@ -54,7 +54,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     const [amount, setAmount] = useState("");
 
     // --- Token List --- //
-    const availableTokens = getAllTokens(currentChain);
+    const availableTokens = getDepositTokens(currentChain);
 
     const availableSwapToken: Token | undefined = useMemo(() => {
         const token = getTokenByAddress(mint, currentChain);
@@ -158,7 +158,6 @@ export default function DepositForm({ env, onQueueStart }: Props) {
         currentChain,
         amount,
     ]);
-    console.log("🚀 ~ const{intent,taskCtx}=useMemo ~ intent:", intent);
 
     const { data: plan, status } = useQuery({
         queryKey: ["ramp-deposit", { ...intent?.toJson?.() }],
@@ -182,7 +181,13 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
-    const submitLabel = !route ? "Deposit" : isWrap(route) ? "Wrap & Deposit" : "Swap & Deposit";
+    // Helper to determine the submit button label based on the planned route.
+    function getSubmitLabel(routeParam: typeof route): string {
+        if (!routeParam) return "Deposit";
+        return isWrap(routeParam) ? "Wrap & Deposit" : "Swap & Deposit";
+    }
+
+    const submitLabel = getSubmitLabel(route);
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
