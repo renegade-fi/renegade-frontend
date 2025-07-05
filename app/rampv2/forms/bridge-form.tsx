@@ -14,6 +14,7 @@ import { solana } from "@/lib/viem";
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { NetworkSelect } from "../components/network-select";
+import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
@@ -128,7 +129,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         amount,
     ]);
 
-    const { data: tasks, status } = useQuery({
+    const { data: plan, status } = useQuery({
         queryKey: ["ramp-bridge", { ...intent?.toJson?.() }],
         queryFn: () => {
             if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
@@ -137,8 +138,11 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
     });
 
+    const tasks = plan?.tasks;
+    const route = plan?.route;
+
     function handleSubmit() {
-        if (!tasks) return;
+        if (!tasks || tasks.length === 0) return;
         const queue = new TaskQueue(tasks);
         if (onQueueStart) {
             onQueueStart(queue);
@@ -233,6 +237,9 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
+
+            {/* Review Route Panel */}
+            {route ? <ReviewRoute route={route} /> : null}
         </div>
     );
 }

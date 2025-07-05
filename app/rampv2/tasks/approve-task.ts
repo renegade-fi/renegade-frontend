@@ -3,7 +3,7 @@ import { writeContract } from "wagmi/actions";
 import { erc20Abi } from "@/lib/generated";
 import { zeroAddress } from "@/lib/token";
 import { USDT_MAINNET_ADDRESS, usdtAbi } from "@/lib/usdtAbi";
-import { solana } from "@/lib/viem";
+import { getExplorerLink, solana } from "@/lib/viem";
 import type { TaskError as BaseTaskError } from "../core/task";
 import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
@@ -12,7 +12,6 @@ import type { PlannedTask } from "../planner/task-planner";
 import type { DepositTask } from "./deposit-task";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import type { LiFiLegTask } from "./lifi-leg-task";
-import { getExplorerLink } from "@/lib/viem";
 
 export interface ApproveDescriptor {
     readonly id: string;

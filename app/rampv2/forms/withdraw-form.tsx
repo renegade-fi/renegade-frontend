@@ -111,7 +111,7 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
         unwrapToEth,
     ]);
 
-    const { data: tasks, status } = useQuery({
+    const { data: plan, status } = useQuery({
         queryKey: ["ramp-withdraw", { ...intent?.toJson?.() }],
         queryFn: () => {
             if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
@@ -121,8 +121,11 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
         staleTime: 0,
     });
 
+    const tasks = plan?.tasks;
+    const route = plan?.route;
+
     function handleSubmit() {
-        if (!tasks) return;
+        if (!tasks || tasks.length === 0) return;
         const queue = new TaskQueue(tasks);
         if (onQueueStart) {
             onQueueStart(queue);

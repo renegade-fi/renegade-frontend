@@ -1,7 +1,7 @@
 import type { ExtendedTransactionInfo, Route } from "@lifi/sdk";
 import { getStepTransaction } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { solana } from "@/lib/viem";
+import { getExplorerLink, solana } from "@/lib/viem";
 import type { TaskError as BaseTaskError } from "../core/task";
 import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
@@ -9,7 +9,6 @@ import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import { awaitSolanaConfirmation, sendSolanaTransaction } from "./helpers/solana";
 import { waitForLiFiStatus, waitForTxReceipt } from "./helpers/waiters";
-import { getExplorerLink } from "@/lib/viem";
 
 export interface LiFiLegDescriptor {
     readonly id: string;

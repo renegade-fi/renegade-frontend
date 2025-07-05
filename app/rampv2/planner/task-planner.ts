@@ -91,7 +91,15 @@ async function filterNeeded(tasks: Task[], ctx: TaskContext): Promise<Task[]> {
     return tasks.filter((_, i) => neededFlags[i]);
 }
 
-export async function planTasks(intent: Intent, ctx: TaskContext): Promise<Task[]> {
+/** Result returned by the task planner. */
+export interface PlanResult {
+    /** Ordered list of tasks that should be executed */
+    tasks: Task[];
+    /** Optional LI.FI route describing on-chain bridging / swapping that will occur */
+    route?: Route;
+}
+
+export async function planTasks(intent: Intent, ctx: TaskContext): Promise<PlanResult> {
     if (intent.isDeposit()) {
         return planDeposit(intent, ctx);
     }
@@ -131,7 +139,7 @@ async function getWalletBalance(
     return bal;
 }
 
-async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
+async function planDeposit(intent: Intent, ctx: TaskContext): Promise<PlanResult> {
     const coreTasks: PlannedTask[] = [];
     const bridgeNeeded = intent.fromChain !== intent.toChain;
     const swapNeeded = intent.fromTokenAddress !== intent.toTokenAddress;
@@ -167,7 +175,7 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
     ordered = await filterNeeded(ordered, ctx);
-    return ordered;
+    return { tasks: ordered, route };
 }
 
 async function getBridgeRoute(intent: Intent, ctx: TaskContext): Promise<Route> {
@@ -197,7 +205,7 @@ async function getSwapRoute(intent: Intent, ctx: TaskContext): Promise<Route | u
     }
 }
 
-async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
+async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<PlanResult> {
     const coreTasks: PlannedTask[] = [];
 
     // Start with withdraw
@@ -218,7 +226,7 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
             ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
         }
         ordered = await filterNeeded(ordered, ctx);
-        return ordered;
+        return { tasks: ordered };
     }
 
     const route = await requestBestRoute(intent.toLifiRouteRequest());
@@ -233,5 +241,5 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<Task[]> {
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
     ordered = await filterNeeded(ordered, ctx);
-    return ordered;
+    return { tasks: ordered, route };
 }
