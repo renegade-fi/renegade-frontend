@@ -126,7 +126,7 @@ export class Intent {
     ): Intent | undefined {
         const { swapToken, depositMint, chainId, amount } = params;
 
-        const fromToken = getTokenByAddress(swapToken, chainId);
+        const fromToken = getTokenByAddress(swapToken ?? depositMint, chainId);
         if (!fromToken) return undefined;
 
         const toToken = getTokenByAddress(depositMint, chainId);

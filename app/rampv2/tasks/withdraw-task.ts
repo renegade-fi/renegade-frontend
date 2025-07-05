@@ -15,11 +15,7 @@ export interface WithdrawDescriptor {
     readonly amount: bigint;
 }
 
-export enum WithdrawState {
-    Pending,
-    Submitted,
-    Completed,
-}
+export type WithdrawState = "Pending" | "Submitted" | "Completed";
 
 class WithdrawError extends Error implements BaseTaskError {
     constructor(
@@ -34,7 +30,7 @@ class WithdrawError extends Error implements BaseTaskError {
 }
 
 export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, WithdrawError> {
-    private _state: WithdrawState = WithdrawState.Pending;
+    private _state: WithdrawState = "Pending";
     private _taskId?: string;
 
     constructor(
@@ -69,13 +65,13 @@ export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, Withdr
     }
 
     completed() {
-        return this._state === WithdrawState.Completed;
+        return this._state === "Completed";
     }
 
     async step(): Promise<void> {
         const { chainId, mint, amount } = this.descriptor;
         switch (this._state) {
-            case WithdrawState.Pending: {
+            case "Pending": {
                 await ensureCorrectChain(this.ctx, chainId);
                 const owner = this.ctx.getOnchainAddress(chainId) as `0x${string}`;
                 const token = resolveAddress(mint);
@@ -85,13 +81,13 @@ export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, Withdr
                     destinationAddr: owner,
                 });
                 this._taskId = taskId;
-                this._state = WithdrawState.Submitted;
+                this._state = "Submitted";
                 break;
             }
-            case WithdrawState.Submitted: {
+            case "Submitted": {
                 if (!this._taskId) throw new WithdrawError("No taskId", false);
                 await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
-                this._state = WithdrawState.Completed;
+                this._state = "Completed";
                 break;
             }
             default:

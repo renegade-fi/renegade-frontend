@@ -8,13 +8,15 @@ import { Button } from "@/components/ui/button";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { cn } from "@/lib/utils";
 import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
+import { TaskQueueStatus } from "./components/task-queue-status";
 import BridgeForm from "./forms/bridge-form";
 import DepositForm from "./forms/deposit-form";
 import WithdrawForm from "./forms/withdraw-form";
+import type { TaskQueue } from "./queue/task-queue";
 import type { RampEnv } from "./types";
 
 export default function RampV2Page() {
-    /* ---------------- Collect shared context ---------------- */
+    // --- Shared context --- //
     const renegadeConfig = useRenegadeConfig();
     const wagmiConfig = useWagmiConfig();
     const currentChain = useCurrentChain();
@@ -29,10 +31,11 @@ export default function RampV2Page() {
         query: { select: (w) => w.key_chain.nonce },
     });
 
-    /* ---------------- Local state (tab) ---------------- */
+    // --- Local state  --- //
     const [mode, setMode] = useState<"bridge" | "deposit" | "withdraw">("deposit");
+    const [queue, setQueue] = useState<TaskQueue | null>(null);
 
-    /* ---------------- Single guard ---------------- */
+    // --- Single guard --- //
     const evmAddress = address; // must exist to proceed
 
     const missingEssential = !renegadeConfig || !wagmiConfig || !evmAddress;
@@ -46,7 +49,7 @@ export default function RampV2Page() {
         );
     }
 
-    /* ---------------- Build env ---------------- */
+    // --- Build env --- //
     const env: RampEnv = {
         renegadeConfig,
         wagmiConfig,
@@ -57,6 +60,11 @@ export default function RampV2Page() {
         solanaAddress, // may be null
         solanaSignTx: signTransaction ?? null,
     };
+
+    function handleQueueStart(q: TaskQueue) {
+        setQueue(q);
+        q.run().catch(console.error);
+    }
 
     return (
         <main>
@@ -98,13 +106,15 @@ export default function RampV2Page() {
                     </Button>
                 </div>
 
-                {/* Render selected form */}
-                {mode === "bridge" ? (
-                    <BridgeForm env={env} />
+                {/* Render form or queue status */}
+                {queue ? (
+                    <TaskQueueStatus queue={queue} onClose={() => setQueue(null)} />
+                ) : mode === "bridge" ? (
+                    <BridgeForm env={env} onQueueStart={handleQueueStart} />
                 ) : mode === "deposit" ? (
-                    <DepositForm env={env} />
+                    <DepositForm env={env} onQueueStart={handleQueueStart} />
                 ) : (
-                    <WithdrawForm env={env} />
+                    <WithdrawForm env={env} onQueueStart={handleQueueStart} />
                 )}
             </section>
         </main>

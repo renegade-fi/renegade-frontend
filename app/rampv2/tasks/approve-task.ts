@@ -12,6 +12,7 @@ import type { PlannedTask } from "../planner/task-planner";
 import type { DepositTask } from "./deposit-task";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import type { LiFiLegTask } from "./lifi-leg-task";
+import { getExplorerLink } from "@/lib/viem";
 
 export interface ApproveDescriptor {
     readonly id: string;
@@ -22,11 +23,7 @@ export interface ApproveDescriptor {
     readonly spender: `0x${string}`;
 }
 
-export enum ApproveState {
-    Pending,
-    Submitted,
-    Completed,
-}
+export type ApproveState = "Pending" | "Submitted" | "Completed";
 
 class ApproveError extends Error implements BaseTaskError {
     constructor(
@@ -41,7 +38,7 @@ class ApproveError extends Error implements BaseTaskError {
 }
 
 export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveError> {
-    private _state: ApproveState = ApproveState.Pending;
+    private _state: ApproveState = "Pending";
     private _txHash?: `0x${string}`;
 
     constructor(
@@ -78,7 +75,7 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
     }
 
     completed() {
-        return this._state === ApproveState.Completed;
+        return this._state === "Completed";
     }
 
     async step(): Promise<void> {
@@ -86,7 +83,7 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
         const pc = this.ctx.getPublicClient(chainId);
 
         switch (this._state) {
-            case ApproveState.Pending: {
+            case "Pending": {
                 await ensureCorrectChain(this.ctx, chainId);
 
                 const owner = this.ctx.getOnchainAddress(chainId) as `0x${string}`;
@@ -105,13 +102,13 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
 
                 const txHash = await writeContract(this.ctx.wagmiConfig, request);
                 this._txHash = txHash;
-                this._state = ApproveState.Submitted;
+                this._state = "Submitted";
                 break;
             }
-            case ApproveState.Submitted: {
+            case "Submitted": {
                 if (!this._txHash) throw new ApproveError("Missing txHash", false);
                 await pc.waitForTransactionReceipt({ hash: this._txHash });
-                this._state = ApproveState.Completed;
+                this._state = "Completed";
                 break;
             }
             default:
@@ -121,6 +118,11 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
 
     cleanup(): Promise<void> {
         return Promise.resolve();
+    }
+
+    explorerLink(): string | undefined {
+        if (!this._txHash) return undefined;
+        return getExplorerLink(this._txHash as string, this.descriptor.chainId);
     }
 
     /**
@@ -138,12 +140,6 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
                 address: mint,
                 functionName: "allowance",
                 args: [owner, spender],
-            });
-            console.log("approve allowance", {
-                spender,
-                mint,
-                amount,
-                allowance,
             });
             return allowance < amount;
         } catch {

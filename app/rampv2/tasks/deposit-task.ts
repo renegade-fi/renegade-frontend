@@ -15,11 +15,7 @@ export interface DepositDescriptor {
     readonly amount: bigint;
 }
 
-export enum DepositState {
-    Pending,
-    Submitted,
-    Completed,
-}
+export type DepositState = "Pending" | "Submitted" | "Completed";
 
 class DepositError extends Error implements BaseTaskError {
     constructor(
@@ -34,7 +30,7 @@ class DepositError extends Error implements BaseTaskError {
 }
 
 export class DepositTask extends Task<DepositDescriptor, DepositState, DepositError> {
-    private _state: DepositState = DepositState.Pending;
+    private _state: DepositState = "Pending";
     private _taskId?: string;
     private _finalAmount: bigint;
 
@@ -71,20 +67,15 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
     }
 
     completed() {
-        return this._state === DepositState.Completed;
+        return this._state === "Completed";
     }
 
     async step(): Promise<void> {
         const { chainId, mint } = this.descriptor;
 
         switch (this._state) {
-            case DepositState.Pending: {
+            case "Pending": {
                 this._finalAmount = this.ctx.getExpectedBalance(chainId, mint);
-                console.log("deposit task", {
-                    chainId,
-                    mint,
-                    finalAmount: this._finalAmount,
-                });
 
                 await ensureCorrectChain(this.ctx, chainId);
 
@@ -109,13 +100,13 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
                 });
 
                 this._taskId = taskId;
-                this._state = DepositState.Submitted;
+                this._state = "Submitted";
                 break;
             }
-            case DepositState.Submitted: {
+            case "Submitted": {
                 if (!this._taskId) throw new DepositError("No taskId", false);
                 await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
-                this._state = DepositState.Completed;
+                this._state = "Completed";
                 break;
             }
             default:

@@ -17,10 +17,7 @@ export interface PermitSigDescriptor {
     readonly amount: bigint;
 }
 
-export enum PermitSigState {
-    Pending,
-    Completed,
-}
+export type PermitSigState = "Pending" | "Completed";
 
 class PermitSigError extends Error implements BaseTaskError {
     constructor(
@@ -35,7 +32,7 @@ class PermitSigError extends Error implements BaseTaskError {
 }
 
 export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, PermitSigError> {
-    private _state: PermitSigState = PermitSigState.Pending;
+    private _state: PermitSigState = "Pending";
 
     constructor(
         public readonly descriptor: PermitSigDescriptor,
@@ -69,7 +66,7 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
     }
 
     completed() {
-        return this._state === PermitSigState.Completed;
+        return this._state === "Completed";
     }
 
     /** Permit2 signature is always required once present in the plan. */
@@ -78,18 +75,12 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
     }
 
     async step(): Promise<void> {
-        if (this._state !== PermitSigState.Pending)
-            throw new PermitSigError("Already completed", false);
+        if (this._state !== "Pending") throw new PermitSigError("Already completed", false);
 
         const { chainId, mint } = this.descriptor;
         await ensureCorrectChain(this.ctx, chainId);
 
         const finalAmount = this.ctx.getExpectedBalance(chainId, mint);
-        console.log("permit2 calculate final amount", {
-            chainId,
-            mint,
-            finalAmount,
-        });
 
         const sdkCfg = getSDKConfig(chainId);
         const token = resolveAddress(mint);
@@ -113,7 +104,7 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
 
         this.ctx.permit = { signature, nonce: message.nonce, deadline: message.deadline };
 
-        this._state = PermitSigState.Completed;
+        this._state = "Completed";
     }
 
     cleanup(): Promise<void> {

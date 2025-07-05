@@ -25,9 +25,10 @@ const direction = ExternalTransferDirection.Deposit;
 
 interface Props {
     env: RampEnv;
+    onQueueStart?: (queue: TaskQueue) => void;
 }
 
-export default function DepositForm({ env }: Props) {
+export default function DepositForm({ env, onQueueStart }: Props) {
     const {
         renegadeConfig,
         wagmiConfig,
@@ -103,8 +104,6 @@ export default function DepositForm({ env }: Props) {
             balances,
         );
 
-        if (!swapToken) return { intent: undefined, taskCtx: ctx } as const;
-
         const intent = Intent.newSwapIntent(ctx, {
             swapToken,
             depositMint: mint,
@@ -150,7 +149,12 @@ export default function DepositForm({ env }: Props) {
     function handleSubmit() {
         if (!tasks) return;
         const queue = new TaskQueue(tasks);
-        queue.run();
+        if (onQueueStart) {
+            onQueueStart(queue);
+        } else {
+            // Fallback: run internally if no handler provided
+            queue.run().catch(console.error);
+        }
     }
 
     function handleSetCombinedAmount(tokenAmount: string) {

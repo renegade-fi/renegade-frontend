@@ -45,6 +45,15 @@ export abstract class Task<D = unknown, S = unknown, E extends TaskError = TaskE
         return Promise.resolve();
     }
 
+    /**
+     * Optional: return a block explorer URL for this task's on-chain
+     * transaction, if one exists. The value may become defined only after the
+     * task has progressed to later states (e.g. after submitting a tx).
+     */
+    explorerLink(): string | undefined {
+        return undefined;
+    }
+
     /** Hint for the planner: return false if this task can be skipped. */
     isNeeded(_ctx: TaskContext): Promise<boolean> | boolean {
         return true;

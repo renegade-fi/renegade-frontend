@@ -11,11 +11,7 @@ export interface PayFeesDescriptor {
     readonly chainId: number;
 }
 
-export enum PayFeesState {
-    Pending,
-    Submitted,
-    Completed,
-}
+export type PayFeesState = "Pending" | "Submitted" | "Completed";
 
 class PayFeesError extends Error implements BaseTaskError {
     constructor(
@@ -30,7 +26,7 @@ class PayFeesError extends Error implements BaseTaskError {
 }
 
 export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesError> {
-    private _state: PayFeesState = PayFeesState.Pending;
+    private _state: PayFeesState = "Pending";
     private _taskId?: string;
 
     constructor(
@@ -58,7 +54,7 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
     }
 
     completed() {
-        return this._state === PayFeesState.Completed;
+        return this._state === "Completed";
     }
 
     /**
@@ -77,21 +73,21 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
 
     async step(): Promise<void> {
         switch (this._state) {
-            case PayFeesState.Pending: {
+            case "Pending": {
                 const result = await payFees(this.ctx.renegadeConfig);
                 const taskId: string | undefined = (result as any)?.taskId;
                 if (!taskId) {
-                    this._state = PayFeesState.Completed;
+                    this._state = "Completed";
                 } else {
                     this._taskId = taskId;
-                    this._state = PayFeesState.Submitted;
+                    this._state = "Submitted";
                 }
                 break;
             }
-            case PayFeesState.Submitted: {
+            case "Submitted": {
                 if (!this._taskId) throw new PayFeesError("No taskId", false);
                 await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
-                this._state = PayFeesState.Completed;
+                this._state = "Completed";
                 break;
             }
             default:

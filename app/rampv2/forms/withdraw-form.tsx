@@ -17,6 +17,7 @@ import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
 import { buildBalancesCache } from "../utils/balances";
@@ -25,9 +26,10 @@ const direction = ExternalTransferDirection.Withdraw;
 
 interface Props {
     env: RampEnv;
+    onQueueStart?: (queue: TaskQueueType) => void;
 }
 
-export default function WithdrawForm({ env }: Props) {
+export default function WithdrawForm({ env, onQueueStart }: Props) {
     const {
         renegadeConfig,
         wagmiConfig,
@@ -122,7 +124,11 @@ export default function WithdrawForm({ env }: Props) {
     function handleSubmit() {
         if (!tasks) return;
         const queue = new TaskQueue(tasks);
-        queue.run();
+        if (onQueueStart) {
+            onQueueStart(queue);
+        } else {
+            queue.run().catch(console.error);
+        }
     }
 
     return (

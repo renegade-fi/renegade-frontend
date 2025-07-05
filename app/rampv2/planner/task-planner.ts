@@ -166,9 +166,7 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<Task[]> {
     for (const t of coreTasks) {
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
-    console.log("task order pre-filter", ordered);
     ordered = await filterNeeded(ordered, ctx);
-    console.log("task order post-filter", ordered);
     return ordered;
 }
 

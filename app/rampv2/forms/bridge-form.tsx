@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { arbitrum, base, mainnet } from "viem/chains";
+import { mainnet } from "viem/chains";
 
 import { getAllBridgeableTokens } from "@/app/rampv2/token-registry/registry";
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
@@ -19,6 +19,7 @@ import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
 import { buildBalancesCache } from "../utils/balances";
@@ -27,9 +28,10 @@ const direction = ExternalTransferDirection.Deposit;
 
 interface Props {
     env: RampEnv;
+    onQueueStart?: (queue: TaskQueueType) => void;
 }
 
-export default function BridgeForm({ env }: Props) {
+export default function BridgeForm({ env, onQueueStart }: Props) {
     const {
         renegadeConfig,
         wagmiConfig,
@@ -138,7 +140,11 @@ export default function BridgeForm({ env }: Props) {
     function handleSubmit() {
         if (!tasks) return;
         const queue = new TaskQueue(tasks);
-        queue.run();
+        if (onQueueStart) {
+            onQueueStart(queue);
+        } else {
+            queue.run().catch(console.error);
+        }
     }
 
     // Parent page guarantees evmAddress; if route requires solana and it's missing, show banner.

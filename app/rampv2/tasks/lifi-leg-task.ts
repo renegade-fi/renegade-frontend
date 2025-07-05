@@ -9,6 +9,7 @@ import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import { awaitSolanaConfirmation, sendSolanaTransaction } from "./helpers/solana";
 import { waitForLiFiStatus, waitForTxReceipt } from "./helpers/waiters";
+import { getExplorerLink } from "@/lib/viem";
 
 export interface LiFiLegDescriptor {
     readonly id: string;
@@ -17,12 +18,7 @@ export interface LiFiLegDescriptor {
     readonly isFinalLeg: boolean;
 }
 
-export enum LiFiLegState {
-    Pending,
-    Submitted,
-    Confirming,
-    Completed,
-}
+export type LiFiLegState = "Pending" | "Submitted" | "Confirming" | "Completed";
 
 class LiFiLegError extends Error implements BaseTaskError {
     constructor(
@@ -37,7 +33,7 @@ class LiFiLegError extends Error implements BaseTaskError {
 }
 
 export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegError> {
-    private _state: LiFiLegState = LiFiLegState.Pending;
+    private _state: LiFiLegState = "Pending";
     private _txHash?: string;
 
     readonly chainId: number;
@@ -73,12 +69,12 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
     }
 
     completed() {
-        return this._state === LiFiLegState.Completed;
+        return this._state === "Completed";
     }
 
     async step(): Promise<void> {
         switch (this._state) {
-            case LiFiLegState.Pending: {
+            case "Pending": {
                 const { leg } = this.descriptor;
                 // Do not attempt wagmi chain switch for Solana legs – different connector.
                 if (this.chainId !== solana.id) {
@@ -95,32 +91,32 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
                         this.ctx.signTransaction,
                     );
                     this._txHash = signature;
-                    this._state = LiFiLegState.Submitted;
+                    this._state = "Submitted";
                 } else {
                     const txHash = await sendTransaction(this.ctx.wagmiConfig, {
                         ...txRequest,
                         type: "legacy",
                     } as any);
                     this._txHash = txHash as string;
-                    this._state = LiFiLegState.Submitted;
+                    this._state = "Submitted";
                 }
                 break;
             }
-            case LiFiLegState.Submitted: {
+            case "Submitted": {
                 if (!this._txHash) throw new LiFiLegError("No tx hash", false);
                 if (this.chainId === solana.id && this.ctx.connection) {
                     await awaitSolanaConfirmation(this._txHash, this.ctx.connection);
-                    this._state = LiFiLegState.Completed;
+                    this._state = "Completed";
                 } else {
                     await waitForTxReceipt(
                         this.ctx.getPublicClient(this.chainId),
                         this._txHash as `0x${string}`,
                     );
-                    this._state = LiFiLegState.Confirming;
+                    this._state = "Confirming";
                 }
                 break;
             }
-            case LiFiLegState.Confirming: {
+            case "Confirming": {
                 if (!this._txHash) throw new LiFiLegError("No tx hash", false);
                 const status = await waitForLiFiStatus(this._txHash);
                 if (status.status !== "DONE")
@@ -132,7 +128,7 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
                         .address as `0x${string}`;
                     this.ctx.routeOutput(toChainId, toTokenAddress, BigInt(amtStr));
                 }
-                this._state = LiFiLegState.Completed;
+                this._state = "Completed";
                 break;
             }
             default:
@@ -142,5 +138,10 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
 
     cleanup(): Promise<void> {
         return Promise.resolve();
+    }
+
+    explorerLink(): string | undefined {
+        if (!this._txHash) return undefined;
+        return getExplorerLink(this._txHash as string, this.chainId);
     }
 }
