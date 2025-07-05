@@ -7,7 +7,8 @@ import { useIsMutating } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import React from "react";
 import { verifyMessage } from "viem";
-import { WagmiProvider as Provider, type State, useAccount, useChainId } from "wagmi";
+import { WagmiProvider as Provider, type State, useAccount, useChainId, useConfig } from "wagmi";
+import { watchAccount } from "wagmi/actions";
 
 import { SignInDialog } from "@/components/dialogs/onboarding/sign-in-dialog";
 
@@ -110,6 +111,25 @@ function SyncRenegadeWagmiState() {
         }
         verifyWallets();
     }, [account.address, resetAllWallets, resetWallet, wallets]);
+
+    const config = useConfig();
+    React.useEffect(() => {
+        const eth = (window as any).ethereum;
+        const t0 = Date.now();
+        const log = (m: string, ...x: any[]) =>
+            console.debug(`[${((Date.now() - t0) / 1e3).toFixed(1)}s] ${m}`, ...x);
+
+        eth?.on("accountsChanged", (a: any) => log("accountsChanged", a));
+        eth?.on("disconnect", (r: any) => log("provider disconnect", r));
+        watchAccount(config, {
+            onChange: (a) => log("wagmi onChange", a),
+        });
+
+        document.addEventListener("visibilitychange", () =>
+            log(`visibility ${document.visibilityState}`),
+        );
+        window.addEventListener("focus", () => log("window focus"));
+    }, [config]);
 
     return null;
 }

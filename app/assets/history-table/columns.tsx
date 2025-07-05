@@ -51,7 +51,7 @@ export const columns: ColumnDef<HistoryData>[] = [
             const token = resolveAddress(mint);
             const { data: price } = usePriceQuery(mint);
             const amount = row.original.rawAmount;
-            const usdValueBigInt = amountTimesPrice(amount, price);
+            const usdValueBigInt = amountTimesPrice(amount, price ?? 0);
             const usdValue = formatUnits(usdValueBigInt, token.decimals);
             return <div className="text-right">{formatCurrencyFromString(usdValue)}</div>;
         },
