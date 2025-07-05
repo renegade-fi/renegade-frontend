@@ -132,7 +132,7 @@ export class Intent {
     ): Intent | undefined {
         const { swapToken, depositMint, chainId, amount } = params;
 
-        const fromToken = getTokenByAddress(swapToken ?? depositMint, chainId);
+        const fromToken = getTokenByAddress(swapToken, chainId);
         if (!fromToken) return undefined;
 
         const toToken = getTokenByAddress(depositMint, chainId);
@@ -149,6 +149,34 @@ export class Intent {
             toAddress: ctx.getOnchainAddress(chainId),
             fromTokenAddress: fromToken.address,
             toTokenAddress: toToken.address,
+            amountAtomic: amountAtomic,
+        });
+    }
+
+    static newDepositIntent(
+        ctx: TaskContext,
+        params: {
+            mint: string;
+            chainId: number;
+            amount: string;
+        },
+    ): Intent | undefined {
+        const { mint, chainId, amount } = params;
+
+        const token = getTokenByAddress(mint, chainId);
+        if (!token) return undefined;
+
+        const amountAtomic = parseUnits(amount, token.decimals);
+        if (amountAtomic === BigInt(0)) return undefined;
+
+        return new Intent({
+            kind: "DEPOSIT",
+            fromChain: chainId,
+            toChain: chainId,
+            fromAddress: ctx.getOnchainAddress(chainId),
+            toAddress: ctx.getOnchainAddress(chainId),
+            fromTokenAddress: token.address,
+            toTokenAddress: token.address,
             amountAtomic: amountAtomic,
         });
     }

@@ -28,57 +28,87 @@ export function onChainBalanceQuery(params: QueryParams) {
                 functionName: "balanceOf",
             },
         ],
-        queryFn: async () => {
-            if (params.chainId === solana.id) {
-                if (!params.connection)
-                    throw new Error("Connection is required to read Solana balance");
-                const balance = await readSolanaBalanceOf(params.connection, {
-                    owner: params.owner,
-                    mint: params.mint,
-                });
-                return balance;
-            } else {
-                if (!params.wagmiConfig)
-                    throw new Error("Wagmi config is required to read EVM balance");
-                if (isETH(params.mint, params.chainId)) {
-                    const balance = await getBalance(params.wagmiConfig, {
-                        address: params.owner as `0x${string}`,
-                    });
-                    return balance.value;
-                }
-                const balance = await readErc20BalanceOf(params.wagmiConfig, {
-                    address: params.mint as `0x${string}`,
-                    args: [params.owner as `0x${string}`],
-                    chainId: params.chainId,
-                });
-                return balance;
-            }
-        },
-        select: (data) => {
-            const raw = data ?? BigInt(0);
-            const maybeToken = getTokenByAddress(params.mint, params.chainId);
-            if (!maybeToken) return { raw, decimalCorrected: "0", rounded: "0", ticker: "" };
-            const decimalCorrected = formatUnits(raw, maybeToken.decimals);
-            const rounded = formatNumber(raw, maybeToken.decimals);
-            return { raw, decimalCorrected, rounded, ticker: maybeToken.ticker };
-        },
+        queryFn: () => fetchBalance(params),
+        select: (data) => formatBalance(data, params),
         staleTime: 0,
     });
 }
 
-async function readSolanaBalanceOf(
-    connection: Connection,
-    params: {
-        owner: string;
-        mint: string;
-    },
-) {
-    const owner = new PublicKey(params.owner);
-    const mint = new PublicKey(params.mint);
-    const owners = await connection.getTokenAccountsByOwner(owner, {
-        mint,
+async function fetchBalance(params: QueryParams): Promise<bigint> {
+    if (params.chainId === solana.id) {
+        return fetchSolanaBalance(params.connection, params.owner, params.mint);
+    }
+
+    return fetchEvmBalance(params.wagmiConfig, params.owner, params.mint, params.chainId);
+}
+
+async function fetchSolanaBalance(
+    connection: Connection | undefined,
+    owner: string,
+    mint: string,
+): Promise<bigint> {
+    if (!connection) {
+        throw new Error("Connection is required to read Solana balance");
+    }
+
+    const ownerKey = new PublicKey(owner);
+    const mintKey = new PublicKey(mint);
+    const accounts = await connection.getTokenAccountsByOwner(ownerKey, { mint: mintKey });
+    const tokenAccount = accounts.value[0]?.pubkey;
+    if (!tokenAccount) {
+        return BigInt(0);
+    }
+    const { value } = await connection.getTokenAccountBalance(tokenAccount);
+    return BigInt(value.amount);
+}
+
+async function fetchEvmBalance(
+    config: Config | undefined,
+    owner: string,
+    mint: string,
+    chainId: number,
+): Promise<bigint> {
+    if (!config) {
+        throw new Error("Wagmi config is required to read EVM balance");
+    }
+
+    if (isETH(mint, chainId)) {
+        const { value } = await getBalance(config, {
+            address: owner as `0x${string}`,
+        });
+        return value;
+    }
+
+    const result = await readErc20BalanceOf(config, {
+        address: mint as `0x${string}`,
+        args: [owner as `0x${string}`],
+        chainId,
     });
-    const tokenAccountAddress = owners.value[0]?.pubkey;
-    const balance = await connection.getTokenAccountBalance(tokenAccountAddress);
-    return BigInt(balance.value.amount);
+    return result;
+}
+
+function formatBalance(rawData: bigint | number | undefined, params: QueryParams) {
+    const raw = typeof rawData === "bigint" ? rawData : BigInt(rawData ?? 0);
+    const token = getTokenByAddress(params.mint, params.chainId);
+
+    if (!token) {
+        return {
+            raw,
+            decimalCorrected: "0",
+            rounded: "0",
+            ticker: "",
+            isZero: true,
+        };
+    }
+
+    const decimalCorrected = formatUnits(raw, token.decimals);
+    const rounded = formatNumber(raw, token.decimals);
+
+    return {
+        raw,
+        decimalCorrected,
+        rounded,
+        ticker: token.ticker,
+        isZero: raw === BigInt(0),
+    };
 }

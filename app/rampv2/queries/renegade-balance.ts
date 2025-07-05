@@ -27,7 +27,13 @@ export function renegadeBalanceQuery(params: QueryParams) {
             if (!maybeToken) return { raw, decimalCorrected: "0", rounded: "0", ticker: "" };
             const decimalCorrected = formatUnits(raw, maybeToken.decimals);
             const rounded = formatNumber(raw, maybeToken.decimals);
-            return { raw, decimalCorrected, rounded, ticker: maybeToken.ticker };
+            return {
+                raw,
+                decimalCorrected,
+                rounded,
+                ticker: maybeToken.ticker,
+                isZero: raw === BigInt(0),
+            };
         },
         staleTime: 0,
     });

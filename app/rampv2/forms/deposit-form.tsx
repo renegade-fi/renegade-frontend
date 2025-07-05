@@ -2,7 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { getAllTokens, getSwapInputsFor, type Token } from "@/app/rampv2/token-registry";
+import {
+    getAllTokens,
+    getSwapInputsFor,
+    getTokenByAddress,
+    getTokenByTicker,
+    type Token,
+} from "@/app/rampv2/token-registry";
 import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
@@ -44,17 +50,23 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     // Token to deposit
     const [mint, setMint] = useState("");
     // Token to swap into mint
-    const [swapToken, setSwapToken] = useState<string>("");
+    const [swapToken, setSwapToken] = useState<string>();
     const [amount, setAmount] = useState("");
 
     // --- Token List --- //
-    const availableTokens = useMemo(() => getAllTokens(currentChain), [currentChain]);
+    const availableTokens = getAllTokens(currentChain);
 
-    const availableSwapToken: Token | undefined = useMemo(
-        () => getSwapInputsFor(mint, currentChain)[0],
-        [mint, currentChain],
-    );
-    console.log("🚀 ~ DepositForm ~ availableSwapToken:", availableSwapToken);
+    const availableSwapToken: Token | undefined = useMemo(() => {
+        const token = getTokenByAddress(mint, currentChain);
+        if (token?.ticker === "USDC") {
+            const USDCe = getTokenByTicker("USDC.e", currentChain);
+            if (!USDCe) throw new Error("USDC.e not found");
+            return USDCe;
+        }
+        const inputs = getSwapInputsFor(mint, currentChain);
+        if (inputs.length === 0) return undefined;
+        return inputs[0];
+    }, [mint, currentChain]);
 
     // --- On-chain Balances --- //
     const { data: availableDepositBalance } = useQuery({
@@ -79,17 +91,13 @@ export default function DepositForm({ env, onQueueStart }: Props) {
         enabled: !!swapToken,
     });
 
-    const balances = useMemo(
-        () =>
-            buildBalancesCache({
-                network: currentChain,
-                depositMint: mint,
-                depositRaw: availableDepositBalance?.raw,
-                swapMint: swapToken,
-                swapRaw: availableSwapBalance?.raw,
-            }),
-        [currentChain, mint, swapToken, availableDepositBalance?.raw, availableSwapBalance?.raw],
-    );
+    const balances = buildBalancesCache({
+        network: currentChain,
+        depositMint: mint,
+        depositRaw: availableDepositBalance?.raw,
+        swapMint: swapToken,
+        swapRaw: availableSwapBalance?.raw,
+    });
 
     // --- Intent & Task Planning --- //
     const { intent, taskCtx } = useMemo(() => {
@@ -106,12 +114,34 @@ export default function DepositForm({ env, onQueueStart }: Props) {
             balances,
         );
 
-        const intent = Intent.newSwapIntent(ctx, {
-            swapToken,
-            depositMint: mint,
-            chainId: currentChain,
-            amount,
-        });
+        let intent: Intent | undefined;
+
+        const token = getTokenByAddress(mint, currentChain);
+        // Special case for USDT - swap to USDC
+        if (token?.ticker === "USDT") {
+            const USDC = getTokenByTicker("USDC", currentChain);
+            if (!USDC) throw new Error("USDC not found");
+            intent = Intent.newSwapIntent(ctx, {
+                swapToken: mint,
+                depositMint: USDC.address,
+                chainId: currentChain,
+                amount,
+            });
+        } else if (swapToken) {
+            intent = Intent.newSwapIntent(ctx, {
+                swapToken,
+                depositMint: mint,
+                chainId: currentChain,
+                amount,
+            });
+        } else {
+            // Default case: deposit directly
+            intent = Intent.newDepositIntent(ctx, {
+                mint,
+                chainId: currentChain,
+                amount,
+            });
+        }
 
         return { intent, taskCtx: ctx } as const;
     }, [
@@ -128,6 +158,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
         currentChain,
         amount,
     ]);
+    console.log("🚀 ~ const{intent,taskCtx}=useMemo ~ intent:", intent);
 
     const { data: plan, status } = useQuery({
         queryKey: ["ramp-deposit", { ...intent?.toJson?.() }],
@@ -151,10 +182,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
-    const submitLabel = useMemo(() => {
-        if (!route) return "Deposit";
-        return isWrap(route) ? "Wrap & Deposit" : "Swap & Deposit";
-    }, [route]);
+    const submitLabel = !route ? "Deposit" : isWrap(route) ? "Wrap & Deposit" : "Swap & Deposit";
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -247,7 +275,9 @@ export default function DepositForm({ env, onQueueStart }: Props) {
             </div>
 
             {/* Review Route Panel */}
-            {intent ? <ReviewRoute intent={intent} route={route} status={status} /> : null}
+            {intent?.needsRouting() ? (
+                <ReviewRoute intent={intent} route={route} status={status} />
+            ) : null}
 
             {/* Submit */}
             <div className="w-full flex">
@@ -258,7 +288,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
                         type="submit"
                         variant="outline"
                         onClick={handleSubmit}
-                        disabled={status !== "success"}
+                        disabled={intent?.needsRouting() ? status !== "success" : false}
                     >
                         {submitLabel}
                     </Button>

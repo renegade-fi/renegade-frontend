@@ -1,6 +1,6 @@
 import { Token as TokenClass } from "@renegade-fi/token-nextjs";
 import { solana } from "@/lib/viem";
-import { RAMP_TOKENS } from "./tokens";
+import { RAMP_TOKENS, RENEGADE_OVERRIDES } from "./tokens";
 
 // Initialize token registry
 const ALL_TOKENS = loadAllTokens();
@@ -55,7 +55,8 @@ function convertTokenInstance(tokenInstance: InstanceType<typeof TokenClass>): T
 
     if (!address || !chainId || !ticker || !decimals) return null;
 
-    return {
+    // Base token with default capabilities
+    let token: Token = {
         ticker,
         decimals,
         address,
@@ -68,6 +69,14 @@ function convertTokenInstance(tokenInstance: InstanceType<typeof TokenClass>): T
         canSwap: false,
         swapInto: [],
     };
+
+    // Apply any override capabilities
+    const override = RENEGADE_OVERRIDES[chainId]?.[ticker];
+    if (override) {
+        token = { ...token, ...override };
+    }
+
+    return token;
 }
 
 /**

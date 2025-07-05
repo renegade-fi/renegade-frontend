@@ -32,6 +32,14 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
     });
     const isSuccess = onChainBalanceSuccess && renegadeBalanceSuccess;
 
+    if (
+        !isSuccess ||
+        (props.direction === ExternalTransferDirection.Deposit && onChainBalance?.isZero) ||
+        (props.direction === ExternalTransferDirection.Withdraw && renegadeBalance?.isZero)
+    ) {
+        return null;
+    }
+
     let roundedLabel = "--";
     let decimalCorrectedLabel = "--";
     if (isSuccess) {

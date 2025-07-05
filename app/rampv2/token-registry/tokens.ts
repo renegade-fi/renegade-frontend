@@ -30,17 +30,6 @@ export const RAMP_TOKENS = {
             swapInto: ["USDC"],
             canBridge: false,
         },
-        USDT: {
-            name: "Tether USD",
-            ticker: "USDT",
-            address: getAddress("0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"),
-            decimals: 6,
-            canDeposit: false,
-            canWithdraw: false,
-            canSwap: true,
-            swapInto: ["USDC"],
-            canBridge: false,
-        },
     },
     [base.id]: {
         ETH: {
@@ -85,3 +74,19 @@ export const RAMP_TOKENS = {
 
 // ExtraToken omits chainId because it will be derived from the outer key
 type ExtraToken = Omit<Token, "chainId" | "address"> & { address: string };
+
+/**
+ * Capability overrides for tokens already provided by Renegade's TokenClass map.
+ * Only include fields that differ from the defaults set in convertTokenInstance.
+ */
+export const RENEGADE_OVERRIDES: Record<number, Record<string, Partial<Token>>> = {
+    [arbitrum.id]: {
+        USDT: {
+            canDeposit: false,
+            canWithdraw: false,
+            canSwap: true,
+            swapInto: ["USDC"],
+            canBridge: false,
+        },
+    },
+};
