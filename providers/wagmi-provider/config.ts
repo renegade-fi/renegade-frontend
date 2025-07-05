@@ -26,7 +26,7 @@ export function getConfig() {
                 [base.id]: http(`/api/proxy/rpc?id=${base.id}`),
                 [baseSepolia.id]: http(`/api/proxy/rpc?id=${baseSepolia.id}`),
                 // Needed to support bridge
-                [mainnet.id]: http(`/api/proxy/rpc?chainId=${mainnet.id}`),
+                [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
             },
             ssr: true,
             storage: createStorage({

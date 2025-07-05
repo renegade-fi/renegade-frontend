@@ -1,4 +1,4 @@
-import { OrderState, type UseStatusReturnType } from "@renegade-fi/react";
+import { OrderState } from "@renegade-fi/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";

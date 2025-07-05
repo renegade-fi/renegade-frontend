@@ -43,6 +43,20 @@ export function extractSupportedChain(chainId: number) {
     });
 }
 
+/** Get the explorer link for a given transaction hash and chain ID */
+export function getExplorerLink(txHash: string, chainId?: number) {
+    if (!chainId) {
+        return;
+    }
+    const _chain = extractSupportedChain(chainId);
+
+    const explorerUrl = _chain.blockExplorers?.default.url;
+    if (!explorerUrl) {
+        throw new Error(`No block explorer URL found for chain ${_chain.name}`);
+    }
+    return `${explorerUrl}/tx/${txHash}`;
+}
+
 export function getFormattedChainName(chainId: number): string {
     const _chain = extractSupportedChain(chainId);
     switch (_chain.id) {
