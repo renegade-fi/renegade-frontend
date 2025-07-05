@@ -45,6 +45,12 @@ export class Intent {
     needsRouting(): boolean {
         return this.fromChain !== this.toChain || this.fromTokenAddress !== this.toTokenAddress;
     }
+    needsSwap(): boolean {
+        return this.fromTokenAddress !== this.toTokenAddress;
+    }
+    needsBridge(): boolean {
+        return this.fromChain !== this.toChain;
+    }
 
     toJson() {
         return {

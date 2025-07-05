@@ -152,13 +152,11 @@ async function getWalletBalance(
 
 async function planDeposit(intent: Intent, ctx: TaskContext): Promise<PlanResult> {
     const coreTasks: PlannedTask[] = [];
-    const bridgeNeeded = intent.fromChain !== intent.toChain;
-    const swapNeeded = intent.fromTokenAddress !== intent.toTokenAddress;
 
     let route: Route | undefined;
-    if (bridgeNeeded) {
+    if (intent.needsBridge()) {
         route = await getBridgeRoute(intent, ctx);
-    } else if (swapNeeded) {
+    } else if (intent.needsSwap()) {
         route = await getSwapRoute(intent, ctx);
     }
 

@@ -76,7 +76,11 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
                 )}
             >
                 Balance on&nbsp;
-                {props.direction ? <NetworkLabel chainId={props.chainId} /> : "Renegade"}
+                {props.direction === ExternalTransferDirection.Deposit ? (
+                    <NetworkLabel chainId={props.chainId} />
+                ) : (
+                    "Renegade"
+                )}
             </div>
             <div className="flex items-center">
                 <TooltipButton

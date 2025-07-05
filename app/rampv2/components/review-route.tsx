@@ -4,14 +4,62 @@ import { ChevronDownIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { motion } from "framer-motion";
 import { ExternalLinkIcon } from "lucide-react";
 import Image from "next/image";
-import React from "react";
 import { formatUnits } from "viem/utils";
 import { useAccount, useBalance } from "wagmi";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNumber, truncateAddress } from "@/lib/format";
 import { resolveTicker } from "@/lib/token";
 import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem";
+import type { Intent } from "../core/intent";
 import { isBridge, isETH, isSwap } from "../helpers";
+
+interface Props {
+    intent: Intent;
+    route?: Route;
+    status: "pending" | "success" | "error";
+}
+
+export function ReviewRoute({ intent, route, status }: Props) {
+    // Identify bridge and swap legs (at most one each for our planner output)
+    if (route) {
+        const bridgeStep = isBridge(route);
+        const swapStep = isSwap(route);
+
+        if (bridgeStep) {
+            return (
+                <Layout animationKey="bridge">
+                    <BridgeSection step={bridgeStep} />
+                </Layout>
+            );
+        }
+        if (swapStep) {
+            return (
+                <Layout animationKey="swap">
+                    <SwapSection step={swapStep} />
+                </Layout>
+            );
+        }
+    }
+
+    if (status === "error") {
+        return (
+            <Layout animationKey="error">
+                <div className="text-center text-sm text-muted-foreground">
+                    {intent.needsBridge() ? "Bridge" : "Swap"} is currently unavailable, please try
+                    again later.
+                </div>
+            </Layout>
+        );
+    }
+
+    return (
+        <Layout animationKey="loading">
+            <div className="text-center text-sm text-muted-foreground">
+                Fetching {intent.needsBridge() ? "bridge" : "swap"} info for review...
+            </div>
+        </Layout>
+    );
+}
 
 export function Row({
     label,
@@ -44,11 +92,7 @@ export function Row({
     );
 }
 
-interface Props {
-    route: Route;
-}
-
-// Simple fade animation wrapper (borrowed from legacy components)
+// Simple fade animation wrapper
 function Layout({ children, animationKey }: { children: React.ReactNode; animationKey: string }) {
     return (
         <motion.div
@@ -62,36 +106,11 @@ function Layout({ children, animationKey }: { children: React.ReactNode; animati
     );
 }
 
-export function ReviewRoute({ route }: Props) {
-    // Identify bridge and swap legs (at most one each for our planner output)
-    const bridgeStep = isBridge(route);
-    const swapStep = isSwap(route);
-
-    if (!bridgeStep && !swapStep) return null;
-
-    return (
-        <div className="space-y-4">
-            {bridgeStep ? (
-                <Layout animationKey="bridge">
-                    <BridgeSection step={bridgeStep} />
-                </Layout>
-            ) : null}
-            {swapStep ? (
-                <Layout animationKey="swap">
-                    <SwapSection step={swapStep} />
-                </Layout>
-            ) : null}
-        </div>
-    );
-}
-
 /* ---------------------------------------------------------------------- */
 /* Sections                                                               */
 /* ---------------------------------------------------------------------- */
 
 function BridgeSection({ step }: { step: LiFiStep }) {
-    const [value, setValue] = React.useState("");
-
     const {
         action: {
             fromChainId,
@@ -122,13 +141,7 @@ function BridgeSection({ step }: { step: LiFiStep }) {
         toChainTicker === "SOL" ? "/tokens/sol.png" : resolveTicker(toChainTicker).logoUrl;
 
     return (
-        <AccordionPrimitive.Root
-            collapsible
-            className="border p-3 text-sm"
-            type="single"
-            value={value}
-            onValueChange={setValue}
-        >
+        <AccordionPrimitive.Root collapsible className="border p-3 text-sm" type="single">
             <AccordionPrimitive.Item value="item-1">
                 <AccordionPrimitive.Header>
                     <AccordionPrimitive.Trigger className="flex w-full justify-between [&[data-state=open]>div>.accordion-label]:mt-0 [&[data-state=open]>div>.accordion-label]:h-2 [&[data-state=open]>div>.accordion-label]:opacity-0 [&[data-state=open]>svg]:rotate-180">
@@ -207,7 +220,6 @@ function BridgeSection({ step }: { step: LiFiStep }) {
 }
 
 function SwapSection({ step }: { step: LiFiStep }) {
-    const [value, setValue] = React.useState("");
     const {
         action: {
             fromAmount,
@@ -255,13 +267,7 @@ function SwapSection({ step }: { step: LiFiStep }) {
     const wethLogoUri = resolveTicker("WETH").logoUrl;
 
     return (
-        <AccordionPrimitive.Root
-            collapsible
-            className="border p-3 text-sm"
-            type="single"
-            value={value}
-            onValueChange={setValue}
-        >
+        <AccordionPrimitive.Root collapsible className="border p-3 text-sm" type="single">
             <AccordionPrimitive.Item value="item-1">
                 <AccordionPrimitive.Header>
                     <AccordionPrimitive.Trigger className="flex w-full justify-between [&[data-state=open]>div>.accordion-label]:mt-0 [&[data-state=open]>div>.accordion-label]:h-2 [&[data-state=open]>div>.accordion-label]:opacity-0 [&[data-state=open]>svg]:rotate-180">

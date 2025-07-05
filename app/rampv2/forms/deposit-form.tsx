@@ -132,7 +132,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     const { data: plan, status } = useQuery({
         queryKey: ["ramp-deposit", { ...intent?.toJson?.() }],
         queryFn: () => {
-            if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
+            if (!intent || !taskCtx) return undefined;
             return planTasks(intent, taskCtx);
         },
         enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
@@ -247,7 +247,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
             </div>
 
             {/* Review Route Panel */}
-            {route ? <ReviewRoute route={route} /> : null}
+            {intent ? <ReviewRoute intent={intent} route={route} status={status} /> : null}
 
             {/* Submit */}
             <div className="w-full flex">

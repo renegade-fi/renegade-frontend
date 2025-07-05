@@ -114,7 +114,7 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
     const { data: plan, status } = useQuery({
         queryKey: ["ramp-withdraw", { ...intent?.toJson?.() }],
         queryFn: () => {
-            if (!intent || !taskCtx || !intent.amountAtomic) return undefined;
+            if (!intent || !taskCtx) return undefined;
             return planTasks(intent, taskCtx);
         },
         enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
