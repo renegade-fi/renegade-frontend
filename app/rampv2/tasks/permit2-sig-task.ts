@@ -17,7 +17,7 @@ export interface PermitSigDescriptor {
     readonly amount: bigint;
 }
 
-export type PermitSigState = "Pending" | "Completed";
+export type PermitSigState = "Pending" | "AwaitingWallet" | "Completed";
 
 class PermitSigError extends Error implements BaseTaskError {
     constructor(
@@ -33,6 +33,12 @@ class PermitSigError extends Error implements BaseTaskError {
 
 export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, PermitSigError> {
     private _state: PermitSigState = "Pending";
+    private _signingData?: {
+        domain: any;
+        types: any;
+        primaryType: string;
+        message: any;
+    };
 
     constructor(
         public readonly descriptor: PermitSigDescriptor,
@@ -58,7 +64,7 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
     }
 
     name() {
-        return "Permit2Sig";
+        return "Sign Permit2";
     }
 
     state() {
@@ -75,36 +81,52 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
     }
 
     async step(): Promise<void> {
-        if (this._state !== "Pending") throw new PermitSigError("Already completed", false);
+        switch (this._state) {
+            case "Pending": {
+                const { chainId, mint } = this.descriptor;
+                await ensureCorrectChain(this.ctx, chainId);
 
-        const { chainId, mint } = this.descriptor;
-        await ensureCorrectChain(this.ctx, chainId);
+                const finalAmount = this.ctx.getExpectedBalance(chainId, mint);
 
-        const finalAmount = this.ctx.getExpectedBalance(chainId, mint);
+                const sdkCfg = getSDKConfig(chainId);
+                const token = resolveAddress(mint);
+                const pkRoot = getPkRootScalars(this.ctx.renegadeConfig, {
+                    nonce: this.ctx.keychainNonce,
+                });
 
-        const sdkCfg = getSDKConfig(chainId);
-        const token = resolveAddress(mint);
-        const pkRoot = getPkRootScalars(this.ctx.renegadeConfig, { nonce: this.ctx.keychainNonce });
+                const { domain, message, types, primaryType } = constructPermit2SigningData({
+                    chainId,
+                    permit2Address: sdkCfg.permit2Address,
+                    tokenAddress: token.address,
+                    amount: finalAmount,
+                    spender: sdkCfg.darkpoolAddress,
+                    pkRoot: pkRoot as unknown as readonly [bigint, bigint, bigint, bigint],
+                });
 
-        const { domain, message, types, primaryType } = constructPermit2SigningData({
-            chainId,
-            permit2Address: sdkCfg.permit2Address,
-            tokenAddress: token.address,
-            amount: finalAmount,
-            spender: sdkCfg.darkpoolAddress,
-            pkRoot: pkRoot as unknown as readonly [bigint, bigint, bigint, bigint],
-        });
+                this._signingData = { domain, message, types, primaryType } as any;
+                this._state = "AwaitingWallet";
+                break;
+            }
+            case "AwaitingWallet": {
+                if (!this._signingData) throw new PermitSigError("Missing signing data", false);
 
-        const signature = await signTypedData(this.ctx.wagmiConfig, {
-            domain,
-            types,
-            primaryType,
-            message,
-        });
+                const signature = await signTypedData(
+                    this.ctx.wagmiConfig,
+                    this._signingData as any,
+                );
 
-        this.ctx.permit = { signature, nonce: message.nonce, deadline: message.deadline };
+                this.ctx.permit = {
+                    signature,
+                    nonce: (this._signingData as any).message.nonce,
+                    deadline: (this._signingData as any).message.deadline,
+                };
 
-        this._state = "Completed";
+                this._state = "Completed";
+                break;
+            }
+            default:
+                throw new PermitSigError("step() after completion", false);
+        }
     }
 
     cleanup(): Promise<void> {

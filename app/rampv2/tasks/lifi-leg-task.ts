@@ -1,11 +1,13 @@
 import type { ExtendedTransactionInfo, Route } from "@lifi/sdk";
 import { getStepTransaction } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { getExplorerLink, solana } from "@/lib/viem";
+import { extractSupportedChain, getExplorerLink, solana } from "@/lib/viem";
 import type { TaskError as BaseTaskError } from "../core/task";
 import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
+import { isETH } from "../helpers";
+import { getTokenByAddress } from "../token-registry";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import { awaitSolanaConfirmation, sendSolanaTransaction } from "./helpers/solana";
 import { waitForLiFiStatus, waitForTxReceipt } from "./helpers/waiters";
@@ -17,7 +19,7 @@ export interface LiFiLegDescriptor {
     readonly isFinalLeg: boolean;
 }
 
-export type LiFiLegState = "Pending" | "Submitted" | "Confirming" | "Completed";
+export type LiFiLegState = "Pending" | "AwaitingWallet" | "Submitted" | "Confirming" | "Completed";
 
 class LiFiLegError extends Error implements BaseTaskError {
     constructor(
@@ -33,6 +35,7 @@ class LiFiLegError extends Error implements BaseTaskError {
 
 export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegError> {
     private _state: LiFiLegState = "Pending";
+    private _txRequest?: any;
     private _txHash?: string;
 
     readonly chainId: number;
@@ -60,7 +63,67 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
     }
 
     name() {
-        return "LiFiLeg";
+        const fromTicker = this.getTokenTicker(
+            this.descriptor.leg.action.fromToken.address,
+            this.descriptor.leg.action.fromChainId,
+        );
+        const toTicker = this.getTokenTicker(
+            this.descriptor.leg.action.toToken.address,
+            this.descriptor.leg.action.toChainId,
+        );
+
+        if (this.isWrapOperation()) {
+            return this.formatWrapName(fromTicker, toTicker);
+        }
+
+        if (this.isBridgeOperation()) {
+            return this.formatBridgeName(fromTicker, toTicker);
+        }
+        return this.formatSwapName(fromTicker, toTicker);
+    }
+
+    private getTokenTicker(address: string, chainId: number): string | undefined {
+        return getTokenByAddress(address, chainId)?.ticker;
+    }
+
+    private getChainName(chainId: number): string | undefined {
+        return extractSupportedChain(chainId)?.name;
+    }
+
+    private isWrapOperation(): boolean {
+        const { fromToken, toToken, fromChainId, toChainId } = this.descriptor.leg.action;
+
+        // Only check for wrap/unwrap on same chain
+        if (fromChainId !== toChainId) return false;
+
+        const isFromEth = isETH(fromToken.address, fromChainId);
+        const isToEth = isETH(toToken.address, toChainId);
+
+        // Either wrapping ETH or unwrapping to ETH
+        return isFromEth || isToEth;
+    }
+
+    private isBridgeOperation(): boolean {
+        return this.descriptor.leg.action.fromChainId !== this.descriptor.leg.action.toChainId;
+    }
+
+    private formatWrapName(fromTicker?: string, toTicker?: string): string {
+        const { fromToken, toToken, fromChainId } = this.descriptor.leg.action;
+
+        if (isETH(fromToken.address, fromChainId)) {
+            return `Wrap ${fromTicker}`;
+        }
+        return `Unwrap ${fromTicker}`;
+    }
+
+    private formatBridgeName(fromTicker?: string, toTicker?: string): string {
+        const fromChain = this.getChainName(this.descriptor.leg.action.fromChainId);
+        const toChain = this.getChainName(this.descriptor.leg.action.toChainId);
+        return `Bridge ${fromTicker} from ${fromChain} to ${toChain}`;
+    }
+
+    private formatSwapName(fromTicker?: string, toTicker?: string): string {
+        return `Swap ${fromTicker} to ${toTicker}`;
     }
 
     state() {
@@ -83,22 +146,28 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
                 const txRequest: any = populated?.transactionRequest;
                 if (!txRequest) throw new LiFiLegError("Missing transaction request", false);
 
+                this._txRequest = txRequest;
+                this._state = "AwaitingWallet";
+                break;
+            }
+            case "AwaitingWallet": {
+                if (!this._txRequest) throw new LiFiLegError("Missing tx request", false);
+
                 if (this.chainId === solana.id && this.ctx.connection && this.ctx.signTransaction) {
                     const signature = await sendSolanaTransaction(
-                        txRequest,
+                        this._txRequest,
                         this.ctx.connection,
                         this.ctx.signTransaction,
                     );
                     this._txHash = signature;
-                    this._state = "Submitted";
                 } else {
                     const txHash = await sendTransaction(this.ctx.wagmiConfig, {
-                        ...txRequest,
+                        ...this._txRequest,
                         type: "legacy",
                     } as any);
                     this._txHash = txHash as string;
-                    this._state = "Submitted";
                 }
+                this._state = "Submitted";
                 break;
             }
             case "Submitted": {

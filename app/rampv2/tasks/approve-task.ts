@@ -13,6 +13,8 @@ import type { DepositTask } from "./deposit-task";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import type { LiFiLegTask } from "./lifi-leg-task";
 
+export type ApproveKind = "Permit2" | "Bridge" | "Swap";
+
 export interface ApproveDescriptor {
     readonly id: string;
     readonly type: TaskType;
@@ -20,9 +22,10 @@ export interface ApproveDescriptor {
     readonly mint: `0x${string}`;
     readonly amount: bigint;
     readonly spender: `0x${string}`;
+    readonly approveKind: ApproveKind;
 }
 
-export type ApproveState = "Pending" | "Submitted" | "Completed";
+export type ApproveState = "Pending" | "AwaitingWallet" | "Submitted" | "Completed";
 
 class ApproveError extends Error implements BaseTaskError {
     constructor(
@@ -38,6 +41,7 @@ class ApproveError extends Error implements BaseTaskError {
 
 export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveError> {
     private _state: ApproveState = "Pending";
+    private _request?: Parameters<typeof writeContract>[1];
     private _txHash?: `0x${string}`;
 
     constructor(
@@ -52,6 +56,7 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
         mint: `0x${string}`,
         amount: bigint,
         spender: `0x${string}`,
+        approveKind: ApproveKind,
         ctx: TaskContext,
     ): ApproveTask {
         const desc: ApproveDescriptor = {
@@ -61,12 +66,14 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
             mint,
             amount,
             spender,
+            approveKind,
         };
         return new ApproveTask(desc, ctx);
     }
 
     name() {
-        return "Approve";
+        const kind = this.descriptor.approveKind;
+        return kind ? `Approve ${kind}` : "Approve";
     }
 
     state() {
@@ -99,7 +106,13 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
                     account: owner,
                 });
 
-                const txHash = await writeContract(this.ctx.wagmiConfig, request);
+                this._request = request;
+                this._state = "AwaitingWallet";
+                break;
+            }
+            case "AwaitingWallet": {
+                if (!this._request) throw new ApproveError("Missing request", false);
+                const txHash = await writeContract(this.ctx.wagmiConfig, this._request);
                 this._txHash = txHash;
                 this._state = "Submitted";
                 break;
@@ -155,10 +168,8 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
             case TASK_TYPES.DEPOSIT: {
                 const dep = task as DepositTask;
                 const { chainId, mint, amount } = dep.descriptor;
-                // Use a large allowance to avoid insufficiency later.
-                // const maxUint256 = (BigInt(1) << BigInt(256)) - BigInt(1);
                 const spender = getSDKConfig(chainId).permit2Address as `0x${string}`;
-                return ApproveTask.create(chainId, mint, amount, spender, ctx);
+                return ApproveTask.create(chainId, mint, amount, spender, "Permit2", ctx);
             }
             case TASK_TYPES.LIFI_LEG: {
                 const legTask = task as LiFiLegTask;
@@ -169,7 +180,11 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
                     | `0x${string}`
                     | undefined;
                 if (!spender) return undefined;
-                return ApproveTask.create(chainId, mint, amount, spender, ctx);
+                const isBridge =
+                    legTask.descriptor.leg.action.fromChainId !==
+                    legTask.descriptor.leg.action.toChainId;
+                const kind: ApproveKind = isBridge ? "Bridge" : "Swap";
+                return ApproveTask.create(chainId, mint, amount, spender, kind, ctx);
             }
             default:
                 return undefined;

@@ -59,7 +59,8 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
     }
 
     name() {
-        return "Deposit";
+        const ticker = resolveAddress(this.descriptor.mint).ticker;
+        return ticker && ticker !== "UNKNOWN" ? `Deposit ${ticker}` : "Deposit";
     }
 
     state() {

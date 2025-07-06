@@ -1,5 +1,6 @@
 import type { getRoutes } from "@lifi/sdk";
 import { parseUnits } from "viem/utils";
+import { isETH } from "../helpers";
 import { getTokenByAddress, getTokenByTicker } from "../token-registry";
 import type { TaskContext } from "./task-context";
 
@@ -47,6 +48,11 @@ export class Intent {
     }
     needsSwap(): boolean {
         return this.fromTokenAddress !== this.toTokenAddress;
+    }
+    needsWrap(): boolean {
+        const isFromEth = isETH(this.fromTokenAddress, this.fromChain);
+        const isToEth = isETH(this.toTokenAddress, this.toChain);
+        return isFromEth || isToEth;
     }
     needsBridge(): boolean {
         return this.fromChain !== this.toChain;

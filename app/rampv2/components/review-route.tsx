@@ -45,8 +45,8 @@ export function ReviewRoute({ intent, route, status }: Props) {
         return (
             <Layout animationKey="error">
                 <div className="text-center text-sm text-muted-foreground">
-                    {intent.needsBridge() ? "Bridge" : "Swap"} is currently unavailable, please try
-                    again later.
+                    {intent.needsBridge() ? "Bridge" : intent.needsWrap() ? "Wrap" : "Swap"}
+                    is currently unavailable, please try again later.
                 </div>
             </Layout>
         );
@@ -55,7 +55,8 @@ export function ReviewRoute({ intent, route, status }: Props) {
     return (
         <Layout animationKey="loading">
             <div className="text-center text-sm text-muted-foreground">
-                Fetching {intent.needsBridge() ? "bridge" : "swap"} info for review...
+                Fetching {intent.needsBridge() ? "bridge" : intent.needsWrap() ? "wrap" : "swap"}{" "}
+                info for review...
             </div>
         </Layout>
     );

@@ -57,7 +57,8 @@ export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, Withdr
     }
 
     name() {
-        return "Withdraw";
+        const ticker = resolveAddress(this.descriptor.mint).ticker;
+        return ticker && ticker !== "UNKNOWN" ? `Withdraw ${ticker}` : "Withdraw";
     }
 
     state() {

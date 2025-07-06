@@ -64,5 +64,7 @@ export function buildBalancesCache(params: {
 
 /** Returns the task's current state as a displayable string. */
 export function getTaskStateLabel(task: Task): string {
-    return String(task.state());
+    const state = String(task.state());
+    if (state === "AwaitingWallet") return "Awaiting Wallet";
+    return state;
 }

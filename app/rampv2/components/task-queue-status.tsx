@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, ExternalLink, Loader2, X } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { getTaskStateLabel } from "../helpers";
@@ -44,12 +45,22 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
         const offUpdate = queue.events.on("taskUpdate", update);
         const offComplete = queue.events.on("taskComplete", update);
 
+        const offTaskError = queue.events.on("taskError", (task: any) => {
+            setTasks((prev) => {
+                const id = task?.descriptor?.id;
+                return prev.map((ti) =>
+                    ti.id === id ? { ...ti, label: "Error", url: task.explorerLink?.() } : ti,
+                );
+            });
+        });
+
         const offQueueComplete = queue.events.on("queueComplete", () => setDone(true));
         const offQueueError = queue.events.on("queueError", () => setDone(true));
 
         return () => {
             offUpdate();
             offComplete();
+            offTaskError();
             offQueueComplete();
             offQueueError();
         };
@@ -58,24 +69,32 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
     if (!tasks.length) return null;
 
     return (
-        <div className="space-y-4 pt-6">
+        <div className="space-y-4 pt-6 font-mono">
             <ul className="space-y-1">
-                {tasks.map((t) => (
-                    <li key={t.id} className="flex items-center justify-between text-sm">
-                        <span>{t.name}</span>
-                        <span className="flex items-center gap-2">
-                            <span className="text-muted-foreground">{t.label}</span>
-                            {t.url && (
+                {tasks.map((t, i) => (
+                    <li key={t.id} className="flex items-center gap-2">
+                        {t.label === "Pending" && <div className="h-4 w-4 " />}
+                        {t.label === "Completed" && <Check className="h-4 w-4 text-green-500" />}
+                        {t.label === "Error" && <X className="h-4 w-4 text-red-500" />}
+                        {t.label !== "Completed" &&
+                            t.label !== "Error" &&
+                            t.label !== "Pending" && <Loader2 className="h-4 w-4 animate-spin" />}
+                        <span className="text-muted-foreground">
+                            {t.name}
+                            {t.label === "Pending" ? "" : ` - ${t.label}`}
+                        </span>
+                        {t.url && (
+                            <Button asChild size="icon" variant="ghost" className="text-primary">
                                 <a
                                     href={t.url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-primary underline"
+                                    aria-label="Open in explorer"
                                 >
-                                    ↗
+                                    <ExternalLink className="h-4 w-4" />
                                 </a>
-                            )}
-                        </span>
+                            </Button>
+                        )}
                     </li>
                 ))}
             </ul>
