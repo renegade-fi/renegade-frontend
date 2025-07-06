@@ -50,13 +50,14 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     // Token to deposit
     const [mint, setMint] = useState("");
     // Token to swap into mint
-    const [swapToken, setSwapToken] = useState<string>();
+    // const [swapToken, setSwapToken] = useState<string>();
+    // const swapToken:string  | undefined = getSwapInputsFor(mint, currentChain)?.[0]?.address;
     const [amount, setAmount] = useState("");
 
     // --- Token List --- //
     const availableTokens = getDepositTokens(currentChain);
 
-    const availableSwapToken: Token | undefined = useMemo(() => {
+    const swapToken: Token | undefined = useMemo(() => {
         const token = getTokenByAddress(mint, currentChain);
         if (token?.ticker === "USDC") {
             const USDCe = getTokenByTicker("USDC.e", currentChain);
@@ -83,19 +84,19 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     const { data: availableSwapBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: currentChain,
-            mint: swapToken ?? "",
+            mint: swapToken?.address!,
             owner: address,
             wagmiConfig,
             connection,
         }),
-        enabled: !!swapToken,
+        enabled: !!swapToken?.address,
     });
 
     const balances = buildBalancesCache({
         network: currentChain,
         depositMint: mint,
         depositRaw: availableDepositBalance?.raw,
-        swapMint: swapToken,
+        swapMint: swapToken?.address,
         swapRaw: availableSwapBalance?.raw,
     });
 
@@ -114,6 +115,10 @@ export default function DepositForm({ env, onQueueStart }: Props) {
             balances,
         );
 
+        const needsSwap =
+            swapToken?.address &&
+            Number(amount) > Number(availableDepositBalance?.decimalCorrected);
+
         let intent: Intent | undefined;
 
         const token = getTokenByAddress(mint, currentChain);
@@ -127,9 +132,9 @@ export default function DepositForm({ env, onQueueStart }: Props) {
                 chainId: currentChain,
                 amount,
             });
-        } else if (swapToken) {
+        } else if (swapToken?.address && needsSwap) {
             intent = Intent.newSwapIntent(ctx, {
-                swapToken,
+                swapToken: swapToken.address,
                 depositMint: mint,
                 chainId: currentChain,
                 amount,
@@ -157,6 +162,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
         mint,
         currentChain,
         amount,
+        availableDepositBalance?.decimalCorrected,
     ]);
 
     const { data: plan, status } = useQuery({
@@ -175,7 +181,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
             chainId: currentChain,
             approvals: 100,
         }),
-        enabled: swapToken ? isETH(swapToken, currentChain) : false,
+        enabled: swapToken ? isETH(swapToken.address, currentChain) : false,
     });
 
     const tasks = plan?.tasks;
@@ -259,18 +265,18 @@ export default function DepositForm({ env, onQueueStart }: Props) {
                     onClick={setAmount}
                 />
 
-                {availableSwapToken && (
+                {swapToken?.address && (
                     <BalanceRow
-                        key={availableSwapToken.address}
+                        key={swapToken.address}
                         chainId={currentChain}
-                        mint={availableSwapToken.address}
+                        mint={swapToken.address}
                         direction={direction}
                         owner={address}
                         wagmiConfig={wagmiConfig}
                         renegadeConfig={renegadeConfig}
                         connection={connection}
                         onClick={(value) => {
-                            setSwapToken(availableSwapToken.address);
+                            // setSwapToken(availableSwapToken.address);
                             handleSetCombinedAmount(value);
                         }}
                         hideNetworkLabel

@@ -33,6 +33,7 @@ interface Props {
     onChange: (value: string) => void;
     tokens: Token[];
     value: string;
+    isBridge?: boolean;
 }
 
 export function TokenSelect({
@@ -45,6 +46,7 @@ export function TokenSelect({
     value,
     connection,
     renegadeConfig,
+    isBridge,
 }: Props & Omit<OnChainBalanceQueryParams, "mint"> & Omit<RenegadeBalanceQueryParams, "mint">) {
     const [open, setOpen] = React.useState(false);
 
@@ -89,6 +91,7 @@ export function TokenSelect({
                     wagmiConfig,
                     connection,
                 }),
+                enabled: !isBridge,
             };
         }),
         combine: (results) => {
@@ -99,7 +102,7 @@ export function TokenSelect({
                 const key = b.address as `0x${string}`;
                 const existing = map.get(key) ?? BigInt(0);
                 const value = results[i].data?.raw ?? BigInt(0);
-                map.set(key, (map.get(key) ?? BigInt(0)) + value);
+                map.set(key, existing + value);
             });
             return map;
         },

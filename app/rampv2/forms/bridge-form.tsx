@@ -177,6 +177,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             <div className="flex flex-col gap-2">
                 <Label>Token</Label>
                 <TokenSelect
+                    isBridge
                     tokens={availableTokens}
                     direction={direction}
                     value={mint}
