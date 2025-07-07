@@ -195,6 +195,14 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     }
 
     const submitLabel = getSubmitLabel(route);
+    let isDisabled = true;
+    if (intent) {
+        if (intent.needsRouting()) {
+            isDisabled = status !== "success";
+        } else {
+            isDisabled = false;
+        }
+    }
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -303,7 +311,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                         type="submit"
                         variant="outline"
                         onClick={handleSubmit}
-                        disabled={intent?.needsRouting() ? status !== "success" : false}
+                        disabled={isDisabled}
                     >
                         {submitLabel}
                     </Button>

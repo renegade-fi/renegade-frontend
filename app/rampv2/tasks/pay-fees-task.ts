@@ -46,7 +46,7 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
     }
 
     name() {
-        return "PayFees";
+        return "Preparing withdrawal";
     }
 
     state() {

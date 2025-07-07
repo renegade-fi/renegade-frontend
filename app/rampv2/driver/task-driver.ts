@@ -1,5 +1,6 @@
 import type { Emitter } from "nanoevents";
 import type { Task, TaskError } from "../core/task";
+import { globalRampEmitter } from "../global-ramp-events";
 
 // Event payload typing for nanoevents
 export interface TaskDriverEvents {
@@ -20,21 +21,35 @@ type TaskDriverEmitter = Emitter<TaskDriverEvents> | undefined;
 export class TaskDriver {
     constructor(private readonly events?: TaskDriverEmitter) {}
 
+    /** Centralized event emission (local and global) */
+    private emit<E extends keyof TaskDriverEvents>(
+        event: E,
+        ...args: Parameters<TaskDriverEvents[E]>
+    ) {
+        // Emit to local listeners if present
+        this.events?.emit(event, ...(args as any));
+        // Propagate task completion globally for React-Query invalidation
+        if (event === "taskComplete") {
+            const [task] = args as [Task];
+            globalRampEmitter.emit("taskComplete", task);
+        }
+    }
+
     /** Execute the given task to completion. */
     async runTask<T extends Task<any, any, TaskError>>(task: T): Promise<void> {
-        this.events?.emit("taskStart", task);
+        this.emit("taskStart", task);
         try {
             while (!task.completed()) {
                 await task.step();
                 // Notify listeners after each successful step.
-                this.events?.emit("taskUpdate", task);
+                this.emit("taskUpdate", task);
                 // Yield back to the event loop to avoid starvation in tight loops.
                 await Promise.resolve();
             }
-            this.events?.emit("taskComplete", task);
+            this.emit("taskComplete", task);
             await task.cleanup?.(true);
         } catch (err) {
-            this.events?.emit("taskError", task, err);
+            this.emit("taskError", task, err);
             await task.cleanup?.(false);
             // Propagate failure so that the queue aborts on the first task failure.
             throw err;

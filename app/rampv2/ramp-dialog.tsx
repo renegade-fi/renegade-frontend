@@ -142,7 +142,7 @@ function RampDialogBody({
     ) : (
         <>
             {/* Mode toggle */}
-            <div className="flex flex-row border-b border-border">
+            <div className="flex flex-row border-b">
                 <Button
                     className={cn(
                         "flex-1 border-0 font-extended text-lg font-bold",
@@ -156,7 +156,7 @@ function RampDialogBody({
                 </Button>
                 <Button
                     className={cn(
-                        "flex-1 border-0 font-extended text-lg font-bold",
+                        "flex-1 border-0 border-l font-extended text-lg font-bold",
                         mode === "deposit" ? "text-primary" : "text-muted-foreground",
                     )}
                     size="xl"
@@ -167,7 +167,7 @@ function RampDialogBody({
                 </Button>
                 <Button
                     className={cn(
-                        "flex-1 border-0 font-extended text-lg font-bold",
+                        "flex-1  border-0 border-l font-extended text-lg font-bold",
                         mode === "withdraw" ? "text-primary" : "text-muted-foreground",
                     )}
                     size="xl"

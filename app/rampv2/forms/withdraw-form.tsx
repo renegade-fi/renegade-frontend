@@ -130,6 +130,20 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         [unwrapToEth, canUnwrap],
     );
 
+    let isDisabled = true;
+    console.log("disabled debug", {
+        intent,
+        needsRouting: intent?.needsRouting(),
+        status,
+    });
+    if (intent) {
+        if (intent.needsRouting()) {
+            isDisabled = status !== "success";
+        } else {
+            isDisabled = false;
+        }
+    }
+
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
         const queue = new TaskQueue(tasks);
@@ -225,7 +239,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                         type="submit"
                         variant="outline"
                         onClick={handleSubmit}
-                        disabled={status !== "success"}
+                        disabled={isDisabled}
                     >
                         {submitLabel}
                     </Button>
