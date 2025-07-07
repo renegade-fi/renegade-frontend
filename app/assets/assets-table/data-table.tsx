@@ -11,8 +11,7 @@ import {
 } from "@tanstack/react-table";
 import { DollarSign, EyeOff } from "lucide-react";
 import React from "react";
-
-import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog";
+import { RampDialog } from "@/app/rampv2/ramp-dialog";
 import { TableEmptyState } from "@/components/table-empty-state";
 import {
     Table,
@@ -24,7 +23,6 @@ import {
 } from "@/components/ui/table";
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
 import { useWallets } from "@/hooks/use-wallets";
 
 interface DataTableProps<TData, TValue> {
@@ -182,7 +180,7 @@ export function DataTable<TData, TValue>({
                         ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => {
                                 return (
-                                    <TransferDialog key={row.id} mint={row.getValue("mint")}>
+                                    <RampDialog key={row.id} initialMint={row.getValue("mint")}>
                                         <TableRow
                                             key={row.id}
                                             className="cursor-pointer"
@@ -197,7 +195,7 @@ export function DataTable<TData, TValue>({
                                                 </TableCell>
                                             ))}
                                         </TableRow>
-                                    </TransferDialog>
+                                    </RampDialog>
                                 );
                             })
                         ) : null}

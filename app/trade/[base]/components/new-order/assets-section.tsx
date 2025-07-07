@@ -1,6 +1,5 @@
 import { formatUnits } from "viem/utils";
-
-import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog";
+import { RampDialog } from "@/app/rampv2/ramp-dialog";
 import { TokenIcon } from "@/components/token-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +7,6 @@ import {
     ResponsiveTooltipContent,
     ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip";
-
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useUSDPrice } from "@/hooks/use-usd-price";
 import { useWallets } from "@/hooks/use-wallets";
@@ -33,11 +31,11 @@ export function AssetsSectionWithDepositButton({ base }: { base: `0x${string}` }
                 <AssetsSection base={base} quote={quote} />
             </div>
             {data && (
-                <TransferDialog mint={baseToken?.address}>
+                <RampDialog initialMint={baseToken?.address}>
                     <Button className="ml-6 h-full font-extended" variant="outline">
                         Deposit
                     </Button>
-                </TransferDialog>
+                </RampDialog>
             )}
         </div>
     );
@@ -92,7 +90,7 @@ function Row({ mint, disabled }: { mint: `0x${string}`; disabled?: boolean }) {
             <div className="flex justify-between">
                 <div className="flex items-center space-x-2">
                     <TokenIcon size={16} ticker={token.ticker} />
-                    <TransferDialog mint={token.address}>
+                    <RampDialog initialMint={token.address}>
                         <Button
                             className="text-md h-fit p-0 text-muted-foreground"
                             disabled={walletReadyState !== "READY"}
@@ -103,7 +101,7 @@ function Row({ mint, disabled }: { mint: `0x${string}`; disabled?: boolean }) {
                         >
                             {token.ticker}
                         </Button>
-                    </TransferDialog>
+                    </RampDialog>
                 </div>
                 <ResponsiveTooltip>
                     <ResponsiveTooltipTrigger className="cursor-default">

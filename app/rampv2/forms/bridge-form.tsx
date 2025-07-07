@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import { mainnet } from "viem/chains";
 
 import { getAllBridgeableTokens } from "@/app/rampv2/token-registry/registry";
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -24,6 +23,7 @@ import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
+import { ExternalTransferDirection } from "../types";
 
 const direction = ExternalTransferDirection.Deposit;
 

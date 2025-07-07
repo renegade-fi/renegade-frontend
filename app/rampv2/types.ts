@@ -12,3 +12,8 @@ export interface RampEnv {
     solanaAddress: string | null;
     solanaSignTx: ((tx: any) => Promise<any>) | null;
 }
+
+export enum ExternalTransferDirection {
+    Deposit,
+    Withdraw,
+}

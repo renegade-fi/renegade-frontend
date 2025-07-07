@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import React from "react";
 
-import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog";
+import { RampDialog } from "@/app/rampv2/ramp-dialog";
 import { Button } from "@/components/ui/button";
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
@@ -42,12 +42,12 @@ export function DepositBanner() {
             >
                 <div className="flex w-full items-center border-b border-border bg-[#00183e] py-2 pl-4 text-sm text-blue lg:py-0">
                     <div>{content}</div>
-                    <TransferDialog>
+                    <RampDialog>
                         <Button className="text-blue" variant="link">
                             Deposit now
                             <ArrowRight className="ml-1 h-4 w-4" />
                         </Button>
-                    </TransferDialog>
+                    </RampDialog>
                 </div>
             </div>
         );
@@ -60,9 +60,9 @@ export function DepositBanner() {
             }`}
         >
             <div className="flex w-full items-center text-pretty border-b border-border bg-[#00183e] py-2 pl-4 pr-2 text-sm text-blue lg:py-0">
-                <TransferDialog>
+                <RampDialog>
                     <div>{content}</div>
-                </TransferDialog>
+                </RampDialog>
             </div>
         </div>
     );

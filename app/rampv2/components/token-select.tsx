@@ -2,7 +2,6 @@ import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useQueries } from "@tanstack/react-query";
 import * as React from "react";
 import { isAddress } from "viem";
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { Button } from "@/components/ui/button";
 import {
     Command,
@@ -26,6 +25,7 @@ import {
 } from "../queries/renegade-balance";
 import { getTokenByAddress, type Token } from "../token-registry";
 import { getSwapPairs } from "../token-registry/registry";
+import { ExternalTransferDirection } from "../types";
 
 interface Props {
     direction: ExternalTransferDirection;

@@ -1,4 +1,4 @@
-import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog";
+import { RampDialog } from "@/app/rampv2/ramp-dialog";
 import { Button } from "@/components/ui/button";
 import {
     ResponsiveTooltip,
@@ -56,9 +56,9 @@ export function InsufficientWarning({
         <ResponsiveTooltip>
             <ResponsiveTooltipTrigger className={withDialog ? "" : "cursor-default"}>
                 {withDialog ? (
-                    <TransferDialog mint={side === Side.BUY ? quoteMint : baseMint}>
+                    <RampDialog initialMint={side === Side.BUY ? quoteMint : baseMint}>
                         <Button variant="ghost">{warningContent}</Button>
-                    </TransferDialog>
+                    </RampDialog>
                 ) : (
                     warningContent
                 )}

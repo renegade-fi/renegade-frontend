@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatEther, parseEther } from "viem";
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
-import { NetworkLabel } from "@/components/dialogs/transfer/network-display";
 import { TooltipButton } from "@/components/tooltip-button";
 import { cn } from "@/lib/utils";
 import { isETH } from "../helpers";
@@ -14,6 +12,8 @@ import {
     renegadeBalanceQuery,
 } from "../queries/renegade-balance";
 import { getTokenByAddress } from "../token-registry";
+import { ExternalTransferDirection } from "../types";
+import { NetworkLabel } from "./network-label";
 
 interface Props {
     onClick: (amount: string) => void;

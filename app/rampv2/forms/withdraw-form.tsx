@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { canUnwrapToEth, getAllTokens } from "@/app/rampv2/token-registry";
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -20,15 +19,17 @@ import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
+import { ExternalTransferDirection } from "../types";
 
 const direction = ExternalTransferDirection.Withdraw;
 
 interface Props {
     env: RampEnv;
     onQueueStart?: (queue: TaskQueueType) => void;
+    initialMint?: `0x${string}`;
 }
 
-export default function WithdrawForm({ env, onQueueStart }: Props) {
+export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) {
     const {
         renegadeConfig,
         wagmiConfig,
@@ -40,7 +41,7 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
     } = env;
 
     // --- Local State --- //
-    const [mint, setMint] = useState("");
+    const [mint, setMint] = useState(initialMint ?? "");
     const [amount, setAmount] = useState("");
     const [unwrapToEth, setUnwrapToEth] = useState(false);
 

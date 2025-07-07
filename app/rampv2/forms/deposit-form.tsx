@@ -8,7 +8,6 @@ import {
     getTokenByTicker,
     type Token,
 } from "@/app/rampv2/token-registry";
-import { ExternalTransferDirection } from "@/components/dialogs/transfer/helpers";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -26,15 +25,17 @@ import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { TaskQueue } from "../queue/task-queue";
 import { getDepositTokens } from "../token-registry/registry";
 import type { RampEnv } from "../types";
+import { ExternalTransferDirection } from "../types";
 
 const direction = ExternalTransferDirection.Deposit;
 
 interface Props {
     env: RampEnv;
     onQueueStart?: (queue: TaskQueue) => void;
+    initialMint?: `0x${string}`;
 }
 
-export default function DepositForm({ env, onQueueStart }: Props) {
+export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const {
         renegadeConfig,
         wagmiConfig,
@@ -48,7 +49,7 @@ export default function DepositForm({ env, onQueueStart }: Props) {
 
     // --- Local State --- //
     // Token to deposit
-    const [mint, setMint] = useState("");
+    const [mint, setMint] = useState(initialMint ?? "");
     // Token to swap into mint
     // const [swapToken, setSwapToken] = useState<string>();
     // const swapToken:string  | undefined = getSwapInputsFor(mint, currentChain)?.[0]?.address;

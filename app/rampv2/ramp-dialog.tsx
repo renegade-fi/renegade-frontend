@@ -24,7 +24,13 @@ import type { TaskQueue } from "./queue/task-queue";
 /**
  * Dialog wrapper for the Ramp flows (bridge / deposit / withdraw).
  */
-export function RampDialog({ children }: { children: React.ReactNode }) {
+export function RampDialog({
+    children,
+    initialMint,
+}: {
+    children: React.ReactNode;
+    initialMint?: `0x${string}`;
+}) {
     const [open, setOpen] = React.useState(false);
     const isDesktop = useMediaQuery("(min-width: 1024px)");
 
@@ -91,6 +97,7 @@ export function RampDialog({ children }: { children: React.ReactNode }) {
                             solanaAddress,
                             solanaSignTx: signTransaction ?? null,
                         }}
+                        initialMint={initialMint}
                         mode={mode}
                         setMode={setMode}
                         queue={queue}
@@ -106,6 +113,7 @@ export function RampDialog({ children }: { children: React.ReactNode }) {
 // --- Internal dialog body component --- //
 interface BodyProps {
     env: import("./types").RampEnv;
+    initialMint?: `0x${string}`;
     mode: "bridge" | "deposit" | "withdraw";
     setMode: React.Dispatch<React.SetStateAction<"bridge" | "deposit" | "withdraw">>;
     queue: TaskQueue | null;
@@ -113,7 +121,15 @@ interface BodyProps {
     onQueueClose: () => void;
 }
 
-function RampDialogBody({ env, mode, setMode, queue, onQueueStart, onQueueClose }: BodyProps) {
+function RampDialogBody({
+    env,
+    initialMint,
+    mode,
+    setMode,
+    queue,
+    onQueueStart,
+    onQueueClose,
+}: BodyProps) {
     return queue ? (
         <>
             <DialogHeader>
@@ -166,9 +182,9 @@ function RampDialogBody({ env, mode, setMode, queue, onQueueStart, onQueueClose 
             {mode === "bridge" ? (
                 <BridgeForm env={env} onQueueStart={onQueueStart} />
             ) : mode === "deposit" ? (
-                <DepositForm env={env} onQueueStart={onQueueStart} />
+                <DepositForm env={env} initialMint={initialMint} onQueueStart={onQueueStart} />
             ) : (
-                <WithdrawForm env={env} onQueueStart={onQueueStart} />
+                <WithdrawForm env={env} initialMint={initialMint} onQueueStart={onQueueStart} />
             )}
         </>
     );
