@@ -3,6 +3,7 @@
 import { Check, ExternalLink, Loader2, X } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getTaskStateLabel } from "../helpers";
 import type { TaskQueue } from "../queue/task-queue";
 
@@ -68,36 +69,72 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
 
     if (!tasks.length) return null;
 
+    // Determine the current active task (first that is not completed or errored)
+    const activeIdx = tasks.findIndex((t) => t.label !== "Completed" && t.label !== "Error");
+    const isTerminal = tasks.every((t) => t.label === "Completed" || t.label === "Error");
+
     return (
-        <div className="space-y-4 pt-6 font-mono">
-            <ul className="space-y-1">
-                {tasks.map((t, i) => (
-                    <li key={t.id} className="flex items-center gap-2">
-                        {t.label === "Pending" && <div className="h-4 w-4 " />}
-                        {t.label === "Completed" && <Check className="h-4 w-4 text-green-500" />}
-                        {t.label === "Error" && <X className="h-4 w-4 text-red-500" />}
-                        {t.label !== "Completed" &&
-                            t.label !== "Error" &&
-                            t.label !== "Pending" && <Loader2 className="h-4 w-4 animate-spin" />}
-                        <span className="text-muted-foreground">
-                            {t.name}
-                            {t.label === "Pending" ? "" : ` - ${t.label}`}
-                        </span>
-                        {t.url && (
-                            <Button asChild size="icon" variant="ghost" className="text-primary">
-                                <a
-                                    href={t.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    aria-label="Open in explorer"
+        <div className="flex flex-col gap-6">
+            <div className="space-y-6 px-6 font-mono">
+                <ul className="border p-4 space-y-1">
+                    {tasks.map((t, idx) => (
+                        <li key={t.id} className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                {t.label === "Pending" && <div className="h-4 w-4" />}
+                                {t.label === "Completed" && (
+                                    <Check className="h-4 w-4 text-green-500" />
+                                )}
+                                {t.label === "Error" && <X className="h-4 w-4 text-red-500" />}
+                                {t.label !== "Completed" &&
+                                    t.label !== "Error" &&
+                                    t.label !== "Pending" && (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    )}
+                                <span
+                                    className={cn(
+                                        "", // base
+                                        idx === activeIdx || isTerminal
+                                            ? "text-primary"
+                                            : "text-muted-foreground",
+                                    )}
                                 >
-                                    <ExternalLink className="h-4 w-4" />
-                                </a>
-                            </Button>
-                        )}
-                    </li>
-                ))}
-            </ul>
+                                    {t.name}
+                                </span>
+                            </div>
+
+                            <div
+                                className={cn(
+                                    "flex items-center gap-1 ml-6",
+                                    idx === activeIdx || isTerminal
+                                        ? "text-primary"
+                                        : "text-muted-foreground",
+                                )}
+                            >
+                                {t.label !== "Pending" && (
+                                    <span className="h-9 flex items-center">{`└─ ${t.label}`}</span>
+                                )}
+                                {t.url && (
+                                    <Button
+                                        asChild
+                                        size="icon"
+                                        variant="ghost"
+                                        className="text-primary"
+                                    >
+                                        <a
+                                            href={t.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            aria-label="Open in explorer"
+                                        >
+                                            <ExternalLink className="h-4 w-4" />
+                                        </a>
+                                    </Button>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
             {onClose && (
                 <Button

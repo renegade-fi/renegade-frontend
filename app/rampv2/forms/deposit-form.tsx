@@ -214,81 +214,84 @@ export default function DepositForm({ env, onQueueStart }: Props) {
     }
 
     return (
-        <div className="space-y-6 pt-6">
-            {/* Token selector */}
-            <div className="flex flex-col gap-2">
-                <Label>Token</Label>
-                <TokenSelect
-                    tokens={availableTokens}
-                    direction={direction}
-                    value={mint}
-                    onChange={setMint}
-                    chainId={currentChain}
-                    owner={address}
-                    wagmiConfig={wagmiConfig}
-                    connection={connection}
-                    renegadeConfig={renegadeConfig}
-                />
-            </div>
-
-            {/* Amount input */}
-            <div className="flex flex-col gap-2">
-                <Label>Amount</Label>
-                <div className="relative">
-                    <NumberInput
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="pr-12 rounded-none font-mono"
-                    />
-                    <MaxButton
+        <>
+            <div className="space-y-6 p-6">
+                {/* Token selector */}
+                <div className="flex flex-col gap-2">
+                    <Label>Token</Label>
+                    <TokenSelect
+                        tokens={availableTokens}
+                        direction={direction}
+                        value={mint}
+                        onChange={setMint}
                         chainId={currentChain}
-                        mint={mint}
                         owner={address}
                         wagmiConfig={wagmiConfig}
                         connection={connection}
-                        onClick={setAmount}
+                        renegadeConfig={renegadeConfig}
                     />
                 </div>
-            </div>
 
-            {/* Balances */}
-            <div>
-                <BalanceRow
-                    chainId={currentChain}
-                    mint={mint}
-                    direction={direction}
-                    owner={address}
-                    wagmiConfig={wagmiConfig}
-                    renegadeConfig={renegadeConfig}
-                    connection={connection}
-                    onClick={setAmount}
-                />
+                {/* Amount input */}
+                <div className="flex flex-col gap-2">
+                    <Label>Amount</Label>
+                    <div className="relative">
+                        <NumberInput
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="pr-12 rounded-none font-mono"
+                        />
+                        <MaxButton
+                            chainId={currentChain}
+                            mint={mint}
+                            owner={address}
+                            wagmiConfig={wagmiConfig}
+                            connection={connection}
+                            onClick={setAmount}
+                        />
+                    </div>
+                </div>
 
-                {swapToken?.address && (
+                {/* Balances */}
+                <div className="flex flex-col gap-2">
                     <BalanceRow
-                        key={swapToken.address}
                         chainId={currentChain}
-                        mint={swapToken.address}
+                        mint={mint}
                         direction={direction}
                         owner={address}
                         wagmiConfig={wagmiConfig}
                         renegadeConfig={renegadeConfig}
                         connection={connection}
-                        onClick={(value) => {
-                            // setSwapToken(availableSwapToken.address);
-                            handleSetCombinedAmount(value);
-                        }}
-                        hideNetworkLabel
-                        minRemainingEthBalance={minRemainingEthBalance}
+                        onClick={setAmount}
+                        allowZero
                     />
-                )}
-            </div>
 
-            {/* Review Route Panel */}
-            {intent?.needsRouting() ? (
-                <ReviewRoute intent={intent} route={route} status={status} />
-            ) : null}
+                    {swapToken?.address && (
+                        <BalanceRow
+                            key={swapToken.address}
+                            chainId={currentChain}
+                            mint={swapToken.address}
+                            direction={direction}
+                            owner={address}
+                            wagmiConfig={wagmiConfig}
+                            renegadeConfig={renegadeConfig}
+                            connection={connection}
+                            onClick={(value) => {
+                                // setSwapToken(availableSwapToken.address);
+                                handleSetCombinedAmount(value);
+                            }}
+                            hideNetworkLabel
+                            minRemainingEthBalance={minRemainingEthBalance}
+                        />
+                    )}
+                </div>
+
+                {/* Review Route Panel */}
+                {intent?.needsRouting() ? (
+                    <ReviewRoute intent={intent} route={route} status={status} />
+                ) : null}
+            </div>
 
             {/* Submit */}
             <div className="w-full flex">
@@ -305,6 +308,6 @@ export default function DepositForm({ env, onQueueStart }: Props) {
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
-        </div>
+        </>
     );
 }

@@ -20,6 +20,7 @@ interface Props {
     hideNetworkLabel?: boolean;
     minRemainingEthBalance?: string;
     direction: ExternalTransferDirection;
+    allowZero?: boolean;
 }
 
 export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBalanceQueryParams) {
@@ -34,7 +35,9 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
 
     if (
         !isSuccess ||
-        (props.direction === ExternalTransferDirection.Deposit && onChainBalance?.isZero) ||
+        (!props.allowZero &&
+            props.direction === ExternalTransferDirection.Deposit &&
+            onChainBalance?.isZero) ||
         (props.direction === ExternalTransferDirection.Withdraw && renegadeBalance?.isZero)
     ) {
         return null;

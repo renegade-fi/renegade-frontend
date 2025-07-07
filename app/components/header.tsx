@@ -11,7 +11,7 @@ import { ConnectWalletButton } from "@/app/components/connect-wallet-button";
 import { MobileNavSheet } from "@/app/components/mobile-nav-sheet";
 import { SidebarTrigger } from "@/app/components/wallet-sidebar/trigger";
 
-import { TransferDialog } from "@/components/dialogs/transfer/transfer-dialog";
+import { RampDialog } from "@/app/rampv2/ramp-dialog";
 import { Button } from "@/components/ui/button";
 import {
     ContextMenu,
@@ -57,11 +57,11 @@ export function Header() {
                 </div>
                 <div className="flex items-center gap-2">
                     {walletReadyState === "READY" ? (
-                        <TransferDialog>
+                        <RampDialog>
                             <Button className="font-extended" variant="outline">
                                 Deposit
                             </Button>
-                        </TransferDialog>
+                        </RampDialog>
                     ) : null}
                     {arbitrumWallet.isConnected ? <SidebarTrigger /> : <ConnectWalletButton />}
                 </div>
@@ -129,11 +129,11 @@ export function Header() {
                 </nav>
                 <div className="flex items-center space-x-4 justify-self-end">
                     {walletReadyState === "READY" ? (
-                        <TransferDialog>
+                        <RampDialog>
                             <Button className="font-extended" variant="outline">
                                 Deposit
                             </Button>
-                        </TransferDialog>
+                        </RampDialog>
                     ) : null}
                     <ChainSelector />
                     {arbitrumWallet.isConnected ? <SidebarTrigger /> : <ConnectWalletButton />}

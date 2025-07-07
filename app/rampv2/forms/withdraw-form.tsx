@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { TokenSelect } from "../components/token-select";
@@ -141,78 +140,80 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
     }
 
     return (
-        <div className="space-y-6 pt-6">
-            {/* Token selector */}
-            <div className="flex flex-col gap-2">
-                <Label>Token</Label>
-                <TokenSelect
-                    tokens={availableTokens}
-                    direction={direction}
-                    value={mint}
-                    onChange={setMint}
-                    chainId={currentChain}
-                    owner={address}
-                    wagmiConfig={wagmiConfig}
-                    connection={connection}
-                    renegadeConfig={renegadeConfig}
-                />
-            </div>
-
-            {/* Amount input */}
-            <div className="flex flex-col gap-2">
-                <Label>Amount</Label>
-                <div className="relative">
-                    <NumberInput
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="pr-12 rounded-none font-mono"
-                    />
-                    <MaxButton
+        <>
+            <div className="space-y-6 p-6">
+                {/* Token selector */}
+                <div className="flex flex-col gap-2">
+                    <Label>Token</Label>
+                    <TokenSelect
+                        tokens={availableTokens}
+                        direction={direction}
+                        value={mint}
+                        onChange={setMint}
                         chainId={currentChain}
-                        mint={mint}
                         owner={address}
                         wagmiConfig={wagmiConfig}
                         connection={connection}
-                        onClick={setAmount}
+                        renegadeConfig={renegadeConfig}
                     />
                 </div>
-            </div>
 
-            {/* Balances */}
-            <BalanceRow
-                chainId={currentChain}
-                mint={mint}
-                owner={address}
-                wagmiConfig={wagmiConfig}
-                renegadeConfig={renegadeConfig}
-                connection={connection}
-                onClick={setAmount}
-                direction={direction}
-            />
-
-            {/* Unwrap switch (WETH → ETH) */}
-            {canUnwrap ? (
-                <div className={cn("items-center justify-between border p-3, flex")}>
-                    <div className="space-y-0.5">
-                        <Label className="" htmlFor="unwrap">
-                            Withdraw ETH
-                        </Label>
-                        <div className="text-[0.8rem] text-muted-foreground">
-                            Receive native ETH instead of wrapped ETH
-                        </div>
+                {/* Amount input */}
+                <div className="flex flex-col gap-2">
+                    <Label>Amount</Label>
+                    <div className="relative">
+                        <NumberInput
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="pr-12 rounded-none font-mono"
+                        />
+                        <MaxButton
+                            chainId={currentChain}
+                            mint={mint}
+                            owner={address}
+                            wagmiConfig={wagmiConfig}
+                            connection={connection}
+                            onClick={setAmount}
+                        />
                     </div>
-                    <Switch
-                        checked={unwrapToEth}
-                        id="unwrap"
-                        onCheckedChange={(checked) => {
-                            if (typeof checked === "boolean") {
-                                setUnwrapToEth(checked);
-                            }
-                        }}
-                    />
                 </div>
-            ) : null}
+
+                {/* Balances */}
+                <BalanceRow
+                    chainId={currentChain}
+                    mint={mint}
+                    owner={address}
+                    wagmiConfig={wagmiConfig}
+                    renegadeConfig={renegadeConfig}
+                    connection={connection}
+                    onClick={setAmount}
+                    direction={direction}
+                />
+
+                {/* Unwrap switch (WETH → ETH) */}
+                {canUnwrap ? (
+                    <div className="items-center justify-between border p-3 flex">
+                        <div className="space-y-0.5">
+                            <Label className="" htmlFor="unwrap">
+                                Withdraw ETH
+                            </Label>
+                            <div className="text-[0.8rem] text-muted-foreground">
+                                Receive native ETH instead of wrapped ETH
+                            </div>
+                        </div>
+                        <Switch
+                            checked={unwrapToEth}
+                            id="unwrap"
+                            onCheckedChange={(checked) => {
+                                if (typeof checked === "boolean") {
+                                    setUnwrapToEth(checked);
+                                }
+                            }}
+                        />
+                    </div>
+                ) : null}
+            </div>
 
             {/* Submit */}
             <div className="w-full flex">
@@ -229,6 +230,6 @@ export default function WithdrawForm({ env, onQueueStart }: Props) {
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
-        </div>
+        </>
     );
 }

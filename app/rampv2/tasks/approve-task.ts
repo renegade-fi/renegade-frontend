@@ -13,7 +13,7 @@ import type { DepositTask } from "./deposit-task";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import type { LiFiLegTask } from "./lifi-leg-task";
 
-export type ApproveKind = "Permit2" | "Bridge" | "Swap";
+export type ApproveKind = "Permit2" | "Bridge" | "Swap" | "Unwrap";
 
 export interface ApproveDescriptor {
     readonly id: string;
@@ -180,10 +180,16 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
                     | `0x${string}`
                     | undefined;
                 if (!spender) return undefined;
-                const isBridge =
-                    legTask.descriptor.leg.action.fromChainId !==
-                    legTask.descriptor.leg.action.toChainId;
-                const kind: ApproveKind = isBridge ? "Bridge" : "Swap";
+                const isBridge = legTask.isBridgeOperation();
+                const isWrap = legTask.isWrapOperation();
+                const isSwap = legTask.isSwapOperation();
+                const kind: ApproveKind = isBridge
+                    ? "Bridge"
+                    : isWrap
+                      ? "Unwrap"
+                      : isSwap
+                        ? "Swap"
+                        : "Permit2";
                 return ApproveTask.create(chainId, mint, amount, spender, kind, ctx);
             }
             default:

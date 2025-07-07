@@ -1,0 +1,175 @@
+"use client";
+
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import * as React from "react";
+import { useAccount, useConfig as useWagmiConfig } from "wagmi";
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { cn } from "@/lib/utils";
+import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
+import { TaskQueueStatus } from "./components/task-queue-status";
+import BridgeForm from "./forms/bridge-form";
+import DepositForm from "./forms/deposit-form";
+import WithdrawForm from "./forms/withdraw-form";
+import type { TaskQueue } from "./queue/task-queue";
+
+/**
+ * Dialog wrapper for the Ramp flows (bridge / deposit / withdraw).
+ */
+export function RampDialog({ children }: { children: React.ReactNode }) {
+    const [open, setOpen] = React.useState(false);
+    const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+    // --- Environment construction --- //
+    const renegadeConfig = useRenegadeConfig();
+    const wagmiConfig = useWagmiConfig();
+    const currentChain = useCurrentChain();
+
+    const { address } = useAccount();
+    const { connection } = useConnection();
+    const { publicKey, signTransaction } = useWallet();
+    const solanaAddress = publicKey ? publicKey.toBase58() : null;
+
+    const { data: keychainNonce } = useBackOfQueueWallet({
+        query: { select: (w) => w.key_chain.nonce },
+    });
+
+    // Guard – we cannot proceed without these essentials.
+    const missingEssential = !renegadeConfig || !wagmiConfig || !address;
+
+    // --- Internal UI state --- //
+    const [mode, setMode] = React.useState<"bridge" | "deposit" | "withdraw">("deposit");
+    const [queue, setQueue] = React.useState<TaskQueue | null>(null);
+
+    // Helper passed down to forms so they can start a queue.
+    function handleQueueStart(q: TaskQueue) {
+        setQueue(q);
+        q.run().catch(console.error);
+    }
+
+    // Reset local state and optionally close dialog when queue finishes.
+    const handleQueueDone = React.useCallback(() => {
+        setQueue(null);
+        setOpen(false);
+    }, []);
+
+    // --- Render --- //
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent
+                hideCloseButton
+                className={cn("gap-0 p-0", isDesktop ? "sm:max-w-[425px]" : "h-dvh")}
+                // Prevent toasts inside the dialog from closing it when clicked
+                onPointerDownOutside={(e) => {
+                    if (e.target instanceof Element && e.target.closest("[data-sonner-toast]")) {
+                        e.preventDefault();
+                    }
+                }}
+            >
+                {missingEssential ? (
+                    <div className="p-6 text-center text-muted-foreground">
+                        Connect your wallet to begin.
+                    </div>
+                ) : (
+                    <RampDialogBody
+                        env={{
+                            renegadeConfig,
+                            wagmiConfig,
+                            connection,
+                            keychainNonce: keychainNonce ?? BigInt(0),
+                            currentChain,
+                            evmAddress: address as `0x${string}`,
+                            solanaAddress,
+                            solanaSignTx: signTransaction ?? null,
+                        }}
+                        mode={mode}
+                        setMode={setMode}
+                        queue={queue}
+                        onQueueStart={handleQueueStart}
+                        onQueueClose={handleQueueDone}
+                    />
+                )}
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+// --- Internal dialog body component --- //
+interface BodyProps {
+    env: import("./types").RampEnv;
+    mode: "bridge" | "deposit" | "withdraw";
+    setMode: React.Dispatch<React.SetStateAction<"bridge" | "deposit" | "withdraw">>;
+    queue: TaskQueue | null;
+    onQueueStart: (q: TaskQueue) => void;
+    onQueueClose: () => void;
+}
+
+function RampDialogBody({ env, mode, setMode, queue, onQueueStart, onQueueClose }: BodyProps) {
+    return queue ? (
+        <>
+            <DialogHeader>
+                <DialogTitle className="px-6 py-4  font-extended text-lg font-bold">
+                    {mode === "bridge" ? "Bridge" : mode === "deposit" ? "Deposit" : "Withdraw"}
+                </DialogTitle>
+            </DialogHeader>
+            <TaskQueueStatus queue={queue} onClose={onQueueClose} />
+        </>
+    ) : (
+        <>
+            {/* Mode toggle */}
+            <div className="flex flex-row border-b border-border">
+                <Button
+                    className={cn(
+                        "flex-1 border-0 font-extended text-lg font-bold",
+                        mode === "bridge" ? "text-primary" : "text-muted-foreground",
+                    )}
+                    size="xl"
+                    variant="outline"
+                    onClick={() => setMode("bridge")}
+                >
+                    Bridge
+                </Button>
+                <Button
+                    className={cn(
+                        "flex-1 border-0 font-extended text-lg font-bold",
+                        mode === "deposit" ? "text-primary" : "text-muted-foreground",
+                    )}
+                    size="xl"
+                    variant="outline"
+                    onClick={() => setMode("deposit")}
+                >
+                    Deposit
+                </Button>
+                <Button
+                    className={cn(
+                        "flex-1 border-0 font-extended text-lg font-bold",
+                        mode === "withdraw" ? "text-primary" : "text-muted-foreground",
+                    )}
+                    size="xl"
+                    variant="outline"
+                    onClick={() => setMode("withdraw")}
+                >
+                    Withdraw
+                </Button>
+            </div>
+
+            {/* Render selected form */}
+            {mode === "bridge" ? (
+                <BridgeForm env={env} onQueueStart={onQueueStart} />
+            ) : mode === "deposit" ? (
+                <DepositForm env={env} onQueueStart={onQueueStart} />
+            ) : (
+                <WithdrawForm env={env} onQueueStart={onQueueStart} />
+            )}
+        </>
+    );
+}

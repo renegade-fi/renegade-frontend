@@ -90,7 +90,7 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
         return extractSupportedChain(chainId)?.name;
     }
 
-    private isWrapOperation(): boolean {
+    public isWrapOperation(): boolean {
         const { fromToken, toToken, fromChainId, toChainId } = this.descriptor.leg.action;
 
         // Only check for wrap/unwrap on same chain
@@ -103,7 +103,14 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
         return isFromEth || isToEth;
     }
 
-    private isBridgeOperation(): boolean {
+    public isSwapOperation(): boolean {
+        return (
+            this.descriptor.leg.action.fromToken.address !==
+            this.descriptor.leg.action.toToken.address
+        );
+    }
+
+    public isBridgeOperation(): boolean {
         return this.descriptor.leg.action.fromChainId !== this.descriptor.leg.action.toChainId;
     }
 

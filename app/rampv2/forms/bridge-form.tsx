@@ -161,71 +161,72 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
     }
 
     return (
-        <div className="space-y-6 pt-6">
-            {/* Network selector */}
-            <div className="flex flex-col gap-2">
-                <Label>Network</Label>
-                <NetworkSelect
-                    value={network}
-                    onChange={setNetwork}
-                    networks={availableNetworks}
-                    disabledNetworks={disabledNetworks}
-                />
-            </div>
-
-            {/* Token selector */}
-            <div className="flex flex-col gap-2">
-                <Label>Token</Label>
-                <TokenSelect
-                    isBridge
-                    tokens={availableTokens}
-                    direction={direction}
-                    value={mint}
-                    onChange={setMint}
-                    chainId={network}
-                    owner={chainDependentAddress!}
-                    wagmiConfig={wagmiConfig}
-                    connection={connection}
-                    renegadeConfig={renegadeConfig}
-                />
-            </div>
-
-            {/* Amount input */}
-            <div className="flex flex-col gap-2">
-                <Label>Amount</Label>
-                <div className="relative">
-                    <NumberInput
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="pr-12 rounded-none font-mono"
+        <>
+            <div className="space-y-6 p-6">
+                {/* Network selector */}
+                <div className="flex flex-col gap-2">
+                    <Label>Network</Label>
+                    <NetworkSelect
+                        value={network}
+                        onChange={setNetwork}
+                        networks={availableNetworks}
+                        disabledNetworks={disabledNetworks}
                     />
-                    <MaxButton
+                </div>
+
+                {/* Token selector */}
+                <div className="flex flex-col gap-2">
+                    <Label>Token</Label>
+                    <TokenSelect
+                        isBridge
+                        tokens={availableTokens}
+                        direction={direction}
+                        value={mint}
+                        onChange={setMint}
                         chainId={network}
-                        mint={mint}
                         owner={chainDependentAddress!}
                         wagmiConfig={wagmiConfig}
                         connection={connection}
-                        onClick={setAmount}
+                        renegadeConfig={renegadeConfig}
                     />
                 </div>
+
+                {/* Amount input */}
+                <div className="flex flex-col gap-2">
+                    <Label>Amount</Label>
+                    <div className="relative">
+                        <NumberInput
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="pr-12 rounded-none font-mono"
+                        />
+                        <MaxButton
+                            chainId={network}
+                            mint={mint}
+                            owner={chainDependentAddress!}
+                            wagmiConfig={wagmiConfig}
+                            connection={connection}
+                            onClick={setAmount}
+                        />
+                    </div>
+                </div>
+
+                {/* Balances */}
+                <BalanceRow
+                    chainId={network}
+                    mint={mint}
+                    owner={chainDependentAddress!}
+                    wagmiConfig={wagmiConfig}
+                    renegadeConfig={renegadeConfig}
+                    connection={connection}
+                    onClick={setAmount}
+                    direction={direction}
+                />
+
+                {/* Review Route Panel */}
+                {intent ? <ReviewRoute intent={intent} route={route} status={status} /> : null}
             </div>
-
-            {/* Balances */}
-            <BalanceRow
-                chainId={network}
-                mint={mint}
-                owner={chainDependentAddress!}
-                wagmiConfig={wagmiConfig}
-                renegadeConfig={renegadeConfig}
-                connection={connection}
-                onClick={setAmount}
-                direction={direction}
-            />
-
-            {/* Review Route Panel */}
-            {intent ? <ReviewRoute intent={intent} route={route} status={status} /> : null}
-
             {/* Submit */}
             <div className="w-full flex">
                 <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
@@ -241,6 +242,6 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
-        </div>
+        </>
     );
 }
