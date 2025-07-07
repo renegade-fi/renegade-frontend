@@ -73,18 +73,20 @@ export function getFormattedChainName(chainId: number): string {
     }
 }
 
-export function getChainLogoTicker(chainId: number): string {
+/** Get the logo for a given chain */
+export function getChainLogo(chainId: number): string {
     const _chain = extractSupportedChain(chainId);
     switch (_chain.id) {
         case mainnet.id:
-        case base.id:
-        case baseSepolia.id:
-            return "WETH";
+            return "/mainnet.svg";
         case arbitrum.id:
         case arbitrumSepolia.id:
-            return "ARB";
+            return "/arbitrum.svg";
+        case base.id:
+        case baseSepolia.id:
+            return "/base.svg";
         case solana.id:
-            return "SOL";
+            return "/solana.svg";
     }
 }
 

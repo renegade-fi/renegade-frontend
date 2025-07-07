@@ -35,7 +35,7 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
     const isDeposit = props.direction === ExternalTransferDirection.Deposit;
 
     // Hide zero balances (for child rows)
-    if (!props.showZero && ((isDeposit && onChainBalance?.isZero) || renegadeBalance?.isZero)) {
+    if (!props.showZero && isDeposit && onChainBalance?.isZero) {
         return null;
     }
 

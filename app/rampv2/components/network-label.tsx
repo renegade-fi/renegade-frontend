@@ -1,9 +1,8 @@
+import Image from "next/image";
 import type * as React from "react";
 
-import { TokenIcon } from "@/components/token-icon";
-
 import { cn } from "@/lib/utils";
-import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem";
+import { getChainLogo, getFormattedChainName } from "@/lib/viem";
 
 interface NetworkLabelProps extends React.HTMLAttributes<HTMLDivElement> {
     chainId: number | undefined;
@@ -21,9 +20,25 @@ export function NetworkLabel({
     if (!chainId) {
         return null;
     }
+    const logoUrl = getChainLogo(chainId);
+    const chainName = getFormattedChainName(chainId);
+    let logo;
+    if (showIcon) {
+        logo = (
+            <div
+                className={cn("overflow-hidden rounded-full", className)}
+                style={{
+                    width: iconSize,
+                    height: iconSize,
+                }}
+            >
+                <Image alt={chainName} height={iconSize} src={logoUrl} width={iconSize} />
+            </div>
+        );
+    }
     return (
         <div className={cn("flex items-center gap-1", className)} {...props}>
-            {showIcon && <TokenIcon size={iconSize} ticker={getChainLogoTicker(chainId)} />}
+            {logo}
             {getFormattedChainName(chainId)}
         </div>
     );

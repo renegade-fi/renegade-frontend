@@ -9,7 +9,7 @@ import { useAccount, useBalance } from "wagmi";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatNumber, truncateAddress } from "@/lib/format";
 import { resolveTicker } from "@/lib/token";
-import { getChainLogoTicker, getFormattedChainName } from "@/lib/viem";
+import { getChainLogo, getFormattedChainName } from "@/lib/viem";
 import type { Intent } from "../core/intent";
 import { isBridge, isETH, isSwap } from "../helpers";
 
@@ -133,13 +133,8 @@ function BridgeSection({ step }: { step: LiFiStep }) {
     const fromAmountFormatted = formatUnits(BigInt(fromAmount), fromDecimals);
     const toAmountFormatted = formatUnits(BigInt(toAmount), toDecimals);
 
-    const fromChainTicker = getChainLogoTicker(fromChainId);
-    const fromChainLogo =
-        fromChainTicker === "SOL" ? "/tokens/sol.png" : resolveTicker(fromChainTicker).logoUrl;
-
-    const toChainTicker = getChainLogoTicker(toChainId);
-    const toChainLogo =
-        toChainTicker === "SOL" ? "/tokens/sol.png" : resolveTicker(toChainTicker).logoUrl;
+    const fromChainLogo = getChainLogo(fromChainId);
+    const toChainLogo = getChainLogo(toChainId);
 
     return (
         <AccordionPrimitive.Root collapsible className="border p-3 text-sm" type="single">

@@ -154,20 +154,12 @@ function RampDialogBody({
                 </DialogTitle>
             </VisuallyHidden>
             {/* Mode toggle */}
-            <div
-                className={cn("flex", {
-                    "px-6 pt-12 pb-0": !isDesktop,
-                    "border-b": isDesktop,
-                })}
-            >
+            <div className={cn("flex", isDesktop ? "border-b" : "px-6 pt-12 pb-0")}>
                 <Button
                     className={cn(
                         "flex-1 font-extended text-lg font-bold",
                         mode === "bridge" ? "text-primary" : "text-muted-foreground",
-                        {
-                            border: !isDesktop,
-                            "border-0": isDesktop,
-                        },
+                        isDesktop ? "border-0" : "border",
                     )}
                     size="xl"
                     variant="outline"
@@ -179,10 +171,7 @@ function RampDialogBody({
                     className={cn(
                         "flex-1 font-extended text-lg font-bold",
                         mode === "deposit" ? "text-primary" : "text-muted-foreground",
-                        {
-                            "border-x-0": !isDesktop,
-                            "border-x border-y-0": isDesktop,
-                        },
+                        isDesktop ? "border-x border-y-0" : "border-x-0",
                     )}
                     size="xl"
                     variant="outline"
@@ -194,9 +183,7 @@ function RampDialogBody({
                     className={cn(
                         "flex-1 font-extended text-lg font-bold",
                         mode === "withdraw" ? "text-primary" : "text-muted-foreground",
-                        {
-                            "border-0": isDesktop,
-                        },
+                        isDesktop ? "border-0" : "border",
                     )}
                     size="xl"
                     variant="outline"
