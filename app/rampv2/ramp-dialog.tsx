@@ -1,5 +1,6 @@
 "use client";
 
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import * as React from "react";
 import { useAccount, useConfig as useWagmiConfig } from "wagmi";
@@ -72,8 +73,11 @@ export function RampDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
-                hideCloseButton
-                className={cn("gap-0 p-0", isDesktop ? "sm:max-w-[425px]" : "h-dvh")}
+                hideCloseButton={isDesktop}
+                className={cn("gap-0 p-0", {
+                    "grid-rows-[auto_1fr] h-dvh": !isDesktop,
+                    "sm:max-w-[425px]": isDesktop,
+                })}
                 // Prevent toasts inside the dialog from closing it when clicked
                 onPointerDownOutside={(e) => {
                     if (e.target instanceof Element && e.target.closest("[data-sonner-toast]")) {
@@ -87,6 +91,7 @@ export function RampDialog({
                     </div>
                 ) : (
                     <RampDialogBody
+                        isDesktop={isDesktop}
                         env={{
                             renegadeConfig,
                             wagmiConfig,
@@ -119,6 +124,7 @@ interface BodyProps {
     queue: TaskQueue | null;
     onQueueStart: (q: TaskQueue) => void;
     onQueueClose: () => void;
+    isDesktop: boolean;
 }
 
 function RampDialogBody({
@@ -129,6 +135,7 @@ function RampDialogBody({
     queue,
     onQueueStart,
     onQueueClose,
+    isDesktop,
 }: BodyProps) {
     return queue ? (
         <>
@@ -141,12 +148,26 @@ function RampDialogBody({
         </>
     ) : (
         <>
+            <VisuallyHidden>
+                <DialogTitle>
+                    {mode === "bridge" ? "Bridge" : mode === "deposit" ? "Deposit" : "Withdraw"}
+                </DialogTitle>
+            </VisuallyHidden>
             {/* Mode toggle */}
-            <div className="flex flex-row border-b">
+            <div
+                className={cn("flex", {
+                    "px-6 pt-12 pb-0": !isDesktop,
+                    "border-b": isDesktop,
+                })}
+            >
                 <Button
                     className={cn(
-                        "flex-1 border-0 font-extended text-lg font-bold",
+                        "flex-1 font-extended text-lg font-bold",
                         mode === "bridge" ? "text-primary" : "text-muted-foreground",
+                        {
+                            border: !isDesktop,
+                            "border-0": isDesktop,
+                        },
                     )}
                     size="xl"
                     variant="outline"
@@ -156,8 +177,12 @@ function RampDialogBody({
                 </Button>
                 <Button
                     className={cn(
-                        "flex-1 border-0 border-l font-extended text-lg font-bold",
+                        "flex-1 font-extended text-lg font-bold",
                         mode === "deposit" ? "text-primary" : "text-muted-foreground",
+                        {
+                            "border-x-0": !isDesktop,
+                            "border-x border-y-0": isDesktop,
+                        },
                     )}
                     size="xl"
                     variant="outline"
@@ -167,8 +192,11 @@ function RampDialogBody({
                 </Button>
                 <Button
                     className={cn(
-                        "flex-1  border-0 border-l font-extended text-lg font-bold",
+                        "flex-1 font-extended text-lg font-bold",
                         mode === "withdraw" ? "text-primary" : "text-muted-foreground",
+                        {
+                            "border-0": isDesktop,
+                        },
                     )}
                     size="xl"
                     variant="outline"

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { arbitrum } from "viem/chains";
 import {
     getSwapInputsFor,
     getTokenByAddress,
@@ -12,6 +13,7 @@ import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
+import { cn } from "@/lib/utils";
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { ReviewRoute } from "../components/review-route";
@@ -60,7 +62,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
 
     const swapToken: Token | undefined = useMemo(() => {
         const token = getTokenByAddress(mint, currentChain);
-        if (token?.ticker === "USDC") {
+        if (token?.ticker === "USDC" && currentChain === arbitrum.id) {
             const USDCe = getTokenByTicker("USDC.e", currentChain);
             if (!USDCe) throw new Error("USDC.e not found");
             return USDCe;
@@ -263,7 +265,11 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                 </div>
 
                 {/* Balances */}
-                <div className="flex flex-col gap-2">
+                <div
+                    className={cn("flex flex-col gap-2", {
+                        hidden: !mint,
+                    })}
+                >
                     <BalanceRow
                         chainId={currentChain}
                         mint={mint}
@@ -273,7 +279,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                         renegadeConfig={renegadeConfig}
                         connection={connection}
                         onClick={setAmount}
-                        allowZero
+                        showZero
                     />
 
                     {swapToken?.address && (
@@ -306,7 +312,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
             <div className="w-full flex">
                 <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
                     <Button
-                        className="flex-1 border-0 border-t font-extended text-2xl"
+                        className="w-full flex-1 border-0 border-t font-extended text-2xl"
                         size="xl"
                         type="submit"
                         variant="outline"

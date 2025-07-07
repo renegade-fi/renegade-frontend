@@ -222,6 +222,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                     connection={connection}
                     onClick={setAmount}
                     direction={direction}
+                    showZero
                 />
 
                 {/* Review Route Panel */}
@@ -231,7 +232,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             <div className="w-full flex">
                 <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
                     <Button
-                        className="flex-1 border-0 border-t font-extended text-2xl"
+                        className="w-full flex-1 border-0 border-t font-extended text-2xl"
                         size="xl"
                         type="submit"
                         variant="outline"

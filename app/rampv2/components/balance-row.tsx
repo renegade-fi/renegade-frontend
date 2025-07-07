@@ -20,7 +20,7 @@ interface Props {
     hideNetworkLabel?: boolean;
     minRemainingEthBalance?: string;
     direction: ExternalTransferDirection;
-    allowZero?: boolean;
+    showZero?: boolean;
 }
 
 export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBalanceQueryParams) {
@@ -32,21 +32,17 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
         ...renegadeBalanceQuery(props),
     });
     const isSuccess = onChainBalanceSuccess && renegadeBalanceSuccess;
+    const isDeposit = props.direction === ExternalTransferDirection.Deposit;
 
-    if (
-        !isSuccess ||
-        (!props.allowZero &&
-            props.direction === ExternalTransferDirection.Deposit &&
-            onChainBalance?.isZero) ||
-        (props.direction === ExternalTransferDirection.Withdraw && renegadeBalance?.isZero)
-    ) {
+    // Hide zero balances (for child rows)
+    if (!props.showZero && ((isDeposit && onChainBalance?.isZero) || renegadeBalance?.isZero)) {
         return null;
     }
 
     let roundedLabel = "--";
     let decimalCorrectedLabel = "--";
     if (isSuccess) {
-        if (props.direction === ExternalTransferDirection.Deposit) {
+        if (isDeposit) {
             roundedLabel = `${onChainBalance?.rounded} ${onChainBalance?.ticker}`;
             decimalCorrectedLabel = `${onChainBalance?.decimalCorrected} ${onChainBalance?.ticker}`;
         } else {
@@ -58,7 +54,7 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
     function handleClick() {
         if (isSuccess) {
             const isEth = isETH(props.mint, props.chainId);
-            if (isEth && props.direction === ExternalTransferDirection.Deposit) {
+            if (isEth && isDeposit) {
                 // Compute swap value leaving at least the minimum ETH buffer untouched
                 const bufferWei = parseEther(props.minRemainingEthBalance ?? "0");
                 const swapAmount = onChainBalance?.raw - bufferWei;
@@ -68,7 +64,7 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
                 }
             } else {
                 props.onClick(
-                    props.direction === ExternalTransferDirection.Deposit
+                    isDeposit
                         ? (onChainBalance?.decimalCorrected ?? "0")
                         : (renegadeBalance?.decimalCorrected ?? "0"),
                 );
@@ -87,11 +83,7 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
                 )}
             >
                 Balance on&nbsp;
-                {props.direction === ExternalTransferDirection.Deposit ? (
-                    <NetworkLabel chainId={props.chainId} />
-                ) : (
-                    "Renegade"
-                )}
+                {isDeposit ? <NetworkLabel chainId={props.chainId} /> : "Renegade"}
             </div>
             <div className="flex items-center">
                 <TooltipButton

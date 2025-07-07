@@ -131,11 +131,6 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     );
 
     let isDisabled = true;
-    console.log("disabled debug", {
-        intent,
-        needsRouting: intent?.needsRouting(),
-        status,
-    });
     if (intent) {
         if (intent.needsRouting()) {
             isDisabled = status !== "success";
@@ -204,6 +199,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                     connection={connection}
                     onClick={setAmount}
                     direction={direction}
+                    showZero
                 />
 
                 {/* Unwrap switch (WETH → ETH) */}
@@ -234,7 +230,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
             <div className="w-full flex">
                 <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
                     <Button
-                        className="flex-1 border-0 border-t font-extended text-2xl"
+                        className="w-full flex-1 border-0 border-t font-extended text-2xl"
                         size="xl"
                         type="submit"
                         variant="outline"
