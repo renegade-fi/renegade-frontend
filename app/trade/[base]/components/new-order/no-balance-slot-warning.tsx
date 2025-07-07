@@ -1,11 +1,10 @@
 import { AlertTriangle } from "lucide-react";
-
-import { useIsMaxBalances } from "@/components/dialogs/transfer/use-is-max-balances";
 import {
     ResponsiveTooltip,
     ResponsiveTooltipContent,
     ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip";
+import { useIsMaxBalances } from "@/hooks/use-is-max-balances";
 
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { MAX_BALANCES_PLACE_ORDER_TOOLTIP } from "@/lib/constants/tooltips";

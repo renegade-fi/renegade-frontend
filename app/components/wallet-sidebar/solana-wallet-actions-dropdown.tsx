@@ -1,13 +1,12 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Clipboard, ExternalLink, SquareX } from "lucide-react";
-
-import { useSolanaChainBalance } from "@/components/dialogs/transfer/hooks/use-solana-balance";
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useSolanaChainBalance } from "@/hooks/use-solana-balance";
 
 import type { Wallet } from "@/hooks/use-wallets";
 import { solana } from "@/lib/viem";
