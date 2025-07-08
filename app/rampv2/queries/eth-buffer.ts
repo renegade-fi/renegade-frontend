@@ -8,24 +8,13 @@ import { resolveTicker } from "@/lib/token";
 
 const USDC_ADDRESS = resolveTicker("USDC").address as `0x${string}`;
 
-export interface QueryParams {
-    config: Config;
-    chainId: number;
-    /**
-     * (Optional) account address to simulate the transfer from.
-     * Providing a real address helps nodes perform balance-related checks accurately,
-     * but leaving it undefined is still safe because we send 0 value.
-     */
-    account?: `0x${string}`;
-}
-
-export interface ApproveBufferParams {
+interface QueryParams {
     config: Config;
     chainId: number;
     approvals: number;
 }
 
-export function approveBufferQueryOptions(params: ApproveBufferParams) {
+export function approveBufferQueryOptions(params: QueryParams) {
     const sdkCfg = getSDKConfig(params.chainId);
     const spender = sdkCfg.permit2Address as `0x${string}`;
     const amount = BigInt(1) << (BigInt(256) - BigInt(1));

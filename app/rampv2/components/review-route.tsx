@@ -62,7 +62,7 @@ export function ReviewRoute({ intent, route, status }: Props) {
     );
 }
 
-export function Row({
+function Row({
     label,
     value,
     imageUri,

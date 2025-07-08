@@ -9,7 +9,7 @@ import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 
-export interface PermitSigDescriptor {
+interface PermitSigDescriptor {
     readonly id: string;
     readonly type: TaskType;
     readonly chainId: number;
@@ -17,7 +17,7 @@ export interface PermitSigDescriptor {
     readonly amount: bigint;
 }
 
-export type PermitSigState = "Pending" | "AwaitingWallet" | "Completed";
+type PermitSigState = "Pending" | "AwaitingWallet" | "Completed";
 
 class PermitSigError extends Error implements BaseTaskError {
     constructor(

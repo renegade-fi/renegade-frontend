@@ -7,7 +7,7 @@ import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import { waitForRenegadeTask } from "./helpers/waiters";
 
-export interface DepositDescriptor {
+interface DepositDescriptor {
     readonly id: string;
     readonly type: TaskType;
     readonly chainId: number;
@@ -15,7 +15,7 @@ export interface DepositDescriptor {
     readonly amount: bigint;
 }
 
-export type DepositState = "Pending" | "Submitted" | "Completed";
+type DepositState = "Pending" | "Submitted" | "Completed";
 
 class DepositError extends Error implements BaseTaskError {
     constructor(

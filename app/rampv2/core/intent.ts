@@ -4,7 +4,7 @@ import { isETH } from "../helpers";
 import { getTokenByAddress, getTokenByTicker } from "../token-registry";
 import type { TaskContext } from "./task-context";
 
-export type IntentKind = "DEPOSIT" | "WITHDRAW";
+type IntentKind = "DEPOSIT" | "WITHDRAW";
 
 export class Intent {
     readonly kind: IntentKind;

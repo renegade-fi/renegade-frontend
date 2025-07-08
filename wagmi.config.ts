@@ -1,5 +1,5 @@
 import { defineConfig } from "@wagmi/cli";
-import { actions, react } from "@wagmi/cli/plugins";
+import { actions } from "@wagmi/cli/plugins";
 import { parseAbi } from "viem/utils";
 
 const abi = parseAbi([
@@ -8,8 +8,6 @@ const abi = parseAbi([
     "function allowance(address owner, address spender) view returns (uint256)",
 ]);
 
-const wethAbi = parseAbi(["function deposit() payable", "function withdraw(uint256 wad) public"]);
-
 export default defineConfig({
     out: "lib/generated.ts",
     contracts: [
@@ -17,10 +15,6 @@ export default defineConfig({
             name: "erc20",
             abi,
         },
-        {
-            name: "weth",
-            abi: wethAbi,
-        },
     ],
-    plugins: [actions(), react()],
+    plugins: [actions()],
 });

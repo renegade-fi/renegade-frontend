@@ -7,7 +7,7 @@ import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import { waitForRenegadeTask } from "./helpers/waiters";
 
-export interface WithdrawDescriptor {
+interface WithdrawDescriptor {
     readonly id: string;
     readonly type: TaskType;
     readonly chainId: number;
@@ -15,7 +15,7 @@ export interface WithdrawDescriptor {
     readonly amount: bigint;
 }
 
-export type WithdrawState = "Pending" | "Submitted" | "Completed";
+type WithdrawState = "Pending" | "Submitted" | "Completed";
 
 class WithdrawError extends Error implements BaseTaskError {
     constructor(

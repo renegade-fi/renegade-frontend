@@ -18,23 +18,3 @@ export async function sendSolanaTransaction(
     });
     return signature;
 }
-
-/** Await confirmation of a Solana transaction. */
-export async function awaitSolanaConfirmation(
-    signature: string,
-    connection: Connection,
-): Promise<void> {
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    while (true) {
-        const status = await connection.getSignatureStatus(signature, {
-            searchTransactionHistory: true,
-        });
-        const info = status.value;
-        if (info) {
-            if (info.err) throw new Error(`Transaction failed: ${info.err}`);
-            if (info.confirmationStatus === "confirmed" || info.confirmationStatus === "finalized")
-                return;
-        }
-        await sleep(500);
-    }
-}

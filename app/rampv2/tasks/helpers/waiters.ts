@@ -1,7 +1,6 @@
 import { getStatus } from "@lifi/sdk";
 import type { Config as RenegadeConfig } from "@renegade-fi/react";
 import { getTaskHistory, getTaskStatus } from "@renegade-fi/react/actions";
-import type { PublicClient } from "viem";
 
 const POLL_INTERVAL = 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -45,15 +44,7 @@ export async function waitForRenegadeTask(cfg: RenegadeConfig, taskId: string): 
     return task;
 }
 
-/** Poll on-chain until a transaction is confirmed. */
-export async function waitForTxReceipt(
-    publicClient: PublicClient,
-    hash: `0x${string}`,
-): Promise<void> {
-    await publicClient.waitForTransactionReceipt({ hash });
-}
-
-export type LifiStatus = Awaited<ReturnType<typeof getStatus>>;
+type LifiStatus = Awaited<ReturnType<typeof getStatus>>;
 
 /** Poll LiFi backend until it returns a terminal status. */
 export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {

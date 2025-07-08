@@ -13,9 +13,9 @@ import type { DepositTask } from "./deposit-task";
 import { ensureCorrectChain } from "./helpers/evm-utils";
 import type { LiFiLegTask } from "./lifi-leg-task";
 
-export type ApproveKind = "Permit2" | "Bridge" | "Swap" | "Unwrap";
+type ApproveKind = "Permit2" | "Bridge" | "Swap" | "Unwrap";
 
-export interface ApproveDescriptor {
+interface ApproveDescriptor {
     readonly id: string;
     readonly type: TaskType;
     readonly chainId: number;
@@ -25,7 +25,7 @@ export interface ApproveDescriptor {
     readonly approveKind: ApproveKind;
 }
 
-export type ApproveState = "Pending" | "AwaitingWallet" | "Submitted" | "Completed";
+type ApproveState = "Pending" | "AwaitingWallet" | "Submitted" | "Completed";
 
 class ApproveError extends Error implements BaseTaskError {
     constructor(

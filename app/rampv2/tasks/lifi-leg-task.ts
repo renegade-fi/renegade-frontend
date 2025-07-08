@@ -12,14 +12,14 @@ import { ensureCorrectChain } from "./helpers/evm-utils";
 import { sendSolanaTransaction } from "./helpers/solana";
 import { waitForLiFiStatus } from "./helpers/waiters";
 
-export interface LiFiLegDescriptor {
+interface LiFiLegDescriptor {
     readonly id: string;
     readonly type: TaskType;
     readonly leg: Route["steps"][number];
     readonly isFinalLeg: boolean;
 }
 
-export type LiFiLegState = "Pending" | "AwaitingWallet" | "Submitted" | "Confirming" | "Completed";
+type LiFiLegState = "Pending" | "AwaitingWallet" | "Submitted" | "Confirming" | "Completed";
 
 class LiFiLegError extends Error implements BaseTaskError {
     constructor(

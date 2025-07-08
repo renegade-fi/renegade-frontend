@@ -1,21 +1,8 @@
 import { type Task, type TaskState, TaskType, UpdateType } from "@renegade-fi/react";
-import type { Token } from "@renegade-fi/token-nextjs";
 
 import { formatNumber } from "@/lib/format";
 
 import { resolveAddress } from "../token";
-
-export const FAILED_DEPOSIT_MSG = (
-    mint: InstanceType<typeof Token>,
-    amount: bigint,
-    reason?: string,
-) =>
-    `Failed to deposit ${formatNumber(amount, mint.decimals)} ${mint.ticker}. ${
-        reason ?? "Please try again"
-    }`;
-
-export const FAILED_WITHDRAWAL_MSG = (mint: InstanceType<typeof Token>, amount: bigint) =>
-    `Failed to withdraw ${formatNumber(amount, mint.decimals)} ${mint.ticker}. Please try again.`;
 
 export const formatTaskState = (state: TaskState) => {
     return {

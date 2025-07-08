@@ -103,7 +103,7 @@ async function filterNeeded(tasks: Task[], ctx: TaskContext): Promise<Task[]> {
 }
 
 /** Result returned by the task planner. */
-export interface PlanResult {
+interface PlanResult {
     /** Ordered list of tasks that should be executed */
     tasks: Task[];
     /** Optional LI.FI route describing on-chain bridging / swapping that will occur */

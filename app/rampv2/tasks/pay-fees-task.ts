@@ -5,13 +5,13 @@ import type { TaskContext } from "../core/task-context";
 import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { waitForRenegadeTask } from "./helpers/waiters";
 
-export interface PayFeesDescriptor {
+interface PayFeesDescriptor {
     readonly id: string;
     readonly type: TaskType;
     readonly chainId: number;
 }
 
-export type PayFeesState = "Pending" | "Submitted" | "Completed";
+type PayFeesState = "Pending" | "Submitted" | "Completed";
 
 class PayFeesError extends Error implements BaseTaskError {
     constructor(

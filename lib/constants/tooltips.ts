@@ -21,8 +21,5 @@ export const ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP = (chain?: string) =>
     `Balances show the total of all supported tokens ${
         chain ? `on ${chain} and Ethereum` : "on-chain"
     }.`;
-export const TRANSFER_DIALOG_BRIDGE_TOOLTIP = (chain?: string) =>
-    `Renegade only supports deposits on the ${chain ? chain : "Arbitrum"} network.`;
-export const TRANSFER_DIALOG_L1_BALANCE_TOOLTIP = "Bridge to Arbitrum to deposit.";
 export const ORDER_FORM_DEPOSIT_WARNING = ({ ticker }: { ticker: string }) =>
     `Deposit ${ticker} or USDC to your wallet to place an order.`;
