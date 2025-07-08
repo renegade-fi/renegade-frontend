@@ -230,6 +230,9 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                 tasks={tasks}
                 status={status}
                 onQueueStart={onQueueStart}
+                connection={connection}
+                solanaAddress={solanaAddress}
+                route={route}
             />
         </>
     );
