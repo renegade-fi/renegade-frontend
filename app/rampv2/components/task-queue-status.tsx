@@ -80,7 +80,7 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
                     {tasks.map((t, idx) => (
                         <li key={t.id} className="space-y-1">
                             <div className="flex items-center gap-2">
-                                {t.label === "Pending" && <div className="h-4 w-4" />}
+                                {t.label === "Pending" && <div className="min-w-4" />}
                                 {t.label === "Completed" && (
                                     <Check className="h-4 w-4 text-green-500" />
                                 )}

@@ -15,10 +15,10 @@ export type Token = {
     // Operation capabilities
     canDeposit: boolean;
     canWithdraw: boolean;
-    canBridge: boolean;
-    canSwap: boolean;
-    // Specific tokens this can swap into
-    swapInto: string[];
+    /** Ticker this token can be swapped into on the same chain.  Undefined if no direct swap path. */
+    swapTo: string | undefined;
+    /** Map of destinationChainId -> ticker received after bridging */
+    bridgeTo: Record<number, string>;
 };
 
 // Load and transform all tokens
@@ -39,6 +39,7 @@ function loadAllTokens(): Token[] {
             allTokens.push({
                 ...token,
                 chainId,
+                swapTo: (token as any).swapTo ?? undefined,
             });
         }
     }
@@ -65,9 +66,8 @@ function convertTokenInstance(tokenInstance: InstanceType<typeof TokenClass>): T
         // Default: Renegade-compatible tokens can deposit/withdraw
         canDeposit: true,
         canWithdraw: true,
-        canBridge: false,
-        canSwap: false,
-        swapInto: [],
+        swapTo: undefined,
+        bridgeTo: {},
     };
 
     // Apply any override capabilities
@@ -95,7 +95,12 @@ export function getTokenByAddress(address: string, chainId: number): Token | nul
  * Find token by ticker and chain
  */
 export function getTokenByTicker(ticker: string, chainId: number): Token | null {
-    return ALL_TOKENS.find((token) => token.chainId === chainId && token.ticker === ticker) ?? null;
+    return (
+        ALL_TOKENS.find(
+            (token) =>
+                token.chainId === chainId && token.ticker.toLowerCase() === ticker.toLowerCase(),
+        ) ?? null
+    );
 }
 
 /**
@@ -104,11 +109,9 @@ export function getTokenByTicker(ticker: string, chainId: number): Token | null 
 export function getSwapInputsFor(mint: string, chainId: number): Token[] {
     const targetToken = getTokenByAddress(mint, chainId);
     if (!targetToken) return [];
-    return ALL_TOKENS.filter((token) => {
-        const includes = token.swapInto?.includes(targetToken.ticker);
-        const sameChain = token.chainId === chainId;
-        return includes && sameChain;
-    });
+    return ALL_TOKENS.filter(
+        (token) => token.chainId === chainId && token.swapTo === targetToken.ticker,
+    );
 }
 
 /** Returns all tokens */
@@ -118,7 +121,25 @@ export function getAllTokens(chainId: number): Token[] {
 
 /** Returns tokens that can be bridged from the given chain */
 export function getAllBridgeableTokens(chainId: number): Token[] {
-    return getAllTokens(chainId).filter((token) => token.canBridge);
+    return getAllTokens(chainId).filter((token) => Object.keys(token.bridgeTo).length > 0);
+}
+
+/**
+ * Given a source token and destination chain, return the token received after bridging.
+ * Returns null if the source token cannot bridge to the destination chain.
+ */
+export function getBridgeTargetToken(
+    mint: string,
+    sourceChain: number,
+    targetChain: number,
+): `0x${string}` | null {
+    const sourceToken = getTokenByAddress(mint, sourceChain);
+    if (!sourceToken) return null;
+    const targetTicker = sourceToken.bridgeTo[targetChain];
+    if (!targetTicker) return null;
+    const targetToken = getTokenByTicker(targetTicker, targetChain);
+    if (!targetToken) return null;
+    return targetToken.address;
 }
 
 /** Returns tokens that can be deposited into the given chain */
@@ -130,13 +151,9 @@ export function getDepositTokens(chainId: number): Token[] {
 export function getSwapPairs(chainId: number): Array<[Token, Token]> {
     const pairs: Array<[Token, Token]> = [];
     for (const token of getAllTokens(chainId)) {
-        if (token.canSwap) {
-            for (const swapTo of token.swapInto) {
-                const swapToToken = getTokenByTicker(swapTo, chainId);
-                if (swapToToken) {
-                    pairs.push([token, swapToToken]);
-                }
-            }
+        if (token.swapTo) {
+            const dest = getTokenByTicker(token.swapTo, chainId);
+            if (dest) pairs.push([token, dest]);
         }
     }
     return pairs;

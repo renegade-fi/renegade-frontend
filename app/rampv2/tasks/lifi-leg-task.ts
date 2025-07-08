@@ -1,7 +1,7 @@
+import { extractSupportedChain, getExplorerLink, solana } from "@/lib/viem";
 import type { ExtendedTransactionInfo, Route } from "@lifi/sdk";
 import { getStepTransaction } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
-import { extractSupportedChain, getExplorerLink, solana } from "@/lib/viem";
 import type { TaskError as BaseTaskError } from "../core/task";
 import { Task } from "../core/task";
 import type { TaskContext } from "../core/task-context";
@@ -9,8 +9,8 @@ import { TASK_TYPES, type TaskType } from "../core/task-types";
 import { isETH } from "../helpers";
 import { getTokenByAddress } from "../token-registry";
 import { ensureCorrectChain } from "./helpers/evm-utils";
-import { awaitSolanaConfirmation, sendSolanaTransaction } from "./helpers/solana";
-import { waitForLiFiStatus, waitForTxReceipt } from "./helpers/waiters";
+import { sendSolanaTransaction } from "./helpers/solana";
+import { waitForLiFiStatus } from "./helpers/waiters";
 
 export interface LiFiLegDescriptor {
     readonly id: string;
@@ -177,21 +177,21 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
                 this._state = "Submitted";
                 break;
             }
+            // case "Submitted": {
+            //     if (!this._txHash) throw new LiFiLegError("No tx hash", false);
+            //     if (this.chainId === solana.id && this.ctx.connection) {
+            //         await awaitSolanaConfirmation(this._txHash, this.ctx.connection);
+            //         this._state = "Completed";
+            //     } else {
+            //         await waitForTxReceipt(
+            //             this.ctx.getPublicClient(this.chainId),
+            //             this._txHash as `0x${string}`,
+            //         );
+            //         this._state = "Confirming";
+            //     }
+            //     break;
+            // }
             case "Submitted": {
-                if (!this._txHash) throw new LiFiLegError("No tx hash", false);
-                if (this.chainId === solana.id && this.ctx.connection) {
-                    await awaitSolanaConfirmation(this._txHash, this.ctx.connection);
-                    this._state = "Completed";
-                } else {
-                    await waitForTxReceipt(
-                        this.ctx.getPublicClient(this.chainId),
-                        this._txHash as `0x${string}`,
-                    );
-                    this._state = "Confirming";
-                }
-                break;
-            }
-            case "Confirming": {
                 if (!this._txHash) throw new LiFiLegError("No tx hash", false);
                 const status = await waitForLiFiStatus(this._txHash);
                 if (status.status !== "DONE")

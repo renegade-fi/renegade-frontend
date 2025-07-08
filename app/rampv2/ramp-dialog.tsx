@@ -62,15 +62,14 @@ export function RampDialog({
         q.run().catch(console.error);
     }
 
-    // Reset local state and optionally close dialog when queue finishes.
-    const handleQueueDone = React.useCallback(() => {
+    function handleOpenChange(open: boolean) {
         setQueue(null);
-        setOpen(false);
-    }, []);
+        setOpen(open);
+    }
 
     // --- Render --- //
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 hideCloseButton={isDesktop}
@@ -107,7 +106,7 @@ export function RampDialog({
                         setMode={setMode}
                         queue={queue}
                         onQueueStart={handleQueueStart}
-                        onQueueClose={handleQueueDone}
+                        onQueueClose={() => handleOpenChange(false)}
                     />
                 )}
             </DialogContent>

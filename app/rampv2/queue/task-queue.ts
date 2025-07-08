@@ -2,6 +2,7 @@ import type { Emitter } from "nanoevents";
 import { createNanoEvents } from "nanoevents";
 import type { Task } from "../core/task";
 import { TaskDriver, type TaskDriverEvents } from "../driver/task-driver";
+import { globalRampEmitter } from "../global-ramp-events";
 
 type TaskQueueEvents = TaskDriverEvents & {
     queueStart: () => void;
@@ -38,6 +39,7 @@ export class TaskQueue {
             this.events.emit("queueComplete");
         } catch (err) {
             this.events.emit("queueError", err);
+            globalRampEmitter.emit("queueError", err);
             throw err;
         }
     }

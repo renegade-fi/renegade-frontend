@@ -92,19 +92,26 @@ export class Intent {
     static newBridgeIntent(
         ctx: TaskContext,
         params: {
-            mint: string;
+            sourceMint: string;
             sourceChain: number;
-            currentChain: number;
+            targetMint: string;
+            targetChain: number;
             amount: string;
         },
     ): Intent | undefined {
-        const { mint, sourceChain, currentChain, amount } = params;
+        const { sourceMint, sourceChain, targetMint, targetChain, amount } = params;
 
-        const sourceToken = getTokenByAddress(mint, sourceChain);
+        const sourceToken = getTokenByAddress(sourceMint, sourceChain);
+        console.log("sourceToken", sourceToken);
         if (!sourceToken) return undefined;
 
-        const operatingToken = getTokenByTicker(sourceToken.ticker, currentChain);
-        if (!operatingToken) return undefined;
+        const targetToken = getTokenByAddress(targetMint, targetChain);
+        console.log("targetToken", {
+            targetMint,
+            targetChain,
+            targetToken,
+        });
+        if (!targetToken) return undefined;
 
         const amountAtomic = parseUnits(amount, sourceToken.decimals);
         if (amountAtomic === BigInt(0)) return undefined;
@@ -112,11 +119,11 @@ export class Intent {
         return new Intent({
             kind: "DEPOSIT",
             fromChain: sourceChain,
-            toChain: currentChain,
+            toChain: targetChain,
             fromAddress: ctx.getOnchainAddress(sourceChain),
-            toAddress: ctx.getOnchainAddress(currentChain),
+            toAddress: ctx.getOnchainAddress(targetChain),
             fromTokenAddress: sourceToken.address,
-            toTokenAddress: operatingToken.address,
+            toTokenAddress: targetToken.address,
             amountAtomic: amountAtomic,
         });
     }

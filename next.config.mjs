@@ -51,6 +51,12 @@ const nextConfig = {
                 port: "",
                 pathname: "/renegade-fi/token-mappings/refs/heads/main/token-logos/**",
             },
+            {
+                protocol: "https",
+                hostname: "static.debank.com",
+                port: "",
+                pathname: "/image/**",
+            },
         ],
     },
 };

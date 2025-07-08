@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { mainnet } from "viem/chains";
 
-import { getAllBridgeableTokens } from "@/app/rampv2/token-registry/registry";
+import { getAllBridgeableTokens, getBridgeTargetToken } from "@/app/rampv2/token-registry/registry";
 import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -106,12 +106,25 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             balances,
         );
 
-        const intent = Intent.newBridgeIntent(ctx, {
-            mint,
+        const sourceMint = mint;
+        const targetMint = getBridgeTargetToken(sourceMint, network, currentChain);
+        if (!targetMint) return { intent: undefined, taskCtx: undefined } as const;
+
+        console.log("intent debug", {
+            sourceMint,
+            targetMint,
             sourceChain: network,
-            currentChain,
+            targetChain: currentChain,
             amount,
         });
+        const intent = Intent.newBridgeIntent(ctx, {
+            sourceMint,
+            targetMint,
+            sourceChain: network,
+            targetChain: currentChain,
+            amount,
+        });
+        console.log("intent result", intent);
 
         return { intent, taskCtx: ctx } as const;
     }, [
@@ -136,6 +149,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             return planTasks(intent, taskCtx);
         },
         enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
+        staleTime: 0,
     });
 
     const tasks = plan?.tasks;

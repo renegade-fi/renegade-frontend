@@ -15,9 +15,8 @@ export const RAMP_TOKENS = {
             name: "Ethereum",
             canDeposit: false,
             canWithdraw: false,
-            canSwap: true,
-            swapInto: ["WETH"],
-            canBridge: false,
+            swapTo: "WETH",
+            bridgeTo: {},
         },
         "USDC.e": {
             address: getAddress("0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"),
@@ -26,9 +25,8 @@ export const RAMP_TOKENS = {
             name: "Bridged USDC",
             canDeposit: false,
             canWithdraw: false,
-            canSwap: true,
-            swapInto: ["USDC"],
-            canBridge: false,
+            swapTo: "USDC",
+            bridgeTo: {},
         },
     },
     [base.id]: {
@@ -39,9 +37,8 @@ export const RAMP_TOKENS = {
             name: "Ethereum",
             canDeposit: false,
             canWithdraw: false,
-            canSwap: true,
-            swapInto: ["WETH"],
-            canBridge: false,
+            swapTo: "WETH",
+            bridgeTo: {},
         },
     },
     [mainnet.id]: {
@@ -52,9 +49,37 @@ export const RAMP_TOKENS = {
             name: "USD Coin",
             canDeposit: false,
             canWithdraw: false,
-            canSwap: false,
-            swapInto: [],
-            canBridge: true,
+            swapTo: undefined,
+            bridgeTo: {
+                [arbitrum.id]: "USDC",
+                [base.id]: "USDC",
+            },
+        },
+        WBTC: {
+            address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+            decimals: 8,
+            ticker: "WBTC",
+            name: "Wrapped Bitcoin",
+            canDeposit: false,
+            canWithdraw: false,
+            swapTo: undefined,
+            bridgeTo: {
+                [arbitrum.id]: "WBTC",
+                [base.id]: "cbBTC",
+            },
+        },
+        WETH: {
+            address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            decimals: 18,
+            ticker: "WETH",
+            name: "Wrapped Ether",
+            canDeposit: false,
+            canWithdraw: false,
+            swapTo: undefined,
+            bridgeTo: {
+                [arbitrum.id]: "WETH",
+                [base.id]: "WETH",
+            },
         },
     },
     [solana.id]: {
@@ -65,9 +90,11 @@ export const RAMP_TOKENS = {
             name: "USD Coin",
             canDeposit: false,
             canWithdraw: false,
-            canSwap: false,
-            swapInto: [],
-            canBridge: true,
+            swapTo: undefined,
+            bridgeTo: {
+                [arbitrum.id]: "USDC",
+                [base.id]: "USDC",
+            },
         },
     },
 } as const satisfies Record<number, Record<string, ExtraToken>>;
@@ -82,11 +109,10 @@ type ExtraToken = Omit<Token, "chainId" | "address"> & { address: string };
 export const RENEGADE_OVERRIDES: Record<number, Record<string, Partial<Token>>> = {
     [arbitrum.id]: {
         USDT: {
-            canDeposit: false,
+            canDeposit: true,
             canWithdraw: false,
-            canSwap: true,
-            swapInto: ["USDC"],
-            canBridge: false,
+            swapTo: "USDC",
+            bridgeTo: {},
         },
     },
 };
