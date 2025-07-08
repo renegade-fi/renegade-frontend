@@ -10,7 +10,7 @@ import {
     CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { getFormattedChainName } from "@/lib/viem";
 
@@ -32,7 +32,7 @@ export function NetworkSelect({
     disabledNetworks = [],
 }: NetworkSelectProps) {
     const [open, setOpen] = React.useState(false);
-    const isDesktop = useMediaQuery("(min-width: 1024px)");
+    const isDesktop = !useIsMobile();
 
     const networkLabels = useMemo(() => {
         const allNetworks = [...networks, ...disabledNetworks];

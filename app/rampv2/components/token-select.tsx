@@ -12,7 +12,7 @@ import {
     CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -145,7 +145,7 @@ export function TokenSelect({
         [totalDepositBalances],
     );
 
-    const isDesktop = useMediaQuery("(min-width: 1024px)");
+    const isDesktop = !useIsMobile();
 
     return (
         <Popover modal open={open} onOpenChange={setOpen}>

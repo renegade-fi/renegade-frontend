@@ -58,6 +58,14 @@ export class Intent {
         return this.fromChain !== this.toChain;
     }
 
+    /**
+     * Returns true if the provided balance (in atomic units) is enough to
+     * satisfy this intent.
+     */
+    isBalanceSufficient(available: bigint): boolean {
+        return available >= this.amountAtomic;
+    }
+
     toJson() {
         return {
             kind: this.kind,

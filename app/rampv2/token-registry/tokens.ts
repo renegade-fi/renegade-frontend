@@ -68,19 +68,20 @@ export const RAMP_TOKENS = {
                 [base.id]: "cbBTC",
             },
         },
-        WETH: {
-            address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-            decimals: 18,
-            ticker: "WETH",
-            name: "Wrapped Ether",
-            canDeposit: false,
-            canWithdraw: false,
-            swapTo: undefined,
-            bridgeTo: {
-                [arbitrum.id]: "WETH",
-                [base.id]: "WETH",
-            },
-        },
+        // TODO: Enable once Across bridging only native ETH is solved
+        // WETH: {
+        //     address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        //     decimals: 18,
+        //     ticker: "WETH",
+        //     name: "Wrapped Ether",
+        //     canDeposit: false,
+        //     canWithdraw: false,
+        //     swapTo: undefined,
+        //     bridgeTo: {
+        //         [arbitrum.id]: "WETH",
+        //         [base.id]: "WETH",
+        //     },
+        // },
     },
     [solana.id]: {
         USDC: {

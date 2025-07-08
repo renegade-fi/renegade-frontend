@@ -14,13 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
 import { cn } from "@/lib/utils";
+import { getFormattedChainName } from "@/lib/viem";
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { buildBalancesCache, isETH, isWrap } from "../helpers";
+import { balanceKey, buildBalancesCache, isETH, isWrap } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
@@ -190,6 +191,14 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
+    // --- Balance sufficiency check --- //
+    const hasEnoughBalance = useMemo(() => {
+        if (!intent) return true;
+        const key = balanceKey(intent.fromChain, intent.fromTokenAddress);
+        const available = balances[key] ?? BigInt(0);
+        return intent.isBalanceSufficient(available);
+    }, [intent, balances]);
+
     // Helper to determine the submit button label based on the planned route.
     function getSubmitLabel(routeParam: typeof route): string {
         if (!routeParam) return "Deposit";
@@ -199,12 +208,18 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const submitLabel = getSubmitLabel(route);
     let isDisabled = true;
     if (intent) {
-        if (intent.needsRouting()) {
+        if (!hasEnoughBalance) {
+            isDisabled = true;
+        } else if (intent.needsRouting()) {
             isDisabled = status !== "success";
         } else {
             isDisabled = false;
         }
     }
+
+    const displayLabel = hasEnoughBalance
+        ? submitLabel
+        : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -319,7 +334,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                         onClick={handleSubmit}
                         disabled={isDisabled}
                     >
-                        {submitLabel}
+                        {displayLabel}
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>

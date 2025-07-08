@@ -16,6 +16,7 @@ import { TaskContext } from "../core/task-context";
 import { buildBalancesCache } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import { renegadeBalanceQuery } from "../queries/renegade-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
@@ -70,6 +71,12 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         [currentChain, mint, availableWithdrawBalance?.raw],
     );
 
+    // --- Renegade Balance --- //
+    const { data: renegadeBalance } = useQuery({
+        ...renegadeBalanceQuery({ mint, renegadeConfig }),
+        enabled: !!mint && !!renegadeConfig,
+    });
+
     // --- Unwrap Check --- //
     const canUnwrap = useMemo(() => canUnwrapToEth(mint, currentChain), [mint, currentChain]);
 
@@ -122,7 +129,6 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     });
 
     const tasks = plan?.tasks;
-    const route = plan?.route;
 
     // --- Dynamic button label --- //
     const submitLabel = useMemo(
@@ -130,14 +136,24 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         [unwrapToEth, canUnwrap],
     );
 
+    const hasEnoughBalance = useMemo(() => {
+        if (!intent) return true;
+        const available = renegadeBalance?.raw ?? BigInt(0);
+        return intent.isBalanceSufficient(available);
+    }, [intent, renegadeBalance?.raw]);
+
     let isDisabled = true;
     if (intent) {
-        if (intent.needsRouting()) {
+        if (!hasEnoughBalance) {
+            isDisabled = true;
+        } else if (intent.needsRouting()) {
             isDisabled = status !== "success";
         } else {
             isDisabled = false;
         }
     }
+
+    const displayLabel = hasEnoughBalance ? submitLabel : "Insufficient Renegade balance";
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -237,7 +253,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                         onClick={handleSubmit}
                         disabled={isDisabled}
                     >
-                        {submitLabel}
+                        {displayLabel}
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>

@@ -9,7 +9,7 @@ import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { solana } from "@/lib/viem";
+import { getFormattedChainName, solana } from "@/lib/viem";
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { NetworkSelect } from "../components/network-select";
@@ -17,7 +17,7 @@ import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { buildBalancesCache } from "../helpers";
+import { balanceKey, buildBalancesCache } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
@@ -160,6 +160,18 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
+    // --- Balance sufficiency check --- //
+    const hasEnoughBalance = useMemo(() => {
+        if (!intent) return true;
+        const key = balanceKey(intent.fromChain, intent.fromTokenAddress);
+        const available = balances[key] ?? BigInt(0);
+        return intent.isBalanceSufficient(available);
+    }, [intent, balances]);
+
+    const displayLabel = hasEnoughBalance
+        ? "Bridge & Deposit"
+        : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
+
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
         const queue = new TaskQueue(tasks);
@@ -256,9 +268,9 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                         type="submit"
                         variant="outline"
                         onClick={handleSubmit}
-                        disabled={status !== "success"}
+                        disabled={!hasEnoughBalance || status !== "success"}
                     >
-                        Bridge & Deposit
+                        {displayLabel}
                     </Button>
                 </MaintenanceButtonWrapper>
             </div>
