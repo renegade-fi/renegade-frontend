@@ -25,6 +25,7 @@ import { balanceKey, buildBalancesCache, isETH, isWrap } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import { maxBalancesQuery } from "../queries/renegade-balance";
 import { TaskQueue } from "../queue/task-queue";
 import { getDepositTokens } from "../token-registry/registry";
 import type { RampEnv } from "../types";
@@ -199,6 +200,12 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
         return intent.isBalanceSufficient(available);
     }, [intent, balances]);
 
+    // --- Max balances check --- //
+    const { data: maxBalancesReached } = useQuery({
+        ...maxBalancesQuery({ mint, renegadeConfig }),
+        enabled: !!mint,
+    });
+
     // Helper to determine the submit button label based on the planned route.
     function getSubmitLabel(routeParam: typeof route): string {
         if (!routeParam) return "Deposit";
@@ -208,7 +215,9 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const submitLabel = getSubmitLabel(route);
     let isDisabled = true;
     if (intent) {
-        if (!hasEnoughBalance) {
+        if (maxBalancesReached) {
+            isDisabled = true;
+        } else if (!hasEnoughBalance) {
             isDisabled = true;
         } else if (intent.needsRouting()) {
             isDisabled = status !== "success";
@@ -217,9 +226,11 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
         }
     }
 
-    const displayLabel = hasEnoughBalance
-        ? submitLabel
-        : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
+    const displayLabel = maxBalancesReached
+        ? "Max balances reached"
+        : hasEnoughBalance
+          ? submitLabel
+          : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;

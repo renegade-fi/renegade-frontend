@@ -43,7 +43,13 @@ export function approveBufferQueryOptions(params: QueryParams) {
             ]);
 
             const bufferWei = approveGas * gasPrice * BigInt(params.approvals);
-            return formatEther(bufferWei);
+            const etherValue = formatEther(bufferWei);
+            const num = parseFloat(etherValue);
+            const formatter = new Intl.NumberFormat("en-US", {
+                maximumSignificantDigits: 2,
+                minimumSignificantDigits: 2,
+            });
+            return formatter.format(num);
         },
         retry: true,
     });

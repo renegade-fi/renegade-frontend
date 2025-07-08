@@ -20,6 +20,7 @@ import { TaskContext } from "../core/task-context";
 import { balanceKey, buildBalancesCache } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import { maxBalancesQuery } from "../queries/renegade-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
@@ -85,6 +86,13 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             connection,
         }),
         enabled: !!mint && !!chainDependentAddress,
+    });
+
+    // Check if max balances are reached for the target token
+    const targetMint = mint ? getBridgeTargetToken(mint, network, currentChain) : undefined;
+    const { data: maxBalancesReached } = useQuery({
+        ...maxBalancesQuery({ mint: targetMint ?? "", renegadeConfig }),
+        enabled: !!targetMint,
     });
 
     const balances = useMemo(
@@ -168,9 +176,11 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         return intent.isBalanceSufficient(available);
     }, [intent, balances]);
 
-    const displayLabel = hasEnoughBalance
-        ? "Bridge & Deposit"
-        : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
+    const displayLabel = maxBalancesReached
+        ? "Max balances reached"
+        : hasEnoughBalance
+          ? "Bridge & Deposit"
+          : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -268,7 +278,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                         type="submit"
                         variant="outline"
                         onClick={handleSubmit}
-                        disabled={!hasEnoughBalance || status !== "success"}
+                        disabled={maxBalancesReached || !hasEnoughBalance || status !== "success"}
                     >
                         {displayLabel}
                     </Button>
