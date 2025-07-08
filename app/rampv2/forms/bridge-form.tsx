@@ -195,6 +195,8 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                             className="pr-12 rounded-none font-mono"
                         />
                         <MaxButton
+                            direction={direction}
+                            renegadeConfig={renegadeConfig}
                             chainId={network}
                             mint={mint}
                             owner={chainDependentAddress!}

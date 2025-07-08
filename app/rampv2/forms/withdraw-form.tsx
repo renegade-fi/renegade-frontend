@@ -1,17 +1,15 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { canUnwrapToEth, getAllTokens } from "@/app/rampv2/token-registry";
 import { NumberInput } from "@/components/number-input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
 import { Switch } from "@/components/ui/switch";
 import { BalanceRow } from "../components/balance-row";
 import { MaxButton } from "../components/max-button";
 import { TokenSelect } from "../components/token-select";
+import { WithdrawSubmitButton } from "../components/withdraw-submit-button";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
 import { buildBalancesCache } from "../helpers";
@@ -19,7 +17,6 @@ import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
 import { renegadeBalanceQuery } from "../queries/renegade-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
-import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
 import { ExternalTransferDirection } from "../types";
 
@@ -129,50 +126,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         staleTime: 0,
     });
 
-    const isPlanningLoading = status === "pending" && intent?.needsRouting();
-
     const tasks = plan?.tasks;
-
-    // --- Dynamic button label --- //
-    const submitLabel = useMemo(
-        () => (unwrapToEth && canUnwrap ? "Withdraw & Unwrap" : "Withdraw"),
-        [unwrapToEth, canUnwrap],
-    );
-
-    const hasEnoughBalance = useMemo(() => {
-        if (!intent) return true;
-        const available = renegadeBalance?.raw ?? BigInt(0);
-        return intent.isBalanceSufficient(available);
-    }, [intent, renegadeBalance?.raw]);
-
-    let isDisabled = true;
-    if (isPlanningLoading) {
-        isDisabled = true;
-    } else if (intent) {
-        if (!hasEnoughBalance) {
-            isDisabled = true;
-        } else if (intent.needsRouting()) {
-            isDisabled = status !== "success";
-        } else {
-            isDisabled = false;
-        }
-    }
-
-    const displayLabel = isPlanningLoading
-        ? "Retrieving unwrap info"
-        : hasEnoughBalance
-          ? submitLabel
-          : "Insufficient Renegade balance";
-
-    function handleSubmit() {
-        if (!tasks || tasks.length === 0) return;
-        const queue = new TaskQueue(tasks);
-        if (onQueueStart) {
-            onQueueStart(queue);
-        } else {
-            queue.run().catch(console.error);
-        }
-    }
 
     return (
         <>
@@ -204,6 +158,8 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                             className="pr-12 rounded-none font-mono"
                         />
                         <MaxButton
+                            direction={direction}
+                            renegadeConfig={renegadeConfig}
                             chainId={currentChain}
                             mint={mint}
                             owner={address}
@@ -252,21 +208,15 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
             </div>
 
             {/* Submit */}
-            <div className="w-full flex">
-                <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
-                    <Button
-                        className="w-full flex-1 border-0 border-t font-extended text-2xl"
-                        size="xl"
-                        type="submit"
-                        variant="outline"
-                        onClick={handleSubmit}
-                        disabled={isDisabled}
-                    >
-                        {isPlanningLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
-                        {displayLabel}
-                    </Button>
-                </MaintenanceButtonWrapper>
-            </div>
+            <WithdrawSubmitButton
+                unwrapToEth={unwrapToEth}
+                canUnwrap={canUnwrap}
+                intent={intent}
+                tasks={tasks}
+                status={status}
+                renegadeBalanceRaw={renegadeBalance?.raw}
+                onQueueStart={onQueueStart}
+            />
         </>
     );
 }

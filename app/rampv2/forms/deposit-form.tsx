@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { arbitrum } from "viem/chains";
-import { formatUnits } from "viem/utils";
 import {
     getSwapInputsFor,
     getTokenByAddress,
@@ -11,26 +10,20 @@ import {
     type Token,
 } from "@/app/rampv2/token-registry";
 import { NumberInput } from "@/components/number-input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { useUSDPrice } from "@/hooks/use-usd-price";
-import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol";
-import { safeParseUnits } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { getFormattedChainName } from "@/lib/viem";
 import { BalanceRow } from "../components/balance-row";
+import { DepositSubmitButton } from "../components/deposit-submit-button";
 import { MaxButton } from "../components/max-button";
 import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { balanceKey, buildBalancesCache, isETH, isWrap } from "../helpers";
+import { buildBalancesCache, isETH } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
-import { maxBalancesQuery } from "../queries/renegade-balance";
-import { TaskQueue } from "../queue/task-queue";
+import type { TaskQueue } from "../queue/task-queue";
 import { getDepositTokens } from "../token-registry/registry";
 import type { RampEnv } from "../types";
 import { ExternalTransferDirection } from "../types";
@@ -109,28 +102,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
         swapRaw: availableSwapBalance?.raw,
     });
 
-    // --- USD Price & Minimum Deposit Validation --- //
-    const amountBigInt = useMemo(() => {
-        if (!amount || !mint) return BigInt(0);
-        const token = getTokenByAddress(mint, currentChain);
-        if (!token) return BigInt(0);
-        const parsed = safeParseUnits(amount, token.decimals);
-        return parsed instanceof Error ? BigInt(0) : parsed;
-    }, [amount, mint, currentChain]);
-
-    // TODO: Handle undefined mint
-    const usdPrice = useUSDPrice(mint as `0x${string}`, amountBigInt);
-
-    const usdValue = useMemo(() => {
-        if (!mint || !usdPrice) return 0;
-        const token = getTokenByAddress(mint, currentChain);
-        if (!token) return 0;
-        return Number(formatUnits(usdPrice, token.decimals));
-    }, [mint, usdPrice, currentChain]);
-
-    const isBelowMinimum = useMemo(() => {
-        return amount && mint && usdValue < MIN_DEPOSIT_AMOUNT;
-    }, [amount, mint, usdValue]);
+    // USD minimum validation now handled within DepositSubmitButton
 
     // --- Intent & Task Planning --- //
     const { intent, taskCtx } = useMemo(() => {
@@ -219,60 +191,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const tasks = plan?.tasks;
     const route = plan?.route;
 
-    // --- Balance sufficiency check --- //
-    const hasEnoughBalance = useMemo(() => {
-        if (!intent) return true;
-        const key = balanceKey(intent.fromChain, intent.fromTokenAddress);
-        const available = balances[key] ?? BigInt(0);
-        return intent.isBalanceSufficient(available);
-    }, [intent, balances]);
-
-    // --- Max balances check --- //
-    const { data: maxBalancesReached } = useQuery({
-        ...maxBalancesQuery({ mint, renegadeConfig }),
-        enabled: !!mint,
-    });
-
-    // Helper to determine the submit button label based on the planned route.
-    function getSubmitLabel(routeParam: typeof route): string {
-        if (!routeParam) return "Deposit";
-        return isWrap(routeParam) ? "Wrap & Deposit" : "Swap & Deposit";
-    }
-
-    const submitLabel = getSubmitLabel(route);
-    let isDisabled = true;
-    if (intent) {
-        if (maxBalancesReached) {
-            isDisabled = true;
-        } else if (isBelowMinimum) {
-            isDisabled = true;
-        } else if (!hasEnoughBalance) {
-            isDisabled = true;
-        } else if (intent.needsRouting()) {
-            isDisabled = status !== "success";
-        } else {
-            isDisabled = false;
-        }
-    }
-
-    const displayLabel = maxBalancesReached
-        ? "Max balances reached"
-        : !hasEnoughBalance
-          ? `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`
-          : isBelowMinimum
-            ? "Minimum deposit is $1"
-            : submitLabel;
-
-    function handleSubmit() {
-        if (!tasks || tasks.length === 0) return;
-        const queue = new TaskQueue(tasks);
-        if (onQueueStart) {
-            onQueueStart(queue);
-        } else {
-            // Fallback: run internally if no handler provided
-            queue.run().catch(console.error);
-        }
-    }
+    // removed redundant balance and label checks; handled by DepositSubmitButton
 
     function handleSetCombinedAmount(tokenAmount: string) {
         const amt = Number(tokenAmount);
@@ -311,6 +230,8 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                             className="pr-12 rounded-none font-mono"
                         />
                         <MaxButton
+                            direction={direction}
+                            renegadeConfig={renegadeConfig}
                             chainId={currentChain}
                             mint={mint}
                             owner={address}
@@ -363,20 +284,18 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
             </div>
 
             {/* Submit */}
-            <div className="w-full flex">
-                <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
-                    <Button
-                        className="w-full flex-1 border-0 border-t font-extended text-2xl"
-                        size="xl"
-                        type="submit"
-                        variant="outline"
-                        onClick={handleSubmit}
-                        disabled={isDisabled}
-                    >
-                        {displayLabel}
-                    </Button>
-                </MaintenanceButtonWrapper>
-            </div>
+            <DepositSubmitButton
+                mint={mint}
+                renegadeConfig={renegadeConfig}
+                intent={intent}
+                balances={balances}
+                tasks={tasks}
+                route={route}
+                status={status}
+                amount={amount}
+                chainId={currentChain}
+                onQueueStart={onQueueStart}
+            />
         </>
     );
 }
