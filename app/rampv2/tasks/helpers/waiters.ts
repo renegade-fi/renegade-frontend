@@ -46,38 +46,30 @@ export async function waitForRenegadeTask(cfg: RenegadeConfig, taskId: string): 
 
 type LifiStatus = Awaited<ReturnType<typeof getStatus>>;
 
-/** Poll LiFi backend until it returns a terminal status. */
+/** Poll LiFi backend until it returns a terminal status, suppressing all
+ * errors during polling. After exhausting attempts, the latest error (if any)
+ * is thrown; otherwise a timeout error is thrown.
+ */
 export async function waitForLiFiStatus(params: GetStatusRequest): Promise<LifiStatus> {
-    // Detect whether an error from the LiFi SDK indicates the transaction hash
-    // has simply not propagated yet (HTTP 404 / NotFound) versus a fatal issue.
-    const isNotFoundError = (e: unknown): boolean =>
-        e instanceof Error &&
-        (e.message?.includes("404") ||
-            e.message?.toLowerCase().includes("notfound") ||
-            e.message?.toLowerCase().includes("not found"));
-
+    const maxAttempts = 60; // 1 min @ 1s
     let attempts = 0;
-    const maxAttempts = 300; // 5 min @ 1s
-    let statusRes: LifiStatus | undefined;
+    let lastError: unknown;
 
-    statusRes = await pollUntil(async () => {
+    while (attempts < maxAttempts) {
         try {
-            statusRes = await getStatus(params);
-
+            const statusRes = await getStatus(params);
             if (["DONE", "FAILED", "INVALID"].includes(statusRes.status)) {
                 return statusRes;
             }
         } catch (err) {
-            if (!isNotFoundError(err)) {
-                // Bubble up non-transient errors immediately.
-                throw err;
-            }
-            // Otherwise, treat as "status not yet available" and continue polling.
+            // Store the latest encountered error but do not break the loop.
+            lastError = err;
         }
 
         attempts++;
-        return undefined;
-    }, maxAttempts);
+        await sleep(POLL_INTERVAL);
+    }
 
-    return statusRes;
+    if (lastError) throw lastError;
+    throw new Error("Failed to get status of transaction");
 }

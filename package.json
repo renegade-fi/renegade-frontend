@@ -44,7 +44,7 @@
         "@renegade-fi/internal-sdk": "0.7.5",
         "@renegade-fi/price-reporter": "0.0.26",
         "@renegade-fi/react": "0.6.21",
-        "@renegade-fi/token-nextjs": "^0.1.11",
+        "@renegade-fi/token-nextjs": "^0.1.12",
         "@renegade-fi/tradingview-charts": "0.27.6",
         "@solana/wallet-adapter-base": "^0.9.23",
         "@solana/wallet-adapter-react": "^0.15.35",

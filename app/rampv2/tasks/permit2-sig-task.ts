@@ -126,7 +126,6 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
                     this._state = "Completed";
                 } catch (e) {
                     const err = e as SignTypedDataErrorType;
-                    console.log("🚀 ~ Permit2SigTask ~ step ~ err:", err);
                     switch (err.name) {
                         case "UserRejectedRequestError":
                             throw new PermitSigError("Signature rejected by wallet", false);

@@ -85,7 +85,6 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
         // --- queue lifecycle listeners ---
         const offQueueComplete = queue.events.on("queueComplete", () => setQueuePhase("complete"));
         const offQueueError = queue.events.on("queueError", (err: unknown) => {
-            console.log("🚀 ~ offQueueError ~ err:", err);
             // const message = err instanceof Error ? err.message : String(err);
             const message = (err as any).shortMessage ?? (err as any).message ?? String(err);
             setQueuePhase("error");

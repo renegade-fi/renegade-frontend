@@ -37,7 +37,6 @@ interface Props {
 }
 
 export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
-    console.log("🚀 ~ DepositForm ~ initialMint:", initialMint);
     const {
         renegadeConfig,
         wagmiConfig,
@@ -52,12 +51,10 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     // --- Local State --- //
     // Token to deposit
     const [mint, setMint] = useState(initialMint ?? "");
-    console.log("🚀 ~ DepositForm ~ mint:", mint);
     const [amount, setAmount] = useState("");
 
     // --- Token List --- //
     const availableTokens = getDepositTokens(currentChain);
-    console.log("🚀 ~ DepositForm ~ availableTokens:", availableTokens);
 
     const swapToken: Token | undefined = useMemo(() => {
         const token = getTokenByAddress(mint, currentChain);
