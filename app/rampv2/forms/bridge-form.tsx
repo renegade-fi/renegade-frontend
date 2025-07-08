@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { mainnet } from "viem/chains";
 
 import { getAllBridgeableTokens, getBridgeTargetToken } from "@/app/rampv2/token-registry/registry";
@@ -47,6 +47,11 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
     const [network, setNetwork] = useState<number>(mainnet.id);
     const [mint, setMint] = useState("");
     const [amount, setAmount] = useState("");
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <reset mint on network change>
+    useEffect(() => {
+        setMint("");
+    }, [network]);
 
     // Token list based on selected bridge network
     const availableTokens = useMemo(() => getAllBridgeableTokens(network), [network]);
