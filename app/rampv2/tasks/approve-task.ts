@@ -112,9 +112,14 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
             }
             case "AwaitingWallet": {
                 if (!this._request) throw new ApproveError("Missing request", false);
-                const txHash = await writeContract(this.ctx.wagmiConfig, this._request);
-                this._txHash = txHash;
-                this._state = "Submitted";
+                try {
+                    const txHash = await writeContract(this.ctx.wagmiConfig, this._request);
+                    this._txHash = txHash;
+                    this._state = "Submitted";
+                } catch (e) {
+                    console.error("Error in ApproveTask", e);
+                    throw new ApproveError("Failed to send transaction", false);
+                }
                 break;
             }
             case "Submitted": {

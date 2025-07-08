@@ -36,15 +36,12 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
     const router = useRouter();
 
     // Cache the base and quote mint in the server store
-    const cachedBaseMint = useServerStore((s) => s.baseMint);
     const setBase = useServerStore((s) => s.setBase);
     const setQuote = useServerStore((s) => s.setQuote);
     React.useEffect(() => {
-        if (cachedBaseMint !== baseMint) {
-            setBase(baseMint);
-            setQuote(quoteMint);
-        }
-    }, [baseMint, cachedBaseMint, quoteMint, setBase, setQuote]);
+        setBase(baseMint);
+        setQuote(quoteMint);
+    }, [baseMint, quoteMint, setBase, setQuote]);
 
     // If a chain is provided, cache it and switch to it
     // Removes the chain parameter from the URL after switching

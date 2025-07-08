@@ -87,7 +87,12 @@ export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, Withdr
             }
             case "Submitted": {
                 if (!this._taskId) throw new WithdrawError("No taskId", false);
-                await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                try {
+                    await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                } catch (e) {
+                    console.error("Error in WithdrawTask", e);
+                    throw new WithdrawError("Failed to withdraw", false);
+                }
                 this._state = "Completed";
                 break;
             }

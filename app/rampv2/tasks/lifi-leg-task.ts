@@ -160,21 +160,30 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
             case "AwaitingWallet": {
                 if (!this._txRequest) throw new LiFiLegError("Missing tx request", false);
 
-                if (this.chainId === solana.id && this.ctx.connection && this.ctx.signTransaction) {
-                    const signature = await sendSolanaTransaction(
-                        this._txRequest,
-                        this.ctx.connection,
-                        this.ctx.signTransaction,
-                    );
-                    this._txHash = signature;
-                } else {
-                    const txHash = await sendTransaction(this.ctx.wagmiConfig, {
-                        ...this._txRequest,
-                        type: "legacy",
-                    } as any);
-                    this._txHash = txHash as string;
+                try {
+                    if (
+                        this.chainId === solana.id &&
+                        this.ctx.connection &&
+                        this.ctx.signTransaction
+                    ) {
+                        const signature = await sendSolanaTransaction(
+                            this._txRequest,
+                            this.ctx.connection,
+                            this.ctx.signTransaction,
+                        );
+                        this._txHash = signature;
+                    } else {
+                        const txHash = await sendTransaction(this.ctx.wagmiConfig, {
+                            ...this._txRequest,
+                            type: "legacy",
+                        } as any);
+                        this._txHash = txHash as string;
+                    }
+                    this._state = "Submitted";
+                } catch (e) {
+                    console.error("Error in LiFiLegTask", e);
+                    throw new LiFiLegError("Failed to send transaction", false);
                 }
-                this._state = "Submitted";
                 break;
             }
             case "Submitted": {

@@ -8,14 +8,14 @@ import { formatNumber } from "@/lib/format";
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
-export interface SolanaQueryBase {
+interface SolanaQueryBase {
     connection: Connection;
     payer: string; // base58 address
 }
 
-export interface SolanaBalanceQueryParams extends SolanaQueryBase {}
+interface SolanaBalanceQueryParams extends SolanaQueryBase {}
 
-export interface SolanaFeeQueryParams extends SolanaQueryBase {
+interface SolanaFeeQueryParams extends SolanaQueryBase {
     transactionRequest?: TransactionRequest;
 }
 

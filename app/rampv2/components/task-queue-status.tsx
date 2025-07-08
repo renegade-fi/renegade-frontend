@@ -1,62 +1,96 @@
 "use client";
 
-import { Check, ExternalLink, Loader2, X } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getTaskStateLabel } from "../helpers";
 import type { TaskQueue } from "../queue/task-queue";
+import { type CanonicalTaskState, STATUS_META, toCanonicalState } from "./task-status-meta";
 
 interface TaskQueueStatusProps {
     queue: TaskQueue;
     onClose?: () => void;
 }
 
-interface TaskInfo {
-    id: string;
-    name: string;
+// Snapshot of task progress information stored in a Map for O(1) updates.
+interface TaskSnapshot {
+    state: string; // raw state/label string from getTaskStateLabel
     label: string;
     url?: string;
 }
 
-export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
-    const [tasks, setTasks] = React.useState<TaskInfo[]>(() =>
-        queue.tasks.map((t, idx) => ({
-            id: (t as any).descriptor?.id ?? `task-${idx}`,
-            name: t.name(),
-            label: getTaskStateLabel(t),
-            url: t.explorerLink?.(),
-        })),
-    );
+// Display-ready structure used by the UI after derivation.
+interface DisplayTask {
+    id: string;
+    name: string;
+    label: string;
+    url?: string;
+    isActive: boolean;
+    canonical: ReturnType<typeof toCanonicalState>;
+}
 
-    const [done, setDone] = React.useState(false);
+export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
+    // Map<taskId, TaskSnapshot>
+    const [taskMap, setTaskMap] = React.useState<Map<string, TaskSnapshot>>(() => {
+        const m = new Map<string, TaskSnapshot>();
+        queue.tasks.forEach((t, idx) => {
+            const id = (t as any).descriptor?.id ?? `task-${idx}`;
+            const label = getTaskStateLabel(t);
+            m.set(id, { state: label, label, url: t.explorerLink?.() });
+        });
+        return m;
+    });
+
+    // Queue-phase finite state: idle ➜ running ➜ (complete | error)
+    const [queuePhase, setQueuePhase] = React.useState<"idle" | "running" | "complete" | "error">(
+        "running",
+    );
+    const [queueErrorMsg, setQueueErrorMsg] = React.useState<string | null>(null);
 
     React.useEffect(() => {
-        const update = (task: any) => {
-            setTasks((prev) => {
-                const id = task?.descriptor?.id;
-                return prev.map((ti) =>
-                    ti.id === id
-                        ? { ...ti, label: getTaskStateLabel(task), url: task.explorerLink?.() }
-                        : ti,
-                );
+        // --- task lifecycle listeners ---
+        const onTaskUpdate = (task: any) => {
+            const id = task?.descriptor?.id;
+            if (!id) return;
+            setTaskMap((prev) => {
+                const next = new Map(prev);
+                next.set(id, {
+                    state: getTaskStateLabel(task),
+                    label: getTaskStateLabel(task),
+                    url: task.explorerLink?.(),
+                });
+                return next;
             });
         };
 
-        const offUpdate = queue.events.on("taskUpdate", update);
-        const offComplete = queue.events.on("taskComplete", update);
-
-        const offTaskError = queue.events.on("taskError", (task: any) => {
-            setTasks((prev) => {
-                const id = task?.descriptor?.id;
-                return prev.map((ti) =>
-                    ti.id === id ? { ...ti, label: "Error", url: task.explorerLink?.() } : ti,
-                );
+        const onTaskError = (task: any) => {
+            const id = task?.descriptor?.id;
+            if (!id) return;
+            setTaskMap((prev) => {
+                const next = new Map(prev);
+                next.set(id, {
+                    state: "Error",
+                    label: "Error",
+                    url: task.explorerLink?.(),
+                });
+                return next;
             });
-        });
+        };
 
-        const offQueueComplete = queue.events.on("queueComplete", () => setDone(true));
-        const offQueueError = queue.events.on("queueError", () => setDone(true));
+        const offUpdate = queue.events.on("taskUpdate", onTaskUpdate);
+        const offComplete = queue.events.on("taskComplete", onTaskUpdate);
+        const offTaskError = queue.events.on("taskError", onTaskError as any);
+
+        // --- queue lifecycle listeners ---
+        const offQueueComplete = queue.events.on("queueComplete", () => setQueuePhase("complete"));
+        const offQueueError = queue.events.on("queueError", (err: unknown) => {
+            console.log("🚀 ~ offQueueError ~ err:", err);
+            // const message = err instanceof Error ? err.message : String(err);
+            const message = (err as any).shortMessage ?? (err as any).message ?? String(err);
+            setQueuePhase("error");
+            setQueueErrorMsg(message);
+        });
 
         return () => {
             offUpdate();
@@ -67,71 +101,51 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
         };
     }, [queue]);
 
-    if (!tasks.length) return null;
+    // Derive display-ready array in the original task order.
+    const displayTasks: DisplayTask[] = React.useMemo(() => {
+        const tasksArr: DisplayTask[] = [];
+        queue.tasks.forEach((t, idx) => {
+            const id = (t as any).descriptor?.id ?? `task-${idx}`;
+            const snapshot = taskMap.get(id);
+            const label = snapshot?.label ?? "Pending";
+            const canonical = toCanonicalState(label);
+            tasksArr.push({
+                id,
+                name: t.name(),
+                label,
+                url: snapshot?.url,
+                canonical,
+                isActive: false, // placeholder will adjust later
+            });
+        });
 
-    // Determine the current active task (first that is not completed or errored)
-    const activeIdx = tasks.findIndex((t) => t.label !== "Completed" && t.label !== "Error");
-    const isTerminal = tasks.every((t) => t.label === "Completed" || t.label === "Error");
+        // Determine active index (first non-terminal)
+        const activeIdx = tasksArr.findIndex(
+            (t) => t.canonical !== "Completed" && t.canonical !== "Error",
+        );
+        tasksArr.forEach((t, i) => {
+            (t as any).isActive = activeIdx === -1 ? false : i === activeIdx;
+        });
+        return tasksArr;
+    }, [queue.tasks, taskMap]);
+
+    if (!displayTasks.length) return null;
+
+    const canClose = queuePhase === "complete" || queuePhase === "error";
+
+    // Presentational helpers are defined below module-level (after component).
 
     return (
         <div className="flex flex-col gap-6">
             <div className="flex-1 space-y-6 px-6 font-mono">
+                {queuePhase === "error" && queueErrorMsg && (
+                    <div className="text-destructive font-semibold break-words whitespace-pre-wrap">
+                        {queueErrorMsg}, please try again.
+                    </div>
+                )}
                 <ul className="border p-4 space-y-1">
-                    {tasks.map((t, idx) => (
-                        <li key={t.id} className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                {t.label === "Pending" && <div className="min-w-4" />}
-                                {t.label === "Completed" && (
-                                    <Check className="h-4 w-4 text-green-500" />
-                                )}
-                                {t.label === "Error" && <X className="h-4 w-4 text-red-500" />}
-                                {t.label !== "Completed" &&
-                                    t.label !== "Error" &&
-                                    t.label !== "Pending" && (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    )}
-                                <span
-                                    className={cn(
-                                        "", // base
-                                        idx === activeIdx || isTerminal
-                                            ? "text-primary"
-                                            : "text-muted-foreground",
-                                    )}
-                                >
-                                    {t.name}
-                                </span>
-                            </div>
-
-                            <div
-                                className={cn(
-                                    "flex items-center gap-1 ml-6",
-                                    idx === activeIdx || isTerminal
-                                        ? "text-primary"
-                                        : "text-muted-foreground",
-                                )}
-                            >
-                                {t.label !== "Pending" && (
-                                    <span className="h-9 flex items-center">{`└─ ${t.label}`}</span>
-                                )}
-                                {t.url && (
-                                    <Button
-                                        asChild
-                                        size="icon"
-                                        variant="ghost"
-                                        className="text-primary"
-                                    >
-                                        <a
-                                            href={t.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            aria-label="Open in explorer"
-                                        >
-                                            <ExternalLink className="h-4 w-4" />
-                                        </a>
-                                    </Button>
-                                )}
-                            </div>
-                        </li>
+                    {displayTasks.map((t) => (
+                        <TaskRow key={t.id} t={t} canClose={canClose} />
                     ))}
                 </ul>
             </div>
@@ -142,11 +156,53 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
                     size="xl"
                     variant="outline"
                     onClick={onClose}
-                    disabled={!done}
+                    disabled={!canClose}
                 >
                     Close
                 </Button>
             )}
         </div>
+    );
+}
+
+/* ---------- Presentational sub-components ---------- */
+
+function TaskStatusIcon({ canonical }: { canonical: CanonicalTaskState }) {
+    const meta = STATUS_META[canonical];
+    if (!meta.icon) return <div className="min-w-4" />;
+    const IconComp = meta.icon;
+    return (
+        <IconComp className={cn("h-4 w-4", meta.iconClass, meta.showSpinner && "animate-spin")} />
+    );
+}
+
+function TaskRow({ t, canClose }: { t: DisplayTask; canClose: boolean }) {
+    const textClass = t.isActive || canClose ? "text-primary" : "text-muted-foreground";
+
+    return (
+        <li className="space-y-1">
+            <div className="flex items-center gap-2">
+                <TaskStatusIcon canonical={t.canonical} />
+                <span className={textClass}>{t.name}</span>
+            </div>
+
+            <div className={cn("flex items-center gap-1 ml-6", textClass)}>
+                {t.label !== "Pending" && (
+                    <span className="h-9 flex items-center">{`└─ ${t.label}`}</span>
+                )}
+                {t.url && (
+                    <Button asChild size="icon" variant="ghost" className="text-primary">
+                        <a
+                            href={t.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label="Open in explorer"
+                        >
+                            <ExternalLink className="h-4 w-4" />
+                        </a>
+                    </Button>
+                )}
+            </div>
+        </li>
     );
 }

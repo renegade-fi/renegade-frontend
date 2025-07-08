@@ -106,7 +106,12 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
             }
             case "Submitted": {
                 if (!this._taskId) throw new DepositError("No taskId", false);
-                await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                try {
+                    await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                } catch (e) {
+                    console.error("Error in DepositTask", e);
+                    throw new DepositError("Failed to deposit", false);
+                }
                 this._state = "Completed";
                 break;
             }

@@ -1,5 +1,6 @@
 import { getSDKConfig } from "@renegade-fi/react";
 import { getPkRootScalars } from "@renegade-fi/react/actions";
+import type { SignTypedDataErrorType } from "viem/actions";
 import { signTypedData } from "wagmi/actions";
 import { constructPermit2SigningData } from "@/app/rampv2/tasks/helpers/permit2-helpers";
 import { resolveAddress } from "@/lib/token";
@@ -110,18 +111,33 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
             case "AwaitingWallet": {
                 if (!this._signingData) throw new PermitSigError("Missing signing data", false);
 
-                const signature = await signTypedData(
-                    this.ctx.wagmiConfig,
-                    this._signingData as any,
-                );
+                try {
+                    const signature = await signTypedData(
+                        this.ctx.wagmiConfig,
+                        this._signingData as any,
+                    );
 
-                this.ctx.permit = {
-                    signature,
-                    nonce: (this._signingData as any).message.nonce,
-                    deadline: (this._signingData as any).message.deadline,
-                };
+                    this.ctx.permit = {
+                        signature,
+                        nonce: (this._signingData as any).message.nonce,
+                        deadline: (this._signingData as any).message.deadline,
+                    };
 
-                this._state = "Completed";
+                    this._state = "Completed";
+                } catch (e) {
+                    const err = e as SignTypedDataErrorType;
+                    console.log("🚀 ~ Permit2SigTask ~ step ~ err:", err);
+                    switch (err.name) {
+                        case "UserRejectedRequestError":
+                            throw new PermitSigError("Signature rejected by wallet", false);
+                        case "ChainDisconnectedError":
+                            throw new PermitSigError("Wallet is disconnected", true);
+                        case "InternalRpcError":
+                            throw new PermitSigError("Signature rejected by wallet", false);
+                        default:
+                            throw new PermitSigError(err.name ?? "Unknown wallet error", true);
+                    }
+                }
                 break;
             }
             default:

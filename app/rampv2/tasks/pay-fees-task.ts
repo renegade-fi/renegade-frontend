@@ -85,7 +85,12 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
                     throw new PayFeesError("No taskId", false);
                 } else {
                     this._taskId = taskId;
-                    await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                    try {
+                        await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                    } catch (e) {
+                        console.error("Error in PayFeesTask", e);
+                        throw new PayFeesError("Failed to pay fees", false);
+                    }
                     this._state = "Completed";
                 }
                 break;
