@@ -110,15 +110,9 @@ export class Intent {
         const { sourceMint, sourceChain, targetMint, targetChain, amount } = params;
 
         const sourceToken = getTokenByAddress(sourceMint, sourceChain);
-        console.log("sourceToken", sourceToken);
         if (!sourceToken) return undefined;
 
         const targetToken = getTokenByAddress(targetMint, targetChain);
-        console.log("targetToken", {
-            targetMint,
-            targetChain,
-            targetToken,
-        });
         if (!targetToken) return undefined;
 
         const amountAtomic = parseUnits(amount, sourceToken.decimals);

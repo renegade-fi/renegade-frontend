@@ -1,4 +1,4 @@
-import { getStatus } from "@lifi/sdk";
+import { type GetStatusRequest, getStatus } from "@lifi/sdk";
 import type { Config as RenegadeConfig } from "@renegade-fi/react";
 import { getTaskHistory, getTaskStatus } from "@renegade-fi/react/actions";
 
@@ -47,7 +47,7 @@ export async function waitForRenegadeTask(cfg: RenegadeConfig, taskId: string): 
 type LifiStatus = Awaited<ReturnType<typeof getStatus>>;
 
 /** Poll LiFi backend until it returns a terminal status. */
-export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
+export async function waitForLiFiStatus(params: GetStatusRequest): Promise<LifiStatus> {
     // Detect whether an error from the LiFi SDK indicates the transaction hash
     // has simply not propagated yet (HTTP 404 / NotFound) versus a fatal issue.
     const isNotFoundError = (e: unknown): boolean =>
@@ -62,7 +62,7 @@ export async function waitForLiFiStatus(txHash: string): Promise<LifiStatus> {
 
     statusRes = await pollUntil(async () => {
         try {
-            statusRes = await getStatus({ txHash });
+            statusRes = await getStatus(params);
 
             if (["DONE", "FAILED", "INVALID"].includes(statusRes.status)) {
                 return statusRes;

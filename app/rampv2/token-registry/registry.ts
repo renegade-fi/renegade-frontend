@@ -132,13 +132,13 @@ export function getBridgeTargetToken(
     mint: string,
     sourceChain: number,
     targetChain: number,
-): `0x${string}` | null {
+): `0x${string}` | undefined {
     const sourceToken = getTokenByAddress(mint, sourceChain);
-    if (!sourceToken) return null;
+    if (!sourceToken) return undefined;
     const targetTicker = sourceToken.bridgeTo[targetChain];
-    if (!targetTicker) return null;
+    if (!targetTicker) return undefined;
     const targetToken = getTokenByTicker(targetTicker, targetChain);
-    if (!targetToken) return null;
+    if (!targetToken) return undefined;
     return targetToken.address;
 }
 

@@ -115,7 +115,7 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
     }
 
     private formatWrapName(fromTicker?: string, toTicker?: string): string {
-        const { fromToken, toToken, fromChainId } = this.descriptor.leg.action;
+        const { fromToken, fromChainId } = this.descriptor.leg.action;
 
         if (isETH(fromToken.address, fromChainId)) {
             return `Wrap ${fromTicker}`;
@@ -177,23 +177,13 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
                 this._state = "Submitted";
                 break;
             }
-            // case "Submitted": {
-            //     if (!this._txHash) throw new LiFiLegError("No tx hash", false);
-            //     if (this.chainId === solana.id && this.ctx.connection) {
-            //         await awaitSolanaConfirmation(this._txHash, this.ctx.connection);
-            //         this._state = "Completed";
-            //     } else {
-            //         await waitForTxReceipt(
-            //             this.ctx.getPublicClient(this.chainId),
-            //             this._txHash as `0x${string}`,
-            //         );
-            //         this._state = "Confirming";
-            //     }
-            //     break;
-            // }
             case "Submitted": {
                 if (!this._txHash) throw new LiFiLegError("No tx hash", false);
-                const status = await waitForLiFiStatus(this._txHash);
+                const status = await waitForLiFiStatus({
+                    txHash: this._txHash,
+                    fromChain: this.chainId,
+                    toChain: this.descriptor.leg.action.toChainId,
+                });
                 if (status.status !== "DONE")
                     throw new LiFiLegError(`LiFi status ${status.status}`, true);
                 if (this.descriptor.isFinalLeg && "receiving" in status) {

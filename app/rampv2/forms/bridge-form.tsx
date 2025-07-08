@@ -6,23 +6,20 @@ import { mainnet } from "viem/chains";
 
 import { getAllBridgeableTokens, getBridgeTargetToken } from "@/app/rampv2/token-registry/registry";
 import { NumberInput } from "@/components/number-input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { getFormattedChainName, solana } from "@/lib/viem";
+import { solana } from "@/lib/viem";
 import { BalanceRow } from "../components/balance-row";
+import { BridgeSubmitButton } from "../components/bridge-submit-button";
 import { MaxButton } from "../components/max-button";
 import { NetworkSelect } from "../components/network-select";
 import { ReviewRoute } from "../components/review-route";
 import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
-import { balanceKey, buildBalancesCache } from "../helpers";
+import { buildBalancesCache } from "../helpers";
 import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
-import { maxBalancesQuery } from "../queries/renegade-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
-import { TaskQueue } from "../queue/task-queue";
 import type { RampEnv } from "../types";
 import { ExternalTransferDirection } from "../types";
 
@@ -88,12 +85,8 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         enabled: !!mint && !!chainDependentAddress,
     });
 
-    // Check if max balances are reached for the target token
+    // Get target token for the bridge
     const targetMint = mint ? getBridgeTargetToken(mint, network, currentChain) : undefined;
-    const { data: maxBalancesReached } = useQuery({
-        ...maxBalancesQuery({ mint: targetMint ?? "", renegadeConfig }),
-        enabled: !!targetMint,
-    });
 
     const balances = useMemo(
         () =>
@@ -123,13 +116,6 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         const targetMint = getBridgeTargetToken(sourceMint, network, currentChain);
         if (!targetMint) return { intent: undefined, taskCtx: undefined } as const;
 
-        console.log("intent debug", {
-            sourceMint,
-            targetMint,
-            sourceChain: network,
-            targetChain: currentChain,
-            amount,
-        });
         const intent = Intent.newBridgeIntent(ctx, {
             sourceMint,
             targetMint,
@@ -137,7 +123,6 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             targetChain: currentChain,
             amount,
         });
-        console.log("intent result", intent);
 
         return { intent, taskCtx: ctx } as const;
     }, [
@@ -167,39 +152,6 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
 
     const tasks = plan?.tasks;
     const route = plan?.route;
-
-    // --- Balance sufficiency check --- //
-    const hasEnoughBalance = useMemo(() => {
-        if (!intent) return true;
-        const key = balanceKey(intent.fromChain, intent.fromTokenAddress);
-        const available = balances[key] ?? BigInt(0);
-        return intent.isBalanceSufficient(available);
-    }, [intent, balances]);
-
-    const displayLabel = maxBalancesReached
-        ? "Max balances reached"
-        : hasEnoughBalance
-          ? "Bridge & Deposit"
-          : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
-
-    function handleSubmit() {
-        if (!tasks || tasks.length === 0) return;
-        const queue = new TaskQueue(tasks);
-        if (onQueueStart) {
-            onQueueStart(queue);
-        } else {
-            queue.run().catch(console.error);
-        }
-    }
-
-    // Parent page guarantees evmAddress; if route requires solana and it's missing, show banner.
-    if (network === solana.id && !solanaAddress) {
-        return (
-            <p className="p-4 text-center text-muted-foreground">
-                Connect a Solana wallet to bridge from Solana.
-            </p>
-        );
-    }
 
     return (
         <>
@@ -270,20 +222,15 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                 {intent ? <ReviewRoute intent={intent} route={route} status={status} /> : null}
             </div>
             {/* Submit */}
-            <div className="w-full flex">
-                <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
-                    <Button
-                        className="w-full flex-1 border-0 border-t font-extended text-2xl"
-                        size="xl"
-                        type="submit"
-                        variant="outline"
-                        onClick={handleSubmit}
-                        disabled={maxBalancesReached || !hasEnoughBalance || status !== "success"}
-                    >
-                        {displayLabel}
-                    </Button>
-                </MaintenanceButtonWrapper>
-            </div>
+            <BridgeSubmitButton
+                targetMint={targetMint}
+                renegadeConfig={renegadeConfig}
+                intent={intent}
+                balances={balances}
+                tasks={tasks}
+                status={status}
+                onQueueStart={onQueueStart}
+            />
         </>
     );
 }
