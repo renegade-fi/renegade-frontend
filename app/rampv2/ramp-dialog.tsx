@@ -16,6 +16,7 @@ import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { useCurrentChain, useConfig as useRenegadeConfig } from "@/providers/state-provider/hooks";
+import { PayFees } from "./components/pay-fees";
 import { TaskQueueStatus } from "./components/task-queue-status";
 import BridgeForm from "./forms/bridge-form";
 import DepositForm from "./forms/deposit-form";
@@ -89,25 +90,28 @@ export function RampDialog({
                         Connect your wallet to begin.
                     </div>
                 ) : (
-                    <RampDialogBody
-                        isDesktop={isDesktop}
-                        env={{
-                            renegadeConfig,
-                            wagmiConfig,
-                            connection,
-                            keychainNonce: keychainNonce ?? BigInt(0),
-                            currentChain,
-                            evmAddress: address as `0x${string}`,
-                            solanaAddress,
-                            solanaSignTx: signTransaction ?? null,
-                        }}
-                        initialMint={initialMint}
-                        mode={mode}
-                        setMode={setMode}
-                        queue={queue}
-                        onQueueStart={handleQueueStart}
-                        onQueueClose={() => handleOpenChange(false)}
-                    />
+                    <>
+                        <RampDialogBody
+                            isDesktop={isDesktop}
+                            env={{
+                                renegadeConfig,
+                                wagmiConfig,
+                                connection,
+                                keychainNonce: keychainNonce ?? BigInt(0),
+                                currentChain,
+                                evmAddress: address as `0x${string}`,
+                                solanaAddress,
+                                solanaSignTx: signTransaction ?? null,
+                            }}
+                            initialMint={initialMint}
+                            mode={mode}
+                            setMode={setMode}
+                            queue={queue}
+                            onQueueStart={handleQueueStart}
+                            onQueueClose={() => handleOpenChange(false)}
+                        />
+                        <PayFees renegadeConfig={renegadeConfig} />
+                    </>
                 )}
             </DialogContent>
         </Dialog>
