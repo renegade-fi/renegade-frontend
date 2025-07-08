@@ -75,7 +75,8 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
         switch (this._state) {
             case "Pending": {
                 const result = await payFees(this.ctx.renegadeConfig);
-                const taskId: string | undefined = (result as any)?.taskId;
+                const lastTaskIdx = result.taskIds.length - 1;
+                const taskId: string | undefined = result.taskIds[lastTaskIdx];
                 if (!taskId) {
                     this._state = "Completed";
                 } else {

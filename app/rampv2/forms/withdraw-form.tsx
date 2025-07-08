@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { canUnwrapToEth, getAllTokens } from "@/app/rampv2/token-registry";
 import { NumberInput } from "@/components/number-input";
@@ -128,6 +129,8 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         staleTime: 0,
     });
 
+    const isPlanningLoading = status === "pending" && intent?.needsRouting();
+
     const tasks = plan?.tasks;
 
     // --- Dynamic button label --- //
@@ -143,7 +146,9 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     }, [intent, renegadeBalance?.raw]);
 
     let isDisabled = true;
-    if (intent) {
+    if (isPlanningLoading) {
+        isDisabled = true;
+    } else if (intent) {
         if (!hasEnoughBalance) {
             isDisabled = true;
         } else if (intent.needsRouting()) {
@@ -153,7 +158,11 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         }
     }
 
-    const displayLabel = hasEnoughBalance ? submitLabel : "Insufficient Renegade balance";
+    const displayLabel = isPlanningLoading
+        ? "Retrieving unwrap info"
+        : hasEnoughBalance
+          ? submitLabel
+          : "Insufficient Renegade balance";
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -253,6 +262,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                         onClick={handleSubmit}
                         disabled={isDisabled}
                     >
+                        {isPlanningLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                         {displayLabel}
                     </Button>
                 </MaintenanceButtonWrapper>
