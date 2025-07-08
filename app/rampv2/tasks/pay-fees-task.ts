@@ -11,7 +11,7 @@ interface PayFeesDescriptor {
     readonly chainId: number;
 }
 
-type PayFeesState = "Pending" | "Submitted" | "Completed";
+type PayFeesState = "Pending" | "Loading" | "Completed";
 
 class PayFeesError extends Error implements BaseTaskError {
     constructor(
@@ -74,21 +74,20 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
     async step(): Promise<void> {
         switch (this._state) {
             case "Pending": {
+                this._state = "Loading";
+                break;
+            }
+            case "Loading": {
                 const result = await payFees(this.ctx.renegadeConfig);
                 const lastTaskIdx = result.taskIds.length - 1;
                 const taskId: string | undefined = result.taskIds[lastTaskIdx];
                 if (!taskId) {
-                    this._state = "Completed";
+                    throw new PayFeesError("No taskId", false);
                 } else {
                     this._taskId = taskId;
-                    this._state = "Submitted";
+                    await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
+                    this._state = "Completed";
                 }
-                break;
-            }
-            case "Submitted": {
-                if (!this._taskId) throw new PayFeesError("No taskId", false);
-                await waitForRenegadeTask(this.ctx.renegadeConfig, this._taskId);
-                this._state = "Completed";
                 break;
             }
             default:

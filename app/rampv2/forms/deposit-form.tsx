@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { arbitrum } from "viem/chains";
+import { formatUnits } from "viem/utils";
 import {
     getSwapInputsFor,
     getTokenByAddress,
@@ -13,6 +14,9 @@ import { NumberInput } from "@/components/number-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
+import { useUSDPrice } from "@/hooks/use-usd-price";
+import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol";
+import { safeParseUnits } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { getFormattedChainName } from "@/lib/viem";
 import { BalanceRow } from "../components/balance-row";
@@ -104,6 +108,29 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
         swapMint: swapToken?.address,
         swapRaw: availableSwapBalance?.raw,
     });
+
+    // --- USD Price & Minimum Deposit Validation --- //
+    const amountBigInt = useMemo(() => {
+        if (!amount || !mint) return BigInt(0);
+        const token = getTokenByAddress(mint, currentChain);
+        if (!token) return BigInt(0);
+        const parsed = safeParseUnits(amount, token.decimals);
+        return parsed instanceof Error ? BigInt(0) : parsed;
+    }, [amount, mint, currentChain]);
+
+    // TODO: Handle undefined mint
+    const usdPrice = useUSDPrice(mint as `0x${string}`, amountBigInt);
+
+    const usdValue = useMemo(() => {
+        if (!mint || !usdPrice) return 0;
+        const token = getTokenByAddress(mint, currentChain);
+        if (!token) return 0;
+        return Number(formatUnits(usdPrice, token.decimals));
+    }, [mint, usdPrice, currentChain]);
+
+    const isBelowMinimum = useMemo(() => {
+        return amount && mint && usdValue < MIN_DEPOSIT_AMOUNT;
+    }, [amount, mint, usdValue]);
 
     // --- Intent & Task Planning --- //
     const { intent, taskCtx } = useMemo(() => {
@@ -217,6 +244,8 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     if (intent) {
         if (maxBalancesReached) {
             isDisabled = true;
+        } else if (isBelowMinimum) {
+            isDisabled = true;
         } else if (!hasEnoughBalance) {
             isDisabled = true;
         } else if (intent.needsRouting()) {
@@ -228,9 +257,11 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
 
     const displayLabel = maxBalancesReached
         ? "Max balances reached"
-        : hasEnoughBalance
-          ? submitLabel
-          : `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`;
+        : !hasEnoughBalance
+          ? `Insufficient ${intent ? getFormattedChainName(intent.fromChain) : ""} balance`
+          : isBelowMinimum
+            ? "Minimum deposit is $1"
+            : submitLabel;
 
     function handleSubmit() {
         if (!tasks || tasks.length === 0) return;
@@ -318,10 +349,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                             wagmiConfig={wagmiConfig}
                             renegadeConfig={renegadeConfig}
                             connection={connection}
-                            onClick={(value) => {
-                                // setSwapToken(availableSwapToken.address);
-                                handleSetCombinedAmount(value);
-                            }}
+                            onClick={handleSetCombinedAmount}
                             hideNetworkLabel
                             minRemainingEthBalance={minRemainingEthBalance}
                         />
