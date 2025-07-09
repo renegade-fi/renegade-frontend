@@ -1,7 +1,7 @@
 import type { Chain } from "viem";
 import { http } from "viem";
 import { arbitrum, arbitrumSepolia, base, baseSepolia, mainnet } from "viem/chains";
-import { cookieStorage, createConfig, createStorage } from "wagmi";
+import { createConfig } from "wagmi";
 
 import { env } from "@/env/client";
 import { getURL } from "@/lib/utils";
@@ -29,9 +29,6 @@ export function getConfig() {
                 [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
             },
             ssr: true,
-            storage: createStorage({
-                storage: cookieStorage,
-            }),
 
             walletConnectProjectId: env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
             coinbaseWalletPreference: "eoaOnly",

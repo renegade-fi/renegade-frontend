@@ -115,7 +115,7 @@ function SyncRenegadeWagmiState() {
                 }
             }
         }
-        verifyWallets();
+        // verifyWallets();
     }, [account.address, resetAllWallets, resetWallet, wallets]);
 
     return null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useRef } from "react";
+import { createContext, type ReactNode, useContext, useLayoutEffect, useRef } from "react";
 
 import { useStore } from "zustand";
 
@@ -24,6 +24,19 @@ export function ClientStoreProvider({ children }: ClientStoreProviderProps) {
     if (!storeRef.current) {
         storeRef.current = createClientStore(initClientStore());
     }
+
+    const active = useRef(true);
+
+    useLayoutEffect(() => {
+        (async () => {
+            if (storeRef.current) {
+                await storeRef.current.persist.rehydrate();
+            }
+        })();
+        return () => {
+            active.current = false;
+        };
+    }, []);
 
     return (
         <ClientStoreContext.Provider value={storeRef.current}>

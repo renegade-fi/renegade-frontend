@@ -2,9 +2,8 @@ import { MAX_ORDERS } from "@renegade-fi/react/constants";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Analytics } from "@vercel/analytics/react";
 import localFont from "next/font/local";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import type { Viewport } from "next/types";
-import { cookieToInitialState } from "wagmi";
 
 import { LazyDatadog } from "@/app/components/datadog";
 import { Faucet } from "@/app/components/faucet";
@@ -31,7 +30,6 @@ import { SolanaProvider } from "@/providers/solana-provider";
 import { ClientStoreProvider } from "@/providers/state-provider/client-store-provider";
 import { ServerStoreProvider } from "@/providers/state-provider/server-store-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { getConfig } from "@/providers/wagmi-provider/config";
 import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider";
 
 import "./globals.css";
@@ -87,12 +85,6 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const headersList = await headers();
-    const cookieString = headersList.get("cookie")
-        ? decodeURIComponent(headersList.get("cookie") ?? "")
-        : "";
-    const initialState = cookieToInitialState(getConfig(), cookieString);
-
     const cookieStore = await cookies();
     const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
@@ -108,9 +100,9 @@ export default async function RootLayout({
                         attribute="class"
                         defaultTheme="dark"
                     >
-                        <ServerStoreProvider cookieString={cookieString}>
+                        <ServerStoreProvider>
                             <ClientStoreProvider>
-                                <WagmiProvider initialState={initialState}>
+                                <WagmiProvider>
                                     <SolanaProvider>
                                         <SidebarProvider defaultOpen={defaultOpen}>
                                             <TrackLastVisit />

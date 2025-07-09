@@ -1,7 +1,8 @@
-import { persist } from "zustand/middleware";
+import { createStorage } from "wagmi";
+import { type PersistStorage, persist } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
-
 import { STORAGE_CLIENT_STORE } from "@/lib/constants/storage";
+import { getDefaultStorage } from "./cookie-storage";
 
 // State that can be hydrated after initial render, as opposed to ServerState
 type ClientState = {
@@ -29,17 +30,32 @@ const defaultInitState: ClientState = {
 };
 
 export const createClientStore = (initState: ClientState = defaultInitState) => {
+    console.log("[ClientStore] creating store");
     return createStore<ClientStore>()(
         persist(
             (set) => ({
                 ...initState,
 
-                setFavorites: (favorites: string[]) => set((_state) => ({ favorites })),
-                setLastVisitTs: (lastVisitTs: string) => set((_state) => ({ lastVisitTs })),
-                setViewedFills: (viewedFills: string[]) => set((_state) => ({ viewedFills })),
+                setFavorites: (favorites: string[]) => {
+                    console.debug("[ClientStore] setFavorites called with:", favorites);
+                    return set((_state) => ({ favorites }));
+                },
+                setLastVisitTs: (lastVisitTs: string) => {
+                    console.debug("[ClientStore] setLastVisitTs called with:", lastVisitTs);
+                    return set((_state) => ({ lastVisitTs }));
+                },
+                setViewedFills: (viewedFills: string[]) => {
+                    console.debug("[ClientStore] setViewedFills called with:", viewedFills);
+                    return set((_state) => ({ viewedFills }));
+                },
             }),
             {
                 name: STORAGE_CLIENT_STORE,
+                skipHydration: true,
+                storage: createStorage({
+                    storage: getDefaultStorage(),
+                    key: "trade",
+                }) as PersistStorage<ClientState>,
             },
         ),
     );

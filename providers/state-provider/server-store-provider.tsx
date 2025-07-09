@@ -1,11 +1,9 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useEffect, useRef } from "react";
+import { createContext, type ReactNode, useContext, useLayoutEffect, useRef } from "react";
 
 import { useStore } from "zustand";
 
-import { STORAGE_SERVER_STORE } from "@/lib/constants/storage";
-import { cookieToInitialState } from "@/providers/state-provider/cookie-storage";
 import {
     createServerStore,
     initServerStore,
@@ -18,22 +16,21 @@ const ServerStoreContext = createContext<ServerStoreApi | undefined>(undefined);
 
 interface ServerStoreProviderProps {
     children: ReactNode;
-    cookieString?: string;
 }
 
-export function ServerStoreProvider({ children, cookieString }: ServerStoreProviderProps) {
+export function ServerStoreProvider({ children }: ServerStoreProviderProps) {
     const storeRef = useRef<ServerStoreApi>(undefined);
 
     if (!storeRef.current) {
-        const initialState = cookieToInitialState(STORAGE_SERVER_STORE, cookieString ?? "");
-        storeRef.current = createServerStore(initialState ?? initServerStore());
+        storeRef.current = createServerStore(initServerStore());
     }
 
     const active = useRef(true);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         (async () => {
             if (storeRef.current) {
+                console.log("[ServerStoreProvider] rehydrating");
                 await storeRef.current.persist.rehydrate();
             }
         })();

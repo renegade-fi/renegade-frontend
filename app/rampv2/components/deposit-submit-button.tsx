@@ -2,12 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { formatUnits } from "viem/utils";
 import { getTokenByAddress } from "@/app/rampv2/token-registry";
 import { Button } from "@/components/ui/button";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
-import { useUSDPrice } from "@/hooks/use-usd-price";
-import { MIN_DEPOSIT_AMOUNT } from "@/lib/constants/protocol";
 import { safeParseUnits } from "@/lib/format";
 import { getFormattedChainName } from "@/lib/viem";
 import type { Intent } from "../core/intent";

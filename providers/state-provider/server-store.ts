@@ -1,11 +1,11 @@
 import { CHAIN_IDS, type ChainId } from "@renegade-fi/react/constants";
-import { persist } from "zustand/middleware";
+import { createStorage } from "wagmi";
+import { type PersistStorage, persist } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
-
 import { Side } from "@/lib/constants/protocol";
-import { STORAGE_SERVER_STORE, STORAGE_VERSION } from "@/lib/constants/storage";
+import { STORAGE_SERVER_STORE } from "@/lib/constants/storage";
 import { resolveTicker } from "@/lib/token";
-import { cookieStorage, createStorage } from "@/providers/state-provider/cookie-storage";
+import { getDefaultStorage } from "@/providers/state-provider/cookie-storage";
 
 import { AVAILABLE_CHAINS } from "../wagmi-provider/config";
 import { type CachedWallet, createEmptyWallet, type ServerState } from "./schema";
@@ -60,59 +60,86 @@ export const defaultInitState: ServerState = {
 };
 
 export const createServerStore = (initState: ServerState = defaultInitState) => {
+    console.log("[ServerStore] creating store");
     return createStore<ServerStore>()(
         persist(
             (set) => ({
                 ...initState,
-                setAmount: (amount: string) =>
-                    set((state) => ({ order: { ...state.order, amount } })),
-                setBase: (baseMint: `0x${string}`) =>
-                    set(() => ({
+                setAmount: (amount: string) => {
+                    console.log("[ServerStore] setAmount called with:", amount);
+                    return set((state) => ({ order: { ...state.order, amount } }));
+                },
+                setBase: (baseMint: `0x${string}`) => {
+                    console.log("[ServerStore] setBase called with:", baseMint);
+                    return set(() => ({
                         baseMint: baseMint.toLowerCase() as `0x${string}`,
-                    })),
-                setChainId: (chainId: ChainId) => set(() => ({ chainId })),
-                setCurrency: (currency: "base" | "quote") =>
-                    set((state) => ({ order: { ...state.order, currency } })),
-                setPanels: (layout: number[]) => set(() => ({ panels: { layout } })),
-                setQuote: (quoteMint: `0x${string}`) =>
-                    set(() => ({
+                    }));
+                },
+                setChainId: (chainId: ChainId) => {
+                    console.log("[ServerStore] setChainId called with:", chainId);
+                    return set(() => ({ chainId }));
+                },
+                setCurrency: (currency: "base" | "quote") => {
+                    console.log("[ServerStore] setCurrency called with:", currency);
+                    return set((state) => ({ order: { ...state.order, currency } }));
+                },
+                setPanels: (layout: number[]) => {
+                    console.log("[ServerStore] setPanels called with:", layout);
+                    return set(() => ({ panels: { layout } }));
+                },
+                setQuote: (quoteMint: `0x${string}`) => {
+                    console.log("[ServerStore] setQuote called with:", quoteMint);
+                    return set(() => ({
                         quoteMint: quoteMint.toLowerCase() as `0x${string}`,
-                    })),
-                setSide: (side: Side) => set((state) => ({ order: { ...state.order, side } })),
-                setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) =>
-                    set((state) => ({
+                    }));
+                },
+                setSide: (side: Side) => {
+                    console.log("[ServerStore] setSide called with:", side);
+                    return set((state) => ({ order: { ...state.order, side } }));
+                },
+                setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => {
+                    console.log("[ServerStore] setWallet called with:", { seed, id, chainId });
+                    return set((state) => ({
                         wallet: new Map(state.wallet).set(chainId ?? state.chainId, {
                             seed,
                             id,
                         }),
-                    })),
-                setRememberMe: (chainId: ChainId, remember: boolean) =>
-                    set((state) => ({
+                    }));
+                },
+                setRememberMe: (chainId: ChainId, remember: boolean) => {
+                    console.log("[ServerStore] setRememberMe called with:", { chainId, remember });
+                    return set((state) => ({
                         rememberMe: new Map(state.rememberMe).set(chainId, remember),
-                    })),
-                setAllowExternalMatches: (allowExternalMatches: boolean) =>
-                    set(() => ({ allowExternalMatches })),
-                resetWallet: (chainId?: ChainId) =>
-                    set((state) => ({
+                    }));
+                },
+                setAllowExternalMatches: (allowExternalMatches: boolean) => {
+                    console.log(
+                        "[ServerStore] setAllowExternalMatches called with:",
+                        allowExternalMatches,
+                    );
+                    return set(() => ({ allowExternalMatches }));
+                },
+                resetWallet: (chainId?: ChainId) => {
+                    console.log("[ServerStore] resetWallet called with:", chainId);
+                    return set((state) => ({
                         wallet: new Map(state.wallet).set(
                             chainId ?? state.chainId,
                             createEmptyWallet(),
                         ),
-                    })),
-                resetAllWallets: () => set(() => ({ wallet: defaultWalletMap })),
+                    }));
+                },
+                resetAllWallets: () => {
+                    console.log("[ServerStore] resetAllWallets called");
+                    return set(() => ({ wallet: defaultWalletMap }));
+                },
             }),
             {
                 name: STORAGE_SERVER_STORE,
-                version: STORAGE_VERSION,
-                migrate: (_: any, version: number): ServerState => {
-                    console.log(
-                        `Storage version mismatch detected. Stored: ${version}, Expected: ${STORAGE_VERSION}`,
-                    );
-                    console.log("Clearing user data and using default state");
-                    return defaultInitState;
-                },
                 skipHydration: true,
-                storage: createStorage(cookieStorage),
+                storage: createStorage({
+                    storage: getDefaultStorage(),
+                    key: "trade",
+                }) as PersistStorage<ServerState>,
                 partialize: (state) => {
                     // Reset wallets based on remember preferences
                     const filteredWallet = new Map();
