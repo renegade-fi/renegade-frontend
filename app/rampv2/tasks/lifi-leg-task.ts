@@ -1,5 +1,5 @@
-import type { ExtendedTransactionInfo, Route } from "@lifi/sdk";
-import { getStepTransaction } from "@lifi/sdk";
+import type { ExtendedTransactionInfo, Route, SDKError } from "@lifi/sdk";
+import { getStepTransaction, LiFiErrorCode } from "@lifi/sdk";
 import { sendTransaction } from "wagmi/actions";
 import { extractSupportedChain, getExplorerLink, solana } from "@/lib/viem";
 import type { TaskError as BaseTaskError } from "../core/task";
@@ -149,11 +149,21 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
                 if (this.chainId !== solana.id) {
                     await ensureCorrectChain(this.ctx, this.chainId);
                 }
-                const populated = await getStepTransaction(leg);
-                const txRequest: any = populated?.transactionRequest;
-                if (!txRequest) throw new LiFiLegError("Missing transaction request", false);
-
-                this._txRequest = txRequest;
+                try {
+                    const populated = await getStepTransaction(leg);
+                    const txRequest = populated?.transactionRequest;
+                    if (!txRequest) throw new LiFiLegError("Missing transaction request", false);
+                    this._txRequest = txRequest;
+                } catch (e) {
+                    const err = e as SDKError;
+                    console.error("Error in LiFiLegTask", err);
+                    switch (err.code) {
+                        case LiFiErrorCode.SlippageError:
+                            throw new LiFiLegError("Slippage exceeded", false);
+                        default:
+                            throw new LiFiLegError("Couldn't get transaction data", false);
+                    }
+                }
                 this._state = "AwaitingWallet";
                 break;
             }

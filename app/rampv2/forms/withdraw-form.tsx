@@ -13,8 +13,8 @@ import { WithdrawSubmitButton } from "../components/withdraw-submit-button";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
 import { buildBalancesCache } from "../helpers";
-import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import { planQueryOptions } from "../queries/plan";
 import { renegadeBalanceQuery } from "../queries/renegade-balance";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import type { RampEnv } from "../types";
@@ -116,15 +116,7 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         unwrapToEth,
     ]);
 
-    const { data: plan, status } = useQuery({
-        queryKey: ["ramp-withdraw", { ...intent?.toJson?.() }],
-        queryFn: () => {
-            if (!intent || !taskCtx) return undefined;
-            return planTasks(intent, taskCtx);
-        },
-        enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
-        staleTime: 0,
-    });
+    const { data: plan, status } = useQuery(planQueryOptions({ intent, taskCtx }));
 
     const tasks = plan?.tasks;
 

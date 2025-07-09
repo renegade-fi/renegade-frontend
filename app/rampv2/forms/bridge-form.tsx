@@ -17,8 +17,8 @@ import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
 import { buildBalancesCache } from "../helpers";
-import { planTasks } from "../planner/task-planner";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import { planQueryOptions } from "../queries/plan";
 import type { TaskQueue as TaskQueueType } from "../queue/task-queue";
 import type { RampEnv } from "../types";
 import { ExternalTransferDirection } from "../types";
@@ -140,15 +140,7 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         amount,
     ]);
 
-    const { data: plan, status } = useQuery({
-        queryKey: ["ramp-bridge", { ...intent?.toJson?.() }],
-        queryFn: () => {
-            if (!intent || !taskCtx) return undefined;
-            return planTasks(intent, taskCtx);
-        },
-        enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
-        staleTime: 0,
-    });
+    const { data: plan, status } = useQuery(planQueryOptions({ intent, taskCtx }));
 
     const tasks = plan?.tasks;
     const route = plan?.route;

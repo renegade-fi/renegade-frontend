@@ -51,15 +51,16 @@ export function DepositSubmitButton({
         return parsed instanceof Error ? BigInt(0) : parsed;
     }, [amount, mint, chainId]);
 
-    const usdPrice = useUSDPrice(mint as `0x${string}`, amountBigInt);
+    // TODO: Guard against empty mint and add back in
+    // const usdPrice = useUSDPrice(mint as `0x${string}`, amountBigInt);
 
     const isBelowMinimum = useMemo(() => {
         if (!amount || !mint) return false;
         const token = getTokenByAddress(mint, chainId);
-        if (!token || !usdPrice) return false;
-        const usdValue = Number(formatUnits(usdPrice, token.decimals));
-        return usdValue < MIN_DEPOSIT_AMOUNT;
-    }, [amount, mint, usdPrice, chainId]);
+        if (!token) return false;
+        // const usdValue = Number(formatUnits(usdPrice, token.decimals));
+        return false;
+    }, [amount, mint, chainId]);
 
     // ---------------- Max Balances Check ---------------- //
     const { data: maxBalancesReached } = useQuery({

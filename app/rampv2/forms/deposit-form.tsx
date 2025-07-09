@@ -20,9 +20,9 @@ import { TokenSelect } from "../components/token-select";
 import { Intent } from "../core/intent";
 import { TaskContext } from "../core/task-context";
 import { buildBalancesCache, isETH } from "../helpers";
-import { planTasks } from "../planner/task-planner";
 import { approveBufferQueryOptions } from "../queries/eth-buffer";
 import { onChainBalanceQuery } from "../queries/on-chain-balance";
+import { planQueryOptions } from "../queries/plan";
 import type { TaskQueue } from "../queue/task-queue";
 import { getDepositTokens } from "../token-registry/registry";
 import type { RampEnv } from "../types";
@@ -166,15 +166,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
         availableDepositBalance?.decimalCorrected,
     ]);
 
-    const { data: plan, status } = useQuery({
-        queryKey: ["ramp-deposit", { ...intent?.toJson?.() }],
-        queryFn: () => {
-            if (!intent || !taskCtx) return undefined;
-            return planTasks(intent, taskCtx);
-        },
-        enabled: !!intent && !!taskCtx && Object.keys(balances).length > 0,
-        staleTime: 0,
-    });
+    const { data: plan, status } = useQuery(planQueryOptions({ intent, taskCtx }));
 
     const { data: minRemainingEthBalance } = useQuery({
         ...approveBufferQueryOptions({
