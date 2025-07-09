@@ -1,4 +1,4 @@
-import { deserialize, serialize } from "wagmi";
+import { deserialize, noopStorage, serialize } from "wagmi";
 import type { PersistStorage, StorageValue } from "zustand/middleware/persist";
 
 import { STORAGE_VERSION } from "@/lib/constants/storage";
@@ -37,6 +37,27 @@ export const cookieStorage: BaseStorage = {
         }
     },
 };
+
+export function getDefaultStorage() {
+    const storage = (() => {
+        if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+        return noopStorage;
+    })();
+    return {
+        getItem(key) {
+            return storage.getItem(key);
+        },
+        removeItem(key) {
+            storage.removeItem(key);
+        },
+        setItem(key, value) {
+            try {
+                storage.setItem(key, value);
+                // silence errors by default (QuotaExceededError, SecurityError, etc.)
+            } catch {}
+        },
+    } satisfies BaseStorage;
+}
 
 /**
  * Constructs a custom storage object for zustand persist that uses wagmi's serialize and deserialize functions,
