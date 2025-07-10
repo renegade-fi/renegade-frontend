@@ -2,8 +2,8 @@
 
 import { createConfig as createLifiConfig, EVM } from "@lifi/sdk";
 import { isSupportedChainId } from "@renegade-fi/react";
-import { ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants";
-import { useIsMutating } from "@tanstack/react-query";
+import { type ChainId, ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants";
+import { useIsMutating, useQueryClient } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import React from "react";
 import { verifyMessage } from "viem";
@@ -93,11 +93,60 @@ function SyncRenegadeWagmiState() {
         setChainId(wagmiChainId);
     }, [currentChainId, isMutatingChain, setChainId, wagmiChainId]);
 
+    const queryClient = useQueryClient();
+
     React.useEffect(() => {
+        const getPendingMutationKeys = () => {
+            const mutationCache = queryClient.getMutationCache();
+            const allMutations = mutationCache.getAll();
+            const pendingMutations = allMutations
+                .filter((mutation) => mutation.state.status === "pending")
+                .map((mutation) => mutation.options.mutationKey)
+                .filter((key) => key !== undefined);
+            return pendingMutations;
+        };
+
+        // Log effect trigger to help with Hypothesis 3 (frequent re-runs)
+        console.log("SyncRenegadeWagmiState effect triggered", {
+            hasAddress: !!account.address,
+            walletsCount: wallets.size,
+            currentChainId,
+            wagmiChainId,
+            timestamp: Date.now(),
+        });
+
+        function logAndReset(chainId: ChainId | undefined, reason: string, details?: any) {
+            const pendingMutationKeys = getPendingMutationKeys();
+            console.log("=== WALLET RESET TRIGGERED ===");
+            console.log("Reason:", reason);
+            console.log("ChainId:", chainId);
+            console.log("Account address:", account.address);
+            console.log("Wallets count:", wallets.size);
+            console.log("Pending mutation keys:", pendingMutationKeys);
+            console.log("Current wagmi chain:", wagmiChainId);
+            console.log("Current app chain:", currentChainId);
+            console.log("Additional details:", details);
+            console.log(
+                "Wallets state:",
+                Array.from(wallets.entries()).map(([id, wallet]) => ({
+                    chainId: id,
+                    hasSeed: !!wallet.seed,
+                    seedLength: wallet.seed?.length || 0,
+                })),
+            );
+            console.log("=== END WALLET RESET ===");
+
+            if (chainId) {
+                resetWallet(chainId);
+            } else {
+                resetAllWallets();
+            }
+        }
+
         async function verifyWallets() {
             const address = account.address;
             if (!address) {
-                resetAllWallets();
+                logAndReset(undefined, "No account address");
                 return;
             }
 
@@ -105,18 +154,37 @@ function SyncRenegadeWagmiState() {
                 if (!wallet.seed) continue;
                 const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`;
                 const signature = wallet.seed;
+
+                console.log(`Verifying wallet for chain ${chainId}`, {
+                    hasAddress: !!address,
+                    hasSeed: !!wallet.seed,
+                    message,
+                    signatureLength: signature?.length || 0,
+                });
+
                 const valid = await verifyMessage({
                     address,
                     message,
                     signature,
                 });
+
+                console.log(`Verification result for chain ${chainId}:`, valid);
+
                 if (!valid) {
-                    resetWallet(chainId);
+                    logAndReset(chainId, "Invalid signature", { message, signature });
                 }
             }
         }
         verifyWallets();
-    }, [account.address, resetAllWallets, resetWallet, wallets]);
+    }, [
+        account.address,
+        resetAllWallets,
+        resetWallet,
+        wallets,
+        queryClient,
+        currentChainId,
+        wagmiChainId,
+    ]);
 
     return null;
 }
