@@ -1,13 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { formatUnits } from "viem/utils";
-
 import type { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form";
-
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { safeParseUnits } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
-import { useQuery } from "@tanstack/react-query";
 import { priceQueryOptions } from "./use-price-query";
 
 /**

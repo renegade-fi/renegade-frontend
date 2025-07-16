@@ -1,5 +1,5 @@
 import type { Exchange } from "@renegade-fi/react";
-import { queryOptions, useQuery, type UseQueryOptions } from "@tanstack/react-query";
+import { queryOptions, type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import React from "react";
 
 import { client } from "@/lib/clients/price-reporter";

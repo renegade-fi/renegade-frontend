@@ -1,13 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
-
 import { formatUnits } from "viem";
-
 import type { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form";
-
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
+import { priceQueryOptions } from "@/hooks/use-price-query";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { PRICE_DECIMALS } from "@/lib/constants/precision";
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol";
@@ -15,8 +13,6 @@ import { safeParseUnits } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 import { cn } from "@/lib/utils";
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
-import { priceQueryOptions } from "@/hooks/use-price-query";
-import { useQuery } from "@tanstack/react-query";
 
 interface AmountShortcutButtonProps extends NewOrderFormProps {
     className?: string;
