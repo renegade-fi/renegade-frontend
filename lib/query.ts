@@ -51,29 +51,18 @@ export function createPriceQueryKey({
     exchange,
     base,
     quote: _quote,
+    isSnapshot,
 }: {
     exchange?: Exchange;
     base: `0x${string}`;
     quote?: `0x${string}`;
+    isSnapshot?: boolean;
 }): string[] {
     if (!exchange || exchange === "renegade") {
-        return ["price", "live", "renegade", base];
+        return ["price", isSnapshot ? "snapshot" : "live", "renegade", base];
     }
     const quote = _quote ?? getDefaultQuote(base, exchange).address;
     return ["price", "live", exchange, base, quote];
-}
-
-export function createSnapshotPriceQueryKey({
-    exchange,
-    baseMint,
-    quote: _quote,
-}: {
-    baseMint: `0x${string}`;
-    exchange: Exchange;
-    quote?: `0x${string}`;
-}): string[] {
-    const quote = _quote ?? getDefaultQuote(baseMint, exchange).address;
-    return ["price", "snapshot", exchange, baseMint, quote];
 }
 
 /** Converts a price topic from the Price Reporter into a live price query key. */

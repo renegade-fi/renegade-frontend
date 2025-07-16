@@ -1,13 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { formatUnits } from "viem/utils";
-
 import type { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form";
-
-import { usePriceQuery } from "@/hooks/use-price-query";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { safeParseUnits } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
+import { priceQueryOptions } from "./use-price-query";
 
 /**
  * Hook to calculate the order value in both quote and base currency.
@@ -22,7 +21,10 @@ export function useOrderValue({ amount, base, isQuoteCurrency }: NewOrderFormPro
     const baseToken = resolveAddress(base);
     const quoteMint = useServerStore((state) => state.quoteMint);
     const quoteToken = resolveAddress(quoteMint);
-    const { data: usdPerBase } = usePriceQuery(base);
+    const { data: usdPerBase } = useQuery({
+        ...priceQueryOptions(baseToken.address, undefined /** exchange */, true /** isSnapshot */),
+        refetchInterval: 2000,
+    });
 
     // Calculate the inverse of the USD price per base token
     const basePerUsd = React.useMemo(() => {

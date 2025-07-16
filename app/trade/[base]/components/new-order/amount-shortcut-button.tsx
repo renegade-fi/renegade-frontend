@@ -1,15 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
-
 import { formatUnits } from "viem";
-
 import type { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form";
-
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
-import { usePriceQuery } from "@/hooks/use-price-query";
-import { useUSDPrice } from "@/hooks/use-usd-price";
+import { priceQueryOptions } from "@/hooks/use-price-query";
+import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { PRICE_DECIMALS } from "@/lib/constants/precision";
 import { MIN_FILL_SIZE } from "@/lib/constants/protocol";
 import { safeParseUnits } from "@/lib/format";
@@ -47,7 +44,10 @@ export function AmountShortcutButton({
             }),
         },
     });
-    const { data: price } = usePriceQuery(baseToken.address);
+    const { data: price } = useQuery({
+        ...priceQueryOptions(baseToken.address, undefined /** exchange */, true /** isSnapshot */),
+        refetchInterval: 2000,
+    });
 
     const maxBalance = React.useMemo(() => {
         if (!price) return BigInt(0);
@@ -97,16 +97,17 @@ export function AmountShortcutButton({
         return shortcutBigInt;
     }, [maxBalance, percentage]);
 
-    const usdPrice = useUSDPrice(base, shortcut);
-
     const formattedShortcut = React.useMemo(() => {
         if (isQuoteCurrency && shortcut < MIN_FILL_SIZE) {
             return 0;
         }
-        const formattedUsdPrice = parseFloat(formatUnits(usdPrice, baseToken.decimals));
-        const minFillSize = parseFloat(formatUnits(MIN_FILL_SIZE, quoteToken.decimals));
-        if (!isQuoteCurrency && formattedUsdPrice < minFillSize) {
-            return 0;
+        if (!isQuoteCurrency && price) {
+            const usdValue = amountTimesPrice(shortcut, price);
+            const formattedUsdPrice = parseFloat(formatUnits(usdValue, baseToken.decimals));
+            const minFillSize = parseFloat(formatUnits(MIN_FILL_SIZE, quoteToken.decimals));
+            if (formattedUsdPrice < minFillSize) {
+                return 0;
+            }
         }
         // Adjust by # of other token's decimals
         const value = formatUnits(
@@ -114,7 +115,7 @@ export function AmountShortcutButton({
             isQuoteCurrency ? quoteToken.decimals : baseToken.decimals,
         );
         return value;
-    }, [baseToken.decimals, isQuoteCurrency, quoteToken.decimals, shortcut, usdPrice]);
+    }, [baseToken.decimals, isQuoteCurrency, price, quoteToken.decimals, shortcut]);
 
     const isDisabled = !formattedShortcut || parseFloat(formattedShortcut) === 0;
 
