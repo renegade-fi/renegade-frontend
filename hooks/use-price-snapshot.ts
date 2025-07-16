@@ -1,43 +1,31 @@
 import type { Exchange } from "@renegade-fi/react";
-import { type QueryClient, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useQueries, useQuery } from "@tanstack/react-query";
 
 import { priceQueryOptions } from "@/hooks/use-price-query";
-import { createSnapshotPriceQueryKey } from "@/lib/query";
+import { createPriceQueryKey } from "@/lib/query";
 
 /** Check if a snapshot is already cached. */
 const hasSnapshot = (qc: QueryClient, baseMint: `0x${string}`, exchange: Exchange) =>
-    qc.getQueryData<number>(createSnapshotPriceQueryKey({ exchange, baseMint })) !== undefined;
+    qc.getQueryData<number>(createPriceQueryKey({ exchange, base: baseMint, isSnapshot: true })) !==
+    undefined;
 
 /** Hook to retrieve a price without subscribing to the live price. */
 export const usePriceSnapshot = (baseMint: `0x${string}`, exchange: Exchange = "renegade") => {
-    const qc = useQueryClient();
-
-    const opts = priceQueryOptions(baseMint, exchange);
-    const queryKey = createSnapshotPriceQueryKey({ exchange, baseMint });
-    const cached = hasSnapshot(qc, baseMint, exchange);
+    const opts = priceQueryOptions(baseMint, exchange, true /** isSnapshot */);
 
     return useQuery({
         ...opts,
-        queryKey,
-        enabled: !cached,
-        initialData: cached ? () => qc.getQueryData<number>(queryKey)! : undefined,
     });
 };
 
 /** Hook to retrieve prices without subscribing to the live price. */
 export const usePricesSnapshot = (mints: `0x${string}`[], exchange: Exchange = "renegade") => {
-    const qc = useQueryClient();
     return useQueries({
         queries: mints.map((mint) => {
-            const opts = priceQueryOptions(mint, exchange);
-            const queryKey = createSnapshotPriceQueryKey({ exchange, baseMint: mint });
-            const cached = hasSnapshot(qc, mint, exchange);
+            const opts = priceQueryOptions(mint, exchange, true /** isSnapshot */);
 
             return {
                 ...opts,
-                queryKey,
-                enabled: !cached,
-                initialData: cached ? () => qc.getQueryData<number>(queryKey)! : undefined,
             };
         }),
         combine: (results) => {
