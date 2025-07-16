@@ -98,9 +98,6 @@ export default async function RootLayout({
 
     return (
         <html suppressHydrationWarning lang="en">
-            <head>
-                <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-            </head>
             <body
                 className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
             >
