@@ -35,8 +35,7 @@ export function usePriceQueries(mints: `0x${string}`[]) {
     return useQueries({
         queries: mints.map((mint) => ({
             queryKey: createPriceQueryKey({
-                base: mint,
-                exchange: "renegade",
+                baseMint: mint,
             }),
             queryFn: () => client.getPrice(mint),
             initialData: 0,

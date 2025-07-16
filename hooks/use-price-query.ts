@@ -10,13 +10,16 @@ import { usePriceWebSocket } from "./use-price-websocket";
 
 export const STALE_TIME_MS = 60_000;
 
-export function priceQueryOptions(
-    baseMint: `0x${string}`,
-    exchange: Exchange = "renegade",
-    isSnapshot: boolean = false,
-): UseQueryOptions<number> {
-    const topic = createPriceTopic({ exchange, base: baseMint });
-    const queryKey = createPriceQueryKey({ exchange, base: baseMint, isSnapshot });
+export interface QueryParams {
+    baseMint: `0x${string}`;
+    exchange?: Exchange;
+    isSnapshot?: boolean;
+    quote?: `0x${string}`;
+}
+
+export function priceQueryOptions(params: QueryParams): UseQueryOptions<number> {
+    const topic = createPriceTopic(params);
+    const queryKey = createPriceQueryKey(params);
 
     return queryOptions<number>({
         queryKey,
@@ -27,11 +30,11 @@ export function priceQueryOptions(
     });
 }
 
-export function usePriceQuery(baseMint: `0x${string}`, exchange: Exchange = "renegade") {
-    const opts = priceQueryOptions(baseMint, exchange);
-    const topic = createPriceTopic({ exchange, base: baseMint });
+export function usePriceQuery(params: QueryParams) {
+    const opts = priceQueryOptions(params);
+    const topic = createPriceTopic(params);
     const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket();
-    const isSupported = isSupportedExchange(baseMint, exchange);
+    const isSupported = isSupportedExchange(params.baseMint, params.exchange ?? "renegade");
 
     React.useEffect(() => {
         if (!isSupported) return;
