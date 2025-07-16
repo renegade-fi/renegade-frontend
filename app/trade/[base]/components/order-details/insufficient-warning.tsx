@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { RampDialog } from "@/app/rampv2/ramp-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -5,8 +6,8 @@ import {
     ResponsiveTooltipContent,
     ResponsiveTooltipTrigger,
 } from "@/components/ui/responsive-tooltip";
-
 import { useIsOrderUndercapitalized } from "@/hooks/use-is-order-undercapitalized";
+import { priceQueryOptions } from "@/hooks/use-price-query";
 import { Side } from "@/lib/constants/protocol";
 import { UNDERCAPITALIZED_ORDER_TOOLTIP } from "@/lib/constants/tooltips";
 import { cn } from "@/lib/utils";
@@ -28,11 +29,16 @@ export function InsufficientWarning({
     side: Side;
     withDialog?: boolean;
 }) {
+    const { data: price, isSuccess } = useQuery({
+        ...priceQueryOptions({ baseMint, isSnapshot: true }),
+        refetchInterval: 5000,
+    });
     const { isUndercapitalized, token } = useIsOrderUndercapitalized({
         amount,
         baseMint,
         quoteMint,
         side,
+        basePerQuote: isSuccess ? price : 0,
     });
 
     if (!isUndercapitalized) return null;

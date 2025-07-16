@@ -1,4 +1,4 @@
-import { OrderState } from "@renegade-fi/react";
+import { OrderState, useQuery } from "@renegade-fi/react";
 import type { ColumnDef, RowData } from "@tanstack/react-table";
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
 import { formatUnits } from "viem/utils";
@@ -14,6 +14,7 @@ import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useSavingsAcrossFillsQuery } from "@/hooks/savings/use-savings-across-fills-query";
 import { useIsOrderUndercapitalized } from "@/hooks/use-is-order-undercapitalized";
 import type { ExtendedOrderMetadata } from "@/hooks/use-order-table-data";
+import { priceQueryOptions } from "@/hooks/use-price-query";
 import { Side } from "@/lib/constants/protocol";
 import { UNDERCAPITALIZED_ORDER_TOOLTIP } from "@/lib/constants/tooltips";
 import {
@@ -39,11 +40,16 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             const remainingAmount =
                 row.original.data.amount -
                 row.original.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0));
+            const { data: price, isSuccess } = useQuery({
+                ...priceQueryOptions({ baseMint: row.original.data.base_mint, isSnapshot: true }),
+                refetchInterval: 5000,
+            });
             const { isUndercapitalized } = useIsOrderUndercapitalized({
                 amount: remainingAmount,
                 baseMint: row.original.data.base_mint,
                 quoteMint: row.original.data.quote_mint,
                 side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
+                basePerQuote: isSuccess ? price : 0,
             });
             const token = resolveAddress(
                 row.original.data.side === "Buy"
@@ -81,11 +87,16 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             const remainingAmount =
                 row.original.data.amount -
                 row.original.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0));
+            const { data: price, isSuccess } = useQuery({
+                ...priceQueryOptions({ baseMint: row.original.data.base_mint, isSnapshot: true }),
+                refetchInterval: 5000,
+            });
             const { isUndercapitalized } = useIsOrderUndercapitalized({
                 amount: remainingAmount,
                 baseMint: row.original.data.base_mint,
                 quoteMint: row.original.data.quote_mint,
                 side: row.original.data.side === "Buy" ? Side.BUY : Side.SELL,
+                basePerQuote: isSuccess ? price : 0,
             });
             let status: string = formatOrderState[row.getValue<OrderState>("status")];
             if (isUndercapitalized && status === "Open") {

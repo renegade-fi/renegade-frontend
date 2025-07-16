@@ -15,7 +15,7 @@ export function AnimatedPrice({
     exchange?: Exchange;
     mint: `0x${string}`;
 }) {
-    const { data: price, isStale } = usePriceQuery(mint, exchange);
+    const { data: price, isStale } = usePriceQuery({ baseMint: mint, exchange });
     const prev = React.useRef(price);
     const [animationKey, setAnimationKey] = React.useState(0);
 

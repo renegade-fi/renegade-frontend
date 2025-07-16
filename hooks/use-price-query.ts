@@ -10,14 +10,19 @@ import { usePriceWebSocket } from "./use-price-websocket";
 
 export const STALE_TIME_MS = 60_000;
 
-export function priceQueryOptions(
-    baseMint: `0x${string}`,
-    exchange: Exchange = "renegade",
-): UseQueryOptions<number> {
-    const topic = createPriceTopic({ exchange, base: baseMint });
+export interface QueryParams {
+    baseMint: `0x${string}`;
+    exchange?: Exchange;
+    isSnapshot?: boolean;
+    quote?: `0x${string}`;
+}
+
+export function priceQueryOptions(params: QueryParams): UseQueryOptions<number> {
+    const topic = createPriceTopic(params);
+    const queryKey = createPriceQueryKey(params);
 
     return queryOptions<number>({
-        queryKey: ["dummy"], // Consumers will replace this with either "live" or "snapshot" price query key
+        queryKey,
         queryFn: () => {
             const [ex, base, quote] = topic.split("-") as [Exchange, `0x${string}`, `0x${string}`];
             return client.getPriceByTopic(ex, base, quote);
@@ -25,12 +30,11 @@ export function priceQueryOptions(
     });
 }
 
-export function usePriceQuery(baseMint: `0x${string}`, exchange: Exchange = "renegade") {
-    const opts = priceQueryOptions(baseMint, exchange);
-    const topic = createPriceTopic({ exchange, base: baseMint });
+export function usePriceQuery(params: QueryParams) {
+    const opts = priceQueryOptions(params);
+    const topic = createPriceTopic(params);
     const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket();
-    const isSupported = isSupportedExchange(baseMint, exchange);
-    const queryKey = createPriceQueryKey({ exchange, base: baseMint });
+    const isSupported = isSupportedExchange(params.baseMint, params.exchange ?? "renegade");
 
     React.useEffect(() => {
         if (!isSupported) return;
@@ -42,7 +46,6 @@ export function usePriceQuery(baseMint: `0x${string}`, exchange: Exchange = "ren
 
     return useQuery<number>({
         ...opts,
-        queryKey,
         initialData: 0,
         staleTime: STALE_TIME_MS,
         enabled: isSupported,
