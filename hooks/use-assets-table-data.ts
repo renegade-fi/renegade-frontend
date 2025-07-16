@@ -1,13 +1,12 @@
+import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
-
 import { formatUnits } from "viem/utils";
 import { useAccount } from "wagmi";
-
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useOnChainBalances } from "@/hooks/use-on-chain-balances";
-import { usePriceQueries } from "@/hooks/use-price-queries";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { resolveAddress } from "@/lib/token";
+import { priceQueryOptions } from "./use-price-query";
 
 export type AssetsTableRow = {
     mint: `0x${string}`;
@@ -38,13 +37,25 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
         mints,
     });
 
-    const priceResults = usePriceQueries(mints);
+    const priceResults = useQueries({
+        queries: mints.map((mint) => ({
+            ...priceQueryOptions(mint, undefined /** exchange */, true /** isSnapshot */),
+            refetchInterval: 5000,
+        })),
+        combine: (results) => {
+            const map = new Map<`0x${string}`, number>();
+            results.forEach((result, i) => {
+                map.set(mints[i], result.data ?? 0);
+            });
+            return map;
+        },
+    });
 
     const tableData = useMemo(() => {
         return mints.map((mint, i) => {
             const token = resolveAddress(mint);
             const renegadeBalance = renegadeBalances?.get(mint) ?? BigInt(0);
-            const price = priceResults[i]?.data ?? 0;
+            const price = priceResults.get(mint) ?? 0;
             const renegadeUsdValueBigInt = amountTimesPrice(renegadeBalance, price);
             const renegadeUsdValue = formatUnits(renegadeUsdValueBigInt, token.decimals);
 

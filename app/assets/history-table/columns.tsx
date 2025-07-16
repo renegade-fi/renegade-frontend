@@ -1,12 +1,10 @@
+import { useQuery } from "@renegade-fi/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatUnits } from "viem/utils";
-
 import type { HistoryData } from "@/app/assets/page-client";
-
 import { TokenIcon } from "@/components/token-icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-import { usePriceQuery } from "@/hooks/use-price-query";
+import { priceQueryOptions } from "@/hooks/use-price-query";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { formatCurrencyFromString, formatNumber, formatTimestamp } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
@@ -49,9 +47,13 @@ export const columns: ColumnDef<HistoryData>[] = [
         cell: function Cell({ row }) {
             const mint = row.getValue<`0x${string}`>("mint");
             const token = resolveAddress(mint);
-            const { data: price } = usePriceQuery(mint);
+            // const { data: price } = usePriceQuery(mint);
+            const { data: price, isSuccess } = useQuery({
+                ...priceQueryOptions(mint, undefined /** exchange */, true /** isSnapshot */),
+                refetchInterval: 5000,
+            });
             const amount = row.original.rawAmount;
-            const usdValueBigInt = amountTimesPrice(amount, price);
+            const usdValueBigInt = amountTimesPrice(amount, isSuccess ? price : 0);
             const usdValue = formatUnits(usdValueBigInt, token.decimals);
             return <div className="text-right">{formatCurrencyFromString(usdValue)}</div>;
         },
