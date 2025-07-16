@@ -1,6 +1,6 @@
-import type { Exchange } from "@renegade-fi/react";
 import type { Query, QueryClient } from "@tanstack/react-query";
 
+import type { QueryParams as PriceQueryParams } from "@/hooks/use-price-query";
 import { getDefaultQuote } from "./token";
 
 // Helper function defining a global rule for invalidating queries
@@ -29,17 +29,10 @@ export function shouldInvalidate(query: Query, queryClient: QueryClient) {
     return effectiveStaleTime !== Number.POSITIVE_INFINITY;
 }
 
-export function createPriceTopic({
-    exchange,
-    base,
-    quote: _quote,
-}: {
-    exchange?: Exchange;
-    base: `0x${string}`;
-    quote?: `0x${string}`;
-}): string {
-    const quote = _quote ?? getDefaultQuote(base, exchange ?? "renegade").address;
-    return `${exchange}-${base}-${quote}`;
+export function createPriceTopic(params: PriceQueryParams): string {
+    const exchange = params.exchange ?? "renegade";
+    const quote = params.quote ?? getDefaultQuote(params.baseMint, exchange).address;
+    return `${exchange}-${params.baseMint}-${quote}`;
 }
 
 export function createCanonicalPriceTopic(mint: `0x${string}`): string {
@@ -47,22 +40,14 @@ export function createCanonicalPriceTopic(mint: `0x${string}`): string {
 }
 
 /** Create a query key for a live price query. */
-export function createPriceQueryKey({
-    exchange,
-    base,
-    quote: _quote,
-    isSnapshot,
-}: {
-    exchange?: Exchange;
-    base: `0x${string}`;
-    quote?: `0x${string}`;
-    isSnapshot?: boolean;
-}): string[] {
-    if (!exchange || exchange === "renegade") {
-        return ["price", isSnapshot ? "snapshot" : "live", "renegade", base];
+export function createPriceQueryKey(params: PriceQueryParams): string[] {
+    const second = params.isSnapshot ? "snapshot" : "live";
+    const exchange = params.exchange ?? "renegade";
+    if (exchange === "renegade") {
+        return ["price", second, exchange, params.baseMint];
     }
-    const quote = _quote ?? getDefaultQuote(base, exchange).address;
-    return ["price", "live", exchange, base, quote];
+    const quote = params.quote ?? getDefaultQuote(params.baseMint, exchange).address;
+    return ["price", second, exchange, params.baseMint, quote];
 }
 
 /** Converts a price topic from the Price Reporter into a live price query key. */

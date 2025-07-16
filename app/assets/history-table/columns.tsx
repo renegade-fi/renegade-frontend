@@ -49,7 +49,7 @@ export const columns: ColumnDef<HistoryData>[] = [
             const token = resolveAddress(mint);
             // const { data: price } = usePriceQuery(mint);
             const { data: price, isSuccess } = useQuery({
-                ...priceQueryOptions(mint, undefined /** exchange */, true /** isSnapshot */),
+                ...priceQueryOptions({ baseMint: mint, isSnapshot: true }),
                 refetchInterval: 5000,
             });
             const amount = row.original.rawAmount;

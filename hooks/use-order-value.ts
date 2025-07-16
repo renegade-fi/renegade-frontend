@@ -22,7 +22,7 @@ export function useOrderValue({ amount, base, isQuoteCurrency }: NewOrderFormPro
     const quoteMint = useServerStore((state) => state.quoteMint);
     const quoteToken = resolveAddress(quoteMint);
     const { data: usdPerBase } = useQuery({
-        ...priceQueryOptions(baseToken.address, undefined /** exchange */, true /** isSnapshot */),
+        ...priceQueryOptions({ baseMint: baseToken.address, isSnapshot: true }),
         refetchInterval: 2000,
     });
 

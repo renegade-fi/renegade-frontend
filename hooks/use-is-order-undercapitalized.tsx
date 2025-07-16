@@ -1,7 +1,7 @@
 import { formatUnits } from "viem/utils";
 
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
-import { useUSDPrice } from "@/hooks/use-usd-price";
+import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { Side } from "@/lib/constants/protocol";
 import { resolveAddress } from "@/lib/token";
 
@@ -10,11 +10,13 @@ export function useIsOrderUndercapitalized({
     baseMint,
     quoteMint,
     side,
+    basePerQuote,
 }: {
     amount: bigint;
     baseMint: `0x${string}`;
     quoteMint: `0x${string}`;
     side: Side;
+    basePerQuote: number;
 }) {
     const baseToken = resolveAddress(baseMint);
     const quoteToken = resolveAddress(quoteMint);
@@ -27,12 +29,12 @@ export function useIsOrderUndercapitalized({
         },
     });
 
-    const usdPrice = useUSDPrice(baseMint, amount);
+    const notionalValue = amountTimesPrice(amount, basePerQuote); // in units of the input amount
 
     const isUndercapitalized = (() => {
         if (side === Side.BUY) {
             const formattedUsdPrice = formatUnits(
-                usdPrice,
+                notionalValue,
                 side === Side.BUY ? baseToken.decimals : quoteToken.decimals,
             );
             return balance

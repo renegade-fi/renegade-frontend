@@ -23,7 +23,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
     const baseToken = resolveAddress(props.base);
     const quoteMint = useServerStore((state) => state.quoteMint);
     const quoteToken = resolveAddress(quoteMint);
-    const { data: price } = usePriceQuery(props.base);
+    const { data: price } = usePriceQuery({ baseMint: props.base });
 
     const worstCasePrice = React.useMemo(() => {
         if (!price) return 0;

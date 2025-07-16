@@ -39,7 +39,7 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
 
     const priceResults = useQueries({
         queries: mints.map((mint) => ({
-            ...priceQueryOptions(mint, undefined /** exchange */, true /** isSnapshot */),
+            ...priceQueryOptions({ baseMint: mint, isSnapshot: true }),
             refetchInterval: 5000,
         })),
         combine: (results) => {

@@ -13,7 +13,11 @@ export function AnimatedPriceStatus({
     exchange?: Exchange;
     mint: `0x${string}`;
 }) {
-    const { data: price, isStale, isFetchedAfterMount } = usePriceQuery(mint, exchange);
+    const {
+        data: price,
+        isStale,
+        isFetchedAfterMount,
+    } = usePriceQuery({ baseMint: mint, exchange });
     const { text, statusColor } = getPriceStatus({
         price,
         // Optimistically give price a chance to update before displaying stale status

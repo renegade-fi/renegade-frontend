@@ -45,7 +45,7 @@ export function AmountShortcutButton({
         },
     });
     const { data: price } = useQuery({
-        ...priceQueryOptions(baseToken.address, undefined /** exchange */, true /** isSnapshot */),
+        ...priceQueryOptions({ baseMint: baseToken.address, isSnapshot: true }),
         refetchInterval: 2000,
     });
 

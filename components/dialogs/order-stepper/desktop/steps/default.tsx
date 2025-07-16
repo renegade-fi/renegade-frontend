@@ -44,7 +44,7 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
     const baseToken = resolveAddress(props.base);
     const quoteMint = useServerStore((state) => state.quoteMint);
     const quoteToken = resolveAddress(quoteMint);
-    const { data: price } = usePriceQuery(baseToken.address);
+    const { data: price } = usePriceQuery({ baseMint: baseToken.address });
 
     const worstCasePrice = React.useMemo(() => {
         if (!price) return 0;
