@@ -25,11 +25,11 @@ function formatBars(bars: any[]): Bar[] {
         return [];
     }
     return bars.map((bar) => ({
-        time: bar.exchangeTimestamp,
-        low: bar.low,
-        high: bar.high,
-        open: bar.open,
         close: bar.close,
+        high: bar.high,
+        low: bar.low,
+        open: bar.open,
+        time: bar.exchangeTimestamp,
     }));
 }
 
@@ -184,7 +184,7 @@ function splitTimeRange(startTimeMs: number, endTimeMs: number, maxChunks: numbe
     for (let i = 0; i < maxChunks; i++) {
         const chunkStart = startTimeMs + i * chunkSize;
         const chunkEnd = Math.min(chunkStart + chunkSize, endTimeMs);
-        chunks.push({ start: chunkStart, end: chunkEnd });
+        chunks.push({ end: chunkEnd, start: chunkStart });
         if (chunkEnd === endTimeMs) break;
     }
 

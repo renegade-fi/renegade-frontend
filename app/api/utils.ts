@@ -67,29 +67,29 @@ export async function readErc20BalanceOf(
     try {
         const data = encodeFunctionData({
             abi,
-            functionName: "balanceOf",
             args: [owner],
+            functionName: "balanceOf",
         });
 
         const response = await fetch(rpcUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: 1,
                 jsonrpc: "2.0",
                 method: "eth_call",
-                params: [{ to: mint, data }, "latest"],
+                params: [{ data, to: mint }, "latest"],
             }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
         });
 
         const result = await response.json();
         return BigInt(result.result);
     } catch (error) {
         console.error("Error fetching balance", {
-            rpcUrl,
+            error,
             mint,
             owner,
-            error,
+            rpcUrl,
         });
         return BigInt(0);
     }
@@ -98,23 +98,23 @@ export async function readErc20BalanceOf(
 export async function readEthBalance(rpcUrl: string, address: string): Promise<bigint> {
     try {
         const response = await fetch(rpcUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: 1,
                 jsonrpc: "2.0",
                 method: "eth_getBalance",
                 params: [address, "latest"],
             }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
         });
 
         const result = await response.json();
         return BigInt(result.result);
     } catch (error) {
         console.error("Error reading ETH balance", {
-            rpcUrl,
             address,
             error,
+            rpcUrl,
         });
         return BigInt(0);
     }
@@ -127,14 +127,14 @@ export async function readSplBalanceOf(
 ): Promise<bigint> {
     try {
         const accountResponse = await fetch(rpcUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                jsonrpc: "2.0",
                 id: 1,
+                jsonrpc: "2.0",
                 method: "getTokenAccountsByOwner",
                 params: [userAddress, { mint: tokenAddress }, { encoding: "jsonParsed" }],
             }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
         });
 
         const accountData = await accountResponse.json();
@@ -144,14 +144,14 @@ export async function readSplBalanceOf(
 
         const tokenAccountAddress = accountData.result.value[0].pubkey;
         const balanceResponse = await fetch(rpcUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                jsonrpc: "2.0",
                 id: 1,
+                jsonrpc: "2.0",
                 method: "getTokenAccountBalance",
                 params: [tokenAccountAddress],
             }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
         });
 
         const balanceData = await balanceResponse.json();
@@ -170,18 +170,18 @@ export async function fetchTvl(
 ): Promise<bigint> {
     const data = encodeFunctionData({
         abi,
-        functionName: "balanceOf",
         args: [darkpoolContract],
+        functionName: "balanceOf",
     });
     const response = await fetch(rpcUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             id: 1,
             jsonrpc: "2.0",
             method: "eth_call",
-            params: [{ to: mint, data }, "latest"],
+            params: [{ data, to: mint }, "latest"],
         }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
     });
 
     if (!response.ok) {

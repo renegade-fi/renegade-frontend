@@ -11,8 +11,8 @@ export function usePredictedFees(order: NewOrderFormProps) {
 
     const feesCalculation = React.useMemo(() => {
         const res = {
-            relayerFee: 0,
             protocolFee: 0,
+            relayerFee: 0,
         };
         if (!valueInQuoteCurrency) return res;
         res.protocolFee = parseFloat(valueInQuoteCurrency) * PROTOCOL_FEE;

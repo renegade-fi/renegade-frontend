@@ -125,14 +125,14 @@ export function SignInDialog({
     const steps: Step[] = React.useMemo(
         () => [
             {
+                error: (signMessage1Error as BaseError)?.shortMessage,
                 label: "Generate your Renegade wallet",
                 status: signStatus1,
-                error: (signMessage1Error as BaseError)?.shortMessage,
             },
             {
+                error: (signMessage2Error as BaseError)?.shortMessage || signMessage2Error?.message,
                 label: "Verify wallet compatibility",
                 status: signStatus2,
-                error: (signMessage2Error as BaseError)?.shortMessage || signMessage2Error?.message,
             },
         ],
         [signMessage1Error, signMessage2Error, signStatus1, signStatus2],

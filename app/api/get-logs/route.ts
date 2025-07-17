@@ -40,8 +40,6 @@ export async function GET(req: NextRequest) {
 
         // Make raw JSON-RPC call
         const response = await fetch(rpcUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: 1,
                 jsonrpc: "2.0",
@@ -49,11 +47,13 @@ export async function GET(req: NextRequest) {
                 params: [
                     {
                         address: darkpool,
-                        topics,
                         fromBlock: deployBlockHex,
+                        topics,
                     },
                 ],
             }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
         });
 
         if (!response.ok) {

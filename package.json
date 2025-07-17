@@ -1,17 +1,4 @@
 {
-    "name": "renegade-trade",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev --turbopack",
-        "build": "next build",
-        "start": "next start",
-        "lint": "biome lint .",
-        "format": "biome format --write .",
-        "check": "biome check --write .",
-        "typecheck": "tsc --noEmit",
-        "postinstall": "bash ./scripts/postinstall.sh"
-    },
     "dependencies": {
         "@datadog/browser-logs": "^5.23.3",
         "@datadog/browser-rum": "^5.23.3",
@@ -98,13 +85,26 @@
         "tailwindcss": "^3.4.1",
         "typescript": "^5"
     },
+    "name": "renegade-trade",
     "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee",
     "pnpm": {
         "overrides": {
-            "react-is": "19.1.0",
-            "viem": "$viem",
             "@types/react": "19.1.4",
-            "@types/react-dom": "19.1.5"
+            "@types/react-dom": "19.1.5",
+            "react-is": "19.1.0",
+            "viem": "$viem"
         }
-    }
+    },
+    "private": true,
+    "scripts": {
+        "build": "next build",
+        "check": "biome check --write .",
+        "dev": "next dev --turbopack",
+        "format": "biome format --write .",
+        "lint": "biome lint .",
+        "postinstall": "bash ./scripts/postinstall.sh",
+        "start": "next start",
+        "typecheck": "tsc --noEmit"
+    },
+    "version": "0.1.0"
 }

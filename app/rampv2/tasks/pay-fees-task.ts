@@ -38,9 +38,9 @@ export class PayFeesTask extends Task<PayFeesDescriptor, PayFeesState, PayFeesEr
 
     static create(chainId: number, ctx: TaskContext): PayFeesTask {
         const desc: PayFeesDescriptor = {
+            chainId,
             id: crypto.randomUUID(),
             type: TASK_TYPES.PAY_FEES,
-            chainId,
         };
         return new PayFeesTask(desc, ctx);
     }

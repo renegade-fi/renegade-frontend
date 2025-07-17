@@ -38,11 +38,11 @@ export async function GET(req: NextRequest) {
         );
 
         const pipelineResponse = await fetch(`${env.KV_REST_API_URL}/pipeline`, {
-            method: "POST",
+            body: pipelineBody,
             headers: {
                 Authorization: `Bearer ${env.KV_REST_API_TOKEN}`,
             },
-            body: pipelineBody,
+            method: "POST",
         });
 
         if (!pipelineResponse.ok) {
@@ -63,8 +63,8 @@ export async function GET(req: NextRequest) {
 
                 if (!buckets[bucketKey]) {
                     buckets[bucketKey] = {
-                        timestamp: bucketKey,
                         depositAmount: 0,
+                        timestamp: bucketKey,
                         withdrawalAmount: 0,
                     };
                 }
@@ -88,8 +88,8 @@ export async function GET(req: NextRequest) {
         });
     } catch (_error) {
         return new Response(JSON.stringify({ error: "Failed to fetch external transfer logs" }), {
-            status: 500,
             headers: { "Content-Type": "application/json" },
+            status: 500,
         });
     }
 }

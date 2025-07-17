@@ -37,7 +37,7 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
         queue.tasks.forEach((t, idx) => {
             const id = (t as any).descriptor?.id ?? `task-${idx}`;
             const label = getTaskStateLabel(t);
-            m.set(id, { state: label, label, url: t.explorerLink?.() });
+            m.set(id, { label, state: label, url: t.explorerLink?.() });
         });
         return m;
     });
@@ -56,8 +56,8 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
             setTaskMap((prev) => {
                 const next = new Map(prev);
                 next.set(id, {
-                    state: getTaskStateLabel(task),
                     label: getTaskStateLabel(task),
+                    state: getTaskStateLabel(task),
                     url: task.explorerLink?.(),
                 });
                 return next;
@@ -70,8 +70,8 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
             setTaskMap((prev) => {
                 const next = new Map(prev);
                 next.set(id, {
-                    state: "Error",
                     label: "Error",
+                    state: "Error",
                     url: task.explorerLink?.(),
                 });
                 return next;
@@ -109,12 +109,12 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
             const label = snapshot?.label ?? "Pending";
             const canonical = toCanonicalState(label);
             tasksArr.push({
-                id,
-                name: t.name(),
-                label,
-                url: snapshot?.url,
                 canonical,
-                isActive: false, // placeholder will adjust later
+                id,
+                isActive: false,
+                label,
+                name: t.name(),
+                url: snapshot?.url, // placeholder will adjust later
             });
         });
 

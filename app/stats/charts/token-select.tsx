@@ -28,15 +28,15 @@ export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
     const tokens = useMemo(() => {
         const res = new Set<string>(
             DISPLAY_TOKENS({
+                chainId: chainId ? chainId : undefined,
                 hideHidden: true,
                 hideStables: true,
-                chainId: chainId ? chainId : undefined,
             }).map((token) => token.ticker),
         );
 
         return Array.from(res).map((ticker) => ({
-            value: ticker,
             label: ticker,
+            value: ticker,
         }));
     }, [chainId]);
 

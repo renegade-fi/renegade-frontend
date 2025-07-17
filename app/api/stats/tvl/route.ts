@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
                 error: `Invalid or unsupported chain ID: ${req.nextUrl.searchParams.get("chainId")}`,
             }),
             {
-                status: 400,
                 headers: { "Content-Type": "application/json" },
+                status: 400,
             },
         );
     }

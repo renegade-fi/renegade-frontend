@@ -16,63 +16,6 @@ function calculatePricescale(price: number): number {
 }
 
 export const datafeed = {
-    onReady: (callback: any) => {
-        setTimeout(() => callback(datafeedConfig));
-    },
-    searchSymbols: async (_userInput, _exchange, _symbolType, onResultReadyCallback) => {
-        // Not implemented because search is disabled
-        onResultReadyCallback([]);
-    },
-    resolveSymbol: async (
-        symbolName,
-        onSymbolResolvedCallback,
-        onResolveErrorCallback,
-        _extension,
-    ) => {
-        try {
-            const mint = symbolName as `0x${string}`;
-            const info = getPriceChartInfo(mint);
-            const exchange = info.exchange.toString();
-            const pair = info.instrument.split("_").join("").toUpperCase();
-
-            // Fetch current price to calculate appropriate pricescale
-            let pricescale = 100; // Default fallback
-            try {
-                const price = await priceReporterClient.getPrice(mint);
-                if (price && price > 0) {
-                    pricescale = calculatePricescale(price);
-                }
-            } catch {
-                // Do nothing
-            }
-
-            const symbolInfo = {
-                data_status: "streaming",
-                description: pair,
-                exchange,
-                format: "price",
-                has_intraday: true,
-                intraday_multipliers: ["1", "60"],
-                has_daily: true,
-                daily_multipliers: ["1"],
-                has_weekly_and_monthly: false,
-                listed_exchange: "",
-                minmov: 1,
-                name: pair,
-                pricescale,
-                session: "24x7",
-                supported_resolutions: datafeedConfig.supported_resolutions,
-                ticker: info.instrument,
-                timezone: "Etc/UTC",
-                type: "crypto",
-                volume_precision: 2,
-            } satisfies LibrarySymbolInfo;
-
-            onSymbolResolvedCallback(symbolInfo);
-        } catch (_error) {
-            onResolveErrorCallback("cannot resolve symbol");
-        }
-    },
     async getBars(symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) {
         const { from, to, firstDataRequest, countBack } = periodParams;
 
@@ -80,9 +23,9 @@ export const datafeed = {
             const resolutionSettings: {
                 [key: string]: { period: string; duration: number };
             } = {
-                "1": { period: "minutes", duration: oneDayMs },
-                "60": { period: "hours", duration: oneMonthMs },
-                "1D": { period: "days", duration: twelveMonthsMs },
+                "1": { duration: oneDayMs, period: "minutes" },
+                "1D": { duration: twelveMonthsMs, period: "days" },
+                "60": { duration: oneMonthMs, period: "hours" },
             };
 
             let bars: Bar[] = [];
@@ -121,6 +64,63 @@ export const datafeed = {
                 onErrorCallback(`${error}`);
             }
         }
+    },
+    onReady: (callback: any) => {
+        setTimeout(() => callback(datafeedConfig));
+    },
+    resolveSymbol: async (
+        symbolName,
+        onSymbolResolvedCallback,
+        onResolveErrorCallback,
+        _extension,
+    ) => {
+        try {
+            const mint = symbolName as `0x${string}`;
+            const info = getPriceChartInfo(mint);
+            const exchange = info.exchange.toString();
+            const pair = info.instrument.split("_").join("").toUpperCase();
+
+            // Fetch current price to calculate appropriate pricescale
+            let pricescale = 100; // Default fallback
+            try {
+                const price = await priceReporterClient.getPrice(mint);
+                if (price && price > 0) {
+                    pricescale = calculatePricescale(price);
+                }
+            } catch {
+                // Do nothing
+            }
+
+            const symbolInfo = {
+                daily_multipliers: ["1"],
+                data_status: "streaming",
+                description: pair,
+                exchange,
+                format: "price",
+                has_daily: true,
+                has_intraday: true,
+                has_weekly_and_monthly: false,
+                intraday_multipliers: ["1", "60"],
+                listed_exchange: "",
+                minmov: 1,
+                name: pair,
+                pricescale,
+                session: "24x7",
+                supported_resolutions: datafeedConfig.supported_resolutions,
+                ticker: info.instrument,
+                timezone: "Etc/UTC",
+                type: "crypto",
+                volume_precision: 2,
+            } satisfies LibrarySymbolInfo;
+
+            onSymbolResolvedCallback(symbolInfo);
+        } catch (_error) {
+            onResolveErrorCallback("cannot resolve symbol");
+        }
+    },
+    searchSymbols: async (_userInput, _exchange, _symbolType, onResultReadyCallback) => {
+        // Not implemented because search is disabled
+        onResultReadyCallback([]);
     },
     subscribeBars: (
         _symbolInfo,

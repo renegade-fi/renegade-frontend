@@ -19,13 +19,13 @@ function queryKey(params: QueryParams) {
 
 export function planQueryOptions(params: QueryParams) {
     return queryOptions({
-        queryKey: queryKey(params),
+        enabled: !!params.intent && !!params.taskCtx,
         queryFn: async () => {
             if (!params.intent || !params.taskCtx) return undefined;
             return planTasks(params.intent, params.taskCtx);
         },
-        staleTime: 0,
-        enabled: !!params.intent && !!params.taskCtx,
+        queryKey: queryKey(params),
         refetchInterval: 5000,
+        staleTime: 0,
     });
 }

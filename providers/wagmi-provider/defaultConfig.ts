@@ -44,13 +44,13 @@ const defaultConfig = ({
         props?.connectors ??
         defaultConnectors({
             app: {
-                name: appName,
-                icon: appIcon,
                 description: appDescription,
+                icon: appIcon,
+                name: appName,
                 url: appUrl,
             },
-            walletConnectProjectId,
             coinbaseWalletPreference,
+            walletConnectProjectId,
         });
 
     const config: CreateConfigParameters<any, any> = {

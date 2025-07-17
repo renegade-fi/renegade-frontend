@@ -54,8 +54,8 @@ export default function TradingViewChart(props: Partial<ChartingLibraryWidgetOpt
                 className={cn(
                     "absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300",
                     {
-                        "opacity-100": !isReady,
                         "opacity-0": isReady,
+                        "opacity-100": !isReady,
                     },
                 )}
             >

@@ -39,24 +39,24 @@ export async function GET(req: Request) {
             // Arbitrum token balances
             Promise.all(
                 tokens.map(async (token) => ({
-                    ticker: token.ticker,
                     balance: await readErc20BalanceOf(
                         getAlchemyRpcUrl(arbitrum.id),
                         token.address,
                         address,
                     ),
+                    ticker: token.ticker,
                 })),
             ),
 
             // Ethereum token balances
             Promise.all(
                 Object.values(ETHEREUM_TOKENS).map(async (token) => ({
-                    ticker: token.ticker,
                     balance: await readErc20BalanceOf(
                         getAlchemyRpcUrl(mainnet.id),
                         token.address,
                         address,
                     ),
+                    ticker: token.ticker,
                 })),
             ),
 

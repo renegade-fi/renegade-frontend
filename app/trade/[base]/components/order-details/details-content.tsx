@@ -66,13 +66,13 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         const formattedValue = formatUnits(value, baseToken.decimals);
         const formattedValueUSD = formatCurrencyFromString(formattedValue);
         return {
-            index,
             amount,
             amountLong,
             amountUSD: formattedValueUSD,
-            timestamp: Number(fill.price.timestamp),
             createdAt: Number(order.created),
+            index,
             ticker: baseToken.ticker,
+            timestamp: Number(fill.price.timestamp),
         };
     });
     const isOpen = order.state !== OrderState.Filled && order.state !== OrderState.Cancelled;

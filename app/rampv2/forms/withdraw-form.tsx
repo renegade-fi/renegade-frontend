@@ -51,10 +51,10 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     const { data: availableWithdrawBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: currentChain,
+            connection,
             mint,
             owner: address,
             wagmiConfig,
-            connection,
         }),
         enabled: !!mint,
     });
@@ -62,9 +62,9 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     const balances = useMemo(
         () =>
             buildBalancesCache({
-                network: currentChain,
                 depositMint: mint,
                 depositRaw: availableWithdrawBalance?.raw,
+                network: currentChain,
             }),
         [currentChain, mint, availableWithdrawBalance?.raw],
     );
@@ -94,9 +94,9 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         );
 
         const intent = Intent.newWithdrawIntent(ctx, {
-            mint,
-            chainId: currentChain,
             amount,
+            chainId: currentChain,
+            mint,
             unwrapToEth: unwrapToEth && canUnwrap,
         });
 

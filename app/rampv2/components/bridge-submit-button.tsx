@@ -71,13 +71,13 @@ export function BridgeSubmitButton({
 
     // Fetch populated transaction request for that leg
     const { data: solTxRequest } = useQuery({
-        queryKey: ["solana-tx-request", solanaLeg?.id],
+        enabled: !!solanaLeg,
         queryFn: async () => {
             if (!solanaLeg) return undefined;
             const populated = await getStepTransaction(solanaLeg);
             return populated?.transactionRequest;
         },
-        enabled: !!solanaLeg,
+        queryKey: ["solana-tx-request", solanaLeg?.id],
         staleTime: 0,
     });
 

@@ -93,14 +93,14 @@ export function RampDialog({
                     <>
                         <RampDialogBody
                             env={{
-                                renegadeConfig,
-                                wagmiConfig,
                                 connection,
-                                keychainNonce: keychainNonce ?? BigInt(0),
                                 currentChain,
                                 evmAddress: address as `0x${string}`,
+                                keychainNonce: keychainNonce ?? BigInt(0),
+                                renegadeConfig,
                                 solanaAddress,
                                 solanaSignTx: signTransaction ?? null,
+                                wagmiConfig,
                             }}
                             initialMint={initialMint}
                             isDesktop={isDesktop}

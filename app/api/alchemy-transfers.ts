@@ -37,14 +37,14 @@ export async function getAssetTransfers({
     const darkpool = getSDKConfig(chainId).darkpoolAddress.toLowerCase();
     const tokenAddresses = DISPLAY_TOKENS({ chainId }).map((t) => t.address);
     const baseParams: Record<string, any> = {
-        fromBlock: `0x${fromBlock.toString(16)}`,
-        toBlock: "latest",
-        contractAddresses: tokenAddresses,
         category: ["erc20"],
-        withMetadata: true,
+        contractAddresses: tokenAddresses,
         excludeZeroValue: false,
+        fromBlock: `0x${fromBlock.toString(16)}`,
         maxCount: "0xa",
         order: "desc",
+        toBlock: "latest",
+        withMetadata: true,
     };
     // set direction
     if (isWithdrawal) baseParams.fromAddress = darkpool;
@@ -59,15 +59,15 @@ export async function getAssetTransfers({
             ...(pageKey ? { pageKey } : {}),
         };
         const body: string = JSON.stringify({
-            jsonrpc: "2.0",
             id: 1,
+            jsonrpc: "2.0",
             method: "alchemy_getAssetTransfers",
             params: [params],
         });
         const response: Response = await fetch(getAlchemyRpcUrl(chainId), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
             body,
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
         });
         if (!response.ok) {
             throw new Error(`Alchemy getAssetTransfers HTTP error: ${response.status}`);

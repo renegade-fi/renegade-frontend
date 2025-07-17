@@ -40,11 +40,11 @@ export async function GET(req: NextRequest) {
 
         // Fetch all values for the keys using a single pipeline request
         const pipelineResponse = await fetch(`${env.KV_REST_API_URL}/pipeline`, {
-            method: "POST",
+            body: pipelineBody,
             headers: {
                 Authorization: `Bearer ${env.KV_REST_API_TOKEN}`,
             },
-            body: pipelineBody,
+            method: "POST",
         });
 
         if (!pipelineResponse.ok) {
@@ -86,8 +86,8 @@ export async function GET(req: NextRequest) {
 
         const response: HistoricalVolumeResponse = {
             data: volumeData,
-            startTimestamp: startTimestamp !== Infinity ? startTimestamp : 0,
             endTimestamp: endTimestamp !== -Infinity ? endTimestamp : 0,
+            startTimestamp: startTimestamp !== Infinity ? startTimestamp : 0,
             totalPoints: volumeData.length,
         };
 
@@ -96,8 +96,8 @@ export async function GET(req: NextRequest) {
         });
     } catch (_error) {
         return new Response(JSON.stringify({ error: "Failed to fetch historical volume data" }), {
-            status: 500,
             headers: { "Content-Type": "application/json" },
+            status: 500,
         });
     }
 }

@@ -6,7 +6,7 @@ import * as RechartsPrimitive from "recharts";
 import { cn } from "@/lib/utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
-const THEMES = { light: "", dark: ".dark" } as const;
+const THEMES = { dark: ".dark", light: "" } as const;
 
 export type ChartConfig = {
     [k in string]: {
@@ -200,11 +200,11 @@ const ChartTooltipContent = React.forwardRef<
                                                         "shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]",
                                                         {
                                                             "h-2.5 w-2.5": indicator === "dot",
-                                                            "w-1": indicator === "line",
-                                                            "w-0 border-[1.5px] border-dashed bg-transparent":
-                                                                indicator === "dashed",
                                                             "my-0.5":
                                                                 nestLabel && indicator === "dashed",
+                                                            "w-0 border-[1.5px] border-dashed bg-transparent":
+                                                                indicator === "dashed",
+                                                            "w-1": indicator === "line",
                                                         },
                                                     )}
                                                     style={

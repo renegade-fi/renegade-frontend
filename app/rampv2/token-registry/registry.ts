@@ -58,16 +58,16 @@ function convertTokenInstance(tokenInstance: InstanceType<typeof TokenClass>): T
 
     // Base token with default capabilities
     let token: Token = {
-        ticker,
-        decimals,
         address,
-        chainId,
-        name: tokenInstance.name,
+        bridgeTo: {},
         // Default: Renegade-compatible tokens can deposit/withdraw
         canDeposit: true,
         canWithdraw: true,
+        chainId,
+        decimals,
+        name: tokenInstance.name,
         swapTo: undefined,
-        bridgeTo: {},
+        ticker,
     };
 
     // Apply any override capabilities

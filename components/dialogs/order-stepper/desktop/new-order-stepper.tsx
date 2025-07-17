@@ -56,12 +56,12 @@ const StepperContext = React.createContext<{
 }>({
     onBack: () => {},
     onNext: () => {},
-    setStep: () => {},
-    step: Step.DEFAULT,
     open: false,
     setOpen: () => {},
-    taskId: "",
+    setStep: () => {},
     setTaskId: () => {},
+    step: Step.DEFAULT,
+    taskId: "",
 });
 
 export const useStepper = () => React.useContext(StepperContext);
@@ -98,12 +98,12 @@ const StepperProvider = ({
             value={{
                 onBack: handleBack,
                 onNext: handleNext,
-                setStep,
-                step,
                 open,
                 setOpen,
-                taskId,
+                setStep,
                 setTaskId,
+                step,
+                taskId,
             }}
         >
             {children}

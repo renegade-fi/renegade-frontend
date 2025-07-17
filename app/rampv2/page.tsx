@@ -51,14 +51,14 @@ export default function RampV2Page() {
 
     // --- Build env --- //
     const env: RampEnv = {
-        renegadeConfig,
-        wagmiConfig,
         connection,
-        keychainNonce: keychainNonce ?? BigInt(0),
         currentChain,
         evmAddress: evmAddress as `0x${string}`,
-        solanaAddress, // may be null
-        solanaSignTx: signTransaction ?? null,
+        keychainNonce: keychainNonce ?? BigInt(0),
+        renegadeConfig,
+        solanaAddress,
+        solanaSignTx: signTransaction ?? null, // may be null
+        wagmiConfig,
     };
 
     function handleQueueStart(q: TaskQueue) {

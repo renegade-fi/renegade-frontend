@@ -6,14 +6,13 @@ import { createReadContract, createSimulateContract, createWriteContract } from 
 
 export const erc20Abi = [
     {
-        type: "function",
         inputs: [{ name: "owner", type: "address" }],
         name: "balanceOf",
         outputs: [{ type: "uint256" }],
         stateMutability: "view",
+        type: "function",
     },
     {
-        type: "function",
         inputs: [
             { name: "spender", type: "address" },
             { name: "amount", type: "uint256" },
@@ -21,9 +20,9 @@ export const erc20Abi = [
         name: "approve",
         outputs: [{ type: "bool" }],
         stateMutability: "nonpayable",
+        type: "function",
     },
     {
-        type: "function",
         inputs: [
             { name: "owner", type: "address" },
             { name: "spender", type: "address" },
@@ -31,6 +30,7 @@ export const erc20Abi = [
         name: "allowance",
         outputs: [{ type: "uint256" }],
         stateMutability: "view",
+        type: "function",
     },
 ] as const;
 

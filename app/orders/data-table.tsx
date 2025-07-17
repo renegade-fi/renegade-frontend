@@ -38,14 +38,14 @@ import { cn } from "@/lib/utils";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
 const statuses = [
-    { value: "open", label: "Open" },
-    { value: "filled", label: "Filled" },
-    { value: "cancelled", label: "Cancelled" },
+    { label: "Open", value: "open" },
+    { label: "Filled", value: "filled" },
+    { label: "Cancelled", value: "cancelled" },
 ];
 
 const sides = [
-    { value: "buy", label: "Buy" },
-    { value: "sell", label: "Sell" },
+    { label: "Buy", value: "buy" },
+    { label: "Sell", value: "sell" },
 ];
 
 interface DataTableProps<_TData, _TValue> {
@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
         initialVisibleColumns ?? {},
     );
     const [rowSelection, setRowSelection] = React.useState({});
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: "timestamp", desc: true }]);
+    const [sorting, setSorting] = React.useState<SortingState>([{ desc: true, id: "timestamp" }]);
 
     const [status, setStatus] = React.useState(initialStatus ?? "");
     const [side, setSide] = React.useState(initialSide ?? "");
@@ -90,6 +90,9 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        meta: {
+            isLongFormat,
+        },
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -99,9 +102,6 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
             sorting,
-        },
-        meta: {
-            isLongFormat,
         },
     });
 
@@ -157,8 +157,8 @@ export function DataTable<TData, TValue>({
 
     const chainId = useCurrentChain();
     const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
-        value: token.address,
         label: token.ticker,
+        value: token.address,
     }));
 
     return (

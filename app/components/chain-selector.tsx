@@ -20,9 +20,9 @@ import { MAINNET_CHAINS, TESTNET_CHAINS } from "@/providers/wagmi-provider/confi
 const values = (
     env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? MAINNET_CHAINS : TESTNET_CHAINS
 ).map((chain) => ({
-    value: chain.id,
-    label: chain.name.split(" ")[0],
     icon: `/${chain.name.split(" ")[0].toLowerCase()}.svg`,
+    label: chain.name.split(" ")[0],
+    value: chain.id,
 }));
 
 export function ChainSelector() {

@@ -44,15 +44,15 @@ export function SuccessStepWithoutSavings() {
     });
 
     const Icon = {
-        success: <Check className="h-6 w-6" />,
-        pending: <Loader2 className="h-6 w-6 animate-spin" />,
         error: <AlertCircle className="h-6 w-6" />,
+        pending: <Loader2 className="h-6 w-6 animate-spin" />,
+        success: <Check className="h-6 w-6" />,
     }[status];
 
     const title = {
-        success: "Order Placed",
-        pending: "Placing Order",
         error: "Failed to Place Order",
+        pending: "Placing Order",
+        success: "Order Placed",
     }[status];
 
     return (

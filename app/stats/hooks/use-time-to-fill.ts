@@ -12,7 +12,7 @@ interface TimeToFillParams {
 
 export function useTimeToFill({ amount, mint, chainId }: TimeToFillParams) {
     return useQuery({
-        queryKey: ["timeToFill", amount, mint, chainId],
+        enabled: Boolean(amount && mint),
         queryFn: async () => {
             const ticker = resolveAddress(mint).ticker;
             const searchParams = new URLSearchParams({
@@ -40,6 +40,6 @@ export function useTimeToFill({ amount, mint, chainId }: TimeToFillParams) {
 
             return data.estimatedMs;
         },
-        enabled: Boolean(amount && mint),
+        queryKey: ["timeToFill", amount, mint, chainId],
     });
 }

@@ -34,14 +34,14 @@ export function usePriceQueries(mints: `0x${string}`[]) {
 
     return useQueries({
         queries: mints.map((mint) => ({
+            initialData: 0,
+            queryFn: () => client.getPrice(mint),
             queryKey: createPriceQueryKey({
                 base: mint,
                 exchange: "renegade",
             }),
-            queryFn: () => client.getPrice(mint),
-            initialData: 0,
-            staleTime: Infinity,
             retry: false,
+            staleTime: Infinity,
         })),
     });
 }

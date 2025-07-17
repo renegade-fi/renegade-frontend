@@ -46,8 +46,8 @@ export function WalletIndexCheck() {
 
             toast(MSG_INITIAL, {
                 duration: Infinity,
-                id: toastId,
                 icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                id: toastId,
             });
 
             // Fetch logs to determine if wallet should be created or recovered
@@ -61,14 +61,14 @@ export function WalletIndexCheck() {
             // Create or lookup wallet based on logs
             if (logs === 0) {
                 toast(MSG_CREATING, {
-                    id: toastId,
                     icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                    id: toastId,
                 });
                 await createWallet(config);
             } else {
                 toast(MSG_RECOVER, {
-                    id: toastId,
                     icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                    id: toastId,
                 });
                 await lookupWallet(config);
             }
@@ -85,13 +85,13 @@ export function WalletIndexCheck() {
             } while (!polled.id);
 
             toast.success(MSG_SUCCESS, {
-                id: toastId,
                 duration: 2000,
                 icon: undefined,
+                id: toastId,
             });
             return polled;
         } catch (error) {
-            toast.error(MSG_ERROR, { id: toastId, duration: 2000, icon: undefined });
+            toast.error(MSG_ERROR, { duration: 2000, icon: undefined, id: toastId });
             throw error;
         }
     }

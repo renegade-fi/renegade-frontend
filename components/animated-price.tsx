@@ -31,7 +31,7 @@ export function AnimatedPrice({
         }
     }, [price]);
 
-    const { priceColor } = getPriceStatus({ price, isStale, mint, exchange });
+    const { priceColor } = getPriceStatus({ exchange, isStale, mint, price });
 
     return (
         <span

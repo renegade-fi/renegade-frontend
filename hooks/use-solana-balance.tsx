@@ -18,19 +18,19 @@ function useTokenAccount(ticker: string) {
     const { publicKey } = useWallet();
     const mint = useSolanaToken(ticker);
     const params = {
-        ownerAddress: publicKey?.toString(),
         args: [mint.toString()],
         chainId: solana.id,
         functionName: "getTokenAccountsByOwner",
+        ownerAddress: publicKey?.toString(),
     };
     return useQuery({
-        queryKey: ["readContract", params],
+        enabled: !!mint && !!publicKey,
         queryFn: () =>
             connection.getTokenAccountsByOwner(publicKey!, {
                 mint,
             }),
+        queryKey: ["readContract", params],
         select: (data) => data.value[0]?.pubkey,
-        enabled: !!mint && !!publicKey,
     });
 }
 
@@ -39,18 +39,18 @@ function useSolanaBalance({ ticker, enabled = true }: { ticker: string; enabled?
     const { publicKey } = useWallet();
     const { data: tokenAccountAddress } = useTokenAccount(ticker);
     const params = {
-        tokenAddress: tokenAccountAddress?.toString(),
         args: [publicKey?.toString()],
         chainId: solana.id,
         functionName: "getTokenAccountBalance",
+        tokenAddress: tokenAccountAddress?.toString(),
     };
     const queryKey = ["readContract", params];
     return {
         queryKey,
         ...useQuery({
-            queryKey,
-            queryFn: () => connection.getTokenAccountBalance(tokenAccountAddress!),
             enabled: !!tokenAccountAddress && !!publicKey && enabled,
+            queryFn: () => connection.getTokenAccountBalance(tokenAccountAddress!),
+            queryKey,
         }),
     };
 }
@@ -62,7 +62,7 @@ export function useSolanaChainBalance({
     ticker: string;
     enabled?: boolean;
 }) {
-    const { data: balance, queryKey } = useSolanaBalance({ ticker, enabled });
+    const { data: balance, queryKey } = useSolanaBalance({ enabled, ticker });
     const balanceValue = BigInt(balance?.value.amount ?? "0");
     const formattedBalance = balance?.value.uiAmountString ?? "";
     const formattedBalanceLabel = balance?.value.decimals
@@ -71,9 +71,9 @@ export function useSolanaChainBalance({
 
     return {
         bigint: balanceValue,
-        string: formattedBalance,
         formatted: formattedBalanceLabel,
-        queryKey,
         nonZero: Boolean(balanceValue && balanceValue !== BigInt(0)),
+        queryKey,
+        string: formattedBalance,
     };
 }

@@ -55,11 +55,11 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
         ctx: TaskContext,
     ): Permit2SigTask {
         const desc: PermitSigDescriptor = {
-            id: crypto.randomUUID(),
-            type: TASK_TYPES.PERMIT2_SIG,
-            chainId,
-            mint,
             amount,
+            chainId,
+            id: crypto.randomUUID(),
+            mint,
+            type: TASK_TYPES.PERMIT2_SIG,
         };
         return new Permit2SigTask(desc, ctx);
     }
@@ -96,15 +96,15 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
                 });
 
                 const { domain, message, types, primaryType } = constructPermit2SigningData({
+                    amount: finalAmount,
                     chainId,
                     permit2Address: sdkCfg.permit2Address,
-                    tokenAddress: token.address,
-                    amount: finalAmount,
-                    spender: sdkCfg.darkpoolAddress,
                     pkRoot: pkRoot as unknown as readonly [bigint, bigint, bigint, bigint],
+                    spender: sdkCfg.darkpoolAddress,
+                    tokenAddress: token.address,
                 });
 
-                this._signingData = { domain, message, types, primaryType } as any;
+                this._signingData = { domain, message, primaryType, types } as any;
                 this._state = "AwaitingWallet";
                 break;
             }
@@ -118,9 +118,9 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
                     );
 
                     this.ctx.permit = {
-                        signature,
-                        nonce: (this._signingData as any).message.nonce,
                         deadline: (this._signingData as any).message.deadline,
+                        nonce: (this._signingData as any).message.nonce,
+                        signature,
                     };
 
                     this._state = "Completed";

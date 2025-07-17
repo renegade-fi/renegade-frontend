@@ -19,8 +19,8 @@ import { Prereq } from "./prereqs";
 async function requestBestRoute(req: Parameters<typeof getRoutes>[0]): Promise<Route> {
     const DEFAULT_ROUTE_OPTIONS: Partial<RouteOptions> = {
         exchanges: {
-            deny: ["sushiswap"],
             allow: ["1inch"],
+            deny: ["sushiswap"],
         },
     };
     const res = await getRoutes({
@@ -184,7 +184,7 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<PlanResult
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
     ordered = await filterNeeded(ordered, ctx);
-    return { tasks: ordered, route };
+    return { route, tasks: ordered };
 }
 
 async function getBridgeRoute(intent: Intent, ctx: TaskContext): Promise<Route> {
@@ -250,5 +250,5 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<PlanResul
         ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
     }
     ordered = await filterNeeded(ordered, ctx);
-    return { tasks: ordered, route };
+    return { route, tasks: ordered };
 }

@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
         const priceResults = await Promise.all(pricePromises);
 
         const priceData = tokens.map((token, index) => ({
-            ticker: token.ticker,
             price: priceResults[index],
+            ticker: token.ticker,
         }));
         console.log(`Fetched prices for ${priceData.length} tokens`);
 
@@ -57,14 +57,14 @@ export async function GET(req: NextRequest) {
         console.log("Fetching external transfer logs", sdkConfig.darkpoolAddress);
         const [depositTransfers, withdrawTransfers] = await Promise.all([
             getAssetTransfers({
+                chainId,
                 fromBlock,
                 isWithdrawal: false,
-                chainId,
             }),
             getAssetTransfers({
+                chainId,
                 fromBlock,
                 isWithdrawal: true,
-                chainId,
             }),
         ]);
         const rawTransfers: AlchemyTransfer[] = [...depositTransfers, ...withdrawTransfers];
@@ -90,10 +90,10 @@ export async function GET(req: NextRequest) {
             const isWithdrawal = raw.from.toLowerCase() === sdkConfig.darkpoolAddress.toLowerCase();
 
             const data: ExternalTransferData = {
-                timestamp,
                 amount,
                 isWithdrawal,
                 mint,
+                timestamp,
                 transactionHash: raw.hash,
             };
 
@@ -120,8 +120,8 @@ export async function GET(req: NextRequest) {
         console.log("POST request completed successfully");
         return new Response(
             JSON.stringify({
-                message: `Processed ${processedResults.length} logs`,
                 lastProcessedBlock: lastProcessedBlock.toString(),
+                message: `Processed ${processedResults.length} logs`,
             }),
             { status: 200 },
         );

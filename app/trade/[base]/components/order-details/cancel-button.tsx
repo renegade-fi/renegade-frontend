@@ -38,8 +38,8 @@ export function CancelButton({
                             onSuccess: (data) => {
                                 const message = constructStartToastMessage(UpdateType.CancelOrder);
                                 toast.success(message, {
-                                    id: data.taskId,
                                     icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                                    id: data.taskId,
                                 });
                             },
                         },

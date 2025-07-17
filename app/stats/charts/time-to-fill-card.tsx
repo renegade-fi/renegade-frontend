@@ -38,14 +38,14 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
 
     const { data: timeToFillMs } = useTimeToFill({
         amount: debouncedUsdValue,
-        mint: resolveTicker(selectedToken).address,
         chainId: tokenChainId,
+        mint: resolveTicker(selectedToken).address,
     });
 
     const lastValidValue = useRef<TimeDisplayValues>({
-        value: 0,
         prefix: "",
         suffix: "",
+        value: 0,
     });
 
     const displayValues = useMemo<TimeDisplayValues>(() => {
@@ -58,9 +58,9 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
 
         if (!timeToFillMs) {
             return {
-                value: 0,
                 prefix: "",
                 suffix: "",
+                value: 0,
             };
         }
 
@@ -71,16 +71,16 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
             const timeInHours = timeInMinutes / 60;
             const roundedHours = Number(timeInHours.toFixed(1));
             result = {
-                value: roundedHours,
                 prefix: "in  ~",
                 suffix: roundedHours === 1 ? " hour" : " hours",
+                value: roundedHours,
             };
         } else {
             const roundedMinutes = Math.round(timeInMinutes);
             result = {
-                value: roundedMinutes < 1 ? 1 : roundedMinutes,
                 prefix: `in  ${roundedMinutes < 1 ? "< " : "~"}`,
                 suffix: roundedMinutes === 1 ? " minute" : " minutes",
+                value: roundedMinutes < 1 ? 1 : roundedMinutes,
             };
         }
 
@@ -145,9 +145,9 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
                         max={1000000}
                         numberFlowClassName="text-right font-serif text-2xl font-bold"
                         numberFlowFormat={{
-                            style: "currency",
                             currency: "USD",
                             minimumFractionDigits: 0,
+                            style: "currency",
                         }}
                         onValueChange={([value]) => setSelectedAmount(value)}
                         step={10000}

@@ -15,16 +15,16 @@ export function DidYouKnowContent() {
         () =>
             [
                 {
-                    text: "All trades are pre-trade and post-trade private.",
                     link: HELP_CENTER_ARTICLES.PRIVACY.url,
+                    text: "All trades are pre-trade and post-trade private.",
                 },
                 {
-                    text: `All trades clear at the midpoint of the ${canonicalExchange} bid-ask spread.`,
                     link: HELP_CENTER_ARTICLES.MIDPOINT_PRICING.url,
+                    text: `All trades clear at the midpoint of the ${canonicalExchange} bid-ask spread.`,
                 },
                 {
-                    text: "Trading in Renegade has zero MEV, slippage, or price impact.",
                     link: HELP_CENTER_ARTICLES.ZERO_MEV.url,
+                    text: "Trading in Renegade has zero MEV, slippage, or price impact.",
                 },
             ] as const,
         [canonicalExchange],

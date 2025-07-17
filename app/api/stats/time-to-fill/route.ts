@@ -62,9 +62,9 @@ export async function GET(req: NextRequest) {
         });
     } catch (error) {
         console.error("[TimeToFill API] Error:", {
-            name: error instanceof Error ? error.name : "Unknown",
-            message: error instanceof Error ? error.message : "Unknown error",
             error,
+            message: error instanceof Error ? error.message : "Unknown error",
+            name: error instanceof Error ? error.name : "Unknown",
         });
 
         return Response.json(

@@ -17,18 +17,17 @@ export function useSavingsAcrossFillsQuery(order: OrderMetadata) {
                 amount,
                 baseMint: order.data.base_mint,
                 direction: isSell ? "sell" : "buy",
-                quoteTicker: "USDC",
                 isQuoteCurrency: false,
+                quoteTicker: "USDC",
                 renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,
                 timestamp: Number.parseInt(fill.price.timestamp.toString()),
             }),
-            staleTime: Infinity,
             gcTime: Infinity,
+            staleTime: Infinity,
         };
     });
 
     return useQueries({
-        queries,
         combine: (results) => {
             return results.reduce(
                 (acc, cur) => ({
@@ -38,5 +37,6 @@ export function useSavingsAcrossFillsQuery(order: OrderMetadata) {
                 { savings: 0, savingsBps: 0 } as SavingsData,
             );
         },
+        queries,
     });
 }

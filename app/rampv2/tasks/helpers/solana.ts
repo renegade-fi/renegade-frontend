@@ -12,9 +12,9 @@ export async function sendSolanaTransaction(
     const tx = VersionedTransaction.deserialize(serialized);
     const signed = await signTransaction(tx);
     const signature = await connection.sendRawTransaction(signed.serialize(), {
-        skipPreflight: true,
-        preflightCommitment: "confirmed",
         maxRetries: 5,
+        preflightCommitment: "confirmed",
+        skipPreflight: true,
     });
     return signature;
 }

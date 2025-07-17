@@ -22,7 +22,6 @@ declare module "@tanstack/react-table" {
 export const columns: ColumnDef<AssetsTableRow>[] = [
     {
         accessorKey: "mint",
-        header: () => <div>Token</div>,
         cell: ({ row }) => {
             const mint = row.getValue<`0x${string}`>("mint");
             const token = resolveAddress(mint);
@@ -33,10 +32,24 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </div>
             );
         },
+        header: () => <div>Token</div>,
     },
     {
-        id: "onChainUsdValue",
         accessorFn: (row) => row.onChainUsdValue,
+        cell: ({ row }) => {
+            const value = row.getValue<string>("onChainUsdValue");
+            const balance = row.original.rawOnChainBalance;
+            const token = resolveAddress(row.original.mint);
+            const formatted = formatNumber(balance, token.decimals);
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{`${formatted} ${token.ticker}`}</TooltipContent>
+                </Tooltip>
+            );
+        },
         header: function Header({ column }) {
             const isBase = useIsBase();
             const chainName = useChainName(true /* short */);
@@ -81,40 +94,10 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </div>
             );
         },
-        cell: ({ row }) => {
-            const value = row.getValue<string>("onChainUsdValue");
-            const balance = row.original.rawOnChainBalance;
-            const token = resolveAddress(row.original.mint);
-            const formatted = formatNumber(balance, token.decimals);
-            return (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">{`${formatted} ${token.ticker}`}</TooltipContent>
-                </Tooltip>
-            );
-        },
+        id: "onChainUsdValue",
     },
     {
         accessorKey: "onChainBalance",
-        header: function Header() {
-            const isBase = useIsBase();
-            const chainName = useChainName(true /* short */);
-
-            const headerElement = <div className="text-right">{chainName} Balance</div>;
-
-            return isBase ? (
-                headerElement
-            ) : (
-                <Tooltip>
-                    <TooltipTrigger asChild>{headerElement}</TooltipTrigger>
-                    <TooltipContent>
-                        {ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP(chainName)}
-                    </TooltipContent>
-                </Tooltip>
-            );
-        },
         cell: ({ row, table }) => {
             const balance = row.original.rawOnChainBalance;
             const token = resolveAddress(row.original.mint);
@@ -136,10 +119,40 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </Tooltip>
             );
         },
+        header: function Header() {
+            const isBase = useIsBase();
+            const chainName = useChainName(true /* short */);
+
+            const headerElement = <div className="text-right">{chainName} Balance</div>;
+
+            return isBase ? (
+                headerElement
+            ) : (
+                <Tooltip>
+                    <TooltipTrigger asChild>{headerElement}</TooltipTrigger>
+                    <TooltipContent>
+                        {ASSETS_TABLE_BALANCE_COLUMN_TOOLTIP(chainName)}
+                    </TooltipContent>
+                </Tooltip>
+            );
+        },
     },
     {
-        id: "renegadeUsdValue",
         accessorFn: (row) => row.renegadeUsdValue,
+        cell: ({ row }) => {
+            const value = row.getValue<string>("renegadeUsdValue");
+            const balance = row.original.rawRenegadeBalance;
+            const token = resolveAddress(row.original.mint);
+            const formatted = formatNumber(balance, token.decimals);
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{`${formatted} ${token.ticker}`}</TooltipContent>
+                </Tooltip>
+            );
+        },
         header: ({ column }) => (
             <div className="flex flex-row-reverse">
                 <Button
@@ -166,24 +179,10 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </Button>
             </div>
         ),
-        cell: ({ row }) => {
-            const value = row.getValue<string>("renegadeUsdValue");
-            const balance = row.original.rawRenegadeBalance;
-            const token = resolveAddress(row.original.mint);
-            const formatted = formatNumber(balance, token.decimals);
-            return (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">{`${formatted} ${token.ticker}`}</TooltipContent>
-                </Tooltip>
-            );
-        },
+        id: "renegadeUsdValue",
     },
     {
         accessorKey: "renegadeBalance",
-        header: () => <div className="text-right">Renegade Balance</div>,
         cell: ({ row, table }) => {
             const balance = row.original.rawRenegadeBalance;
             const token = resolveAddress(row.original.mint);
@@ -205,5 +204,6 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </Tooltip>
             );
         },
+        header: () => <div className="text-right">Renegade Balance</div>,
     },
 ];

@@ -27,9 +27,9 @@ export enum Side {
 export const EXCHANGES = ["binance", "coinbase", "kraken", "okx"] as const;
 
 export const exchangeToName: Record<Exchange, string> = {
-    renegade: "Renegade",
     binance: "Binance",
     coinbase: "Coinbase",
     kraken: "Kraken",
     okx: "OKX",
+    renegade: "Renegade",
 };

@@ -21,10 +21,10 @@ export function useVolumeData(chainId: number): UseHistoricalVolumeResult {
 
     return {
         ...useQuery<VolumeData, Error>({
-            queryKey,
-            queryFn: () => getHistoricalVolume(chainId),
-            staleTime: Infinity,
             enabled: env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet",
+            queryFn: () => getHistoricalVolume(chainId),
+            queryKey,
+            staleTime: Infinity,
         }),
         queryKey,
     };

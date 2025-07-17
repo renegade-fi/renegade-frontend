@@ -68,9 +68,9 @@ export function Footer() {
                                         toast.promise(
                                             fundWallet(fundList.slice(0, 2), address, chainId),
                                             {
+                                                error: "Funding failed: An unexpected error occurred. Please try again.",
                                                 loading: "Funding account...",
                                                 success: "Successfully funded account.",
-                                                error: "Funding failed: An unexpected error occurred. Please try again.",
                                             },
                                         );
 

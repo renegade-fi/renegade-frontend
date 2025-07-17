@@ -13,8 +13,8 @@ export function useSavings({ amount, base, isSell, isQuoteCurrency }: NewOrderFo
         amount: debouncedAmount,
         baseMint: base,
         direction: isSell ? "sell" : "buy",
-        quoteTicker: "USDC",
         isQuoteCurrency,
+        quoteTicker: "USDC",
         renegadeFeeRate: PROTOCOL_FEE + RELAYER_FEE,
     });
 

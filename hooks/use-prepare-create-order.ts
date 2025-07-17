@@ -28,7 +28,7 @@ export function usePrepareCreateOrder(parameters: UsePrepareCreateOrderParameter
     const { data: wallet, isSuccess } = useBackOfQueueWallet();
 
     return useQuery({
-        queryKey: ["prepare", "create-order", parameters],
+        enabled: isSuccess && Boolean(config?.state.seed),
         queryFn: async () => {
             if (!config) throw new ConfigRequiredError("usePrepareCreateOrder");
             if (!config.state.seed) throw new Error("Seed is required");
@@ -53,6 +53,6 @@ export function usePrepareCreateOrder(parameters: UsePrepareCreateOrderParameter
                 allowExternalMatches,
             );
         },
-        enabled: isSuccess && Boolean(config?.state.seed),
+        queryKey: ["prepare", "create-order", parameters],
     });
 }
