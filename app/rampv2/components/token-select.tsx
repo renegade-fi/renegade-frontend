@@ -51,22 +51,11 @@ export function TokenSelect({
     const [open, setOpen] = React.useState(false);
 
     const displayTokens = tokens.map((token) => ({
-        value: token.address,
         label: token.ticker,
+        value: token.address,
     }));
 
     const onChainBalances = useQueries({
-        queries: displayTokens.map((t) => {
-            return {
-                ...onChainBalanceQuery({
-                    owner,
-                    mint: t.value as `0x${string}`,
-                    chainId: chainId,
-                    wagmiConfig,
-                    connection,
-                }),
-            };
-        }),
         combine: (results) => {
             return new Map<`0x${string}`, bigint>(
                 displayTokens.map((t, i) => [
@@ -75,6 +64,17 @@ export function TokenSelect({
                 ]),
             );
         },
+        queries: displayTokens.map((t) => {
+            return {
+                ...onChainBalanceQuery({
+                    chainId: chainId,
+                    connection,
+                    mint: t.value as `0x${string}`,
+                    owner,
+                    wagmiConfig,
+                }),
+            };
+        }),
     });
 
     // Construct Map<address, balance> for balances to add
@@ -82,18 +82,6 @@ export function TokenSelect({
     // For bridge, this is balances of tokens that can be bridged from the selected token
     const swapPairs = getSwapPairs(chainId).filter(([a]) => a.ticker !== "USDT");
     const additionalBalances = useQueries({
-        queries: swapPairs.map(([a, b]) => {
-            return {
-                ...onChainBalanceQuery({
-                    owner,
-                    mint: a.address as `0x${string}`,
-                    chainId: chainId,
-                    wagmiConfig,
-                    connection,
-                }),
-                enabled: !isBridge,
-            };
-        }),
         combine: (results) => {
             // Aggregate balances so that multiple swap-from tokens mapping to the same
             // swap-to token get summed rather than overwritten.
@@ -106,17 +94,21 @@ export function TokenSelect({
             });
             return map;
         },
+        queries: swapPairs.map(([a, b]) => {
+            return {
+                ...onChainBalanceQuery({
+                    chainId: chainId,
+                    connection,
+                    mint: a.address as `0x${string}`,
+                    owner,
+                    wagmiConfig,
+                }),
+                enabled: !isBridge,
+            };
+        }),
     });
 
     const renegadeBalances = useQueries({
-        queries: displayTokens.map((t) => {
-            return {
-                ...renegadeBalanceQuery({
-                    mint: t.value as `0x${string}`,
-                    renegadeConfig,
-                }),
-            };
-        }),
         combine: (results) => {
             return new Map<`0x${string}`, bigint>(
                 displayTokens.map((t, i) => [
@@ -125,6 +117,14 @@ export function TokenSelect({
                 ]),
             );
         },
+        queries: displayTokens.map((t) => {
+            return {
+                ...renegadeBalanceQuery({
+                    mint: t.value as `0x${string}`,
+                    renegadeConfig,
+                }),
+            };
+        }),
     });
     const displayBalances =
         direction === ExternalTransferDirection.Deposit ? onChainBalances : renegadeBalances;
@@ -148,11 +148,11 @@ export function TokenSelect({
     const isDesktop = !useIsMobile();
 
     return (
-        <Popover modal open={open} onOpenChange={setOpen}>
+        <Popover modal onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
-                    autoFocus
                     aria-expanded={open}
+                    autoFocus
                     className={cn("justify-between px-3", !value && "text-muted-foreground")}
                     role="combobox"
                     variant="outline"
@@ -185,11 +185,11 @@ export function TokenSelect({
                             {displayTokens.map((t) => (
                                 <CommandItem
                                     key={t.value}
-                                    value={t.value}
                                     onSelect={(currentValue) => {
                                         onChange(currentValue === value ? "" : currentValue);
                                         setOpen(false);
                                     }}
+                                    value={t.value}
                                 >
                                     <span className="flex-1">{t.label}</span>
                                     <span className="flex-1 pr-2 text-right">

@@ -19,6 +19,7 @@ export interface QueryParams {
 
 export function onChainBalanceQuery(params: QueryParams) {
     return queryOptions({
+        queryFn: () => fetchBalance(params),
         queryKey: [
             "readContract",
             {
@@ -28,7 +29,6 @@ export function onChainBalanceQuery(params: QueryParams) {
                 functionName: "balanceOf",
             },
         ],
-        queryFn: () => fetchBalance(params),
         select: (data) => formatBalance(data, params),
         staleTime: 0,
     });
@@ -93,11 +93,11 @@ function formatBalance(rawData: bigint | number | undefined, params: QueryParams
 
     if (!token) {
         return {
-            raw,
             decimalCorrected: "0",
+            isZero: true,
+            raw,
             rounded: "0",
             ticker: "",
-            isZero: true,
         };
     }
 
@@ -105,10 +105,10 @@ function formatBalance(rawData: bigint | number | undefined, params: QueryParams
     const rounded = formatNumber(raw, token.decimals);
 
     return {
-        raw,
         decimalCorrected,
+        isZero: raw === BigInt(0),
+        raw,
         rounded,
         ticker: token.ticker,
-        isZero: raw === BigInt(0),
     };
 }

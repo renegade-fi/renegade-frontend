@@ -31,15 +31,15 @@ export function AnimatedPrice({
         }
     }, [price]);
 
-    const { priceColor } = getPriceStatus({ price, isStale, mint, exchange });
+    const { priceColor } = getPriceStatus({ exchange, isStale, mint, price });
 
     return (
         <span
-            key={animationKey}
             className={cn("transition-colors", className, priceColor, {
                 "animate-price-green": price > prev.current,
                 "animate-price-red": price < prev.current,
             })}
+            key={animationKey}
         >
             {formatDynamicCurrency(price)}
         </span>

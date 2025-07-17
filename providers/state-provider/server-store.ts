@@ -45,18 +45,18 @@ export const initServerStore = (): ServerState => {
 };
 
 export const defaultInitState: ServerState = {
+    allowExternalMatches: true,
+    baseMint: WETH.address,
     chainId: DEFAULT_CHAIN,
-    wallet: defaultWalletMap,
-    rememberMe: defaultRememberMeMap,
     order: {
-        side: Side.BUY,
         amount: "",
         currency: "base",
+        side: Side.BUY,
     },
-    baseMint: WETH.address,
-    quoteMint: USDC.address,
-    allowExternalMatches: true,
     panels: { layout: [26, 74] },
+    quoteMint: USDC.address,
+    rememberMe: defaultRememberMeMap,
+    wallet: defaultWalletMap,
 };
 
 export const createServerStore = (initState: ServerState = defaultInitState) => {
@@ -65,6 +65,23 @@ export const createServerStore = (initState: ServerState = defaultInitState) => 
         persist(
             (set) => ({
                 ...initState,
+                resetAllWallets: () => {
+                    console.log("[ServerStore] resetAllWallets");
+                    return set(() => ({ wallet: defaultWalletMap }));
+                },
+                resetWallet: (chainId?: ChainId) => {
+                    console.log("[ServerStore] resetWallet", chainId);
+                    return set((state) => ({
+                        wallet: new Map(state.wallet).set(
+                            chainId ?? state.chainId,
+                            createEmptyWallet(),
+                        ),
+                    }));
+                },
+                setAllowExternalMatches: (allowExternalMatches: boolean) => {
+                    console.log("[ServerStore] setAllowExternalMatches", allowExternalMatches);
+                    return set(() => ({ allowExternalMatches }));
+                },
                 setAmount: (amount: string) => {
                     console.log("[ServerStore] setAmount", amount);
                     return set((state) => ({ order: { ...state.order, amount } }));
@@ -93,46 +110,27 @@ export const createServerStore = (initState: ServerState = defaultInitState) => 
                         quoteMint: quoteMint.toLowerCase() as `0x${string}`,
                     }));
                 },
-                setSide: (side: Side) => {
-                    console.log("[ServerStore] setSide", side);
-                    return set((state) => ({ order: { ...state.order, side } }));
-                },
-                setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => {
-                    console.log("[ServerStore] setWallet", { seed, id, chainId });
-                    return set((state) => ({
-                        wallet: new Map(state.wallet).set(chainId ?? state.chainId, {
-                            seed,
-                            id,
-                        }),
-                    }));
-                },
                 setRememberMe: (chainId: ChainId, remember: boolean) => {
                     console.log("[ServerStore] setRememberMe", { chainId, remember });
                     return set((state) => ({
                         rememberMe: new Map(state.rememberMe).set(chainId, remember),
                     }));
                 },
-                setAllowExternalMatches: (allowExternalMatches: boolean) => {
-                    console.log("[ServerStore] setAllowExternalMatches", allowExternalMatches);
-                    return set(() => ({ allowExternalMatches }));
+                setSide: (side: Side) => {
+                    console.log("[ServerStore] setSide", side);
+                    return set((state) => ({ order: { ...state.order, side } }));
                 },
-                resetWallet: (chainId?: ChainId) => {
-                    console.log("[ServerStore] resetWallet", chainId);
+                setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => {
+                    console.log("[ServerStore] setWallet", { chainId, id, seed });
                     return set((state) => ({
-                        wallet: new Map(state.wallet).set(
-                            chainId ?? state.chainId,
-                            createEmptyWallet(),
-                        ),
+                        wallet: new Map(state.wallet).set(chainId ?? state.chainId, {
+                            id,
+                            seed,
+                        }),
                     }));
-                },
-                resetAllWallets: () => {
-                    console.log("[ServerStore] resetAllWallets");
-                    return set(() => ({ wallet: defaultWalletMap }));
                 },
             }),
             {
-                name: STORAGE_SERVER_STORE,
-                version: STORAGE_VERSION,
                 migrate: (_: any, version: number): ServerState => {
                     console.log(
                         `Storage version mismatch detected. Stored: ${version}, Expected: ${STORAGE_VERSION}`,
@@ -140,8 +138,7 @@ export const createServerStore = (initState: ServerState = defaultInitState) => 
                     console.log("Clearing user data and using default state");
                     return defaultInitState;
                 },
-                skipHydration: true,
-                storage: createStorage(cookieStorage),
+                name: STORAGE_SERVER_STORE,
                 partialize: (state) => {
                     // Reset wallets based on remember preferences
                     const filteredWallet = new Map();
@@ -157,6 +154,9 @@ export const createServerStore = (initState: ServerState = defaultInitState) => 
                         wallet: filteredWallet,
                     };
                 },
+                skipHydration: true,
+                storage: createStorage(cookieStorage),
+                version: STORAGE_VERSION,
             },
         ),
     );

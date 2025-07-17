@@ -34,10 +34,10 @@ export function PWADialog({ children }: PWADialogProps) {
                         <p className="text-lg">Tap the share icon</p>
                         <p className="text-muted-foreground">in your browser&apos;s address bar.</p>
                         <Image
-                            priority
                             alt="share button"
                             className="mt-4"
                             height={100}
+                            priority
                             src="/share.jpg"
                             width={400}
                         />
@@ -45,10 +45,10 @@ export function PWADialog({ children }: PWADialogProps) {
                     <div className="flex flex-col border pt-4">
                         <p className="text-lg">Tap &quot;Add to Home Screen&quot;</p>
                         <Image
-                            priority
                             alt="add to home screen"
                             className="mt-4"
                             height={100}
+                            priority
                             src="/add-to-home-screen.jpg"
                             width={400}
                         />

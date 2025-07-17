@@ -5,24 +5,24 @@ import { isSupportedExchange } from "./token";
 /** Mapping of token price statuses with text, statusColor, and priceColor. */
 const PRICE_STATUSES = {
     live: {
-        text: "LIVE",
+        priceColor: "",
         statusColor: "text-green-price",
-        priceColor: "",
-    },
-    stale: {
-        text: "STALE",
-        statusColor: "text-red-price",
-        priceColor: "",
+        text: "LIVE",
     },
     noData: {
-        text: "NO DATA",
-        statusColor: "text-muted",
         priceColor: "text-muted",
+        statusColor: "text-muted",
+        text: "NO DATA",
+    },
+    stale: {
+        priceColor: "",
+        statusColor: "text-red-price",
+        text: "STALE",
     },
     unsupported: {
-        text: "N/A",
-        statusColor: "text-muted",
         priceColor: "text-muted",
+        statusColor: "text-muted",
+        text: "N/A",
     },
 } as const;
 

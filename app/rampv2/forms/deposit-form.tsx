@@ -72,10 +72,10 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const { data: availableDepositBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: currentChain,
+            connection,
             mint,
             owner: address,
             wagmiConfig,
-            connection,
         }),
         enabled: !!mint,
     });
@@ -83,18 +83,18 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
     const { data: availableSwapBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: currentChain,
+            connection,
             mint: swapToken?.address!,
             owner: address,
             wagmiConfig,
-            connection,
         }),
         enabled: !!swapToken?.address,
     });
 
     const balances = buildBalancesCache({
-        network: currentChain,
         depositMint: mint,
         depositRaw: availableDepositBalance?.raw,
+        network: currentChain,
         swapMint: swapToken?.address,
         swapRaw: availableSwapBalance?.raw,
     });
@@ -128,24 +128,24 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
             const USDC = getTokenByTicker("USDC", currentChain);
             if (!USDC) throw new Error("USDC not found");
             intent = Intent.newSwapIntent(ctx, {
-                swapToken: mint,
-                depositMint: USDC.address,
-                chainId: currentChain,
                 amount,
+                chainId: currentChain,
+                depositMint: USDC.address,
+                swapToken: mint,
             });
         } else if (swapToken?.address && needsSwap) {
             intent = Intent.newSwapIntent(ctx, {
-                swapToken: swapToken.address,
-                depositMint: mint,
-                chainId: currentChain,
                 amount,
+                chainId: currentChain,
+                depositMint: mint,
+                swapToken: swapToken.address,
             });
         } else {
             // Default case: deposit directly
             intent = Intent.newDepositIntent(ctx, {
-                mint,
-                chainId: currentChain,
                 amount,
+                chainId: currentChain,
+                mint,
             });
         }
 
@@ -170,9 +170,9 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
 
     const { data: minRemainingEthBalance } = useQuery({
         ...approveBufferQueryOptions({
-            config: wagmiConfig,
-            chainId: currentChain,
             approvals: 100,
+            chainId: currentChain,
+            config: wagmiConfig,
         }),
         enabled: swapToken ? isETH(swapToken.address, currentChain) : false,
     });
@@ -196,15 +196,15 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                 <div className="flex flex-col gap-2">
                     <Label>Token</Label>
                     <TokenSelect
-                        tokens={availableTokens}
-                        direction={direction}
-                        value={mint}
-                        onChange={setMint}
                         chainId={currentChain}
-                        owner={address}
-                        wagmiConfig={wagmiConfig}
                         connection={connection}
+                        direction={direction}
+                        onChange={setMint}
+                        owner={address}
                         renegadeConfig={renegadeConfig}
+                        tokens={availableTokens}
+                        value={mint}
+                        wagmiConfig={wagmiConfig}
                     />
                 </div>
 
@@ -213,20 +213,20 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                     <Label>Amount</Label>
                     <div className="relative">
                         <NumberInput
-                            value={amount}
+                            className="pr-12 rounded-none font-mono"
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="pr-12 rounded-none font-mono"
+                            value={amount}
                         />
                         <MaxButton
-                            direction={direction}
-                            renegadeConfig={renegadeConfig}
                             chainId={currentChain}
-                            mint={mint}
-                            owner={address}
-                            wagmiConfig={wagmiConfig}
                             connection={connection}
+                            direction={direction}
+                            mint={mint}
                             onClick={setAmount}
+                            owner={address}
+                            renegadeConfig={renegadeConfig}
+                            wagmiConfig={wagmiConfig}
                         />
                     </div>
                 </div>
@@ -239,29 +239,29 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
                 >
                     <BalanceRow
                         chainId={currentChain}
-                        mint={mint}
-                        direction={direction}
-                        owner={address}
-                        wagmiConfig={wagmiConfig}
-                        renegadeConfig={renegadeConfig}
                         connection={connection}
+                        direction={direction}
+                        mint={mint}
                         onClick={setAmount}
+                        owner={address}
+                        renegadeConfig={renegadeConfig}
                         showZero
+                        wagmiConfig={wagmiConfig}
                     />
 
                     {swapToken?.address && (
                         <BalanceRow
-                            key={swapToken.address}
                             chainId={currentChain}
-                            mint={swapToken.address}
-                            direction={direction}
-                            owner={address}
-                            wagmiConfig={wagmiConfig}
-                            renegadeConfig={renegadeConfig}
                             connection={connection}
-                            onClick={handleSetCombinedAmount}
+                            direction={direction}
                             hideNetworkLabel
+                            key={swapToken.address}
                             minRemainingEthBalance={minRemainingEthBalance}
+                            mint={swapToken.address}
+                            onClick={handleSetCombinedAmount}
+                            owner={address}
+                            renegadeConfig={renegadeConfig}
+                            wagmiConfig={wagmiConfig}
                         />
                     )}
                 </div>
@@ -274,16 +274,16 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
 
             {/* Submit */}
             <DepositSubmitButton
-                mint={mint}
-                renegadeConfig={renegadeConfig}
-                intent={intent}
+                amount={amount}
                 balances={balances}
-                tasks={tasks}
+                chainId={currentChain}
+                intent={intent}
+                mint={mint}
+                onQueueStart={onQueueStart}
+                renegadeConfig={renegadeConfig}
                 route={route}
                 status={status}
-                amount={amount}
-                chainId={currentChain}
-                onQueueStart={onQueueStart}
+                tasks={tasks}
             />
         </>
     );

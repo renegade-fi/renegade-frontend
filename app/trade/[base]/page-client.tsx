@@ -90,15 +90,15 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
                             <Separator />
                             <div className="p-6">
                                 <DataTable
-                                    isTradePage
                                     columns={columns}
                                     data={data}
                                     initialStatus="open"
                                     initialVisibleColumns={{
-                                        "time to fill": false,
                                         actions: false,
                                         saved: false,
+                                        "time to fill": false,
                                     }}
+                                    isTradePage
                                 />
                             </div>
                         </main>

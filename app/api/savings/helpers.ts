@@ -156,8 +156,8 @@ export async function constructOrderbook(
 
     // Construct an initial orderbook map from the snapshot
     const orderbookMap: OrderbookMap = {
-        bids: {},
         asks: {},
+        bids: {},
     };
     snapshot.bid.forEach((level) => {
         orderbookMap.bids[level.price] = level.volume;
@@ -197,10 +197,10 @@ async function fetchOrderbookSnapshot(
     const startDate = timestamp - ONE_HOUR_MS;
     const endDate = timestamp + 1;
     const req = amberdataRequest({
-        route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
-        exchange,
-        startDate,
         endDate,
+        exchange,
+        route: `${AMBERDATA_ORDERBOOK_SNAPSHOTS_ROUTE}/${instrument}`,
+        startDate,
     });
 
     const res = await fetch(req);
@@ -230,10 +230,10 @@ async function fetchOrderbookUpdates(
 ): Promise<Array<AmberdataOrderbookUpdate>> {
     // We only request updates on or after the snapshot timestamp
     const req = amberdataRequest({
-        route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
-        exchange,
-        startDate: snapshotTimestamp,
         endDate: desiredTimestamp,
+        exchange,
+        route: `${AMBERDATA_ORDERBOOK_UPDATES_ROUTE}/${instrument}`,
+        startDate: snapshotTimestamp,
     });
 
     const res = await fetch(req);
@@ -289,7 +289,7 @@ function convertOrderbookMap(orderbookMap: OrderbookMap, timestamp: number): Ord
         .map(([price, quantity]) => ({ price: parseFloat(price), quantity }))
         .sort((a, b) => a.price - b.price);
 
-    return { bids, asks, timestamp };
+    return { asks, bids, timestamp };
 }
 
 /**

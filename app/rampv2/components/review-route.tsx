@@ -97,9 +97,9 @@ function Row({
 function Layout({ children, animationKey }: { children: React.ReactNode; animationKey: string }) {
     return (
         <motion.div
-            key={animationKey}
             animate={{ opacity: 1 }}
             initial={{ opacity: 0 }}
+            key={animationKey}
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         >
             {children}
@@ -137,7 +137,7 @@ function BridgeSection({ step }: { step: LiFiStep }) {
     const toChainLogo = getChainLogo(toChainId);
 
     return (
-        <AccordionPrimitive.Root collapsible className="border p-3 text-sm" type="single">
+        <AccordionPrimitive.Root className="border p-3 text-sm" collapsible type="single">
             <AccordionPrimitive.Item value="item-1">
                 <AccordionPrimitive.Header>
                     <AccordionPrimitive.Trigger className="flex w-full justify-between [&[data-state=open]>div>.accordion-label]:mt-0 [&[data-state=open]>div>.accordion-label]:h-2 [&[data-state=open]>div>.accordion-label]:opacity-0 [&[data-state=open]>svg]:rotate-180">
@@ -263,7 +263,7 @@ function SwapSection({ step }: { step: LiFiStep }) {
     const wethLogoUri = resolveTicker("WETH").logoUrl;
 
     return (
-        <AccordionPrimitive.Root collapsible className="border p-3 text-sm" type="single">
+        <AccordionPrimitive.Root className="border p-3 text-sm" collapsible type="single">
             <AccordionPrimitive.Item value="item-1">
                 <AccordionPrimitive.Header>
                     <AccordionPrimitive.Trigger className="flex w-full justify-between [&[data-state=open]>div>.accordion-label]:mt-0 [&[data-state=open]>div>.accordion-label]:h-2 [&[data-state=open]>div>.accordion-label]:opacity-0 [&[data-state=open]>svg]:rotate-180">

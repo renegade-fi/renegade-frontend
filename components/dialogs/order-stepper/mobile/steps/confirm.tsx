@@ -33,12 +33,12 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
 
     const allowExternalMatches = useServerStore((state) => state.allowExternalMatches);
     const { data: request } = usePrepareCreateOrder({
+        allowExternalMatches,
+        amount: props.amount,
         base: props.base,
         quote: quoteMint,
         side: props.isSell ? "sell" : "buy",
-        amount: props.amount,
         worstCasePrice: worstCasePrice.toFixed(18),
-        allowExternalMatches,
     });
 
     const { mutate: createOrder } = useCreateOrder({
@@ -49,8 +49,8 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
                 onNext();
                 const message = constructStartToastMessage(UpdateType.PlaceOrder);
                 toast.success(message, {
-                    id: data.taskId,
                     icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                    id: data.taskId,
                 });
             },
         },
@@ -73,7 +73,6 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
                 <Button
                     autoFocus
                     className="flex-1 font-extended text-lg"
-                    size="xl"
                     onClick={() => {
                         if (request instanceof Error) {
                             toast.error(request.message);
@@ -81,6 +80,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
                         }
                         createOrder({ request });
                     }}
+                    size="xl"
                 >
                     {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
                 </Button>

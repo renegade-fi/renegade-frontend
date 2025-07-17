@@ -130,14 +130,14 @@ export function AmountShortcutButton({
                     <Button
                         className={cn("w-full", className)}
                         disabled={isDisabled}
-                        size="sm"
-                        type="button"
-                        variant="outline"
                         onClick={() => {
                             if (!isDisabled && formattedShortcut) {
                                 onSetAmount(formattedShortcut);
                             }
                         }}
+                        size="sm"
+                        type="button"
+                        variant="outline"
                     >
                         {percentage === 100 ? "MAX" : `${percentage}%`}
                     </Button>

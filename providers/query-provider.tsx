@@ -36,15 +36,15 @@ function getQueryClient(mutationCache?: MutationCache) {
 export function QueryProvider({ children }: { children: React.ReactNode }) {
     const queryClient = getQueryClient(
         new MutationCache({
+            onError: (error, _variables, _context, mutation) => {
+                console.error("Mutation error: ", {
+                    error,
+                    mutationKey: mutation.options.mutationKey,
+                });
+            },
             onSuccess: (_data, _variables, _context, _mutation) => {
                 queryClient.invalidateQueries({
                     predicate: (query) => shouldInvalidate(query, queryClient),
-                });
-            },
-            onError: (error, _variables, _context, mutation) => {
-                console.error("Mutation error: ", {
-                    mutationKey: mutation.options.mutationKey,
-                    error,
                 });
             },
         }),

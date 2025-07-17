@@ -54,12 +54,12 @@ export function useAssetsTableData({ mints }: UseAssetsTableDataOptions) {
 
             return {
                 mint,
+                onChainBalance: Number(formatUnits(onChainBalance, token.decimals)),
+                onChainUsdValue,
+                rawOnChainBalance: onChainBalance,
                 rawRenegadeBalance: renegadeBalance,
                 renegadeBalance: Number(formatUnits(renegadeBalance, token.decimals)),
                 renegadeUsdValue,
-                rawOnChainBalance: onChainBalance,
-                onChainBalance: Number(formatUnits(onChainBalance, token.decimals)),
-                onChainUsdValue,
             };
         });
     }, [mints, onChainBalances, priceResults, renegadeBalances]);

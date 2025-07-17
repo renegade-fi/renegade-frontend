@@ -54,13 +54,13 @@ export function useTaskHistory<TData = GetTaskHistoryReturnType>(
     });
 
     return useQuery<GetTaskHistoryReturnType, Error, TData>({
-        queryKey,
+        enabled,
         queryFn: async () => {
             if (!currentWallet.seed || !currentWallet.id || !config)
                 throw new Error("No wallet found in storage");
             return getTaskHistory(config);
         },
-        enabled,
+        queryKey,
         ...parameters?.query,
     });
 }

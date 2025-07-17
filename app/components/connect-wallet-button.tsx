@@ -14,13 +14,13 @@ export function ConnectWalletButton({ className }: { className?: string }) {
                     "border border-[#333333] font-extended text-base hover:border-[#999999]",
                     className,
                 )}
+                onClick={handleClick}
                 size="shimmer"
                 variant="shimmer"
-                onClick={handleClick}
             >
                 {content}
             </Button>
-            <SignInDialog open={open} onOpenChange={onOpenChange} />
+            <SignInDialog onOpenChange={onOpenChange} open={open} />
         </>
     );
 }

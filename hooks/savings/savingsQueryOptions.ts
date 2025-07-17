@@ -23,8 +23,8 @@ export function savingsQueryOptions(
 
     const queryFn = async (): Promise<SavingsData> => {
         const res = await fetch("/api/savings", {
-            method: "POST",
             body: JSON.stringify(vars),
+            method: "POST",
         });
 
         if (!res.ok) throw new Error(res.statusText);
@@ -34,10 +34,10 @@ export function savingsQueryOptions(
     };
 
     return {
-        queryKey,
+        enabled: !!Number.parseFloat(vars.amount),
         queryFn,
+        queryKey,
         retry: 3,
         staleTime: 0,
-        enabled: !!Number.parseFloat(vars.amount),
     };
 }

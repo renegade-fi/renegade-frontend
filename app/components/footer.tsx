@@ -34,9 +34,9 @@ export function Footer() {
                     <ContextMenu>
                         <ContextMenuTrigger>
                             <Image
-                                priority
                                 alt="logo"
                                 height="30"
+                                priority
                                 src="/logo_dark.svg"
                                 width="192"
                             />
@@ -57,7 +57,6 @@ export function Footer() {
                             <TooltipTrigger asChild className="cursor-pointer">
                                 <Button
                                     className="ml-4 font-extended"
-                                    variant="outline"
                                     onClick={() => {
                                         if (!address) {
                                             toast.error(
@@ -69,15 +68,16 @@ export function Footer() {
                                         toast.promise(
                                             fundWallet(fundList.slice(0, 2), address, chainId),
                                             {
+                                                error: "Funding failed: An unexpected error occurred. Please try again.",
                                                 loading: "Funding account...",
                                                 success: "Successfully funded account.",
-                                                error: "Funding failed: An unexpected error occurred. Please try again.",
                                             },
                                         );
 
                                         // Fund additional wallets in background
                                         fundWallet(fundList.slice(2), address, chainId);
                                     }}
+                                    variant="outline"
                                 >
                                     Faucet
                                 </Button>

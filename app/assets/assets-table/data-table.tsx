@@ -45,16 +45,16 @@ export function DataTable<TData, TValue>({
     const { walletReadyState } = useWallets();
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
-        renegadeUsdValue: true,
+        onChainBalance: false,
         onChainUsdValue: true,
         renegadeBalance: false,
-        onChainBalance: false,
+        renegadeUsdValue: true,
     });
     const [rowSelection, setRowSelection] = React.useState({});
     const [sorting, setSorting] = React.useState<SortingState>([
         {
-            id: "onChainUsdValue",
             desc: true,
+            id: "onChainUsdValue",
         },
     ]);
     const [isLongFormat, setIsLongFormat] = React.useState(false);
@@ -65,6 +65,9 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        meta: {
+            isLongFormat,
+        },
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -74,9 +77,6 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
             sorting,
-        },
-        meta: {
-            isLongFormat,
         },
     });
 
@@ -92,27 +92,27 @@ export function DataTable<TData, TValue>({
                         <TooltipTrigger>
                             <Toggle
                                 aria-label="Toggle USD"
+                                onPressedChange={(value) => {
+                                    value
+                                        ? setColumnVisibility({
+                                              onChainBalance: false,
+                                              onChainUsdValue: true,
+                                              renegadeBalance: false,
+                                              renegadeUsdValue: true,
+                                          })
+                                        : setColumnVisibility({
+                                              onChainBalance: true,
+                                              onChainUsdValue: false,
+                                              renegadeBalance: true,
+                                              renegadeUsdValue: false,
+                                          });
+                                }}
                                 pressed={
                                     columnVisibility.renegadeUsdValue &&
                                     columnVisibility.onChainUsdValue
                                 }
                                 size="sm"
                                 variant="outline"
-                                onPressedChange={(value) => {
-                                    value
-                                        ? setColumnVisibility({
-                                              renegadeUsdValue: true,
-                                              onChainUsdValue: true,
-                                              renegadeBalance: false,
-                                              onChainBalance: false,
-                                          })
-                                        : setColumnVisibility({
-                                              renegadeUsdValue: false,
-                                              onChainUsdValue: false,
-                                              renegadeBalance: true,
-                                              onChainBalance: true,
-                                          });
-                                }}
                             >
                                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                             </Toggle>
@@ -123,13 +123,13 @@ export function DataTable<TData, TValue>({
                         <TooltipTrigger>
                             <Toggle
                                 aria-label="Show zero balances"
-                                pressed={!showZeroOnChainBalance && !showZeroRenegadeBalance}
-                                size="sm"
-                                variant="outline"
                                 onPressedChange={(value) => {
                                     setShowZeroOnChainBalance(!value);
                                     setShowZeroRenegadeBalance(!value);
                                 }}
+                                pressed={!showZeroOnChainBalance && !showZeroRenegadeBalance}
+                                size="sm"
+                                variant="outline"
                             >
                                 <EyeOff className="h-4 w-4 text-muted-foreground" />
                             </Toggle>
@@ -141,10 +141,10 @@ export function DataTable<TData, TValue>({
                             <Toggle
                                 aria-label="Toggle decimal display"
                                 className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+                                onPressedChange={(value) => setIsLongFormat(value)}
                                 pressed={isLongFormat}
                                 size="sm"
                                 variant="outline"
-                                onPressedChange={(value) => setIsLongFormat(value)}
                             >
                                 .00
                             </Toggle>
@@ -180,11 +180,11 @@ export function DataTable<TData, TValue>({
                         ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => {
                                 return (
-                                    <RampDialog key={row.id} initialMint={row.getValue("mint")}>
+                                    <RampDialog initialMint={row.getValue("mint")} key={row.id}>
                                         <TableRow
-                                            key={row.id}
                                             className="cursor-pointer"
                                             data-state={row.getIsSelected() && "selected"}
+                                            key={row.id}
                                         >
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id}>

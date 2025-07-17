@@ -47,7 +47,7 @@ export function WrongPairNetworkModal({ base }: { base: string }) {
             modal // Prevents the dialog from being closed by clicking outside
             open={open}
         >
-            <DialogContent hideCloseButton className="p-0">
+            <DialogContent className="p-0" hideCloseButton>
                 <DialogHeader className="space-y-4 px-6 pt-6">
                     <DialogTitle className="font-extended">
                         {token.ticker} not supported on {currentChainName}
@@ -68,9 +68,9 @@ export function WrongPairNetworkModal({ base }: { base: string }) {
                     </Button>
                     <Button
                         className="flex-1 items-center justify-center whitespace-normal text-pretty border-0 border-l border-t font-extended text-lg"
+                        onClick={handleSwitchToTokenChain}
                         size="xl"
                         variant="outline"
-                        onClick={handleSwitchToTokenChain}
                     >
                         Switch to {chainName}
                     </Button>

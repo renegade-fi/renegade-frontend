@@ -45,10 +45,10 @@ export function WrongNetworkModal() {
             <div className="flex flex-col gap-4 px-6">
                 {supportedChains.map((chain) => {
                     return (
-                        <div key={chain.id} className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2" key={chain.id}>
                             <Button
-                                variant="outline"
                                 onClick={() => switchChain({ chainId: chain.id })}
+                                variant="outline"
                             >
                                 <Image
                                     alt={chain.name}
@@ -66,9 +66,9 @@ export function WrongNetworkModal() {
                 <Button
                     autoFocus={false}
                     className="flex-1 items-center justify-center whitespace-normal text-pretty border-0 border-l border-t font-extended text-lg"
+                    onClick={handleDisconnect}
                     size="xl"
                     variant="outline"
-                    onClick={handleDisconnect}
                 >
                     Disconnect
                 </Button>
@@ -99,7 +99,7 @@ export function WrongNetworkModal() {
             modal // Prevents the dialog from being closed by clicking outside
             open={open}
         >
-            <DialogContent hideCloseButton className="p-0">
+            <DialogContent className="p-0" hideCloseButton>
                 {unsupportedChainContent}
             </DialogContent>
         </Dialog>

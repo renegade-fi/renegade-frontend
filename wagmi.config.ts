@@ -9,12 +9,12 @@ const abi = parseAbi([
 ]);
 
 export default defineConfig({
-    out: "lib/generated.ts",
     contracts: [
         {
-            name: "erc20",
             abi,
+            name: "erc20",
         },
     ],
+    out: "lib/generated.ts",
     plugins: [actions()],
 });

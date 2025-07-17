@@ -22,7 +22,7 @@ export function FavoritesBanner() {
                         if (!isAddress(address)) return null;
                         const token = resolveAddress(address);
                         return (
-                            <div key={address} className="flex items-center gap-8">
+                            <div className="flex items-center gap-8" key={address}>
                                 <Link href={`/trade/${token.ticker}`}>
                                     <span className="space-x-4">
                                         <span>{token.ticker}</span>

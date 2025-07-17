@@ -16,8 +16,8 @@ export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
     const token = resolveAddress(base);
     return (
         <AccordionPrimitive.Root
-            collapsible
             className="block border-b border-border lg:hidden"
+            collapsible
             type="single"
         >
             <AccordionPrimitive.Item value="asset-details">
@@ -49,8 +49,8 @@ export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
                     <div className="grid grid-cols-2 gap-4">
                         {EXCHANGES.map((exchange) => (
                             <a
-                                key={exchange}
                                 href={constructExchangeUrl(exchange, base)}
+                                key={exchange}
                                 rel="noreferrer"
                                 target="_blank"
                             >

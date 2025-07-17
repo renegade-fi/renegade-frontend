@@ -15,13 +15,6 @@ interface StatusMeta {
 // Central lookup: maps the canonical state to UI metadata.  Extend this when
 // new canonical states are introduced.
 export const STATUS_META: Record<CanonicalTaskState, StatusMeta> = {
-    Pending: {
-        // No icon for yet-to-start tasks
-    },
-    Running: {
-        icon: Loader2,
-        showSpinner: true,
-    },
     Completed: {
         icon: Check,
         iconClass: "text-green-500",
@@ -29,6 +22,13 @@ export const STATUS_META: Record<CanonicalTaskState, StatusMeta> = {
     Error: {
         icon: X,
         iconClass: "text-red-500",
+    },
+    Pending: {
+        // No icon for yet-to-start tasks
+    },
+    Running: {
+        icon: Loader2,
+        showSpinner: true,
     },
 };
 

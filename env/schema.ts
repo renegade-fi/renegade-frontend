@@ -34,14 +34,14 @@ const zJsonString = z.string().transform((str, ctx): z.ZodJSONSchema => {
 
 /** Zod schema for token mappings */
 const zTokenMetadata = z.object({
-    name: z.string().nonempty(),
-    ticker: z.string().nonempty(),
     address: zHexString,
-    decimals: z.coerce.number(),
-    supported_exchanges: z.record(z.string().nonempty(), z.string().nonempty()),
-    chain_addresses: z.record(z.string().nonempty(), z.string().nonempty()).optional(),
-    logo_url: z.url().optional(),
     canonical_exchange: z.string().nonempty(),
+    chain_addresses: z.record(z.string().nonempty(), z.string().nonempty()).optional(),
+    decimals: z.coerce.number(),
+    logo_url: z.url().optional(),
+    name: z.string().nonempty(),
+    supported_exchanges: z.record(z.string().nonempty(), z.string().nonempty()),
+    ticker: z.string().nonempty(),
 });
 
 const zTokenMapping = z.object({

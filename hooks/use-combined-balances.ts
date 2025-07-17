@@ -35,9 +35,9 @@ export function useCombinedBalances({
     return {
         queryKey,
         ...useQuery<Map<`0x${string}`, bigint>, Error>({
-            queryKey,
-            queryFn: () => fetchCombinedBalances(address!, solanaAddress),
             enabled: !!address && enabled,
+            queryFn: () => fetchCombinedBalances(address!, solanaAddress),
+            queryKey,
             select: (data) =>
                 Object.entries(data).reduce((acc, [key, value]) => {
                     const token = resolveTickerAndChain(key, chainId);

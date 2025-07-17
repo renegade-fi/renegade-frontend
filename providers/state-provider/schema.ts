@@ -11,8 +11,8 @@ const zCurrency = z.enum(["base", "quote"]);
 // --- Wallet --- //
 
 const zWallet = z.object({
-    seed: zHexString.optional(),
     id: z.string().optional(),
+    seed: zHexString.optional(),
 });
 
 export type CachedWallet = z.infer<typeof zWallet>;
@@ -26,20 +26,20 @@ const zWalletMap = z.map(zChainId, zWallet);
 const zRememberMeMap = z.map(zChainId, z.boolean());
 
 const ServerStateSchema = z.object({
+    allowExternalMatches: z.boolean(),
+    baseMint: zHexString,
     chainId: zChainId,
-    wallet: zWalletMap,
-    rememberMe: zRememberMeMap,
     order: z.object({
-        side: zSide,
         amount: z.string(),
         currency: zCurrency,
+        side: zSide,
     }),
-    baseMint: zHexString,
-    quoteMint: zHexString,
-    allowExternalMatches: z.boolean(),
     panels: z.object({
         layout: z.array(z.number()),
     }),
+    quoteMint: zHexString,
+    rememberMe: zRememberMeMap,
+    wallet: zWalletMap,
 });
 
 export type ServerState = z.infer<typeof ServerStateSchema>;

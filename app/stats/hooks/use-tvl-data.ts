@@ -26,9 +26,9 @@ type PricedTvl = MergedTvl & {
 
 // Immutable "template" for a new row
 const emptyRow = (ticker: string) => ({
-    ticker,
-    baseTvl: BigInt(0),
     arbitrumTvl: BigInt(0),
+    baseTvl: BigInt(0),
+    ticker,
     totalTvl: BigInt(0),
 });
 
@@ -79,8 +79,8 @@ function addUsdValues(merged: MergedTvl[], prices: Map<`0x${string}`, number>): 
             price ? Number(formatUnits(amountTimesPrice(amount, price), decimals)) : 0;
         return {
             ...row,
-            baseTvlUsd: toUsd(row.baseTvl),
             arbitrumTvlUsd: toUsd(row.arbitrumTvl),
+            baseTvlUsd: toUsd(row.baseTvl),
             totalTvlUsd: toUsd(row.totalTvl),
         };
     });

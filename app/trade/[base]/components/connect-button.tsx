@@ -11,16 +11,16 @@ export function ConnectButton({ className }: { className?: string }) {
         <>
             <Button
                 className={cn(className)}
-                size="xl"
-                type="button"
                 onClick={(e) => {
                     e.preventDefault();
                     handleClick();
                 }}
+                size="xl"
+                type="button"
             >
                 {content}
             </Button>
-            <SignInDialog open={open} onOpenChange={onOpenChange} />
+            <SignInDialog onOpenChange={onOpenChange} open={open} />
         </>
     );
 }

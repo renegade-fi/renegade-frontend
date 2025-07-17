@@ -18,10 +18,10 @@ export function useExternalTransferLogs({
 
     return {
         ...useQuery<TransferData, Error>({
-            queryKey,
-            queryFn: () => fetchExternalTransferLogs(intervalMs, chainId),
-            staleTime: Infinity,
             enabled: env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet",
+            queryFn: () => fetchExternalTransferLogs(intervalMs, chainId),
+            queryKey,
+            staleTime: Infinity,
         }),
         queryKey,
     };

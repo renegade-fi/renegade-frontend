@@ -22,8 +22,8 @@ export function useViewedFills() {
     };
 
     return {
-        viewedFills,
-        markFillAsViewed,
         isFillViewed,
+        markFillAsViewed,
+        viewedFills,
     };
 }

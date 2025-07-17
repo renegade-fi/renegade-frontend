@@ -10,7 +10,7 @@ export function SidebarTrigger() {
     const { arbitrumWallet: wallet } = useWallets();
 
     return (
-        <Button className="group gap-2" variant="outline" onClick={toggleSidebar}>
+        <Button className="group gap-2" onClick={toggleSidebar} variant="outline">
             <span className="flex items-center justify-center gap-2">
                 <PanelRight className="h-4 w-4" />
                 {wallet.label}

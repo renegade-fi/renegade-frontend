@@ -44,26 +44,26 @@ export default function TradingViewChart(props: Partial<ChartingLibraryWidgetOpt
     return (
         <>
             <div
-                ref={chartContainerRef}
                 className={cn("z-10 h-[400px] transition-opacity duration-300 lg:h-[500px]", {
                     "opacity-0": !isReady,
                     "opacity-100": isReady,
                 })}
+                ref={chartContainerRef}
             />
             <div
                 className={cn(
                     "absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300",
                     {
-                        "opacity-100": !isReady,
                         "opacity-0": isReady,
+                        "opacity-100": !isReady,
                     },
                 )}
             >
                 <Image
-                    priority
                     alt="logo"
                     className="animate-pulse"
                     height="57"
+                    priority
                     src="/glyph_dark.svg"
                     width="46"
                 />

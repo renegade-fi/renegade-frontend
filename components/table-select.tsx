@@ -28,7 +28,7 @@ export function TableSelect({
     const [open, setOpen] = React.useState(false);
 
     return (
-        <Popover modal open={open} onOpenChange={setOpen}>
+        <Popover modal onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
                     aria-expanded={open}
@@ -49,11 +49,11 @@ export function TableSelect({
                             {values.map((v) => (
                                 <CommandItem
                                     key={v.value}
-                                    value={v.value}
                                     onSelect={(currentValue) => {
                                         onChange(currentValue === value ? "" : currentValue);
                                         setOpen(false);
                                     }}
+                                    value={v.value}
                                 >
                                     <span className="flex-1">{v.label}</span>
                                     <CheckIcon

@@ -27,10 +27,10 @@ export function MobileBottomBar({ base }: { base: `0x${string}` }) {
                     </>
                 ) : (
                     <>
-                        <Button className="font-extended" variant="default" onClick={handleClick}>
+                        <Button className="font-extended" onClick={handleClick} variant="default">
                             Sign in
                         </Button>
-                        <SignInDialog open={open} onOpenChange={onOpenChange} />
+                        <SignInDialog onOpenChange={onOpenChange} open={open} />
                     </>
                 )}
             </div>

@@ -38,14 +38,14 @@ import { cn } from "@/lib/utils";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
 const statuses = [
-    { value: "open", label: "Open" },
-    { value: "filled", label: "Filled" },
-    { value: "cancelled", label: "Cancelled" },
+    { label: "Open", value: "open" },
+    { label: "Filled", value: "filled" },
+    { label: "Cancelled", value: "cancelled" },
 ];
 
 const sides = [
-    { value: "buy", label: "Buy" },
-    { value: "sell", label: "Sell" },
+    { label: "Buy", value: "buy" },
+    { label: "Sell", value: "sell" },
 ];
 
 interface DataTableProps<_TData, _TValue> {
@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
         initialVisibleColumns ?? {},
     );
     const [rowSelection, setRowSelection] = React.useState({});
-    const [sorting, setSorting] = React.useState<SortingState>([{ id: "timestamp", desc: true }]);
+    const [sorting, setSorting] = React.useState<SortingState>([{ desc: true, id: "timestamp" }]);
 
     const [status, setStatus] = React.useState(initialStatus ?? "");
     const [side, setSide] = React.useState(initialSide ?? "");
@@ -90,6 +90,9 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        meta: {
+            isLongFormat,
+        },
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -99,9 +102,6 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
             sorting,
-        },
-        meta: {
-            isLongFormat,
         },
     });
 
@@ -157,8 +157,8 @@ export function DataTable<TData, TValue>({
 
     const chainId = useCurrentChain();
     const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
-        value: token.address,
         label: token.ticker,
+        value: token.address,
     }));
 
     return (
@@ -166,23 +166,23 @@ export function DataTable<TData, TValue>({
             <div className="flex flex-wrap items-center gap-2 lg:gap-4">
                 <div className="text-sm font-medium text-muted-foreground">Filters</div>
                 <TableSelect
+                    onChange={setStatus}
                     placeholder="Status"
                     value={status}
                     values={statuses}
-                    onChange={setStatus}
                 />
-                <TableSelect placeholder="Side" value={side} values={sides} onChange={setSide} />
-                <TableSelect placeholder="Token" value={mint} values={tokens} onChange={setMint} />
+                <TableSelect onChange={setSide} placeholder="Side" value={side} values={sides} />
+                <TableSelect onChange={setMint} placeholder="Token" value={mint} values={tokens} />
                 {status || side || mint ? (
                     <Button
                         className="text-muted-foreground"
-                        size="sm"
-                        variant="outline"
                         onClick={() => {
                             setStatus("");
                             setSide("");
                             setMint("");
                         }}
+                        size="sm"
+                        variant="outline"
                     >
                         Clear
                     </Button>
@@ -191,9 +191,9 @@ export function DataTable<TData, TValue>({
                     <Button
                         className="text-muted-foreground sm:ml-auto"
                         disabled={isDisabled}
+                        onClick={handleCancelAllOrders}
                         size="sm"
                         variant="outline"
-                        onClick={handleCancelAllOrders}
                     >
                         Cancel all open orders
                     </Button>
@@ -203,10 +203,10 @@ export function DataTable<TData, TValue>({
                         <Toggle
                             aria-label="Toggle decimal display"
                             className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+                            onPressedChange={(value) => setIsLongFormat(value)}
                             pressed={isLongFormat}
                             size="sm"
                             variant="outline"
-                            onPressedChange={(value) => setIsLongFormat(value)}
                         >
                             .00
                         </Toggle>
@@ -243,13 +243,13 @@ export function DataTable<TData, TValue>({
                                         order={row.original as OrderMetadata}
                                     >
                                         <TableRow
-                                            key={row.id}
                                             className={cn("relative cursor-pointer", {
                                                 "animate-pulse bg-accent": recentOrders.has(
                                                     row.original.id,
                                                 ),
                                             })}
                                             data-state={row.getIsSelected() && "selected"}
+                                            key={row.id}
                                         >
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id}>
@@ -280,17 +280,17 @@ export function DataTable<TData, TValue>({
                     <div className="flex items-center justify-end space-x-2 pt-4">
                         <Button
                             disabled={!table.getCanPreviousPage()}
+                            onClick={() => table.previousPage()}
                             size="sm"
                             variant="outline"
-                            onClick={() => table.previousPage()}
                         >
                             Previous
                         </Button>
                         <Button
                             disabled={!table.getCanNextPage()}
+                            onClick={() => table.nextPage()}
                             size="sm"
                             variant="outline"
-                            onClick={() => table.nextPage()}
                         >
                             Next
                         </Button>

@@ -50,11 +50,11 @@ export async function fetchBars({
     for (const response of responses) {
         response.payload.data.map((res: any) => {
             const bar: Bar = {
-                time: res.exchangeTimestamp,
-                open: res.open,
+                close: res.close,
                 high: res.high,
                 low: res.low,
-                close: res.close,
+                open: res.open,
+                time: res.exchangeTimestamp,
                 volume: res.volume,
             };
             bars.push(bar);
@@ -64,9 +64,9 @@ export async function fetchBars({
 }
 
 const timeIntervalToTimeRangeLimitMap = {
-    minutes: oneDayMs,
-    hours: oneMonthMs,
     days: twelveMonthsMs,
+    hours: oneMonthMs,
+    minutes: oneDayMs,
 } as const;
 
 /**

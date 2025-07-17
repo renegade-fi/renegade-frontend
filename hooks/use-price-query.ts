@@ -14,23 +14,23 @@ export function priceQueryOptions(
     baseMint: `0x${string}`,
     exchange: Exchange = "renegade",
 ): UseQueryOptions<number> {
-    const topic = createPriceTopic({ exchange, base: baseMint });
+    const topic = createPriceTopic({ base: baseMint, exchange });
 
     return queryOptions<number>({
-        queryKey: ["dummy"], // Consumers will replace this with either "live" or "snapshot" price query key
         queryFn: () => {
             const [ex, base, quote] = topic.split("-") as [Exchange, `0x${string}`, `0x${string}`];
             return client.getPriceByTopic(ex, base, quote);
-        },
+        }, // Consumers will replace this with either "live" or "snapshot" price query key
+        queryKey: ["dummy"],
     });
 }
 
 export function usePriceQuery(baseMint: `0x${string}`, exchange: Exchange = "renegade") {
     const opts = priceQueryOptions(baseMint, exchange);
-    const topic = createPriceTopic({ exchange, base: baseMint });
+    const topic = createPriceTopic({ base: baseMint, exchange });
     const { subscribeToTopic, unsubscribeFromTopic } = usePriceWebSocket();
     const isSupported = isSupportedExchange(baseMint, exchange);
-    const queryKey = createPriceQueryKey({ exchange, base: baseMint });
+    const queryKey = createPriceQueryKey({ base: baseMint, exchange });
 
     React.useEffect(() => {
         if (!isSupported) return;
@@ -42,9 +42,9 @@ export function usePriceQuery(baseMint: `0x${string}`, exchange: Exchange = "ren
 
     return useQuery<number>({
         ...opts,
-        queryKey,
-        initialData: 0,
-        staleTime: STALE_TIME_MS,
         enabled: isSupported,
+        initialData: 0,
+        queryKey,
+        staleTime: STALE_TIME_MS,
     });
 }

@@ -66,13 +66,13 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
         const formattedValue = formatUnits(value, baseToken.decimals);
         const formattedValueUSD = formatCurrencyFromString(formattedValue);
         return {
-            index,
             amount,
             amountLong,
             amountUSD: formattedValueUSD,
-            timestamp: Number(fill.price.timestamp),
             createdAt: Number(order.created),
+            index,
             ticker: baseToken.ticker,
+            timestamp: Number(fill.price.timestamp),
         };
     });
     const isOpen = order.state !== OrderState.Filled && order.state !== OrderState.Cancelled;
@@ -83,12 +83,12 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
                 <OrderStatusIndicator order={order} />
                 {isOpen && (
                     <InsufficientWarning
-                        withDialog
                         amount={remainingAmount}
                         baseMint={order.data.base_mint}
                         className="text-sm font-bold tracking-tighter lg:tracking-normal"
                         quoteMint={order.data.quote_mint}
                         side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
+                        withDialog
                     />
                 )}
                 <div className="hidden lg:ml-auto lg:flex">

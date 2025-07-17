@@ -15,11 +15,11 @@ export function AnimatedPriceStatus({
 }) {
     const { data: price, isStale, isFetchedAfterMount } = usePriceQuery(mint, exchange);
     const { text, statusColor } = getPriceStatus({
-        price,
+        exchange,
         // Optimistically give price a chance to update before displaying stale status
         isStale: isFetchedAfterMount && isStale,
         mint,
-        exchange,
+        price,
     });
 
     return <span className={cn("transition-colors", className, statusColor)}>{text}</span>;

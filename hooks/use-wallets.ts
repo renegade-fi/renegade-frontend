@@ -27,9 +27,9 @@ interface DisconnectedWallet {
 export type Wallet = ConnectedWallet | DisconnectedWallet;
 
 const WalletReadyState = {
-    READY: "READY",
     CONNECTING: "CONNECTING",
     NOT_READY: "NOT_READY",
+    READY: "READY",
 } as const;
 
 type WalletReadyState = (typeof WalletReadyState)[keyof typeof WalletReadyState];
@@ -53,51 +53,51 @@ export function useWallets() {
     const renegadeWallet: Wallet =
         seed && id
             ? {
-                  name: "Renegade Wallet",
                   icon: "/glyph_light.png",
                   id,
-                  label: truncateAddress(id),
                   isConnected: true,
+                  label: truncateAddress(id),
+                  name: "Renegade Wallet",
               }
             : {
-                  name: "Renegade Wallet ID",
                   icon: "/glyph_light.png",
                   id: null,
-                  label: "Not Connected",
                   isConnected: false,
+                  label: "Not Connected",
+                  name: "Renegade Wallet ID",
               };
 
     const arbitrumWallet: Wallet =
         address && connector
             ? {
-                  name: `${chainSpecifier} Wallet`,
                   icon: `/${chainSpecifier}.svg`,
                   id: address,
-                  label: ensName || truncateAddress(address),
                   isConnected: true,
+                  label: ensName || truncateAddress(address),
+                  name: `${chainSpecifier} Wallet`,
               }
             : {
-                  name: `${chainSpecifier} Wallet`,
                   icon: `/${chainSpecifier}.svg`,
                   id: null,
-                  label: "Not Connected",
                   isConnected: false,
+                  label: "Not Connected",
+                  name: `${chainSpecifier} Wallet`,
               };
     const solanaWallet: Wallet =
         connected && publicKey && wallet
             ? {
-                  name: "Solana Address",
                   icon: wallet.adapter.icon ?? "",
                   id: publicKey.toString(),
-                  label: truncateAddress(publicKey.toString()),
                   isConnected: true,
+                  label: truncateAddress(publicKey.toString()),
+                  name: "Solana Address",
               }
             : {
-                  name: "Solana Address",
                   icon: null,
                   id: null,
-                  label: "Not Connected",
                   isConnected: false,
+                  label: "Not Connected",
+                  name: "Solana Address",
               };
 
     // More specifically, wallet ready state on page load (may update after hydration)
@@ -115,8 +115,8 @@ export function useWallets() {
     }, [address, seed, connector, status]);
 
     return {
-        renegadeWallet,
         arbitrumWallet,
+        renegadeWallet,
         solanaWallet,
         walletReadyState,
     } as const;

@@ -55,9 +55,9 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
     static create(leg: Route["steps"][number], isFinalLeg: boolean, ctx: TaskContext): LiFiLegTask {
         const desc: LiFiLegDescriptor = {
             id: crypto.randomUUID(),
-            type: TASK_TYPES.LIFI_LEG,
-            leg,
             isFinalLeg,
+            leg,
+            type: TASK_TYPES.LIFI_LEG,
         };
         return new LiFiLegTask(desc, ctx);
     }
@@ -199,9 +199,9 @@ export class LiFiLegTask extends Task<LiFiLegDescriptor, LiFiLegState, LiFiLegEr
             case "Submitted": {
                 if (!this._txHash) throw new LiFiLegError("No tx hash", false);
                 const status = await waitForLiFiStatus({
-                    txHash: this._txHash,
                     fromChain: this.chainId,
                     toChain: this.descriptor.leg.action.toChainId,
+                    txHash: this._txHash,
                 });
                 if (status.status !== "DONE")
                     throw new LiFiLegError(`LiFi status ${status.status}`, true);

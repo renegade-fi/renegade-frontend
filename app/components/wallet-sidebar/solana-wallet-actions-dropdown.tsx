@@ -18,8 +18,8 @@ interface SolanaWalletActionsDropdownProps {
 export function SolanaWalletActionsDropdown({ wallet }: SolanaWalletActionsDropdownProps) {
     const { disconnect } = useWallet();
     const { formatted } = useSolanaChainBalance({
-        ticker: "USDC",
         enabled: wallet.isConnected,
+        ticker: "USDC",
     });
 
     const handleCopyAddress = () => {

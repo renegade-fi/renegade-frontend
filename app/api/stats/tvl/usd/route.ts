@@ -30,12 +30,12 @@ export async function GET(req: NextRequest) {
                     ]);
                     return {
                         balance,
-                        price,
                         decimals: token.decimals,
+                        price,
                     };
                 } catch (error) {
                     console.error(`Error fetching data for ${token.ticker}:`, error);
-                    return { balance: BigInt(0), price: 0, decimals: token.decimals };
+                    return { balance: BigInt(0), decimals: token.decimals, price: 0 };
                 }
             }),
         );
@@ -56,8 +56,8 @@ export async function GET(req: NextRequest) {
                 error: `Invalid or unsupported chain ID: ${req.nextUrl.searchParams.get("chainId")}`,
             }),
             {
-                status: 400,
                 headers: { "Content-Type": "application/json" },
+                status: 400,
             },
         );
     }

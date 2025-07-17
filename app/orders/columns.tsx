@@ -33,8 +33,6 @@ declare module "@tanstack/react-table" {
 
 export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
     {
-        id: "notification",
-        header: () => null,
         cell: function Cell({ row }) {
             const remainingAmount =
                 row.original.data.amount -
@@ -72,11 +70,11 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             }
             return null;
         },
+        header: () => null,
+        id: "notification",
     },
     {
-        id: "status",
         accessorKey: "state",
-        header: () => <div>Status</div>,
         cell: function Cell({ row }) {
             const remainingAmount =
                 row.original.data.amount -
@@ -105,23 +103,23 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             }
             return false;
         },
+        header: () => <div>Status</div>,
+        id: "status",
     },
     {
-        id: "side",
         accessorFn: (row) => {
             return row.data.side;
         },
-        header: () => <div>Side</div>,
         cell: ({ row }) => {
             return <div>{row.getValue("side")}</div>;
         },
+        header: () => <div>Side</div>,
+        id: "side",
     },
     {
-        id: "mint",
         accessorFn: (row) => {
             return row.data.base_mint;
         },
-        header: () => <div className="pr-7">Asset</div>,
         cell: ({ row }) => {
             const mint = row.getValue<`0x${string}`>("mint");
             const token = resolveAddress(mint);
@@ -132,15 +130,20 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 </div>
             );
         },
+        header: () => <div className="pr-7">Asset</div>,
+        id: "mint",
     },
     {
-        id: "usdValue",
         accessorFn: (row) => row.usdValue,
+        cell: ({ row }) => {
+            const usdValue = row.original.usdValue;
+            const formatted = usdValue ? formatCurrency(usdValue) : "--";
+            return <div className="pr-4 text-right">{formatted}</div>;
+        },
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -151,6 +154,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Order Value
                         {column.getIsSorted() === "asc" ? (
@@ -164,44 +168,11 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 </div>
             );
         },
-        cell: ({ row }) => {
-            const usdValue = row.original.usdValue;
-            const formatted = usdValue ? formatCurrency(usdValue) : "--";
-            return <div className="pr-4 text-right">{formatted}</div>;
-        },
+        id: "usdValue",
     },
     {
-        id: "amount",
         accessorFn: (row) => {
             return row.data.amount;
-        },
-        header: ({ column }) => {
-            return (
-                <div className="flex flex-row-reverse">
-                    <Button
-                        variant="ghost"
-                        onClick={() => {
-                            const isSorted = column.getIsSorted();
-                            if (isSorted === "desc") {
-                                column.toggleSorting(false);
-                            } else if (isSorted === "asc") {
-                                column.clearSorting();
-                            } else {
-                                column.toggleSorting(true);
-                            }
-                        }}
-                    >
-                        Size
-                        {column.getIsSorted() === "asc" ? (
-                            <ChevronUp className="ml-2 h-4 w-4" />
-                        ) : column.getIsSorted() === "desc" ? (
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                        ) : (
-                            <ChevronsUpDown className="ml-2 h-4 w-4" />
-                        )}
-                    </Button>
-                </div>
-            );
         },
         cell: ({ row, table }) => {
             const amount = row.getValue<bigint>("amount");
@@ -225,13 +196,40 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 </Tooltip>
             );
         },
+        header: ({ column }) => {
+            return (
+                <div className="flex flex-row-reverse">
+                    <Button
+                        onClick={() => {
+                            const isSorted = column.getIsSorted();
+                            if (isSorted === "desc") {
+                                column.toggleSorting(false);
+                            } else if (isSorted === "asc") {
+                                column.clearSorting();
+                            } else {
+                                column.toggleSorting(true);
+                            }
+                        }}
+                        variant="ghost"
+                    >
+                        Size
+                        {column.getIsSorted() === "asc" ? (
+                            <ChevronUp className="ml-2 h-4 w-4" />
+                        ) : column.getIsSorted() === "desc" ? (
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        ) : (
+                            <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
+            );
+        },
+        id: "amount",
     },
     {
-        id: "filled",
         accessorFn: (row) => {
             return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0));
         },
-        header: () => <div className="w-[100px]">Filled</div>,
         cell: function Cell({ row }) {
             const filledAmount = row.getValue<bigint>("filled");
             const totalAmount = row.getValue<bigint>("amount");
@@ -277,39 +275,12 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 );
             }
         },
+        header: () => <div className="w-[100px]">Filled</div>,
+        id: "filled",
     },
     {
-        id: "saved",
         accessorFn: (row) => {
             return row.fills.reduce((acc, fill) => acc + fill.amount, BigInt(0));
-        },
-        header: ({ column }) => {
-            return (
-                <div className="flex flex-row-reverse">
-                    <Button
-                        variant="ghost"
-                        onClick={() => {
-                            const isSorted = column.getIsSorted();
-                            if (isSorted === "desc") {
-                                column.toggleSorting(false);
-                            } else if (isSorted === "asc") {
-                                column.clearSorting();
-                            } else {
-                                column.toggleSorting(true);
-                            }
-                        }}
-                    >
-                        Est. Saved
-                        {column.getIsSorted() === "asc" ? (
-                            <ChevronUp className="ml-2 h-4 w-4" />
-                        ) : column.getIsSorted() === "desc" ? (
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                        ) : (
-                            <ChevronsUpDown className="ml-2 h-4 w-4" />
-                        )}
-                    </Button>
-                </div>
-            );
         },
         cell: function Cell({ row }) {
             const { savings, savingsBps } = useSavingsAcrossFillsQuery(row.original);
@@ -331,15 +302,10 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 </div>
             );
         },
-    },
-    {
-        id: "timestamp",
-        accessorKey: "created",
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -350,6 +316,45 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
+                    >
+                        Est. Saved
+                        {column.getIsSorted() === "asc" ? (
+                            <ChevronUp className="ml-2 h-4 w-4" />
+                        ) : column.getIsSorted() === "desc" ? (
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        ) : (
+                            <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
+            );
+        },
+        id: "saved",
+    },
+    {
+        accessorKey: "created",
+        cell: ({ row }) => {
+            const timestamp = row.getValue<bigint>("timestamp");
+            const formatted = formatTimestamp(Number(timestamp));
+
+            return <div className="whitespace-nowrap pr-4 text-right">{formatted}</div>;
+        },
+        header: ({ column }) => {
+            return (
+                <div className="flex flex-row-reverse">
+                    <Button
+                        onClick={() => {
+                            const isSorted = column.getIsSorted();
+                            if (isSorted === "desc") {
+                                column.toggleSorting(false);
+                            } else if (isSorted === "asc") {
+                                column.clearSorting();
+                            } else {
+                                column.toggleSorting(true);
+                            }
+                        }}
+                        variant="ghost"
                     >
                         Time
                         {column.getIsSorted() === "asc" ? (
@@ -363,12 +368,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                 </div>
             );
         },
-        cell: ({ row }) => {
-            const timestamp = row.getValue<bigint>("timestamp");
-            const formatted = formatTimestamp(Number(timestamp));
-
-            return <div className="whitespace-nowrap pr-4 text-right">{formatted}</div>;
-        },
+        id: "timestamp",
     },
     // {
     // id: "time to fill",

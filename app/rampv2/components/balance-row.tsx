@@ -88,9 +88,9 @@ export function BalanceRow(props: Props & OnChainBalanceQueryParams & RenegadeBa
             <div className="flex items-center">
                 <TooltipButton
                     className="h-5 p-0 font-mono text-sm"
+                    onClick={handleClick}
                     tooltipContent={decimalCorrectedLabel}
                     variant="link"
-                    onClick={handleClick}
                 >
                     {roundedLabel}
                 </TooltipButton>

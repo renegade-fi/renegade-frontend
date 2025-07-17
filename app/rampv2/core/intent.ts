@@ -68,26 +68,26 @@ export class Intent {
 
     toJson() {
         return {
-            kind: this.kind,
-            fromChain: this.fromChain,
-            fromAddress: this.fromAddress,
-            fromTokenAddress: this.fromTokenAddress,
-            toChain: this.toChain,
-            toAddress: this.toAddress,
-            toTokenAddress: this.toTokenAddress,
             amountAtomic: this.amountAtomic.toString(),
+            fromAddress: this.fromAddress,
+            fromChain: this.fromChain,
+            fromTokenAddress: this.fromTokenAddress,
+            kind: this.kind,
+            toAddress: this.toAddress,
+            toChain: this.toChain,
+            toTokenAddress: this.toTokenAddress,
         };
     }
 
     toLifiRouteRequest(): Parameters<typeof getRoutes>[0] {
         return {
-            fromChainId: this.fromChain,
-            toChainId: this.toChain,
-            fromAmount: this.amountAtomic.toString(),
-            fromTokenAddress: this.fromTokenAddress,
-            toTokenAddress: this.toTokenAddress,
             fromAddress: this.fromAddress,
+            fromAmount: this.amountAtomic.toString(),
+            fromChainId: this.fromChain,
+            fromTokenAddress: this.fromTokenAddress,
             toAddress: this.toAddress,
+            toChainId: this.toChain,
+            toTokenAddress: this.toTokenAddress,
         };
     }
 
@@ -119,14 +119,14 @@ export class Intent {
         if (amountAtomic === BigInt(0)) return undefined;
 
         return new Intent({
-            kind: "DEPOSIT",
-            fromChain: sourceChain,
-            toChain: targetChain,
-            fromAddress: ctx.getOnchainAddress(sourceChain),
-            toAddress: ctx.getOnchainAddress(targetChain),
-            fromTokenAddress: sourceToken.address,
-            toTokenAddress: targetToken.address,
             amountAtomic: amountAtomic,
+            fromAddress: ctx.getOnchainAddress(sourceChain),
+            fromChain: sourceChain,
+            fromTokenAddress: sourceToken.address,
+            kind: "DEPOSIT",
+            toAddress: ctx.getOnchainAddress(targetChain),
+            toChain: targetChain,
+            toTokenAddress: targetToken.address,
         });
     }
 
@@ -157,14 +157,14 @@ export class Intent {
         if (amountAtomic === BigInt(0)) return undefined;
 
         return new Intent({
-            kind: "DEPOSIT",
-            fromChain: chainId,
-            toChain: chainId,
-            fromAddress: ctx.getOnchainAddress(chainId),
-            toAddress: ctx.getOnchainAddress(chainId),
-            fromTokenAddress: fromToken.address,
-            toTokenAddress: toToken.address,
             amountAtomic: amountAtomic,
+            fromAddress: ctx.getOnchainAddress(chainId),
+            fromChain: chainId,
+            fromTokenAddress: fromToken.address,
+            kind: "DEPOSIT",
+            toAddress: ctx.getOnchainAddress(chainId),
+            toChain: chainId,
+            toTokenAddress: toToken.address,
         });
     }
 
@@ -185,14 +185,14 @@ export class Intent {
         if (amountAtomic === BigInt(0)) return undefined;
 
         return new Intent({
-            kind: "DEPOSIT",
-            fromChain: chainId,
-            toChain: chainId,
-            fromAddress: ctx.getOnchainAddress(chainId),
-            toAddress: ctx.getOnchainAddress(chainId),
-            fromTokenAddress: token.address,
-            toTokenAddress: token.address,
             amountAtomic: amountAtomic,
+            fromAddress: ctx.getOnchainAddress(chainId),
+            fromChain: chainId,
+            fromTokenAddress: token.address,
+            kind: "DEPOSIT",
+            toAddress: ctx.getOnchainAddress(chainId),
+            toChain: chainId,
+            toTokenAddress: token.address,
         });
     }
 
@@ -225,14 +225,14 @@ export class Intent {
         if (amountAtomic === BigInt(0)) return undefined;
 
         return new Intent({
-            kind: "WITHDRAW",
-            fromChain: chainId,
-            toChain: chainId,
-            fromAddress: owner,
-            toAddress: owner,
-            fromTokenAddress: token.address,
-            toTokenAddress: toTokenAddress,
             amountAtomic: amountAtomic,
+            fromAddress: owner,
+            fromChain: chainId,
+            fromTokenAddress: token.address,
+            kind: "WITHDRAW",
+            toAddress: owner,
+            toChain: chainId,
+            toTokenAddress: toTokenAddress,
         });
     }
 }

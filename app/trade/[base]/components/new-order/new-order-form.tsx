@@ -48,8 +48,8 @@ const formSchema = z.object({
     base: z.string().refine((val): val is `0x${string}` => val.startsWith("0x"), {
         message: "Must start with 0x",
     }),
-    isSell: z.boolean(),
     isQuoteCurrency: z.boolean(),
+    isSell: z.boolean(),
 });
 
 export type NewOrderFormProps = z.infer<typeof formSchema>;
@@ -73,14 +73,14 @@ export function NewOrderForm({
         () => ({
             amount: "",
             base,
-            isSell: side === Side.SELL,
             isQuoteCurrency: currency === "quote",
+            isSell: side === Side.SELL,
         }),
         [side, currency, base],
     );
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
         defaultValues,
+        resolver: zodResolver(formSchema),
     });
     // Keep form in sync with server store
     // TODO: This is an anti-pattern, we should use a single source of truth for the form (server state)
@@ -179,8 +179,8 @@ export function NewOrderForm({
                                         type="button"
                                         variant="outline"
                                         {...field}
-                                        value={""}
                                         onClick={() => field.onChange(!field.value)}
+                                        value={""}
                                     >
                                         {field.value ? "Sell" : "Buy"}
                                         <ArrowRightLeft className="ml-2 h-5 w-5" />
@@ -234,11 +234,11 @@ export function NewOrderForm({
                                             type="button"
                                             variant="ghost"
                                             {...field}
-                                            value={""}
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 field.onChange(!field.value);
                                             }}
+                                            value={""}
                                         >
                                             {field.value ? "USDC" : baseTicker}
                                             <ArrowRightLeft className="ml-2 h-5 w-5" />
@@ -253,25 +253,25 @@ export function NewOrderForm({
                 <div className="grid grid-cols-3">
                     <AmountShortcutButton
                         {...form.watch()}
-                        percentage={25}
                         onSetAmount={(amount) =>
                             form.setValue("amount", amount, { shouldValidate: true })
                         }
+                        percentage={25}
                     />
                     <AmountShortcutButton
                         {...form.watch()}
                         className="border-x-0"
-                        percentage={50}
                         onSetAmount={(amount) =>
                             form.setValue("amount", amount, { shouldValidate: true })
                         }
+                        percentage={50}
                     />
                     <AmountShortcutButton
                         {...form.watch()}
-                        percentage={100}
                         onSetAmount={(amount) =>
                             form.setValue("amount", amount, { shouldValidate: true })
                         }
+                        percentage={100}
                     />
                 </div>
                 <MaxOrdersWarning className="text-sm text-orange-400" />

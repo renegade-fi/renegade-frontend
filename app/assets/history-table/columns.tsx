@@ -14,15 +14,14 @@ import { resolveAddress } from "@/lib/token";
 export const columns: ColumnDef<HistoryData>[] = [
     {
         accessorKey: "status",
-        header: () => <div>Status</div>,
         cell: ({ row }) => {
             const status = row.getValue<`0x${string}`>("status");
             return <div>{status}</div>;
         },
+        header: () => <div>Status</div>,
     },
     {
         accessorKey: "mint",
-        header: () => <div className="pr-7">Asset</div>,
         cell: ({ row }) => {
             const mint = row.getValue<`0x${string}`>("mint");
             const token = resolveAddress(mint);
@@ -33,19 +32,18 @@ export const columns: ColumnDef<HistoryData>[] = [
                 </div>
             );
         },
+        header: () => <div className="pr-7">Asset</div>,
     },
     {
-        id: "isWithdrawal",
         accessorKey: "isWithdrawal",
-        header: () => <div>Type</div>,
         cell: ({ row }) => {
             const isWithdrawal = row.getValue<boolean>("isWithdrawal");
             return <div>{isWithdrawal}</div>;
         },
+        header: () => <div>Type</div>,
+        id: "isWithdrawal",
     },
     {
-        id: "usdValue",
-        header: () => <div className="whitespace-nowrap text-right">Amount ($)</div>,
         cell: function Cell({ row }) {
             const mint = row.getValue<`0x${string}`>("mint");
             const token = resolveAddress(mint);
@@ -55,10 +53,11 @@ export const columns: ColumnDef<HistoryData>[] = [
             const usdValue = formatUnits(usdValueBigInt, token.decimals);
             return <div className="text-right">{formatCurrencyFromString(usdValue)}</div>;
         },
+        header: () => <div className="whitespace-nowrap text-right">Amount ($)</div>,
+        id: "usdValue",
     },
     {
         accessorKey: "amount",
-        header: () => <div className="text-right">Amount</div>,
         cell: ({ row, table }) => {
             const amount = row.original.rawAmount;
             const token = resolveAddress(row.original.mint);
@@ -80,14 +79,15 @@ export const columns: ColumnDef<HistoryData>[] = [
                 </Tooltip>
             );
         },
+        header: () => <div className="text-right">Amount</div>,
     },
     {
         accessorKey: "timestamp",
-        header: () => <div className="text-right">Time</div>,
         cell: ({ row }) => {
             const timestamp = row.getValue<number>("timestamp");
             const formatted = formatTimestamp(timestamp);
             return <div className="whitespace-nowrap text-right">{formatted}</div>;
         },
+        header: () => <div className="text-right">Time</div>,
     },
 ];

@@ -87,20 +87,20 @@ export function FeesSection({
                         <TooltipTrigger asChild>
                             <NumberFlow
                                 format={{
-                                    style: "currency",
                                     currency: "USD",
-                                    minimumFractionDigits:
-                                        predictedSavings > 10_000
-                                            ? 0
-                                            : predictedSavings < 10
-                                              ? 4
-                                              : 2,
                                     maximumFractionDigits:
                                         predictedSavings > 10_000
                                             ? 0
                                             : predictedSavings < 10
                                               ? 4
                                               : 2,
+                                    minimumFractionDigits:
+                                        predictedSavings > 10_000
+                                            ? 0
+                                            : predictedSavings < 10
+                                              ? 4
+                                              : 2,
+                                    style: "currency",
                                 }}
                                 locales="en-US"
                                 value={predictedSavings}

@@ -39,12 +39,12 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
                 <OrderStatusIndicator order={order} />
                 {isOpen && (
                     <InsufficientWarning
-                        withDialog
                         amount={order.data.amount}
                         baseMint={order.data.base_mint}
                         className="text-sm font-bold tracking-tighter lg:tracking-normal"
                         quoteMint={order.data.quote_mint}
                         side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
+                        withDialog
                     />
                 )}
                 <div className="hidden lg:ml-auto lg:flex">
@@ -76,10 +76,10 @@ export function EmptyContent({ order }: { order: OrderMetadata }) {
             <div className="grid h-[500px] place-items-center p-4">
                 <div className="flex flex-col items-center gap-10 text-pretty text-center">
                     <Image
-                        priority
                         alt="logo"
                         className="mx-auto animate-pulse"
                         height="57"
+                        priority
                         src="/glyph_dark.svg"
                         width="46"
                     />

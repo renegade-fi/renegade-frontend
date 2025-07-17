@@ -14,7 +14,6 @@ export function OrderStatusDisplay({ states, currentStatus }: OrderStatusDisplay
         <div className="space-y-1 border p-4 font-mono">
             {states.map((state, i) => (
                 <div
-                    key={state}
                     className={cn(
                         "flex items-center justify-between transition-colors hover:text-primary",
                         {
@@ -23,6 +22,7 @@ export function OrderStatusDisplay({ states, currentStatus }: OrderStatusDisplay
                             "text-muted": currentStatus !== state,
                         },
                     )}
+                    key={state}
                 >
                     {i + 1}. {formatTaskState(state)}{" "}
                     {currentStatus === state && currentStatus !== "Completed" && (

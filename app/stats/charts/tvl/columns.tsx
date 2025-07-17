@@ -28,7 +28,6 @@ type TvlRow = {
 export const columns: ColumnDef<TvlRow>[] = [
     {
         accessorKey: "ticker",
-        header: () => <div className="pr-7">Asset</div>,
         cell: ({ row }) => {
             const ticker = row.getValue<string>("ticker");
             return (
@@ -38,37 +37,10 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </div>
             );
         },
+        header: () => <div className="pr-7">Asset</div>,
     },
     {
         accessorKey: "baseTvlUsd",
-        header: ({ column }) => {
-            return (
-                <div className="flex flex-row-reverse">
-                    <Button
-                        variant="ghost"
-                        onClick={() => {
-                            const isSorted = column.getIsSorted();
-                            if (isSorted === "desc") {
-                                column.toggleSorting(false);
-                            } else if (isSorted === "asc") {
-                                column.clearSorting();
-                            } else {
-                                column.toggleSorting(true);
-                            }
-                        }}
-                    >
-                        Base
-                        {column.getIsSorted() === "asc" ? (
-                            <ChevronUp className="ml-2 h-4 w-4" />
-                        ) : column.getIsSorted() === "desc" ? (
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                        ) : (
-                            <ChevronsUpDown className="ml-2 h-4 w-4" />
-                        )}
-                    </Button>
-                </div>
-            );
-        },
         cell: function Cell({ row }) {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
@@ -89,14 +61,10 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </Tooltip>
             );
         },
-    },
-    {
-        accessorKey: "arbitrumTvlUsd",
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -107,8 +75,9 @@ export const columns: ColumnDef<TvlRow>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
-                        Arbitrum
+                        Base
                         {column.getIsSorted() === "asc" ? (
                             <ChevronUp className="ml-2 h-4 w-4" />
                         ) : column.getIsSorted() === "desc" ? (
@@ -120,6 +89,9 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </div>
             );
         },
+    },
+    {
+        accessorKey: "arbitrumTvlUsd",
         cell: function Cell({ row }) {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
@@ -140,14 +112,10 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </Tooltip>
             );
         },
-    },
-    {
-        accessorKey: "totalTvlUsd",
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -158,8 +126,9 @@ export const columns: ColumnDef<TvlRow>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
-                        Total
+                        Arbitrum
                         {column.getIsSorted() === "asc" ? (
                             <ChevronUp className="ml-2 h-4 w-4" />
                         ) : column.getIsSorted() === "desc" ? (
@@ -171,6 +140,9 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </div>
             );
         },
+    },
+    {
+        accessorKey: "totalTvlUsd",
         cell: function Cell({ row }) {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
@@ -186,6 +158,34 @@ export const columns: ColumnDef<TvlRow>[] = [
                         {`${formattedAmount} ${token.ticker}`}
                     </TooltipContent>
                 </Tooltip>
+            );
+        },
+        header: ({ column }) => {
+            return (
+                <div className="flex flex-row-reverse">
+                    <Button
+                        onClick={() => {
+                            const isSorted = column.getIsSorted();
+                            if (isSorted === "desc") {
+                                column.toggleSorting(false);
+                            } else if (isSorted === "asc") {
+                                column.clearSorting();
+                            } else {
+                                column.toggleSorting(true);
+                            }
+                        }}
+                        variant="ghost"
+                    >
+                        Total
+                        {column.getIsSorted() === "asc" ? (
+                            <ChevronUp className="ml-2 h-4 w-4" />
+                        ) : column.getIsSorted() === "desc" ? (
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        ) : (
+                            <ChevronsUpDown className="ml-2 h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
             );
         },
     },

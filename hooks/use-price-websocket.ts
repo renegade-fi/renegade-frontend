@@ -12,7 +12,6 @@ export function usePriceWebSocket() {
     const queryClient = useQueryClient();
 
     const { sendMessage, readyState } = useWebSocket(client.getWebSocketUrl(), {
-        share: true,
         filter: () => false,
         onMessage: (event) => {
             const { topic, price: incomingPrice } = JSON.parse(event.data);
@@ -39,6 +38,7 @@ export function usePriceWebSocket() {
                 queryClient.setQueryData(queryKey, incomingPrice);
             }
         },
+        share: true,
         shouldReconnect: () => true,
     });
 
@@ -70,5 +70,5 @@ export function usePriceWebSocket() {
         [readyState, sendMessage],
     );
 
-    return { subscribeToTopic, unsubscribeFromTopic, readyState };
+    return { readyState, subscribeToTopic, unsubscribeFromTopic };
 }

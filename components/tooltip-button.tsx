@@ -23,7 +23,7 @@ export function TooltipButton({
             </a>
         </Button>
     ) : (
-        <Button type="button" onClick={onClick} {...buttonProps}>
+        <Button onClick={onClick} type="button" {...buttonProps}>
             {children}
         </Button>
     );

@@ -42,8 +42,8 @@ const defaultConnectors = ({
     connectors.push(
         injected({ target: "metaMask" }),
         coinbaseWallet({
-            appName: app.name,
             appLogoUrl: app.icon,
+            appName: app.name,
             overrideIsMetaMask: false,
             preference: coinbaseWalletPreference,
         }),
@@ -52,16 +52,16 @@ const defaultConnectors = ({
     if (walletConnectProjectId) {
         connectors.push(
             walletConnect({
-                showQrModal: false,
-                projectId: walletConnectProjectId,
                 metadata: hasAllAppData
                     ? {
-                          name: app.name,
                           description: app.description!,
-                          url: app.url!,
                           icons: [app.icon!],
+                          name: app.name,
+                          url: app.url!,
                       }
                     : undefined,
+                projectId: walletConnectProjectId,
+                showQrModal: false,
             }),
         );
     }

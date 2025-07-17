@@ -20,15 +20,15 @@ function createBackOfQueueWalletQuery<T>(
     selectFn: (data: Awaited<ReturnType<typeof getBackOfQueueWallet>>) => T,
 ) {
     return queryOptions({
+        queryFn: async () => {
+            return getBackOfQueueWallet(params.renegadeConfig);
+        },
         queryKey: [
             "back-of-queue-wallet",
             {
                 scopeKey: params.renegadeConfig.state.id,
             },
         ],
-        queryFn: async () => {
-            return getBackOfQueueWallet(params.renegadeConfig);
-        },
         select: selectFn,
         staleTime: 0,
     });
@@ -39,15 +39,15 @@ export function renegadeBalanceQuery(params: QueryParamsWithMint) {
     return createBackOfQueueWalletQuery(params, (data) => {
         const raw = data.balances.find((b) => b.mint === params.mint)?.amount ?? BigInt(0);
         const maybeToken = getTokenByAddress(params.mint, params.renegadeConfig.state.chainId!);
-        if (!maybeToken) return { raw, decimalCorrected: "0", rounded: "0", ticker: "" };
+        if (!maybeToken) return { decimalCorrected: "0", raw, rounded: "0", ticker: "" };
         const decimalCorrected = formatUnits(raw, maybeToken.decimals);
         const rounded = formatNumber(raw, maybeToken.decimals);
         return {
-            raw,
             decimalCorrected,
+            isZero: raw === BigInt(0),
+            raw,
             rounded,
             ticker: maybeToken.ticker,
-            isZero: raw === BigInt(0),
         };
     });
 }

@@ -22,7 +22,6 @@ declare module "@tanstack/react-table" {
 export const columns: ColumnDef<AssetsTableRow>[] = [
     {
         accessorKey: "mint",
-        header: () => <div>Token</div>,
         cell: ({ row }) => {
             const mint = row.getValue<`0x${string}`>("mint");
             const token = resolveAddress(mint);
@@ -33,17 +32,30 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </div>
             );
         },
+        header: () => <div>Token</div>,
     },
     {
-        id: "onChainUsdValue",
         accessorFn: (row) => row.onChainUsdValue,
+        cell: ({ row }) => {
+            const value = row.getValue<string>("onChainUsdValue");
+            const balance = row.original.rawOnChainBalance;
+            const token = resolveAddress(row.original.mint);
+            const formatted = formatNumber(balance, token.decimals);
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{`${formatted} ${token.ticker}`}</TooltipContent>
+                </Tooltip>
+            );
+        },
         header: function Header({ column }) {
             const isBase = useIsBase();
             const chainName = useChainName(true /* short */);
 
             const buttonElement = (
                 <Button
-                    variant="ghost"
                     onClick={() => {
                         const isSorted = column.getIsSorted();
                         if (isSorted === "desc") {
@@ -54,6 +66,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                             column.toggleSorting(true);
                         }
                     }}
+                    variant="ghost"
                 >
                     {chainName} Balance ($)
                     {column.getIsSorted() === "asc" ? (
@@ -81,23 +94,31 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </div>
             );
         },
-        cell: ({ row }) => {
-            const value = row.getValue<string>("onChainUsdValue");
-            const balance = row.original.rawOnChainBalance;
-            const token = resolveAddress(row.original.mint);
-            const formatted = formatNumber(balance, token.decimals);
-            return (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formatCurrencyFromString(value)}</div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">{`${formatted} ${token.ticker}`}</TooltipContent>
-                </Tooltip>
-            );
-        },
+        id: "onChainUsdValue",
     },
     {
         accessorKey: "onChainBalance",
+        cell: ({ row, table }) => {
+            const balance = row.original.rawOnChainBalance;
+            const token = resolveAddress(row.original.mint);
+            const formatted = formatNumber(
+                balance,
+                token.decimals,
+                table.options.meta?.isLongFormat,
+            );
+            const formattedLong = formatNumber(balance, token.decimals, true);
+            const unformatted = formatUnits(balance, token.decimals);
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="pr-4 text-right">{formatted}</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                        {`${table.options.meta?.isLongFormat ? unformatted : formattedLong} ${token.ticker}`}
+                    </TooltipContent>
+                </Tooltip>
+            );
+        },
         header: function Header() {
             const isBase = useIsBase();
             const chainName = useChainName(true /* short */);
@@ -115,57 +136,9 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </Tooltip>
             );
         },
-        cell: ({ row, table }) => {
-            const balance = row.original.rawOnChainBalance;
-            const token = resolveAddress(row.original.mint);
-            const formatted = formatNumber(
-                balance,
-                token.decimals,
-                table.options.meta?.isLongFormat,
-            );
-            const formattedLong = formatNumber(balance, token.decimals, true);
-            const unformatted = formatUnits(balance, token.decimals);
-            return (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formatted}</div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        {`${table.options.meta?.isLongFormat ? unformatted : formattedLong} ${token.ticker}`}
-                    </TooltipContent>
-                </Tooltip>
-            );
-        },
     },
     {
-        id: "renegadeUsdValue",
         accessorFn: (row) => row.renegadeUsdValue,
-        header: ({ column }) => (
-            <div className="flex flex-row-reverse">
-                <Button
-                    variant="ghost"
-                    onClick={() => {
-                        const isSorted = column.getIsSorted();
-                        if (isSorted === "desc") {
-                            column.toggleSorting(false);
-                        } else if (isSorted === "asc") {
-                            column.clearSorting();
-                        } else {
-                            column.toggleSorting(true);
-                        }
-                    }}
-                >
-                    Renegade Balance ($)
-                    {column.getIsSorted() === "asc" ? (
-                        <ChevronUp className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronsUpDown className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            </div>
-        ),
         cell: ({ row }) => {
             const value = row.getValue<string>("renegadeUsdValue");
             const balance = row.original.rawRenegadeBalance;
@@ -180,10 +153,36 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </Tooltip>
             );
         },
+        header: ({ column }) => (
+            <div className="flex flex-row-reverse">
+                <Button
+                    onClick={() => {
+                        const isSorted = column.getIsSorted();
+                        if (isSorted === "desc") {
+                            column.toggleSorting(false);
+                        } else if (isSorted === "asc") {
+                            column.clearSorting();
+                        } else {
+                            column.toggleSorting(true);
+                        }
+                    }}
+                    variant="ghost"
+                >
+                    Renegade Balance ($)
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            </div>
+        ),
+        id: "renegadeUsdValue",
     },
     {
         accessorKey: "renegadeBalance",
-        header: () => <div className="text-right">Renegade Balance</div>,
         cell: ({ row, table }) => {
             const balance = row.original.rawRenegadeBalance;
             const token = resolveAddress(row.original.mint);
@@ -205,5 +204,6 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                 </Tooltip>
             );
         },
+        header: () => <div className="text-right">Renegade Balance</div>,
     },
 ];

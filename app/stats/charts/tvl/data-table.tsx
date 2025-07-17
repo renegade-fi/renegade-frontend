@@ -35,8 +35,8 @@ export function DataTable<TData, TValue>({
     const [visibility, setVisibility] = React.useState<VisibilityState>({});
     const [sorting, setSorting] = React.useState<SortingState>([
         {
-            id: "totalTvlUsd",
             desc: true,
+            id: "totalTvlUsd",
         },
     ]);
 
@@ -46,20 +46,20 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        onSortingChange: setSorting,
         onColumnVisibilityChange: setVisibility,
+        onSortingChange: setSorting,
         state: {
-            sorting,
             columnVisibility: visibility,
+            sorting,
         },
     });
 
     // If a chain is selected, show only the relevant columns
     React.useEffect(() => {
         setVisibility({
-            ticker: true,
-            baseTvlUsd: chainId === base.id || chainId === 0,
             arbitrumTvlUsd: chainId === arbitrum.id || chainId === 0,
+            baseTvlUsd: chainId === base.id || chainId === 0,
+            ticker: true,
             totalTvlUsd: chainId === 0,
         });
     }, [chainId]);
@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>({
                 <TableBody>
                     {table.getRowModel().rows.map((row) => {
                         return (
-                            <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                            <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -102,17 +102,17 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center justify-end space-x-2 p-6 pt-4">
                 <Button
                     disabled={!table.getCanPreviousPage()}
+                    onClick={() => table.previousPage()}
                     size="sm"
                     variant="outline"
-                    onClick={() => table.previousPage()}
                 >
                     Previous
                 </Button>
                 <Button
                     disabled={!table.getCanNextPage()}
+                    onClick={() => table.nextPage()}
                     size="sm"
                     variant="outline"
-                    onClick={() => table.nextPage()}
                 >
                     Next
                 </Button>

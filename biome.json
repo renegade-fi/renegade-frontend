@@ -1,9 +1,14 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
-    "vcs": {
-        "enabled": true,
-        "clientKind": "git",
-        "useIgnoreFile": true
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": "on",
+                "useSortedAttributes": "on",
+                "useSortedKeys": "on"
+            }
+        },
+        "enabled": true
     },
     "files": {
         "ignoreUnknown": false,
@@ -28,17 +33,14 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "recommended": true,
-            "style": {
-                "noNonNullAssertion": "off"
-            },
-            "suspicious": {
-                "noExplicitAny": "off",
-                "noShadowRestrictedNames": "off",
-                "noImplicitAnyLet": "off",
-                "noDocumentCookie": "off",
-                "noTemplateCurlyInString": "off",
-                "noArrayIndexKey": "off"
+            "a11y": {
+                "noStaticElementInteractions": "off",
+                "noSvgWithoutTitle": "off",
+                "useButtonType": "off",
+                "useFocusableInteractive": "off",
+                "useHtmlLang": "off",
+                "useKeyWithClickEvents": "off",
+                "useSemanticElements": "off"
             },
             "complexity": {
                 "noUselessFragments": "off"
@@ -47,29 +49,29 @@
                 "noUnusedFunctionParameters": "off",
                 "noUnusedVariables": "off"
             },
-            "a11y": {
-                "useSemanticElements": "off",
-                "useHtmlLang": "off",
-                "useButtonType": "off",
-                "useKeyWithClickEvents": "off",
-                "noStaticElementInteractions": "off",
-                "useFocusableInteractive": "off",
-                "noSvgWithoutTitle": "off"
-            },
             "nursery": {
                 "useUniqueElementIds": "off"
             },
+            "recommended": true,
             "security": {
                 "noDangerouslySetInnerHtml": "off"
+            },
+            "style": {
+                "noNonNullAssertion": "off"
+            },
+            "suspicious": {
+                "noArrayIndexKey": "off",
+                "noDocumentCookie": "off",
+                "noExplicitAny": "off",
+                "noImplicitAnyLet": "off",
+                "noShadowRestrictedNames": "off",
+                "noTemplateCurlyInString": "off"
             }
         }
     },
-    "assist": {
+    "vcs": {
+        "clientKind": "git",
         "enabled": true,
-        "actions": {
-            "source": {
-                "organizeImports": "on"
-            }
-        }
+        "useIgnoreFile": true
     }
 }

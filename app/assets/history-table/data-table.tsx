@@ -38,14 +38,14 @@ interface DataTableProps<TData, TValue> {
 }
 
 const taskStates: { value: string; label: string }[] = [
-    { value: "Queued", label: "Queued" },
-    { value: "Completed", label: "Completed" },
-    { value: "Failed", label: "Failed" },
+    { label: "Queued", value: "Queued" },
+    { label: "Completed", value: "Completed" },
+    { label: "Failed", value: "Failed" },
 ];
 
 const types = [
-    { value: "Deposit", label: "Deposit" },
-    { value: "Withdraw", label: "Withdraw" },
+    { label: "Deposit", value: "Deposit" },
+    { label: "Withdraw", value: "Withdraw" },
 ];
 
 export function DataTable<TData, TValue>({
@@ -60,8 +60,8 @@ export function DataTable<TData, TValue>({
     const [rowSelection, setRowSelection] = React.useState({});
     const [sorting, setSorting] = React.useState<SortingState>([
         {
-            id: "timestamp",
             desc: true,
+            id: "timestamp",
         },
     ]);
 
@@ -77,6 +77,9 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        meta: {
+            isLongFormat,
+        },
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -86,9 +89,6 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
             sorting,
-        },
-        meta: {
-            isLongFormat,
         },
     });
 
@@ -106,8 +106,8 @@ export function DataTable<TData, TValue>({
 
     const chainId = useCurrentChain();
     const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
-        value: token.address,
         label: token.ticker,
+        value: token.address,
     }));
 
     return (
@@ -115,28 +115,28 @@ export function DataTable<TData, TValue>({
             <div className="flex flex-wrap items-center gap-2 lg:gap-4">
                 <div className="text-sm font-medium text-muted-foreground">Filters</div>
                 <TableSelect
+                    onChange={setStatus}
                     placeholder="Status"
                     value={status}
                     values={taskStates}
-                    onChange={setStatus}
                 />
-                <TableSelect placeholder="Asset" value={mint} values={tokens} onChange={setMint} />
+                <TableSelect onChange={setMint} placeholder="Asset" value={mint} values={tokens} />
                 <TableSelect
+                    onChange={setIsWithdrawal}
                     placeholder="Type"
                     value={isWithdrawal}
                     values={types}
-                    onChange={setIsWithdrawal}
                 />
                 {status || mint || isWithdrawal ? (
                     <Button
                         className="text-muted-foreground"
-                        size="sm"
-                        variant="outline"
                         onClick={() => {
                             setStatus("");
                             setMint("");
                             setIsWithdrawal("");
                         }}
+                        size="sm"
+                        variant="outline"
                     >
                         Clear
                     </Button>
@@ -147,10 +147,10 @@ export function DataTable<TData, TValue>({
                             <Toggle
                                 aria-label="Toggle decimal display"
                                 className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+                                onPressedChange={(value) => setIsLongFormat(value)}
                                 pressed={isLongFormat}
                                 size="sm"
                                 variant="outline"
-                                onPressedChange={(value) => setIsLongFormat(value)}
                             >
                                 .00
                             </Toggle>
@@ -184,8 +184,8 @@ export function DataTable<TData, TValue>({
                             table.getRowModel().rows.map((row) => {
                                 return (
                                     <TableRow
-                                        key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
+                                        key={row.id}
                                     >
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>
@@ -207,17 +207,17 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center justify-end space-x-2 py-4">
                 <Button
                     disabled={!table.getCanPreviousPage()}
+                    onClick={() => table.previousPage()}
                     size="sm"
                     variant="outline"
-                    onClick={() => table.previousPage()}
                 >
                     Previous
                 </Button>
                 <Button
                     disabled={!table.getCanNextPage()}
+                    onClick={() => table.nextPage()}
                     size="sm"
                     variant="outline"
-                    onClick={() => table.nextPage()}
                 >
                     Next
                 </Button>

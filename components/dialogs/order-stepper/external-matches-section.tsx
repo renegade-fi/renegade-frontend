@@ -29,7 +29,7 @@ export function ExternalMatchesSection(_props: NewOrderConfirmationProps) {
     const setAllowExternalMatches = useServerStore((state) => state.setAllowExternalMatches);
 
     return (
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <Popover onOpenChange={setIsOpen} open={isOpen}>
             <PopoverTrigger asChild>
                 <div
                     className="flex items-center justify-between border p-3 transition-colors hover:border-foreground"
@@ -55,9 +55,9 @@ export function ExternalMatchesSection(_props: NewOrderConfirmationProps) {
             </PopoverTrigger>
             <PopoverContent
                 className="space-y-2 rounded-none p-0 text-sm md:w-64"
-                side={isMobile ? "bottom" : "right"}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                side={isMobile ? "bottom" : "right"}
             >
                 <div className="grid h-20 place-items-center p-3">
                     <PrivacySpeedSpectrum />

@@ -49,9 +49,9 @@ export function useConfig() {
         const config = getConfigFromChainId(chainId);
         config.setState((s) => ({
             ...s,
-            seed: wallet.seed,
-            id: wallet.id,
             chainId,
+            id: wallet.id,
+            seed: wallet.seed,
             status: "in relayer",
         }));
         return config;

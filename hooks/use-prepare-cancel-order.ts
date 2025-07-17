@@ -17,7 +17,7 @@ export function usePrepareCancelOrder(parameters: UsePrepareCancelOrderParameter
     const { data: wallet, isSuccess } = useBackOfQueueWallet();
 
     return useQuery({
-        queryKey: ["prepare", "cancel-order", parameters],
+        enabled: Boolean(config?.state.seed),
         queryFn: async () => {
             if (!config) throw new ConfigRequiredError("usePrepareCancelOrder");
             if (!config.state.seed) throw new Error("Seed is required");
@@ -27,6 +27,6 @@ export function usePrepareCancelOrder(parameters: UsePrepareCancelOrderParameter
             }
             return null;
         },
-        enabled: Boolean(config?.state.seed),
+        queryKey: ["prepare", "cancel-order", parameters],
     });
 }

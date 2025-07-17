@@ -40,13 +40,13 @@ export function useBackOfQueueWallet<TData = GetBackOfQueueWalletReturnType>(opt
     });
 
     return useQuery<GetBackOfQueueWalletReturnType, Error, TData>({
-        queryKey,
+        enabled,
         queryFn: async () => {
             if (!currentWallet.seed || !currentWallet.id || !config)
                 throw new Error("No wallet found in storage");
             return getBackOfQueueWallet(config);
         },
-        enabled,
+        queryKey,
         ...options?.query,
     });
 }

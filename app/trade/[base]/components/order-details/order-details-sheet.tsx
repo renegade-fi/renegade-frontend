@@ -39,8 +39,8 @@ export function OrderDetailsSheet({
             <Sheet>
                 <SheetTrigger asChild>{children}</SheetTrigger>
                 <SheetContent
-                    hideCloseButton
                     className="p-0 sm:w-[576px] sm:max-w-[576px]"
+                    hideCloseButton
                     onOpenAutoFocus={(e) => {
                         e.preventDefault();
                     }}

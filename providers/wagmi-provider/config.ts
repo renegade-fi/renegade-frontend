@@ -19,7 +19,17 @@ const chains: readonly [Chain, ...Chain[]] =
 export function getConfig() {
     return createConfig(
         getDefaultConfig({
+            appDescription: "On-chain dark pool",
+            appIcon: `${getURL()}/glyph_light.svg`,
+
+            appName: "Renegade",
+            appUrl: getURL(),
             chains,
+            coinbaseWalletPreference: "eoaOnly",
+            ssr: true,
+            storage: createStorage({
+                storage: cookieStorage,
+            }),
             transports: {
                 [arbitrum.id]: http(`/api/proxy/rpc?id=${arbitrum.id}`),
                 [arbitrumSepolia.id]: http(`/api/proxy/rpc?id=${arbitrumSepolia.id}`),
@@ -28,18 +38,8 @@ export function getConfig() {
                 // Needed to support bridge
                 [mainnet.id]: http(`/api/proxy/rpc?id=${mainnet.id}`),
             },
-            ssr: true,
-            storage: createStorage({
-                storage: cookieStorage,
-            }),
 
             walletConnectProjectId: env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
-            coinbaseWalletPreference: "eoaOnly",
-
-            appName: "Renegade",
-            appDescription: "On-chain dark pool",
-            appUrl: getURL(),
-            appIcon: `${getURL()}/glyph_light.svg`,
         }),
     );
 }

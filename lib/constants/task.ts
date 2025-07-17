@@ -6,16 +6,16 @@ import { resolveAddress } from "../token";
 
 export const formatTaskState = (state: TaskState) => {
     return {
-        Queued: "Queued",
-        Running: "In Progress",
-        Proving: "Generating ZK Proof",
-        "Proving Payment": "Proving",
-        "Submitting Tx": "Verifying On-chain",
-        "Submitting Payment": "Submitting Tx",
-        "Finding Opening": "Indexing On-chain",
-        "Updating Validity Proofs": "Updating Validity Proofs",
         Completed: "Completed",
         Failed: "Failed",
+        "Finding Opening": "Indexing On-chain",
+        Proving: "Generating ZK Proof",
+        "Proving Payment": "Proving",
+        Queued: "Queued",
+        Running: "In Progress",
+        "Submitting Payment": "Submitting Tx",
+        "Submitting Tx": "Verifying On-chain",
+        "Updating Validity Proofs": "Updating Validity Proofs",
     }[state];
 };
 

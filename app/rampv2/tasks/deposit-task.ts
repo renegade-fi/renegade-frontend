@@ -49,11 +49,11 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
         ctx: TaskContext,
     ): DepositTask {
         const desc: DepositDescriptor = {
-            id: crypto.randomUUID(),
-            type: TASK_TYPES.DEPOSIT,
-            chainId,
-            mint,
             amount,
+            chainId,
+            id: crypto.randomUUID(),
+            mint,
+            type: TASK_TYPES.DEPOSIT,
         };
         return new DepositTask(desc, ctx);
     }
@@ -92,12 +92,12 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
                 const owner = this.ctx.getOnchainAddress(chainId) as `0x${string}`;
 
                 const { taskId } = await deposit(this.ctx.renegadeConfig, {
+                    amount: this._finalAmount,
                     fromAddr: owner,
                     mint: token.address,
-                    amount: this._finalAmount,
-                    permitNonce: this.ctx.permit.nonce,
-                    permitDeadline: this.ctx.permit.deadline,
                     permit: this.ctx.permit.signature,
+                    permitDeadline: this.ctx.permit.deadline,
+                    permitNonce: this.ctx.permit.nonce,
                 });
 
                 this._taskId = taskId;

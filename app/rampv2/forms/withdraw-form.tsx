@@ -51,10 +51,10 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     const { data: availableWithdrawBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: currentChain,
+            connection,
             mint,
             owner: address,
             wagmiConfig,
-            connection,
         }),
         enabled: !!mint,
     });
@@ -62,9 +62,9 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
     const balances = useMemo(
         () =>
             buildBalancesCache({
-                network: currentChain,
                 depositMint: mint,
                 depositRaw: availableWithdrawBalance?.raw,
+                network: currentChain,
             }),
         [currentChain, mint, availableWithdrawBalance?.raw],
     );
@@ -94,9 +94,9 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
         );
 
         const intent = Intent.newWithdrawIntent(ctx, {
-            mint,
-            chainId: currentChain,
             amount,
+            chainId: currentChain,
+            mint,
             unwrapToEth: unwrapToEth && canUnwrap,
         });
 
@@ -127,15 +127,15 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                 <div className="flex flex-col gap-2">
                     <Label>Token</Label>
                     <TokenSelect
-                        tokens={availableTokens}
-                        direction={direction}
-                        value={mint}
-                        onChange={setMint}
                         chainId={currentChain}
-                        owner={address}
-                        wagmiConfig={wagmiConfig}
                         connection={connection}
+                        direction={direction}
+                        onChange={setMint}
+                        owner={address}
                         renegadeConfig={renegadeConfig}
+                        tokens={availableTokens}
+                        value={mint}
+                        wagmiConfig={wagmiConfig}
                     />
                 </div>
 
@@ -144,20 +144,20 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                     <Label>Amount</Label>
                     <div className="relative">
                         <NumberInput
-                            value={amount}
+                            className="pr-12 rounded-none font-mono"
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="pr-12 rounded-none font-mono"
+                            value={amount}
                         />
                         <MaxButton
-                            direction={direction}
-                            renegadeConfig={renegadeConfig}
                             chainId={currentChain}
-                            mint={mint}
-                            owner={address}
-                            wagmiConfig={wagmiConfig}
                             connection={connection}
+                            direction={direction}
+                            mint={mint}
                             onClick={setAmount}
+                            owner={address}
+                            renegadeConfig={renegadeConfig}
+                            wagmiConfig={wagmiConfig}
                         />
                     </div>
                 </div>
@@ -165,14 +165,14 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
                 {/* Balances */}
                 <BalanceRow
                     chainId={currentChain}
-                    mint={mint}
-                    owner={address}
-                    wagmiConfig={wagmiConfig}
-                    renegadeConfig={renegadeConfig}
                     connection={connection}
-                    onClick={setAmount}
                     direction={direction}
+                    mint={mint}
+                    onClick={setAmount}
+                    owner={address}
+                    renegadeConfig={renegadeConfig}
                     showZero
+                    wagmiConfig={wagmiConfig}
                 />
 
                 {/* Unwrap switch (WETH → ETH) */}
@@ -201,13 +201,13 @@ export default function WithdrawForm({ env, onQueueStart, initialMint }: Props) 
 
             {/* Submit */}
             <WithdrawSubmitButton
-                unwrapToEth={unwrapToEth}
                 canUnwrap={canUnwrap}
                 intent={intent}
-                tasks={tasks}
-                status={status}
-                renegadeBalanceRaw={renegadeBalance?.raw}
                 onQueueStart={onQueueStart}
+                renegadeBalanceRaw={renegadeBalance?.raw}
+                status={status}
+                tasks={tasks}
+                unwrapToEth={unwrapToEth}
             />
         </>
     );
