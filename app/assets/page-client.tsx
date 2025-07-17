@@ -68,12 +68,12 @@ export function PageClient() {
                 const token = resolveAddress(task.task_info.mint);
 
                 acc.push({
-                    status: task.state,
-                    mint: task.task_info.mint,
                     amount: Number(formatUnits(task.task_info.amount, token.decimals)),
-                    rawAmount: task.task_info.amount,
-                    timestamp: Number(task.created_at),
                     isWithdrawal: task.task_info.update_type,
+                    mint: task.task_info.mint,
+                    rawAmount: task.task_info.amount,
+                    status: task.state,
+                    timestamp: Number(task.created_at),
                 });
             }
             return acc;

@@ -27,7 +27,20 @@ export function useOnChainBalances({ address, mints, enabled = true }: UseOnChai
     const config = useConfig();
     const chainId = useCurrentChain();
     const queries = useQueries({
+        combine: (results) => {
+            return new Map<`0x${string}`, bigint>(
+                mints.map((mint, i) => [mint, results[i].data ?? BigInt(0)]),
+            );
+        },
         queries: mints.map((mint) => ({
+            enabled: !!address && enabled && isTestnet,
+            queryFn: async () => {
+                if (!address) return BigInt(0);
+                return readErc20BalanceOf(config, {
+                    address: mint,
+                    args: [address],
+                });
+            },
             queryKey: [
                 "readContract",
                 {
@@ -37,20 +50,7 @@ export function useOnChainBalances({ address, mints, enabled = true }: UseOnChai
                     functionName: "balanceOf",
                 },
             ],
-            queryFn: async () => {
-                if (!address) return BigInt(0);
-                return readErc20BalanceOf(config, {
-                    address: mint,
-                    args: [address],
-                });
-            },
-            enabled: !!address && enabled && isTestnet,
         })),
-        combine: (results) => {
-            return new Map<`0x${string}`, bigint>(
-                mints.map((mint, i) => [mint, results[i].data ?? BigInt(0)]),
-            );
-        },
     });
 
     const isBase = useIsBase();

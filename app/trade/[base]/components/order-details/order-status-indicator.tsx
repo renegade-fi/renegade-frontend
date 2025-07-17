@@ -20,8 +20,8 @@ export function OrderStatusIndicator({ order }: { order: OrderMetadata }) {
         <div className="flex items-center gap-2">
             <Icon
                 className={cn("h-4 w-4", {
-                    "text-red-price": order.state === OrderState.Cancelled,
                     "text-green-price": order.state === OrderState.Filled,
+                    "text-red-price": order.state === OrderState.Cancelled,
                 })}
             />
             <div className="flex-1 border-0 text-sm font-bold tracking-tighter lg:tracking-normal">

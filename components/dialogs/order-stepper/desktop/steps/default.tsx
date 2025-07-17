@@ -54,12 +54,12 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
 
     const allowExternalMatches = useServerStore((state) => state.allowExternalMatches);
     const { data: request } = usePrepareCreateOrder({
+        allowExternalMatches,
+        amount: props.amount,
         base: props.base,
         quote: quoteToken.address,
         side: props.isSell ? "sell" : "buy",
-        amount: props.amount,
         worstCasePrice: worstCasePrice.toFixed(18),
-        allowExternalMatches,
     });
 
     const { mutate: createOrder } = useCreateOrder({
@@ -70,8 +70,8 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
                 setTaskId(data.taskId);
                 const message = constructStartToastMessage(UpdateType.PlaceOrder);
                 toast.success(message, {
-                    id: data.taskId,
                     icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                    id: data.taskId,
                 });
                 orderFormEvents.emit("reset");
             },

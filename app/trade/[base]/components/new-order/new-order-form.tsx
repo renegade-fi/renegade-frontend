@@ -48,8 +48,8 @@ const formSchema = z.object({
     base: z.string().refine((val): val is `0x${string}` => val.startsWith("0x"), {
         message: "Must start with 0x",
     }),
-    isSell: z.boolean(),
     isQuoteCurrency: z.boolean(),
+    isSell: z.boolean(),
 });
 
 export type NewOrderFormProps = z.infer<typeof formSchema>;
@@ -73,14 +73,14 @@ export function NewOrderForm({
         () => ({
             amount: "",
             base,
-            isSell: side === Side.SELL,
             isQuoteCurrency: currency === "quote",
+            isSell: side === Side.SELL,
         }),
         [side, currency, base],
     );
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
         defaultValues,
+        resolver: zodResolver(formSchema),
     });
     // Keep form in sync with server store
     // TODO: This is an anti-pattern, we should use a single source of truth for the form (server state)

@@ -18,15 +18,14 @@ export interface FillTableData {
 export const columns: ColumnDef<FillTableData>[] = [
     {
         accessorKey: "index",
-        header: () => <div className="text-right">#</div>,
         cell: ({ row }) => {
             const index = row.getValue<number>("index");
             return <div className="text-right">{index + 1}</div>;
         },
+        header: () => <div className="text-right">#</div>,
     },
     {
         accessorKey: "amount",
-        header: () => <div className="text-right">Amount</div>,
         cell: ({ row }) => {
             const amount = row.getValue<number>("amount");
             return (
@@ -40,18 +39,18 @@ export const columns: ColumnDef<FillTableData>[] = [
                 </Tooltip>
             );
         },
+        header: () => <div className="text-right">Amount</div>,
     },
     {
         accessorKey: "amountUSD",
-        header: () => <div className="text-right">Value ($)</div>,
         cell: ({ row }) => {
             const amountUSD = row.getValue<number>("amountUSD");
             return <div className="text-right">{amountUSD}</div>;
         },
+        header: () => <div className="text-right">Value ($)</div>,
     },
     {
         accessorKey: "timestamp",
-        header: () => <div className="text-right">Time</div>,
         cell: ({ row, table }) => {
             const timestamp = row.getValue<bigint>("timestamp");
             const formatted = formatTimestamp(Number(timestamp));
@@ -81,5 +80,6 @@ export const columns: ColumnDef<FillTableData>[] = [
                 </Tooltip>
             );
         },
+        header: () => <div className="text-right">Time</div>,
     },
 ];

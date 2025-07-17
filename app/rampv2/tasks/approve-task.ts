@@ -60,13 +60,13 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
         ctx: TaskContext,
     ): ApproveTask {
         const desc: ApproveDescriptor = {
-            id: crypto.randomUUID(),
-            type: TASK_TYPES.APPROVE,
-            chainId,
-            mint,
             amount,
-            spender,
             approveKind,
+            chainId,
+            id: crypto.randomUUID(),
+            mint,
+            spender,
+            type: TASK_TYPES.APPROVE,
         };
         return new ApproveTask(desc, ctx);
     }
@@ -100,10 +100,10 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
 
                 const { request } = await pc.simulateContract({
                     abi: abiOverride,
-                    address: mint,
-                    functionName: "approve",
-                    args: [spender, amount],
                     account: owner,
+                    address: mint,
+                    args: [spender, amount],
+                    functionName: "approve",
                 });
 
                 this._request = request;
@@ -155,8 +155,8 @@ export class ApproveTask extends Task<ApproveDescriptor, ApproveState, ApproveEr
             const allowance: bigint = await pc.readContract({
                 abi: erc20Abi,
                 address: mint,
-                functionName: "allowance",
                 args: [owner, spender],
+                functionName: "allowance",
             });
             return allowance < amount;
         } catch {

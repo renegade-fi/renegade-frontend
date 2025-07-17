@@ -77,10 +77,10 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
     const { data: availableDepositBalance } = useQuery({
         ...onChainBalanceQuery({
             chainId: network,
+            connection,
             mint,
             owner: chainDependentAddress!,
             wagmiConfig,
-            connection,
         }),
         enabled: !!mint && !!chainDependentAddress,
     });
@@ -91,9 +91,9 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
     const balances = useMemo(
         () =>
             buildBalancesCache({
-                network,
                 depositMint: mint,
                 depositRaw: availableDepositBalance?.raw,
+                network,
             }),
         [network, mint, availableDepositBalance?.raw],
     );
@@ -117,11 +117,11 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
         if (!targetMint) return { intent: undefined, taskCtx: undefined } as const;
 
         const intent = Intent.newBridgeIntent(ctx, {
-            sourceMint,
-            targetMint,
-            sourceChain: network,
-            targetChain: currentChain,
             amount,
+            sourceChain: network,
+            sourceMint,
+            targetChain: currentChain,
+            targetMint,
         });
 
         return { intent, taskCtx: ctx } as const;

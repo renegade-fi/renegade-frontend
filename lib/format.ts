@@ -15,20 +15,20 @@ export const formatRelativeTimestamp = (timestamp: number) => {
 };
 
 const precisionFormatter = new Intl.NumberFormat("en", {
+    maximumFractionDigits: 2,
+    maximumSignificantDigits: 2,
     notation: "standard",
     // @ts-ignore
     roundingPriority: "morePrecision",
-    maximumSignificantDigits: 2,
-    maximumFractionDigits: 2,
     useGrouping: false,
 });
 
 const longPrecisionFormatter = new Intl.NumberFormat("en", {
+    maximumFractionDigits: 4,
+    maximumSignificantDigits: 4,
     notation: "standard",
     // @ts-ignore
     roundingPriority: "morePrecision",
-    maximumSignificantDigits: 4,
-    maximumFractionDigits: 4,
     useGrouping: false,
 });
 
@@ -50,8 +50,8 @@ export const formatNumber = (
 
 export const formatCurrency = (value: number): string => {
     const formatter = new Intl.NumberFormat("en-US", {
-        style: "currency",
         currency: "USD",
+        style: "currency",
     });
 
     if (value > 0 && value < 0.01) {
@@ -66,17 +66,17 @@ export const formatCurrencyFromString = (n: string): string => {
 
 export const formatTimestamp = (timestamp: number, locale: string = "en-US") => {
     return new Date(timestamp).toLocaleString(locale, {
-        month: "short",
         day: "2-digit",
         hour: "2-digit",
-        minute: "2-digit",
         hour12: true,
+        minute: "2-digit",
+        month: "short",
     });
 };
 
 const percentageFormatter = new Intl.NumberFormat("en", {
-    style: "percent",
     maximumFractionDigits: 2,
+    style: "percent",
     useGrouping: false,
 });
 
@@ -111,8 +111,8 @@ export const safeParseUnits = (value: number | string, decimals: number) => {
             valueStr = value.toString();
             if (valueStr.includes("e")) {
                 valueStr = Number(value).toLocaleString("fullwide", {
-                    useGrouping: false,
                     maximumFractionDigits: decimals,
+                    useGrouping: false,
                 });
             }
         } else {
@@ -151,10 +151,10 @@ export const truncateAddress = (address: string, chars: number = 4) => {
 export function formatDynamicCurrency(value: number): string {
     if (value <= 0) {
         return new Intl.NumberFormat("en-US", {
-            style: "currency",
             currency: "USD",
-            minimumFractionDigits: 2,
             maximumFractionDigits: 2,
+            minimumFractionDigits: 2,
+            style: "currency",
         }).format(0);
     }
     const exponent = Math.floor(Math.log10(value));
@@ -163,9 +163,9 @@ export function formatDynamicCurrency(value: number): string {
         decimals += 1;
     }
     return new Intl.NumberFormat("en-US", {
-        style: "currency",
         currency: "USD",
-        minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals,
+        style: "currency",
     }).format(value);
 }

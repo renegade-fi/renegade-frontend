@@ -10,8 +10,8 @@ export function useOHLC(options: {
     timeInterval: "minutes" | "hours" | "days";
 }): UseQueryResult<Bar[], unknown> {
     return useQuery({
-        queryKey: ["ohlc", options],
         queryFn: () => queryFn(options),
+        queryKey: ["ohlc", options],
         retry: false,
     });
 }
@@ -28,10 +28,10 @@ function queryFn(options: {
     const amberdataExchange = exchangeToAmberdataExchange(exchange);
 
     return fetchBars({
+        endDateMs: options.endDateMs,
+        exchange: amberdataExchange,
         instrument: info.instrument,
         startDateMs: options.startDateMs,
-        endDateMs: options.endDateMs,
         timeInterval: options.timeInterval,
-        exchange: amberdataExchange,
     });
 }

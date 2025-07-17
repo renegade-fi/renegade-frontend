@@ -28,12 +28,12 @@ type ChartData = {
 
 const chartConfig = {
     arbitrumVolume: {
-        label: "Arbitrum Volume",
         color: "hsl(var(--chart-blue))",
+        label: "Arbitrum Volume",
     },
     baseVolume: {
-        label: "Base Volume",
         color: "hsl(var(--chart-1))",
+        label: "Base Volume",
     },
 } satisfies ChartConfig;
 
@@ -43,9 +43,9 @@ function computeChartData(arbitrumVolumeData: VolumeData, baseVolumeData: Volume
     for (const [timestamp, arbitrumDataPoint] of arbitrumVolumeData.entries()) {
         const baseDataPoint = baseVolumeData?.get(timestamp) ?? null;
         data.push({
-            timestamp: (timestamp * 1000).toString(),
             arbitrumVolume: arbitrumDataPoint.volume,
             baseVolume: baseDataPoint?.volume ?? 0,
+            timestamp: (timestamp * 1000).toString(),
         });
     }
     return data;
@@ -114,8 +114,8 @@ export function VolumeChart({ chainId }: { chainId: number }) {
                             tickFormatter={(value) => {
                                 const date = new Date(Number(value));
                                 return date.toLocaleDateString("en-US", {
-                                    month: "short",
                                     day: "numeric",
+                                    month: "short",
                                     timeZone: "UTC",
                                 });
                             }}
@@ -159,8 +159,8 @@ export function VolumeChart({ chainId }: { chainId: number }) {
                                     }}
                                     labelFormatter={(value) => {
                                         return new Date(Number(value)).toLocaleDateString("en-US", {
-                                            month: "short",
                                             day: "numeric",
+                                            month: "short",
                                             timeZone: "UTC",
                                         });
                                     }}

@@ -37,11 +37,11 @@ export async function GET(request: NextRequest) {
         }
 
         return new NextResponse(response.body, {
-            status: response.status,
             headers: {
-                "Content-Type": response.headers.get("Content-Type") || "application/json",
                 "Content-Encoding": response.headers.get("Content-Encoding") || "",
+                "Content-Type": response.headers.get("Content-Type") || "application/json",
             },
+            status: response.status,
         });
     } catch (error) {
         console.error("Error in Amberdata proxy:", error);

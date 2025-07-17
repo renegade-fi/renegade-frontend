@@ -22,6 +22,7 @@ const DEPOSIT_WITNESS = [{ name: "pkRoot", type: "uint256[4]" }] as const;
 
 /** Complete type definitions for Permit2 witness transfer. */
 const PERMIT_WITNESS_TRANSFER_FROM_TYPES = {
+    DepositWitness: DEPOSIT_WITNESS,
     PermitWitnessTransferFrom: [
         { name: "permitted", type: "TokenPermissions" },
         { name: "spender", type: "address" },
@@ -30,7 +31,6 @@ const PERMIT_WITNESS_TRANSFER_FROM_TYPES = {
         { name: "witness", type: "DepositWitness" },
     ],
     TokenPermissions: TOKEN_PERMISSIONS,
-    DepositWitness: DEPOSIT_WITNESS,
 } as const;
 
 /**
@@ -52,30 +52,30 @@ export function constructPermit2SigningData({
     pkRoot: readonly [bigint, bigint, bigint, bigint];
 }) {
     const domain: TypedDataDomain = {
-        name: "Permit2",
         chainId,
+        name: "Permit2",
         verifyingContract: permit2Address,
     };
 
     const message = {
-        permitted: {
-            token: tokenAddress,
-            amount,
-        },
-        spender,
-        nonce: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)),
         deadline: BigInt(
             millisecondsToSeconds(
                 Date.now() + MILLISECONDS_PER_SECOND * 60 * PERMIT_DEADLINE_MINUTES,
             ),
         ),
+        nonce: BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)),
+        permitted: {
+            amount,
+            token: tokenAddress,
+        },
+        spender,
         witness: { pkRoot },
     } as const;
 
     return {
         domain,
         message,
-        types: PERMIT_WITNESS_TRANSFER_FROM_TYPES,
         primaryType: "PermitWitnessTransferFrom" as const,
+        types: PERMIT_WITNESS_TRANSFER_FROM_TYPES,
     };
 }

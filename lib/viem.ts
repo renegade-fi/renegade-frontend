@@ -6,22 +6,22 @@ import { env } from "@/env/client";
 export const isTestnet = env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "testnet";
 
 export const solana = defineChain({
-    id: 1151111081099710,
-    name: "Solana",
-    nativeCurrency: {
-        name: "Solana",
-        symbol: "SOL",
-        decimals: 9,
-    },
-    rpcUrls: {
-        default: {
-            http: ["https://api.mainnet-beta.solana.com"],
-        },
-    },
     blockExplorers: {
         default: {
             name: "Solana Explorer",
             url: "https://solscan.io",
+        },
+    },
+    id: 1151111081099710,
+    name: "Solana",
+    nativeCurrency: {
+        decimals: 9,
+        name: "Solana",
+        symbol: "SOL",
+    },
+    rpcUrls: {
+        default: {
+            http: ["https://api.mainnet-beta.solana.com"],
         },
     },
 });

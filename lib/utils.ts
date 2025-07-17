@@ -42,81 +42,81 @@ export const fundWallet = async (
 ) => {
     if (isTestnet) {
         await fetch(`/api/faucet`, {
-            method: "POST",
+            body: JSON.stringify({
+                address,
+                chainId,
+                tokens,
+            }),
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                tokens,
-                address,
-                chainId,
-            }),
+            method: "POST",
         });
     }
 };
 
 export const fundList: { ticker: string; amount: string }[] = [
-    { ticker: "WETH", amount: "3" },
-    { ticker: "USDC", amount: "10000" },
+    { amount: "3", ticker: "WETH" },
+    { amount: "10000", ticker: "USDC" },
     {
-        ticker: "WBTC",
         amount: "0.2",
+        ticker: "WBTC",
     },
     {
-        ticker: "BNB",
         amount: "17",
+        ticker: "BNB",
     },
     {
+        amount: "10000",
         ticker: "MATIC",
-        amount: "10000",
     },
     {
+        amount: "5000",
         ticker: "LDO",
-        amount: "5000",
     },
     {
+        amount: "700",
         ticker: "LINK",
-        amount: "700",
     },
     {
-        ticker: "UNI",
         amount: "1250",
+        ticker: "UNI",
     },
     {
-        ticker: "SUSHI",
         amount: "5000",
+        ticker: "SUSHI",
     },
     {
+        amount: "10000",
         ticker: "1INCH",
-        amount: "10000",
     },
     {
-        ticker: "AAVE",
         amount: "120",
+        ticker: "AAVE",
     },
     {
-        ticker: "COMP",
         amount: "180",
+        ticker: "COMP",
     },
     {
-        ticker: "MKR",
         amount: "3.75",
+        ticker: "MKR",
     },
     {
+        amount: "10000",
         ticker: "MANA",
-        amount: "10000",
     },
     {
-        ticker: "ENS",
         amount: "700",
+        ticker: "ENS",
     },
     {
-        ticker: "DYDX",
         amount: "3333",
+        ticker: "DYDX",
     },
     {
-        ticker: "CRV",
         amount: "10000",
+        ticker: "CRV",
     },
 ];
 
@@ -132,22 +132,19 @@ export function constructMetadata({
     noIndex?: boolean;
 } = {}): Metadata {
     return {
-        title: {
-            template: "%s | Renegade",
-            default: "Trade | Renegade",
-        },
         description,
         icons: {
+            apple: [{ sizes: "180x180", type: "image/png", url: "/icons/apple-icon.png" }],
             icon: [
-                { url: "/icons/icon1.png", sizes: "32x32", type: "image/png" },
-                { url: "/icons/icon2.png", sizes: "16x16", type: "image/png" },
+                { sizes: "32x32", type: "image/png", url: "/icons/icon1.png" },
+                { sizes: "16x16", type: "image/png", url: "/icons/icon2.png" },
             ],
             shortcut: "/icons/apple-icon.png",
-            apple: [{ url: "/icons/apple-icon.png", sizes: "180x180", type: "image/png" }],
         },
+        metadataBase: new URL("https://trade.renegade.fi"),
         openGraph: {
-            title,
             description,
+            title,
             url: env.NEXT_PUBLIC_SITE_URL,
             ...(image && {
                 images: [
@@ -157,31 +154,34 @@ export function constructMetadata({
                 ],
             }),
         },
+        title: {
+            default: "Trade | Renegade",
+            template: "%s | Renegade",
+        },
         twitter: {
-            title,
             description,
+            title,
             ...(image && {
                 card: "summary_large_image",
                 images: [image],
             }),
             creator: "@renegade_fi",
         },
-        metadataBase: new URL("https://trade.renegade.fi"),
         ...(noIndex && {
             robots: {
-                index: false,
                 follow: false,
+                index: false,
             },
         }),
         appleWebApp: {
-            title: "Renegade",
-            statusBarStyle: "black",
             startupImage: [
                 {
-                    url: "/startup/apple-touch-startup-image-1179x2556.png",
                     media: "screen and (orientation: portrait)",
+                    url: "/startup/apple-touch-startup-image-1179x2556.png",
                 },
             ],
+            statusBarStyle: "black",
+            title: "Renegade",
         },
     };
 }

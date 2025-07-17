@@ -11,16 +11,16 @@ import { cn } from "@/lib/utils";
 
 const values = [
     {
-        value: 0,
         label: "All Chains",
+        value: 0,
     },
     {
-        value: arbitrum.id,
         label: "Arbitrum",
+        value: arbitrum.id,
     },
     {
-        value: base.id,
         label: "Base",
+        value: base.id,
     },
 ];
 

@@ -94,9 +94,9 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
                                     data={data}
                                     initialStatus="open"
                                     initialVisibleColumns={{
-                                        "time to fill": false,
                                         actions: false,
                                         saved: false,
+                                        "time to fill": false,
                                     }}
                                     isTradePage
                                 />

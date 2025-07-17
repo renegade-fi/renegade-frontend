@@ -14,11 +14,11 @@ export function useCancelOrder(parameters?: {
 }) {
     const config = useConfig();
     return useMutation<CancelOrderRequestReturnType, Error, CancelOrderRequestParameters>({
-        mutationKey: ["cancel-order"],
         mutationFn: async (variables) => {
             if (!config) throw new Error("No wallet found in storage");
             return cancelOrderRequest(config, variables);
         },
+        mutationKey: ["cancel-order"],
         ...parameters?.mutation,
     });
 }

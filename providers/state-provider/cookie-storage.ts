@@ -21,19 +21,19 @@ export const cookieStorage: BaseStorage = {
         }
     },
 
-    setItem: async (name: string, value: string): Promise<void> => {
-        try {
-            await setCookie(name, value);
-        } catch (err) {
-            console.error("Error setting cookie:", err);
-        }
-    },
-
     removeItem: async (name: string): Promise<void> => {
         try {
             await removeCookie(name);
         } catch (err) {
             console.error("Error removing cookie:", err);
+        }
+    },
+
+    setItem: async (name: string, value: string): Promise<void> => {
+        try {
+            await setCookie(name, value);
+        } catch (err) {
+            console.error("Error setting cookie:", err);
         }
     },
 };
@@ -51,11 +51,11 @@ export function createStorage<T>(storage: BaseStorage): PersistStorage<T> {
             if (!value) return null;
             return deserialize<{ state: T }>(value).state as StorageValue<T>;
         },
-        setItem: async (name: string, value: StorageValue<T>): Promise<void> => {
-            await storage.setItem(name, serialize(value));
-        },
         removeItem: async (name: string): Promise<void> => {
             await storage.removeItem(name);
+        },
+        setItem: async (name: string, value: StorageValue<T>): Promise<void> => {
+            await storage.setItem(name, serialize(value));
         },
     };
 }

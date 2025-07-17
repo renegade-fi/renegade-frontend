@@ -12,8 +12,8 @@ async function fetchMaintenanceMode(): Promise<MaintenanceMode> {
 
 export function useMaintenanceMode() {
     return useQuery<MaintenanceMode, Error>({
-        queryKey: ["maintenanceMode"],
         queryFn: fetchMaintenanceMode,
+        queryKey: ["maintenanceMode"],
         select: (data) => ({
             ...data,
         }),

@@ -47,11 +47,11 @@ export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, Withdr
         ctx: TaskContext,
     ): WithdrawTask {
         const desc: WithdrawDescriptor = {
-            id: crypto.randomUUID(),
-            type: TASK_TYPES.WITHDRAW,
-            chainId,
-            mint,
             amount,
+            chainId,
+            id: crypto.randomUUID(),
+            mint,
+            type: TASK_TYPES.WITHDRAW,
         };
         return new WithdrawTask(desc, ctx);
     }
@@ -77,9 +77,9 @@ export class WithdrawTask extends Task<WithdrawDescriptor, WithdrawState, Withdr
                 const owner = this.ctx.getOnchainAddress(chainId) as `0x${string}`;
                 const token = resolveAddress(mint);
                 const { taskId } = await withdraw(this.ctx.renegadeConfig, {
-                    mint: token.address,
                     amount,
                     destinationAddr: owner,
+                    mint: token.address,
                 });
                 this._taskId = taskId;
                 this._state = "Submitted";

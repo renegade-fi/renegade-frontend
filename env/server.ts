@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { zHexString } from "./schema";
 
 export const env = createEnv({
+    experimental__runtimeEnv: process.env,
     server: {
         // ================================
         // Chain & RPC Configuration
@@ -23,17 +24,27 @@ export const env = createEnv({
         ARBITRUM_BOT_SERVER_API_KEY: z.string().min(1),
         BASE_BOT_SERVER_API_KEY: z.string().min(1),
 
+        /** Datadog API key */
+        DD_API_KEY: z.string().min(1),
+
+        /** Datadog application key */
+        DD_APP_KEY: z.string().min(1),
+
         // ================================
         // Monitoring
         // ================================
         /** Datadog service name */
         DD_SERVICE: z.string().min(1),
 
-        /** Datadog application key */
-        DD_APP_KEY: z.string().min(1),
+        // ================================
+        // Development
+        // ================================
 
-        /** Datadog API key */
-        DD_API_KEY: z.string().min(1),
+        /** Private key for development/testing */
+        DEV_PRIVATE_KEY: zHexString.optional(),
+
+        /** Vercel Edge Config URL */
+        EDGE_CONFIG: z.url(),
 
         // ================================
         // Storage
@@ -50,17 +61,5 @@ export const env = createEnv({
 
         /** Vercel KV connection URL */
         KV_URL: z.string().optional(),
-
-        /** Vercel Edge Config URL */
-        EDGE_CONFIG: z.url(),
-
-        // ================================
-        // Development
-        // ================================
-
-        /** Private key for development/testing */
-        DEV_PRIVATE_KEY: zHexString.optional(),
     },
-
-    experimental__runtimeEnv: process.env,
 });

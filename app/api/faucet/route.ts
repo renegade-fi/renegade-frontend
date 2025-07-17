@@ -160,11 +160,11 @@ async function mintUpTo(recipientAddr: `0x${string}`, token: `0x${string}`, amou
 
 async function mint(recipientAddr: `0x${string}`, token: `0x${string}`, amount: bigint) {
     const { request } = await publicClient.simulateContract({
+        abi,
         account: devAccount,
         address: token,
-        abi,
-        functionName: "mint",
         args: [recipientAddr, amount],
+        functionName: "mint",
     });
 
     const hash = await devWalletClient.writeContract(request);

@@ -6,21 +6,21 @@ import { createSnapshotPriceQueryKey } from "@/lib/query";
 
 /** Check if a snapshot is already cached. */
 const hasSnapshot = (qc: QueryClient, baseMint: `0x${string}`, exchange: Exchange) =>
-    qc.getQueryData<number>(createSnapshotPriceQueryKey({ exchange, baseMint })) !== undefined;
+    qc.getQueryData<number>(createSnapshotPriceQueryKey({ baseMint, exchange })) !== undefined;
 
 /** Hook to retrieve a price without subscribing to the live price. */
 export const usePriceSnapshot = (baseMint: `0x${string}`, exchange: Exchange = "renegade") => {
     const qc = useQueryClient();
 
     const opts = priceQueryOptions(baseMint, exchange);
-    const queryKey = createSnapshotPriceQueryKey({ exchange, baseMint });
+    const queryKey = createSnapshotPriceQueryKey({ baseMint, exchange });
     const cached = hasSnapshot(qc, baseMint, exchange);
 
     return useQuery({
         ...opts,
-        queryKey,
         enabled: !cached,
         initialData: cached ? () => qc.getQueryData<number>(queryKey)! : undefined,
+        queryKey,
     });
 };
 
@@ -28,18 +28,6 @@ export const usePriceSnapshot = (baseMint: `0x${string}`, exchange: Exchange = "
 export const usePricesSnapshot = (mints: `0x${string}`[], exchange: Exchange = "renegade") => {
     const qc = useQueryClient();
     return useQueries({
-        queries: mints.map((mint) => {
-            const opts = priceQueryOptions(mint, exchange);
-            const queryKey = createSnapshotPriceQueryKey({ exchange, baseMint: mint });
-            const cached = hasSnapshot(qc, mint, exchange);
-
-            return {
-                ...opts,
-                queryKey,
-                enabled: !cached,
-                initialData: cached ? () => qc.getQueryData<number>(queryKey)! : undefined,
-            };
-        }),
         combine: (results) => {
             const map = new Map<`0x${string}`, number>();
             results.forEach((result, i) => {
@@ -47,5 +35,17 @@ export const usePricesSnapshot = (mints: `0x${string}`[], exchange: Exchange = "
             });
             return map;
         },
+        queries: mints.map((mint) => {
+            const opts = priceQueryOptions(mint, exchange);
+            const queryKey = createSnapshotPriceQueryKey({ baseMint: mint, exchange });
+            const cached = hasSnapshot(qc, mint, exchange);
+
+            return {
+                ...opts,
+                enabled: !cached,
+                initialData: cached ? () => qc.getQueryData<number>(queryKey)! : undefined,
+                queryKey,
+            };
+        }),
     });
 };

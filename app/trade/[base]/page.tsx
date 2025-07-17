@@ -8,7 +8,7 @@ import { DISPLAY_TOKENS } from "@/lib/token";
 import { getTickerRedirect, hydrateServerState } from "./utils";
 
 export async function generateStaticParams() {
-    const tokens = DISPLAY_TOKENS({ hideStables: true, hideHidden: true });
+    const tokens = DISPLAY_TOKENS({ hideHidden: true, hideStables: true });
     return tokens.map((token) => ({
         base: token.ticker,
     }));

@@ -46,13 +46,13 @@ export function useOrderHistory<TData = GetOrderHistoryReturnType>(options?: {
     });
 
     return useQuery<GetOrderHistoryReturnType, Error, TData>({
-        queryKey,
+        enabled,
         queryFn: async () => {
             if (!currentWallet.seed || !currentWallet.id || !config)
                 throw new Error("No wallet found in storage");
             return getOrderHistory(config);
         },
-        enabled,
+        queryKey,
         ...options?.query,
     });
 }

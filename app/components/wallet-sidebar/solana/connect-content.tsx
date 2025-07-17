@@ -34,27 +34,27 @@ export function ConnectContent({ className }: ConnectContentProps) {
                 setTimeout(() => reject(new Error("Connection timeout")), 30000);
             });
         },
+        onError: (error, wallet) => {
+            toast.error("Connection Failed", {
+                description: error instanceof Error ? error.message : "Unknown error occurred",
+                icon: undefined,
+                id: `connect-${wallet.adapter.name}`,
+            });
+            console.error("Failed to connect:", error);
+        },
         onMutate: (wallet) => {
             toast.loading("Connecting Wallet", {
-                id: `connect-${wallet.adapter.name}`,
                 description: `Connecting to ${wallet.adapter.name}...`,
                 icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                id: `connect-${wallet.adapter.name}`,
             });
         },
         onSuccess: (publicKey, wallet) => {
             toast.success("Ready to deposit USDC", {
-                id: `connect-${wallet.adapter.name}`,
-                icon: undefined,
                 description: `Connected to ${truncateAddress(publicKey)}`,
-            });
-        },
-        onError: (error, wallet) => {
-            toast.error("Connection Failed", {
-                id: `connect-${wallet.adapter.name}`,
                 icon: undefined,
-                description: error instanceof Error ? error.message : "Unknown error occurred",
+                id: `connect-${wallet.adapter.name}`,
             });
-            console.error("Failed to connect:", error);
         },
     });
 

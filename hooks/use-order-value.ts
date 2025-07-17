@@ -74,7 +74,7 @@ export function useOrderValue({ amount, base, isQuoteCurrency }: NewOrderFormPro
 
     // TODO: Calculations should only be done with bigints
     return {
-        valueInQuoteCurrency,
         valueInBaseCurrency,
+        valueInQuoteCurrency,
     };
 }

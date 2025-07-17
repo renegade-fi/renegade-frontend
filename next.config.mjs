@@ -10,12 +10,46 @@ if (process.env.CI !== "true") {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    images: {
+        remotePatterns: [
+            {
+                hostname: "assets-cdn.trustwallet.com",
+                pathname: "/blockchains/ethereum/assets/**",
+                port: "",
+                protocol: "https",
+            },
+            {
+                hostname: "raw.githubusercontent.com",
+                pathname: "/trustwallet/assets/master/blockchains/ethereum/assets/**",
+                port: "",
+                protocol: "https",
+            },
+            {
+                hostname: "raw.githubusercontent.com",
+                pathname: "/lifinance/types/main/src/assets/icons/**",
+                port: "",
+                protocol: "https",
+            },
+            {
+                hostname: "raw.githubusercontent.com",
+                pathname: "/renegade-fi/token-mappings/refs/heads/main/token-logos/**",
+                port: "",
+                protocol: "https",
+            },
+            {
+                hostname: "static.debank.com",
+                pathname: "/image/**",
+                port: "",
+                protocol: "https",
+            },
+        ],
+    },
     reactStrictMode: true,
     webpack: (config, _options) => {
         config.experiments = {
             asyncWebAssembly: true,
-            syncWebAssembly: true,
             layers: true,
+            syncWebAssembly: true,
             topLevelAwait: true,
         };
         config.resolve.fallback = {
@@ -24,40 +58,6 @@ const nextConfig = {
         // Temporary WalletConnect outdated modules fix
         config.externals.push("pino-pretty", "lokijs", "encoding");
         return config;
-    },
-    images: {
-        remotePatterns: [
-            {
-                protocol: "https",
-                hostname: "assets-cdn.trustwallet.com",
-                port: "",
-                pathname: "/blockchains/ethereum/assets/**",
-            },
-            {
-                protocol: "https",
-                hostname: "raw.githubusercontent.com",
-                port: "",
-                pathname: "/trustwallet/assets/master/blockchains/ethereum/assets/**",
-            },
-            {
-                protocol: "https",
-                hostname: "raw.githubusercontent.com",
-                port: "",
-                pathname: "/lifinance/types/main/src/assets/icons/**",
-            },
-            {
-                protocol: "https",
-                hostname: "raw.githubusercontent.com",
-                port: "",
-                pathname: "/renegade-fi/token-mappings/refs/heads/main/token-logos/**",
-            },
-            {
-                protocol: "https",
-                hostname: "static.debank.com",
-                port: "",
-                pathname: "/image/**",
-            },
-        ],
     },
 };
 

@@ -21,11 +21,11 @@ import { getConfig } from "./config";
 import { connectKitTheme } from "./theme";
 
 createLifiConfig({
+    disableVersionCheck: true,
     integrator: "renegade.fi",
-    providers: [EVM()],
     // We disable chain preloading and will update chain configuration in runtime
     preloadChains: false,
-    disableVersionCheck: true,
+    providers: [EVM()],
     rpcUrls: {
         [arbitrum.id]: [`/api/proxy/rpc?id=${arbitrum.id}`],
         [base.id]: [`/api/proxy/rpc?id=${base.id}`],
@@ -108,11 +108,11 @@ function SyncRenegadeWagmiState() {
 
         // Log effect trigger to help with Hypothesis 3 (frequent re-runs)
         console.log("SyncRenegadeWagmiState effect triggered", {
-            hasAddress: !!account.address,
-            walletsCount: wallets.size,
             currentChainId,
-            wagmiChainId,
+            hasAddress: !!account.address,
             timestamp: Date.now(),
+            wagmiChainId,
+            walletsCount: wallets.size,
         });
 
         function logAndReset(chainId: ChainId | undefined, reason: string, details?: any) {

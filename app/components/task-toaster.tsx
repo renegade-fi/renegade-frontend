@@ -51,23 +51,23 @@ function processTask(incomingTask: Task) {
 
     if (incomingTask.state === "Completed") {
         const message = generateCompletionToastMessage(incomingTask);
-        toast.success(message, { id, description: state, icon: undefined });
+        toast.success(message, { description: state, icon: undefined, id });
     } else if (incomingTask.state === "Failed") {
         const message = generateFailedToastMessage(incomingTask);
-        toast.error(message, { id, icon: undefined });
+        toast.error(message, { icon: undefined, id });
     } else if (incomingTask.state === "Proving") {
         const message = generateStartToastMessage(incomingTask);
         toast.success(message, {
-            id,
             description: state,
             icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+            id,
         });
     } else {
         const message = generateStartToastMessage(incomingTask);
         toast.success(message, {
-            id,
             description: state,
             icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+            id,
         });
     }
 }
@@ -80,29 +80,29 @@ function processWithdrawTask(incomingTask: Task) {
         if (incomingTask.state === "Completed") {
             const message = generateCompletionToastMessage(incomingTask);
             toast.success(message, {
-                id,
                 description: state,
-                icon: undefined,
                 duration: 10000,
+                icon: undefined,
+                id,
             });
         } else if (incomingTask.state === "Failed") {
             const message = generateFailedToastMessage(incomingTask);
-            toast.error(message, { id, icon: undefined, duration: 10000 });
+            toast.error(message, { duration: 10000, icon: undefined, id });
         } else if (incomingTask.state === "Proving") {
             const message = generateStartToastMessage(incomingTask);
             toast.success(message, {
-                id,
                 description: state,
-                icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
                 duration: 10000,
+                icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                id,
             });
         } else {
             const message = generateStartToastMessage(incomingTask);
             toast.success(message, {
-                id,
                 description: state,
-                icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
                 duration: 10000,
+                icon: <Loader2 className="h-4 w-4 animate-spin text-black" />,
+                id,
             });
         }
     }

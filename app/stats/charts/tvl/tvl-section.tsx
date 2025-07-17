@@ -19,7 +19,7 @@ export function TvlSection({ chainId }: { chainId: number }) {
             acc.totalArbitrumTvlUsd += curr.arbitrumTvlUsd;
             return acc;
         },
-        { totalTvlUsd: 0, totalBaseTvlUsd: 0, totalArbitrumTvlUsd: 0 },
+        { totalArbitrumTvlUsd: 0, totalBaseTvlUsd: 0, totalTvlUsd: 0 },
     );
 
     const chainSuffix = useMemo(() => {

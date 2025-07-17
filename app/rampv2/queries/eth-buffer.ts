@@ -19,26 +19,19 @@ export function approveBufferQueryOptions(params: QueryParams) {
     const spender = sdkCfg.permit2Address as `0x${string}`;
     const amount = BigInt(1) << (BigInt(256) - BigInt(1));
     return queryOptions({
-        queryKey: [
-            "approveBuffer",
-            {
-                chainId: params.chainId,
-                approvals: params.approvals,
-            },
-        ],
         queryFn: async () => {
             const approveCalldata = encodeFunctionData({
                 abi: erc20Abi,
-                functionName: "approve",
                 args: [spender, amount],
+                functionName: "approve",
             });
 
             const [gasPrice, approveGas] = await Promise.all([
                 getGasPrice(params.config),
                 estimateGas(params.config, {
-                    to: USDC_ADDRESS,
-                    data: approveCalldata,
                     chainId: params.chainId,
+                    data: approveCalldata,
+                    to: USDC_ADDRESS,
                 }),
             ]);
 
@@ -51,6 +44,13 @@ export function approveBufferQueryOptions(params: QueryParams) {
             });
             return formatter.format(num);
         },
+        queryKey: [
+            "approveBuffer",
+            {
+                approvals: params.approvals,
+                chainId: params.chainId,
+            },
+        ],
         retry: true,
     });
 }

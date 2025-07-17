@@ -35,8 +35,8 @@ export function DataTable<TData, TValue>({
     const [visibility, setVisibility] = React.useState<VisibilityState>({});
     const [sorting, setSorting] = React.useState<SortingState>([
         {
-            id: "totalTvlUsd",
             desc: true,
+            id: "totalTvlUsd",
         },
     ]);
 
@@ -46,20 +46,20 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        onSortingChange: setSorting,
         onColumnVisibilityChange: setVisibility,
+        onSortingChange: setSorting,
         state: {
-            sorting,
             columnVisibility: visibility,
+            sorting,
         },
     });
 
     // If a chain is selected, show only the relevant columns
     React.useEffect(() => {
         setVisibility({
-            ticker: true,
-            baseTvlUsd: chainId === base.id || chainId === 0,
             arbitrumTvlUsd: chainId === arbitrum.id || chainId === 0,
+            baseTvlUsd: chainId === base.id || chainId === 0,
+            ticker: true,
             totalTvlUsd: chainId === 0,
         });
     }, [chainId]);

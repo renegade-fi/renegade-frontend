@@ -35,5 +35,5 @@ export function useSignInAndConnect() {
         content = "Connect Wallet";
     }
 
-    return { handleClick, content, open, onOpenChange: setOpenSignIn };
+    return { content, handleClick, onOpenChange: setOpenSignIn, open };
 }

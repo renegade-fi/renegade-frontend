@@ -9,6 +9,28 @@ import type {
 } from "@renegade-fi/tradingview-charts";
 
 export const datafeedConfig = {
+    exchanges: [
+        {
+            desc: "Binance",
+            name: "BINANCE",
+            value: "binance",
+        },
+        {
+            desc: "Coinbase",
+            name: "COINBASE",
+            value: "coinbase",
+        },
+        {
+            desc: "Kraken",
+            name: "KRAKEN",
+            value: "kraken",
+        },
+        {
+            desc: "Okx",
+            name: "OKX",
+            value: "okx",
+        },
+    ],
     supported_resolutions: [
         "1",
         "3",
@@ -24,29 +46,6 @@ export const datafeedConfig = {
         "3D",
         "1W",
     ] as ResolutionString[],
-
-    exchanges: [
-        {
-            value: "binance",
-            name: "BINANCE",
-            desc: "Binance",
-        },
-        {
-            value: "coinbase",
-            name: "COINBASE",
-            desc: "Coinbase",
-        },
-        {
-            value: "kraken",
-            name: "KRAKEN",
-            desc: "Kraken",
-        },
-        {
-            value: "okx",
-            name: "OKX",
-            desc: "Okx",
-        },
-    ],
     symbols_types: [
         {
             name: "crypto",
@@ -84,48 +83,48 @@ const loading_screen = {
 
 const time_frames = [
     {
-        text: "5y",
-        resolution: "1W" as ResolutionString,
         description: "5 years in 1 week intervals",
-    },
-    {
-        text: "1y",
         resolution: "1W" as ResolutionString,
+        text: "5y",
+    },
+    {
         description: "1 year in 1 week intervals",
+        resolution: "1W" as ResolutionString,
+        text: "1y",
     },
     {
-        text: "6m",
-        resolution: "120" as ResolutionString,
         description: "6 months in 2 hour intervals",
+        resolution: "120" as ResolutionString,
+        text: "6m",
     },
     {
-        text: "3m",
-        resolution: "60" as ResolutionString,
         description: "3 months in 1 hour intervals",
+        resolution: "60" as ResolutionString,
+        text: "3m",
     },
     {
-        text: "1m",
-        resolution: "30" as ResolutionString,
         description: "1 month in 30 minute intervals",
+        resolution: "30" as ResolutionString,
+        text: "1m",
     },
     {
-        text: "5d",
-        resolution: "5" as ResolutionString,
         description: "5 days in 5 minute intervals",
+        resolution: "5" as ResolutionString,
+        text: "5d",
     },
     {
-        text: "1d",
-        resolution: "1" as ResolutionString,
         description: "1 day in 1 minute intervals",
+        resolution: "1" as ResolutionString,
+        text: "1d",
     },
 ];
 
 const overrides = {
-    "paneProperties.backgroundType": "solid",
     "paneProperties.background": "#0B0A09",
-    "paneProperties.vertGridProperties.color": "#292524",
+    "paneProperties.backgroundType": "solid",
     "paneProperties.horzGridProperties.color": "#292524",
     "paneProperties.separatorColor": "#292524",
+    "paneProperties.vertGridProperties.color": "#292524",
     "scalesProperties.textColor": "#a8a29e",
 };
 
@@ -247,7 +246,7 @@ export const config = constructConfig({
     library_path: "/static/charting_library/",
     loading_screen,
     overrides,
-    time_frames,
     theme: "dark",
+    time_frames,
     // custom_font_family: "var(--font-sans)",
 });

@@ -32,20 +32,20 @@ type ChartData = {
 
 const chartConfig = {
     arbitrumDeposits: {
-        label: "Arbitrum Deposits",
         color: "hsl(var(--chart-blue))",
-    },
-    baseDeposits: {
-        label: "Base Deposits",
-        color: "hsl(var(--chart-1))",
+        label: "Arbitrum Deposits",
     },
     arbitrumWithdrawals: {
-        label: "Arbitrum Withdrawals",
         color: "hsl(var(--chart-blue))",
+        label: "Arbitrum Withdrawals",
+    },
+    baseDeposits: {
+        color: "hsl(var(--chart-1))",
+        label: "Base Deposits",
     },
     baseWithdrawals: {
-        label: "Base Withdrawals",
         color: "hsl(var(--chart-1))",
+        label: "Base Withdrawals",
     },
 } satisfies ChartConfig;
 
@@ -57,11 +57,11 @@ function computeChartData(arbitrumData: TransferData, baseData: TransferData) {
         const baseDeposits = baseData.get(timestamp)?.depositAmount ?? 0;
         const baseWithdrawals = (baseData.get(timestamp)?.withdrawalAmount ?? 0) * -1;
         data.push({
-            timestamp: timestamp.toString(),
             arbitrumDeposits,
-            baseDeposits,
             arbitrumWithdrawals,
+            baseDeposits,
             baseWithdrawals,
+            timestamp: timestamp.toString(),
         });
     }
     return data;
@@ -161,8 +161,8 @@ export function InflowsChart({ chainId }: { chainId: number }) {
                             tickFormatter={(value) => {
                                 const date = new Date(Number(value));
                                 return date.toLocaleDateString("en-US", {
-                                    month: "short",
                                     day: "numeric",
+                                    month: "short",
                                     timeZone: "UTC",
                                 });
                             }}
@@ -197,8 +197,8 @@ export function InflowsChart({ chainId }: { chainId: number }) {
                                     }}
                                     labelFormatter={(value) => {
                                         return new Date(Number(value)).toLocaleDateString("en-US", {
-                                            month: "short",
                                             day: "numeric",
+                                            month: "short",
                                             timeZone: "UTC",
                                         });
                                     }}

@@ -26,27 +26,27 @@ export function LazyDatadog() {
             datadogRum.init({
                 applicationId: env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
                 clientToken: env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
-                site: "us5.datadoghq.com",
-                service: "testnet-interface",
-                env: "testnet",
-                version: "1.0.0",
-                sessionSampleRate: 100,
-                sessionReplaySampleRate: 100,
-                trackUserInteractions: true,
-                trackResources: true,
-                trackLongTasks: true,
                 defaultPrivacyLevel: "allow",
+                env: "testnet",
+                service: "testnet-interface",
+                sessionReplaySampleRate: 100,
+                sessionSampleRate: 100,
+                site: "us5.datadoghq.com",
                 startSessionReplayRecordingManually: true,
+                trackLongTasks: true,
+                trackResources: true,
+                trackUserInteractions: true,
+                version: "1.0.0",
             });
 
             datadogLogs.init({
                 clientToken: env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
-                site: "us5.datadoghq.com",
-                service: "testnet-interface",
                 env: "testnet",
-                forwardErrorsToLogs: true,
                 forwardConsoleLogs: "all",
+                forwardErrorsToLogs: true,
+                service: "testnet-interface",
                 sessionSampleRate: 100,
+                site: "us5.datadoghq.com",
             });
 
             datadogRum.startSessionReplayRecording();

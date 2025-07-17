@@ -37,33 +37,33 @@ import { WagmiProvider } from "@/providers/wagmi-provider/wagmi-provider";
 import "./globals.css";
 
 const fontSansExtended = localFont({
-    src: "../public/static/fonts/FavoritExtended.woff2",
     display: "swap",
+    src: "../public/static/fonts/FavoritExtended.woff2",
     variable: "--font-sans-extended",
 });
 
 const fontSerif = localFont({
-    src: "../public/static/fonts/Aime-Regular.woff2",
     display: "swap",
+    src: "../public/static/fonts/Aime-Regular.woff2",
     variable: "--font-serif",
 });
 
 const fontSans = localFont({
-    src: "../public/static/fonts/Favorit.ttf",
     display: "swap",
+    src: "../public/static/fonts/Favorit.ttf",
     variable: "--font-sans",
 });
 
 const fontSansLight = localFont({
-    src: "../public/static/fonts/FavoritLight.ttf",
     display: "swap",
+    src: "../public/static/fonts/FavoritLight.ttf",
     variable: "--font-sans-light",
     weight: "200",
 });
 
 const fontMono = localFont({
-    src: "../public/static/fonts/FavoritMono.ttf",
     display: "swap",
+    src: "../public/static/fonts/FavoritMono.ttf",
     variable: "--font-mono",
 });
 
@@ -72,14 +72,14 @@ export const metadata = constructMetadata({
 });
 
 export const viewport: Viewport = {
-    themeColor: "#000000",
     colorScheme: "dark",
+    initialScale: 1,
+    maximumScale: 1,
+    minimumScale: 1,
+    themeColor: "#000000",
+    userScalable: false,
     viewportFit: "cover",
     width: "device-width",
-    initialScale: 1,
-    minimumScale: 1,
-    maximumScale: 1,
-    userScalable: false,
 };
 
 export default async function RootLayout({

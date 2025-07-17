@@ -120,13 +120,13 @@ function TokenList({
 }) {
     const { data, status } = useBackOfQueueWallet({
         query: {
+            enabled,
             select: (data) =>
                 new Map(
                     data.balances
                         .filter((balance) => !!fromHex(balance.mint, "number"))
                         .map((balance) => [balance.mint, balance.amount]),
                 ),
-            enabled,
         },
     });
 
@@ -136,9 +136,9 @@ function TokenList({
     const chainId = useCurrentChain();
     const processedTokens = React.useMemo(() => {
         return DISPLAY_TOKENS({
+            chainId,
             hideHidden: true,
             hideStables: true,
-            chainId,
         })
             .sort((a, b) => {
                 const balanceA = data?.get(a.address) ?? BigInt(0);

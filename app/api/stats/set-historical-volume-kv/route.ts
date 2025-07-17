@@ -19,9 +19,9 @@ interface SearchParams {
 }
 
 const DEFAULT_PARAMS: SearchParams = {
-    to: Math.floor(Date.now() / 1000),
     from: 1693958400,
     interval: 24 * 60 * 60,
+    to: Math.floor(Date.now() / 1000),
 };
 
 export const maxDuration = 300;
@@ -44,9 +44,9 @@ export async function GET(req: NextRequest) {
         const ddog = new DDogClient(env.DD_API_KEY, env.DD_APP_KEY, chainSpecifier, env.DD_SERVICE);
         const { searchParams } = new URL(req.url);
         const params: SearchParams = {
-            to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to)),
             from: parseInt(searchParams.get("from") ?? String(DEFAULT_PARAMS.from)),
             interval: parseInt(searchParams.get("interval") ?? String(DEFAULT_PARAMS.interval)),
+            to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to)),
         };
 
         console.log(`Parameters: ${JSON.stringify(params)}`);
@@ -103,9 +103,9 @@ export async function GET(req: NextRequest) {
             );
             return new Response(
                 JSON.stringify({
-                    message: `Processed ${successCount}/${volumeData.length} volume data points`,
                     firstTimestamp: volumeData[0]?.timestamp,
                     lastTimestamp: volumeData[volumeData.length - 1]?.timestamp,
+                    message: `Processed ${successCount}/${volumeData.length} volume data points`,
                 }),
             );
         } else {

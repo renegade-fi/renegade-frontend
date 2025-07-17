@@ -46,23 +46,23 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     const canonicalExchange = getCanonicalExchange(order.data.base_mint);
 
     const chartConfig = {
-        price: {
-            label: `${canonicalExchange} Price`,
-            color: "hsl(var(--chart-yellow))",
-        },
         fillPrice: {
-            label: "Renegade Fill",
             color: "hsl(var(--chart-blue))",
+            label: "Renegade Fill",
+        },
+        price: {
+            color: "hsl(var(--chart-yellow))",
+            label: `${canonicalExchange} Price`,
         },
     } satisfies ChartConfig;
 
     const formattedFills = order.fills
         .map((fill) => ({
-            timestamp: Number(fill.price.timestamp),
             amount: Number(formatNumber(fill.amount, baseToken.decimals)),
             price: Number(
                 decimalNormalizePrice(fill.price.price, baseToken.decimals, quoteToken.decimals),
             ),
+            timestamp: Number(fill.price.timestamp),
         }))
         .sort((a, b) => a.timestamp - b.timestamp);
 
@@ -97,15 +97,15 @@ export function FillChart({ order }: { order: OrderMetadata }) {
         }
         // Round to nearest minute
         return {
-            startMs: Math.floor(startTime / 60000) * 60000,
             endMs: Math.ceil(endTime / 60000) * 60000,
+            startMs: Math.floor(startTime / 60000) * 60000,
         };
     }, [formattedFills]);
 
     const { data: ohlc } = useOHLC({
+        endDateMs: endMs,
         mint: order.data.base_mint,
         startDateMs: startMs,
-        endDateMs: endMs,
         timeInterval: "minutes",
     });
 
@@ -119,17 +119,17 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                 const bar = currentBar ? currentBar : ohlc[ohlc.length - 1];
 
                 return {
-                    timestamp: fill.timestamp.toString(),
                     fillPrice: fill.price,
                     price: order.data.side === "Sell" ? bar?.low : bar?.high,
+                    timestamp: fill.timestamp.toString(),
                 };
             });
 
             const prices = ohlc.map((bar) => {
                 return {
-                    timestamp: bar.time.toString(),
-                    price: bar.close,
                     fillPrice: undefined,
+                    price: bar.close,
+                    timestamp: bar.time.toString(),
                 };
             });
 
@@ -141,17 +141,17 @@ export function FillChart({ order }: { order: OrderMetadata }) {
             const currentBar = ohlc.find((bar) => bar.time === adjustedTimestamp);
             const bar = currentBar ? currentBar : ohlc[ohlc.length - 1];
             return {
-                timestamp: fill.timestamp.toString(),
                 fillPrice: fill.price,
                 price: order.data.side === "Sell" ? bar?.low : bar?.high,
+                timestamp: fill.timestamp.toString(),
             };
         });
 
         const prices = ohlc.map((bar) => {
             return {
-                timestamp: bar.time.toString(),
-                price: order.data.side === "Sell" ? bar.low : bar.high,
                 fillPrice: undefined,
+                price: order.data.side === "Sell" ? bar.low : bar.high,
+                timestamp: bar.time.toString(),
             };
         });
 
@@ -291,8 +291,8 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                                             day: "numeric",
                                             hour: "numeric",
                                             minute: "numeric",
-                                            second: "numeric",
                                             month: "long",
+                                            second: "numeric",
                                         });
                                     }}
                                 />

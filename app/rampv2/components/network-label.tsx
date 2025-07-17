@@ -28,8 +28,8 @@ export function NetworkLabel({
             <div
                 className={cn("overflow-hidden rounded-full", className)}
                 style={{
-                    width: iconSize,
                     height: iconSize,
+                    width: iconSize,
                 }}
             >
                 <Image alt={chainName} height={iconSize} src={logoUrl} width={iconSize} />

@@ -28,7 +28,6 @@ type TvlRow = {
 export const columns: ColumnDef<TvlRow>[] = [
     {
         accessorKey: "ticker",
-        header: () => <div className="pr-7">Asset</div>,
         cell: ({ row }) => {
             const ticker = row.getValue<string>("ticker");
             return (
@@ -38,9 +37,30 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </div>
             );
         },
+        header: () => <div className="pr-7">Asset</div>,
     },
     {
         accessorKey: "baseTvlUsd",
+        cell: function Cell({ row }) {
+            const ticker = row.getValue<string>("ticker");
+            const token = resolveTicker(ticker);
+            const amount = row.original.baseTvl;
+            const formattedUsd = formatCurrency(row.original.baseTvlUsd);
+            const formattedAmount = formatNumber(amount, token.decimals);
+            if (!amount) {
+                return <div className="pr-4 text-right">--</div>;
+            }
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="pr-4 text-right">{formattedUsd}</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                        {`${formattedAmount} ${token.ticker}`}
+                    </TooltipContent>
+                </Tooltip>
+            );
+        },
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
@@ -69,11 +89,14 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </div>
             );
         },
+    },
+    {
+        accessorKey: "arbitrumTvlUsd",
         cell: function Cell({ row }) {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
-            const amount = row.original.baseTvl;
-            const formattedUsd = formatCurrency(row.original.baseTvlUsd);
+            const amount = row.original.arbitrumTvl;
+            const formattedUsd = formatCurrency(row.original.arbitrumTvlUsd);
             const formattedAmount = formatNumber(amount, token.decimals);
             if (!amount) {
                 return <div className="pr-4 text-right">--</div>;
@@ -89,9 +112,6 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </Tooltip>
             );
         },
-    },
-    {
-        accessorKey: "arbitrumTvlUsd",
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
@@ -120,15 +140,15 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </div>
             );
         },
+    },
+    {
+        accessorKey: "totalTvlUsd",
         cell: function Cell({ row }) {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
-            const amount = row.original.arbitrumTvl;
-            const formattedUsd = formatCurrency(row.original.arbitrumTvlUsd);
+            const amount = row.original.totalTvl;
+            const formattedUsd = formatCurrency(row.original.totalTvlUsd);
             const formattedAmount = formatNumber(amount, token.decimals);
-            if (!amount) {
-                return <div className="pr-4 text-right">--</div>;
-            }
             return (
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -140,9 +160,6 @@ export const columns: ColumnDef<TvlRow>[] = [
                 </Tooltip>
             );
         },
-    },
-    {
-        accessorKey: "totalTvlUsd",
         header: ({ column }) => {
             return (
                 <div className="flex flex-row-reverse">
@@ -169,23 +186,6 @@ export const columns: ColumnDef<TvlRow>[] = [
                         )}
                     </Button>
                 </div>
-            );
-        },
-        cell: function Cell({ row }) {
-            const ticker = row.getValue<string>("ticker");
-            const token = resolveTicker(ticker);
-            const amount = row.original.totalTvl;
-            const formattedUsd = formatCurrency(row.original.totalTvlUsd);
-            const formattedAmount = formatNumber(amount, token.decimals);
-            return (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formattedUsd}</div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        {`${formattedAmount} ${token.ticker}`}
-                    </TooltipContent>
-                </Tooltip>
             );
         },
     },

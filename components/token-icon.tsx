@@ -23,8 +23,8 @@ export function TokenIcon({
         <div
             className={cn("overflow-hidden rounded-full", className)}
             style={{
-                width: size,
                 height: size,
+                width: size,
             }}
         >
             <Image alt={ticker} height={size} src={logoUrl} width={size} />

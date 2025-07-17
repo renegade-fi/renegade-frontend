@@ -20,26 +20,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const body = await req.text();
 
         const response = await fetch(RPC_URL, {
-            method: "POST",
             body: body,
+            method: "POST",
         });
 
         const data = await response.json();
 
         return NextResponse.json(data, {
-            status: response.status,
-            statusText: response.statusText,
             headers: {
                 "Content-Type": "application/json",
             },
+            status: response.status,
+            statusText: response.statusText,
         });
     } catch (error) {
         console.error("Proxy error:", error);
         return NextResponse.json(
             {
-                jsonrpc: "2.0",
-                id: null,
                 error: { code: -32603, message: "Internal Server Error" },
+                id: null,
+                jsonrpc: "2.0",
             },
             { status: 500 },
         );

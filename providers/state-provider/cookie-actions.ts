@@ -5,9 +5,9 @@ import { cookies } from "next/headers";
 export async function setCookie(name: string, value: string): Promise<void> {
     const cookieStore = await cookies();
     cookieStore.set(name, value, {
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
         path: "/",
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
     });
 }
 

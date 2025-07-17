@@ -38,14 +38,14 @@ interface DataTableProps<TData, TValue> {
 }
 
 const taskStates: { value: string; label: string }[] = [
-    { value: "Queued", label: "Queued" },
-    { value: "Completed", label: "Completed" },
-    { value: "Failed", label: "Failed" },
+    { label: "Queued", value: "Queued" },
+    { label: "Completed", value: "Completed" },
+    { label: "Failed", value: "Failed" },
 ];
 
 const types = [
-    { value: "Deposit", label: "Deposit" },
-    { value: "Withdraw", label: "Withdraw" },
+    { label: "Deposit", value: "Deposit" },
+    { label: "Withdraw", value: "Withdraw" },
 ];
 
 export function DataTable<TData, TValue>({
@@ -60,8 +60,8 @@ export function DataTable<TData, TValue>({
     const [rowSelection, setRowSelection] = React.useState({});
     const [sorting, setSorting] = React.useState<SortingState>([
         {
-            id: "timestamp",
             desc: true,
+            id: "timestamp",
         },
     ]);
 
@@ -77,6 +77,9 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        meta: {
+            isLongFormat,
+        },
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -86,9 +89,6 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
             sorting,
-        },
-        meta: {
-            isLongFormat,
         },
     });
 
@@ -106,8 +106,8 @@ export function DataTable<TData, TValue>({
 
     const chainId = useCurrentChain();
     const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
-        value: token.address,
         label: token.ticker,
+        value: token.address,
     }));
 
     return (

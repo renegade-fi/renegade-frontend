@@ -24,16 +24,16 @@ interface SolanaFeeQueryParams extends SolanaQueryBase {
 // -----------------------------------------------------------------------------
 export function solBalanceQuery(params: SolanaBalanceQueryParams) {
     return queryOptions({
-        queryKey: ["sol-balance", { payer: params.payer }],
         queryFn: async () => {
             const key = new PublicKey(params.payer);
             const lamports = await params.connection.getBalance(key, "confirmed");
             return BigInt(lamports);
         },
+        queryKey: ["sol-balance", { payer: params.payer }],
         select: (raw: bigint) => {
             const decimalCorrected = formatUnits(raw, 9); // SOL has 9 decimals
             const rounded = formatNumber(raw, 9);
-            return { raw, decimalCorrected, rounded, ticker: "SOL" } as const;
+            return { decimalCorrected, raw, rounded, ticker: "SOL" } as const;
         },
         staleTime: 5000,
     });
@@ -44,13 +44,6 @@ export function solBalanceQuery(params: SolanaBalanceQueryParams) {
 // -----------------------------------------------------------------------------
 export function solFeeQuery(params: SolanaFeeQueryParams) {
     return queryOptions({
-        queryKey: [
-            "sol-fee",
-            {
-                payer: params.payer,
-                txData: params.transactionRequest?.data,
-            },
-        ],
         queryFn: async () => {
             if (!params.transactionRequest?.data)
                 throw new Error("transactionRequest.data missing");
@@ -69,10 +62,17 @@ export function solFeeQuery(params: SolanaFeeQueryParams) {
             const { value: lamports } = await params.connection.getFeeForMessage(tx.message);
             return BigInt(lamports ?? 0);
         },
+        queryKey: [
+            "sol-fee",
+            {
+                payer: params.payer,
+                txData: params.transactionRequest?.data,
+            },
+        ],
         select: (raw: bigint) => {
             const decimalCorrected = formatUnits(raw, 9);
             const rounded = formatNumber(raw, 9);
-            return { raw, decimalCorrected, rounded, ticker: "SOL" } as const;
+            return { decimalCorrected, raw, rounded, ticker: "SOL" } as const;
         },
         staleTime: 0,
     });

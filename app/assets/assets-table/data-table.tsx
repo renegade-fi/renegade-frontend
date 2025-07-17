@@ -45,16 +45,16 @@ export function DataTable<TData, TValue>({
     const { walletReadyState } = useWallets();
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
-        renegadeUsdValue: true,
+        onChainBalance: false,
         onChainUsdValue: true,
         renegadeBalance: false,
-        onChainBalance: false,
+        renegadeUsdValue: true,
     });
     const [rowSelection, setRowSelection] = React.useState({});
     const [sorting, setSorting] = React.useState<SortingState>([
         {
-            id: "onChainUsdValue",
             desc: true,
+            id: "onChainUsdValue",
         },
     ]);
     const [isLongFormat, setIsLongFormat] = React.useState(false);
@@ -65,6 +65,9 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        meta: {
+            isLongFormat,
+        },
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -74,9 +77,6 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
             sorting,
-        },
-        meta: {
-            isLongFormat,
         },
     });
 
@@ -95,16 +95,16 @@ export function DataTable<TData, TValue>({
                                 onPressedChange={(value) => {
                                     value
                                         ? setColumnVisibility({
-                                              renegadeUsdValue: true,
+                                              onChainBalance: false,
                                               onChainUsdValue: true,
                                               renegadeBalance: false,
-                                              onChainBalance: false,
+                                              renegadeUsdValue: true,
                                           })
                                         : setColumnVisibility({
-                                              renegadeUsdValue: false,
+                                              onChainBalance: true,
                                               onChainUsdValue: false,
                                               renegadeBalance: true,
-                                              onChainBalance: true,
+                                              renegadeUsdValue: false,
                                           });
                                 }}
                                 pressed={

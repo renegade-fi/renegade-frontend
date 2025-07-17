@@ -9,8 +9,8 @@ export function useTvl(chainId: number) {
     const queryKey = ["stats", "tvl", chainId];
     return {
         ...useQuery<RawTvlData[], Error>({
-            queryKey,
             queryFn: () => fetchTvlData(chainId),
+            queryKey,
             staleTime: Infinity,
         }),
         queryKey,
