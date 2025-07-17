@@ -25,7 +25,7 @@ export function TableEmptyState({ colSpan, type }: { colSpan: number; type: stri
                     {message}
                 </TableCell>
             </TableRow>
-            <SignInDialog open={open} onOpenChange={onOpenChange} />
+            <SignInDialog onOpenChange={onOpenChange} open={open} />
         </>
     );
 }

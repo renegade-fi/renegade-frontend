@@ -44,24 +44,24 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
     const currentChainId = useCurrentChain();
 
     return (
-        <Provider reconnectOnMount config={config} initialState={initialState}>
+        <Provider config={config} initialState={initialState} reconnectOnMount>
             <QueryProvider>
                 <ConnectKitProvider
                     customTheme={connectKitTheme}
+                    onConnect={() => {
+                        sidebarEvents.emit("open");
+                        setOpen(true);
+                    }}
                     options={{
                         hideQuestionMarkCTA: true,
                         hideTooltips: true,
                         initialChainId: currentChainId,
                     }}
                     theme="midnight"
-                    onConnect={() => {
-                        sidebarEvents.emit("open");
-                        setOpen(true);
-                    }}
                 >
                     {children}
                     <SyncRenegadeWagmiState />
-                    <SignInDialog open={open} onOpenChange={setOpen} />
+                    <SignInDialog onOpenChange={setOpen} open={open} />
                 </ConnectKitProvider>
             </QueryProvider>
         </Provider>

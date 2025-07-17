@@ -33,7 +33,7 @@ export function ChainSelector({
 }) {
     const [open, setOpen] = React.useState(false);
     return (
-        <Popover modal open={open} onOpenChange={setOpen}>
+        <Popover modal onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
                     aria-expanded={open}
@@ -58,7 +58,6 @@ export function ChainSelector({
                             {values.map((chain) => (
                                 <CommandItem
                                     key={chain.label}
-                                    value={chain.value.toString()}
                                     onSelect={() => {
                                         if (chain.value === chainId) {
                                             return;
@@ -66,6 +65,7 @@ export function ChainSelector({
                                         onChange(chain.value);
                                         setOpen(false);
                                     }}
+                                    value={chain.value.toString()}
                                 >
                                     <span className="flex-1">{chain.label}</span>
                                     <CheckIcon

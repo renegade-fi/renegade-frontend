@@ -40,11 +40,11 @@ export function MaxButton(props: Props & QueryParams & QueryParamsWithMint) {
 
     return (
         <Button
+            className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
             disabled={!isOnChainBalanceSuccess}
+            onClick={handleClick}
             size="icon"
             variant="ghost"
-            className="absolute right-2 top-1/2 h-7 -translate-y-1/2 text-muted-foreground"
-            onClick={handleClick}
         >
             MAX
         </Button>

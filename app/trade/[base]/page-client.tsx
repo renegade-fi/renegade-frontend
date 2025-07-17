@@ -90,7 +90,6 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
                             <Separator />
                             <div className="p-6">
                                 <DataTable
-                                    isTradePage
                                     columns={columns}
                                     data={data}
                                     initialStatus="open"
@@ -99,6 +98,7 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
                                         actions: false,
                                         saved: false,
                                     }}
+                                    isTradePage
                                 />
                             </div>
                         </main>

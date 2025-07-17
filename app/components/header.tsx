@@ -53,7 +53,7 @@ export function Header() {
                         </Button>
                     </MobileNavSheet>
 
-                    <Image priority alt="logo" height="28" src="/glyph_dark.svg" width="24" />
+                    <Image alt="logo" height="28" priority src="/glyph_dark.svg" width="24" />
                 </div>
                 <div className="flex items-center gap-2">
                     {walletReadyState === "READY" ? (
@@ -72,9 +72,9 @@ export function Header() {
                         <ContextMenuTrigger>
                             <Link href={homeHref}>
                                 <Image
-                                    priority
                                     alt="logo"
                                     height="38"
+                                    priority
                                     src="/glyph_dark.svg"
                                     width="31"
                                 />

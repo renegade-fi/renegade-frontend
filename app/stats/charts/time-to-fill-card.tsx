@@ -116,17 +116,17 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
                                 format={{
                                     maximumFractionDigits: 2,
                                 }}
+                                onClick={() => setIsSell((prev) => !prev)}
                                 prefix={`${isSell ? "Sell" : "Buy"}  `}
                                 value={Number(valueInBaseCurrency)}
-                                onClick={() => setIsSell((prev) => !prev)}
                             />
                         ) : (
                             <Skeleton className="h-8 w-32" />
                         )}
                         <TokenSelect
                             chainId={chainId}
-                            value={selectedToken}
                             onChange={setSelectedToken}
+                            value={selectedToken}
                         />
                         {displayValues.value ? (
                             <NumberFlow
@@ -149,9 +149,9 @@ export function TimeToFillCard({ chainId }: { chainId: number }) {
                             currency: "USD",
                             minimumFractionDigits: 0,
                         }}
+                        onValueChange={([value]) => setSelectedAmount(value)}
                         step={10000}
                         value={[selectedAmount]}
-                        onValueChange={([value]) => setSelectedAmount(value)}
                     />
                 </div>
             </div>

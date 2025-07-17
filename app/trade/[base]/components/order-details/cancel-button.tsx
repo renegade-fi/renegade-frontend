@@ -28,7 +28,6 @@ export function CancelButton({
                 autoFocus
                 className={cn("w-full flex-1", className)}
                 disabled={isDisabled}
-                variant="outline"
                 onClick={() =>
                     cancelOrder(
                         {
@@ -46,6 +45,7 @@ export function CancelButton({
                         },
                     )
                 }
+                variant="outline"
             >
                 Cancel Order
             </Button>

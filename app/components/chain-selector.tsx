@@ -60,7 +60,7 @@ export function ChainSelector() {
     const currentChain = values.find((v) => v.value === currentChainId);
 
     return (
-        <Popover modal open={open} onOpenChange={setOpen}>
+        <Popover modal onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
                     aria-expanded={open}
@@ -90,10 +90,10 @@ export function ChainSelector() {
                         <CommandGroup>
                             {values.map((chain) => (
                                 <CommandItem
-                                    key={chain.value}
                                     className="flex items-center gap-2"
-                                    value={chain.value.toString()}
+                                    key={chain.value}
                                     onSelect={handleChainSelect}
+                                    value={chain.value.toString()}
                                 >
                                     <Image
                                         alt={chain.label}

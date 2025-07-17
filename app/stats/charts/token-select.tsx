@@ -41,7 +41,7 @@ export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
     }, [chainId]);
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
                     aria-expanded={open}
@@ -64,11 +64,11 @@ export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
                             {tokens.map((token) => (
                                 <CommandItem
                                     key={token.value}
-                                    value={token.value}
                                     onSelect={(currentValue) => {
                                         onChange(currentValue as `0x${string}`);
                                         setOpen(false);
                                     }}
+                                    value={token.value}
                                 >
                                     <Check
                                         className={cn(

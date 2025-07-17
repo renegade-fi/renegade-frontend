@@ -94,10 +94,10 @@ function Row({ mint, disabled }: { mint: `0x${string}`; disabled?: boolean }) {
                         <Button
                             className="text-md h-fit p-0 text-muted-foreground"
                             disabled={walletReadyState !== "READY"}
-                            variant="link"
                             onClick={(e) => {
                                 if (walletReadyState !== "READY" || disabled) e.preventDefault();
                             }}
+                            variant="link"
                         >
                             {token.ticker}
                         </Button>

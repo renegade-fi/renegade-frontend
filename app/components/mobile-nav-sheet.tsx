@@ -29,9 +29,9 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
+        <Sheet onOpenChange={setOpen} open={open}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent hideCloseButton className="w-[300px] p-0 !duration-100" side="left">
+            <SheetContent className="w-[300px] p-0 !duration-100" hideCloseButton side="left">
                 <SheetHeader>
                     <VisuallyHidden>
                         <SheetTitle>Menu</SheetTitle>
@@ -40,7 +40,7 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
                 </SheetHeader>
                 <div className="flex flex-col gap-8 p-8 text-xl">
                     <Link href="/trade" onClick={() => handleLinkClick("/trade")}>
-                        <Image priority alt="logo" height="38" src="/glyph_dark.svg" width="31" />
+                        <Image alt="logo" height="38" priority src="/glyph_dark.svg" width="31" />
                     </Link>
                     <Link
                         className="cursor-pointer hover:text-muted-foreground"

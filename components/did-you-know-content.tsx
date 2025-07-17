@@ -49,9 +49,9 @@ export function DidYouKnowContent() {
                     Did you know?
                     <Button
                         className="rounded-none"
+                        onClick={handleRefresh}
                         size="icon"
                         variant="ghost"
-                        onClick={handleRefresh}
                     >
                         <Repeat className="h-4 w-4" />
                     </Button>

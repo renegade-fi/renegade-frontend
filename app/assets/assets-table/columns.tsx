@@ -43,7 +43,6 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
 
             const buttonElement = (
                 <Button
-                    variant="ghost"
                     onClick={() => {
                         const isSorted = column.getIsSorted();
                         if (isSorted === "desc") {
@@ -54,6 +53,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                             column.toggleSorting(true);
                         }
                     }}
+                    variant="ghost"
                 >
                     {chainName} Balance ($)
                     {column.getIsSorted() === "asc" ? (
@@ -143,7 +143,6 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
         header: ({ column }) => (
             <div className="flex flex-row-reverse">
                 <Button
-                    variant="ghost"
                     onClick={() => {
                         const isSorted = column.getIsSorted();
                         if (isSorted === "desc") {
@@ -154,6 +153,7 @@ export const columns: ColumnDef<AssetsTableRow>[] = [
                             column.toggleSorting(true);
                         }
                     }}
+                    variant="ghost"
                 >
                     Renegade Balance ($)
                     {column.getIsSorted() === "asc" ? (

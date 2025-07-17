@@ -240,7 +240,6 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                             type="linear"
                         />
                         <ChartTooltip
-                            cursor
                             content={
                                 <ChartTooltipContent
                                     className="w-[200px]"
@@ -298,6 +297,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
                                     }}
                                 />
                             }
+                            cursor
                         />
                     </LineChart>
                 </ChartContainer>

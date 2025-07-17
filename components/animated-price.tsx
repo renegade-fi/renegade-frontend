@@ -35,11 +35,11 @@ export function AnimatedPrice({
 
     return (
         <span
-            key={animationKey}
             className={cn("transition-colors", className, priceColor, {
                 "animate-price-green": price > prev.current,
                 "animate-price-red": price < prev.current,
             })}
+            key={animationKey}
         >
             {formatDynamicCurrency(price)}
         </span>

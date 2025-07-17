@@ -148,11 +148,11 @@ export function TokenSelect({
     const isDesktop = !useIsMobile();
 
     return (
-        <Popover modal open={open} onOpenChange={setOpen}>
+        <Popover modal onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
-                    autoFocus
                     aria-expanded={open}
+                    autoFocus
                     className={cn("justify-between px-3", !value && "text-muted-foreground")}
                     role="combobox"
                     variant="outline"
@@ -185,11 +185,11 @@ export function TokenSelect({
                             {displayTokens.map((t) => (
                                 <CommandItem
                                     key={t.value}
-                                    value={t.value}
                                     onSelect={(currentValue) => {
                                         onChange(currentValue === value ? "" : currentValue);
                                         setOpen(false);
                                     }}
+                                    value={t.value}
                                 >
                                     <span className="flex-1">{t.label}</span>
                                     <span className="flex-1 pr-2 text-right">

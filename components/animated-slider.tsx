@@ -29,13 +29,12 @@ export function Slider({
             >
                 {value?.[0] != null && (
                     <NumberFlow
-                        isolate
-                        willChange
                         className={clsx(
                             "absolute bottom-8 left-1/2 -translate-x-1/2 text-lg font-semibold",
                             numberFlowClassName,
                         )}
                         format={numberFlowFormat}
+                        isolate
                         opacityTiming={{
                             duration: 250,
                             easing: "ease-out",
@@ -45,6 +44,7 @@ export function Slider({
                             duration: 500,
                         }}
                         value={value[0]}
+                        willChange
                     />
                 )}
             </RadixSlider.Thumb>

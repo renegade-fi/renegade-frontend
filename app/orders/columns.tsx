@@ -140,7 +140,6 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -151,6 +150,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Order Value
                         {column.getIsSorted() === "asc" ? (
@@ -179,7 +179,6 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -190,6 +189,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Size
                         {column.getIsSorted() === "asc" ? (
@@ -287,7 +287,6 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -298,6 +297,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Est. Saved
                         {column.getIsSorted() === "asc" ? (
@@ -339,7 +339,6 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -350,6 +349,7 @@ export const columns: ColumnDef<ExtendedOrderMetadata>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Time
                         {column.getIsSorted() === "asc" ? (

@@ -97,16 +97,16 @@ export default async function RootLayout({
     const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
     return (
-        <html suppressHydrationWarning lang="en">
+        <html lang="en" suppressHydrationWarning>
             <body
                 className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
             >
                 <WasmProvider>
                     <ThemeProvider
-                        disableTransitionOnChange
-                        enableSystem
                         attribute="class"
                         defaultTheme="dark"
+                        disableTransitionOnChange
+                        enableSystem
                     >
                         <ServerStoreProvider cookieString={cookieString}>
                             <ClientStoreProvider>

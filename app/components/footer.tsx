@@ -34,9 +34,9 @@ export function Footer() {
                     <ContextMenu>
                         <ContextMenuTrigger>
                             <Image
-                                priority
                                 alt="logo"
                                 height="30"
+                                priority
                                 src="/logo_dark.svg"
                                 width="192"
                             />
@@ -57,7 +57,6 @@ export function Footer() {
                             <TooltipTrigger asChild className="cursor-pointer">
                                 <Button
                                     className="ml-4 font-extended"
-                                    variant="outline"
                                     onClick={() => {
                                         if (!address) {
                                             toast.error(
@@ -78,6 +77,7 @@ export function Footer() {
                                         // Fund additional wallets in background
                                         fundWallet(fundList.slice(2), address, chainId);
                                     }}
+                                    variant="outline"
                                 >
                                     Faucet
                                 </Button>

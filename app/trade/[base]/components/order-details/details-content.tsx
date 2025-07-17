@@ -83,12 +83,12 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
                 <OrderStatusIndicator order={order} />
                 {isOpen && (
                     <InsufficientWarning
-                        withDialog
                         amount={remainingAmount}
                         baseMint={order.data.base_mint}
                         className="text-sm font-bold tracking-tighter lg:tracking-normal"
                         quoteMint={order.data.quote_mint}
                         side={order.data.side === "Buy" ? Side.BUY : Side.SELL}
+                        withDialog
                     />
                 )}
                 <div className="hidden lg:ml-auto lg:flex">

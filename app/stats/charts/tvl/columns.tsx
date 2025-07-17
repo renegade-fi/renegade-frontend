@@ -45,7 +45,6 @@ export const columns: ColumnDef<TvlRow>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -56,6 +55,7 @@ export const columns: ColumnDef<TvlRow>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Base
                         {column.getIsSorted() === "asc" ? (
@@ -96,7 +96,6 @@ export const columns: ColumnDef<TvlRow>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -107,6 +106,7 @@ export const columns: ColumnDef<TvlRow>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Arbitrum
                         {column.getIsSorted() === "asc" ? (
@@ -147,7 +147,6 @@ export const columns: ColumnDef<TvlRow>[] = [
             return (
                 <div className="flex flex-row-reverse">
                     <Button
-                        variant="ghost"
                         onClick={() => {
                             const isSorted = column.getIsSorted();
                             if (isSorted === "desc") {
@@ -158,6 +157,7 @@ export const columns: ColumnDef<TvlRow>[] = [
                                 column.toggleSorting(true);
                             }
                         }}
+                        variant="ghost"
                     >
                         Total
                         {column.getIsSorted() === "asc" ? (

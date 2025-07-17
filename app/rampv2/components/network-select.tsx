@@ -42,11 +42,11 @@ export function NetworkSelect({
     }, [networks, disabledNetworks]);
 
     return (
-        <Popover modal open={open} onOpenChange={setOpen}>
+        <Popover modal onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
                 <Button
-                    autoFocus
                     aria-expanded={open}
+                    autoFocus
                     className={cn("justify-between px-3")}
                     role="combobox"
                     variant="outline"
@@ -67,14 +67,14 @@ export function NetworkSelect({
                                 const isDisabled = disabledNetworks.includes(network.value);
                                 return (
                                     <CommandItem
-                                        key={network.value}
-                                        value={network.value.toString()}
                                         disabled={isDisabled}
+                                        key={network.value}
                                         onSelect={(currentValue) => {
                                             if (isDisabled) return;
                                             onChange(Number(currentValue));
                                             setOpen(false);
                                         }}
+                                        value={network.value.toString()}
                                     >
                                         <span className="flex-1">
                                             {isDisabled

@@ -152,10 +152,10 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                 <div className="flex flex-col gap-2">
                     <Label>Network</Label>
                     <NetworkSelect
-                        value={network}
-                        onChange={setNetwork}
-                        networks={availableNetworks}
                         disabledNetworks={disabledNetworks}
+                        networks={availableNetworks}
+                        onChange={setNetwork}
+                        value={network}
                     />
                 </div>
 
@@ -163,16 +163,16 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                 <div className="flex flex-col gap-2">
                     <Label>Token</Label>
                     <TokenSelect
-                        isBridge
-                        tokens={availableTokens}
-                        direction={direction}
-                        value={mint}
-                        onChange={setMint}
                         chainId={network}
-                        owner={chainDependentAddress!}
-                        wagmiConfig={wagmiConfig}
                         connection={connection}
+                        direction={direction}
+                        isBridge
+                        onChange={setMint}
+                        owner={chainDependentAddress!}
                         renegadeConfig={renegadeConfig}
+                        tokens={availableTokens}
+                        value={mint}
+                        wagmiConfig={wagmiConfig}
                     />
                 </div>
 
@@ -181,20 +181,20 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                     <Label>Amount</Label>
                     <div className="relative">
                         <NumberInput
-                            value={amount}
+                            className="pr-12 rounded-none font-mono"
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="pr-12 rounded-none font-mono"
+                            value={amount}
                         />
                         <MaxButton
-                            direction={direction}
-                            renegadeConfig={renegadeConfig}
                             chainId={network}
-                            mint={mint}
-                            owner={chainDependentAddress!}
-                            wagmiConfig={wagmiConfig}
                             connection={connection}
+                            direction={direction}
+                            mint={mint}
                             onClick={setAmount}
+                            owner={chainDependentAddress!}
+                            renegadeConfig={renegadeConfig}
+                            wagmiConfig={wagmiConfig}
                         />
                     </div>
                 </div>
@@ -202,14 +202,14 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
                 {/* Balances */}
                 <BalanceRow
                     chainId={network}
-                    mint={mint}
-                    owner={chainDependentAddress!}
-                    wagmiConfig={wagmiConfig}
-                    renegadeConfig={renegadeConfig}
                     connection={connection}
-                    onClick={setAmount}
                     direction={direction}
+                    mint={mint}
+                    onClick={setAmount}
+                    owner={chainDependentAddress!}
+                    renegadeConfig={renegadeConfig}
                     showZero
+                    wagmiConfig={wagmiConfig}
                 />
 
                 {/* Review Route Panel */}
@@ -217,16 +217,16 @@ export default function BridgeForm({ env, onQueueStart }: Props) {
             </div>
             {/* Submit */}
             <BridgeSubmitButton
-                targetMint={targetMint}
-                renegadeConfig={renegadeConfig}
-                intent={intent}
                 balances={balances}
-                tasks={tasks}
-                status={status}
-                onQueueStart={onQueueStart}
                 connection={connection}
-                solanaAddress={solanaAddress}
+                intent={intent}
+                onQueueStart={onQueueStart}
+                renegadeConfig={renegadeConfig}
                 route={route}
+                solanaAddress={solanaAddress}
+                status={status}
+                targetMint={targetMint}
+                tasks={tasks}
             />
         </>
     );

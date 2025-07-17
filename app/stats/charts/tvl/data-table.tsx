@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>({
                 <TableBody>
                     {table.getRowModel().rows.map((row) => {
                         return (
-                            <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                            <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -102,17 +102,17 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center justify-end space-x-2 p-6 pt-4">
                 <Button
                     disabled={!table.getCanPreviousPage()}
+                    onClick={() => table.previousPage()}
                     size="sm"
                     variant="outline"
-                    onClick={() => table.previousPage()}
                 >
                     Previous
                 </Button>
                 <Button
                     disabled={!table.getCanNextPage()}
+                    onClick={() => table.nextPage()}
                     size="sm"
                     variant="outline"
-                    onClick={() => table.nextPage()}
                 >
                     Next
                 </Button>

@@ -92,12 +92,6 @@ export function DataTable<TData, TValue>({
                         <TooltipTrigger>
                             <Toggle
                                 aria-label="Toggle USD"
-                                pressed={
-                                    columnVisibility.renegadeUsdValue &&
-                                    columnVisibility.onChainUsdValue
-                                }
-                                size="sm"
-                                variant="outline"
                                 onPressedChange={(value) => {
                                     value
                                         ? setColumnVisibility({
@@ -113,6 +107,12 @@ export function DataTable<TData, TValue>({
                                               onChainBalance: true,
                                           });
                                 }}
+                                pressed={
+                                    columnVisibility.renegadeUsdValue &&
+                                    columnVisibility.onChainUsdValue
+                                }
+                                size="sm"
+                                variant="outline"
                             >
                                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                             </Toggle>
@@ -123,13 +123,13 @@ export function DataTable<TData, TValue>({
                         <TooltipTrigger>
                             <Toggle
                                 aria-label="Show zero balances"
-                                pressed={!showZeroOnChainBalance && !showZeroRenegadeBalance}
-                                size="sm"
-                                variant="outline"
                                 onPressedChange={(value) => {
                                     setShowZeroOnChainBalance(!value);
                                     setShowZeroRenegadeBalance(!value);
                                 }}
+                                pressed={!showZeroOnChainBalance && !showZeroRenegadeBalance}
+                                size="sm"
+                                variant="outline"
                             >
                                 <EyeOff className="h-4 w-4 text-muted-foreground" />
                             </Toggle>
@@ -141,10 +141,10 @@ export function DataTable<TData, TValue>({
                             <Toggle
                                 aria-label="Toggle decimal display"
                                 className="w-8 font-mono text-xs text-muted-foreground data-[state=on]:text-muted-foreground"
+                                onPressedChange={(value) => setIsLongFormat(value)}
                                 pressed={isLongFormat}
                                 size="sm"
                                 variant="outline"
-                                onPressedChange={(value) => setIsLongFormat(value)}
                             >
                                 .00
                             </Toggle>
@@ -180,11 +180,11 @@ export function DataTable<TData, TValue>({
                         ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => {
                                 return (
-                                    <RampDialog key={row.id} initialMint={row.getValue("mint")}>
+                                    <RampDialog initialMint={row.getValue("mint")} key={row.id}>
                                         <TableRow
-                                            key={row.id}
                                             className="cursor-pointer"
                                             data-state={row.getIsSelected() && "selected"}
+                                            key={row.id}
                                         >
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id}>

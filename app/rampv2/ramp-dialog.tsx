@@ -70,14 +70,14 @@ export function RampDialog({
 
     // --- Render --- //
     return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
+        <Dialog onOpenChange={handleOpenChange} open={open}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
-                hideCloseButton={isDesktop}
                 className={cn("gap-0 p-0", {
                     "grid-rows-[auto_1fr] h-dvh": !isDesktop,
                     "sm:max-w-[425px]": isDesktop,
                 })}
+                hideCloseButton={isDesktop}
                 // Prevent toasts inside the dialog from closing it when clicked
                 onPointerDownOutside={(e) => {
                     if (e.target instanceof Element && e.target.closest("[data-sonner-toast]")) {
@@ -92,7 +92,6 @@ export function RampDialog({
                 ) : (
                     <>
                         <RampDialogBody
-                            isDesktop={isDesktop}
                             env={{
                                 renegadeConfig,
                                 wagmiConfig,
@@ -104,11 +103,12 @@ export function RampDialog({
                                 solanaSignTx: signTransaction ?? null,
                             }}
                             initialMint={initialMint}
+                            isDesktop={isDesktop}
                             mode={mode}
-                            setMode={setMode}
-                            queue={queue}
-                            onQueueStart={handleQueueStart}
                             onQueueClose={() => handleOpenChange(false)}
+                            onQueueStart={handleQueueStart}
+                            queue={queue}
+                            setMode={setMode}
                         />
                         <PayFees renegadeConfig={renegadeConfig} />
                     </>
@@ -147,7 +147,7 @@ function RampDialogBody({
                     {mode === "bridge" ? "Bridge" : mode === "deposit" ? "Deposit" : "Withdraw"}
                 </DialogTitle>
             </DialogHeader>
-            <TaskQueueStatus queue={queue} onClose={onQueueClose} />
+            <TaskQueueStatus onClose={onQueueClose} queue={queue} />
         </>
     ) : (
         <>
@@ -164,9 +164,9 @@ function RampDialogBody({
                         mode === "bridge" ? "text-primary" : "text-muted-foreground",
                         isDesktop ? "border-0" : "border",
                     )}
+                    onClick={() => setMode("bridge")}
                     size="xl"
                     variant="outline"
-                    onClick={() => setMode("bridge")}
                 >
                     Bridge
                 </Button>
@@ -176,9 +176,9 @@ function RampDialogBody({
                         mode === "deposit" ? "text-primary" : "text-muted-foreground",
                         isDesktop ? "border-x border-y-0" : "border-x-0",
                     )}
+                    onClick={() => setMode("deposit")}
                     size="xl"
                     variant="outline"
-                    onClick={() => setMode("deposit")}
                 >
                     Deposit
                 </Button>
@@ -188,9 +188,9 @@ function RampDialogBody({
                         mode === "withdraw" ? "text-primary" : "text-muted-foreground",
                         isDesktop ? "border-0" : "border",
                     )}
+                    onClick={() => setMode("withdraw")}
                     size="xl"
                     variant="outline"
-                    onClick={() => setMode("withdraw")}
                 >
                     Withdraw
                 </Button>

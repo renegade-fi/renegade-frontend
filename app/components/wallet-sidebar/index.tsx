@@ -53,9 +53,9 @@ export function WalletSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                         />
                     ) : (
                         <ConnectWalletMenuItem
+                            onClick={handleClick}
                             subtitle=""
                             title="Sign in to Renegade"
-                            onClick={handleClick}
                         />
                     )}
                     {arbitrumWallet.isConnected ? (
@@ -67,9 +67,9 @@ export function WalletSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                         />
                     ) : (
                         <ConnectWalletMenuItem
+                            onClick={handleClick}
                             subtitle=""
                             title="Connect Wallet"
-                            onClick={handleClick}
                         />
                     )}
                 </SidebarHeader>
@@ -118,7 +118,7 @@ export function WalletSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 </SidebarFooter>
                 <SidebarRail />
             </Sidebar>
-            <SignInDialog open={open} onOpenChange={onOpenChange} />
+            <SignInDialog onOpenChange={onOpenChange} open={open} />
         </>
     );
 }

@@ -76,9 +76,9 @@ export default function RampV2Page() {
                             "flex-1 border-0 font-extended text-lg font-bold",
                             mode === "bridge" ? "text-primary" : "text-muted-foreground",
                         )}
+                        onClick={() => setMode("bridge")}
                         size="xl"
                         variant="outline"
-                        onClick={() => setMode("bridge")}
                     >
                         Bridge
                     </Button>
@@ -87,9 +87,9 @@ export default function RampV2Page() {
                             "flex-1 border-0 font-extended text-lg font-bold",
                             mode === "deposit" ? "text-primary" : "text-muted-foreground",
                         )}
+                        onClick={() => setMode("deposit")}
                         size="xl"
                         variant="outline"
-                        onClick={() => setMode("deposit")}
                     >
                         Deposit
                     </Button>
@@ -98,9 +98,9 @@ export default function RampV2Page() {
                             "flex-1 border-0 font-extended text-lg font-bold",
                             mode === "withdraw" ? "text-primary" : "text-muted-foreground",
                         )}
+                        onClick={() => setMode("withdraw")}
                         size="xl"
                         variant="outline"
-                        onClick={() => setMode("withdraw")}
                     >
                         Withdraw
                     </Button>
@@ -108,7 +108,7 @@ export default function RampV2Page() {
 
                 {/* Render form or queue status */}
                 {queue ? (
-                    <TaskQueueStatus queue={queue} onClose={() => setQueue(null)} />
+                    <TaskQueueStatus onClose={() => setQueue(null)} queue={queue} />
                 ) : mode === "bridge" ? (
                     <BridgeForm env={env} onQueueStart={handleQueueStart} />
                 ) : mode === "deposit" ? (

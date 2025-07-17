@@ -153,11 +153,11 @@ export function SignInDialog({
     if (isDesktop) {
         return (
             <Dialog
-                open={open}
                 onOpenChange={(open) => {
                     reset();
                     onOpenChange(open);
                 }}
+                open={open}
             >
                 <DialogContent className="gap-0 p-0 sm:max-w-[425px]">
                     <DialogHeader className="px-6 pt-6">
@@ -176,9 +176,9 @@ export function SignInDialog({
                         <Button
                             className="flex-1 border-x-0 border-b-0 border-t font-extended text-2xl"
                             disabled={isDisabled}
+                            onClick={onSubmit}
                             size="xl"
                             variant="outline"
-                            onClick={onSubmit}
                         >
                             {buttonText}
                         </Button>
@@ -190,11 +190,11 @@ export function SignInDialog({
 
     return (
         <Dialog
-            open={open}
             onOpenChange={(open) => {
                 reset();
                 onOpenChange(open);
             }}
+            open={open}
         >
             <DialogContent className="h-dvh gap-0">
                 <DialogHeader className="text-left">
@@ -208,8 +208,8 @@ export function SignInDialog({
                     <Button
                         className="font-extended text-lg"
                         disabled={isDisabled}
-                        size="xl"
                         onClick={onSubmit}
+                        size="xl"
                     >
                         {buttonText}
                     </Button>
@@ -262,13 +262,13 @@ function RememberMe() {
 function getSteps(steps: Step[], currentStep?: number) {
     return steps.map((step, index) => (
         <div
-            key={index}
             className={cn(
                 "flex items-center justify-between transition-colors hover:text-primary",
                 {
                     "text-muted": currentStep !== undefined && currentStep !== index,
                 },
             )}
+            key={index}
         >
             <span>
                 {steps.length > 1 ? `${index + 1}. ` : ""}

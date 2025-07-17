@@ -95,8 +95,6 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
                 <Button
                     autoFocus
                     className="flex-1 border-x-0 border-b-0 border-t font-serif text-2xl font-bold"
-                    size="xl"
-                    variant="outline"
                     onClick={() => {
                         if (request instanceof Error) {
                             toast.error(request.message);
@@ -104,6 +102,8 @@ export function DefaultStep(props: NewOrderConfirmationProps) {
                         }
                         createOrder({ request });
                     }}
+                    size="xl"
+                    variant="outline"
                 >
                     {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
                 </Button>
@@ -190,11 +190,11 @@ export function ConfirmOrderDisplay(props: NewOrderConfirmationProps) {
                 quoteMint={quoteMint}
             />
             <InsufficientWarning
-                richColors
                 amount={parsedAmount instanceof Error ? BigInt(0) : parsedAmount}
                 baseMint={token.address}
                 className="text-sm text-orange-400"
                 quoteMint={quoteMint}
+                richColors
                 side={props.isSell ? Side.SELL : Side.BUY}
             />
         </>

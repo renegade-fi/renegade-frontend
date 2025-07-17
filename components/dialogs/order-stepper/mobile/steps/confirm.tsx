@@ -73,7 +73,6 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
                 <Button
                     autoFocus
                     className="flex-1 font-extended text-lg"
-                    size="xl"
                     onClick={() => {
                         if (request instanceof Error) {
                             toast.error(request.message);
@@ -81,6 +80,7 @@ export function ConfirmStep(props: NewOrderConfirmationProps) {
                         }
                         createOrder({ request });
                     }}
+                    size="xl"
                 >
                     {props.isSell ? "Sell" : "Buy"} {baseToken.ticker}
                 </Button>

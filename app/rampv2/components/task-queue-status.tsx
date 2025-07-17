@@ -144,7 +144,7 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
                 )}
                 <ul className="border p-4 space-y-1">
                     {displayTasks.map((t) => (
-                        <TaskRow key={t.id} t={t} canClose={canClose} />
+                        <TaskRow canClose={canClose} key={t.id} t={t} />
                     ))}
                 </ul>
             </div>
@@ -152,10 +152,10 @@ export function TaskQueueStatus({ queue, onClose }: TaskQueueStatusProps) {
             {onClose && (
                 <Button
                     className="w-full border-0 border-t font-extended text-2xl"
+                    disabled={!canClose}
+                    onClick={onClose}
                     size="xl"
                     variant="outline"
-                    onClick={onClose}
-                    disabled={!canClose}
                 >
                     Close
                 </Button>
@@ -190,12 +190,12 @@ function TaskRow({ t, canClose }: { t: DisplayTask; canClose: boolean }) {
                     <span className="h-9 flex items-center">{`└─ ${t.label}`}</span>
                 )}
                 {t.url && (
-                    <Button asChild size="icon" variant="ghost" className="text-primary">
+                    <Button asChild className="text-primary" size="icon" variant="ghost">
                         <a
-                            href={t.url}
-                            target="_blank"
-                            rel="noreferrer"
                             aria-label="Open in explorer"
+                            href={t.url}
+                            rel="noreferrer"
+                            target="_blank"
                         >
                             <ExternalLink className="h-4 w-4" />
                         </a>

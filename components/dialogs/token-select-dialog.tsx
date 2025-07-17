@@ -41,16 +41,16 @@ export function TokenSelectDialog({
 
     if (isDesktop) {
         return (
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog onOpenChange={setOpen} open={open}>
                 <DialogTrigger asChild>{children}</DialogTrigger>
                 <DialogContent className="max-h-[70vh] p-0 sm:max-w-[425px]">
                     <DialogHeader className="space-y-4 px-6 pt-6">
                         <DialogTitle className="font-extended">Select Token</DialogTitle>
                         <DialogDescription>
                             <Input
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search tokens"
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </DialogDescription>
                     </DialogHeader>
@@ -58,8 +58,8 @@ export function TokenSelectDialog({
                         <TokenList
                             enabled={open}
                             mint={mint}
-                            searchTerm={debouncedSearchTerm}
                             onClose={() => setOpen(false)}
+                            searchTerm={debouncedSearchTerm}
                         />
                     </ScrollArea>
                 </DialogContent>
@@ -68,7 +68,7 @@ export function TokenSelectDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog onOpenChange={setOpen} open={open}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 className="h-dvh gap-0 p-0"
@@ -81,9 +81,9 @@ export function TokenSelectDialog({
                     <DialogDescription>
                         <Input
                             autoFocus={false}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search tokens"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </DialogDescription>
                 </DialogHeader>
@@ -91,8 +91,8 @@ export function TokenSelectDialog({
                     <TokenList
                         enabled={open}
                         mint={mint}
-                        searchTerm={debouncedSearchTerm}
                         onClose={() => setOpen(false)}
+                        searchTerm={debouncedSearchTerm}
                     />
                 </ScrollArea>
                 <DialogFooter className="p-6 pt-0">
@@ -175,9 +175,9 @@ function TokenList({
                             : formatNumber(balance ?? BigInt(0), token.decimals, true);
                     return (
                         <Link
-                            key={token.address}
                             className="flex items-center gap-4 px-6 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
                             href={`/trade/${token.ticker}`}
+                            key={token.address}
                             onClick={() => {
                                 if (token.address === mint) onClose();
                             }}
@@ -191,8 +191,6 @@ function TokenList({
                                 <div className="justify-self-end font-mono">{formattedBalance}</div>
                             </div>
                             <Button
-                                size="icon"
-                                variant="ghost"
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -206,6 +204,8 @@ function TokenList({
                                         setFavorites([...favorites, token.address]);
                                     }
                                 }}
+                                size="icon"
+                                variant="ghost"
                             >
                                 <Star
                                     className="h-4 w-4"

@@ -69,11 +69,11 @@ export function WithdrawSubmitButton({
             <MaintenanceButtonWrapper messageKey="transfer" triggerClassName="flex-1">
                 <Button
                     className="w-full flex-1 border-0 border-t font-extended text-2xl"
+                    disabled={isDisabled}
+                    onClick={handleSubmit}
                     size="xl"
                     type="submit"
                     variant="outline"
-                    onClick={handleSubmit}
-                    disabled={isDisabled}
                 >
                     {isPlanningLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                     {displayLabel}

@@ -20,7 +20,7 @@ function NewOrderStepperInner({
 }: React.PropsWithChildren<NewOrderConfirmationProps>) {
     const { step, open, setOpen } = useStepper();
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog onOpenChange={setOpen} open={open}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 className="max-w-none border-none bg-transparent p-0 sm:max-w-[425px]"

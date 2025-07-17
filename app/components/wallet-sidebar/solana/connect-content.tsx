@@ -117,11 +117,11 @@ export function ConnectContent({ className }: ConnectContentProps) {
                 ) : (
                     wallets.map((wallet) => (
                         <Button
-                            key={wallet.adapter.name}
                             className="flex w-full justify-between px-5 py-8 text-base font-normal"
                             disabled={connectMutation.isPending}
-                            variant="outline"
+                            key={wallet.adapter.name}
                             onClick={() => connectMutation.mutate(wallet)}
+                            variant="outline"
                         >
                             <span className="font-extended font-bold">{wallet.adapter.name}</span>
                             <Avatar className="h-8 w-8">
