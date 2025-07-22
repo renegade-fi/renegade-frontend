@@ -10,6 +10,7 @@ import {
     getInflowsSetKey,
     getLastProcessedBlockKey,
 } from "@/app/api/stats/constants";
+import { validateTransferLogCounts } from "@/app/api/stats/helpers";
 
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { client } from "@/lib/clients/price-reporter";
@@ -67,15 +68,25 @@ export async function GET(req: NextRequest) {
                 isWithdrawal: true,
             }),
         ]);
+
         const rawTransfers: AlchemyTransfer[] = [...depositTransfers, ...withdrawTransfers];
         if (rawTransfers.length === 0) {
             console.log("No new transfers to process");
             return new Response(JSON.stringify({ message: "No new transfers to process" }));
         }
         console.log(`Fetched ${rawTransfers.length} transfers from Alchemy`);
-        // Process all raw transfers
+
+        // Filter transfers by log count to ensure they are valid deposits/withdrawals
+        const validTransfers = await validateTransferLogCounts(rawTransfers, chainId);
+        if (validTransfers.length === 0) {
+            console.log("No valid transfers after log count filtering");
+            return new Response(JSON.stringify({ message: "No valid transfers after filtering" }));
+        }
+        console.log(`${validTransfers.length} transfers passed log count validation`);
+
+        // Process all valid transfers
         console.log("Processing transfers");
-        const processPromises = rawTransfers.map(async (raw) => {
+        const processPromises = validTransfers.map(async (raw) => {
             const mint = raw.rawContract.address as `0x${string}`;
             const token = resolveAddress(mint);
             const price = priceData.find((tp) => tp.ticker === token.ticker)?.price;
@@ -111,7 +122,7 @@ export async function GET(req: NextRequest) {
         console.log(`Successfully processed ${processedResults.length} logs`);
 
         // Store the last processed block number
-        const lastProcessedBlock = rawTransfers
+        const lastProcessedBlock = validTransfers
             .map((r) => BigInt(r.blockNum))
             .reduce((max, b) => (b > max ? b : max), BigInt(0));
         await kv.set(lastProcessedBlockKey, lastProcessedBlock.toString());
