@@ -1,10 +1,18 @@
 import { redirect } from "next/navigation";
-
+import { SEARCH_PARAM_CHAIN } from "@/lib/constants/storage";
 import { getFallbackTicker, hydrateServerState } from "./trade/[base]/utils";
 
-export default async function Page() {
+export default async function Page({
+    searchParams,
+}: {
+    searchParams: Promise<{ chain?: string }>;
+}) {
     // Hydrate server-side state from cookies
     const serverState = await hydrateServerState();
     const ticker = getFallbackTicker(serverState);
-    redirect(`/trade/${ticker}`);
+    const chain = (await searchParams).chain;
+    const redirectUrl = chain
+        ? `/trade/${ticker}?${SEARCH_PARAM_CHAIN}=${chain}`
+        : `/trade/${ticker}`;
+    redirect(redirectUrl);
 }

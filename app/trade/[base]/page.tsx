@@ -21,7 +21,8 @@ export default async function Page({
     searchParams: Promise<{ chain?: string }>;
 }) {
     const baseTicker = (await params).base;
-    const chainName = (await searchParams).chain ?? undefined; // providers/state-provider/server-store-provider.tsx::SEARCH_PARAM_CHAIN
+    const chainName = (await searchParams).chain; // providers/state-provider/server-store-provider.tsx::SEARCH_PARAM_CHAIN
+    console.log("🚀 ~ Page ~ chainName:", chainName);
     let chainId;
     try {
         chainId = chainIdFromEnvAndName(env.NEXT_PUBLIC_CHAIN_ENVIRONMENT, chainName as any);
