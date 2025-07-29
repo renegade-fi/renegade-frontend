@@ -11,8 +11,10 @@ import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { env } from "@/env/client";
+import { SEARCH_PARAM_CHAIN } from "@/lib/constants/storage";
 import { isAddressMultiChain } from "@/lib/token";
 import { cn } from "@/lib/utils";
+import { getFormattedChainName } from "@/lib/viem";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 import { useServerStore } from "@/providers/state-provider/server-store-provider";
 import { MAINNET_CHAINS, TESTNET_CHAINS } from "@/providers/wagmi-provider/config";
@@ -44,10 +46,10 @@ export function ChainSelector() {
         const chainId = Number.parseInt(chainValue) as ChainId;
         const isMultiChain = isAddressMultiChain(baseMint);
         const isTradePage = pathname.startsWith("/trade");
-
+        const chainName = getFormattedChainName(chainId).toLowerCase();
         if (!isMultiChain && isTradePage) {
             // Navigate to WETH (universal fallback) with chain parameter if on trade page
-            router.push(`/trade/WETH?c=${chainId}`);
+            router.push(`/trade/WETH?${SEARCH_PARAM_CHAIN}=${chainName}`);
         } else {
             // Safe to switch directly - token exists on target chain
             switchChain({ chainId });

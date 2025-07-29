@@ -65,7 +65,7 @@ export function WrongNetworkModal() {
             <DialogFooter className="flex-row sm:space-x-0">
                 <Button
                     autoFocus={false}
-                    className="flex-1 items-center justify-center whitespace-normal text-pretty border-0 border-l border-t font-extended text-lg"
+                    className="flex-1 items-center justify-center whitespace-normal text-pretty border-0  border-t font-extended text-lg"
                     onClick={handleDisconnect}
                     size="xl"
                     variant="outline"

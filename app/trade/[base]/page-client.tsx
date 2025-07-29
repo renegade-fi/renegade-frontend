@@ -1,12 +1,10 @@
 "use client";
 
-import { isSupportedChainId } from "@renegade-fi/react";
-
+import type { ChainId } from "@renegade-fi/react/constants";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { useSwitchChain } from "wagmi";
-
 import { DepositBanner } from "@/app/components/deposit-banner";
 import { MaintenanceBanner } from "@/app/components/maintenance-banner";
 import { MobileBottomBar } from "@/app/components/mobile-bottom-bar";
@@ -18,11 +16,9 @@ import { PriceChart } from "@/app/trade/[base]/components/charts/price-chart";
 import { FavoritesBanner } from "@/app/trade/[base]/components/favorites-banner";
 import { MobileAssetPriceAccordion } from "@/app/trade/[base]/components/mobile-asset-price-accordion";
 import { NewOrderPanel } from "@/app/trade/[base]/components/new-order/new-order-panel";
-
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-
 import { useOrderTableData } from "@/hooks/use-order-table-data";
 import { useResolvePair } from "@/hooks/use-resolve-pair";
 import { defaultInitState } from "@/providers/state-provider/server-store";
@@ -31,7 +27,7 @@ import { useServerStore } from "@/providers/state-provider/server-store-provider
 // Prevents re-render when side changes
 const PriceChartMemo = React.memo(PriceChart);
 
-export function PageClient({ base, chain }: { base: string; chain?: string }) {
+export function PageClient({ base, chainId }: { base: string; chainId?: ChainId }) {
     const { base: baseMint, quote: quoteMint } = useResolvePair(base);
     const router = useRouter();
 
@@ -48,13 +44,15 @@ export function PageClient({ base, chain }: { base: string; chain?: string }) {
     const setChainId = useServerStore((s) => s.setChainId);
     const { switchChain } = useSwitchChain();
     React.useEffect(() => {
-        if (!chain) return;
-        const chainId = Number.parseInt(chain);
-        if (!isSupportedChainId(chainId)) return;
-        setChainId(chainId);
-        switchChain({ chainId });
+        if (!chainId) return;
+        switchChain(
+            { chainId },
+            {
+                onSuccess: () => setChainId(chainId),
+            },
+        );
         router.replace(`/trade/${base}`);
-    }, [base, chain, router, setChainId, switchChain]);
+    }, [base, chainId, router, setChainId, switchChain]);
 
     const panels = useServerStore((s) => s.panels);
     const setPanels = useServerStore((s) => s.setPanels);

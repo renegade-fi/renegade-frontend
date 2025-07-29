@@ -1,12 +1,11 @@
+import { isSupportedChainId } from "@renegade-fi/react";
 import { CHAIN_IDS, type ChainId } from "@renegade-fi/react/constants";
 import { persist } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
-
 import { Side } from "@/lib/constants/protocol";
 import { STORAGE_SERVER_STORE, STORAGE_VERSION } from "@/lib/constants/storage";
 import { resolveTicker } from "@/lib/token";
 import { cookieStorage, createStorage } from "@/providers/state-provider/cookie-storage";
-
 import { AVAILABLE_CHAINS } from "../wagmi-provider/config";
 import { type CachedWallet, createEmptyWallet, type ServerState } from "./schema";
 
@@ -40,7 +39,13 @@ const DEFAULT_CHAIN = AVAILABLE_CHAINS[0].id;
 const WETH = resolveTicker("WETH");
 const USDC = resolveTicker("USDC");
 
-export const initServerStore = (): ServerState => {
+export const initServerStore = (chainId: string | null): ServerState => {
+    if (chainId && isSupportedChainId(Number.parseInt(chainId) as ChainId)) {
+        return {
+            ...defaultInitState,
+            chainId: Number.parseInt(chainId) as ChainId,
+        };
+    }
     return defaultInitState;
 };
 
@@ -59,8 +64,8 @@ export const defaultInitState: ServerState = {
     wallet: defaultWalletMap,
 };
 
-export const createServerStore = (initState: ServerState = defaultInitState) => {
-    console.log("[ServerStore] creating store");
+export const createServerStore = (initState: ServerState) => {
+    console.log("[ServerStore] creating store", initState);
     return createStore<ServerStore>()(
         persist(
             (set) => ({
@@ -93,7 +98,7 @@ export const createServerStore = (initState: ServerState = defaultInitState) => 
                     }));
                 },
                 setChainId: (chainId: ChainId) => {
-                    console.log("[ServerStore] setChainId", chainId);
+                    console.trace("[ServerStore] setChainId", chainId);
                     return set(() => ({ chainId }));
                 },
                 setCurrency: (currency: "base" | "quote") => {
