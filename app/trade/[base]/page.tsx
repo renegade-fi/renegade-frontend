@@ -1,10 +1,9 @@
+import { chainIdFromEnvAndName } from "@renegade-fi/react";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
-
 import { PageClient } from "@/app/trade/[base]/page-client";
-
+import { env } from "@/env/client";
 import { DISPLAY_TOKENS } from "@/lib/token";
-
 import { getTickerRedirect, hydrateServerState } from "./utils";
 
 export async function generateStaticParams() {
@@ -19,10 +18,16 @@ export default async function Page({
     searchParams,
 }: {
     params: Promise<{ base: string }>;
-    searchParams: Promise<{ c?: string }>;
+    searchParams: Promise<{ chain?: string }>;
 }) {
     const baseTicker = (await params).base;
-    const chain = (await searchParams).c ?? undefined;
+    const chainName = (await searchParams).chain ?? undefined; // providers/state-provider/server-store-provider.tsx::SEARCH_PARAM_CHAIN
+    let chainId;
+    try {
+        chainId = chainIdFromEnvAndName(env.NEXT_PUBLIC_CHAIN_ENVIRONMENT, chainName as any);
+    } catch (error) {
+        chainId = undefined;
+    }
 
     // Hydrate server-side state from cookies
     const serverState = await hydrateServerState();
@@ -33,7 +38,7 @@ export default async function Page({
     const queryClient = new QueryClient();
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <PageClient base={baseTicker} chain={chain} />
+            <PageClient base={baseTicker} chainId={chainId} />
         </HydrationBoundary>
     );
 }

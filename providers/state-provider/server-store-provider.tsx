@@ -1,10 +1,9 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useEffect, useRef } from "react";
-
+import { useSearchParams } from "next/navigation";
+import { createContext, type ReactNode, useContext, useLayoutEffect, useRef } from "react";
 import { useStore } from "zustand";
-
-import { STORAGE_SERVER_STORE } from "@/lib/constants/storage";
+import { SEARCH_PARAM_CHAIN, STORAGE_SERVER_STORE } from "@/lib/constants/storage";
 import { cookieToInitialState } from "@/providers/state-provider/cookie-storage";
 import {
     createServerStore,
@@ -23,16 +22,18 @@ interface ServerStoreProviderProps {
 
 export function ServerStoreProvider({ children, cookieString }: ServerStoreProviderProps) {
     const storeRef = useRef<ServerStoreApi>(undefined);
+    const chainId = useSearchParams().get(SEARCH_PARAM_CHAIN);
 
     if (!storeRef.current) {
-        const initialState = cookieToInitialState(STORAGE_SERVER_STORE, cookieString ?? "");
+        const maybeInitialState = cookieToInitialState(STORAGE_SERVER_STORE, cookieString ?? "");
+        const initialState = maybeInitialState ?? initServerStore(chainId);
         console.log("[ServerStoreProvider] initialState", initialState);
-        storeRef.current = createServerStore(initialState ?? initServerStore());
+        storeRef.current = createServerStore(initialState);
     }
 
     const active = useRef(true);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         (async () => {
             if (storeRef.current) {
                 console.log("[ServerStoreProvider] rehydrating");

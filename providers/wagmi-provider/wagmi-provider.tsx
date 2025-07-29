@@ -87,11 +87,12 @@ function SyncRenegadeWagmiState() {
     // - wagmi chain is a supported chain
     // - wagmi chain is not currently mutating
     React.useEffect(() => {
+        if (account.status !== "connected") return;
         if (isMutatingChain) return;
         if (wagmiChainId === currentChainId) return;
         if (!isSupportedChainId(wagmiChainId)) return;
         setChainId(wagmiChainId);
-    }, [currentChainId, isMutatingChain, setChainId, wagmiChainId]);
+    }, [account.status, currentChainId, isMutatingChain, setChainId, wagmiChainId]);
 
     const queryClient = useQueryClient();
 

@@ -5,3 +5,6 @@ export const STORAGE_CLIENT_STORE = `${STORAGE_PREFIX}.client-store`;
 
 // Storage version for schema migrations
 export const STORAGE_VERSION = 2;
+
+// Search parameter for chain ID
+export const SEARCH_PARAM_CHAIN = "chain";
