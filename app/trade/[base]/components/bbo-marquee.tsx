@@ -1,13 +1,25 @@
+import type { Exchange } from "@renegade-fi/react";
 import { Fragment } from "react";
-
 import { AnimatedPrice } from "@/components/animated-price";
 import { AnimatedPriceStatus } from "@/components/animated-price-status";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol";
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips";
-import { getCanonicalExchange } from "@/lib/token";
+import { getCanonicalExchange, resolveAddress } from "@/lib/token";
 import { constructExchangeUrl } from "@/lib/utils";
+
+/**
+ * If the given exchange is the canonical exchange, return "renegade"
+ * This ensures the canonical price is shown on the BBO marquee.
+ */
+export function overwriteCanonicalExchange(mint: `0x${string}`, exchange: Exchange) {
+    const token = resolveAddress(mint);
+    const canonicalExchange = token.canonicalExchange;
+    if (canonicalExchange.toLowerCase() === exchange.toLowerCase()) {
+        return "renegade";
+    }
+    return exchange;
+}
 
 export function BBOMarquee({ base }: { base: `0x${string}` }) {
     const canonicalExchange = getCanonicalExchange(base);
@@ -27,10 +39,14 @@ export function BBOMarquee({ base }: { base: `0x${string}` }) {
                     <a href={constructExchangeUrl(exchange, base)} rel="noreferrer" target="_blank">
                         <div className="flex items-baseline justify-center gap-4 leading-none">
                             <span>{exchangeToName[exchange]}</span>
-                            <AnimatedPrice className="font-mono" exchange={exchange} mint={base} />
+                            <AnimatedPrice
+                                className="font-mono"
+                                exchange={overwriteCanonicalExchange(base, exchange)}
+                                mint={base}
+                            />
                             <AnimatedPriceStatus
                                 className="font-extended text-green-price"
-                                exchange={exchange}
+                                exchange={overwriteCanonicalExchange(base, exchange)}
                                 mint={base}
                             />
                         </div>

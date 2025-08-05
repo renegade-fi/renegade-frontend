@@ -9,26 +9,19 @@ import { MAINNET_CHAINS, TESTNET_CHAINS } from "@/providers/wagmi-provider/confi
 
 import { solana } from "./viem";
 
-const HIDDEN_TICKERS = ["USDT", "REN"];
+export const USDC_TICKER = "USDC";
+export const USDT_TICKER = "USDT";
 
 export const DISPLAY_TOKENS = (
-    options: {
-        hideStables?: boolean;
-        hideHidden?: boolean;
-        hideTickers?: Array<string>;
-        chainId?: number;
-    } = {},
+    options: { hideQuoteTokens?: boolean; hideTickers?: Array<string>; chainId?: number } = {},
 ) => {
-    const { hideStables, hideHidden = true, hideTickers = [], chainId } = options;
+    const { hideQuoteTokens = true, hideTickers = [], chainId } = options;
     let tokens =
         chainId && isSupportedChainId(chainId)
             ? Token.getAllTokensOnChain(chainId)
             : Token.getAllTokens();
-    if (hideStables) {
-        tokens = tokens.filter((token) => !token.isStablecoin());
-    }
-    if (hideHidden) {
-        tokens = tokens.filter((token) => !HIDDEN_TICKERS.includes(token.ticker));
+    if (hideQuoteTokens) {
+        tokens = tokens.filter((token) => token.ticker !== USDC_TICKER);
     }
     if (hideTickers.length > 0) {
         tokens = tokens.filter((token) => !hideTickers.includes(token.ticker));
