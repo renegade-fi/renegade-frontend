@@ -8,6 +8,7 @@ export function useOHLC(options: {
     startDateMs: number;
     endDateMs: number;
     timeInterval: "minutes" | "hours" | "days";
+    invert?: boolean;
 }): UseQueryResult<Bar[], unknown> {
     return useQuery({
         queryFn: () => queryFn(options),
@@ -21,6 +22,7 @@ function queryFn(options: {
     startDateMs: number;
     endDateMs: number;
     timeInterval: "minutes" | "hours" | "days";
+    invert?: boolean;
 }) {
     const info = getPriceChartInfo(options.mint);
     const exchange = info.exchange.toString();
@@ -33,5 +35,20 @@ function queryFn(options: {
         instrument: info.instrument,
         startDateMs: options.startDateMs,
         timeInterval: options.timeInterval,
+    }).then((bars) => {
+        return options.invert ? invertBarData(bars) : bars;
     });
+}
+
+/**
+ * Inverts price-related fields in Bar data using 1/price transformation
+ */
+function invertBarData(bars: Bar[]): Bar[] {
+    return bars.map((bar) => ({
+        ...bar,
+        close: 1 / bar.close,
+        high: 1 / bar.low, // High becomes inverted low
+        low: 1 / bar.high, // Low becomes inverted high
+        open: 1 / bar.open,
+    }));
 }
