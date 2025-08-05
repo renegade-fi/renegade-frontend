@@ -123,17 +123,7 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
         let intent: Intent | undefined;
 
         const token = getTokenByAddress(mint, currentChain);
-        // Special case for USDT - swap to USDC
-        if (token?.ticker === "USDT") {
-            const USDC = getTokenByTicker("USDC", currentChain);
-            if (!USDC) throw new Error("USDC not found");
-            intent = Intent.newSwapIntent(ctx, {
-                amount,
-                chainId: currentChain,
-                depositMint: USDC.address,
-                swapToken: mint,
-            });
-        } else if (swapToken?.address && needsSwap) {
+        if (swapToken?.address && needsSwap) {
             intent = Intent.newSwapIntent(ctx, {
                 amount,
                 chainId: currentChain,
