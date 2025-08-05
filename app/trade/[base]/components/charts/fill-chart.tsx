@@ -26,7 +26,7 @@ import {
     calculateTimeRange,
     calculateYAxisDomain,
     createPercentageFormatter,
-    createYAxisFormatter,
+    createPriceFormatter,
     formatFills,
     processChartData,
 } from "./fills/helpers";
@@ -61,7 +61,7 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     const chartData = processChartData(formattedFills, ohlc, order.data.side);
 
     const [minValue, maxValue] = calculateMinMax(chartData);
-    const priceFormatter = createYAxisFormatter(minValue, maxValue);
+    const priceFormatter = createPriceFormatter();
 
     return (
         <Card className="border-0">

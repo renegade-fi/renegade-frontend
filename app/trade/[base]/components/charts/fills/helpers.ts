@@ -1,8 +1,20 @@
-import type { OrderMetadata } from "@renegade-fi/react";
-import { oneMinute } from "@/lib/constants/time";
 import { formatNumber } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 import { decimalNormalizePrice } from "@/lib/utils";
+import numeral from "numeral";
+import type { OrderMetadata } from "@renegade-fi/react";
+
+// -----------
+// | CONSTANTS |
+// -----------
+
+const CHART_TARGET_POINTS = 150;
+const ONE_MINUTE_MS = 60 * 1000;
+const THIRTY_MINUTES_MS = 30 * ONE_MINUTE_MS;
+const SMALL_VALUE_THRESHOLD = 10;
+const DEFAULT_Y_AXIS_PADDING = 0.1;
+const MAX_SIGNIFICANT_DIGITS = 6;
+const MIN_SIGNIFICANT_DIGITS = 1;
 
 // ---------
 // | TYPES |
@@ -44,13 +56,13 @@ export interface TimeRange {
 export function calculateYAxisDomain(
     minValue: number,
     maxValue: number,
-    offset: number = 0.1,
+    offset: number = DEFAULT_Y_AXIS_PADDING,
 ): [number, number] {
     const padding = (maxValue - minValue) * offset;
     const lowerBound = minValue - padding;
     const upperBound = maxValue + padding;
 
-    if (minValue < 10) {
+    if (minValue < SMALL_VALUE_THRESHOLD) {
         return [lowerBound, upperBound];
     }
     return [Math.floor(lowerBound), Math.ceil(upperBound)];
@@ -81,7 +93,7 @@ export function formatFills(order: OrderMetadata): FormattedFill[] {
  * @returns The rounded timestamp
  */
 export function roundToNearestMinute(timestamp: number): number {
-    return Math.floor(timestamp / 60000) * 60000;
+    return Math.floor(timestamp / ONE_MINUTE_MS) * ONE_MINUTE_MS;
 }
 
 /**
@@ -96,11 +108,9 @@ export function calculateTimeRange(formattedFills: FormattedFill[]): TimeRange {
     const minFillTimestamp = formattedFills[0].timestamp;
     const maxFillTimestamp = formattedFills[formattedFills.length - 1].timestamp;
 
-    // 30min padding for visual context
-    const paddingMs = oneMinute * 30;
-
-    const startTime = minFillTimestamp - paddingMs;
-    const endTime = maxFillTimestamp + paddingMs;
+    // Padding for visual context
+    const startTime = minFillTimestamp - THIRTY_MINUTES_MS;
+    const endTime = maxFillTimestamp + THIRTY_MINUTES_MS;
 
     // Round to nearest minute for OHLC alignment
     return {
@@ -166,9 +176,8 @@ export function processChartData(
 
     const result = [...fills, ...prices].sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 
-    // Sample data for performance (target: 150 points)
-    const targetPoints = 150;
-    const sampleRate = Math.floor(result.length / targetPoints);
+    // Sample data for performance
+    const sampleRate = Math.floor(result.length / CHART_TARGET_POINTS);
     if (sampleRate < 1) {
         return result;
     }
@@ -201,37 +210,13 @@ export function calculateMinMax(data: ChartDataPoint[]) {
 }
 
 /**
- * Creates Y-axis formatter with appropriate precision for the price range
- * For narrow ranges (like stablecoins), shows more decimal places
+ * Creates price formatter that always shows 2 decimal places
+ * For prices with many decimals, shows up to 6 decimal places
  */
-export function createYAxisFormatter(minValue: number, maxValue: number) {
-    const range = maxValue - minValue;
-    const midpoint = (minValue + maxValue) / 2;
-
-    // Detect stablecoin-like pairs: narrow ranges around 1.0
-    const isStablecoinRange = midpoint > 0.5 && midpoint < 2.0 && range < 0.01;
-
+export function createPriceFormatter() {
     return (value: number): string => {
-        if (value <= 0) {
-            return "$0.00";
-        }
-
-        let decimals = 2; // Default for most assets
-
-        if (isStablecoinRange) {
-            // For stablecoins, show enough precision to see meaningful differences
-            decimals = Math.max(4, Math.ceil(-Math.log10(range)) + 1);
-        } else if (value < 1) {
-            // For small values, use dynamic precision
-            decimals = Math.max(2, -Math.floor(Math.log10(value)) + 1);
-        }
-
-        return new Intl.NumberFormat("en-US", {
-            currency: "USD",
-            maximumSignificantDigits: 6,
-            minimumSignificantDigits: 1,
-            style: "currency",
-        }).format(value);
+        const formatStr = "$0,0.00[0000]";
+        return numeral(value).format(formatStr);
     };
 }
 
@@ -249,8 +234,8 @@ export function createPercentageFormatter(numerator: number, denominator: number
     const percentage = ratio * 100;
 
     return new Intl.NumberFormat("en-US", {
-        maximumSignificantDigits: 6,
-        minimumSignificantDigits: 1,
+        maximumSignificantDigits: MAX_SIGNIFICANT_DIGITS,
+        minimumSignificantDigits: MIN_SIGNIFICANT_DIGITS,
         useGrouping: false,
     }).format(percentage);
 }
