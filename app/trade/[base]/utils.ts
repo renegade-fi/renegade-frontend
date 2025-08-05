@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 
 import { STORAGE_SERVER_STORE } from "@/lib/constants/storage";
-import { resolveAddress, resolveTicker, zeroAddress } from "@/lib/token";
+import { resolveAddress, resolveTicker, USDC_TICKER, zeroAddress } from "@/lib/token";
 import { cookieToInitialState } from "@/providers/state-provider/cookie-storage";
 import type { ServerState } from "@/providers/state-provider/schema";
 import { defaultInitState } from "@/providers/state-provider/server-store";
@@ -20,8 +20,8 @@ export function getTickerRedirect(ticker: string, serverState: ServerState): str
 
     // Fallback if no token found
     if (token.address === zeroAddress) return fallbackTicker;
-    // Check if stablecoin
-    if (token.isStablecoin()) return fallbackTicker;
+    // Check if quote token
+    if (token.ticker === USDC_TICKER) return fallbackTicker;
     // Check casing
     if (token.ticker !== ticker) return token.ticker;
     return;

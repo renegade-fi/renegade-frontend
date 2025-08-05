@@ -4,7 +4,7 @@ import { makeAmberApiRequest } from "@/app/trade/[base]/components/charts/tradin
 
 import { oneDayMs, oneMonthMs, twelveMonthsMs } from "@/lib/constants/time";
 
-import { getDefaultQuote, resolveAddress } from "./token";
+import { getDefaultQuote, resolveAddress, USDT_TICKER } from "./token";
 
 const BASE_URL = "https://api.amberdata.com";
 
@@ -77,6 +77,13 @@ const timeIntervalToTimeRangeLimitMap = {
  */
 export function getPriceChartInfo(mint: `0x${string}`) {
     const token = resolveAddress(mint);
+    if (token.ticker === USDT_TICKER) {
+        return {
+            exchange: "BINANCE",
+            instrument: "usdc_usdt",
+            ticker: token.getCanonicalExchangeTicker(),
+        } as const;
+    }
     const canonicalExchange = token.canonicalExchange.toUpperCase().toUpperCase();
     const canonicalTicker = token.getCanonicalExchangeTicker();
     const defaultQuote = getQuoteTicker(mint);

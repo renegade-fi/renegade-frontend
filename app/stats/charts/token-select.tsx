@@ -29,8 +29,6 @@ export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
         const res = new Set<string>(
             DISPLAY_TOKENS({
                 chainId: chainId ? chainId : undefined,
-                hideHidden: true,
-                hideStables: true,
             }).map((token) => token.ticker),
         );
 
