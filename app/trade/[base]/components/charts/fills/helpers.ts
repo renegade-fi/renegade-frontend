@@ -1,8 +1,8 @@
+import type { OrderMetadata } from "@renegade-fi/react";
+import numeral from "numeral";
 import { formatNumber } from "@/lib/format";
 import { resolveAddress } from "@/lib/token";
 import { decimalNormalizePrice } from "@/lib/utils";
-import numeral from "numeral";
-import type { OrderMetadata } from "@renegade-fi/react";
 
 // -----------
 // | CONSTANTS |
@@ -58,11 +58,20 @@ export function calculateYAxisDomain(
     maxValue: number,
     offset: number = DEFAULT_Y_AXIS_PADDING,
 ): [number, number] {
-    const padding = (maxValue - minValue) * offset;
-    const lowerBound = minValue - padding;
-    const upperBound = maxValue + padding;
+    if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) {
+        throw new Error("calculateYAxisDomain: non-finite inputs");
+    }
+    if (minValue > maxValue) {
+        [minValue, maxValue] = [maxValue, minValue];
+    }
 
-    if (minValue < SMALL_VALUE_THRESHOLD) {
+    const span = maxValue - minValue;
+    const basePadding = span === 0 ? Math.max(1, Math.abs(maxValue) * 0.05) : span * offset;
+
+    const lowerBound = minValue - basePadding;
+    const upperBound = maxValue + basePadding;
+
+    if (Math.min(Math.abs(minValue), Math.abs(maxValue)) < SMALL_VALUE_THRESHOLD) {
         return [lowerBound, upperBound];
     }
     return [Math.floor(lowerBound), Math.ceil(upperBound)];
@@ -73,17 +82,19 @@ export function calculateYAxisDomain(
  * Converts amounts and prices using token decimals, sorts chronologically
  */
 export function formatFills(order: OrderMetadata): FormattedFill[] {
-    const baseToken = resolveAddress(order.data.base_mint);
-    const quoteToken = resolveAddress(order.data.quote_mint);
+    const base = resolveAddress(order.data.base_mint);
+    const quote = resolveAddress(order.data.quote_mint);
 
     return order.fills
-        .map((fill) => ({
-            amount: Number(formatNumber(fill.amount, baseToken.decimals)),
-            price: Number(
-                decimalNormalizePrice(fill.price.price, baseToken.decimals, quoteToken.decimals),
-            ),
-            timestamp: Number(fill.price.timestamp),
-        }))
+        .map((fill) => {
+            const amount = Number(formatNumber(fill.amount, base.decimals));
+            const price = Number(
+                decimalNormalizePrice(fill.price.price, base.decimals, quote.decimals),
+            );
+            const timestamp = Number(fill.price.timestamp);
+
+            return { amount, price, timestamp };
+        })
         .sort((a, b) => a.timestamp - b.timestamp);
 }
 
@@ -93,30 +104,25 @@ export function formatFills(order: OrderMetadata): FormattedFill[] {
  * @returns The rounded timestamp
  */
 export function roundToNearestMinute(timestamp: number): number {
-    return Math.floor(timestamp / ONE_MINUTE_MS) * ONE_MINUTE_MS;
+    return Math.trunc(timestamp / ONE_MINUTE_MS) * ONE_MINUTE_MS;
 }
 
 /**
  * Calculates time range for OHLC data fetching
  * Adds 30min padding before/after fills, rounds to minute boundaries
  */
-export function calculateTimeRange(formattedFills: FormattedFill[]): TimeRange {
-    if (formattedFills.length === 0) {
-        throw new Error("Cannot calculate time range for empty fills array");
+export function calculateTimeRange(fills: FormattedFill[]): TimeRange {
+    if (fills.length === 0) {
+        throw new Error("calculateTimeRange: empty fills");
     }
 
-    const minFillTimestamp = formattedFills[0].timestamp;
-    const maxFillTimestamp = formattedFills[formattedFills.length - 1].timestamp;
+    const firstTs = fills[0].timestamp;
+    const lastTs = fills[fills.length - 1].timestamp;
 
-    // Padding for visual context
-    const startTime = minFillTimestamp - THIRTY_MINUTES_MS;
-    const endTime = maxFillTimestamp + THIRTY_MINUTES_MS;
+    const start = roundToNearestMinute(firstTs - THIRTY_MINUTES_MS);
+    const end = roundToNearestMinute(lastTs + THIRTY_MINUTES_MS);
 
-    // Round to nearest minute for OHLC alignment
-    return {
-        endMs: roundToNearestMinute(endTime),
-        startMs: roundToNearestMinute(startTime),
-    };
+    return { endMs: end, startMs: start };
 }
 
 /**
@@ -191,22 +197,24 @@ export function processChartData(
  * @param data - The data to calculate the minimum and maximum values for
  * @returns A tuple of the minimum and maximum values
  */
-export function calculateMinMax(data: ChartDataPoint[]) {
-    return data.reduce(
-        ([min, max], item) => [
-            Math.min(
-                min,
-                item.price ?? Number.POSITIVE_INFINITY,
-                item.fillPrice ?? Number.POSITIVE_INFINITY,
-            ),
-            Math.max(
-                max,
-                item.price ?? Number.NEGATIVE_INFINITY,
-                item.fillPrice ?? Number.NEGATIVE_INFINITY,
-            ),
-        ],
-        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
-    );
+export function calculateMinMax(data: ChartDataPoint[]): [number, number] {
+    if (data.length === 0) return [0, 0];
+
+    let min = Number.POSITIVE_INFINITY;
+    let max = Number.NEGATIVE_INFINITY;
+
+    for (const d of data) {
+        const candidates = [d.price, d.fillPrice].filter(
+            (v): v is number => typeof v === "number" && Number.isFinite(v),
+        );
+        for (const v of candidates) {
+            if (v < min) min = v;
+            if (v > max) max = v;
+        }
+    }
+
+    if (!Number.isFinite(min) || !Number.isFinite(max)) return [0, 0];
+    return [min, max];
 }
 
 /**
@@ -214,10 +222,8 @@ export function calculateMinMax(data: ChartDataPoint[]) {
  * For prices with many decimals, shows up to 6 decimal places
  */
 export function createPriceFormatter() {
-    return (value: number): string => {
-        const formatStr = "$0,0.00[0000]";
-        return numeral(value).format(formatStr);
-    };
+    const formatStr = "$0,0.00[0000]";
+    return (value: number): string => numeral(value).format(formatStr);
 }
 
 /**
@@ -227,11 +233,11 @@ export function createPriceFormatter() {
  * @returns The formatted percentage
  */
 export function createPercentageFormatter(numerator: number, denominator: number): string {
-    if (denominator === 0 || numerator === 0) {
+    if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
         return "0.00";
     }
-    const ratio = numerator / denominator;
-    const percentage = ratio * 100;
+
+    const percentage = (numerator / denominator) * 100;
 
     return new Intl.NumberFormat("en-US", {
         maximumSignificantDigits: MAX_SIGNIFICANT_DIGITS,
