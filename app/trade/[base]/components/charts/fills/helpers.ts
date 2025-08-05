@@ -232,7 +232,7 @@ export function createPriceFormatter() {
  * @param denominator - The denominator of the percentage
  * @returns The formatted percentage
  */
-export function createPercentageFormatter(numerator: number, denominator: number): string {
+export function percentageFormatter(numerator: number, denominator: number): string {
     if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
         return "0.00";
     }

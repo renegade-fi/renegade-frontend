@@ -144,48 +144,47 @@ function SyncRenegadeWagmiState() {
             }
         }
 
-        // async function verifyWallets() {
-        //     const address = account.address;
-        //     if (!address) {
-        //         logAndReset(undefined, "No account address");
-        //         return;
-        //     }
+        async function verifyWallets() {
+            const address = account.address;
+            if (!address) {
+                logAndReset(undefined, "No account address");
+                return;
+            }
 
-        //     for (const [chainId, wallet] of wallets) {
-        //         if (!wallet.seed) continue;
-        //         const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`;
-        //         const signature = wallet.seed;
+            for (const [chainId, wallet] of wallets) {
+                if (!wallet.seed) continue;
+                const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`;
+                const signature = wallet.seed;
 
-        //         console.log(`Verifying wallet for chain ${chainId}`, {
-        //             hasAddress: !!address,
-        //             hasSeed: !!wallet.seed,
-        //             message,
-        //             signatureLength: signature?.length || 0,
-        //         });
+                console.log(`Verifying wallet for chain ${chainId}`, {
+                    hasAddress: !!address,
+                    hasSeed: !!wallet.seed,
+                    message,
+                    signatureLength: signature?.length || 0,
+                });
 
-        //         const valid = await verifyMessage({
-        //             address,
-        //             message,
-        //             signature,
-        //         });
+                const valid = await verifyMessage({
+                    address,
+                    message,
+                    signature,
+                });
 
-        //         console.log(`Verification result for chain ${chainId}:`, valid);
+                console.log(`Verification result for chain ${chainId}:`, valid);
 
-        //         if (!valid) {
-        //             logAndReset(chainId, "Invalid signature", { message, signature });
-        //         }
-        //     }
-        // }
-        // verifyWallets();
+                if (!valid) {
+                    logAndReset(chainId, "Invalid signature", { message, signature });
+                }
+            }
+        }
+        verifyWallets();
     }, [
         account.address,
-        currentChainId,
-        queryClient.getMutationCache,
         resetAllWallets,
         resetWallet,
+        wallets,
+        queryClient,
+        currentChainId,
         wagmiChainId,
-        wallets.entries,
-        wallets.size,
     ]);
 
     return null;
