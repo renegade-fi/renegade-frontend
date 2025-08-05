@@ -1,7 +1,7 @@
 import { type OrderMetadata, OrderState } from "@renegade-fi/react";
 import { formatUnits } from "viem/utils";
 
-import { FillChart } from "@/app/trade/[base]/components/charts/fill-chart";
+import { FillChart } from "@/app/trade/[base]/components/charts/fills/chart";
 import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button";
 import { columns, type FillTableData } from "@/app/trade/[base]/components/order-details/columns";
 import { DataTable } from "@/app/trade/[base]/components/order-details/data-table";
