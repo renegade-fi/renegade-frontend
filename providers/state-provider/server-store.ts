@@ -65,17 +65,14 @@ export const defaultInitState: ServerState = {
 };
 
 export const createServerStore = (initState: ServerState) => {
-    console.log("[ServerStore] creating store", initState);
     return createStore<ServerStore>()(
         persist(
             (set) => ({
                 ...initState,
                 resetAllWallets: () => {
-                    console.log("[ServerStore] resetAllWallets");
                     return set(() => ({ wallet: defaultWalletMap }));
                 },
                 resetWallet: (chainId?: ChainId) => {
-                    console.log("[ServerStore] resetWallet", chainId);
                     return set((state) => ({
                         wallet: new Map(state.wallet).set(
                             chainId ?? state.chainId,
@@ -84,49 +81,39 @@ export const createServerStore = (initState: ServerState) => {
                     }));
                 },
                 setAllowExternalMatches: (allowExternalMatches: boolean) => {
-                    console.log("[ServerStore] setAllowExternalMatches", allowExternalMatches);
                     return set(() => ({ allowExternalMatches }));
                 },
                 setAmount: (amount: string) => {
-                    console.log("[ServerStore] setAmount", amount);
                     return set((state) => ({ order: { ...state.order, amount } }));
                 },
                 setBase: (baseMint: `0x${string}`) => {
-                    console.log("[ServerStore] setBase", baseMint);
                     return set(() => ({
                         baseMint: baseMint.toLowerCase() as `0x${string}`,
                     }));
                 },
                 setChainId: (chainId: ChainId) => {
-                    console.trace("[ServerStore] setChainId", chainId);
                     return set(() => ({ chainId }));
                 },
                 setCurrency: (currency: "base" | "quote") => {
-                    console.log("[ServerStore] setCurrency", currency);
                     return set((state) => ({ order: { ...state.order, currency } }));
                 },
                 setPanels: (layout: number[]) => {
-                    console.log("[ServerStore] setPanels", layout);
                     return set(() => ({ panels: { layout } }));
                 },
                 setQuote: (quoteMint: `0x${string}`) => {
-                    console.log("[ServerStore] setQuote", quoteMint);
                     return set(() => ({
                         quoteMint: quoteMint.toLowerCase() as `0x${string}`,
                     }));
                 },
                 setRememberMe: (chainId: ChainId, remember: boolean) => {
-                    console.log("[ServerStore] setRememberMe", { chainId, remember });
                     return set((state) => ({
                         rememberMe: new Map(state.rememberMe).set(chainId, remember),
                     }));
                 },
                 setSide: (side: Side) => {
-                    console.log("[ServerStore] setSide", side);
                     return set((state) => ({ order: { ...state.order, side } }));
                 },
                 setWallet: (seed: `0x${string}`, id: string, chainId?: ChainId) => {
-                    console.log("[ServerStore] setWallet", { chainId, id, seed });
                     return set((state) => ({
                         wallet: new Map(state.wallet).set(chainId ?? state.chainId, {
                             id,
