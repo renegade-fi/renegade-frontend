@@ -27,6 +27,7 @@ import {
     calculateYAxisDomain,
     createPriceFormatter,
     formatFills,
+    isUsdtTicker,
     percentageFormatter,
     processChartData,
 } from "./helpers";
@@ -61,7 +62,9 @@ export function FillChart({ order }: { order: OrderMetadata }) {
     const chartData = processChartData(formattedFills, ohlc, order.data.side);
 
     const [minValue, maxValue] = calculateMinMax(chartData);
-    const priceFormatter = createPriceFormatter();
+    const priceFormatter = createPriceFormatter(
+        !isUsdtTicker(baseToken.ticker), //max 2 decimals
+    );
 
     return (
         <Card className="border-0">

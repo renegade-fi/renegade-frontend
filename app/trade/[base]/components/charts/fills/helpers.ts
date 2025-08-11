@@ -1,7 +1,7 @@
 import type { OrderMetadata } from "@renegade-fi/react";
 import numeral from "numeral";
 import { formatNumber } from "@/lib/format";
-import { resolveAddress } from "@/lib/token";
+import { resolveAddress, USDT_TICKER } from "@/lib/token";
 import { decimalNormalizePrice } from "@/lib/utils";
 
 // -----------
@@ -219,11 +219,18 @@ export function calculateMinMax(data: ChartDataPoint[]): [number, number] {
 
 /**
  * Creates price formatter that always shows 2 decimal places
- * For prices with many decimals, shows up to 6 decimal places
+ * For prices with many decimals, shows up to 6 decimal places (unless maxTwoDecimals is true)
  */
-export function createPriceFormatter() {
-    const formatStr = "$0,0.00[0000]";
+export function createPriceFormatter(maxTwoDecimals: boolean = false) {
+    const formatStr = maxTwoDecimals ? "$0,0.00" : "$0,0.00[0000]";
     return (value: number): string => numeral(value).format(formatStr);
+}
+
+/**
+ * Helper to check if a ticker represents USDT
+ */
+export function isUsdtTicker(ticker: string): boolean {
+    return ticker === USDT_TICKER;
 }
 
 /**

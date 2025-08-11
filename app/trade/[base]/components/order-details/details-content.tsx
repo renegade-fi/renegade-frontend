@@ -2,6 +2,10 @@ import { type OrderMetadata, OrderState } from "@renegade-fi/react";
 import { formatUnits } from "viem/utils";
 
 import { FillChart } from "@/app/trade/[base]/components/charts/fills/chart";
+import {
+    createPriceFormatter,
+    isUsdtTicker,
+} from "@/app/trade/[base]/components/charts/fills/helpers";
 import { CancelButton } from "@/app/trade/[base]/components/order-details/cancel-button";
 import { columns, type FillTableData } from "@/app/trade/[base]/components/order-details/columns";
 import { DataTable } from "@/app/trade/[base]/components/order-details/data-table";
@@ -20,7 +24,6 @@ import { Separator } from "@/components/ui/separator";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { Side } from "@/lib/constants/protocol";
 import {
-    formatCurrency,
     formatCurrencyFromString,
     formatNumber,
     formatOrderState,
@@ -50,9 +53,11 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
     } USDC`;
 
     const isCancellable = [OrderState.Created, OrderState.Matching].includes(order.state);
-    const _isModifiable = [OrderState.Created, OrderState.Matching].includes(order.state);
     const vwap = getVWAP(order);
-    const formattedVWAP = vwap ? formatCurrency(vwap) : "--";
+    const priceFormatter = createPriceFormatter(
+        !isUsdtTicker(baseToken.ticker), //max 2 decimals
+    );
+    const formattedVWAP = vwap ? priceFormatter(vwap) : "--";
     const filledLabel = `${formattedFilledAmount} ${baseToken.ticker} @ ${formattedVWAP}`;
     const filledLabelLong = `${formattedFilledAmountLong} ${baseToken.ticker} @ ${formattedVWAP}`;
 
