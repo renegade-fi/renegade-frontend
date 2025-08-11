@@ -1,7 +1,20 @@
 import type { Exchange } from "@renegade-fi/react";
 import type { Query, QueryClient } from "@tanstack/react-query";
 
-import { getDefaultQuote } from "./token";
+import { getDefaultQuote, resolveAddress, USDT_TICKER, zeroAddress } from "./token";
+
+function resolveQuoteAddress(
+    base: `0x${string}`,
+    exchange?: Exchange,
+    providedQuote?: `0x${string}`,
+): `0x${string}` {
+    if (providedQuote) return providedQuote;
+    // Special-case: On OKX, USDT/USD should use USD (zero address) as quote
+    if (exchange === "okx" && resolveAddress(base).ticker === USDT_TICKER) {
+        return zeroAddress;
+    }
+    return getDefaultQuote(base, exchange ?? "renegade").address;
+}
 
 // Helper function defining a global rule for invalidating queries
 // We invalidate queries that are:
@@ -38,7 +51,7 @@ export function createPriceTopic({
     base: `0x${string}`;
     quote?: `0x${string}`;
 }): string {
-    const quote = _quote ?? getDefaultQuote(base, exchange ?? "renegade").address;
+    const quote = resolveQuoteAddress(base, exchange, _quote);
     return `${exchange}-${base}-${quote}`;
 }
 
@@ -59,7 +72,7 @@ export function createPriceQueryKey({
     if (!exchange || exchange === "renegade") {
         return ["price", "live", "renegade", base];
     }
-    const quote = _quote ?? getDefaultQuote(base, exchange).address;
+    const quote = resolveQuoteAddress(base, exchange, _quote);
     return ["price", "live", exchange, base, quote];
 }
 
@@ -72,7 +85,7 @@ export function createSnapshotPriceQueryKey({
     exchange: Exchange;
     quote?: `0x${string}`;
 }): string[] {
-    const quote = _quote ?? getDefaultQuote(baseMint, exchange).address;
+    const quote = resolveQuoteAddress(baseMint, exchange, _quote);
     return ["price", "snapshot", exchange, baseMint, quote];
 }
 
