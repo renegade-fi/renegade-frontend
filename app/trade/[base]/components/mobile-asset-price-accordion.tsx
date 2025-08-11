@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol";
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips";
+import { constructExchangeUrl } from "@/lib/exchange-urls";
 import { getCanonicalExchange, resolveAddress } from "@/lib/token";
-import { constructExchangeUrl } from "@/lib/utils";
 
 export function MobileAssetPriceAccordion({ base }: { base: `0x${string}` }) {
     const canonicalExchange = getCanonicalExchange(base);

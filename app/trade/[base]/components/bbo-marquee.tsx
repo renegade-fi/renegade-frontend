@@ -5,8 +5,8 @@ import { AnimatedPriceStatus } from "@/components/animated-price-status";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EXCHANGES, exchangeToName } from "@/lib/constants/protocol";
 import { BBO_TOOLTIP } from "@/lib/constants/tooltips";
+import { constructExchangeUrl } from "@/lib/exchange-urls";
 import { getCanonicalExchange, resolveAddress } from "@/lib/token";
-import { constructExchangeUrl } from "@/lib/utils";
 
 /**
  * If the given exchange is the canonical exchange, return "renegade"
