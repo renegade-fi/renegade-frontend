@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles";
-import { TOTAL_RENEGADE_FEE_BPS } from "@/lib/constants/protocol";
 import { FEES_SECTION_FEES, FEES_SECTION_TOTAL_SAVINGS } from "@/lib/constants/tooltips";
 import { formatCurrency } from "@/lib/format";
 import { getCanonicalExchange } from "@/lib/token";
@@ -15,6 +14,7 @@ export function FeesSection({
     predictedSavingsBps,
     relayerFee,
     protocolFee,
+    totalRenegadeFeeBps,
     amount,
     base,
 }: {
@@ -22,6 +22,7 @@ export function FeesSection({
     predictedSavingsBps: number;
     relayerFee: number;
     protocolFee: number;
+    totalRenegadeFeeBps: number;
     amount: string;
     base: `0x${string}`;
 }) {
@@ -55,7 +56,7 @@ export function FeesSection({
                     <TooltipTrigger asChild>
                         <span>{amount ? feeLabel : "--"}</span>
                     </TooltipTrigger>
-                    <TooltipContent>{amount ? `${TOTAL_RENEGADE_FEE_BPS} bps` : ""}</TooltipContent>
+                    <TooltipContent>{amount ? `${totalRenegadeFeeBps} bps` : ""}</TooltipContent>
                 </Tooltip>
             </div>
             <div className="relative flex justify-between transition-colors">

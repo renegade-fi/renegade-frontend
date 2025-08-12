@@ -1,13 +1,26 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import { useConfig as useWagmiConfig } from "wagmi";
 
 import type { NewOrderFormProps } from "@/app/trade/[base]/components/new-order/new-order-form";
-
+import { protocolFeeQueryOptions } from "@/hooks/query/fees/protocol";
+import { relayerFeeQueryOptions } from "@/hooks/query/fees/relayer";
 import { useSavings } from "@/hooks/savings/use-savings-query";
 import { useOrderValue } from "@/hooks/use-order-value";
-import { PROTOCOL_FEE, RELAYER_FEE } from "@/lib/constants/protocol";
+import { useCurrentChain } from "@/providers/state-provider/hooks";
 
 export function usePredictedFees(order: NewOrderFormProps) {
     const { valueInQuoteCurrency } = useOrderValue(order);
+
+    // Fetch protocol and relayer fee (bps) in parallel
+    const config = useWagmiConfig();
+    const chainId = useCurrentChain();
+    const { data: protocolFeeBps = 0 } = useQuery(protocolFeeQueryOptions({ chainId, config }));
+    const { data: relayerFeeBps = 0 } = useQuery(relayerFeeQueryOptions({ ticker: undefined }));
+
+    const totalRenegadeFeeBps = protocolFeeBps + relayerFeeBps;
+    const protocolRate = protocolFeeBps / 10_000;
+    const relayerRate = relayerFeeBps / 10_000;
 
     const feesCalculation = React.useMemo(() => {
         const res = {
@@ -15,15 +28,19 @@ export function usePredictedFees(order: NewOrderFormProps) {
             relayerFee: 0,
         };
         if (!valueInQuoteCurrency) return res;
-        res.protocolFee = parseFloat(valueInQuoteCurrency) * PROTOCOL_FEE;
-        res.relayerFee = parseFloat(valueInQuoteCurrency) * RELAYER_FEE;
+        const value = parseFloat(valueInQuoteCurrency);
+        if (!Number.isFinite(value)) return res;
+        res.protocolFee = value * protocolRate;
+        res.relayerFee = value * relayerRate;
         return res;
-    }, [valueInQuoteCurrency]);
+    }, [protocolRate, relayerRate, valueInQuoteCurrency]);
+
     const { data: savingsData, isSuccess } = useSavings(order);
 
     return {
         ...feesCalculation,
         predictedSavings: isSuccess ? savingsData?.savings : 0,
         predictedSavingsBps: isSuccess ? savingsData?.savingsBps : 0,
+        totalRenegadeFeeBps,
     };
 }
