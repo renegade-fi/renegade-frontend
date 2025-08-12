@@ -2,8 +2,9 @@ import type { OrderMetadata } from "@renegade-fi/react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { formatUnits } from "viem/utils";
 import { useConfig as useWagmiConfig } from "wagmi";
+import { BPS_PER_DECIMAL } from "@/hooks/query/fees/constants";
 import { protocolFeeQueryOptions } from "@/hooks/query/fees/protocol";
-import { relayerFeeQueryOptions } from "@/hooks/query/fees/relayer";
+import { relayerFeeMapQueryOptions } from "@/hooks/query/fees/relayer";
 import { type SavingsData, savingsQueryOptions } from "@/hooks/savings/savingsQueryOptions";
 import { resolveAddress } from "@/lib/token";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
@@ -13,16 +14,38 @@ export function useSavingsAcrossFillsQuery(order: OrderMetadata) {
     const config = useWagmiConfig();
     const chainId = useCurrentChain();
 
-    // Fetch fees once for all fills
-    const { data: protocolFeeBps = 0 } = useQuery(protocolFeeQueryOptions({ chainId, config }));
-    const { data: relayerFeeBps = 0 } = useQuery(relayerFeeQueryOptions({ ticker: undefined }));
+    // Fetch protocol fee and relayer fee map once for all fills
+    const { data: protocolFeeDecimal = 0 } = useQuery({
+        ...protocolFeeQueryOptions({ chainId, config }),
+        select: (bps) => bps / BPS_PER_DECIMAL, // convert bps to decimal
+    });
+    const { data: relayerFeeMap } = useQuery({
+        ...relayerFeeMapQueryOptions({ chainId }),
+        select: (map) => {
+            // Convert all to decimal
+            const newMap = new Map<string, number>();
+            for (const [ticker, bps] of map) {
+                const decimal = bps / BPS_PER_DECIMAL; // convert bps to decimal
+                newMap.set(ticker, decimal);
+            }
+            return newMap;
+        },
+    });
 
-    const feesReady = protocolFeeBps !== undefined && relayerFeeBps !== undefined;
-    const renegadeFeeRate = (protocolFeeBps + relayerFeeBps) / 10_000;
+    const baseTicker = resolveAddress(order.data.base_mint).ticker.toUpperCase();
+    const relayerFeeDecimal = relayerFeeMap?.get(baseTicker);
 
-    const queries = !feesReady
-        ? []
-        : order.fills.map((fill) => {
+    const feesReady = protocolFeeDecimal !== undefined && relayerFeeDecimal !== undefined;
+    console.log("fills debug", {
+        feesReady,
+        protocolFeeDecimal,
+        relayerFeeDecimal,
+        relayerFeeMap,
+    });
+    const renegadeFeeRate = feesReady ? protocolFeeDecimal + relayerFeeDecimal : 0;
+
+    const queries = feesReady
+        ? order.fills.map((fill) => {
               const baseToken = resolveAddress(order.data.base_mint);
               const amount = formatUnits(fill.amount, baseToken.decimals);
               return {
@@ -38,7 +61,8 @@ export function useSavingsAcrossFillsQuery(order: OrderMetadata) {
                   gcTime: Infinity,
                   staleTime: Infinity,
               };
-          });
+          })
+        : [];
 
     return useQueries({
         combine: (results) => {

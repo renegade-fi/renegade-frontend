@@ -55,7 +55,7 @@ export function DetailsContent({ order }: { order: OrderMetadata }) {
     const isCancellable = [OrderState.Created, OrderState.Matching].includes(order.state);
     const vwap = getVWAP(order);
     const priceFormatter = createPriceFormatter(
-        !isUsdtTicker(baseToken.ticker), //max 2 decimals
+        !isUsdtTicker(baseToken.ticker), // max 2 decimals
     );
     const formattedVWAP = vwap ? priceFormatter(vwap) : "--";
     const filledLabel = `${formattedFilledAmount} ${baseToken.ticker} @ ${formattedVWAP}`;

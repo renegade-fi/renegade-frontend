@@ -3,9 +3,7 @@ import type { ChainId } from "@renegade-fi/react/constants";
 import { queryOptions } from "@tanstack/react-query";
 import type { Config } from "wagmi";
 import { readArbitrumDarkpoolGetFee, readBaseDarkpoolGetProtocolFee } from "@/lib/generated";
-
-/** * Converts a decimal number to a basis point number */
-const DECIMAL_TO_BPS = 10_000;
+import { BPS_PER_DECIMAL } from "./constants";
 
 /** The default fixed point precision for fixed point numbers */
 const DEFAULT_FP_PRECISION = 2 ** 63;
@@ -46,19 +44,18 @@ export function protocolFeeQueryOptions(params: QueryParams) {
                 }
             }
 
-            // From renegade-contracts:
+            // From [renegade-contracts](https://github.com/renegade-fi/renegade-contracts/blob/main/contracts-stylus/src/contracts/darkpool.rs/#L92):
             // The protocol fee, representing a percentage of the trade volume
             // as a fixed-point number shifted by 63 bits.
             //
             // I.e., the fee is `protocol_fee / 2^63`
-            const feeDecimal = Number(protocolFee) / DEFAULT_FP_PRECISION;
-
-            const feeBps = Math.ceil(feeDecimal * DECIMAL_TO_BPS);
-
+            const feeDecimal = Math.round(Number(protocolFee) / DEFAULT_FP_PRECISION); // rounds to nearest integer
+            const feeBps = feeDecimal * BPS_PER_DECIMAL; // multiply by 10_000 to get bps
             return feeBps;
         },
         queryKey: [
-            "protocolFee",
+            "fees",
+            "protocol",
             {
                 chainId: params.chainId,
             },

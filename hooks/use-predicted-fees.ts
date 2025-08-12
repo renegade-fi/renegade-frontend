@@ -7,7 +7,9 @@ import { protocolFeeQueryOptions } from "@/hooks/query/fees/protocol";
 import { relayerFeeQueryOptions } from "@/hooks/query/fees/relayer";
 import { useSavings } from "@/hooks/savings/use-savings-query";
 import { useOrderValue } from "@/hooks/use-order-value";
+import { resolveAddress } from "@/lib/token";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
+import { BPS_PER_DECIMAL } from "./query/fees/constants";
 
 export function usePredictedFees(order: NewOrderFormProps) {
     const { valueInQuoteCurrency } = useOrderValue(order);
@@ -16,11 +18,14 @@ export function usePredictedFees(order: NewOrderFormProps) {
     const config = useWagmiConfig();
     const chainId = useCurrentChain();
     const { data: protocolFeeBps = 0 } = useQuery(protocolFeeQueryOptions({ chainId, config }));
-    const { data: relayerFeeBps = 0 } = useQuery(relayerFeeQueryOptions({ ticker: undefined }));
+    const baseTicker = resolveAddress(order.base).ticker;
+    const { data: relayerFeeBps = 0 } = useQuery(
+        relayerFeeQueryOptions({ chainId, ticker: baseTicker }),
+    );
 
     const totalRenegadeFeeBps = protocolFeeBps + relayerFeeBps;
-    const protocolRate = protocolFeeBps / 10_000;
-    const relayerRate = relayerFeeBps / 10_000;
+    const protocolRate = protocolFeeBps / BPS_PER_DECIMAL;
+    const relayerRate = relayerFeeBps / BPS_PER_DECIMAL;
 
     const feesCalculation = React.useMemo(() => {
         const res = {
