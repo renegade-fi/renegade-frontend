@@ -43,6 +43,8 @@ export function usePredictedFees(order: NewOrderFormProps) {
     const { data: savingsData, isSuccess } = useSavings(order);
 
     return {
+        protocolFeeBps,
+        relayerFeeBps,
         ...feesCalculation,
         predictedSavings: isSuccess ? savingsData?.savings : 0,
         predictedSavingsBps: isSuccess ? savingsData?.savingsBps : 0,

@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { HELP_CENTER_ARTICLES } from "@/lib/constants/articles";
-import { FEES_SECTION_FEES, FEES_SECTION_TOTAL_SAVINGS } from "@/lib/constants/tooltips";
+import {
+    FEES_SECTION_FEES,
+    FEES_SECTION_TOTAL_SAVINGS,
+    USDT_NO_FEES_TOOLTIP,
+} from "@/lib/constants/tooltips";
 import { formatCurrency } from "@/lib/format";
-import { getCanonicalExchange } from "@/lib/token";
+import { getCanonicalExchange, resolveAddress } from "@/lib/token";
 import { cn } from "@/lib/utils";
 
 export function FeesSection({
@@ -14,6 +18,8 @@ export function FeesSection({
     predictedSavingsBps,
     relayerFee,
     protocolFee,
+    relayerFeeBps,
+    protocolFeeBps,
     totalRenegadeFeeBps,
     amount,
     base,
@@ -22,13 +28,16 @@ export function FeesSection({
     predictedSavingsBps: number;
     relayerFee: number;
     protocolFee: number;
+    relayerFeeBps: number;
+    protocolFeeBps: number;
     totalRenegadeFeeBps: number;
     amount: string;
     base: `0x${string}`;
 }) {
     const totalFees = relayerFee + protocolFee;
-    const feeLabel = totalFees ? formatCurrency(totalFees) : "--";
+    const feeLabel = formatCurrency(totalFees);
     const canonicalExchange = getCanonicalExchange(base);
+    const baseTicker = resolveAddress(base).ticker;
 
     return (
         <>
@@ -50,13 +59,17 @@ export function FeesSection({
                             </a>
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{FEES_SECTION_FEES}</TooltipContent>
+                    <TooltipContent>
+                        {baseTicker === "USDT"
+                            ? USDT_NO_FEES_TOOLTIP
+                            : FEES_SECTION_FEES(relayerFeeBps, protocolFeeBps)}
+                    </TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <span>{amount ? feeLabel : "--"}</span>
                     </TooltipTrigger>
-                    <TooltipContent>{amount ? `${totalRenegadeFeeBps} bps` : ""}</TooltipContent>
+                    <TooltipContent>{`${totalRenegadeFeeBps} bps`}</TooltipContent>
                 </Tooltip>
             </div>
             <div className="relative flex justify-between transition-colors">

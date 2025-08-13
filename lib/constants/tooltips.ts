@@ -1,7 +1,8 @@
 import { MAX_BALANCES, MAX_ORDERS } from "@renegade-fi/react/constants";
 
-export const FEES_SECTION_FEES =
-    "0.02% protocol fee and 0.02% relayer fee are paid upon successful matches. To get lower fees, run your own relayer.";
+export const FEES_SECTION_FEES = (relayerFeeBps: number, protocolFeeBps: number) =>
+    `${(protocolFeeBps / 100).toFixed(2)}% protocol fee and ${(relayerFeeBps / 100).toFixed(2)}% relayer fee are paid upon successful matches. To get lower fees, run your own relayer.`;
+export const USDT_NO_FEES_TOOLTIP = "Pay zero trading fees on USDT trades.";
 export const FEES_SECTION_TOTAL_SAVINGS =
     "The amount you save by executing this order on Renegade.";
 export const UNDERCAPITALIZED_ORDER_TOOLTIP = ({ ticker }: { ticker: string }) =>

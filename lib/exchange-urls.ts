@@ -17,7 +17,7 @@ const DEFAULT_URL_BUILDERS: Record<"binance" | "coinbase" | "kraken" | "okx", Ur
 const USDT_OVERRIDES: Partial<Record<Exchange, string>> = {
     binance: "https://www.binance.com/en/trade/USDC_USDT",
     coinbase: "https://www.coinbase.com/advanced-trade/spot/USDT-USD",
-    kraken: "https://pro.kraken.com/app/trade/USD-USD",
+    kraken: "https://pro.kraken.com/app/trade/USDT-USD",
     okx: "https://www.okx.com/trade-spot/USDC-USDT",
 };
 
