@@ -9,6 +9,7 @@ import {
 import { exchangeToAmberdataExchange, getPriceChartInfo } from "@/lib/amberdata";
 import { client } from "@/lib/clients/price-reporter";
 import { Orderbook } from "@/lib/price-simulation";
+import { resolveAddress } from "@/lib/token";
 
 export const runtime = "edge";
 
@@ -49,7 +50,9 @@ export async function POST(request: Request) {
 
         const orderbookRes = await constructOrderbook(instrument, timestamp, amberdataExchange);
 
-        const feeRate = getExchangeFeeRate(exchange);
+        const baseTicker = resolveAddress(baseMint);
+        const isStable = baseTicker.isStablecoin();
+        const feeRate = getExchangeFeeRate(exchange, isStable);
         const orderbook = new Orderbook(orderbookRes.bids, orderbookRes.asks, feeRate);
 
         // Simulate the effective amounts of base / quote that would be transacted on the orderbook

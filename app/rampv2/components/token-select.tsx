@@ -80,7 +80,7 @@ export function TokenSelect({
     // Construct Map<address, balance> for balances to add
     // For deposit, this is balances of tokens that can swap into the selected token
     // For bridge, this is balances of tokens that can be bridged from the selected token
-    const swapPairs = getSwapPairs(chainId).filter(([a]) => a.ticker !== "USDT");
+    const swapPairs = getSwapPairs(chainId);
     const additionalBalances = useQueries({
         combine: (results) => {
             // Aggregate balances so that multiple swap-from tokens mapping to the same

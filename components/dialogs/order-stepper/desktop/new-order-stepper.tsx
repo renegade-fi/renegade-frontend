@@ -12,6 +12,9 @@ export interface NewOrderConfirmationProps extends NewOrderFormProps {
     predictedSavings: number;
     relayerFee: number;
     protocolFee: number;
+    totalRenegadeFeeBps: number;
+    protocolFeeBps: number;
+    relayerFeeBps: number;
 }
 
 function NewOrderStepperInner({

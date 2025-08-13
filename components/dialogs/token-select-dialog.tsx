@@ -137,8 +137,6 @@ function TokenList({
     const processedTokens = React.useMemo(() => {
         return DISPLAY_TOKENS({
             chainId,
-            hideHidden: true,
-            hideStables: true,
         })
             .sort((a, b) => {
                 const balanceA = data?.get(a.address) ?? BigInt(0);

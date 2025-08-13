@@ -293,19 +293,28 @@ function convertOrderbookMap(orderbookMap: OrderbookMap, timestamp: number): Ord
 }
 
 /**
- * Fetches the fee rate for the given exchange
+ * Fetches the fee rate for the given exchange.
+ * Special case: Binance has 0 trading fees on USDT/USDC spot pairs.
+ * Source: https://www.binance.com/en/fee/tradingPromote
  */
-export function getExchangeFeeRate(exchange: string): number {
+export function getExchangeFeeRate(exchange: string, isStable?: boolean): number {
+    if (exchange.toLowerCase() === "binance" && isStable) {
+        return 0;
+    }
     switch (exchange.toLowerCase()) {
         case "coinbase":
             // Coinbase taker fee for traders w/ 100k to 1M in monthly trading volume.
             // Source: https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees
             return 0.002;
-        // Kraken Pro taker fee for traders w/ 500k to 1M in monthly trading volume.
-        // Source: https://www.kraken.com/features/fee-schedule
         case "kraken":
+            // Kraken Pro taker fee for traders w/ 500k to 1M in monthly trading volume.
+            // Source: https://www.kraken.com/features/fee-schedule
             return 0.0018;
-        default:
+        case "binance":
+            // Binance taker fee for traders <= 1M in monthly trading volume.
+            // Source: https://www.binance.com/en/fee/trading
             return 0.001;
+        default:
+            throw new Error(`Couldn't find fee rate for exchange: ${exchange}`);
     }
 }

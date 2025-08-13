@@ -21,7 +21,8 @@
             "!coverage",
             "!.turbo",
             "!public",
-            "!**/*.d.ts"
+            "!**/*.d.ts",
+            "!lib/generated.ts"
         ]
     },
     "formatter": {

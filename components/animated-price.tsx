@@ -1,9 +1,10 @@
 import type { Exchange } from "@renegade-fi/react";
 import * as React from "react";
-
+import { createPriceFormatter } from "@/app/trade/[base]/components/charts/fills/helpers";
 import { usePriceQuery } from "@/hooks/use-price-query";
 import { formatDynamicCurrency } from "@/lib/format";
 import { getPriceStatus } from "@/lib/price-status";
+import { resolveAddress, USDT_TICKER } from "@/lib/token";
 import { cn } from "@/lib/utils";
 
 export function AnimatedPrice({
@@ -33,6 +34,12 @@ export function AnimatedPrice({
 
     const { priceColor } = getPriceStatus({ exchange, isStale, mint, price });
 
+    // If the token is USDT, use the price formatter that shows more decimal places
+    let priceFormatter = formatDynamicCurrency;
+    if (resolveAddress(mint).ticker === USDT_TICKER) {
+        priceFormatter = createPriceFormatter();
+    }
+
     return (
         <span
             className={cn("transition-colors", className, priceColor, {
@@ -41,7 +48,7 @@ export function AnimatedPrice({
             })}
             key={animationKey}
         >
-            {formatDynamicCurrency(price)}
+            {priceFormatter(price)}
         </span>
     );
 }

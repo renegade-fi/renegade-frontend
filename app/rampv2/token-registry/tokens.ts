@@ -107,13 +107,4 @@ type ExtraToken = Omit<Token, "chainId" | "address"> & { address: string };
  * Capability overrides for tokens already provided by Renegade's TokenClass map.
  * Only include fields that differ from the defaults set in convertTokenInstance.
  */
-export const RENEGADE_OVERRIDES: Record<number, Record<string, Partial<Token>>> = {
-    [arbitrum.id]: {
-        USDT: {
-            bridgeTo: {},
-            canDeposit: true,
-            canWithdraw: false,
-            swapTo: "USDC",
-        },
-    },
-};
+export const RENEGADE_OVERRIDES: Record<number, Record<string, Partial<Token>>> = {};
