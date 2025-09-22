@@ -9,6 +9,8 @@ import { MAINNET_CHAINS, TESTNET_CHAINS } from "@/providers/wagmi-provider/confi
 
 import { solana } from "./viem";
 
+export type TokenInstance = InstanceType<typeof Token>;
+
 export const USDC_TICKER = "USDC";
 export const USDT_TICKER = "USDT";
 

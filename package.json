@@ -100,7 +100,7 @@
     "scripts": {
         "build": "next build",
         "check": "biome check --write .",
-        "dev": "next dev --turbopack",
+        "dev": "next dev",
         "format": "biome format --write .",
         "lint": "biome lint .",
         "postinstall": "bash ./scripts/postinstall.sh",

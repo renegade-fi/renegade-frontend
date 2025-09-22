@@ -1,16 +1,14 @@
 import {
-    type ColumnDef,
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     type SortingState,
     useReactTable,
-    type VisibilityState,
 } from "@tanstack/react-table";
 import React from "react";
-import { arbitrum, base } from "viem/chains";
 
+import type { BalanceData } from "@/app/stats/actions/types";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -21,24 +19,22 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
-    initialVisibility?: VisibilityState;
+import { columns, getColumnVisibility } from "./columns";
+
+interface BalanceTableProps {
+    data: BalanceData[];
+    selectedChainId: number;
 }
 
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-    chainId,
-}: DataTableProps<TData, TValue> & { chainId: number }) {
-    const [visibility, setVisibility] = React.useState<VisibilityState>({});
+export function BalanceTable({ data, selectedChainId }: BalanceTableProps) {
     const [sorting, setSorting] = React.useState<SortingState>([
         {
             desc: true,
-            id: "totalTvlUsd",
+            id: "totalUsd",
         },
     ]);
+
+    const columnVisibility = getColumnVisibility(selectedChainId);
 
     const table = useReactTable({
         columns,
@@ -46,23 +42,12 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        onColumnVisibilityChange: setVisibility,
         onSortingChange: setSorting,
         state: {
-            columnVisibility: visibility,
+            columnVisibility,
             sorting,
         },
     });
-
-    // If a chain is selected, show only the relevant columns
-    React.useEffect(() => {
-        setVisibility({
-            arbitrumTvlUsd: chainId === arbitrum.id || chainId === 0,
-            baseTvlUsd: chainId === base.id || chainId === 0,
-            ticker: true,
-            totalTvlUsd: chainId === 0,
-        });
-    }, [chainId]);
 
     return (
         <>

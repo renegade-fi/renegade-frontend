@@ -1,6 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
+import { arbitrum, base } from "viem/chains";
 
+import type { BalanceData } from "@/app/stats/actions/types";
 import { TokenIcon } from "@/components/token-icon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -8,24 +10,30 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { formatCurrency, formatNumber } from "@/lib/format";
 import { resolveTicker } from "@/lib/token";
 
-type TvlRow = {
-    /** The ticker of the token */
-    ticker: string;
-    /** Non-decimal corrected amount of TVL on Base */
-    baseTvl: bigint;
-    /** Non-decimal corrected amount of TVL on Arbitrum */
-    arbitrumTvl: bigint;
-    /** The TVL in USD on Base */
-    baseTvlUsd: number;
-    /** The TVL in USD on Arbitrum */
-    arbitrumTvlUsd: number;
-    /** The TVL in USD on Base and Arbitrum */
-    totalTvl: bigint;
-    /** The TVL in USD on Base and Arbitrum */
-    totalTvlUsd: number;
-};
+// Function to get column visibility state based on selected chain ID
+export function getColumnVisibility(selectedChainId: number): Record<string, boolean> {
+    if (selectedChainId === 0) {
+        // Show all columns when "All Chains" is selected
+        return {
+            arbitrumUsd: true,
+            baseUsd: true,
+            ticker: true,
+            totalUsd: true,
+        };
+    }
 
-export const columns: ColumnDef<TvlRow>[] = [
+    // Show only Asset, selected chain, and Total columns
+    const visibility: Record<string, boolean> = {
+        arbitrumUsd: selectedChainId === arbitrum.id,
+        baseUsd: selectedChainId === base.id,
+        ticker: true, // Always show Asset column
+        totalUsd: true, // Always show Total column
+    };
+
+    return visibility;
+}
+
+export const columns: ColumnDef<BalanceData>[] = [
     {
         accessorKey: "ticker",
         cell: ({ row }) => {
@@ -40,20 +48,21 @@ export const columns: ColumnDef<TvlRow>[] = [
         header: () => <div className="pr-7">Asset</div>,
     },
     {
-        accessorKey: "baseTvlUsd",
-        cell: function Cell({ row }) {
+        accessorKey: "baseUsd",
+        cell: ({ row }) => {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
-            const amount = row.original.baseTvl;
-            const formattedUsd = formatCurrency(row.original.baseTvlUsd);
+            const value = row.getValue<number>("baseUsd");
+            const amount = row.original.baseAmount;
+            const isZero = value === 0;
             const formattedAmount = formatNumber(amount, token.decimals);
-            if (!amount) {
-                return <div className="pr-4 text-right">--</div>;
-            }
+
             return (
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formattedUsd}</div>
+                        <div className={`pr-4 text-right ${isZero ? "text-muted" : ""}`}>
+                            {formatCurrency(value)}
+                        </div>
                     </TooltipTrigger>
                     <TooltipContent side="right">
                         {`${formattedAmount} ${token.ticker}`}
@@ -91,20 +100,21 @@ export const columns: ColumnDef<TvlRow>[] = [
         },
     },
     {
-        accessorKey: "arbitrumTvlUsd",
-        cell: function Cell({ row }) {
+        accessorKey: "arbitrumUsd",
+        cell: ({ row }) => {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
-            const amount = row.original.arbitrumTvl;
-            const formattedUsd = formatCurrency(row.original.arbitrumTvlUsd);
+            const value = row.getValue<number>("arbitrumUsd");
+            const amount = row.original.arbitrumAmount;
+            const isZero = value === 0;
             const formattedAmount = formatNumber(amount, token.decimals);
-            if (!amount) {
-                return <div className="pr-4 text-right">--</div>;
-            }
+
             return (
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formattedUsd}</div>
+                        <div className={`pr-4 text-right ${isZero ? "text-muted" : ""}`}>
+                            {formatCurrency(value)}
+                        </div>
                     </TooltipTrigger>
                     <TooltipContent side="right">
                         {`${formattedAmount} ${token.ticker}`}
@@ -142,17 +152,23 @@ export const columns: ColumnDef<TvlRow>[] = [
         },
     },
     {
-        accessorKey: "totalTvlUsd",
-        cell: function Cell({ row }) {
+        accessorKey: "totalUsd",
+        cell: ({ row }) => {
             const ticker = row.getValue<string>("ticker");
             const token = resolveTicker(ticker);
-            const amount = row.original.totalTvl;
-            const formattedUsd = formatCurrency(row.original.totalTvlUsd);
+            const value = row.getValue<number>("totalUsd");
+            const amount = row.original.totalAmount;
+            const isZero = value === 0;
             const formattedAmount = formatNumber(amount, token.decimals);
+
             return (
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="pr-4 text-right">{formattedUsd}</div>
+                        <div
+                            className={`pr-4 text-right font-medium ${isZero ? "text-muted" : ""}`}
+                        >
+                            {formatCurrency(value)}
+                        </div>
                     </TooltipTrigger>
                     <TooltipContent side="right">
                         {`${formattedAmount} ${token.ticker}`}
