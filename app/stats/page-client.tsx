@@ -18,16 +18,16 @@ export function PageClient() {
     const [selectedChainId, setSelectedChainId] = useState<number>(0);
     return (
         <main className="container mb-8 mt-12 flex flex-col gap-12 px-4 lg:px-8">
-            <div className="grid grid-cols-1 gap-4">
+            {/* <div className="grid grid-cols-1 gap-4">
                 <div className="col-span-1">
                     <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
                         Volume
                     </h1>
                     <VolumeChart chainId={selectedChainId} />
                 </div>
-            </div>
+            </div> */}
 
-            <div className="grid grid-cols-1 gap-4">
+            {/* <div className="grid grid-cols-1 gap-4">
                 <div className="col-span-1">
                     <div className="mb-4 mt-6 flex items-center justify-between">
                         <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
@@ -55,7 +55,7 @@ export function PageClient() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div className="grid grid-cols-1 grid-rows-[1fr] gap-12 lg:gap-4">
                 <div className="col-span-1 flex flex-col">
@@ -65,7 +65,7 @@ export function PageClient() {
                     <TvlSection chainId={selectedChainId} />
                 </div>
             </div>
-
+            {/* 
             <div className="grid grid-cols-1 gap-4">
                 <div className="col-span-1">
                     <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
@@ -73,7 +73,7 @@ export function PageClient() {
                     </h1>
                     <InflowsChart chainId={selectedChainId} />
                 </div>
-            </div>
+            </div> */}
         </main>
     );
 }

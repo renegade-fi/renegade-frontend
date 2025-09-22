@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
         const rpcUrl = getAlchemyRpcUrl(chainId);
         const sdkConfig = getSDKConfig(chainId);
-        const tokens = DISPLAY_TOKENS({ chainId });
+        const tokens = DISPLAY_TOKENS({ chainId, hideQuoteTokens: false });
 
         const tvlData = await Promise.all(
             tokens.map(async (token) => {

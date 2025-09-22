@@ -27,7 +27,6 @@ export function ServerStoreProvider({ children, cookieString }: ServerStoreProvi
     if (!storeRef.current) {
         const maybeInitialState = cookieToInitialState(STORAGE_SERVER_STORE, cookieString ?? "");
         const initialState = maybeInitialState ?? initServerStore(chainId);
-        console.log("[ServerStoreProvider] initialState", initialState);
         storeRef.current = createServerStore(initialState);
     }
 
@@ -36,7 +35,6 @@ export function ServerStoreProvider({ children, cookieString }: ServerStoreProvi
     useLayoutEffect(() => {
         (async () => {
             if (storeRef.current) {
-                console.log("[ServerStoreProvider] rehydrating");
                 await storeRef.current.persist.rehydrate();
             }
         })();
