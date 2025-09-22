@@ -40,10 +40,10 @@ const WETH = resolveTicker("WETH");
 const USDC = resolveTicker("USDC");
 
 export const initServerStore = (chainId: string | null): ServerState => {
-    if (chainId && isSupportedChainId(Number.parseInt(chainId) as ChainId)) {
+    if (chainId && isSupportedChainId(Number.parseInt(chainId, 10 /* radix */) as ChainId)) {
         return {
             ...defaultInitState,
-            chainId: Number.parseInt(chainId) as ChainId,
+            chainId: Number.parseInt(chainId, 10 /* radix */) as ChainId,
         };
     }
     return defaultInitState;

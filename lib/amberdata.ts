@@ -38,17 +38,20 @@ export async function fetchBars({
         currentFrom = currentTo;
     }
 
-    const fetchPromises = chunks.map((chunk) => {
+    const fetchPromises = [];
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
         const chunkUrl = new URL(url.toString());
         chunkUrl.searchParams.set("startDate", chunk.from.toString());
         chunkUrl.searchParams.set("endDate", chunk.to.toString());
-        return makeAmberApiRequest(chunkUrl);
-    });
+        fetchPromises.push(makeAmberApiRequest(chunkUrl));
+    }
 
     const responses = await Promise.all(fetchPromises);
     const bars: Bar[] = [];
     for (const response of responses) {
-        response.payload.data.map((res: any) => {
+        for (let i = 0; i < response.payload.data.length; i++) {
+            const res = response.payload.data[i];
             const bar: Bar = {
                 close: res.close,
                 high: res.high,
@@ -58,7 +61,7 @@ export async function fetchBars({
                 volume: res.volume,
             };
             bars.push(bar);
-        });
+        }
     }
     return bars;
 }

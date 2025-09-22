@@ -18,7 +18,7 @@ const precisionFormatter = new Intl.NumberFormat("en", {
     maximumFractionDigits: 2,
     maximumSignificantDigits: 2,
     notation: "standard",
-    // @ts-ignore
+    // @ts-expect-error
     roundingPriority: "morePrecision",
     useGrouping: false,
 });
@@ -27,7 +27,7 @@ const longPrecisionFormatter = new Intl.NumberFormat("en", {
     maximumFractionDigits: 4,
     maximumSignificantDigits: 4,
     notation: "standard",
-    // @ts-ignore
+    // @ts-expect-error
     roundingPriority: "morePrecision",
     useGrouping: false,
 });

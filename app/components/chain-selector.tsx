@@ -43,7 +43,7 @@ export function ChainSelector() {
      *   mismatch modals between token chain and app chain state
      */
     const handleChainSelect = (chainValue: string) => {
-        const chainId = Number.parseInt(chainValue) as ChainId;
+        const chainId = Number.parseInt(chainValue, 10 /* radix */) as ChainId;
         const isMultiChain = isAddressMultiChain(baseMint);
         const isTradePage = pathname.startsWith("/trade");
         const chainName = getFormattedChainName(chainId).toLowerCase();

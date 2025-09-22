@@ -28,7 +28,10 @@ export async function GET(req: NextRequest) {
     const inflowsKey = getInflowsKey(chainId);
     const inflowsSetKey = getInflowsSetKey(chainId);
     try {
-        const intervalMs = parseInt(req.nextUrl.searchParams.get("interval") || "86400000");
+        const intervalMs = parseInt(
+            req.nextUrl.searchParams.get("interval") || "86400000",
+            10 /* radix */,
+        );
 
         const transactionHashes = await getAllSetMembers(inflowsSetKey);
 
@@ -80,7 +83,7 @@ export async function GET(req: NextRequest) {
         });
 
         const sortedBucketData = Object.values(buckets).sort(
-            (a, b) => parseInt(a.timestamp) - parseInt(b.timestamp),
+            (a, b) => parseInt(a.timestamp, 10 /* radix */) - parseInt(b.timestamp, 10 /* radix */),
         );
 
         return new Response(JSON.stringify({ data: sortedBucketData, intervalMs }), {

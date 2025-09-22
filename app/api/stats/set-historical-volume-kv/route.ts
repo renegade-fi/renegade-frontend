@@ -44,9 +44,12 @@ export async function GET(req: NextRequest) {
         const ddog = new DDogClient(env.DD_API_KEY, env.DD_APP_KEY, chainSpecifier, env.DD_SERVICE);
         const { searchParams } = new URL(req.url);
         const params: SearchParams = {
-            from: parseInt(searchParams.get("from") ?? String(DEFAULT_PARAMS.from)),
-            interval: parseInt(searchParams.get("interval") ?? String(DEFAULT_PARAMS.interval)),
-            to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to)),
+            from: parseInt(searchParams.get("from") ?? String(DEFAULT_PARAMS.from), 10 /* radix */),
+            interval: parseInt(
+                searchParams.get("interval") ?? String(DEFAULT_PARAMS.interval),
+                10 /* radix */,
+            ),
+            to: parseInt(searchParams.get("to") ?? String(DEFAULT_PARAMS.to), 10 /* radix */),
         };
 
         console.log(`Parameters: ${JSON.stringify(params)}`);

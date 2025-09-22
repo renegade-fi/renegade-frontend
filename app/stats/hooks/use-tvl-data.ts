@@ -93,8 +93,16 @@ export function useTvlData(chainId: number): PricedTvl[] {
     // Collect all mint addresses we must price
     const mintAddresses = useMemo(() => {
         const set = new Set<`0x${string}`>();
-        arbTvl?.forEach((t) => set.add(t.address));
-        baseTvl?.forEach((t) => set.add(t.address));
+        if (arbTvl) {
+            for (const t of arbTvl) {
+                set.add(t.address);
+            }
+        }
+        if (baseTvl) {
+            for (const t of baseTvl) {
+                set.add(t.address);
+            }
+        }
         return [...set];
     }, [arbTvl, baseTvl]);
 
