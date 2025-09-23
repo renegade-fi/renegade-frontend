@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     try {
         // Get all token prices
         console.log("Fetching token prices");
-        const tokens = DISPLAY_TOKENS({ chainId });
+        const tokens = DISPLAY_TOKENS({ chainId, hideQuoteTokens: false });
 
         const pricePromises = tokens.map((token) => client.getPrice(token.address));
         const priceResults = await Promise.all(pricePromises);

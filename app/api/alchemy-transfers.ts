@@ -35,7 +35,9 @@ export async function getAssetTransfers({
     chainId: number;
 }): Promise<AlchemyTransfer[]> {
     const darkpool = getSDKConfig(chainId).darkpoolAddress.toLowerCase();
-    const tokenAddresses = DISPLAY_TOKENS({ chainId }).map((t) => t.address);
+    const tokenAddresses = DISPLAY_TOKENS({ chainId, hideQuoteTokens: false }).map(
+        (t) => t.address,
+    );
     const baseParams: Record<string, any> = {
         category: ["erc20"],
         contractAddresses: tokenAddresses,
