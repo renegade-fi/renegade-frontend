@@ -11,15 +11,14 @@ import {
 } from "@/app/api/utils";
 
 import { env as clientEnv } from "@/env/client";
-import { ADDITIONAL_TOKENS, DISPLAY_TOKENS, ETHEREUM_TOKENS, SOLANA_TOKENS } from "@/lib/token";
+import { ADDITIONAL_TOKENS, ETHEREUM_TOKENS, getAllTokens, SOLANA_TOKENS } from "@/lib/token";
 import { solana } from "@/lib/viem";
 
 export const runtime = "edge";
 
-const tokens = DISPLAY_TOKENS({
-    chainId:
-        clientEnv.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? arbitrum.id : arbitrumSepolia.id,
-});
+const chainId =
+    clientEnv.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? arbitrum.id : arbitrumSepolia.id;
+const allTokens = getAllTokens(chainId);
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
@@ -38,7 +37,7 @@ export async function GET(req: Request) {
         await Promise.all([
             // Arbitrum token balances
             Promise.all(
-                tokens.map(async (token) => ({
+                allTokens.map(async (token) => ({
                     balance: await readErc20BalanceOf(
                         getAlchemyRpcUrl(arbitrum.id),
                         token.address,

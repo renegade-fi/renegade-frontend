@@ -2,7 +2,7 @@ import { getSDKConfig } from "@renegade-fi/react";
 
 import { getAlchemyRpcUrl } from "@/app/api/utils";
 
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllTokens } from "@/lib/token";
 
 export interface AlchemyTransfer {
     blockNum: string;
@@ -35,12 +35,10 @@ export async function getAssetTransfers({
     chainId: number;
 }): Promise<AlchemyTransfer[]> {
     const darkpool = getSDKConfig(chainId).darkpoolAddress.toLowerCase();
-    const tokenAddresses = DISPLAY_TOKENS({ chainId, hideQuoteTokens: false }).map(
-        (t) => t.address,
-    );
+    const allMints = getAllTokens(chainId).map((t) => t.address);
     const baseParams: Record<string, any> = {
         category: ["erc20"],
-        contractAddresses: tokenAddresses,
+        contractAddresses: allMints,
         excludeZeroValue: false,
         fromBlock: `0x${fromBlock.toString(16)}`,
         maxCount: "0xa",

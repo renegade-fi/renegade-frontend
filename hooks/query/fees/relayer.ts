@@ -1,7 +1,7 @@
 import { getSDKConfig } from "@renegade-fi/react";
 import type { ChainId } from "@renegade-fi/react/constants";
 import { queryOptions } from "@tanstack/react-query";
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllBaseTokens } from "@/lib/token";
 import { BPS_PER_DECIMAL } from "./constants";
 
 interface QueryParams {
@@ -29,13 +29,8 @@ export function relayerFeeMapQueryOptions(params: QueryParams) {
             const host = sdkCfg.relayerUrl;
             const baseUrl = `https://${host}`;
 
-            const tickersParam = Array.from(
-                new Set(
-                    DISPLAY_TOKENS({ chainId: params.chainId, hideQuoteTokens: false }).map((t) =>
-                        t.ticker.toUpperCase(),
-                    ),
-                ),
-            ).join(",");
+            const allTickers = getAllBaseTokens(params.chainId).map((t) => t.ticker.toUpperCase());
+            const tickersParam = Array.from(new Set(allTickers)).join(",");
 
             const url = `${baseUrl}/v0/order_book/relayer-fees?tickers=${tickersParam}`;
             const res = await fetch(url);

@@ -26,7 +26,7 @@ import {
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllTokens } from "@/lib/token";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
 interface DataTableProps<TData, TValue> {
@@ -105,7 +105,7 @@ export function DataTable<TData, TValue>({
     }, [isWithdrawal, table]);
 
     const chainId = useCurrentChain();
-    const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
+    const tokens = getAllTokens(chainId).map((token) => ({
         label: token.ticker,
         value: token.address,
     }));

@@ -14,7 +14,7 @@ import { validateTransferLogCounts } from "@/app/api/stats/helpers";
 
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { client } from "@/lib/clients/price-reporter";
-import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token";
+import { getAllTokens, resolveAddress } from "@/lib/token";
 import { getDeployBlock } from "@/lib/viem";
 
 export const maxDuration = 300;
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     try {
         // Get all token prices
         console.log("Fetching token prices");
-        const tokens = DISPLAY_TOKENS({ chainId, hideQuoteTokens: false });
+        const tokens = getAllTokens(chainId);
 
         const pricePromises = tokens.map((token) => client.getPrice(token.address));
         const priceResults = await Promise.all(pricePromises);

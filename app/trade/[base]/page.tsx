@@ -3,13 +3,13 @@ import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query
 import { redirect } from "next/navigation";
 import { PageClient } from "@/app/trade/[base]/page-client";
 import { env } from "@/env/client";
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllBaseTokens } from "@/lib/token";
 import { getTickerRedirect, hydrateServerState } from "./utils";
 
 export async function generateStaticParams() {
-    const tokens = DISPLAY_TOKENS();
-    return tokens.map((token) => ({
-        base: token.ticker,
+    const allTickers = getAllBaseTokens().map((token) => token.ticker);
+    return allTickers.map((ticker) => ({
+        base: ticker,
     }));
 }
 

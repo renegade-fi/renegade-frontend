@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllBaseTokens } from "@/lib/token";
 import { cn } from "@/lib/utils";
 
 type TokenSelectProps = {
@@ -26,11 +26,8 @@ export function TokenSelect({ value, onChange, chainId }: TokenSelectProps) {
     const [open, setOpen] = React.useState(false);
 
     const tokens = useMemo(() => {
-        const res = new Set<string>(
-            DISPLAY_TOKENS({
-                chainId: chainId ? chainId : undefined,
-            }).map((token) => token.ticker),
-        );
+        const allTickers = getAllBaseTokens(chainId).map((token) => token.ticker);
+        const res = new Set<string>(allTickers);
 
         return Array.from(res).map((ticker) => ({
             label: ticker,

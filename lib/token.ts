@@ -14,22 +14,24 @@ export type TokenInstance = InstanceType<typeof Token>;
 export const USDC_TICKER = "USDC";
 export const USDT_TICKER = "USDT";
 
-export const DISPLAY_TOKENS = (
-    options: { hideQuoteTokens?: boolean; hideTickers?: Array<string>; chainId?: number } = {},
-) => {
-    const { hideQuoteTokens = true, hideTickers = [], chainId } = options;
-    let tokens =
-        chainId && isSupportedChainId(chainId)
-            ? Token.getAllTokensOnChain(chainId)
-            : Token.getAllTokens();
-    if (hideQuoteTokens) {
-        tokens = tokens.filter((token) => token.ticker !== USDC_TICKER);
+/** Get all tokens in the remap */
+export function getAllTokens(chainId?: number): TokenInstance[] {
+    if (chainId && isSupportedChainId(chainId)) {
+        return Token.getAllTokensOnChain(chainId);
     }
-    if (hideTickers.length > 0) {
-        tokens = tokens.filter((token) => !hideTickers.includes(token.ticker));
+    return Token.getAllTokens();
+}
+
+/** Get all base tokens in the remap */
+export function getAllBaseTokens(chainId?: number): TokenInstance[] {
+    let tokens = [];
+    if (chainId && isSupportedChainId(chainId)) {
+        tokens = Token.getAllTokensOnChain(chainId);
+    } else {
+        tokens = Token.getAllTokens();
     }
-    return tokens;
-};
+    return tokens.filter((token) => token.ticker !== USDC_TICKER);
+}
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 const DEFAULT_TOKEN = Token.create("UNKNOWN", "UNKNOWN", zeroAddress, 18, {});

@@ -23,7 +23,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { formatNumber } from "@/lib/format";
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllBaseTokens } from "@/lib/token";
 import { useClientStore } from "@/providers/state-provider/client-store-provider";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
@@ -135,9 +135,8 @@ function TokenList({
 
     const chainId = useCurrentChain();
     const processedTokens = React.useMemo(() => {
-        return DISPLAY_TOKENS({
-            chainId,
-        })
+        const allTokens = getAllBaseTokens(chainId);
+        return allTokens
             .sort((a, b) => {
                 const balanceA = data?.get(a.address) ?? BigInt(0);
                 const balanceB = data?.get(b.address) ?? BigInt(0);

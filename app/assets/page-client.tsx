@@ -17,7 +17,7 @@ import {
 import { useTaskHistory } from "@/hooks/query/use-task-history";
 import { useAssetsTableData } from "@/hooks/use-assets-table-data";
 import { ASSETS_TOOLTIP } from "@/lib/constants/tooltips";
-import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token";
+import { getAllTokens, resolveAddress } from "@/lib/token";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
 import { columns as assetColumns } from "./assets-table/columns";
@@ -37,8 +37,9 @@ export function PageClient() {
     const [showZeroRenegadeBalance, setShowZeroRenegadeBalance] = React.useState(true);
     const [showZeroOnChainBalance, setShowZeroOnChainBalance] = React.useState(true);
 
+    const allMints = getAllTokens(chainId).map((token) => token.address);
     const rawTableData = useAssetsTableData({
-        mints: DISPLAY_TOKENS({ chainId }).map((token) => token.address),
+        mints: allMints,
     });
 
     const filteredTableData = React.useMemo(() => {

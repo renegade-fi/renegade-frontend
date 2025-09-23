@@ -14,13 +14,14 @@ import {
 
 import { useAssetsTableData } from "@/hooks/use-assets-table-data";
 import { formatCurrency, formatCurrencyFromString } from "@/lib/format";
-import { DISPLAY_TOKENS, resolveAddress } from "@/lib/token";
+import { getAllTokens, resolveAddress } from "@/lib/token";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
 export function AssetsMenuItem() {
     const chainId = useCurrentChain();
+    const allMints = getAllTokens(chainId).map((token) => token.address);
     const tokenData = useAssetsTableData({
-        mints: DISPLAY_TOKENS({ chainId }).map((token) => token.address),
+        mints: allMints,
     });
 
     const totalRenegadeBalanceUsd = React.useMemo(() => {

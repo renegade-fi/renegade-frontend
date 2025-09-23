@@ -5,7 +5,7 @@ import { formatUnits } from "viem";
 import { arbitrum, base } from "viem/chains";
 import { getServerWagmiConfig } from "@/app/lib/server-wagmi-config";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllTokens } from "@/lib/token";
 import { fetchAllTokenPrices, fetchChainBalances, mergeBalancesByTicker } from "./balance-helpers";
 import type { BalanceData, BalanceDataWithTotal, PricedBalance, RawBalance } from "./types";
 
@@ -22,14 +22,14 @@ export async function fetchDarkpoolBalances(): Promise<BalanceDataWithTotal> {
         const baseDarkpoolAddress = baseConfig.darkpoolAddress;
 
         // Get tokens and config for balance fetching
-        const arbitrumTokens = DISPLAY_TOKENS({ chainId: arbitrum.id, hideQuoteTokens: false });
-        const baseTokens = DISPLAY_TOKENS({ chainId: base.id, hideQuoteTokens: false });
+        const allArbitrumMints = getAllTokens(arbitrum.id);
+        const allBaseMints = getAllTokens(base.id);
         const wagmiConfig = getServerWagmiConfig();
 
         // Fetch balances first to get all mint addresses
         const [arbitrumBalances, baseBalances] = await Promise.all([
-            fetchChainBalances(arbitrum.id, arbitrumDarkpoolAddress, arbitrumTokens, wagmiConfig),
-            fetchChainBalances(base.id, baseDarkpoolAddress, baseTokens, wagmiConfig),
+            fetchChainBalances(arbitrum.id, arbitrumDarkpoolAddress, allArbitrumMints, wagmiConfig),
+            fetchChainBalances(base.id, baseDarkpoolAddress, allBaseMints, wagmiConfig),
         ]);
 
         // Collect all unique mint addresses

@@ -33,7 +33,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 import { useCancelAllOrders } from "@/hooks/use-cancel-all-orders";
 import type { ExtendedOrderMetadata } from "@/hooks/use-order-table-data";
-import { DISPLAY_TOKENS } from "@/lib/token";
+import { getAllBaseTokens } from "@/lib/token";
 import { cn } from "@/lib/utils";
 import { useCurrentChain } from "@/providers/state-provider/hooks";
 
@@ -156,7 +156,7 @@ export function DataTable<TData, TValue>({
     }, [mint, table]);
 
     const chainId = useCurrentChain();
-    const tokens = DISPLAY_TOKENS({ chainId }).map((token) => ({
+    const tokens = getAllBaseTokens(chainId).map((token) => ({
         label: token.ticker,
         value: token.address,
     }));
