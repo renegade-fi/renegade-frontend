@@ -40,7 +40,7 @@ const defaultConnectors = ({
 
     // Add the rest of the connectors
     connectors.push(
-        injected({ target: "metaMask" }),
+        injected({ shimDisconnect: true, target: "metaMask" }),
         coinbaseWallet({
             appLogoUrl: app.icon,
             appName: app.name,
