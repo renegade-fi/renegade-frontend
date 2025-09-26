@@ -1,5 +1,7 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { balanceQueryOptions } from "@/app/stats/hooks/balance-query-options";
+import { netFlowQueryOptions } from "@/app/stats/hooks/net-flow-query-options";
+import { transferQueryOptions } from "@/app/stats/hooks/transfer-query-options";
 import { PageClient } from "@/app/stats/page-client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,8 +9,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default async function Page() {
     const queryClient = new QueryClient();
 
-    // Prefetch balance data
-    await queryClient.prefetchQuery(balanceQueryOptions());
+    // Prefetch balance, transfer, and net flow data
+    await Promise.all([
+        queryClient.prefetchQuery(balanceQueryOptions()),
+        queryClient.prefetchQuery(transferQueryOptions()),
+        queryClient.prefetchQuery(netFlowQueryOptions()), // All chains
+    ]);
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>

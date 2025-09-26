@@ -61,5 +61,8 @@ export const env = createEnv({
 
         /** Vercel KV connection URL */
         KV_URL: z.string().optional(),
+
+        /** Neon database connection URL */
+        ON_CHAIN_EVENTS_DATABASE_URL: z.string().url(),
     },
 });
