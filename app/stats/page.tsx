@@ -11,9 +11,9 @@ export default async function Page() {
 
     // Prefetch balance, transfer, and net flow data
     await Promise.all([
-        queryClient.prefetchQuery(balanceQueryOptions()),
-        queryClient.prefetchQuery(transferQueryOptions()),
-        queryClient.prefetchQuery(netFlowQueryOptions()), // All chains
+        queryClient.prefetchQuery(balanceQueryOptions(0)),
+        queryClient.prefetchQuery(transferQueryOptions(0)),
+        queryClient.prefetchQuery(netFlowQueryOptions(0)),
     ]);
 
     return (
