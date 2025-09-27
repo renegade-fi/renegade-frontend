@@ -15,6 +15,10 @@
         {
             "path": "/api/stats/set-historical-volume-kv?chainId=8453",
             "schedule": "* * * * *"
+        },
+        {
+            "path": "/api/crons/darkpool-flow",
+            "schedule": "* * * * *"
         }
     ]
 }
