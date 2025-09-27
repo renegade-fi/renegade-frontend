@@ -1,10 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import numeral from "numeral";
 import * as React from "react";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { arbitrum, base } from "viem/chains";
-import type { NetFlowData } from "@/app/stats/actions/fetch-net-flow";
-import type { TransferData } from "@/app/stats/actions/fetch-transfer-data";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,6 +17,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { extractSupportedChain, getFormattedChainName } from "@/lib/viem";
+import { netFlowQueryOptions } from "../hooks/net-flow-query-options";
+import { transferQueryOptions } from "../hooks/transfer-query-options";
 
 type ChartData = {
     date: string;
@@ -50,12 +51,13 @@ const chartConfig = {
 // No transformation needed
 
 interface InflowsChartProps {
-    chainId: number;
-    transferData: TransferData[];
-    netFlowData: NetFlowData;
+    chainId: 0 | 42161 | 8453;
 }
 
-export function InflowsChart({ chainId, transferData, netFlowData }: InflowsChartProps) {
+export function InflowsChart({ chainId }: InflowsChartProps) {
+    const { data: transferData } = useQuery(transferQueryOptions(chainId));
+    const { data: netFlowData } = useQuery(netFlowQueryOptions(chainId));
+
     const chartData = React.useMemo(() => {
         if (!transferData) return [];
 
@@ -69,7 +71,7 @@ export function InflowsChart({ chainId, transferData, netFlowData }: InflowsChar
         return filteredData;
     }, [transferData, chainId]);
 
-    const isSuccess = netFlowData !== null;
+    const isSuccess = netFlowData !== undefined;
 
     const chainSuffix = useMemo(() => {
         if (!chainId) return "";

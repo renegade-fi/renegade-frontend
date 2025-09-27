@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { Info } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,14 +9,9 @@ import { BalanceSection } from "./charts/balance/balance-section";
 import { InflowsChart } from "./charts/inflows-chart";
 import { TimeToFillCard } from "./charts/time-to-fill-card";
 import { VolumeChart } from "./charts/volume-chart";
-import { balanceQueryOptions } from "./hooks/balance-query-options";
-import { netFlowQueryOptions } from "./hooks/net-flow-query-options";
-import { transferQueryOptions } from "./hooks/transfer-query-options";
+
 export function PageClient() {
     const [selectedChainId, setSelectedChainId] = useState<0 | 42161 | 8453>(0);
-    const { data: balanceData } = useQuery(balanceQueryOptions(selectedChainId));
-    const { data: transferData } = useQuery(transferQueryOptions(selectedChainId));
-    const { data: netFlowData } = useQuery(netFlowQueryOptions(selectedChainId));
     return (
         <main className="container mb-8 mt-12 flex flex-col gap-12 px-4 lg:px-8">
             <div className="grid grid-cols-1 gap-4">
@@ -67,12 +61,7 @@ export function PageClient() {
                     <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
                         Total Value Deposited
                     </h1>
-                    {balanceData && (
-                        <BalanceSection
-                            balanceData={balanceData}
-                            selectedChainId={selectedChainId}
-                        />
-                    )}
+                    <BalanceSection chainId={selectedChainId} />
                 </div>
             </div>
 
@@ -81,11 +70,7 @@ export function PageClient() {
                     <h1 className="mb-4 mt-6 font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
                         Inflows
                     </h1>
-                    <InflowsChart
-                        chainId={selectedChainId}
-                        netFlowData={netFlowData || { netFlow: 0 }}
-                        transferData={transferData || []}
-                    />
+                    <InflowsChart chainId={selectedChainId} />
                 </div>
             </div>
         </main>
