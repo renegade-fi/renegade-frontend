@@ -61,5 +61,11 @@ export const env = createEnv({
 
         /** Vercel KV connection URL */
         KV_URL: z.string().optional(),
+
+        /** TWAP server HTTP auth password */
+        TWAP_HTTP_AUTH_PASSWORD: z.string().min(1),
+
+        /** TWAP server URL */
+        TWAP_SERVER_URL: z.url(),
     },
 });
