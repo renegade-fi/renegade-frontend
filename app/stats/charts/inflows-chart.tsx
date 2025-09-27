@@ -1,13 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import numeral from "numeral";
 import * as React from "react";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { arbitrum, base } from "viem/chains";
-
-import {
-    type TransferData,
-    useExternalTransferLogs,
-} from "@/app/stats/hooks/use-external-transfer-data";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,9 +17,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { extractSupportedChain, getFormattedChainName } from "@/lib/viem";
+import { netFlowQueryOptions } from "../hooks/net-flow-query-options";
+import { transferQueryOptions } from "../hooks/transfer-query-options";
 
 type ChartData = {
-    timestamp: string;
+    date: string;
     arbitrumDeposits: number;
     baseDeposits: number;
     arbitrumWithdrawals: number;
@@ -49,34 +47,21 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-function computeChartData(arbitrumData: TransferData, baseData: TransferData) {
-    const data: ChartData[] = [];
-    for (const [timestamp, bucket] of arbitrumData.entries()) {
-        const arbitrumDeposits = bucket.depositAmount;
-        const arbitrumWithdrawals = bucket.withdrawalAmount * -1;
-        const baseDeposits = baseData.get(timestamp)?.depositAmount ?? 0;
-        const baseWithdrawals = (baseData.get(timestamp)?.withdrawalAmount ?? 0) * -1;
-        data.push({
-            arbitrumDeposits,
-            arbitrumWithdrawals,
-            baseDeposits,
-            baseWithdrawals,
-            timestamp: timestamp.toString(),
-        });
-    }
-    return data;
+// Data is already in the correct format from the server action
+// No transformation needed
+
+interface InflowsChartProps {
+    chainId: 0 | 42161 | 8453;
 }
 
-export function InflowsChart({ chainId }: { chainId: number }) {
-    const { data: arbitrumData } = useExternalTransferLogs({
-        chainId: arbitrum.id,
-    });
-    const { data: baseData } = useExternalTransferLogs({ chainId: base.id });
+export function InflowsChart({ chainId }: InflowsChartProps) {
+    const { data: transferData } = useQuery(transferQueryOptions(chainId));
+    const { data: netFlowData } = useQuery(netFlowQueryOptions(chainId));
 
     const chartData = React.useMemo(() => {
-        if (!arbitrumData || !baseData) return [];
-        const data = computeChartData(arbitrumData, baseData);
-        const filteredData = data.filter((item) => {
+        if (!transferData) return [];
+
+        const filteredData = transferData.filter((item) => {
             if (!chainId) return true;
             if (chainId === arbitrum.id)
                 return item.arbitrumDeposits > 0 || item.arbitrumWithdrawals > 0;
@@ -84,40 +69,9 @@ export function InflowsChart({ chainId }: { chainId: number }) {
             return true;
         });
         return filteredData;
-    }, [arbitrumData, baseData, chainId]);
+    }, [transferData, chainId]);
 
-    const netFlowData = React.useMemo(() => {
-        if (chartData.length === 0) return null;
-
-        const lastTimestamp = Math.max(...chartData.map((item) => Number(item.timestamp)));
-
-        // Calculate the start time (24 hours before the last timestamp)
-        const startTime = lastTimestamp - 24 * 60 * 60 * 1000;
-
-        const last24HoursData = chartData.filter((item) => {
-            const itemTimestamp = Number(item.timestamp);
-            return itemTimestamp > startTime;
-        });
-
-        const netFlow = last24HoursData.reduce((sum, item) => {
-            if (chainId === arbitrum.id) {
-                return sum + item.arbitrumDeposits + item.arbitrumWithdrawals;
-            } else if (chainId === base.id) {
-                return sum + item.baseDeposits + item.baseWithdrawals;
-            }
-            return (
-                sum +
-                item.arbitrumDeposits +
-                item.baseDeposits +
-                item.arbitrumWithdrawals +
-                item.baseWithdrawals
-            );
-        }, 0);
-
-        return { netFlow };
-    }, [chainId, chartData]);
-
-    const isSuccess = netFlowData !== null;
+    const isSuccess = netFlowData !== undefined;
 
     const chainSuffix = useMemo(() => {
         if (!chainId) return "";
@@ -156,10 +110,10 @@ export function InflowsChart({ chainId }: { chainId: number }) {
                         <CartesianGrid vertical={false} />
                         <XAxis
                             axisLine={false}
-                            dataKey="timestamp"
+                            dataKey="date"
                             minTickGap={32}
                             tickFormatter={(value) => {
-                                const date = new Date(Number(value));
+                                const date = new Date(value);
                                 return date.toLocaleDateString("en-US", {
                                     day: "numeric",
                                     month: "short",
@@ -196,7 +150,7 @@ export function InflowsChart({ chainId }: { chainId: number }) {
                                         );
                                     }}
                                     labelFormatter={(value) => {
-                                        return new Date(Number(value)).toLocaleDateString("en-US", {
+                                        return new Date(value).toLocaleDateString("en-US", {
                                             day: "numeric",
                                             month: "short",
                                             timeZone: "UTC",
