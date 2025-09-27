@@ -14,18 +14,30 @@ export interface TransferData {
 /**
  * Fetch raw transfer data from the database grouped by day and chain
  */
-async function fetchRawTransferData(sql: NeonQueryFunction<false, false>) {
-    return await sql`
-        SELECT 
-            day as date,
-            chain_id,
-            SUM(CASE WHEN direction = 'deposit' THEN usd_value ELSE 0 END) as deposit_amount,
-            SUM(CASE WHEN direction = 'withdrawal' THEN usd_value ELSE 0 END) as withdrawal_amount
-        FROM darkpool_transfer 
-        WHERE usd_value IS NOT NULL
-        GROUP BY day, chain_id 
-        ORDER BY day DESC
-    `;
+async function fetchRawTransferData(sql: NeonQueryFunction<false, false>, chainId?: number) {
+    return chainId
+        ? await sql`
+            SELECT 
+                day as date,
+                chain_id,
+                SUM(CASE WHEN direction = 'deposit' THEN usd_value ELSE 0 END) as deposit_amount,
+                SUM(CASE WHEN direction = 'withdrawal' THEN usd_value ELSE 0 END) as withdrawal_amount
+            FROM darkpool_transfer 
+            WHERE usd_value IS NOT NULL AND chain_id = ${chainId}
+            GROUP BY day, chain_id 
+            ORDER BY day DESC
+        `
+        : await sql`
+            SELECT 
+                day as date,
+                chain_id,
+                SUM(CASE WHEN direction = 'deposit' THEN usd_value ELSE 0 END) as deposit_amount,
+                SUM(CASE WHEN direction = 'withdrawal' THEN usd_value ELSE 0 END) as withdrawal_amount
+            FROM darkpool_transfer 
+            WHERE usd_value IS NOT NULL
+            GROUP BY day, chain_id 
+            ORDER BY day DESC
+        `;
 }
 
 /**
@@ -105,12 +117,12 @@ function processTransferData(rawData: any[]): TransferData[] {
  * Returns daily aggregated deposit and withdrawal amounts by chain
  * Compatible with updated schema (removed block_hash, tx_index, log_index)
  */
-export async function fetchTransferData(): Promise<TransferData[]> {
+export async function fetchTransferData(chainId?: number): Promise<TransferData[]> {
     try {
         const sql = neon(env.ON_CHAIN_EVENTS_DATABASE_URL);
 
         // Step 1: Fetch raw data from database
-        const rawData = await fetchRawTransferData(sql);
+        const rawData = await fetchRawTransferData(sql, chainId);
 
         // Step 2: Process and transform the data
         const processedData = processTransferData(rawData);

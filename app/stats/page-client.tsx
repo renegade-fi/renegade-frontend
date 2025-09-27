@@ -13,12 +13,11 @@ import { VolumeChart } from "./charts/volume-chart";
 import { balanceQueryOptions } from "./hooks/balance-query-options";
 import { netFlowQueryOptions } from "./hooks/net-flow-query-options";
 import { transferQueryOptions } from "./hooks/transfer-query-options";
-
 export function PageClient() {
-    const [selectedChainId, setSelectedChainId] = useState<number>(0);
-    const { data: balanceData } = useQuery(balanceQueryOptions());
-    const { data: transferData } = useQuery(transferQueryOptions());
-    const { data: netFlowData } = useQuery(netFlowQueryOptions(selectedChainId || undefined));
+    const [selectedChainId, setSelectedChainId] = useState<0 | 42161 | 8453>(0);
+    const { data: balanceData } = useQuery(balanceQueryOptions(selectedChainId));
+    const { data: transferData } = useQuery(transferQueryOptions(selectedChainId));
+    const { data: netFlowData } = useQuery(netFlowQueryOptions(selectedChainId));
     return (
         <main className="container mb-8 mt-12 flex flex-col gap-12 px-4 lg:px-8">
             <div className="grid grid-cols-1 gap-4">
@@ -36,7 +35,10 @@ export function PageClient() {
                         <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
                             Time to Fill
                         </h1>
-                        <ChainSelector chainId={selectedChainId} onChange={setSelectedChainId} />
+                        <ChainSelector
+                            chainId={selectedChainId}
+                            onChange={(chainId) => setSelectedChainId(chainId as 0 | 42161 | 8453)}
+                        />
                     </div>
                     <div className="relative border py-16">
                         <TimeToFillCard chainId={selectedChainId} />

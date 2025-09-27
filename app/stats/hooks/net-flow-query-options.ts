@@ -2,16 +2,17 @@ import type { UseQueryOptions } from "@tanstack/react-query";
 import type { NetFlowData } from "@/app/stats/actions/fetch-net-flow";
 import { fetchNetFlow } from "@/app/stats/actions/fetch-net-flow";
 
-type QueryKey = ["stats", "net-flow", number?];
+type QueryKey = ["stats", "net-flow", string];
 
 /** Factory function returning query options for the net flow query */
 export function netFlowQueryOptions(
-    chainId?: number,
+    chainId: 0 | 42161 | 8453,
 ): UseQueryOptions<NetFlowData, Error, NetFlowData, QueryKey> {
-    const queryKey: QueryKey = ["stats", "net-flow", chainId];
+    const queryKey: QueryKey = ["stats", "net-flow", chainId === 0 ? "all" : String(chainId)];
+    const dbChainId = chainId === 0 ? undefined : chainId;
 
     return {
-        queryFn: () => fetchNetFlow(chainId),
+        queryFn: () => fetchNetFlow(dbChainId),
         queryKey,
     };
 }
