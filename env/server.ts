@@ -64,5 +64,10 @@ export const env = createEnv({
 
         /** Neon database connection URL */
         ON_CHAIN_EVENTS_DATABASE_URL: z.string().url(),
+        /** TWAP server HTTP auth password */
+        TWAP_HTTP_AUTH_PASSWORD: z.string().min(1),
+
+        /** TWAP server URL */
+        TWAP_SERVER_URL: z.url(),
     },
 });

@@ -22,7 +22,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Label } from "@/components/ui/label";
 import { MaintenanceButtonWrapper } from "@/components/ui/maintenance-button-wrapper";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
+import { zHexString } from "@/env/schema";
 import { useBackOfQueueWallet } from "@/hooks/query/use-back-of-queue-wallet";
 import { useOrderValue } from "@/hooks/use-order-value";
 import { usePredictedFees } from "@/hooks/use-predicted-fees";
@@ -45,9 +45,10 @@ const formSchema = z.object({
             },
             { message: "Amount must be greater than zero" },
         ),
-    base: z.string().refine((val): val is `0x${string}` => val.startsWith("0x"), {
-        message: "Must start with 0x",
-    }),
+    // base: z.string().refine((val): val is `0x${string}` => val.startsWith("0x"), {
+    //     message: "Must start with 0x",
+    // }),
+    base: zHexString,
     isQuoteCurrency: z.boolean(),
     isSell: z.boolean(),
 });
