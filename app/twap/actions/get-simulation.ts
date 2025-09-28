@@ -19,14 +19,28 @@ import { twapLoader } from "../server/loader";
 
 export type SearchParams = { [key: string]: string | string[] | undefined };
 
+interface TwapSummary {
+    cumulativeDeltaBps: number; // renamed from cumDeltaBps for clarity
+    binanceFeeBps: number;
+    renegadeFeeBps: number;
+    // Cumulative totals (decimal)
+    cumulativeSold: number; // same for both strategies
+    cumulativeRenegadeReceived: number;
+    cumulativeBinanceReceived: number;
+    // Labels
+    soldTicker: string;
+    receivedTicker: string;
+}
+
 export async function getSimulation(searchParams: SearchParams): Promise<{
     baseMint?: string;
     simData: z.output<typeof SimulateTwapResponseSchema> | null;
     table: TwapTableData | null;
+    summary: TwapSummary | null;
 }> {
     const urlResult = TwapUrlParamsSchema.safeParse(searchParams);
     if (!urlResult.success) {
-        return { baseMint: undefined, simData: null, table: null };
+        return { baseMint: undefined, simData: null, summary: null, table: null };
     }
 
     const { data } = urlResult;
@@ -36,7 +50,7 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
         ? Token.fromTickerOnChain("USDC", baseToken.chain as ChainId)
         : undefined;
     if (!baseToken || !quoteToken) {
-        return { baseMint: undefined, simData: null, table: null };
+        return { baseMint: undefined, simData: null, summary: null, table: null };
     }
 
     const serverParams = TwapParamsSchema.parse({
@@ -60,7 +74,10 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
     // Process table data
     const table = processTableData(simData, baseToken, quoteToken);
 
-    return { baseMint: serverParams.base_mint, simData, table };
+    // Compute summary metrics
+    const summary = computeSummaryMetrics(simData, serverParams.direction, baseToken, quoteToken);
+
+    return { baseMint: serverParams.base_mint, simData, summary, table };
 }
 
 function buildRows(
@@ -183,5 +200,67 @@ function processTableData(
             sendTicker,
         },
         rows: sortedRows,
+    };
+}
+
+function computeSummaryMetrics(
+    simData: z.output<typeof SimulateTwapResponseSchema> | null,
+    direction: "Buy" | "Sell",
+    baseToken: any,
+    quoteToken: any,
+): TwapSummary | null {
+    if (!simData || !baseToken || !quoteToken) return null;
+
+    // Get strategies
+    const renegade = simData.strategies.find((s) => s.strategy === "Renegade");
+    const binance = simData.strategies.find((s) => s.strategy === "Binance");
+    if (!renegade || !binance) return null;
+
+    // Determine sold/received tokens and decimals based on direction
+    const soldToken = direction === "Buy" ? quoteToken : baseToken;
+    const receivedToken = direction === "Buy" ? baseToken : quoteToken;
+    const soldDecimals = soldToken.decimals;
+    const receivedDecimals = receivedToken.decimals;
+
+    // Get received amounts (raw) - these differ between strategies
+    const renegadeReceivedAmount =
+        direction === "Buy"
+            ? renegade.summary.total_base_amount
+            : renegade.summary.total_quote_amount;
+    const binanceReceivedAmount =
+        direction === "Buy"
+            ? binance.summary.total_base_amount
+            : binance.summary.total_quote_amount;
+
+    // Get sold amount (raw) - this is the same for both strategies
+    const soldAmount =
+        direction === "Buy"
+            ? renegade.summary.total_quote_amount
+            : renegade.summary.total_base_amount;
+
+    // Convert to numbers
+    const renegadeReceived = formatUnitsToNumber(renegadeReceivedAmount, receivedDecimals);
+    const binanceReceived = formatUnitsToNumber(binanceReceivedAmount, receivedDecimals);
+    const cumulativeSold = formatUnitsToNumber(soldAmount, soldDecimals);
+
+    // Calculate cumulative delta bps (guard against divide by zero)
+    const cumulativeDeltaBps =
+        binanceReceived !== 0
+            ? ((renegadeReceived - binanceReceived) / binanceReceived) * 10000
+            : 0;
+
+    // Convert fees from decimal fractions to bps
+    const renegadeFeeBps = Number(renegade.summary.fee) * 10000;
+    const binanceFeeBps = Number(binance.summary.fee) * 10000;
+
+    return {
+        binanceFeeBps,
+        cumulativeBinanceReceived: binanceReceived,
+        cumulativeDeltaBps,
+        cumulativeRenegadeReceived: renegadeReceived,
+        cumulativeSold,
+        receivedTicker: receivedToken.ticker,
+        renegadeFeeBps,
+        soldTicker: soldToken.ticker,
     };
 }
