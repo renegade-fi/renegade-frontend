@@ -63,7 +63,7 @@ export function DateTimePicker({
     return (
         <div className={`space-y-2 ${className}`}>
             <div className="flex gap-2 items-center">
-                <DatePicker className="flex-1" onChange={setDate} value={date} />
+                <DatePicker onChange={setDate} value={date} />
                 <div className="flex gap-1 items-center">
                     <Select onValueChange={setHour} value={hour}>
                         <SelectTrigger className="w-20 h-9 px-3">

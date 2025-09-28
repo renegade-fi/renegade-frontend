@@ -36,7 +36,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           className={`justify-between font-normal text-sm h-9 ${className}`}
         >
           {date ? date.toLocaleDateString() : "Select date"}
-          <ChevronDownIcon className="h-4 w-4" />
+          <ChevronDownIcon className="ml-2 h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto overflow-hidden p-0" align="start">
