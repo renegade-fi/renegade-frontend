@@ -133,9 +133,8 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
     return (
         <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
-                <Label>Trade</Label>
-                <div className="flex gap-2">
-                    <div className="flex bg-muted rounded-md p-1">
+                <div className="flex items-center gap-2">
+                    <div className="flex bg-muted">
                         <Button
                             className="h-8 px-3"
                             onClick={() => setDirection("Buy")}
@@ -187,11 +186,13 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="input_amount">Amount</Label>
+                <Label className="text-muted-foreground" htmlFor="input_amount">
+                    Amount
+                </Label>
                 <div className="flex gap-2 items-center">
                     <Input
                         aria-label={amountMode === "quote" ? "Dollar amount" : "Token amount"}
-                        className="text-sm"
+                        className="text-sm rounded-none"
                         defaultValue={
                             initialAmountMode === "quote"
                                 ? decimalQuoteAmount || ""
@@ -208,7 +209,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
                     />
 
                     {/* Toggle between entering base tokens vs dollars (quote) */}
-                    <div className="flex bg-muted rounded-md p-1">
+                    <div className="flex bg-muted">
                         <Button
                             className="h-8 px-3"
                             onClick={() => setAmountMode("base")}
@@ -235,9 +236,11 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="num_trades">Number of Clips</Label>
+                <Label className="text-muted-foreground" htmlFor="num_trades">
+                    Number of Clips
+                </Label>
                 <Input
-                    className="text-sm"
+                    className="text-sm rounded-none"
                     defaultValue={defaults?.num_trades?.toString() ?? "10"}
                     id="num_trades"
                     min="1"
@@ -249,11 +252,13 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label>Duration</Label>
+                <Label className="text-muted-foreground" htmlFor="duration">
+                    Duration
+                </Label>
                 <div className="flex gap-2">
                     <div className="flex-1">
                         <Input
-                            className="text-sm"
+                            className="text-sm rounded-none"
                             defaultValue={durationDefaults.hours.toString()}
                             id="duration_hours"
                             min="0"
@@ -270,7 +275,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
                     </div>
                     <div className="flex-1">
                         <Input
-                            className="text-sm"
+                            className="text-sm rounded-none"
                             defaultValue={durationDefaults.minutes.toString()}
                             id="duration_minutes"
                             max="59"
@@ -290,7 +295,9 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="start_time">Start Time</Label>
+                <Label className="text-muted-foreground" htmlFor="start_time">
+                    Start Time
+                </Label>
                 <DateTimePicker
                     defaultValue={
                         defaults?.start_time
@@ -304,7 +311,9 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
 
             {/* Binance fee tier selection */}
             <div className="space-y-2">
-                <Label>Binance Fee Tier</Label>
+                <Label className="text-muted-foreground" htmlFor="binance_fee_tier">
+                    Binance Fee Tier
+                </Label>
                 <Select onValueChange={setBinanceFeeTier} value={binanceFeeTier}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select fee tier" />
@@ -327,8 +336,9 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
 
             <Button
                 aria-busy={isPending}
-                className="w-full mt-6"
+                className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
                 disabled={isPending}
+                size="xl"
                 type="submit"
             >
                 {isPending ? "Simulating..." : "Simulate TWAP"}
