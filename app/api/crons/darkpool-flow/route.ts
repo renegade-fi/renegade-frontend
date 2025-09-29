@@ -1,6 +1,5 @@
 import { type NeonQueryFunction, neon } from "@neondatabase/serverless";
 import { getSDKConfig } from "@renegade-fi/react";
-import { Token } from "@renegade-fi/token-nextjs";
 import { createPublicClient, formatUnits, http } from "viem";
 import { arbitrum, base } from "viem/chains";
 import { getAlchemyRpcUrl } from "@/app/api/utils";
@@ -8,6 +7,7 @@ import { get_cursor, insert_darkpool_transfer_row, set_cursor } from "@/db/queri
 import { env } from "@/env/server";
 import { amountTimesPrice } from "@/hooks/use-usd-price";
 import { client as price_reporter_client } from "@/lib/clients/price-reporter";
+import { resolveAddress } from "@/lib/token";
 import { extractSupportedChain } from "@/lib/viem";
 import { classify, transfer_event } from "./classify";
 import type {
@@ -123,7 +123,7 @@ function convert_to_darkpool_transfer_row(
     // Get decimals
     const log_with_meta: WithMeta = {
         ...log_with_time,
-        decimals: Token.fromAddress(log.token).decimals,
+        decimals: resolveAddress(log.token).decimals,
     };
 
     // Get notional USD value
@@ -175,7 +175,7 @@ async function fetch_block_timestamps(
 
 function filter_logs(logs: ClassifiedLog[]) {
     return logs.filter((log) => {
-        const ticker = Token.fromAddressOnChain(log.token, log.chainId as ChainId).ticker;
+        const ticker = resolveAddress(log.token).ticker;
         const isValid = ticker !== "UNKNOWN";
 
         if (!isValid) {
