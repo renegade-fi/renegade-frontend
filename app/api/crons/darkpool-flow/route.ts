@@ -60,20 +60,6 @@ async function run(sql: NeonQueryFunction<false, false>, chain_id: ChainId) {
     // Classify as deposits or withdrawals or match
     const { kept, dropped_atomic_txs } = classify(deposit_logs, withdrawal_logs, chain_id);
 
-    if (kept.length) {
-        console.log(`[darkpool-flow] Found flow txns ${kept.map((log) => log.txHash).join(", ")}`);
-    } else {
-        console.log(`[darkpool-flow] No flow txns found`);
-    }
-
-    if (dropped_atomic_txs.size) {
-        console.log(
-            `[darkpool-flow] Dropped external match txns ${Array.from(dropped_atomic_txs).join(", ")}`,
-        );
-    } else {
-        console.log(`[darkpool-flow] No external match txns found`);
-    }
-
     // Filter out invalid tokens
     const filtered_logs = filter_logs(kept);
 
@@ -88,6 +74,19 @@ async function run(sql: NeonQueryFunction<false, false>, chain_id: ChainId) {
 
     // Update cursor
     await set_cursor(sql, chain_id, latest_block, Buffer.from(""));
+
+    console.log(`Inserted ${filtered_logs.length} rows`, {
+        chain_id,
+        darkpool_address,
+        deposit_logs: deposit_logs.length,
+        dropped_atomic_txs: dropped_atomic_txs.size,
+        filtered_logs: filtered_logs.length,
+        from_block: cursor,
+        kept: kept.length,
+        prices: prices.size,
+        to_block: latest_block,
+        withdrawal_logs: withdrawal_logs.length,
+    });
 }
 
 async function insert_rows(
@@ -177,13 +176,30 @@ async function fetch_block_timestamps(
 function filter_logs(logs: ClassifiedLog[]) {
     return logs.filter((log) => {
         const ticker = Token.fromAddressOnChain(log.token, log.chainId as ChainId).ticker;
-        return ticker !== "UNKNOWN";
+        const isValid = ticker !== "UNKNOWN";
+
+        if (!isValid) {
+            console.log(`[tx-${log.txHash}] Token validation: FAIL - UNKNOWN token (${ticker})`);
+        }
+
+        return isValid;
     });
 }
 
 async function fetch_token_prices(logs: ClassifiedLog[]): Promise<Map<`0x${string}`, number>> {
     const tokens = [...new Set(logs.map((log) => log.token))];
-    const price_promises = tokens.map((token) => price_reporter_client.getPrice(token));
+    const price_promises = tokens.map(async (token) => {
+        try {
+            const price = await price_reporter_client.getPrice(token);
+            return price;
+        } catch (error) {
+            console.log(
+                `[price] Token ${token}: FAILED - ${error instanceof Error ? error.message : String(error)}`,
+            );
+            throw error;
+        }
+    });
+
     const prices = await Promise.all(price_promises);
     const addr_to_price = new Map(tokens.map((token, index) => [token, prices[index]]));
     return addr_to_price;

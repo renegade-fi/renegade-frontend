@@ -67,7 +67,9 @@ function process_logs(
             bucket.events.push(classified_log);
             by_tx.set(tx_hash, bucket);
         } catch (error) {
-            console.warn(`Failed to decode log from tx ${log.transactionHash}:`, error);
+            console.log(
+                `[tx-${log.transactionHash}] FAILED to decode log: ${error instanceof Error ? error.message : String(error)}`,
+            );
         }
     }
 }
@@ -80,8 +82,6 @@ export function classify(
     withdrawal_logs: LogLike[],
     chain_id: number,
 ): { kept: ClassifiedLog[]; dropped_atomic_txs: Set<`0x${string}`> } {
-    const total_logs = deposit_logs.length + withdrawal_logs.length;
-
     // Group by transaction hash to detect atomic transactions
     const by_tx = new Map<
         `0x${string}`,
@@ -99,15 +99,17 @@ export function classify(
     for (const [tx_hash, info] of by_tx) {
         if (info.has_deposit && info.has_withdrawal) {
             // Atomic transaction - drop all events from this transaction
+            console.log(`[tx-${tx_hash}] DROPPED`);
             dropped_atomic_txs.add(tx_hash);
             continue;
         }
         // Keep events from non-atomic transactions
-        kept.push(...info.events);
+        const events = info.events;
+        events.forEach((event) => {
+            console.log(`[tx-${tx_hash}] KEPT - ${event.direction}`);
+        });
+        kept.push(...events);
     }
 
-    console.log(
-        `[classify] Processed ${total_logs} logs: ${kept.length} kept, ${dropped_atomic_txs.size} atomic txs filtered out`,
-    );
     return { dropped_atomic_txs, kept };
 }
