@@ -1,6 +1,6 @@
 // Application-level types (not database-specific)
 
-export type Direction = "deposit" | "withdrawal";
+import type { Direction } from "@/lib/types";
 
 export interface ClassifiedLog {
     chainId: number;
