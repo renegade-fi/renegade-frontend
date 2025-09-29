@@ -3,7 +3,7 @@
 import { createConfig as createLifiConfig, EVM } from "@lifi/sdk";
 import { isSupportedChainId } from "@renegade-fi/react";
 import { type ChainId, ROOT_KEY_MESSAGE_PREFIX } from "@renegade-fi/react/constants";
-import { useIsMutating, useQueryClient } from "@tanstack/react-query";
+import { useIsMutating } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import React from "react";
 import { verifyMessage } from "viem";
@@ -60,6 +60,7 @@ export function WagmiProvider({ children, initialState }: WagmiProviderProps) {
                     theme="midnight"
                 >
                     {children}
+                    <WagmiDebug />
                     <SyncRenegadeWagmiState />
                     <SignInDialog onOpenChange={setOpen} open={open} />
                 </ConnectKitProvider>
@@ -94,60 +95,13 @@ function SyncRenegadeWagmiState() {
         setChainId(wagmiChainId);
     }, [account.status, currentChainId, isMutatingChain, setChainId, wagmiChainId]);
 
-    const queryClient = useQueryClient();
-
+    // Verify cached wallet signatures still match the connected EOA.
     React.useEffect(() => {
-        const getPendingMutationKeys = () => {
-            const mutationCache = queryClient.getMutationCache();
-            const allMutations = mutationCache.getAll();
-            const pendingMutations = allMutations
-                .filter((mutation) => mutation.state.status === "pending")
-                .map((mutation) => mutation.options.mutationKey)
-                .filter((key) => key !== undefined);
-            return pendingMutations;
-        };
-
-        // Log effect trigger to help with Hypothesis 3 (frequent re-runs)
-        console.log("SyncRenegadeWagmiState effect triggered", {
-            currentChainId,
-            hasAddress: !!account.address,
-            timestamp: Date.now(),
-            wagmiChainId,
-            walletsCount: wallets.size,
-        });
-
-        function logAndReset(chainId: ChainId | undefined, reason: string, details?: any) {
-            const pendingMutationKeys = getPendingMutationKeys();
-            console.log("=== WALLET RESET TRIGGERED ===");
-            console.log("Reason:", reason);
-            console.log("ChainId:", chainId);
-            console.log("Account address:", account.address);
-            console.log("Wallets count:", wallets.size);
-            console.log("Pending mutation keys:", pendingMutationKeys);
-            console.log("Current wagmi chain:", wagmiChainId);
-            console.log("Current app chain:", currentChainId);
-            console.log("Additional details:", details);
-            console.log(
-                "Wallets state:",
-                Array.from(wallets.entries()).map(([id, wallet]) => ({
-                    chainId: id,
-                    hasSeed: !!wallet.seed,
-                    seedLength: wallet.seed?.length || 0,
-                })),
-            );
-            console.log("=== END WALLET RESET ===");
-
-            if (chainId) {
-                resetWallet(chainId);
-            } else {
-                resetAllWallets();
-            }
-        }
-
-        async function verifyWallets() {
+        (async () => {
             const address = account.address;
             if (!address) {
-                logAndReset(undefined, "No account address");
+                // No EOA connected; clear cached wallets to avoid stale state
+                resetAllWallets();
                 return;
             }
 
@@ -156,36 +110,95 @@ function SyncRenegadeWagmiState() {
                 const message = `${ROOT_KEY_MESSAGE_PREFIX} ${chainId}`;
                 const signature = wallet.seed;
 
-                console.log(`Verifying wallet for chain ${chainId}`, {
-                    hasAddress: !!address,
-                    hasSeed: !!wallet.seed,
-                    message,
-                    signatureLength: signature?.length || 0,
-                });
-
-                const valid = await verifyMessage({
-                    address,
-                    message,
-                    signature,
-                });
-
-                console.log(`Verification result for chain ${chainId}:`, valid);
-
-                if (!valid) {
-                    logAndReset(chainId, "Invalid signature", { message, signature });
+                try {
+                    const valid = await verifyMessage({ address, message, signature });
+                    if (!valid) {
+                        console.warn("[wallet] invalid signature; resetting wallet", { chainId });
+                        resetWallet(chainId as ChainId);
+                    }
+                } catch (err) {
+                    console.warn("[wallet] signature verification error; resetting wallet", {
+                        chainId,
+                        err,
+                    });
+                    resetWallet(chainId as ChainId);
                 }
             }
-        }
-        verifyWallets();
-    }, [
-        account.address,
-        resetAllWallets,
-        resetWallet,
-        wallets,
-        queryClient,
-        currentChainId,
-        wagmiChainId,
-    ]);
+        })();
+    }, [account.address, resetAllWallets, resetWallet, wallets]);
+
+    return null;
+}
+
+/**
+ * Temporary debug tracer for wagmi/provider/window events to diagnose spurious disconnects.
+ */
+function WagmiDebug() {
+    const { address, connector, status } = useAccount();
+    const chainId = useChainId();
+    const isSwitching = !!useIsMutating({ mutationKey: ["switchChain"] });
+
+    // Account/chain snapshots
+    React.useEffect(() => {
+        console.log("[wagmi] account change", {
+            address,
+            chainId,
+            connector: connector?.name,
+            isSwitching,
+            status,
+            ts: Date.now(),
+        });
+    }, [status, address, connector, chainId, isSwitching]);
+
+    // EIP-1193 provider-level events
+    React.useEffect(() => {
+        let provider: any | undefined;
+        let off: (() => void) | undefined;
+
+        (async () => {
+            if (!connector) return;
+            provider = await (connector as any).getProvider?.();
+            if (!provider?.on) return;
+
+            const onAccounts = (a: any) => console.log("[provider] accountsChanged", a);
+            const onChain = (c: any) => console.log("[provider] chainChanged", c);
+            const onDisconnect = (e: any) => console.log("[provider] disconnect", e);
+
+            provider.on("accountsChanged", onAccounts);
+            provider.on("chainChanged", onChain);
+            provider.on("disconnect", onDisconnect);
+
+            off = () => {
+                provider?.removeListener?.("accountsChanged", onAccounts);
+                provider?.removeListener?.("chainChanged", onChain);
+                provider?.removeListener?.("disconnect", onDisconnect);
+            };
+        })();
+
+        return () => off?.();
+    }, [connector]);
+
+    // Window focus/visibility correlation
+    React.useEffect(() => {
+        const onFocus = () => console.log("[window] focus", { ts: Date.now() });
+        const onBlur = () => console.log("[window] blur", { ts: Date.now() });
+        const onVis = () =>
+            console.log("[window] visibilitychange", (document as any).visibilityState);
+        window.addEventListener("focus", onFocus);
+        window.addEventListener("blur", onBlur);
+        document.addEventListener("visibilitychange", onVis);
+        return () => {
+            window.removeEventListener("focus", onFocus);
+            window.removeEventListener("blur", onBlur);
+            document.removeEventListener("visibilitychange", onVis);
+        };
+    }, []);
+
+    // Snapshot wagmi cookie once on mount (noisy otherwise)
+    React.useEffect(() => {
+        const cookie = document.cookie.split("; ").find((x) => x.startsWith("wagmi.store="));
+        if (cookie) console.log("[wagmi] cookie snapshot", decodeURIComponent(cookie));
+    }, []);
 
     return null;
 }
