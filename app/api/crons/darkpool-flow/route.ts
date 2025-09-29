@@ -19,8 +19,6 @@ import type {
     WithUsdValue,
 } from "./types";
 
-export const runtime = "edge";
-
 const chain_ids = [arbitrum.id, base.id] as const;
 type ChainId = (typeof chain_ids)[number];
 
@@ -62,8 +60,19 @@ async function run(sql: NeonQueryFunction<false, false>, chain_id: ChainId) {
     // Classify as deposits or withdrawals or match
     const { kept, dropped_atomic_txs } = classify(deposit_logs, withdrawal_logs, chain_id);
 
-    console.log(`[darkpool-flow] Kept ${kept.join(", ")}`);
-    console.log(`[darkpool-flow] Dropped atomic txs ${Array.from(dropped_atomic_txs).join(", ")}`);
+    if (kept.length) {
+        console.log(`[darkpool-flow] Found flow txns ${kept.map((log) => log.txHash).join(", ")}`);
+    } else {
+        console.log(`[darkpool-flow] No flow txns found`);
+    }
+
+    if (dropped_atomic_txs.size) {
+        console.log(
+            `[darkpool-flow] Dropped external match txns ${Array.from(dropped_atomic_txs).join(", ")}`,
+        );
+    } else {
+        console.log(`[darkpool-flow] No external match txns found`);
+    }
 
     // Filter out invalid tokens
     const filtered_logs = filter_logs(kept);
