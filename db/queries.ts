@@ -44,7 +44,7 @@ export async function insert_darkpool_transfer_row(
         INSERT INTO darkpool_transfer (
             chain_id, block_number, block_time, tx_hash,
             token_address, from_address, to_address, amount_raw, decimals, direction,
-            ts_minute, day
+            usd_value, ts_minute, day
         ) VALUES (
             ${transfer.chain_id},
             ${transfer.block_number.toString()},
@@ -56,6 +56,7 @@ export async function insert_darkpool_transfer_row(
             ${transfer.amount_raw},
             ${transfer.decimals},
             ${transfer.direction},
+            ${transfer.usd_value},
             date_trunc('minute', ${transfer.block_time.toISOString()}::timestamptz),
             (date_trunc('day', ${transfer.block_time.toISOString()}::timestamptz))::date
         )
@@ -69,6 +70,7 @@ export async function insert_darkpool_transfer_row(
             amount_raw = EXCLUDED.amount_raw,
             decimals = EXCLUDED.decimals,
             direction = EXCLUDED.direction,
+            usd_value = EXCLUDED.usd_value,
             ts_minute = EXCLUDED.ts_minute,
             day = EXCLUDED.day
     `;
