@@ -175,7 +175,10 @@ async function fetch_block_timestamps(
 }
 
 function filter_logs(logs: ClassifiedLog[]) {
-    return logs.filter((log) => Token.fromAddress(log.token).ticker !== "UNKNOWN");
+    return logs.filter((log) => {
+        const ticker = Token.fromAddressOnChain(log.token, log.chainId as ChainId).ticker;
+        return ticker !== "UNKNOWN";
+    });
 }
 
 async function fetch_token_prices(logs: ClassifiedLog[]): Promise<Map<`0x${string}`, number>> {
