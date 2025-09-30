@@ -115,8 +115,7 @@ function buildRows(
                 ? ((renegadeReceiveNum - binanceReceiveNum) / binanceReceiveNum) * 10000
                 : 0;
 
-        const sign = deltaBpsNum >= 0 ? "+" : "";
-        const deltaBpsFormatted = `${sign}${deltaBpsNum.toFixed(2)} bps`;
+        const deltaBpsFormatted = `${deltaBpsNum.toFixed(2)}`;
 
         rows.push({
             deltaBps: deltaBpsFormatted,
