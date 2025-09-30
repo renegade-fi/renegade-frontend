@@ -23,7 +23,7 @@ const zChainIdKey = z.union(chainIdLiterals);
 export const zChainId = z.coerce.number().pipe(zChainIdKey);
 
 /** Zod schema for JSON strings */
-const zJsonString = z.string().transform((str, ctx): z.ZodJSONSchema => {
+const zJsonString = z.string().transform((str, ctx) => {
     try {
         return JSON.parse(str);
     } catch (_e) {

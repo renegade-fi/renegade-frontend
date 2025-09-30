@@ -23,7 +23,8 @@
             "!public",
             "!**/*.d.ts",
             "!**/*.css",
-            "!lib/generated.ts"
+            "!lib/generated.ts",
+            "!components/ui"
         ]
     },
     "formatter": {
