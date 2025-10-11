@@ -10,7 +10,7 @@ type SearchParamsPromise = Promise<SearchParams>;
 
 export default async function TwapPage({ searchParams }: { searchParams: SearchParamsPromise }) {
     const params = await searchParams;
-    const { baseMint, simData, table, summary } = await getSimulation(params);
+    const { baseMint, simData, table, summary, error } = await getSimulation(params);
 
     return (
         <ScrollArea className="flex-grow" type="always">
@@ -22,7 +22,7 @@ export default async function TwapPage({ searchParams }: { searchParams: SearchP
                     <div className="flex gap-6 mt-6">
                         <div className="grid grid-rows-[auto_1fr] gap-6 flex-1">
                             <TwapSummaryCards summary={summary} />
-                            <TwapSimTable table={table} />
+                            <TwapSimTable error={error} table={table} />
                         </div>
 
                         <div className="p-3 border">

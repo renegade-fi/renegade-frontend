@@ -8,8 +8,16 @@ import {
     type SortingState,
     useReactTable,
 } from "@tanstack/react-table";
+import { TriangleAlert } from "lucide-react";
 import React from "react";
 import { TableEmptyState } from "@/components/table-empty-state";
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import {
     Table,
     TableBody,
@@ -96,19 +104,34 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
 
 interface TwapSimTableProps {
     table?: TwapTableData | null;
+    error?: string;
 }
 
-export function TwapSimTable({ table }: TwapSimTableProps) {
+export function TwapSimTable({ table, error }: TwapSimTableProps) {
     const columns = React.useMemo(() => {
         if (!table) return [];
         return buildColumns(table.meta);
     }, [table]);
 
+    if (error) {
+        return (
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <TriangleAlert />
+                    </EmptyMedia>
+                    <EmptyTitle>Simulation Error</EmptyTitle>
+                    <EmptyDescription>{error}</EmptyDescription>
+                </EmptyHeader>
+            </Empty>
+        );
+    }
+
     if (!table) {
         return (
-            <div className="text-sm text-muted-foreground">
-                Run a simulation to see the results...
-            </div>
+            <Empty>
+                <EmptyDescription>Run a simulation to see the results...</EmptyDescription>
+            </Empty>
         );
     }
 
