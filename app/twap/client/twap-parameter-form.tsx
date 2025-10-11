@@ -296,11 +296,14 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
                         <SelectValue placeholder="Select fee tier" />
                     </SelectTrigger>
                     <SelectContent>
-                        {BINANCE_FEE_TIERS.map((tier) => (
-                            <SelectItem key={tier} value={tier}>
-                                {tier}
-                            </SelectItem>
-                        ))}
+                        {BINANCE_FEE_TIERS.map((tier) => {
+                            const feeBps = ((feeTierToTakerBps[tier] || 0.001) * 10000).toFixed(1);
+                            return (
+                                <SelectItem key={tier} value={tier}>
+                                    {tier} - {feeBps} bps
+                                </SelectItem>
+                            );
+                        })}
                     </SelectContent>
                 </Select>
                 <input name="binance_fee_tier" type="hidden" value={binanceFeeTier} />
