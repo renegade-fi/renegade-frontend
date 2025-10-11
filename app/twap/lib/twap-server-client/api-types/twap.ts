@@ -24,12 +24,12 @@ export const TwapParamsSchema = z
         start_time: z.iso.datetime(),
     })
     .superRefine((data, ctx) => {
-        const baseIsZero = Number.parseFloat(data.base_amount) === 0;
+        // quote_amount must always be non-zero (base_amount is always zero now)
         const quoteIsZero = Number.parseFloat(data.quote_amount ?? "0") === 0;
-        if (baseIsZero && quoteIsZero) {
+        if (quoteIsZero) {
             ctx.addIssue({
                 code: "custom",
-                message: "When base_amount is zero, quote_amount must be non-zero",
+                message: "quote_amount must be non-zero",
                 path: ["quote_amount"],
             });
         }
@@ -41,7 +41,7 @@ export const TwapOptionsSchema = z.object({
 
 // URL-level schema where we accept tickers instead of addresses
 export const TwapUrlParamsSchema = z.object({
-    base_amount: z.string(),
+    base_amount: z.string().optional().default("0"), // Ignored, always use quote_amount
     base_ticker: z.string(),
     direction: QuoteDirectionSchema,
     end_time: z.iso.datetime(),
