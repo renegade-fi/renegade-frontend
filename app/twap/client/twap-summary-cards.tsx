@@ -34,12 +34,6 @@ export function TwapSummaryCards({ summary }: TwapSummaryCardsProps) {
                             {`${summary.renegadeFeeBps.toFixed(1)} bps`}
                         </span>
                     </div>
-                    <div className="text-muted-foreground w-full flex justify-between">
-                        <span>Binance Fee</span>
-                        <span className="tabular-nums">
-                            {`${summary.binanceFeeBps.toFixed(1)} bps`}
-                        </span>
-                    </div>
                 </CardFooter>
             </Card>
             <Card>
