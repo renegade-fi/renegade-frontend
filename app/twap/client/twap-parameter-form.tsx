@@ -228,22 +228,6 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label className="text-muted-foreground" htmlFor="num_trades">
-                    Number of Clips
-                </Label>
-                <Input
-                    className="text-sm rounded-none"
-                    defaultValue={defaults?.num_trades?.toString() ?? "10"}
-                    id="num_trades"
-                    min="1"
-                    name="num_trades"
-                    placeholder="4"
-                    required
-                    type="number"
-                />
-            </div>
-
-            <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <Label className="text-muted-foreground" htmlFor="duration">
                         Duration
@@ -366,8 +350,10 @@ function buildQueryParams(formData: FormData, selectedBase: string): URLSearchPa
     params.set("start_time", startTime.toISOString());
     params.set("end_time", endTime.toISOString());
 
-    // 5. Set the number of trades
-    params.set("num_trades", formData.get("num_trades") as string);
+    // 5. Calculate number of trades from duration (30 seconds per clip)
+    const totalSeconds = durationHours * 3600 + durationMinutes * 60;
+    const numberOfTrades = Math.max(1, Math.floor(totalSeconds / 30));
+    params.set("num_trades", numberOfTrades.toString());
 
     // 6. Pass through Binance fee tier selection for downstream usage
     const feeTier = (formData.get("binance_fee_tier") as string) || "No VIP";
