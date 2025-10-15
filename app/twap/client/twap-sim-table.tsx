@@ -4,6 +4,7 @@ import {
     type ColumnDef,
     flexRender,
     getCoreRowModel,
+    getPaginationRowModel,
     getSortedRowModel,
     type SortingState,
     useReactTable,
@@ -11,6 +12,7 @@ import {
 import { TriangleAlert } from "lucide-react";
 import React from "react";
 import { TableEmptyState } from "@/components/table-empty-state";
+import { Button } from "@/components/ui/button";
 import {
     Empty,
     EmptyDescription,
@@ -46,7 +48,14 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
         columns,
         data,
         getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        initialState: {
+            pagination: {
+                pageIndex: 0,
+                pageSize: 10,
+            },
+        },
         onSortingChange: setSorting,
         state: {
             sorting,
@@ -54,50 +63,72 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
     });
 
     return (
-        <div className="border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
+        <div>
+            <div className="border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                    return (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                      header.column.columnDef.header,
+                                                      header.getContext(),
+                                                  )}
+                                        </TableHead>
+                                    );
+                                })}
+                            </TableRow>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => {
                                 return (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                  header.column.columnDef.header,
-                                                  header.getContext(),
-                                              )}
-                                    </TableHead>
+                                    <TableRow
+                                        data-state={row.getIsSelected() && "selected"}
+                                        key={row.id}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext(),
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
                                 );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => {
-                            return (
-                                <TableRow
-                                    data-state={row.getIsSelected() && "selected"}
-                                    key={row.id}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext(),
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            );
-                        })
-                    ) : (
-                        <TableEmptyState colSpan={columns.length} type="assets" />
-                    )}
-                </TableBody>
-            </Table>
+                            })
+                        ) : (
+                            <TableEmptyState colSpan={columns.length} type="assets" />
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+            {table.getRowModel().rows.length > 0 ? (
+                <div className="flex items-center justify-end space-x-2 pt-4">
+                    <Button
+                        disabled={!table.getCanPreviousPage()}
+                        onClick={() => table.previousPage()}
+                        size="sm"
+                        variant="outline"
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        disabled={!table.getCanNextPage()}
+                        onClick={() => table.nextPage()}
+                        size="sm"
+                        variant="outline"
+                    >
+                        Next
+                    </Button>
+                </div>
+            ) : null}
         </div>
     );
 }
