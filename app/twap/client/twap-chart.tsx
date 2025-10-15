@@ -2,6 +2,7 @@
 
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
+import { TriangleAlert } from "lucide-react";
 import * as React from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
 import type z from "zod";
@@ -14,6 +15,13 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import { formatNumber } from "@/lib/format";
 import { findTokenByAddress } from "../lib/token-utils";
 import type { SimulateTwapResponseSchema } from "../lib/twap-server-client/api-types/request-response";
@@ -23,9 +31,11 @@ import { convertDecimalToRaw, formatUnitsToNumber } from "../lib/utils";
 export function TwapChart({
     simData,
     baseMint,
+    error,
 }: {
     simData: z.output<typeof SimulateTwapResponseSchema> | null;
     baseMint: string | undefined;
+    error?: string;
 }) {
     const baseToken = React.useMemo(() => findTokenByAddress(baseMint), [baseMint]);
     const quoteToken = React.useMemo(
@@ -37,11 +47,25 @@ export function TwapChart({
     const firstTrade = simData?.strategies[0]?.sim_result?.trades[0];
     const direction = firstTrade?.direction;
 
+    if (error) {
+        return (
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <TriangleAlert />
+                    </EmptyMedia>
+                    <EmptyTitle>Simulation Error</EmptyTitle>
+                    <EmptyDescription>{error}</EmptyDescription>
+                </EmptyHeader>
+            </Empty>
+        );
+    }
+
     if (!simData || !baseMint) {
         return (
-            <div className="text-sm text-muted-foreground pl-6">
-                Run a simulation to see the results...
-            </div>
+            <Empty>
+                <EmptyDescription>Run a simulation to see the results...</EmptyDescription>
+            </Empty>
         );
     }
 

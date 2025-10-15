@@ -37,6 +37,7 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
     simData: z.output<typeof SimulateTwapResponseSchema> | null;
     table: TwapTableData | null;
     summary: TwapSummary | null;
+    error?: string;
 }> {
     const urlResult = TwapUrlParamsSchema.safeParse(searchParams);
     if (!urlResult.success) {
@@ -67,17 +68,33 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
     const feeParam = searchParams.binance_taker_bps as string | undefined;
     const binanceFee = feeParam ? Number(feeParam) : DEFAULT_BINANCE_FEE;
 
-    const simData = await twapLoader(TwapParams.new(serverParams), undefined, {
-        binance_fee: binanceFee,
-    });
+    try {
+        const simData = await twapLoader(TwapParams.new(serverParams), undefined, {
+            binance_fee: binanceFee,
+        });
 
-    // Process table data
-    const table = processTableData(simData, baseToken, quoteToken);
+        // Process table data
+        const table = processTableData(simData, baseToken, quoteToken);
 
-    // Compute summary metrics
-    const summary = computeSummaryMetrics(simData, serverParams.direction, baseToken, quoteToken);
+        // Compute summary metrics
+        const summary = computeSummaryMetrics(
+            simData,
+            serverParams.direction,
+            baseToken,
+            quoteToken,
+        );
 
-    return { baseMint: serverParams.base_mint, simData, summary, table };
+        return { baseMint: serverParams.base_mint, simData, summary, table };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to load simulation";
+        return {
+            baseMint: serverParams.base_mint,
+            error: errorMessage,
+            simData: null,
+            summary: null,
+            table: null,
+        };
+    }
 }
 
 function buildRows(
