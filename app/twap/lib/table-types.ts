@@ -6,6 +6,8 @@ export type TwapTableMeta = {
 
 export type TwapTableRow = {
     time: string; // raw ISO timestamp for sorting and client-side i18n formatting
+    timeSinceStart: string; // preformatted time diff from first clip
+    timeSincePrevious: string | null; // preformatted time diff from previous clip, null for first
     sendAmount: string; // preformatted string, no ticker
     receiveAmountBinance: string; // preformatted string, no ticker
     receiveAmountRenegade: string; // preformatted string, no ticker
