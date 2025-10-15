@@ -10,7 +10,9 @@ export type TwapTableRow = {
     timeSincePrevious: string | null; // preformatted time diff from previous clip, null for first
     sendAmount: string; // preformatted string, no ticker
     priceBinance: string; // preformatted price (USDC per base token)
+    receiveBinance: string; // formatted receive amount for Binance only
     priceBinanceAndRenegade: string; // preformatted price (USDC per base token)
+    receiveRenegade: string; // formatted receive amount for Binance with Renegade
     deltaBps: string; // e.g. "+12.34 bps"
 };
 

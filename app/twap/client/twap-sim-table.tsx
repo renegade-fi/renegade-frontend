@@ -63,7 +63,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead colSpan={header.colSpan} key={header.id}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(

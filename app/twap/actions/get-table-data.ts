@@ -47,6 +47,35 @@ function buildRows(
         const sendAmountFormatted =
             direction === "Buy" ? formatUSDC(sendAmountNum) : formatTokenAmount(sendAmountNum);
 
+        // Receive amount depends on direction (opposite of send)
+        // For Buy: base token received (base amount)
+        // For Sell: USDC received (quote amount)
+        const receiveBinanceAmount =
+            direction === "Buy" ? binanceTrade.base_amount : binanceTrade.quote_amount;
+        const receiveRenegadeAmount =
+            direction === "Buy" ? renegadeTrade.base_amount : renegadeTrade.quote_amount;
+        const receiveDecimals = direction === "Buy" ? baseToken.decimals : quoteToken.decimals;
+
+        // Convert to decimal and format receive amounts
+        const receiveBinanceNum = formatUnitsToNumber(
+            Math.abs(Number(receiveBinanceAmount)).toString(),
+            receiveDecimals,
+        );
+        const receiveRenegadeNum = formatUnitsToNumber(
+            Math.abs(Number(receiveRenegadeAmount)).toString(),
+            receiveDecimals,
+        );
+
+        // Use token formatting for Buy (receiving base token), USDC formatting for Sell (receiving USDC)
+        const receiveBinanceFormatted =
+            direction === "Buy"
+                ? formatTokenAmount(receiveBinanceNum)
+                : formatUSDC(receiveBinanceNum);
+        const receiveRenegadeFormatted =
+            direction === "Buy"
+                ? formatTokenAmount(receiveRenegadeNum)
+                : formatUSDC(receiveRenegadeNum);
+
         // Calculate price (USDC per base token) from Binance data
         const binanceBaseNum = formatUnitsToNumber(binanceTrade.base_amount, baseToken.decimals);
         const binanceQuoteNum = formatUnitsToNumber(binanceTrade.quote_amount, quoteToken.decimals);
@@ -78,6 +107,8 @@ function buildRows(
             deltaBps: deltaBpsFormatted,
             priceBinance: priceBinanceFormatted,
             priceBinanceAndRenegade: priceBinanceAndRenegadeFormatted,
+            receiveBinance: receiveBinanceFormatted,
+            receiveRenegade: receiveRenegadeFormatted,
             sendAmount: sendAmountFormatted,
             time: timestamp,
             timeSincePrevious,
