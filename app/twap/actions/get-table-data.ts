@@ -1,10 +1,10 @@
 import dayjs from "dayjs";
 import type z from "zod";
-import { formatNumber, formatTimestampReadable } from "@/lib/format";
+import { formatTimestampReadable } from "@/lib/format";
 import type { TwapTableMeta, TwapTableRow } from "../lib/table-types";
 import type { SimulateTwapResponseSchema } from "../lib/twap-server-client/api-types/request-response";
 import type { TwapParams, TwapTradeResult } from "../lib/twap-server-client/api-types/twap";
-import { formatUnitsToNumber } from "../lib/utils";
+import { formatTokenAmount, formatUnitsToNumber, formatUSDC } from "../lib/utils";
 
 function buildRows(
     tradeMap: Map<string, { renegade?: TwapTradeResult; binance?: TwapTradeResult }>,
@@ -38,47 +38,46 @@ function buildRows(
             direction === "Buy" ? renegadeTrade.quote_amount : renegadeTrade.base_amount;
         const sendDecimals = direction === "Buy" ? quoteToken.decimals : baseToken.decimals;
 
-        // Get absolute value and format
-        const sendAmountFormatted = formatNumber(
-            BigInt(Math.abs(Number(sendAmount))),
+        // Convert to decimal number and format
+        const sendAmountNum = formatUnitsToNumber(
+            Math.abs(Number(sendAmount)).toString(),
             sendDecimals,
-            true,
         );
+        // Use USDC formatting for Buy (sending USDC), token formatting for Sell (sending base token)
+        const sendAmountFormatted =
+            direction === "Buy" ? formatUSDC(sendAmountNum) : formatTokenAmount(sendAmountNum);
 
-        // Receive amounts depend on direction
-        const binanceReceive =
-            direction === "Buy" ? binanceTrade.base_amount : binanceTrade.quote_amount;
-        const renegadeReceive =
-            direction === "Buy" ? renegadeTrade.base_amount : renegadeTrade.quote_amount;
-        const receiveDecimals = direction === "Buy" ? baseToken.decimals : quoteToken.decimals;
+        // Calculate price (USDC per base token) from Binance data
+        const binanceBaseNum = formatUnitsToNumber(binanceTrade.base_amount, baseToken.decimals);
+        const binanceQuoteNum = formatUnitsToNumber(binanceTrade.quote_amount, quoteToken.decimals);
+        const priceBinance = binanceBaseNum !== 0 ? binanceQuoteNum / binanceBaseNum : 0;
+        const priceBinanceFormatted = formatUSDC(priceBinance);
 
-        const binanceReceiveFormatted = formatNumber(
-            BigInt(Math.abs(Number(binanceReceive))),
-            receiveDecimals,
-            true,
+        // Calculate price (USDC per base token) from Renegade data
+        const renegadeBaseNum = formatUnitsToNumber(renegadeTrade.base_amount, baseToken.decimals);
+        const renegadeQuoteNum = formatUnitsToNumber(
+            renegadeTrade.quote_amount,
+            quoteToken.decimals,
         );
+        const priceBinanceAndRenegade =
+            renegadeBaseNum !== 0 ? renegadeQuoteNum / renegadeBaseNum : 0;
+        const priceBinanceAndRenegadeFormatted = formatUSDC(priceBinanceAndRenegade);
 
-        const renegadeReceiveFormatted = formatNumber(
-            BigInt(Math.abs(Number(renegadeReceive))),
-            receiveDecimals,
-            true,
-        );
-
-        // Calculate delta bps numerically then format as string
-        const binanceReceiveNum = formatUnitsToNumber(binanceReceive, receiveDecimals);
-        const renegadeReceiveNum = formatUnitsToNumber(renegadeReceive, receiveDecimals);
-
+        // Calculate delta bps - direction matters for interpretation
+        // Sell: higher Renegade price = better (positive)
+        // Buy: lower Renegade price = better (positive)
+        const priceDiff = priceBinanceAndRenegade - priceBinance;
         const deltaBpsNum =
-            binanceReceiveNum !== 0
-                ? ((renegadeReceiveNum - binanceReceiveNum) / binanceReceiveNum) * 10000
+            priceBinance !== 0
+                ? ((direction === "Sell" ? priceDiff : -priceDiff) / priceBinance) * 10000
                 : 0;
 
         const deltaBpsFormatted = `${deltaBpsNum.toFixed(2)}`;
 
         rows.push({
             deltaBps: deltaBpsFormatted,
-            receiveAmountBinance: binanceReceiveFormatted,
-            receiveAmountRenegade: renegadeReceiveFormatted,
+            priceBinance: priceBinanceFormatted,
+            priceBinanceAndRenegade: priceBinanceAndRenegadeFormatted,
             sendAmount: sendAmountFormatted,
             time: timestamp,
             timeSincePrevious,

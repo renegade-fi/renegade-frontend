@@ -40,53 +40,28 @@ export function buildColumns({
             cell: ({ row }) => {
                 const amount = row.getValue<string>("sendAmount");
                 return (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-right">{amount}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {amount} {sendTicker}
-                        </TooltipContent>
-                    </Tooltip>
+                    <div className="text-right">
+                        {amount} {sendTicker}
+                    </div>
                 );
             },
-            header: () => <div className="text-right">{sendTicker} sold</div>,
+            header: () => <div className="text-right">Trade Value</div>,
         },
         {
-            accessorKey: "receiveAmountBinance",
+            accessorKey: "priceBinance",
             cell: ({ row }) => {
-                const amount = row.getValue<string>("receiveAmountBinance");
-                return (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-right">{amount}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {amount} {receiveTicker}
-                        </TooltipContent>
-                    </Tooltip>
-                );
+                const price = row.getValue<string>("priceBinance");
+                return <div className="text-right font-mono">{price}</div>;
             },
-            header: () => <div className="text-right">{receiveTicker} bought (Binance only)</div>,
+            header: () => <div className="text-right">Price (Binance only)</div>,
         },
         {
-            accessorKey: "receiveAmountRenegade",
+            accessorKey: "priceBinanceAndRenegade",
             cell: ({ row }) => {
-                const amount = row.getValue<string>("receiveAmountRenegade");
-                return (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-right">{amount}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {amount} {receiveTicker}
-                        </TooltipContent>
-                    </Tooltip>
-                );
+                const price = row.getValue<string>("priceBinanceAndRenegade");
+                return <div className="text-right font-mono">{price}</div>;
             },
-            header: () => (
-                <div className="text-right">{receiveTicker} bought (Binance with Renegade)</div>
-            ),
+            header: () => <div className="text-right">Price (Binance with Renegade)</div>,
         },
         {
             accessorKey: "deltaBps",

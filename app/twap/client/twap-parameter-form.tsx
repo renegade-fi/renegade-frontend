@@ -210,7 +210,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
                     <InputGroupInput
                         aria-label="Dollar amount"
                         className="text-sm"
-                        defaultValue={decimalQuoteAmount || "100.0"}
+                        defaultValue={decimalQuoteAmount || "100.00"}
                         id="input_amount"
                         inputMode="decimal"
                         min="0.0"
