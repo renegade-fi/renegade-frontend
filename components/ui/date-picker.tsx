@@ -11,6 +11,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+// Parse date string (YYYY-MM-DD) in local timezone
+function parseDateStringLocal(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
 interface DatePickerProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -19,11 +25,17 @@ interface DatePickerProps {
 
 export function DatePicker({ value, onChange, className }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
-  const date = value ? new Date(value) : undefined
+  
+  // Parse date string in local time (avoid UTC conversion)
+  const date = value ? parseDateStringLocal(value) : undefined
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
-      onChange?.(selectedDate.toISOString().split('T')[0])
+      // Format date in local time (avoid UTC conversion)
+      const year = selectedDate.getFullYear()
+      const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0')
+      const day = selectedDate.getDate().toString().padStart(2, '0')
+      onChange?.(`${year}-${month}-${day}`)
     }
     setOpen(false)
   }
