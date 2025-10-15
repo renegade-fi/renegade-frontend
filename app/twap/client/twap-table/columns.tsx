@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { formatLocalDateTime } from "@/app/twap/lib/date-utils";
 import type { TwapTableRow } from "@/app/twap/lib/table-types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatTimestamp } from "@/lib/format";
 
 export function buildColumns({
     sendTicker,
@@ -17,7 +17,7 @@ export function buildColumns({
                 const time = row.getValue<string>("time");
                 const d = new Date(time);
                 if (Number.isNaN(d.getTime())) return time;
-                const formatted = formatTimestamp(d.valueOf());
+                const formatted = formatLocalDateTime(d);
 
                 let diffLabel = `${row.original.timeSinceStart} since start`;
                 if (row.original.timeSincePrevious) {
@@ -40,61 +40,72 @@ export function buildColumns({
             cell: ({ row }) => {
                 const amount = row.getValue<string>("sendAmount");
                 return (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-right">{amount}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {amount} {sendTicker}
-                        </TooltipContent>
-                    </Tooltip>
+                    <div className="text-right">
+                        {amount} {sendTicker}
+                    </div>
                 );
             },
-            header: () => <div className="text-right">{sendTicker} sold</div>,
+            header: () => <div className="text-right">Trade Value</div>,
         },
         {
-            accessorKey: "receiveAmountBinance",
-            cell: ({ row }) => {
-                const amount = row.getValue<string>("receiveAmountBinance");
-                return (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-right">{amount}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {amount} {receiveTicker}
-                        </TooltipContent>
-                    </Tooltip>
-                );
-            },
-            header: () => <div className="text-right">{receiveTicker} bought (Binance only)</div>,
+            columns: [
+                {
+                    accessorKey: "priceBinanceAndRenegade",
+                    cell: ({ row }) => {
+                        const price = row.getValue<string>("priceBinanceAndRenegade");
+                        return <div className="text-right">{price}</div>;
+                    },
+                    header: () => <div className="text-right">Price</div>,
+                },
+                {
+                    accessorKey: "receiveRenegade",
+                    cell: ({ row }) => {
+                        const amount = row.getValue<string>("receiveRenegade");
+                        return (
+                            <div className="text-right">
+                                {amount} {receiveTicker}
+                            </div>
+                        );
+                    },
+                    header: () => <div className="text-right">Size</div>,
+                },
+            ],
+            header: () => <div className="text-right">Binance-with-Renegade</div>,
+            id: "binanceWithRenegade",
         },
         {
-            accessorKey: "receiveAmountRenegade",
-            cell: ({ row }) => {
-                const amount = row.getValue<string>("receiveAmountRenegade");
-                return (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-right">{amount}</div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            {amount} {receiveTicker}
-                        </TooltipContent>
-                    </Tooltip>
-                );
-            },
-            header: () => (
-                <div className="text-right">{receiveTicker} bought (Binance with Renegade)</div>
-            ),
+            columns: [
+                {
+                    accessorKey: "priceBinance",
+                    cell: ({ row }) => {
+                        const price = row.getValue<string>("priceBinance");
+                        return <div className="text-right">{price}</div>;
+                    },
+                    header: () => <div className="text-right">Price</div>,
+                },
+                {
+                    accessorKey: "receiveBinance",
+                    cell: ({ row }) => {
+                        const amount = row.getValue<string>("receiveBinance");
+                        return (
+                            <div className="text-right">
+                                {amount} {receiveTicker}
+                            </div>
+                        );
+                    },
+                    header: () => <div className="text-right">Size</div>,
+                },
+            ],
+            header: () => <div className="text-right">Binance only</div>,
+            id: "binance",
         },
         {
             accessorKey: "deltaBps",
             cell: ({ row }) => {
                 const deltaBps = row.getValue<string>("deltaBps");
-                return <div className="text-right font-mono">{deltaBps}</div>;
+                return <div className="text-right">{deltaBps} bps</div>;
             },
-            header: () => <div className="text-right">Price improvement (bps)</div>,
+            header: () => <div className="text-right">Price improvement</div>,
         },
     ];
 }

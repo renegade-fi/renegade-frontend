@@ -113,3 +113,10 @@ export function calculateEndDate(startDate: Date, hours: number, minutes: number
     endDate.setMinutes(endDate.getMinutes() + minutes);
     return endDate;
 }
+
+/**
+ * Formats Date as MM/DD/YYYY - HH:MM:SS
+ */
+export function formatLocalDateTime(date: Date): string {
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()} - ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+}

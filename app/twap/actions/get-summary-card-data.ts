@@ -14,6 +14,8 @@ interface TwapSummary {
     receivedTicker: string;
     averagePriceBinance: number;
     averagePriceRenegade: number;
+    totalSize: number; // Requested USDC amount
+    executedSize: number; // Cumulative USDC traded
 }
 
 // Unified type for summary card containing all needed data
@@ -101,6 +103,13 @@ export function getSummaryCardData(
               ? renegadeReceived / cumulativeSold
               : 0;
 
+    // Calculate total size (requested USDC) and executed size (cumulative USDC traded)
+    const totalSize = formatUnitsToNumber(twapParams.data.quote_amount, quoteToken.decimals);
+    const executedSize = formatUnitsToNumber(
+        renegade.summary.total_quote_amount,
+        quoteToken.decimals,
+    );
+
     const summary: TwapSummary = {
         averagePriceBinance,
         averagePriceRenegade,
@@ -109,9 +118,11 @@ export function getSummaryCardData(
         cumulativeDeltaBps,
         cumulativeRenegadeReceived: renegadeReceived,
         cumulativeSold,
+        executedSize,
         receivedTicker: receivedToken.ticker,
         renegadeFeeBps,
         soldTicker: soldToken.ticker,
+        totalSize,
     };
 
     return {
