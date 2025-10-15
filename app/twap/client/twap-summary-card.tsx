@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableFooter, TableRow } from "@/components/ui/table";
 import type { TwapSummaryCardData } from "../actions/get-summary-card-data";
 import { calculateDuration, formatLocalDateTime } from "../lib/date-utils";
+import { formatUSDC } from "../lib/utils";
 
 interface TwapSummaryProps {
     data: TwapSummaryCardData;
@@ -35,7 +36,7 @@ export function TwapSummaryCard({ data }: TwapSummaryProps) {
                                         Total Size
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        {summary.totalSize.toFixed(4)} USDC
+                                        {formatUSDC(summary.totalSize)} USDC
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
@@ -43,7 +44,7 @@ export function TwapSummaryCard({ data }: TwapSummaryProps) {
                                         Executed Size
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        {summary.executedSize.toFixed(4)} USDC
+                                        {formatUSDC(summary.executedSize)} USDC
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
@@ -91,7 +92,7 @@ export function TwapSummaryCard({ data }: TwapSummaryProps) {
                                         Average Price (Binance only)
                                     </TableCell>
                                     <TableCell className="text-right tabular-nums">
-                                        {summary.averagePriceBinance.toFixed(4)}
+                                        {formatUSDC(summary.averagePriceBinance)}
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
@@ -99,7 +100,7 @@ export function TwapSummaryCard({ data }: TwapSummaryProps) {
                                         Average Price (with Renegade)
                                     </TableCell>
                                     <TableCell className="text-right tabular-nums">
-                                        {summary.averagePriceRenegade.toFixed(4)}
+                                        {formatUSDC(summary.averagePriceRenegade)}
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
