@@ -70,7 +70,7 @@ export function buildColumns({
                     header: () => <div className="text-right">Size</div>,
                 },
             ],
-            header: () => <div className="text-right">Renegade + Binance</div>,
+            header: () => <div className="text-right">Binance-with-Renegade</div>,
             id: "binanceWithRenegade",
         },
         {
