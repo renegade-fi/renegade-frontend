@@ -109,7 +109,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                     </TableBody>
                 </Table>
             </div>
-            {table.getRowModel().rows.length > 0 ? (
+            {table.getRowModel().rows.length > 0 && table.getPageCount() > 1 ? (
                 <div className="flex items-center justify-end space-x-2 pt-4">
                     <Button
                         disabled={!table.getCanPreviousPage()}

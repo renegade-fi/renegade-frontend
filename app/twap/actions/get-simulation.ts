@@ -33,16 +33,26 @@ interface TwapSummary {
     receivedTicker: string;
 }
 
+interface TwapRequestSummary {
+    numTrades: number;
+    startTime: string; // ISO
+    endTime: string; // ISO
+    direction: "Buy" | "Sell";
+    sendTicker: string;
+    receiveTicker: string;
+}
+
 export async function getSimulation(searchParams: SearchParams): Promise<{
     baseMint?: string;
     simData: z.output<typeof SimulateTwapResponseSchema> | null;
     table: TwapTableData | null;
     summary: TwapSummary | null;
+    request: TwapRequestSummary | null;
     error?: string;
 }> {
     const urlResult = TwapUrlParamsSchema.safeParse(searchParams);
     if (!urlResult.success) {
-        return { baseMint: undefined, simData: null, summary: null, table: null };
+        return { baseMint: undefined, request: null, simData: null, summary: null, table: null };
     }
 
     const { data } = urlResult;
@@ -52,7 +62,7 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
         ? Token.fromTickerOnChain("USDC", baseToken.chain as ChainId)
         : undefined;
     if (!baseToken || !quoteToken) {
-        return { baseMint: undefined, simData: null, summary: null, table: null };
+        return { baseMint: undefined, request: null, simData: null, summary: null, table: null };
     }
 
     const serverParams = TwapParamsSchema.parse({
@@ -68,6 +78,18 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
 
     const feeParam = searchParams.binance_taker_bps as string | undefined;
     const binanceFee = feeParam ? Number(feeParam) : DEFAULT_BINANCE_FEE;
+
+    // Build request summary from validated params and tokens
+    const sendTicker = data.direction === "Buy" ? quoteToken.ticker : baseToken.ticker;
+    const receiveTicker = data.direction === "Buy" ? baseToken.ticker : quoteToken.ticker;
+    const request: TwapRequestSummary = {
+        direction: data.direction,
+        endTime: data.end_time,
+        numTrades: data.num_trades,
+        receiveTicker,
+        sendTicker,
+        startTime: data.start_time,
+    };
 
     try {
         const simData = await twapLoader(TwapParams.new(serverParams), undefined, {
@@ -85,12 +107,13 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
             quoteToken,
         );
 
-        return { baseMint: serverParams.base_mint, simData, summary, table };
+        return { baseMint: serverParams.base_mint, request, simData, summary, table };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Failed to load simulation";
         return {
             baseMint: serverParams.base_mint,
             error: errorMessage,
+            request,
             simData: null,
             summary: null,
             table: null,
