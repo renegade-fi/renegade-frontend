@@ -55,15 +55,49 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
     });
 
     return (
-        <div>
+        <>
             <div className="border">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
+                                    const parentColumn = header.column.parent;
+                                    const isGroupColumn = !!parentColumn;
+                                    const parentColumns = parentColumn?.columns;
+                                    const isFirstInGroup =
+                                        isGroupColumn &&
+                                        parentColumns?.[0]?.id === header.column.id;
+                                    const isLastInGroup =
+                                        isGroupColumn &&
+                                        parentColumns?.[parentColumns.length - 1]?.id ===
+                                            header.column.id;
+                                    // Header group cell (colSpan > 1)
+                                    const isHeaderGroup = header.colSpan > 1;
+                                    const isTradeValue = header.column.id === "sendAmount";
+                                    const isSizeColumn =
+                                        header.column.id === "receiveRenegade" ||
+                                        header.column.id === "receiveBinance";
+
                                     return (
-                                        <TableHead colSpan={header.colSpan} key={header.id}>
+                                        <TableHead
+                                            className={
+                                                isHeaderGroup
+                                                    ? "border-x"
+                                                    : isFirstInGroup &&
+                                                        !isTradeValue &&
+                                                        !isSizeColumn
+                                                      ? "border-l"
+                                                      : isLastInGroup
+                                                        ? "border-r"
+                                                        : ""
+                                            }
+                                            colSpan={header.colSpan}
+                                            data-group={isGroupColumn ? parentColumn.id : undefined}
+                                            data-group-first={isFirstInGroup || undefined}
+                                            data-group-last={isLastInGroup || undefined}
+                                            key={header.id}
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -84,14 +118,64 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                                         data-state={row.getIsSelected() && "selected"}
                                         key={row.id}
                                     >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext(),
-                                                )}
-                                            </TableCell>
-                                        ))}
+                                        {row.getVisibleCells().map((cell, cellIndex, cells) => {
+                                            const parentColumn = cell.column.parent;
+                                            const isGroupColumn = !!parentColumn;
+                                            const parentColumns = parentColumn?.columns;
+                                            const isFirstInGroup =
+                                                isGroupColumn &&
+                                                parentColumns?.[0]?.id === cell.column.id;
+                                            const isLastInGroup =
+                                                isGroupColumn &&
+                                                parentColumns?.[parentColumns.length - 1]?.id ===
+                                                    cell.column.id;
+                                            const isTradeValue = cell.column.id === "sendAmount";
+                                            const isSizeColumn =
+                                                cell.column.id === "receiveRenegade" ||
+                                                cell.column.id === "receiveBinance";
+                                            const isLastCell = cellIndex === cells.length - 1;
+                                            const nextCell = cells[cellIndex + 1];
+                                            const nextIsTradeValue =
+                                                nextCell?.column.id === "sendAmount";
+                                            const nextIsSizeColumn =
+                                                nextCell?.column.id === "receiveRenegade" ||
+                                                nextCell?.column.id === "receiveBinance";
+
+                                            // Add right border to all cells except: last cell, Trade Value, Size columns, or cells before Trade Value/Size
+                                            const shouldAddRightBorder =
+                                                !isLastCell &&
+                                                !isTradeValue &&
+                                                !isSizeColumn &&
+                                                !nextIsTradeValue &&
+                                                !nextIsSizeColumn;
+
+                                            return (
+                                                <TableCell
+                                                    className={`border-border ${
+                                                        isFirstInGroup &&
+                                                        !isTradeValue &&
+                                                        !isSizeColumn
+                                                            ? "border-l"
+                                                            : ""
+                                                    } ${
+                                                        isLastInGroup || shouldAddRightBorder
+                                                            ? "border-r"
+                                                            : ""
+                                                    }`}
+                                                    data-group={
+                                                        isGroupColumn ? parentColumn.id : undefined
+                                                    }
+                                                    data-group-first={isFirstInGroup || undefined}
+                                                    data-group-last={isLastInGroup || undefined}
+                                                    key={cell.id}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext(),
+                                                    )}
+                                                </TableCell>
+                                            );
+                                        })}
                                     </TableRow>
                                 );
                             })
@@ -121,7 +205,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                     </Button>
                 </div>
             ) : null}
-        </div>
+        </>
     );
 }
 
