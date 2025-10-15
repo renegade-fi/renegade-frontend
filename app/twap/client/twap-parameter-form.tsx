@@ -7,6 +7,12 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+    InputGroupText,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import {
     Select,
@@ -44,10 +50,6 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
 
     // Pre-populate form with existing values if they exist
     const [direction, setDirection] = React.useState(defaults?.direction ?? "Buy");
-    // Amount entry mode defaulted by presence of non-zero quote_amount
-    const initialAmountMode: "base" | "quote" =
-        Number.parseFloat(defaults?.quote_amount ?? "0") > 0 ? "quote" : "base";
-    const [amountMode, setAmountMode] = React.useState<"base" | "quote">(initialAmountMode);
 
     // Binance fee tier selection (passthrough to URL params)
     const initialFeeTier =
@@ -58,19 +60,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
 
     const feeTierToTakerBps = BINANCE_TAKER_BPS_BY_TIER as Record<string, number>;
 
-    // Convert raw base_amount back to decimal for display
-    const decimalBaseAmount = React.useMemo(() => {
-        const baseAmount = defaults?.base_amount;
-        if (!baseAmount) return "";
-        const token = defaults?.base_ticker ? Token.fromTicker(defaults.base_ticker) : undefined;
-        if (!token) return baseAmount;
-
-        const decimalValue = formatUnitsToNumber(baseAmount, token.decimals);
-        const formatted = decimalValue.toString();
-        return formatted.includes(".") ? formatted : `${formatted}.0`;
-    }, [defaults?.base_amount, defaults?.base_ticker]);
-
-    // Convert raw quote_amount (USDC) back to decimal for display when in $ mode
+    // Convert raw quote_amount (USDC) back to decimal for display
     const decimalQuoteAmount = React.useMemo(() => {
         const quoteAmount = defaults?.quote_amount;
         if (!quoteAmount) return "";
@@ -92,7 +82,6 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
         return defaultToken;
     }, [defaults?.base_ticker, defaultToken]);
     const [selectedBase, setSelectedBase] = React.useState(initialSelectedBase);
-    const selectedBaseTicker = React.useMemo(() => selectedBase.split(":")[0], [selectedBase]);
 
     // Keep selected base in sync if URL/base_mint changes without remount
     React.useEffect(() => {
@@ -189,50 +178,24 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
                 <Label className="text-muted-foreground" htmlFor="input_amount">
                     Amount
                 </Label>
-                <div className="flex gap-2 items-center">
-                    <Input
-                        aria-label={amountMode === "quote" ? "Dollar amount" : "Token amount"}
-                        className="text-sm rounded-none"
-                        defaultValue={
-                            initialAmountMode === "quote"
-                                ? decimalQuoteAmount || ""
-                                : decimalBaseAmount || "1.0"
-                        }
+                <InputGroup>
+                    <InputGroupInput
+                        aria-label="Dollar amount"
+                        className="text-sm"
+                        defaultValue={decimalQuoteAmount || "100.0"}
                         id="input_amount"
                         inputMode="decimal"
                         min="0.0"
                         name="input_amount"
-                        placeholder={amountMode === "quote" ? "100.00" : "10.0"}
+                        placeholder="100.00"
                         required
                         step="any"
                         type="number"
                     />
-
-                    {/* Toggle between entering base tokens vs dollars (quote) */}
-                    <div className="flex bg-muted">
-                        <Button
-                            className="h-8 px-3"
-                            onClick={() => setAmountMode("base")}
-                            size="sm"
-                            type="button"
-                            variant={amountMode === "base" ? "default" : "ghost"}
-                        >
-                            {selectedBaseTicker}
-                        </Button>
-                        <Button
-                            className="h-8 px-3"
-                            onClick={() => setAmountMode("quote")}
-                            size="sm"
-                            title="Enter amount in dollars"
-                            type="button"
-                            variant={amountMode === "quote" ? "default" : "ghost"}
-                        >
-                            $
-                        </Button>
-                    </div>
-                </div>
-                {/* Submit the selected mode so the server params are built correctly */}
-                <input name="amount_mode" type="hidden" value={amountMode} />
+                    <InputGroupAddon align="inline-end">
+                        <InputGroupText>USDC</InputGroupText>
+                    </InputGroupAddon>
+                </InputGroup>
             </div>
 
             <div className="space-y-2">
@@ -370,21 +333,12 @@ function buildQueryParams(formData: FormData, selectedBase: string): URLSearchPa
     const direction = formData.get("direction") as string;
     params.set("direction", direction);
 
-    // 3. Set the input amount according to selected mode
-    const amountMode = formData.get("amount_mode") as string;
+    // 3. Set the input amount (always in dollars/quote)
     const inputAmount = Number(formData.get("input_amount"));
-    if (amountMode === "quote") {
-        // Entered in dollars: convert to quote raw units, zero base_amount
-        const usdc = Token.fromTickerOnChain("USDC", chainId);
-        const quoteRaw = convertDecimalToRaw(inputAmount, usdc.decimals);
-        params.set("base_amount", "0");
-        params.set("quote_amount", quoteRaw.toString());
-    } else {
-        // Entered in tokens: convert to base raw units, zero quote_amount
-        const baseRaw = convertDecimalToRaw(inputAmount, baseToken.decimals);
-        params.set("base_amount", baseRaw.toString());
-        params.set("quote_amount", "0");
-    }
+    const usdc = Token.fromTickerOnChain("USDC", chainId);
+    const quoteRaw = convertDecimalToRaw(inputAmount, usdc.decimals);
+    params.set("base_amount", "0");
+    params.set("quote_amount", quoteRaw.toString());
 
     // 4. Set the start and end times
     const startTimeValue = formData.get("start_time") as string;
