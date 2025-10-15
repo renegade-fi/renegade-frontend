@@ -31,6 +31,9 @@ interface TwapSummary {
     // Labels
     soldTicker: string;
     receivedTicker: string;
+    // Average prices (USDC per base)
+    averagePriceBinance: number;
+    averagePriceRenegade: number;
 }
 
 interface TwapRequestSummary {
@@ -313,7 +316,20 @@ function computeSummaryMetrics(
     const renegadeFeeBps = Number(renegade.summary.fee) * 10000;
     const binanceFeeBps = Number(binance.summary.fee) * 10000;
 
+    // Calculate average prices (always USDC per base)
+    const averagePriceBinance =
+        direction === "Buy"
+            ? cumulativeSold !== 0 ? cumulativeSold / binanceReceived : 0
+            : binanceReceived !== 0 ? binanceReceived / cumulativeSold : 0;
+    
+    const averagePriceRenegade =
+        direction === "Buy"
+            ? cumulativeSold !== 0 ? cumulativeSold / renegadeReceived : 0
+            : renegadeReceived !== 0 ? renegadeReceived / cumulativeSold : 0;
+
     return {
+        averagePriceBinance,
+        averagePriceRenegade,
         binanceFeeBps,
         cumulativeBinanceReceived: binanceReceived,
         cumulativeDeltaBps,
