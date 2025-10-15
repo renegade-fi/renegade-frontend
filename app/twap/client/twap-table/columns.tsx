@@ -17,7 +17,21 @@ export function buildColumns({
                 const time = row.getValue<string>("time");
                 const d = new Date(time);
                 if (Number.isNaN(d.getTime())) return time;
-                return formatTimestamp(d.valueOf());
+                const formatted = formatTimestamp(d.valueOf());
+
+                let diffLabel = `${row.original.timeSinceStart} since start`;
+                if (row.original.timeSincePrevious) {
+                    diffLabel += ` | ${row.original.timeSincePrevious} since previous clip`;
+                }
+
+                return (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="font-medium">{formatted}</div>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">{diffLabel}</TooltipContent>
+                    </Tooltip>
+                );
             },
             header: () => <div>Time</div>,
         },
