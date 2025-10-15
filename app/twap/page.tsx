@@ -1,6 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getSimulation } from "./actions/get-simulation";
-import { TwapComparisonChart } from "./client/twap-comparison-chart";
 import { TwapParameterForm } from "./client/twap-parameter-form";
 import { TwapSimTable } from "./client/twap-sim-table";
 import { TwapSummaryCard } from "./client/twap-summary-card";
@@ -22,10 +21,7 @@ export default async function TwapPage({ searchParams }: { searchParams: SearchP
                     </h1>
                     <div className="flex gap-6 mt-6">
                         <div className="grid grid-rows-[auto_1fr] gap-6 flex-1">
-                            <div className="flex gap-6">
-                                <TwapSummaryCard request={request} summary={summary} />
-                                <TwapComparisonChart summary={summary} />
-                            </div>
+                            <TwapSummaryCard request={request} summary={summary} />
                             <TwapSimTable error={error} table={table} />
                         </div>
 
