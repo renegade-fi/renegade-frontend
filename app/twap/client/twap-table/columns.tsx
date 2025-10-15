@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { formatLocalDateTime } from "@/app/twap/lib/date-utils";
 import type { TwapTableRow } from "@/app/twap/lib/table-types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatTimestamp } from "@/lib/format";
 
 export function buildColumns({
     sendTicker,
@@ -17,7 +17,7 @@ export function buildColumns({
                 const time = row.getValue<string>("time");
                 const d = new Date(time);
                 if (Number.isNaN(d.getTime())) return time;
-                const formatted = formatTimestamp(d.valueOf());
+                const formatted = formatLocalDateTime(d);
 
                 let diffLabel = `${row.original.timeSinceStart} since start`;
                 if (row.original.timeSincePrevious) {
