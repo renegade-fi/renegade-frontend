@@ -9,11 +9,11 @@ import {
     EmptyTitle,
 } from "@/components/ui/empty";
 
-interface TwapSimTableErrorProps {
+interface TwapSimulationErrorProps {
     error: string;
 }
 
-export function TwapSimTableError({ error }: TwapSimTableErrorProps) {
+export function TwapSimulationError({ error }: TwapSimulationErrorProps) {
     return (
         <Empty>
             <EmptyHeader>
