@@ -55,7 +55,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
     });
 
     return (
-        <>
+        <div>
             <div className="border">
                 <Table>
                     <TableHeader>
@@ -74,7 +74,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                                             header.column.id;
                                     // Header group cell (colSpan > 1)
                                     const isHeaderGroup = header.colSpan > 1;
-                                    const isTradeValue = header.column.id === "sendAmount";
+                                    const isClipSize = header.column.id === "sendAmount";
                                     const isSizeColumn =
                                         header.column.id === "receiveRenegade" ||
                                         header.column.id === "receiveBinance";
@@ -84,9 +84,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                                             className={
                                                 isHeaderGroup
                                                     ? "border-x"
-                                                    : isFirstInGroup &&
-                                                        !isTradeValue &&
-                                                        !isSizeColumn
+                                                    : isFirstInGroup && !isClipSize && !isSizeColumn
                                                       ? "border-l"
                                                       : isLastInGroup
                                                         ? "border-r"
@@ -129,31 +127,31 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                                                 isGroupColumn &&
                                                 parentColumns?.[parentColumns.length - 1]?.id ===
                                                     cell.column.id;
-                                            const isTradeValue = cell.column.id === "sendAmount";
+                                            const isClipSize = cell.column.id === "sendAmount";
                                             const isSizeColumn =
                                                 cell.column.id === "receiveRenegade" ||
                                                 cell.column.id === "receiveBinance";
                                             const isLastCell = cellIndex === cells.length - 1;
                                             const nextCell = cells[cellIndex + 1];
-                                            const nextIsTradeValue =
+                                            const nextIsClipSize =
                                                 nextCell?.column.id === "sendAmount";
                                             const nextIsSizeColumn =
                                                 nextCell?.column.id === "receiveRenegade" ||
                                                 nextCell?.column.id === "receiveBinance";
 
-                                            // Add right border to all cells except: last cell, Trade Value, Size columns, or cells before Trade Value/Size
+                                            // Add right border to all cells except: last cell, Clip Size, Size columns, or cells before Clip Size/Size
                                             const shouldAddRightBorder =
                                                 !isLastCell &&
-                                                !isTradeValue &&
+                                                !isClipSize &&
                                                 !isSizeColumn &&
-                                                !nextIsTradeValue &&
+                                                !nextIsClipSize &&
                                                 !nextIsSizeColumn;
 
                                             return (
                                                 <TableCell
                                                     className={`border-border ${
                                                         isFirstInGroup &&
-                                                        !isTradeValue &&
+                                                        !isClipSize &&
                                                         !isSizeColumn
                                                             ? "border-l"
                                                             : ""
@@ -205,16 +203,16 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
                     </Button>
                 </div>
             ) : null}
-        </>
+        </div>
     );
 }
 
-interface TwapSimTableProps {
+interface TwapFillsTableProps {
     meta: TwapTableMeta;
     rows: TwapTableRow[];
 }
 
-export function TwapSimTable({ meta, rows }: TwapSimTableProps) {
+export function TwapFillsTable({ meta, rows }: TwapFillsTableProps) {
     const columns = React.useMemo(() => buildColumns(meta), [meta]);
     return <DataTable columns={columns} data={rows} />;
 }
