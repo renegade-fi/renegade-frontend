@@ -1,10 +1,12 @@
+import { getInfoTableData } from "./actions/get-info-table-data";
+import { getPriceTableData } from "./actions/get-price-table-data";
 import { getSimulation } from "./actions/get-simulation";
-import { getSummaryCardData } from "./actions/get-summary-card-data";
 import { getTableMeta, getTableRows } from "./actions/get-table-data";
-import { TwapSimTable } from "./client/twap-sim-table";
-import { TwapSimTableEmpty } from "./client/twap-sim-table-empty";
-import { TwapSimTableError } from "./client/twap-sim-table-error";
-import { TwapSummaryCard } from "./client/twap-summary-card";
+import { TwapFillsTable } from "./client/twap-fills-table";
+import { TwapInfoTable } from "./client/twap-info-table";
+import { TwapPriceTable } from "./client/twap-price-table";
+import { TwapSimulationEmpty } from "./client/twap-simulation-empty";
+import { TwapSimulationError } from "./client/twap-simulation-error";
 import type { SearchParams } from "./page";
 
 interface TwapSimulationResultsProps {
@@ -16,27 +18,31 @@ export async function TwapSimulationResults({ searchParams }: TwapSimulationResu
 
     // Error state
     if (error) {
-        return <TwapSimTableError error={error} />;
+        return <TwapSimulationError error={error} />;
     }
 
     // Empty state
     if (!simData || !twapParams) {
-        return <TwapSimTableEmpty />;
+        return <TwapSimulationEmpty />;
     }
 
     // Success state: compute and display results
-    const summaryCardData = getSummaryCardData(simData, twapParams);
+    const infoTableData = getInfoTableData(simData, twapParams);
+    const priceTableData = getPriceTableData(simData, twapParams);
     const tableMeta = getTableMeta(simData, twapParams);
     const tableRows = getTableRows(simData, twapParams);
 
     return (
         <>
-            <TwapSummaryCard data={summaryCardData} />
+            <div className="flex gap-6 flex-1">
+                <TwapInfoTable data={infoTableData} />
+                <TwapPriceTable data={priceTableData} />
+            </div>
             <div className="space-y-4">
                 <h3 className="font-serif text-xl font-bold tracking-tighter lg:tracking-normal">
                     Fills
                 </h3>
-                <TwapSimTable meta={tableMeta} rows={tableRows} />
+                <TwapFillsTable meta={tableMeta} rows={tableRows} />
             </div>
         </>
     );

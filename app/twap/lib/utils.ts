@@ -11,8 +11,7 @@ export function cn(...inputs: ClassValue[]) {
  * Shows 2 decimals only if value has decimals, otherwise whole number
  */
 export function formatUSDC(value: number): string {
-    const hasDecimals = value % 1 !== 0;
-    const format = hasDecimals ? "0,0.00" : "0,0";
+    const format = "0,0[.]00";
     return numeral(value).format(format);
 }
 
