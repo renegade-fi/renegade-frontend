@@ -41,17 +41,6 @@ export const TwapOptionsSchema = z.object({
     binance_fee: z.number(),
 });
 
-// URL-level schema where we accept tickers instead of addresses
-export const TwapUrlParamsSchema = z.object({
-    base_amount: z.string().optional().default("0"), // Ignored, always use quote_amount
-    base_ticker: z.string(),
-    direction: QuoteDirectionSchema,
-    end_time: z.iso.datetime(),
-    num_trades: z.coerce.number().int().positive(),
-    quote_amount: z.string().default("0"),
-    start_time: z.iso.datetime(),
-});
-
 export class TwapParams {
     constructor(public data: z.infer<typeof TwapParamsSchema>) {}
     static new(data: z.infer<typeof TwapParamsSchema>) {
