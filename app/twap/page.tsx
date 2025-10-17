@@ -1,13 +1,17 @@
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { simulateTwapAction } from "./actions/simulate-twap-action";
 import { TwapParameterForm } from "./client/twap-parameter-form";
 import { TwapSimulationResults } from "./twap-simulation-results";
 
-// The type of the search params
-export type SearchParams = { [key: string]: string | string[] | undefined };
-type SearchParamsPromise = Promise<SearchParams>;
-
-export default async function TwapPage({ searchParams }: { searchParams: SearchParamsPromise }) {
-    const params = await searchParams;
+export default function TwapPage() {
+    // Lift mutation to parent - both children can access it
+    const mutation = useMutation({
+        mutationFn: simulateTwapAction,
+        mutationKey: ["twap-simulation"],
+    });
 
     return (
         <ScrollArea className="flex-grow" type="always">
@@ -18,11 +22,11 @@ export default async function TwapPage({ searchParams }: { searchParams: SearchP
                     </h1>
                     <div className="flex gap-6 mt-6">
                         <div className="grid grid-rows-[auto_1fr] gap-6 flex-1">
-                            <TwapSimulationResults searchParams={params} />
+                            <TwapSimulationResults mutation={mutation} />
                         </div>
 
                         <div className="self-start p-3 border">
-                            <TwapParameterForm searchParams={params} />
+                            <TwapParameterForm mutation={mutation} />
                         </div>
                     </div>
                 </div>
