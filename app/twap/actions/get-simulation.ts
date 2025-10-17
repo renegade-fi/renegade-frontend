@@ -2,10 +2,9 @@
 
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
-import type z from "zod";
 import { DEFAULT_BINANCE_FEE } from "../lib/binance-fee-tiers";
 import { findTokenByTicker } from "../lib/token-utils";
-import type { SimulateTwapResponseSchema } from "../lib/twap-server-client/api-types/request-response";
+import type { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
 import {
     TwapParams,
     TwapParamsSchema,
@@ -16,7 +15,7 @@ import { twapLoader } from "../server/loader";
 export type SearchParams = { [key: string]: string | string[] | undefined };
 
 export async function getSimulation(searchParams: SearchParams): Promise<{
-    simData: z.output<typeof SimulateTwapResponseSchema> | null;
+    simData: TwapSimulation | null;
     twapParams: TwapParams | null;
     error?: string;
 }> {
