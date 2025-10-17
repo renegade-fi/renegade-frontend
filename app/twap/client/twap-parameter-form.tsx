@@ -31,7 +31,7 @@ import {
 } from "../lib/date-utils";
 import { getTokens } from "../lib/token-utils";
 import { TwapUrlParamsSchema } from "../lib/twap-server-client/api-types/twap";
-import { convertDecimalToRaw, formatUnitsToNumber } from "../lib/utils";
+import { convertDecimalToRaw } from "../lib/utils";
 import type { SearchParams } from "../page";
 import { DateTimePicker } from "./date-time-picker";
 
@@ -78,7 +78,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
         if (!quoteAmount) return "";
         const token = Token.fromTicker("USDC");
         if (!token) return quoteAmount;
-        const decimalValue = formatUnitsToNumber(quoteAmount, token.decimals);
+        const decimalValue = token.convertToDecimal(BigInt(quoteAmount));
         return numeral(decimalValue).format("0[.]00");
     }, [defaults?.quote_amount]);
 

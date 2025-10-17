@@ -29,7 +29,7 @@ export async function TwapSimulationResults({ searchParams }: TwapSimulationResu
     // Success state: compute and display results
     const infoTableData = getInfoTableData(simData, twapParams);
     const priceTableData = getPriceTableData(simData, twapParams);
-    const tableMeta = getTableMeta(simData, twapParams);
+    const tableMeta = getTableMeta(twapParams);
     const tableRows = getTableRows(simData, twapParams);
 
     return (

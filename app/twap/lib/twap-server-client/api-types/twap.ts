@@ -1,6 +1,7 @@
 import z from "zod";
 import { zHexString } from "@/env/schema";
 import { resolveAddress } from "@/lib/token";
+import { formatTokenAmount, formatUSDC } from "../../utils";
 import { QuoteDirectionSchema } from "./index";
 import type { TwapStrategy } from "./request-response";
 
@@ -70,28 +71,42 @@ export class TwapParams {
     }
 
     // Get direction from params
-    getDirection(): "Buy" | "Sell" {
+    direction(): "Buy" | "Sell" {
         return this.data.direction;
     }
 
-    // Get the ticker being sent based on direction
-    getSendTicker(baseToken: any, quoteToken: any): string {
-        return this.data.direction === "Buy" ? quoteToken.ticker : baseToken.ticker;
-    }
-
-    // Get the ticker being received based on direction
-    getReceiveTicker(baseToken: any, quoteToken: any): string {
-        return this.data.direction === "Buy" ? baseToken.ticker : quoteToken.ticker;
-    }
-
     // Resolve base token from mint
-    getBaseToken() {
+    baseToken() {
         return resolveAddress(this.data.base_mint);
     }
 
     // Resolve quote token from mint
-    getQuoteToken() {
+    quoteToken() {
         return resolveAddress(this.data.quote_mint);
+    }
+
+    sendToken() {
+        return this.data.direction === "Buy" ? this.quoteToken() : this.baseToken();
+    }
+
+    receiveToken() {
+        return this.data.direction === "Buy" ? this.baseToken() : this.quoteToken();
+    }
+
+    quoteAmount() {
+        return BigInt(this.data.quote_amount);
+    }
+
+    decimalCorrectedQuoteAmount() {
+        return this.quoteToken().convertToDecimal(this.quoteAmount());
+    }
+
+    baseAmount() {
+        return BigInt(this.data.base_amount);
+    }
+
+    decimalCorrectedBaseAmount() {
+        return this.baseToken().convertToDecimal(this.baseAmount());
     }
 }
 
@@ -111,6 +126,77 @@ export const TwapTradeResultSchema = z.object({
     timestamp: z.iso.datetime(),
 });
 
+export class TwapTradeResult {
+    constructor(public data: z.infer<typeof TwapTradeResultSchema>) {}
+
+    static new(data: z.infer<typeof TwapTradeResultSchema>) {
+        return new TwapTradeResult(data);
+    }
+
+    // Token resolution methods
+    baseToken() {
+        return resolveAddress(this.data.base_mint);
+    }
+
+    quoteToken() {
+        return resolveAddress(this.data.quote_mint);
+    }
+
+    sendToken() {
+        return this.data.direction === "Buy" ? this.quoteToken() : this.baseToken();
+    }
+
+    receiveToken() {
+        return this.data.direction === "Buy" ? this.baseToken() : this.quoteToken();
+    }
+
+    // Raw amount methods (as bigint strings)
+    sendAmount(): bigint {
+        return this.data.direction === "Buy"
+            ? BigInt(this.data.quote_amount)
+            : BigInt(this.data.base_amount);
+    }
+
+    receiveAmount(): bigint {
+        return this.data.direction === "Buy"
+            ? BigInt(this.data.base_amount)
+            : BigInt(this.data.quote_amount);
+    }
+
+    // Decimal-corrected amount methods
+    decimalCorrectedSendAmount(): number {
+        return this.sendToken().convertToDecimal(this.sendAmount());
+    }
+
+    decimalCorrectedReceiveAmount(): number {
+        return this.receiveToken().convertToDecimal(this.receiveAmount());
+    }
+
+    // Price calculation (USDC per base token)
+    price(): number {
+        const baseNum = this.baseToken().convertToDecimal(BigInt(this.data.base_amount));
+        const quoteNum = this.quoteToken().convertToDecimal(BigInt(this.data.quote_amount));
+        return baseNum !== 0 ? quoteNum / baseNum : 0;
+    }
+
+    // Formatted methods (importing formatting functions from utils)
+    formattedSendAmount(): string {
+        const amount = this.decimalCorrectedSendAmount();
+        // Use USDC formatting for Buy (sending USDC), token formatting for Sell (sending base token)
+        return this.data.direction === "Buy" ? formatUSDC(amount) : formatTokenAmount(amount);
+    }
+
+    formattedReceiveAmount(): string {
+        const amount = this.decimalCorrectedReceiveAmount();
+        // Use token formatting for Buy (receiving base token), USDC formatting for Sell (receiving USDC)
+        return this.data.direction === "Buy" ? formatTokenAmount(amount) : formatUSDC(amount);
+    }
+
+    formattedPrice(): string {
+        return formatUSDC(this.price());
+    }
+}
+
 // The result of a TWAP simulation
 export const TwapSimulationResultSchema = z.object({
     // The trades that were simulated
@@ -128,5 +214,4 @@ export const TwapSimulationSummarySchema = z.object({
 });
 
 export type TwapParamsData = z.infer<typeof TwapParamsSchema>;
-export type TwapTradeResult = z.infer<typeof TwapTradeResultSchema>;
 export type TwapSimulationResult = z.infer<typeof TwapSimulationResultSchema>;
