@@ -4,13 +4,14 @@ import type z from "zod";
 import { client as PriceReporterClient } from "@/lib/clients/price-reporter";
 import { findTokenByAddress } from "../lib/token-utils";
 import { TwapClient } from "../lib/twap-server-client";
-import type {
-    SimulateTwapResponseSchema,
-    TwapStrategy,
+import {
+    type SimulateTwapResponseSchema,
+    TwapSimulation,
+    type TwapStrategy,
 } from "../lib/twap-server-client/api-types/request-response";
 import type { TwapOptionsSchema, TwapParamsData } from "../lib/twap-server-client/api-types/twap";
 import { TwapParams } from "../lib/twap-server-client/api-types/twap";
-import { convertDecimalToRaw, formatUnitsToNumber } from "../lib/utils";
+import { convertDecimalToRaw } from "../lib/utils";
 
 // The default binance fee
 const DEFAULT_BINANCE_FEE = 0.0006;
@@ -25,8 +26,9 @@ export async function twapLoader(
     twapParams: TwapParams,
     strategies: TwapStrategy[] = ["Renegade", "Binance"],
     options: z.infer<typeof TwapOptionsSchema> = { binance_fee: DEFAULT_BINANCE_FEE },
-): Promise<z.output<typeof SimulateTwapResponseSchema>> {
-    return await cachedSimulateTwap(twapParams.data, strategies, options);
+): Promise<TwapSimulation> {
+    const data = await cachedSimulateTwap(twapParams.data, strategies, options);
+    return TwapSimulation.new(data);
 }
 
 // Core implementation: enrich params from quote_amount (if provided) and run simulation
@@ -51,8 +53,7 @@ async function simulateTwapWithPrice(
 function getBaseAmountFromQuote(quoteAmt: string, baseDecimals: number, price: number): bigint {
     // Convert the quote amount to a decimal value
     const quoteToken = Token.fromTicker("USDC");
-    const quoteDecimals = quoteToken.decimals;
-    const quoteAmtNumber = formatUnitsToNumber(quoteAmt, quoteDecimals);
+    const quoteAmtNumber = quoteToken.convertToDecimal(BigInt(quoteAmt));
 
     // The decimal corrected base amount
     const decimalCorrectedBaseAmt = quoteAmtNumber / price;

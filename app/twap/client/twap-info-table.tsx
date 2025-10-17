@@ -38,6 +38,19 @@ export function TwapInfoTable({ data }: TwapInfoTableProps) {
                             {formatUSDC(data.totalSize)} USDC
                         </TableCell>
                     </TableRow>
+                    {data.renegadeFillPercent !== undefined && (
+                        <TableRow>
+                            <TableCell className="text-muted-foreground">
+                                Routed through Renegade
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <span className="tabular-nums">
+                                    {(data.renegadeFillPercent * 100).toFixed(1)}
+                                </span>
+                                %
+                            </TableCell>
+                        </TableRow>
+                    )}
                     <TableRow>
                         <TableCell className="text-muted-foreground">Total Runtime</TableCell>
                         <TableCell className="text-right">
