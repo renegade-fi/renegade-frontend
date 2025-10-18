@@ -2,6 +2,7 @@ import { Token } from "@renegade-fi/token-nextjs";
 import { unstable_cache } from "next/cache";
 import type z from "zod";
 import { client as PriceReporterClient } from "@/lib/clients/price-reporter";
+import { DEFAULT_BINANCE_FEE } from "../lib/binance-fee-tiers";
 import { findTokenByAddress } from "../lib/token-utils";
 import { TwapClient } from "../lib/twap-server-client";
 import {
@@ -12,9 +13,6 @@ import {
 import type { TwapOptionsSchema, TwapParamsData } from "../lib/twap-server-client/api-types/twap";
 import { TwapParams } from "../lib/twap-server-client/api-types/twap";
 import { convertDecimalToRaw } from "../lib/utils";
-
-// The default binance fee
-const DEFAULT_BINANCE_FEE = 0.0006;
 
 // Cache at top, then exported API, then helper
 const cachedSimulateTwap = unstable_cache(simulateTwapWithPrice, ["twap-simulate"], {

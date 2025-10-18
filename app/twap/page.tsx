@@ -25,7 +25,7 @@ export default function TwapPage() {
                             <TwapSimulationResults mutation={mutation} />
                         </div>
 
-                        <div className="self-start p-3 border">
+                        <div className="self-start p-3 border w-96">
                             <TwapParameterForm mutation={mutation} />
                         </div>
                     </div>
