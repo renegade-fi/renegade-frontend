@@ -15,25 +15,30 @@ import { getBeginningOfDay, getOneHourAgo, splitDateTimeComponents } from "../li
 interface DateTimePickerProps {
     id?: string;
     name?: string;
-    defaultValue?: string;
+    value?: string;
     className?: string;
     onChange?: (value: string) => void;
 }
 
-export function DateTimePicker({
-    id,
-    name,
-    defaultValue,
-    className,
-    onChange,
-}: DateTimePickerProps) {
-    // Parse default value or use current time
-    const defaultDate = defaultValue ? new Date(defaultValue) : new Date();
-    const defaultComponents = splitDateTimeComponents(defaultDate);
+export function DateTimePicker({ id, name, value, className, onChange }: DateTimePickerProps) {
+    // Parse value or use current time
+    const currentDate = value ? new Date(value) : new Date();
+    const currentComponents = splitDateTimeComponents(currentDate);
 
-    const [date, setDate] = React.useState(defaultComponents.date);
-    const [hour, setHour] = React.useState(defaultComponents.hour);
-    const [minute, setMinute] = React.useState(defaultComponents.minute);
+    const [date, setDate] = React.useState(currentComponents.date);
+    const [hour, setHour] = React.useState(currentComponents.hour);
+    const [minute, setMinute] = React.useState(currentComponents.minute);
+
+    // Sync internal state when external value changes
+    React.useEffect(() => {
+        if (value) {
+            const newDate = new Date(value);
+            const components = splitDateTimeComponents(newDate);
+            setDate(components.date);
+            setHour(components.hour);
+            setMinute(components.minute);
+        }
+    }, [value]);
 
     // Update combined value when any part changes
     React.useEffect(() => {

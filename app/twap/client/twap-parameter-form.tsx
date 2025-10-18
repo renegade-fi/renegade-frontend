@@ -1,12 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { ChainId } from "@renegade-fi/react/constants";
-import { Token } from "@renegade-fi/token-nextjs";
+import type { UseMutationResult } from "@tanstack/react-query";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import numeral from "numeral";
-import React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -25,32 +21,15 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import type { SimulateTwapResult, TwapFormData } from "../actions/simulate-twap-action";
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
-import {
-    calculateDuration,
-    calculateEndDate,
-    formatDateTimeForInput,
-    getTwentyFourHoursAgo,
-} from "../lib/date-utils";
+import { DURATION_PRESETS } from "../lib/constants";
+import { formatDateTimeForInput, getTwentyFourHoursAgo } from "../lib/date-utils";
 import { getTokens } from "../lib/token-utils";
-import { TwapUrlParamsSchema } from "../lib/twap-server-client/api-types/twap";
-import { convertDecimalToRaw } from "../lib/utils";
-import type { SearchParams } from "../page";
 import { DateTimePicker } from "./date-time-picker";
 
 // Get tokens once when module loads for stable reference
 const tokens = getTokens();
-
-// Duration presets for slider (7 discrete values)
-const DURATION_PRESETS = [
-    { hours: 0, label: "1 min", minutes: 1 },
-    { hours: 0, label: "5 min", minutes: 5 },
-    { hours: 0, label: "15 min", minutes: 15 },
-    { hours: 1, label: "1 hour", minutes: 0 },
-    { hours: 4, label: "4 hours", minutes: 0 },
-    { hours: 12, label: "12 hours", minutes: 0 },
-    { hours: 24, label: "24 hours", minutes: 0 },
-];
 
 const formSchema = z.object({
     binance_fee_tier: z.string(),
@@ -62,80 +41,23 @@ const formSchema = z.object({
 });
 
 interface TwapParameterFormProps {
-    searchParams: SearchParams;
+    mutation: UseMutationResult<SimulateTwapResult, Error, TwapFormData>;
 }
 
-export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
-    const router = useRouter();
-    const parsed = TwapUrlParamsSchema.safeParse(searchParams);
-    const defaults = parsed.success ? parsed.data : null;
-
-    // --- Default Form Values --- //
-
-    // Binance fee tier selection (passthrough to URL params)
-    const initialFeeTier =
-        (Array.isArray(searchParams?.binance_fee_tier)
-            ? searchParams?.binance_fee_tier[0]
-            : (searchParams?.binance_fee_tier as string)) || "No VIP";
-
-    const feeTierToTakerBps = BINANCE_TAKER_BPS_BY_TIER as Record<string, number>;
-
-    // Convert raw quote_amount (USDC) back to decimal for display
-    const decimalQuoteAmount = React.useMemo(() => {
-        const quoteAmount = defaults?.quote_amount;
-        if (!quoteAmount) return "";
-        const token = Token.fromTicker("USDC");
-        if (!token) return quoteAmount;
-        const decimalValue = token.convertToDecimal(BigInt(quoteAmount));
-        return numeral(decimalValue).format("0[.]00");
-    }, [defaults?.quote_amount]);
-
+export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
+    // Get first token as default
     const firstToken = tokens[0];
     const defaultToken = `${firstToken.ticker}:${firstToken.chain}`;
-    // Initialize selected base from URL defaults if present
-    const initialSelectedBase = React.useMemo(() => {
-        if (defaults?.base_ticker) {
-            const token = tokens.find((t) => t.ticker === defaults.base_ticker) ?? tokens[0];
-            return `${token.ticker}:${token.chain}`;
-        }
-        return defaultToken;
-    }, [defaults?.base_ticker, defaultToken]);
-
-    // Find closest preset index from URL params, default to index 3 (1h)
-    const initialDurationIndex = React.useMemo(() => {
-        if (defaults?.start_time && defaults?.end_time) {
-            const startDate = new Date(defaults.start_time);
-            const endDate = new Date(defaults.end_time);
-            const duration = calculateDuration(startDate, endDate);
-            const totalMinutes = duration.hours * 60 + duration.minutes;
-
-            // Find closest preset
-            let closestIndex = 3; // Default to 1h
-            let closestDiff = Number.POSITIVE_INFINITY;
-            DURATION_PRESETS.forEach((preset, index) => {
-                const presetMinutes = preset.hours * 60 + preset.minutes;
-                const diff = Math.abs(presetMinutes - totalMinutes);
-                if (diff < closestDiff) {
-                    closestDiff = diff;
-                    closestIndex = index;
-                }
-            });
-            return closestIndex;
-        }
-        return 3; // Default to 1h
-    }, [defaults?.start_time, defaults?.end_time]);
 
     // Initialize form with React Hook Form
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<TwapFormData>({
         defaultValues: {
-            binance_fee_tier: initialFeeTier,
-            direction: defaults?.direction ?? "Buy",
-            durationIndex: initialDurationIndex,
-            input_amount: decimalQuoteAmount || "100.00",
-            selectedBase: initialSelectedBase,
-            start_time: defaults?.start_time
-                ? formatDateTimeForInput(new Date(defaults.start_time))
-                : formatDateTimeForInput(getTwentyFourHoursAgo()),
+            binance_fee_tier: "No VIP",
+            direction: "Buy",
+            durationIndex: 3, // 1 hour
+            input_amount: "10000.00",
+            selectedBase: defaultToken,
+            start_time: formatDateTimeForInput(getTwentyFourHoursAgo()),
         },
         mode: "onChange",
         resolver: zodResolver(formSchema),
@@ -147,20 +69,10 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
     });
     const selectedDuration = DURATION_PRESETS[durationIndex];
 
-    // Track route transition so the submit button can reflect pending state
-    const [isPending, startTransition] = React.useTransition();
-
     // --- Handlers --- //
 
-    // On submit, build the query parameters and navigate to the new page
-    const handleSubmit = (data: z.infer<typeof formSchema>) => {
-        const params = buildQueryParams(data);
-
-        // Navigate with new query parameters inside a transition so we can
-        // disable the button and show a loading label until data loads.
-        startTransition(() => {
-            router.push(`/twap?${params.toString()}`);
-        });
+    const handleSubmit = (data: TwapFormData) => {
+        mutation.mutate(data);
     };
 
     return (
@@ -307,7 +219,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
                             <SelectContent>
                                 {BINANCE_FEE_TIERS.map((tier) => {
                                     const feeBps = (
-                                        (feeTierToTakerBps[tier] || 0.001) * 10000
+                                        (BINANCE_TAKER_BPS_BY_TIER[tier] || 0.001) * 10000
                                     ).toFixed(1);
                                     return (
                                         <SelectItem key={tier} value={tier}>
@@ -322,64 +234,14 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             />
 
             <Button
-                aria-busy={isPending}
+                aria-busy={mutation.isPending}
                 className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-                disabled={isPending}
+                disabled={mutation.isPending}
                 size="xl"
                 type="submit"
             >
-                {isPending ? "Simulating..." : "Simulate TWAP"}
+                {mutation.isPending ? "Simulating..." : "Simulate TWAP"}
             </Button>
         </form>
     );
-}
-
-// --------------------
-// | Helper Functions |
-// --------------------
-
-/**
- * Build query parameters from form data for TWAP simulation
- */
-function buildQueryParams(data: z.infer<typeof formSchema>): URLSearchParams {
-    // Parse the compound value to get ticker and chain
-    // Sent from the form in the format `ticker:chain`
-    const [ticker, chain] = data.selectedBase.split(":");
-    const chainId = Number(chain) as ChainId;
-
-    // 1. Set the base and quote tickers
-    const params = new URLSearchParams();
-    const baseToken = Token.fromTickerOnChain(ticker, chainId);
-    params.set("base_ticker", baseToken.ticker);
-
-    // 2. Set the direction
-    params.set("direction", data.direction);
-
-    // 3. Set the input amount (always in dollars/quote)
-    const inputAmount = Number(data.input_amount);
-    const usdc = Token.fromTickerOnChain("USDC", chainId);
-    const quoteRaw = convertDecimalToRaw(inputAmount, usdc.decimals);
-    params.set("base_amount", "0");
-    params.set("quote_amount", quoteRaw.toString());
-
-    // 4. Set the start and end times
-    const selectedDuration = DURATION_PRESETS[data.durationIndex];
-    const durationHours = selectedDuration.hours;
-    const durationMinutes = selectedDuration.minutes;
-    const startTime = new Date(data.start_time);
-    const endTime = calculateEndDate(startTime, durationHours, durationMinutes);
-    params.set("start_time", startTime.toISOString());
-    params.set("end_time", endTime.toISOString());
-
-    // 5. Calculate number of trades from duration (30 seconds per clip)
-    const totalSeconds = durationHours * 3600 + durationMinutes * 60;
-    const numberOfTrades = Math.max(1, Math.floor(totalSeconds / 30));
-    params.set("num_trades", numberOfTrades.toString());
-
-    // 6. Pass through Binance fee tier selection for downstream usage
-    params.set("binance_fee_tier", data.binance_fee_tier);
-    const feeTierToTakerBps = BINANCE_TAKER_BPS_BY_TIER as Record<string, number>;
-    const takerBps = feeTierToTakerBps[data.binance_fee_tier]?.toString() ?? "10";
-    params.set("binance_taker_bps", takerBps);
-    return params;
 }
