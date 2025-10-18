@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { UseMutationResult } from "@tanstack/react-query";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import {
     InputGroup,
     InputGroupAddon,
@@ -25,20 +26,43 @@ import type { SimulateTwapResult, TwapFormData } from "../actions/simulate-twap-
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
 import { DURATION_PRESETS } from "../lib/constants";
 import { formatDateTimeForInput, getTwentyFourHoursAgo } from "../lib/date-utils";
+import {
+    calculateTradeSize,
+    validateEndTimeNotInFuture,
+    validateTradeSizeInRange,
+} from "../lib/form-validation";
 import { getTokens } from "../lib/token-utils";
+import { formatUSDC } from "../lib/utils";
 import { DateTimePicker } from "./date-time-picker";
 
 // Get tokens once when module loads for stable reference
 const tokens = getTokens();
 
-const formSchema = z.object({
-    binance_fee_tier: z.string(),
-    direction: z.string(),
-    durationIndex: z.number(),
-    input_amount: z.string(),
-    selectedBase: z.string(),
-    start_time: z.string(),
-});
+const formSchema = z
+    .object({
+        binance_fee_tier: z.string(),
+        direction: z.enum(["Buy", "Sell"]),
+        durationIndex: z.number(),
+        input_amount: z.string(),
+        selectedBase: z.string(),
+        start_time: z.string(),
+    })
+    .refine(validateEndTimeNotInFuture, {
+        message: "End time must not be in the future",
+        path: ["start_time"],
+    })
+    .superRefine((data, ctx) => {
+        if (!validateTradeSizeInRange(data)) {
+            const currentTradeSize = calculateTradeSize(data);
+            const formattedTradeSize =
+                currentTradeSize !== null ? formatUSDC(currentTradeSize) : "N/A";
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Clip size must be between 1 and 250,000 USDC. Current: ${formattedTradeSize} USDC`,
+                path: ["input_amount"],
+            });
+        }
+    });
 
 interface TwapParameterFormProps {
     mutation: UseMutationResult<SimulateTwapResult, Error, TwapFormData>;
@@ -55,11 +79,11 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
             binance_fee_tier: "No VIP",
             direction: "Buy",
             durationIndex: 3, // 1 hour
-            input_amount: "10000.00",
+            input_amount: "10000",
             selectedBase: defaultToken,
             start_time: formatDateTimeForInput(getTwentyFourHoursAgo()),
         },
-        mode: "onChange",
+        mode: "all",
         resolver: zodResolver(formSchema),
     });
 
@@ -69,15 +93,32 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
     });
     const selectedDuration = DURATION_PRESETS[durationIndex];
 
+    // Track focus state for amount input formatting
+    const [isAmountFocused, setIsAmountFocused] = useState(false);
+
+    // Re-validate dependent fields when duration changes
+    // start_time and input_amount validation both depend on durationIndex
+    // biome-ignore lint/correctness/useExhaustiveDependencies: durationIndex is needed to trigger revalidation
+    useEffect(() => {
+        void form.trigger(["start_time", "input_amount"]);
+    }, [durationIndex, form]);
+
     // --- Handlers --- //
 
     const handleSubmit = (data: TwapFormData) => {
-        mutation.mutate(data);
+        // Convert local time to UTC before sending to server
+        const localDate = new Date(data.start_time);
+        const utcStartTime = localDate.toISOString();
+
+        mutation.mutate({
+            ...data,
+            start_time: utcStartTime,
+        });
     };
 
     return (
-        <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className="space-y-2">
+        <form className="flex flex-col gap-6" onSubmit={form.handleSubmit(handleSubmit)}>
+            <div>
                 <div className="flex items-center gap-2">
                     <Controller
                         control={form.control}
@@ -85,7 +126,6 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
                         render={({ field }) => (
                             <div className="flex bg-muted">
                                 <Button
-                                    className="h-8 px-3"
                                     onClick={() => field.onChange("Buy")}
                                     size="sm"
                                     type="button"
@@ -94,7 +134,6 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
                                     Buy
                                 </Button>
                                 <Button
-                                    className="h-8 px-3"
                                     onClick={() => field.onChange("Sell")}
                                     size="sm"
                                     type="button"
@@ -144,37 +183,68 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
             <Controller
                 control={form.control}
                 name="input_amount"
-                render={({ field }) => (
-                    <Field className="space-y-2">
-                        <FieldLabel className="text-muted-foreground" htmlFor="input_amount">
-                            Amount
-                        </FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput
-                                {...field}
-                                aria-label="Dollar amount"
-                                className="text-sm"
-                                id="input_amount"
-                                inputMode="decimal"
-                                min="0.0"
-                                placeholder="100.00"
-                                required
-                                step="any"
-                                type="number"
-                            />
-                            <InputGroupAddon align="inline-end">
-                                <InputGroupText>USDC</InputGroupText>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </Field>
-                )}
+                render={({ field, fieldState }) => {
+                    // Format display value: raw when focused, formatted when blurred
+                    let displayValue: string;
+                    if (isAmountFocused) {
+                        // While typing, show raw value to allow natural decimal input
+                        displayValue = field.value;
+                    } else {
+                        displayValue = formatUSDC(Number.parseFloat(field.value) || 0);
+                    }
+
+                    return (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel className="text-muted-foreground" htmlFor="input_amount">
+                                Amount
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
+                                    {...field}
+                                    aria-invalid={fieldState.invalid}
+                                    aria-label="Dollar amount"
+                                    className="text-sm"
+                                    id="input_amount"
+                                    inputMode="decimal"
+                                    min="0.0"
+                                    onBlur={(e) => {
+                                        setIsAmountFocused(false);
+                                        // Clean up trailing zeroes when done editing
+                                        const numValue = Number.parseFloat(field.value);
+                                        if (!Number.isNaN(numValue)) {
+                                            field.onChange(String(numValue));
+                                        }
+                                        field.onBlur();
+                                    }}
+                                    onChange={(e) => field.onChange(e.target.value)}
+                                    onFocus={(e) => {
+                                        setIsAmountFocused(true);
+                                        // Select all text on focus for easier editing
+                                        e.target.select();
+                                    }}
+                                    placeholder="100.00"
+                                    required
+                                    step="any"
+                                    type="text"
+                                    value={displayValue}
+                                />
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupText>USDC</InputGroupText>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            {fieldState.invalid && (
+                                <FieldError className="break-words" errors={[fieldState.error]} />
+                            )}
+                        </Field>
+                    );
+                }}
             />
 
             <Controller
                 control={form.control}
                 name="durationIndex"
                 render={({ field }) => (
-                    <Field className="space-y-2">
+                    <Field>
                         <div className="flex items-center justify-between">
                             <FieldLabel className="text-muted-foreground">Duration</FieldLabel>
                             <span className="text-sm ">{selectedDuration.label}</span>
@@ -195,12 +265,15 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
             <Controller
                 control={form.control}
                 name="start_time"
-                render={({ field }) => (
-                    <Field className="space-y-2">
+                render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
                         <FieldLabel className="text-muted-foreground" htmlFor="start_time">
                             Start Time
                         </FieldLabel>
                         <DateTimePicker id="start_time" {...field} />
+                        {fieldState.invalid && (
+                            <FieldError className="break-words" errors={[fieldState.error]} />
+                        )}
                     </Field>
                 )}
             />
@@ -210,7 +283,7 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
                 control={form.control}
                 name="binance_fee_tier"
                 render={({ field }) => (
-                    <Field className="space-y-2">
+                    <Field>
                         <FieldLabel className="text-muted-foreground">Binance Fee Tier</FieldLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                             <SelectTrigger>
@@ -236,7 +309,7 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
             <Button
                 aria-busy={mutation.isPending}
                 className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-                disabled={mutation.isPending}
+                disabled={mutation.isPending || !form.formState.isValid}
                 size="xl"
                 type="submit"
             >

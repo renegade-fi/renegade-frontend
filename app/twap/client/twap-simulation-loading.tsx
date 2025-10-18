@@ -16,8 +16,8 @@ export function TwapSimulationLoading() {
                 <EmptyMedia className="bg-transparent" variant="icon">
                     <Loader2 className="animate-spin" />
                 </EmptyMedia>
-                <EmptyTitle>Simulating...</EmptyTitle>
-                <EmptyDescription>Simulating TWAP strategy</EmptyDescription>
+                <EmptyTitle>Simulating</EmptyTitle>
+                <EmptyDescription>Fetching historical data...</EmptyDescription>
             </EmptyHeader>
         </Empty>
     );

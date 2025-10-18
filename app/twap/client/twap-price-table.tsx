@@ -24,53 +24,43 @@ function formatReceiveAmount(amount: number, ticker: string): string {
 
 export function TwapPriceTable({ data }: TwapPriceTableProps) {
     return (
-        <div className="border flex-1 self-start">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead />
-                        <TableHead className="text-right">Binance</TableHead>
-                        <TableHead className="text-right">Binance-with-Renegade</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Average Price</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                            {formatUSDC(data.averagePriceBinance)}
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                            {formatUSDC(data.averagePriceRenegade)}
-                        </TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Total Received</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                            {formatReceiveAmount(
-                                data.cumulativeBinanceReceived,
-                                data.receivedTicker,
-                            )}
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                            {formatReceiveAmount(
-                                data.cumulativeRenegadeReceived,
-                                data.receivedTicker,
-                            )}
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell>Price improvement</TableCell>
-                        <TableCell className="text-green-price text-right" colSpan={2}>
-                            <span className="tabular-nums">
-                                {data.cumulativeDeltaBps.toFixed(2)}
-                            </span>{" "}
-                            bps
-                        </TableCell>
-                    </TableRow>
-                </TableFooter>
-            </Table>
-        </div>
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead />
+                    <TableHead className="text-right">Binance</TableHead>
+                    <TableHead className="text-right">Binance-with-Renegade</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Average Price</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                        {formatUSDC(data.averagePriceBinance)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                        {formatUSDC(data.averagePriceRenegade)}
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Total Received</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                        {formatReceiveAmount(data.cumulativeBinanceReceived, data.receivedTicker)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                        {formatReceiveAmount(data.cumulativeRenegadeReceived, data.receivedTicker)}
+                    </TableCell>
+                </TableRow>
+            </TableBody>
+            <TableFooter>
+                <TableRow>
+                    <TableCell>Price improvement</TableCell>
+                    <TableCell className="text-green-price text-right" colSpan={2}>
+                        <span className="tabular-nums">{data.cumulativeDeltaBps.toFixed(2)}</span>{" "}
+                        bps
+                    </TableCell>
+                </TableRow>
+            </TableFooter>
+        </Table>
     );
 }
