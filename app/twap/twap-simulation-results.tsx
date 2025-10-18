@@ -51,9 +51,13 @@ export function TwapSimulationResults({ mutation }: TwapSimulationResultsProps) 
 
     return (
         <>
-            <div className="flex gap-6 flex-1">
-                <TwapInfoTable data={infoTableData} />
-                <TwapPriceTable data={priceTableData} />
+            <div className="flex gap-6">
+                <div className="border">
+                    <TwapInfoTable data={infoTableData} />
+                </div>
+                <div className="border flex-1 self-start">
+                    <TwapPriceTable data={priceTableData} />
+                </div>
             </div>
             <div className="space-y-4">
                 <h3 className="font-serif text-xl font-bold tracking-tighter lg:tracking-normal">

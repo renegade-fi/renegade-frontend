@@ -39,7 +39,3 @@ export const BINANCE_TAKER_BPS_BY_TIER: Record<BinanceFeeTier, number> = {
     "VIP 8": 0.00025,
     "VIP 9": 0.00023,
 };
-
-export function formatBpsAsPercent(bps: number): string {
-    return `${(bps / 100).toFixed(2)}%`;
-}
