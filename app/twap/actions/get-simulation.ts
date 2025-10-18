@@ -54,6 +54,10 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
         const simData = await twapLoader(twapParams, undefined, {
             binance_fee: binanceFee,
         });
+        console.log(
+            "🚀 ~ getSimulation ~ simData:",
+            JSON.stringify(simData.renegadeData(), null, 2),
+        );
 
         return { simData, twapParams };
     } catch (error) {
