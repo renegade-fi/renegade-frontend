@@ -30,8 +30,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@number-flow/react':
-        specifier: ^0.4.2
-        version: 0.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^0.5.10
+        version: 0.5.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-accordion':
         specifier: ^1.2.0
         version: 1.2.0(@types/react-dom@19.1.5(@types/react@19.1.4))(@types/react@19.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -265,8 +265,8 @@ importers:
         specifier: ^8
         version: 8.4.38
       shadcn:
-        specifier: ^3.4.0
-        version: 3.4.0(@types/node@20.13.0)(typescript@5.4.5)
+        specifier: ^3.4.2
+        version: 3.4.2(@types/node@20.13.0)(typescript@5.4.5)
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.3
@@ -1816,11 +1816,11 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@number-flow/react@0.4.2':
-    resolution: {integrity: sha512-lCAkLuK/3+Nlhb/oy1tpRnadp1vvfc/cWTtWUL9hMksHsJOGh+1T5Y/dyeQhyCD0heaWTjNYWX2ndBKLJwuC0A==}
+  '@number-flow/react@0.5.10':
+    resolution: {integrity: sha512-a8Wh5eNITn7Km4xbddAH7QH8eNmnduR6k34ER1hkHSGO4H2yU1DDnuAWLQM99vciGInFODemSc0tdxrXkJEpbA==}
     peerDependencies:
-      react: ^18 || ^19.0.0-rc-915b914b3a-20240515
-      react-dom: ^18
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -4299,10 +4299,6 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  escalade@3.1.2:
-    resolution: {integrity: sha512-ErCHMCae19vR8vQGe50xIsVomy19rg6gFu3+r3jkEO46suLMWBksvVyoGgQV+jOfl84ZSOSlmv6Gxa89PmTGmA==}
-    engines: {node: '>=6'}
-
   escalade@3.2.0:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
     engines: {node: '>=6'}
@@ -5610,8 +5606,8 @@ packages:
   nullthrows@1.1.1:
     resolution: {integrity: sha512-2vPPEi+Z7WqML2jZYddDIfy5Dqb0r2fze2zTxNNknZaFpVHU3mFB3R+DWeJWGVx0ecvttSGlJTI+WG+8Z4cDWw==}
 
-  number-flow@0.4.1:
-    resolution: {integrity: sha512-d39o1tWL7mMMBLuOfHswtQ8r0fj9eUcatb4G1Spdv0ZO/I30kg9DBdSzSPjNG6hrj1slQ6KA3TQXk1RmOq4qOA==}
+  number-flow@0.5.8:
+    resolution: {integrity: sha512-FPr1DumWyGi5Nucoug14bC6xEz70A1TnhgSHhKyfqjgji2SOTz+iLJxKtv37N5JyJbteGYCm6NQ9p1O4KZ7iiA==}
 
   numeral@2.0.6:
     resolution: {integrity: sha512-qaKRmtYPZ5qdw4jWJD6bxEf1FJEqllJrwxCLIm0sQU/A7v2/czigzOb+C2uSiFsa9lBUzeH7M1oK+Q+OLxL3kA==}
@@ -6399,8 +6395,8 @@ packages:
     resolution: {integrity: sha512-QMEp5B7cftE7APOjk5Y6xgrbWu+WkLVQwk8JNjZ8nKRciZaByEW6MubieAiToS7+dwvrjGhH8jRXz3MVd0AYqQ==}
     hasBin: true
 
-  shadcn@3.4.0:
-    resolution: {integrity: sha512-2fZC7+seml8/Eq77TKRJEotJY+llQsuFK4j8cHWk1oe4Qhit/ekai4w+cyaudwKNc+eTFqldR7rLxtTGCxJZ7Q==}
+  shadcn@3.4.2:
+    resolution: {integrity: sha512-afa1UIHC9UzWX2NMHHwaZf6GfT5VGkTDen77RtyUBMfJ5i6ZQuzXOFTE1bFHTaWwftb8wQnMiG8kXdEu3Kx9IQ==}
     hasBin: true
 
   shallow-clone@3.0.1:
@@ -7342,7 +7338,7 @@ snapshots:
       '@babel/types': 7.28.4
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
-      debug: 4.3.6(supports-color@5.5.0)
+      debug: 4.4.3
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -8285,7 +8281,7 @@ snapshots:
       '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
       '@babel/types': 7.28.4
-      debug: 4.3.6(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8733,8 +8729,8 @@ snapshots:
 
   '@jridgewell/remapping@2.3.5':
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.5
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
@@ -8757,7 +8753,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.31':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   '@lifi/sdk@3.4.1(@solana/wallet-adapter-base@0.9.23(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@solana/web3.js@1.95.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typescript@5.4.5)(viem@2.23.11(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)(zod@4.1.11))':
     dependencies:
@@ -9098,10 +9094,10 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@number-flow/react@0.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@number-flow/react@0.5.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       esm-env: 1.1.4
-      number-flow: 0.4.1
+      number-flow: 0.5.8
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
@@ -12293,8 +12289,6 @@ snapshots:
       '@esbuild/win32-ia32': 0.19.12
       '@esbuild/win32-x64': 0.19.12
 
-  escalade@3.1.2: {}
-
   escalade@3.2.0: {}
 
   escape-html@1.0.3: {}
@@ -12365,7 +12359,7 @@ snapshots:
 
   execa@5.1.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       get-stream: 6.0.1
       human-signals: 2.1.0
       is-stream: 2.0.1
@@ -12432,7 +12426,7 @@ snapshots:
       router: 2.2.0
       send: 1.2.0
       serve-static: 2.2.0
-      statuses: 2.0.1
+      statuses: 2.0.2
       type-is: 2.0.1
       vary: 1.1.2
     transitivePeerDependencies:
@@ -12525,7 +12519,7 @@ snapshots:
       escape-html: 1.0.3
       on-finished: 2.4.1
       parseurl: 1.3.3
-      statuses: 2.0.1
+      statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -12821,7 +12815,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.3.6(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13726,7 +13720,7 @@ snapshots:
 
   nullthrows@1.1.1: {}
 
-  number-flow@0.4.1:
+  number-flow@0.5.8:
     dependencies:
       esm-env: 1.1.4
 
@@ -13909,7 +13903,7 @@ snapshots:
 
   parse-json@5.2.0:
     dependencies:
-      '@babel/code-frame': 7.24.7
+      '@babel/code-frame': 7.27.1
       error-ex: 1.3.2
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
@@ -14582,7 +14576,7 @@ snapshots:
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
-      statuses: 2.0.1
+      statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -14632,7 +14626,7 @@ snapshots:
       inherits: 2.0.4
       safe-buffer: 5.2.1
 
-  shadcn@3.4.0(@types/node@20.13.0)(typescript@5.4.5):
+  shadcn@3.4.2(@types/node@20.13.0)(typescript@5.4.5):
     dependencies:
       '@antfu/ni': 25.0.0
       '@babel/core': 7.28.4
@@ -15485,7 +15479,7 @@ snapshots:
   yargs@17.7.2:
     dependencies:
       cliui: 8.0.1
-      escalade: 3.1.2
+      escalade: 3.2.0
       get-caller-file: 2.0.5
       require-directory: 2.1.1
       string-width: 4.2.3

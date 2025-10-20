@@ -5,6 +5,8 @@ import { getInfoTableData } from "./actions/get-info-table-data";
 import { getPriceTableData } from "./actions/get-price-table-data";
 import { getTableMeta, getTableRows } from "./actions/get-table-data";
 import type { SimulateTwapResult, TwapFormData } from "./actions/simulate-twap-action";
+import { PriceImprovementChart } from "./client/price-improvement-chart";
+import { RenegadeFillChart } from "./client/renegade-fill-chart";
 import { TwapFillsTable } from "./client/twap-fills-table";
 import { TwapInfoTable } from "./client/twap-info-table";
 import { TwapPriceTable } from "./client/twap-price-table";
@@ -52,17 +54,26 @@ export function TwapSimulationResults({ mutation }: TwapSimulationResultsProps) 
     return (
         <>
             <div className="flex gap-6">
-                <div className="border">
-                    <TwapInfoTable data={infoTableData} />
+                <div className="flex-1">
+                    <RenegadeFillChart data={infoTableData} />
                 </div>
-                <div className="border flex-1 self-start">
-                    <TwapPriceTable data={priceTableData} />
+                <div className="flex-1">
+                    <PriceImprovementChart data={priceTableData} />
                 </div>
             </div>
             <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold tracking-tighter lg:tracking-normal">
-                    Fills
-                </h3>
+                <h3 className="font-serif text-xl font-bold ">TWAP Details</h3>
+                <div className="flex gap-6">
+                    <div className="border">
+                        <TwapInfoTable data={infoTableData} />
+                    </div>
+                    <div className="border flex-1 self-start">
+                        <TwapPriceTable data={priceTableData} />
+                    </div>
+                </div>
+            </div>
+            <div className="space-y-4">
+                <h3 className="font-serif text-xl font-bold ">Fills</h3>
                 <TwapFillsTable meta={tableMeta} rows={tableRows} />
             </div>
         </>
