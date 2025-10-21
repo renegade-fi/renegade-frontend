@@ -10,7 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { getBeginningOfDay, getOneHourAgo, splitDateTimeComponents } from "../lib/date-utils";
+import { splitDateTimeComponents } from "../lib/date-utils";
 
 interface DateTimePickerProps {
     id?: string;
@@ -21,13 +21,14 @@ interface DateTimePickerProps {
 }
 
 export function DateTimePicker({ id, name, value, className, onChange }: DateTimePickerProps) {
-    // Parse value or use current time
-    const currentDate = value ? new Date(value) : new Date();
-    const currentComponents = splitDateTimeComponents(currentDate);
+    const initialParts = React.useMemo(() => {
+        const initialDate = value ? new Date(value) : new Date();
+        return splitDateTimeComponents(initialDate);
+    }, [value]);
 
-    const [date, setDate] = React.useState(currentComponents.date);
-    const [hour, setHour] = React.useState(currentComponents.hour);
-    const [minute, setMinute] = React.useState(currentComponents.minute);
+    const [date, setDate] = React.useState(initialParts.date);
+    const [hour, setHour] = React.useState(initialParts.hour);
+    const [minute, setMinute] = React.useState(initialParts.minute);
 
     // Sync internal state when external value changes
     React.useEffect(() => {
@@ -42,15 +43,15 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
 
     // Update combined value when any part changes
     React.useEffect(() => {
-        const combined = `${date}T${hour}:${minute}`;
-        onChange?.(combined);
+        const combined = new Date(`${date}T${hour}:${minute}`);
+        onChange?.(combined.toISOString());
     }, [date, hour, minute, onChange]);
 
     const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
     const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"));
 
     const setOneHourAgo = () => {
-        const oneHourAgoDate = getOneHourAgo();
+        const oneHourAgoDate = new Date(Date.now() - 60 * 60 * 1000);
         const components = splitDateTimeComponents(oneHourAgoDate);
         setDate(components.date);
         setHour(components.hour);
@@ -58,7 +59,16 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
     };
 
     const setBeginningOfDay = () => {
-        const beginningOfDayDate = getBeginningOfDay();
+        const now = new Date();
+        const beginningOfDayDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            0,
+            0,
+            0,
+            0,
+        );
         const components = splitDateTimeComponents(beginningOfDayDate);
         setDate(components.date);
         setHour(components.hour);
@@ -121,7 +131,12 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
             </div>
 
             {/* Hidden input for form submission */}
-            <input id={id} name={name} type="hidden" value={`${date}T${hour}:${minute}`} />
+            <input
+                id={id}
+                name={name}
+                type="hidden"
+                value={new Date(`${date}T${hour}:${minute}`).toISOString()}
+            />
         </div>
     );
 }

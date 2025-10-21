@@ -3,24 +3,42 @@
  */
 
 import { DURATION_PRESETS } from "./constants";
+import { TwapParams } from "./url-params";
+import {
+    type ValidationInput,
+    validateEndTimeNotInFuture as validateEndTimeNotInFutureCore,
+    validateTradeSize as validateTradeSizeCore,
+} from "./validation";
 
 interface FormData {
     start_time: string;
     durationIndex: number;
     input_amount: string;
+    selectedBase: string;
+    direction: "Buy" | "Sell";
+    binance_fee_tier: string;
+}
+
+/**
+ * Converts form data to ValidationInput format
+ */
+function formDataToValidationInput(data: FormData): ValidationInput {
+    const params = TwapParams.fromFormData(data);
+    return {
+        durationIndex: params.durationIndex,
+        size: params.size,
+        startDate: params.startDate,
+        startHour: params.startHour,
+        startMinute: params.startMinute,
+        token: params.token,
+    };
 }
 
 /**
  * Validates that the end time (start time + duration) is not in the future
  */
 export function validateEndTimeNotInFuture(data: FormData): boolean {
-    const startTime = new Date(data.start_time);
-    const duration = DURATION_PRESETS[data.durationIndex];
-    const durationMilliseconds = (duration.hours * 3600 + duration.minutes * 60) * 1000;
-    const endTime = new Date(startTime.getTime() + durationMilliseconds);
-    const now = new Date();
-
-    return endTime <= now;
+    return validateEndTimeNotInFutureCore(formDataToValidationInput(data));
 }
 
 /**
@@ -44,8 +62,5 @@ export function calculateTradeSize(data: FormData): number | null {
  * Validates that each individual trade size is between 1 and 250,000 USDC
  */
 export function validateTradeSizeInRange(data: FormData): boolean {
-    const tradeSize = calculateTradeSize(data);
-    if (tradeSize === null) return false;
-
-    return tradeSize >= 1 && tradeSize <= 250000;
+    return validateTradeSizeCore(formDataToValidationInput(data));
 }

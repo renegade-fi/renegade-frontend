@@ -1,7 +1,8 @@
+"use client";
+
 import numeral from "numeral";
 import type * as React from "react";
-import { Cell, Label, Pie, PieChart } from "recharts";
-
+import { Label, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     type ChartConfig,
@@ -32,9 +33,26 @@ const chartConfig = {
 export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
     const { totalSize, renegadeFillPercent } = data;
 
+    const header = (
+        <CardHeader>
+            <CardTitle>Routed through Renegade</CardTitle>
+            <CardDescription>
+                The Renegade strategy fills trades using Renegade liquidity and backstops using
+                Binance if needed.
+            </CardDescription>
+        </CardHeader>
+    );
+
     // Only render if we have the fill percentage data
     if (renegadeFillPercent === undefined) {
-        return null;
+        return (
+            <Card>
+                {header}
+                <CardContent className="flex min-h-[400px] items-center justify-center text-sm text-muted-foreground">
+                    Renegade data is not available for the selected parameters.
+                </CardContent>
+            </Card>
+        );
     }
 
     const renegadeFillAmount = totalSize * renegadeFillPercent;
@@ -43,12 +61,12 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
     const chartData = [
         {
             fill: "var(--color-renegadeFill)",
-            name: "renegadeFill",
+            fillType: "renegadeFill",
             value: renegadeFillAmount,
         },
         {
             fill: "var(--color-binanceFill)",
-            name: "binanceFill",
+            fillType: "binanceFill",
             value: binanceFillAmount,
         },
     ];
@@ -57,13 +75,7 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>Routed through Renegade</CardTitle>
-                <CardDescription>
-                    The Renegade strategy fills trades using Renegade liquidity and backstops using
-                    Binance if needed.
-                </CardDescription>
-            </CardHeader>
+            {header}
             <CardContent>
                 <ChartContainer config={chartConfig}>
                     <PieChart>
@@ -98,12 +110,9 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
                             data={chartData}
                             dataKey="value"
                             innerRadius={60}
-                            outerRadius={80}
+                            nameKey="fillType"
                             strokeWidth={5}
                         >
-                            {chartData.map((entry) => (
-                                <Cell fill={entry.fill} key={entry.name} />
-                            ))}
                             <Label
                                 content={({ viewBox }) => {
                                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
@@ -115,7 +124,7 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
                                                 y={viewBox.cy}
                                             >
                                                 <tspan
-                                                    className="fill-foreground font-bold text-3xl"
+                                                    className="fill-foreground text-3xl font-bold"
                                                     x={viewBox.cx}
                                                     y={viewBox.cy}
                                                 >
@@ -124,7 +133,7 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
                                                 <tspan
                                                     className="fill-muted-foreground"
                                                     x={viewBox.cx}
-                                                    y={(viewBox.cy || 0) + 20}
+                                                    y={(viewBox.cy || 0) + 24}
                                                 >
                                                     via Renegade
                                                 </tspan>
@@ -134,7 +143,7 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
                                 }}
                             />
                         </Pie>
-                        <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+                        <ChartLegend content={<ChartLegendContent nameKey="fillType" />} />
                     </PieChart>
                 </ChartContainer>
             </CardContent>

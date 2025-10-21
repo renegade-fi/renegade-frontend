@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { UseMutationResult } from "@tanstack/react-query";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -22,12 +22,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import type { SimulateTwapResult, TwapFormData } from "../actions/simulate-twap-action";
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
 import { DURATION_PRESETS } from "../lib/constants";
-import { formatDateTimeForInput, getTwentyFourHoursAgo } from "../lib/date-utils";
 import { validateEndTimeNotInFuture, validateTradeSizeInRange } from "../lib/form-validation";
 import { getTokens } from "../lib/token-utils";
+import { TwapParams } from "../lib/url-params";
 import { formatUSDC } from "../lib/utils";
 import { DateTimePicker } from "./date-time-picker";
 
@@ -63,25 +62,18 @@ const formSchema = z
         }
     });
 
+type TwapFormData = z.infer<typeof formSchema>;
+
 interface TwapParameterFormProps {
-    mutation: UseMutationResult<SimulateTwapResult, Error, TwapFormData>;
+    initialFormData: TwapFormData;
 }
 
-export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
-    // Get first token as default
-    const firstToken = tokens[0];
-    const defaultToken = `${firstToken.ticker}:${firstToken.chain}`;
+export function TwapParameterForm({ initialFormData }: TwapParameterFormProps) {
+    const router = useRouter();
 
-    // Initialize form with React Hook Form
+    // Initialize form with values from URL params
     const form = useForm<TwapFormData>({
-        defaultValues: {
-            binance_fee_tier: "No VIP",
-            direction: "Buy",
-            durationIndex: 3, // 1 hour
-            input_amount: "10000",
-            selectedBase: defaultToken,
-            start_time: formatDateTimeForInput(getTwentyFourHoursAgo()),
-        },
+        defaultValues: initialFormData,
         mode: "all",
         resolver: zodResolver(formSchema),
     });
@@ -105,14 +97,9 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
     // --- Handlers --- //
 
     const handleSubmit = (data: TwapFormData) => {
-        // Convert local time to UTC before sending to server
-        const localDate = new Date(data.start_time);
-        const utcStartTime = localDate.toISOString();
-
-        mutation.mutate({
-            ...data,
-            start_time: utcStartTime,
-        });
+        // Create new TwapParams from form data and push to URL
+        const newParams = TwapParams.fromFormData(data);
+        router.push(`/twap?${newParams.toUrlString()}`);
     };
 
     return (
@@ -306,13 +293,12 @@ export function TwapParameterForm({ mutation }: TwapParameterFormProps) {
             />
 
             <Button
-                aria-busy={mutation.isPending}
                 className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-                disabled={mutation.isPending || !form.formState.isValid}
+                disabled={!form.formState.isValid}
                 size="xl"
                 type="submit"
             >
-                {mutation.isPending ? "Simulating..." : "Simulate TWAP"}
+                Simulate TWAP
             </Button>
         </form>
     );

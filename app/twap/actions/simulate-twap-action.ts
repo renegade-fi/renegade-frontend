@@ -2,6 +2,7 @@
 
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
+import { cache } from "react";
 import { z } from "zod";
 import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "../lib/binance-fee-tiers";
 import { DURATION_PRESETS } from "../lib/constants";
@@ -29,63 +30,72 @@ export interface SimulateTwapResult {
     twapParams: TwapParams["data"];
 }
 
-export async function simulateTwapAction(formData: TwapFormData): Promise<SimulateTwapResult> {
-    // Validate form data
-    const validated = TwapFormDataSchema.parse(formData);
+export const getCachedSimulation = cache(
+    async (formData: TwapFormData): Promise<SimulateTwapResult> => {
+        // Validate form data
+        const validated = TwapFormDataSchema.parse(formData);
 
-    // Parse selected base token
-    const [ticker, chainString] = validated.selectedBase.split(":");
-    const chainId = Number(chainString) as ChainId;
+        // Parse selected base token
+        const [ticker, chainString] = validated.selectedBase.split(":");
+        const chainId = Number(chainString) as ChainId;
 
-    const baseToken = findTokenByTicker(ticker);
-    const quoteToken = baseToken
-        ? Token.fromTickerOnChain("USDC", baseToken.chain as ChainId)
-        : undefined;
+        const baseToken = findTokenByTicker(ticker);
+        const quoteToken = baseToken
+            ? Token.fromTickerOnChain("USDC", baseToken.chain as ChainId)
+            : undefined;
 
-    if (!baseToken || !quoteToken) {
-        throw new Error("Invalid token selection");
-    }
+        if (!baseToken || !quoteToken) {
+            throw new Error("Invalid token selection");
+        }
 
-    // Convert input amount to raw quote amount
-    const inputAmount = Number(validated.input_amount);
-    const usdc = Token.fromTickerOnChain("USDC", chainId);
-    const quoteRaw = convertDecimalToRaw(inputAmount, usdc.decimals);
+        // Convert input amount to raw quote amount
+        const inputAmount = Number(validated.input_amount);
+        const usdc = Token.fromTickerOnChain("USDC", chainId);
+        const quoteRaw = convertDecimalToRaw(inputAmount, usdc.decimals);
 
-    // Calculate duration and end time
-    // start_time is already in UTC ISO format from client
-    const selectedDuration = DURATION_PRESETS[validated.durationIndex];
-    const startTime = new Date(validated.start_time);
-    const endTime = calculateEndDate(startTime, selectedDuration.hours, selectedDuration.minutes);
+        // Calculate duration and end time
+        // start_time is already in UTC ISO format from client
+        const selectedDuration = DURATION_PRESETS[validated.durationIndex];
+        const startTime = new Date(validated.start_time);
+        const endTime = calculateEndDate(
+            startTime,
+            selectedDuration.hours,
+            selectedDuration.minutes,
+        );
 
-    // Calculate number of trades (30 seconds per clip)
-    const totalSeconds = selectedDuration.hours * 3600 + selectedDuration.minutes * 60;
-    const numberOfTrades = Math.max(1, Math.floor(totalSeconds / 30));
+        // Calculate number of trades (30 seconds per clip)
+        const totalSeconds = selectedDuration.hours * 3600 + selectedDuration.minutes * 60;
+        const numberOfTrades = Math.max(1, Math.floor(totalSeconds / 30));
 
-    // Build server params
-    const serverParams = TwapParamsSchema.parse({
-        base_amount: "0",
-        base_mint: baseToken.address,
-        direction: validated.direction,
-        end_time: endTime.toISOString(),
-        num_trades: numberOfTrades,
-        quote_amount: quoteRaw.toString(),
-        quote_mint: quoteToken.address,
-        start_time: startTime.toISOString(),
-    });
+        // Build server params
+        const serverParams = TwapParamsSchema.parse({
+            base_amount: "0",
+            base_mint: baseToken.address,
+            direction: validated.direction,
+            end_time: endTime.toISOString(),
+            num_trades: numberOfTrades,
+            quote_amount: quoteRaw.toString(),
+            quote_mint: quoteToken.address,
+            start_time: startTime.toISOString(),
+        });
 
-    // Get binance fee from tier and convert to decimal value
-    const binanceFeeTier = validated.binance_fee_tier as BinanceFeeTier;
-    const binanceFee = BINANCE_TAKER_BPS_BY_TIER[binanceFeeTier];
+        // Get binance fee from tier and convert to decimal value
+        const binanceFeeTier = validated.binance_fee_tier as BinanceFeeTier;
+        const binanceFee = BINANCE_TAKER_BPS_BY_TIER[binanceFeeTier];
 
-    // Build TwapParams and call loader
-    const twapParams = TwapParams.new(serverParams);
-    const simData = await twapLoader(twapParams, undefined, {
-        binance_fee: binanceFee,
-    });
+        // Build TwapParams and call loader
+        const twapParams = TwapParams.new(serverParams);
+        const simData = await twapLoader(twapParams, undefined, {
+            binance_fee: binanceFee,
+        });
 
-    // Return serializable data (errors will be thrown and caught by React Query)
-    return {
-        simData: simData.data.strategies,
-        twapParams: twapParams.data,
-    };
-}
+        // Return serializable data (errors will be thrown and caught by React Query)
+        return {
+            simData: simData.data.strategies,
+            twapParams: twapParams.data,
+        };
+    },
+);
+
+// Keep original for any external callers
+export const simulateTwapAction = getCachedSimulation;
