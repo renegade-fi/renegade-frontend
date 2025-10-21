@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export function RenegadeFillChartSkeleton() {
     return (
-        <Card>
+        <Card className="h-full border-none flex flex-col">
             <CardContent className="relative min-h-[400px]">
                 <GlyphLoadingIndicator />
             </CardContent>
@@ -13,7 +13,7 @@ export function RenegadeFillChartSkeleton() {
 
 export function PriceImprovementChartSkeleton() {
     return (
-        <Card className="h-full flex flex-col">
+        <Card className="h-full border-none flex flex-col">
             <CardContent className="relative flex-1">
                 <GlyphLoadingIndicator />
             </CardContent>

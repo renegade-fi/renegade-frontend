@@ -25,13 +25,6 @@ export function splitDateTimeComponents(date: Date): DateParts {
 }
 
 /**
- * Creates a Date object from local date parts (interprets input in the user's timezone)
- */
-export function combineDateTimeComponents(date: string, hour: string, minute: string): Date {
-    return new Date(`${date}T${hour}:${minute}`);
-}
-
-/**
  * Extracts UTC date parts from a Date instance
  */
 export function splitUtcDateTimeComponents(date: Date): DateParts {
@@ -90,17 +83,6 @@ export function getOneHourAgoUtcParts(): DateParts {
  */
 export function getTwentyFourHoursAgoUtcParts(): DateParts {
     return getUtcPartsHoursAgo(24);
-}
-
-/**
- * Gets UTC date parts representing the start of the current UTC day
- */
-export function getBeginningOfDayUtcParts(): DateParts {
-    const now = new Date();
-    const startOfDayUtc = new Date(
-        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0),
-    );
-    return splitUtcDateTimeComponents(startOfDayUtc);
 }
 
 /**
