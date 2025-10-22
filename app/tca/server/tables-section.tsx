@@ -21,7 +21,7 @@ export async function TablesSection({ formData }: { formData: TwapFormData }) {
     return (
         <>
             <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold ">TWAP Details</h3>
+                <h3 className="font-serif text-xl font-bold">Execution Results</h3>
                 <div className="flex gap-6">
                     <div className="border">
                         <TwapInfoTableWrapper data={infoTableData} />
@@ -32,7 +32,7 @@ export async function TablesSection({ formData }: { formData: TwapFormData }) {
                 </div>
             </div>
             <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold ">Fills</h3>
+                <h3 className="font-serif text-xl font-bold">Individual Fills</h3>
                 <DataTable meta={tableMeta} rows={tableRows} />
             </div>
         </>

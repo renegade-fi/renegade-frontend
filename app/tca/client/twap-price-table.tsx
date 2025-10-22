@@ -28,8 +28,8 @@ export function TwapPriceTable({ data }: TwapPriceTableProps) {
             <TableHeader>
                 <TableRow>
                     <TableHead />
-                    <TableHead className="text-right">Binance</TableHead>
-                    <TableHead className="text-right">Binance-with-Renegade</TableHead>
+                    <TableHead className="text-right">Binance TWAP</TableHead>
+                    <TableHead className="text-right">Renegade Mid Cross</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
