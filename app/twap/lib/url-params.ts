@@ -1,14 +1,17 @@
-/**
- * TwapParams class for managing TWAP parameter state across URL, form, and server action formats
- */
-
+import type { ChainId } from "@renegade-fi/react/constants";
+import { Token } from "@renegade-fi/token-nextjs";
+import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "./binance-fee-tiers";
+import { DURATION_PRESETS } from "./constants";
 import {
+    calculateEndDate,
     combineUtcDateTimeComponents,
     formatUtcDateParts,
     getTwentyFourHoursAgoUtcParts,
     parseIsoToUtcParts,
 } from "./date-utils";
 import { findTokenByTicker } from "./token-utils";
+import { TwapParamsSchema as TwapServerParamsSchema } from "./twap-server-client/api-types/twap";
+import { convertDecimalToRaw } from "./utils";
 import { validateTwapParams } from "./validation";
 
 const DEFAULT_TOKEN = "WETH";
@@ -16,23 +19,18 @@ const DEFAULT_DIRECTION: "buy" = "buy";
 const DEFAULT_SIZE = "10000";
 const DEFAULT_DURATION_INDEX = 3;
 const DEFAULT_BINANCE_TIER = "No VIP";
+const FALLBACK_CHAIN_ID = 1;
 
-/**
- * Maps URL binanceTier parameter to internal fee tier string
- */
 function urlTierToFeeTier(urlTier: string | undefined): string {
     if (!urlTier) return "No VIP";
     const match = urlTier.match(/^vip(\d+)$/i);
     if (!match) return "No VIP";
-    const num = Number.parseInt(match[1], 10);
+    const num = Number.parseInt(match[1] ?? "0", 10);
     if (num === 0) return "No VIP";
     if (num >= 1 && num <= 9) return `VIP ${num}`;
     return "No VIP";
 }
 
-/**
- * Maps internal fee tier string to URL binanceTier parameter
- */
 function feeTierToUrlTier(feeTier: string): string {
     if (feeTier === "No VIP") return "vip0";
     const match = feeTier.match(/^VIP (\d+)$/i);
@@ -40,14 +38,10 @@ function feeTierToUrlTier(feeTier: string): string {
     return `vip${match[1]}`;
 }
 
-/**
- * Maps duration string to DURATION_PRESETS index
- */
 function durationStringToIndex(duration: string | undefined): number {
-    if (!duration) return 3; // default: 1 hour
+    if (!duration) return DEFAULT_DURATION_INDEX;
     const lower = duration.toLowerCase();
 
-    // Map common duration strings to indices
     const mapping: Record<string, number> = {
         "1h": 3,
         "1m": 0,
@@ -58,20 +52,18 @@ function durationStringToIndex(duration: string | undefined): number {
         "24h": 6,
     };
 
-    return mapping[lower] ?? 3;
+    return mapping[lower] ?? DEFAULT_DURATION_INDEX;
 }
 
-/**
- * Maps DURATION_PRESETS index to duration string
- */
 function indexToDurationString(index: number): string {
     const mapping = ["1m", "5m", "15m", "1h", "4h", "12h", "24h"];
-    return mapping[index] ?? "1h";
+    return mapping[index] ?? mapping[DEFAULT_DURATION_INDEX];
 }
 
 export class TwapParams {
     private constructor(
         public readonly token: string,
+        public readonly chainId: number,
         public readonly direction: "buy" | "sell",
         public readonly size: string,
         public readonly durationIndex: number,
@@ -81,11 +73,10 @@ export class TwapParams {
         public readonly startMinute: string,
     ) {}
 
-    /**
-     * Parse URL searchParams with defaults
-     */
     static fromUrl(searchParams: Record<string, string | string[] | undefined>): TwapParams {
         const token = typeof searchParams.token === "string" ? searchParams.token : DEFAULT_TOKEN;
+        const resolvedToken = findTokenByTicker(token);
+        const chainId = resolvedToken?.chain ?? FALLBACK_CHAIN_ID;
         const direction =
             typeof searchParams.direction === "string"
                 ? searchParams.direction.toLowerCase() === "sell"
@@ -100,7 +91,6 @@ export class TwapParams {
             typeof searchParams.binanceTier === "string" ? searchParams.binanceTier : undefined,
         );
 
-        // Default to 24 hours ago
         const defaultParts = getTwentyFourHoursAgoUtcParts();
         const startDate =
             typeof searchParams.startDate === "string" ? searchParams.startDate : defaultParts.date;
@@ -115,6 +105,7 @@ export class TwapParams {
 
         return new TwapParams(
             token,
+            chainId,
             direction,
             size,
             durationIndex,
@@ -125,9 +116,6 @@ export class TwapParams {
         );
     }
 
-    /**
-     * Create from form data submission
-     */
     static fromFormData(formData: {
         selectedBase: string;
         direction: "Buy" | "Sell";
@@ -136,14 +124,13 @@ export class TwapParams {
         binance_fee_tier: string;
         start_time: string;
     }): TwapParams {
-        // Parse token from "ticker:chainId" format
-        const [ticker] = formData.selectedBase.split(":");
-
-        // Parse start_time into components
+        const [ticker, chainString] = formData.selectedBase.split(":");
+        const chainId = Number(chainString) || FALLBACK_CHAIN_ID;
         const startParts = parseIsoToUtcParts(formData.start_time);
 
         return new TwapParams(
             ticker,
+            chainId,
             formData.direction.toLowerCase() as "buy" | "sell",
             formData.input_amount,
             formData.durationIndex,
@@ -154,13 +141,14 @@ export class TwapParams {
         );
     }
 
-    /**
-     * Create with sensible defaults
-     */
     static default(): TwapParams {
+        const defaultToken = findTokenByTicker(DEFAULT_TOKEN);
+        const defaultChainId = defaultToken?.chain ?? FALLBACK_CHAIN_ID;
         const defaultParts = getTwentyFourHoursAgoUtcParts();
+
         return new TwapParams(
             DEFAULT_TOKEN,
+            defaultChainId,
             DEFAULT_DIRECTION,
             DEFAULT_SIZE,
             DEFAULT_DURATION_INDEX,
@@ -171,23 +159,14 @@ export class TwapParams {
         );
     }
 
-    /**
-     * Computed getter for duration string
-     */
     get duration(): string {
         return indexToDurationString(this.durationIndex);
     }
 
-    /**
-     * Computed getter for start time as Date
-     */
     get startTime(): Date {
         return combineUtcDateTimeComponents(this.startDate, this.startHour, this.startMinute);
     }
 
-    /**
-     * Check if params are valid
-     */
     isValid(): boolean {
         return validateTwapParams({
             durationIndex: this.durationIndex,
@@ -199,9 +178,6 @@ export class TwapParams {
         });
     }
 
-    /**
-     * Convert to URL query string
-     */
     toUrlString(): string {
         const params = new URLSearchParams({
             binanceTier: feeTierToUrlTier(this.binanceTier),
@@ -216,9 +192,6 @@ export class TwapParams {
         return params.toString();
     }
 
-    /**
-     * Convert to form data shape
-     */
     toFormData(): {
         selectedBase: string;
         direction: "Buy" | "Sell";
@@ -227,29 +200,20 @@ export class TwapParams {
         binance_fee_tier: string;
         start_time: string;
     } {
-        // Find token to get chainId
-        const token = findTokenByTicker(this.token);
-        const selectedBase = token ? `${token.ticker}:${token.chain}` : `${this.token}:1`;
-
-        const start_time = formatUtcDateParts({
-            date: this.startDate,
-            hour: this.startHour,
-            minute: this.startMinute,
-        });
-
         return {
             binance_fee_tier: this.binanceTier,
             direction: this.direction === "buy" ? "Buy" : "Sell",
             durationIndex: this.durationIndex,
             input_amount: this.size,
-            selectedBase,
-            start_time,
+            selectedBase: `${this.token}:${this.chainId}`,
+            start_time: formatUtcDateParts({
+                date: this.startDate,
+                hour: this.startHour,
+                minute: this.startMinute,
+            }),
         };
     }
 
-    /**
-     * Convert to server action parameters shape
-     */
     toServerActionParams(): {
         selectedBase: string;
         direction: "Buy" | "Sell";
@@ -258,21 +222,50 @@ export class TwapParams {
         binance_fee_tier: string;
         start_time: string;
     } {
-        // Find token to get chainId
-        const token = findTokenByTicker(this.token);
-        const selectedBase = token ? `${token.ticker}:${token.chain}` : `${this.token}:1`;
+        return this.toFormData();
+    }
 
-        return {
-            binance_fee_tier: this.binanceTier,
+    toSimulationPayload(): {
+        params: ReturnType<typeof TwapServerParamsSchema.parse>;
+        binanceFee: number;
+    } {
+        const chainId = this.chainId as ChainId;
+        const baseToken = Token.fromTickerOnChain(this.token, chainId);
+        const quoteToken = Token.fromTickerOnChain("USDC", chainId);
+
+        if (baseToken.ticker === "UNKNOWN" || quoteToken.ticker === "UNKNOWN") {
+            throw new Error("Invalid token selection");
+        }
+
+        const amount = Number(this.size);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            throw new Error("Invalid quote amount");
+        }
+
+        const quoteRaw = convertDecimalToRaw(amount, quoteToken.decimals);
+        const duration =
+            DURATION_PRESETS[this.durationIndex] ?? DURATION_PRESETS[DEFAULT_DURATION_INDEX];
+
+        const startTime = this.startTime;
+        const endTime = calculateEndDate(startTime, duration.hours, duration.minutes);
+        const totalSeconds = duration.hours * 3600 + duration.minutes * 60;
+        const numberOfTrades = Math.max(1, Math.floor(totalSeconds / 30));
+
+        const params = TwapServerParamsSchema.parse({
+            base_amount: "0",
+            base_mint: baseToken.address,
             direction: this.direction === "buy" ? "Buy" : "Sell",
-            durationIndex: this.durationIndex,
-            input_amount: this.size,
-            selectedBase,
-            start_time: formatUtcDateParts({
-                date: this.startDate,
-                hour: this.startHour,
-                minute: this.startMinute,
-            }),
-        };
+            end_time: endTime.toISOString(),
+            num_trades: numberOfTrades,
+            quote_amount: quoteRaw.toString(),
+            quote_mint: quoteToken.address,
+            start_time: startTime.toISOString(),
+        });
+
+        const binanceFee =
+            BINANCE_TAKER_BPS_BY_TIER[this.binanceTier as BinanceFeeTier] ??
+            BINANCE_TAKER_BPS_BY_TIER["No VIP"];
+
+        return { binanceFee, params };
     }
 }
