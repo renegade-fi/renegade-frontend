@@ -1,7 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
+import { GlyphLoadingIndicator } from "@/components/glyph-loading-indicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     type ChartConfig,
@@ -14,7 +16,7 @@ import {
 import type { TwapInfoTableData } from "../actions/get-info-table-data";
 import { formatUSDC } from "../lib/utils";
 
-interface RenegadeFillChartProps {
+interface RoutedRenegadeChartProps {
     data: TwapInfoTableData;
 }
 
@@ -29,7 +31,7 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
+export function RoutedRenegadeChartInner({ data }: RoutedRenegadeChartProps) {
     const { totalSize, renegadeFillPercent } = data;
 
     const header = (
@@ -148,4 +150,31 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
             </CardContent>
         </Card>
     );
+}
+
+// Skeleton for loading state
+export function RenegadeFillChartSkeleton() {
+    return (
+        <Card className="h-full border-none flex flex-col">
+            <CardContent className="relative min-h-[400px]">
+                <GlyphLoadingIndicator />
+            </CardContent>
+        </Card>
+    );
+}
+
+// Dynamic wrapper to lazy-load chart with heavy dependencies
+const RoutedRenegadeChartLazy = dynamic(
+    () =>
+        import("./routed-through-renegade-chart").then((mod) => ({
+            default: mod.RoutedRenegadeChartInner,
+        })),
+    {
+        loading: () => <RenegadeFillChartSkeleton />,
+        ssr: false,
+    },
+);
+
+export function RoutedRenegadeChartClient({ data }: RoutedRenegadeChartProps) {
+    return <RoutedRenegadeChartLazy data={data} />;
 }

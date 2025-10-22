@@ -1,15 +1,14 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { PriceImprovementChartSkeleton, RenegadeFillChartSkeleton } from "./client/chart-skeleton";
+import { PriceImprovementChartSkeleton } from "./client/chart-skeleton";
+import { RenegadeFillChartSkeleton } from "./client/routed-through-renegade-chart";
 import { TwapParameterForm } from "./client/twap-parameter-form";
 import { TwapSimulationEmpty } from "./client/twap-simulation-empty";
 import { TwapSimulationLoading } from "./client/twap-simulation-loading";
 import { TwapParams } from "./lib/url-params";
-import { InfoChartSection } from "./server/info-chart-section";
-import { PriceChartSection } from "./server/price-chart-section";
+import { PriceImprovementCard } from "./server/price-improvement-card";
+import { RoutedRenegadeChart } from "./server/routed-through-renegade-chart";
 import { TablesSection } from "./server/tables-section";
-
-export const dynamic = "force-dynamic";
 
 interface TwapPageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -52,14 +51,14 @@ export default async function TwapPage({ searchParams }: TwapPageProps) {
                                         <div className="flex gap-6">
                                             <div className="flex-1">
                                                 <Suspense fallback={<RenegadeFillChartSkeleton />}>
-                                                    <InfoChartSection formData={formData} />
+                                                    <RoutedRenegadeChart formData={formData} />
                                                 </Suspense>
                                             </div>
                                             <div className="flex-1">
                                                 <Suspense
                                                     fallback={<PriceImprovementChartSkeleton />}
                                                 >
-                                                    <PriceChartSection formData={formData} />
+                                                    <PriceImprovementCard formData={formData} />
                                                 </Suspense>
                                             </div>
                                         </div>

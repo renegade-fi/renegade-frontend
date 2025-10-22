@@ -1,14 +1,16 @@
+"use client";
+import dynamic from "next/dynamic";
 import numeral from "numeral";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import type { TwapInfoTableData } from "../actions/get-info-table-data";
 import { calculateDuration, formatLocalDateTime } from "../lib/date-utils";
 import { formatUSDC } from "../lib/utils";
 
-interface TwapInfoTableProps {
+interface ExecutionInfoTableProps {
     data: TwapInfoTableData;
 }
 
-export function TwapInfoTable({ data }: TwapInfoTableProps) {
+export function ExecutionInfoTableInner({ data }: ExecutionInfoTableProps) {
     const { numTrades, startTime, endTime, asset, direction } = data;
     const start = new Date(startTime);
     const end = new Date(endTime);
@@ -60,4 +62,21 @@ export function TwapInfoTable({ data }: TwapInfoTableProps) {
             </TableBody>
         </Table>
     );
+}
+
+const ExecutionInfoTableLazy = dynamic(
+    () =>
+        import("./twap-info-table").then((mod) => ({
+            default: mod.ExecutionInfoTableInner,
+        })),
+    {
+        loading: () => (
+            <div className="p-6 text-sm text-muted-foreground">Loading execution details...</div>
+        ),
+        ssr: false,
+    },
+);
+
+export function ExecutionInfoTableClient({ data }: ExecutionInfoTableProps) {
+    return <ExecutionInfoTableLazy data={data} />;
 }
