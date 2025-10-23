@@ -131,6 +131,7 @@ export function Header() {
                             "text-primary": pathname.includes("/tca"),
                         })}
                         href="/tca"
+                        prefetch={false}
                     >
                         TCA
                     </Link>

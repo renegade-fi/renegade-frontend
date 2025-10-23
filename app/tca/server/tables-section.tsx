@@ -1,17 +1,16 @@
 import { getExecutionInfo } from "../actions/get-execution-info";
 import { getExecutionResults } from "../actions/get-execution-results";
 import { getMetadata, getRows } from "../actions/get-fills-data";
-import { getCachedSimulation, type TwapFormData } from "../actions/simulate-twap-action";
+import type { SimulateTwapResult } from "../actions/simulate-twap-action";
 import { ExecutionInfoTableClient } from "../client/execution-info-table";
 import { ExecutionResultsTableClient } from "../client/execution-results-table";
 import { FillsTable } from "../client/twap-fills-table";
 import { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
 import { TwapParams } from "../lib/twap-server-client/api-types/twap";
 
-export async function TablesSection({ formData }: { formData: TwapFormData }) {
-    const result = await getCachedSimulation(formData);
-    const simData = TwapSimulation.new({ strategies: result.simData });
-    const twapParams = TwapParams.new(result.twapParams);
+export async function TablesSection({ simulationData }: { simulationData: SimulateTwapResult }) {
+    const simData = TwapSimulation.new({ strategies: simulationData.simData! });
+    const twapParams = TwapParams.new(simulationData.twapParams!);
 
     const executionInfo = getExecutionInfo(simData, twapParams);
     const executionResults = getExecutionResults(simData, twapParams);
