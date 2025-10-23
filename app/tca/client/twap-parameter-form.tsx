@@ -99,10 +99,8 @@ export function TwapParameterForm({ initialFormData }: TwapParameterFormProps) {
     // --- Handlers --- //
 
     const handleSubmit = (data: TwapFormData) => {
-        // Create new TwapParams from form data and push to URL
-        const newParams = TwapParams.fromFormData(data);
         startTransition(() => {
-            router.push(`/tca?${newParams.toUrlString()}`);
+            router.push(`/tca?${TwapParams.fromFormData(data).toUrlString()}`);
         });
     };
 

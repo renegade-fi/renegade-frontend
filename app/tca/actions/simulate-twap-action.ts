@@ -1,5 +1,6 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { z } from "zod";
 import type { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
@@ -24,27 +25,23 @@ export interface SimulateTwapResult {
     twapParams: TwapServerParams["data"];
 }
 
+// Wrap with React cache for request-level deduplication, then unstable_cache for cross-request caching
 export const getCachedSimulation = cache(
-    async (formData: TwapFormData): Promise<SimulateTwapResult> => {
-        // Validate form data
-        const validated = TwapFormDataSchema.parse(formData);
+    unstable_cache(
+        async (formData: TwapFormData): Promise<SimulateTwapResult> => {
+            const validated = TwapFormDataSchema.parse(formData);
+            const params = UrlTwapParams.fromFormData(validated);
+            const { params: simulationParams, binanceFee } = params.toSimulationPayload();
+            const twapParams = TwapServerParams.new(simulationParams);
 
-        const params = UrlTwapParams.fromFormData(validated);
-        const { params: simulationParams, binanceFee } = params.toSimulationPayload();
-        const twapParams = TwapServerParams.new(simulationParams);
+            const simData = await twapLoader(twapParams, undefined, { binance_fee: binanceFee });
 
-        const simData = await twapLoader(twapParams, undefined, {
-            binance_fee: binanceFee,
-        });
-
-        const result: SimulateTwapResult = {
-            simData: simData.data.strategies,
-            twapParams: twapParams.data,
-        };
-
-        return result;
-    },
+            return {
+                simData: simData.data.strategies,
+                twapParams: twapParams.data,
+            };
+        },
+        ["tca:simulate"],
+        { revalidate: 60 * 60, tags: ["tca:simulate"] },
+    ),
 );
-
-// Keep original for any external callers
-export const simulateTwapAction = getCachedSimulation;

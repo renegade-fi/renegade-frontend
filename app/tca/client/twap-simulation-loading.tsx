@@ -11,14 +11,16 @@ import {
 
 export function TwapSimulationLoading() {
     return (
-        <Empty>
-            <EmptyHeader>
-                <EmptyMedia className="bg-transparent" variant="icon">
-                    <Loader2 className="animate-spin" />
-                </EmptyMedia>
-                <EmptyTitle>Simulating</EmptyTitle>
-                <EmptyDescription>Fetching historical data...</EmptyDescription>
-            </EmptyHeader>
-        </Empty>
+        <div className="flex-1 border border-dashed grid place-items-center">
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia className="bg-transparent" variant="icon">
+                        <Loader2 className="animate-spin" />
+                    </EmptyMedia>
+                    <EmptyTitle>Simulating</EmptyTitle>
+                    <EmptyDescription>Fetching historical data...</EmptyDescription>
+                </EmptyHeader>
+            </Empty>
+        </div>
     );
 }

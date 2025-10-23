@@ -68,7 +68,7 @@ function buildRows(
 }
 
 // Get table metadata
-export function getTableMeta(twapParams: TwapParams): TwapTableMeta {
+export function getMetadata(twapParams: TwapParams): TwapTableMeta {
     const direction = twapParams.direction();
 
     // Compute sendTicker and receiveTicker based on direction
@@ -83,7 +83,7 @@ export function getTableMeta(twapParams: TwapParams): TwapTableMeta {
 }
 
 // Get table rows
-export function getTableRows(simData: TwapSimulation, twapParams: TwapParams): TwapTableRow[] {
+export function getRows(simData: TwapSimulation, twapParams: TwapParams): TwapTableRow[] {
     // Get merged trades by timestamp using new method
     const mergedTrades = simData.mergedTradesByTimestamp();
 

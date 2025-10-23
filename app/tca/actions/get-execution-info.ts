@@ -2,7 +2,7 @@ import type { TwapSimulation } from "../lib/twap-server-client/api-types/request
 import type { TwapParams } from "../lib/twap-server-client/api-types/twap";
 
 // Data for the info/details table
-export interface TwapInfoTableData {
+export interface ExecutionInfo {
     asset: string;
     direction: "Buy" | "Sell";
     totalSize: number;
@@ -10,20 +10,15 @@ export interface TwapInfoTableData {
     startTime: string;
     endTime: string;
     renegadeFeeBps: number;
-    renegadeFillPercent: number | undefined;
 }
 
 // Extract basic execution details and metadata
-export function getInfoTableData(
-    simData: TwapSimulation,
-    twapParams: TwapParams,
-): TwapInfoTableData {
+export function getExecutionInfo(simData: TwapSimulation, twapParams: TwapParams): ExecutionInfo {
     const baseToken = twapParams.baseToken();
     const direction = simData.direction();
 
     const totalSize = twapParams.decimalCorrectedQuoteAmount();
     const renegadeFeeBps = simData.renegadeFeeInBps();
-    const renegadeFillPercent = simData.renegadeFillPercent();
 
     return {
         asset: baseToken.ticker,
@@ -31,7 +26,6 @@ export function getInfoTableData(
         endTime: twapParams.data.end_time,
         numTrades: twapParams.data.num_trades,
         renegadeFeeBps,
-        renegadeFillPercent,
         startTime: twapParams.data.start_time,
         totalSize,
     };
