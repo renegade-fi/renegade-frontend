@@ -54,12 +54,12 @@ export async function getSimulation(searchParams: SearchParams): Promise<{
     }
 
     const serverParams = TwapParamsSchema.parse({
-        base_amount: data.base_amount,
+        base_amount: "0", // Always use quote_amount, ignore base_amount from URL
         base_mint: baseToken.address,
         direction: data.direction,
         end_time: data.end_time,
         num_trades: data.num_trades,
-        quote_amount: data.quote_amount ?? "0",
+        quote_amount: data.quote_amount,
         quote_mint: quoteToken.address,
         start_time: data.start_time,
     });
