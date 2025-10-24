@@ -54,10 +54,20 @@ export function TwapPriceTable({ data }: TwapPriceTableProps) {
             </TableBody>
             <TableFooter>
                 <TableRow>
-                    <TableCell>Price improvement</TableCell>
-                    <TableCell className="text-green-price text-right" colSpan={2}>
-                        <span className="tabular-nums">{data.cumulativeDeltaBps.toFixed(2)}</span>{" "}
-                        bps
+                    <TableCell className="text-muted-foreground">Price Improvement</TableCell>
+                    <TableCell className="text-right" />
+                    <TableCell className="text-right tabular-nums text-green-price">
+                        {data.cumulativeDeltaBps >= 0 ? "+" : ""}
+                        {numeral(data.cumulativeDeltaBps).format("0,0.00")} bps
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Routed Through Renegade</TableCell>
+                    <TableCell className="text-right" />
+                    <TableCell className="text-right tabular-nums text-green-price">
+                        {data.renegadeFillPercent !== undefined
+                            ? `${numeral(data.renegadeFillPercent * 100).format("0,0.00")}%`
+                            : "N/A"}
                     </TableCell>
                 </TableRow>
             </TableFooter>

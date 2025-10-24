@@ -16,6 +16,17 @@ export function formatUSDC(value: number): string {
 }
 
 /**
+ * Format receive amount based on ticker
+ * USDC uses formatUSDC, other tokens show up to 4 decimals without trailing zeros
+ */
+export function formatReceiveAmount(amount: number, ticker: string): string {
+    if (ticker === "USDC") {
+        return formatUSDC(amount);
+    }
+    return numeral(amount).format("0,0.[0000]");
+}
+
+/**
  * Format token amount with appropriate precision
  * Uses higher precision for small values, lower for large values
  */

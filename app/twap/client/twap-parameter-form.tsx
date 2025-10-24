@@ -26,11 +26,7 @@ import type { SimulateTwapResult, TwapFormData } from "../actions/simulate-twap-
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
 import { DURATION_PRESETS } from "../lib/constants";
 import { formatDateTimeForInput, getTwentyFourHoursAgo } from "../lib/date-utils";
-import {
-    calculateTradeSize,
-    validateEndTimeNotInFuture,
-    validateTradeSizeInRange,
-} from "../lib/form-validation";
+import { validateEndTimeNotInFuture, validateTradeSizeInRange } from "../lib/form-validation";
 import { getTokens } from "../lib/token-utils";
 import { formatUSDC } from "../lib/utils";
 import { DateTimePicker } from "./date-time-picker";
@@ -53,12 +49,15 @@ const formSchema = z
     })
     .superRefine((data, ctx) => {
         if (!validateTradeSizeInRange(data)) {
-            const currentTradeSize = calculateTradeSize(data);
-            const formattedTradeSize =
-                currentTradeSize !== null ? formatUSDC(currentTradeSize) : "N/A";
+            const duration = DURATION_PRESETS[data.durationIndex];
+            const durationSeconds = duration.hours * 3600 + duration.minutes * 60;
+            const numberOfTrades = durationSeconds / 30;
+            const minAmount = numberOfTrades;
+            const maxAmount = numberOfTrades * 250000;
+
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: `Clip size must be between 1 and 250,000 USDC. Current: ${formattedTradeSize} USDC`,
+                message: `Amount must be between ${formatUSDC(minAmount)} and ${formatUSDC(maxAmount)} USDC for the chosen duration of ${duration.label}.`,
                 path: ["input_amount"],
             });
         }

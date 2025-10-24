@@ -20,10 +20,6 @@ export function TwapInfoTable({ data }: TwapInfoTableProps) {
         <Table>
             <TableBody>
                 <TableRow>
-                    <TableCell className="text-muted-foreground">Start Time</TableCell>
-                    <TableCell className="text-right">{localStartDisplay}</TableCell>
-                </TableRow>
-                <TableRow>
                     <TableCell className="text-muted-foreground">Asset</TableCell>
                     <TableCell className="text-right">{asset}</TableCell>
                 </TableRow>
@@ -35,19 +31,10 @@ export function TwapInfoTable({ data }: TwapInfoTableProps) {
                     <TableCell className="text-muted-foreground">Total Size</TableCell>
                     <TableCell className="text-right">{formatUSDC(data.totalSize)} USDC</TableCell>
                 </TableRow>
-                {data.renegadeFillPercent !== undefined && (
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">
-                            Routed through Renegade
-                        </TableCell>
-                        <TableCell className="text-right">
-                            <span className="tabular-nums">
-                                {formatUSDC(data.renegadeFillPercent * 100)}
-                            </span>
-                            %
-                        </TableCell>
-                    </TableRow>
-                )}
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Start Time</TableCell>
+                    <TableCell className="text-right">{localStartDisplay}</TableCell>
+                </TableRow>
                 <TableRow>
                     <TableCell className="text-muted-foreground">Total Runtime</TableCell>
                     <TableCell className="text-right">

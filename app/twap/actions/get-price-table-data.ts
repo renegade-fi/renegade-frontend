@@ -8,6 +8,7 @@ export interface TwapPriceTableData {
     cumulativeBinanceReceived: number;
     cumulativeRenegadeReceived: number;
     cumulativeDeltaBps: number;
+    renegadeFillPercent: number | undefined;
     receivedTicker: string;
 }
 
@@ -62,5 +63,6 @@ export function getPriceTableData(
         cumulativeDeltaBps,
         cumulativeRenegadeReceived: renegadeReceived,
         receivedTicker: receiveToken.ticker,
+        renegadeFillPercent: simData.renegadeFillPercent(),
     };
 }

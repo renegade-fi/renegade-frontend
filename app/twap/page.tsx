@@ -7,7 +7,6 @@ import { TwapParameterForm } from "./client/twap-parameter-form";
 import { TwapSimulationResults } from "./twap-simulation-results";
 
 export default function TwapPage() {
-    // Lift mutation to parent - both children can access it
     const mutation = useMutation({
         mutationFn: simulateTwapAction,
         mutationKey: ["twap-simulation"],
