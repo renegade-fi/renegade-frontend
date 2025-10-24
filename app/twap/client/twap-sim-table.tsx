@@ -9,17 +9,9 @@ import {
     type SortingState,
     useReactTable,
 } from "@tanstack/react-table";
-import { TriangleAlert } from "lucide-react";
 import React from "react";
 import { TableEmptyState } from "@/components/table-empty-state";
 import { Button } from "@/components/ui/button";
-import {
-    Empty,
-    EmptyDescription,
-    EmptyHeader,
-    EmptyMedia,
-    EmptyTitle,
-} from "@/components/ui/empty";
 import {
     Table,
     TableBody,
@@ -28,7 +20,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import type { TwapTableData } from "../lib/table-types";
+import type { TwapTableMeta, TwapTableRow } from "../lib/table-types";
 import { buildColumns } from "./twap-table/columns";
 
 interface DataTableProps<TData, TValue> {
@@ -134,37 +126,11 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
 }
 
 interface TwapSimTableProps {
-    table?: TwapTableData | null;
-    error?: string;
+    meta: TwapTableMeta;
+    rows: TwapTableRow[];
 }
 
-export function TwapSimTable({ table, error }: TwapSimTableProps) {
-    const columns = React.useMemo(() => {
-        if (!table) return [];
-        return buildColumns(table.meta);
-    }, [table]);
-
-    if (error) {
-        return (
-            <Empty>
-                <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                        <TriangleAlert />
-                    </EmptyMedia>
-                    <EmptyTitle>Simulation Error</EmptyTitle>
-                    <EmptyDescription>{error}</EmptyDescription>
-                </EmptyHeader>
-            </Empty>
-        );
-    }
-
-    if (!table) {
-        return (
-            <Empty>
-                <EmptyDescription>Run a simulation to see the results...</EmptyDescription>
-            </Empty>
-        );
-    }
-
-    return <DataTable columns={columns} data={table.rows} />;
+export function TwapSimTable({ meta, rows }: TwapSimTableProps) {
+    const columns = React.useMemo(() => buildColumns(meta), [meta]);
+    return <DataTable columns={columns} data={rows} />;
 }

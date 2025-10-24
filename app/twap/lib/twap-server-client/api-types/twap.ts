@@ -1,5 +1,6 @@
 import z from "zod";
 import { zHexString } from "@/env/schema";
+import { resolveAddress } from "@/lib/token";
 import { QuoteDirectionSchema } from "./index";
 import type { TwapStrategy } from "./request-response";
 
@@ -66,6 +67,31 @@ export class TwapParams {
         options: z.infer<typeof TwapOptionsSchema>;
     } {
         return { options: options, params: this.data, strategies };
+    }
+
+    // Get direction from params
+    getDirection(): "Buy" | "Sell" {
+        return this.data.direction;
+    }
+
+    // Get the ticker being sent based on direction
+    getSendTicker(baseToken: any, quoteToken: any): string {
+        return this.data.direction === "Buy" ? quoteToken.ticker : baseToken.ticker;
+    }
+
+    // Get the ticker being received based on direction
+    getReceiveTicker(baseToken: any, quoteToken: any): string {
+        return this.data.direction === "Buy" ? baseToken.ticker : quoteToken.ticker;
+    }
+
+    // Resolve base token from mint
+    getBaseToken() {
+        return resolveAddress(this.data.base_mint);
+    }
+
+    // Resolve quote token from mint
+    getQuoteToken() {
+        return resolveAddress(this.data.quote_mint);
     }
 }
 
