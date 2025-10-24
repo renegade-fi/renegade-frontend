@@ -45,7 +45,7 @@ export function TwapInfoTable({ data }: TwapInfoTableProps) {
                             </TableCell>
                             <TableCell className="text-right">
                                 <span className="tabular-nums">
-                                    {(data.renegadeFillPercent * 100).toFixed(1)}
+                                    {formatUSDC(data.renegadeFillPercent * 100)}
                                 </span>
                                 %
                             </TableCell>
