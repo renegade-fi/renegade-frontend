@@ -1,9 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ interface TwapParameterFormProps {
 
 export function TwapParameterForm({ initialFormData }: TwapParameterFormProps) {
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
 
     // Initialize form with values from URL params
     const form = useForm<TwapFormData>({
@@ -99,7 +101,9 @@ export function TwapParameterForm({ initialFormData }: TwapParameterFormProps) {
     const handleSubmit = (data: TwapFormData) => {
         // Create new TwapParams from form data and push to URL
         const newParams = TwapParams.fromFormData(data);
-        router.push(`/twap?${newParams.toUrlString()}`);
+        startTransition(() => {
+            router.push(`/twap?${newParams.toUrlString()}`);
+        });
     };
 
     return (
@@ -294,11 +298,18 @@ export function TwapParameterForm({ initialFormData }: TwapParameterFormProps) {
 
             <Button
                 className="flex w-full font-serif text-2xl font-bold tracking-tighter lg:tracking-normal"
-                disabled={!form.formState.isValid}
+                disabled={isPending || !form.formState.isValid}
                 size="xl"
                 type="submit"
             >
-                Simulate TWAP
+                {isPending ? (
+                    <>
+                        <Loader2 aria-hidden className="mr-2 h-5 w-5 animate-spin" />
+                        Simulating…
+                    </>
+                ) : (
+                    "Simulate TWAP"
+                )}
             </Button>
         </form>
     );

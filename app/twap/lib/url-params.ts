@@ -11,6 +11,12 @@ import {
 import { findTokenByTicker } from "./token-utils";
 import { validateTwapParams } from "./validation";
 
+const DEFAULT_TOKEN = "WETH";
+const DEFAULT_DIRECTION: "buy" = "buy";
+const DEFAULT_SIZE = "10000";
+const DEFAULT_DURATION_INDEX = 3;
+const DEFAULT_BINANCE_TIER = "No VIP";
+
 /**
  * Maps URL binanceTier parameter to internal fee tier string
  */
@@ -79,14 +85,14 @@ export class TwapParams {
      * Parse URL searchParams with defaults
      */
     static fromUrl(searchParams: Record<string, string | string[] | undefined>): TwapParams {
-        const token = typeof searchParams.token === "string" ? searchParams.token : "WETH";
+        const token = typeof searchParams.token === "string" ? searchParams.token : DEFAULT_TOKEN;
         const direction =
             typeof searchParams.direction === "string"
                 ? searchParams.direction.toLowerCase() === "sell"
                     ? "sell"
-                    : "buy"
-                : "buy";
-        const size = typeof searchParams.size === "string" ? searchParams.size : "10000";
+                    : DEFAULT_DIRECTION
+                : DEFAULT_DIRECTION;
+        const size = typeof searchParams.size === "string" ? searchParams.size : DEFAULT_SIZE;
         const durationIndex = durationStringToIndex(
             typeof searchParams.duration === "string" ? searchParams.duration : undefined,
         );
@@ -154,11 +160,11 @@ export class TwapParams {
     static default(): TwapParams {
         const defaultParts = getTwentyFourHoursAgoUtcParts();
         return new TwapParams(
-            "WETH",
-            "buy",
-            "10000",
-            3, // 1 hour
-            "No VIP",
+            DEFAULT_TOKEN,
+            DEFAULT_DIRECTION,
+            DEFAULT_SIZE,
+            DEFAULT_DURATION_INDEX,
+            DEFAULT_BINANCE_TIER,
             defaultParts.date,
             defaultParts.hour,
             defaultParts.minute,

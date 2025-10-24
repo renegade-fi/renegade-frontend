@@ -85,15 +85,17 @@ export const getCachedSimulation = cache(
 
         // Build TwapParams and call loader
         const twapParams = TwapParams.new(serverParams);
+
         const simData = await twapLoader(twapParams, undefined, {
             binance_fee: binanceFee,
         });
 
-        // Return serializable data (errors will be thrown and caught by React Query)
-        return {
+        const result: SimulateTwapResult = {
             simData: simData.data.strategies,
             twapParams: twapParams.data,
         };
+
+        return result;
     },
 );
 
