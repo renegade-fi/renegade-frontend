@@ -1,5 +1,4 @@
 import { Token } from "@renegade-fi/token-nextjs";
-import { unstable_cache } from "next/cache";
 import type z from "zod";
 import { client as PriceReporterClient } from "@/lib/clients/price-reporter";
 import { DEFAULT_BINANCE_FEE } from "../lib/binance-fee-tiers";
@@ -14,18 +13,12 @@ import type { TwapOptionsSchema, TwapParamsData } from "../lib/twap-server-clien
 import { TwapParams } from "../lib/twap-server-client/api-types/twap";
 import { convertDecimalToRaw } from "../lib/utils";
 
-// Cache at top, then exported API, then helper
-const cachedSimulateTwap = unstable_cache(simulateTwapWithPrice, ["twap-simulate"], {
-    revalidate: 60,
-    tags: ["twap-sim"],
-});
-
 export async function twapLoader(
     twapParams: TwapParams,
     strategies: TwapStrategy[] = ["Renegade", "Binance"],
     options: z.infer<typeof TwapOptionsSchema> = { binance_fee: DEFAULT_BINANCE_FEE },
 ): Promise<TwapSimulation> {
-    const data = await cachedSimulateTwap(twapParams.data, strategies, options);
+    const data = await simulateTwapWithPrice(twapParams.data, strategies, options);
     return TwapSimulation.new(data);
 }
 

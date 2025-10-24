@@ -1,7 +1,6 @@
 "use client";
 
 import {
-    type ColumnDef,
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
@@ -23,12 +22,14 @@ import {
 import type { TwapTableMeta, TwapTableRow } from "../lib/table-types";
 import { buildColumns } from "./twap-table/columns";
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
+interface DataTableProps {
+    meta: TwapTableMeta;
+    rows: TwapTableRow[];
 }
 
-function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable({ meta, rows }: DataTableProps) {
+    const columns = buildColumns(meta);
+
     const [sorting, setSorting] = React.useState<SortingState>([
         {
             desc: false,
@@ -38,7 +39,7 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
 
     const table = useReactTable({
         columns,
-        data,
+        data: rows,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -205,14 +206,4 @@ function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValu
             ) : null}
         </div>
     );
-}
-
-interface TwapFillsTableProps {
-    meta: TwapTableMeta;
-    rows: TwapTableRow[];
-}
-
-export function TwapFillsTable({ meta, rows }: TwapFillsTableProps) {
-    const columns = React.useMemo(() => buildColumns(meta), [meta]);
-    return <DataTable columns={columns} data={rows} />;
 }
