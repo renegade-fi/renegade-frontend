@@ -1,9 +1,9 @@
 import { Suspense } from "react";
+import { getCachedSimulation } from "./actions/simulate-twap-action";
 import { TwapParameterForm } from "./client/twap-parameter-form";
 import { TwapSimulationEmpty } from "./client/twap-simulation-empty";
 import { TwapSimulationError } from "./client/twap-simulation-error";
 import { TwapSimulationLoading } from "./client/twap-simulation-loading";
-import { ErrorBoundary } from "./components/error-boundary";
 import { TwapParams } from "./lib/url-params";
 import { PriceImprovementCard } from "./server/price-improvement-card";
 import { RoutedRenegadeChart } from "./server/routed-through-renegade-chart";
@@ -21,9 +21,8 @@ export default async function TwapPage({ searchParams }: TwapPageProps) {
     const formData = params.toServerActionParams();
     const renderSimulation = hasQueryParams;
 
-    // Create stable key for ErrorBoundary reset
-    // Changes when params change OR when user navigates (retry with same params)
-    const errorBoundaryKey = `${params.toCanonicalKey()}-${Date.now()}`;
+    // Fetch simulation once at parent level
+    const simulationResult = renderSimulation ? await getCachedSimulation(formData) : null;
 
     return (
         // SidebarInset already establishes a flex column with header/footer siblings.
@@ -43,29 +42,28 @@ export default async function TwapPage({ searchParams }: TwapPageProps) {
                             tick-level data recorded in real time.
                         </div>
                         <div className="flex gap-6 mt-6">
-                            {renderSimulation ? (
-                                <ErrorBoundary
-                                    fallback={
-                                        <div className="flex-1">
-                                            <TwapSimulationError error="An error occurred while rendering the simulation." />
-                                        </div>
-                                    }
-                                    key={errorBoundaryKey}
-                                >
-                                    <Suspense fallback={<TwapSimulationLoading />}>
-                                        <div className="grid grid-rows-[auto_1fr] gap-6 flex-1">
-                                            <div className="flex gap-6">
-                                                <div className="flex-1">
-                                                    <RoutedRenegadeChart formData={formData} />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <PriceImprovementCard formData={formData} />
-                                                </div>
+                            {simulationResult?.error ? (
+                                <div className="flex-1 border border-dashed grid place-items-center">
+                                    <TwapSimulationError error={simulationResult.error} />
+                                </div>
+                            ) : simulationResult ? (
+                                <Suspense fallback={<TwapSimulationLoading />}>
+                                    <div className="grid grid-rows-[auto_1fr] gap-6 flex-1">
+                                        <div className="flex gap-6">
+                                            <div className="flex-1">
+                                                <RoutedRenegadeChart
+                                                    simulationData={simulationResult}
+                                                />
                                             </div>
-                                            <TablesSection formData={formData} />
+                                            <div className="flex-1">
+                                                <PriceImprovementCard
+                                                    simulationData={simulationResult}
+                                                />
+                                            </div>
                                         </div>
-                                    </Suspense>
-                                </ErrorBoundary>
+                                        <TablesSection simulationData={simulationResult} />
+                                    </div>
+                                </Suspense>
                             ) : (
                                 <div className="flex-1 border border-dashed grid place-items-center">
                                     <TwapSimulationEmpty />

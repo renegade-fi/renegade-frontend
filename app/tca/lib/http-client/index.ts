@@ -35,6 +35,7 @@ async function request<TRequest extends z.ZodTypeAny | undefined, TResponse exte
     }
 
     const response = await fetch(url, fetchOptions);
+
     if (!response.ok) {
         throw new Error(`Failed to fetch ${path}: ${response.statusText}`);
     }

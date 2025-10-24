@@ -38,7 +38,8 @@ async function simulateTwapWithPrice(
     }
 
     const params = TwapParams.new(data).toSimulateRequest(strategies, options);
-    return await TwapClient.simulateTwap(params);
+    const result = await TwapClient.simulateTwap(params);
+    return result;
 }
 
 function getBaseAmountFromQuote(quoteAmt: string, baseDecimals: number, price: number): bigint {

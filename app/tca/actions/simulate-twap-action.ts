@@ -1,7 +1,5 @@
 "use server";
 
-import { unstable_cache } from "next/cache";
-import { cache } from "react";
 import { z } from "zod";
 import type { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
 import { TwapParams as TwapServerParams } from "../lib/twap-server-client/api-types/twap";
@@ -21,27 +19,27 @@ const TwapFormDataSchema = z.object({
 export type TwapFormData = z.infer<typeof TwapFormDataSchema>;
 
 export interface SimulateTwapResult {
-    simData: TwapSimulation["data"]["strategies"];
-    twapParams: TwapServerParams["data"];
+    simData?: TwapSimulation["data"]["strategies"];
+    twapParams?: TwapServerParams["data"];
+    error?: string;
 }
 
 // Wrap with React cache for request-level deduplication, then unstable_cache for cross-request caching
-export const getCachedSimulation = cache(
-    unstable_cache(
-        async (formData: TwapFormData): Promise<SimulateTwapResult> => {
-            const validated = TwapFormDataSchema.parse(formData);
-            const params = UrlTwapParams.fromFormData(validated);
-            const { params: simulationParams, binanceFee } = params.toSimulationPayload();
-            const twapParams = TwapServerParams.new(simulationParams);
+export const getCachedSimulation = async (formData: TwapFormData): Promise<SimulateTwapResult> => {
+    const validated = TwapFormDataSchema.parse(formData);
+    const params = UrlTwapParams.fromFormData(validated);
+    const { params: simulationParams, binanceFee } = params.toSimulationPayload();
+    const twapParams = TwapServerParams.new(simulationParams);
 
-            const simData = await twapLoader(twapParams, undefined, { binance_fee: binanceFee });
-
-            return {
-                simData: simData.data.strategies,
-                twapParams: twapParams.data,
-            };
-        },
-        ["tca:simulate"],
-        { revalidate: 60 * 60, tags: ["tca:simulate"] },
-    ),
-);
+    try {
+        const simData = await twapLoader(twapParams, undefined, { binance_fee: binanceFee });
+        return {
+            simData: simData.data.strategies,
+            twapParams: twapParams.data,
+        };
+    } catch (error) {
+        return {
+            error: "An error occurred while rendering the simulation.",
+        };
+    }
+};
