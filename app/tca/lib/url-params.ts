@@ -1,5 +1,6 @@
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
+import { z } from "zod";
 import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "./binance-fee-tiers";
 import { DURATION_PRESETS } from "./constants";
 import {
@@ -295,14 +296,7 @@ export class TwapParams {
         };
     }
 
-    toServerActionParams(): {
-        selectedBase: string;
-        direction: "Buy" | "Sell";
-        input_amount: string;
-        durationIndex: number;
-        binance_fee_tier: string;
-        start_time: string;
-    } {
+    toServerActionParams(): TwapFormData {
         return this.toFormData();
     }
 
@@ -350,3 +344,15 @@ export class TwapParams {
         return { binanceFee, params };
     }
 }
+
+// Form data schema (matches what React Hook Form will send)
+export const TwapFormDataSchema = z.object({
+    binance_fee_tier: z.string(),
+    direction: z.enum(["Buy", "Sell"]),
+    durationIndex: z.number().int().min(0).max(6),
+    input_amount: z.string(),
+    selectedBase: z.string(), // Format: "ticker:chainId"
+    start_time: z.string(), // UTC ISO datetime string from client
+});
+
+export type TwapFormData = z.infer<typeof TwapFormDataSchema>;

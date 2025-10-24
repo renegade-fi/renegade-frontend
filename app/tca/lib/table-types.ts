@@ -15,8 +15,3 @@ export type TwapTableRow = {
     receiveRenegade: string; // formatted receive amount for Binance with Renegade
     deltaBps: string; // e.g. "+12.34 bps"
 };
-
-export type TwapTableData = {
-    meta: TwapTableMeta;
-    rows: TwapTableRow[];
-};
