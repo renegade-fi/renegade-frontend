@@ -1,7 +1,5 @@
-import type z from "zod";
-import type { SimulateTwapResponseSchema } from "../lib/twap-server-client/api-types/request-response";
+import type { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
 import type { TwapParams } from "../lib/twap-server-client/api-types/twap";
-import { formatUnitsToNumber } from "../lib/utils";
 
 // Data for the info/details table
 export interface TwapInfoTableData {
@@ -12,32 +10,20 @@ export interface TwapInfoTableData {
     startTime: string;
     endTime: string;
     renegadeFeeBps: number;
+    renegadeFillPercent: number | undefined;
 }
 
 // Extract basic execution details and metadata
 export function getInfoTableData(
-    simData: z.output<typeof SimulateTwapResponseSchema>,
+    simData: TwapSimulation,
     twapParams: TwapParams,
 ): TwapInfoTableData {
-    const baseToken = twapParams.getBaseToken();
-    const quoteToken = twapParams.getQuoteToken();
-    if (!baseToken || !quoteToken) {
-        throw new Error("Base or quote token not found");
-    }
+    const baseToken = twapParams.baseToken();
+    const direction = simData.direction();
 
-    const direction = twapParams.getDirection();
-
-    // Get Renegade strategy for fee calculation
-    const renegade = simData.strategies.find((s) => s.strategy === "Renegade");
-    if (!renegade) {
-        throw new Error("Renegade strategy not found");
-    }
-
-    // Calculate total size (in USDC/quote token)
-    const totalSize = formatUnitsToNumber(twapParams.data.quote_amount, quoteToken.decimals);
-
-    // Convert fee from decimal fraction to bps
-    const renegadeFeeBps = Number(renegade.summary.fee) * 10000;
+    const totalSize = twapParams.decimalCorrectedQuoteAmount();
+    const renegadeFeeBps = simData.renegadeFeeInBps();
+    const renegadeFillPercent = simData.renegadeFillPercent();
 
     return {
         asset: baseToken.ticker,
@@ -45,6 +31,7 @@ export function getInfoTableData(
         endTime: twapParams.data.end_time,
         numTrades: twapParams.data.num_trades,
         renegadeFeeBps,
+        renegadeFillPercent,
         startTime: twapParams.data.start_time,
         totalSize,
     };
