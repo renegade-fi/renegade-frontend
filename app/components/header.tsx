@@ -126,6 +126,14 @@ export function Header() {
                     >
                         Stats
                     </Link>
+                    <Link
+                        className={cn("hover:underline", {
+                            "text-primary": pathname.includes("/tca"),
+                        })}
+                        href="/tca"
+                    >
+                        TCA
+                    </Link>
                 </nav>
                 <div className="flex items-center space-x-4 justify-self-end">
                     {walletReadyState === "READY" ? (

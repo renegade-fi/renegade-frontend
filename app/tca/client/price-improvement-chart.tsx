@@ -63,8 +63,8 @@ export function PriceImprovementChart({ data }: PriceImprovementChartProps) {
             <CardHeader>
                 <CardTitle>Price Improvement</CardTitle>
                 <CardDescription>
-                    Trades routed through Renegade cross at the midpoint price, providing strictly
-                    better execution than Binance.
+                    Trades crossed through Renegade give strictly better execution than Binance,
+                    saving on spreads, impact, and fees.
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 grid place-items-center">

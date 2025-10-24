@@ -102,7 +102,7 @@ export function TwapParameterForm({ initialFormData }: TwapParameterFormProps) {
         // Create new TwapParams from form data and push to URL
         const newParams = TwapParams.fromFormData(data);
         startTransition(() => {
-            router.push(`/twap?${newParams.toUrlString()}`);
+            router.push(`/tca?${newParams.toUrlString()}`);
         });
     };
 

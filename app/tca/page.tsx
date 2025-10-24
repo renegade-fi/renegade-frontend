@@ -22,7 +22,7 @@ export default async function TwapPage({ searchParams }: TwapPageProps) {
 
     // If params are invalid, redirect to valid defaults
     if (!params.isValid()) {
-        redirect(`/twap?${TwapParams.default().toUrlString()}`);
+        redirect(`/tca?${TwapParams.default().toUrlString()}`);
     }
 
     const formData = params.toServerActionParams();
@@ -36,8 +36,15 @@ export default async function TwapPage({ searchParams }: TwapPageProps) {
                 <div className="container pb-6">
                     <div className="mt-12">
                         <h1 className="font-serif text-3xl font-bold tracking-tighter lg:tracking-normal">
-                            Binance TWAP vs Binance-with-Renegade TWAP
+                            Binance TWAP vs. Renegade Mid Cross
                         </h1>
+                        <div className="text-sm font-medium text-muted-foreground w-2/3">
+                            This transaction cost analysis tool shows you the approximate price
+                            improvement you’d see by integrating Renegade for spot liquidity. It
+                            compares a simple Binance TWAP versus a Renegade mid sweep with Binance
+                            backfill on all uncrossed volume. All results are computed from
+                            tick-level data recorded in real time.
+                        </div>
                         <div className="flex gap-6 mt-6">
                             <div className="grid grid-rows-[auto_1fr] gap-6 flex-1">
                                 {renderSimulation ? (

@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { formatLocalDateTime } from "@/app/twap/lib/date-utils";
-import type { TwapTableRow } from "@/app/twap/lib/table-types";
+import { formatLocalDateTime } from "@/app/tca/lib/date-utils";
+import type { TwapTableRow } from "@/app/tca/lib/table-types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function buildColumns({
@@ -70,7 +70,7 @@ export function buildColumns({
                     header: () => <div className="text-right">Amount Received</div>,
                 },
             ],
-            header: () => <div className="text-right">Binance</div>,
+            header: () => <div className="text-right">Binance TWAP</div>,
             id: "binance",
         },
         {
@@ -96,7 +96,7 @@ export function buildColumns({
                     header: () => <div className="text-right">Amount Received</div>,
                 },
             ],
-            header: () => <div className="text-right">Binance-with-Renegade</div>,
+            header: () => <div className="text-right">Renegade Mid Cross</div>,
             id: "binanceWithRenegade",
         },
         {
@@ -105,7 +105,7 @@ export function buildColumns({
                 const deltaBps = row.getValue<string>("deltaBps");
                 return <div className="text-right">{deltaBps} bps</div>;
             },
-            header: () => <div className="text-right">Price improvement</div>,
+            header: () => <div className="text-right">Price Improvement</div>,
         },
     ];
 }

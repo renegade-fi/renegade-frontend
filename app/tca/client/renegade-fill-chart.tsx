@@ -1,6 +1,5 @@
 "use client";
 
-import numeral from "numeral";
 import type * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,8 +36,8 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
         <CardHeader>
             <CardTitle>Routed through Renegade</CardTitle>
             <CardDescription>
-                The Renegade strategy fills trades using Renegade liquidity and backstops using
-                Binance if needed.
+                The Renegade Mid Cross fills as much liquidity as possible at the Binance midpoint
+                before sweeping Binance itself for the remainder.
             </CardDescription>
         </CardHeader>
     );
@@ -83,7 +82,7 @@ export function RenegadeFillChart({ data }: RenegadeFillChartProps) {
                             content={
                                 <ChartTooltipContent
                                     formatter={(value, name) => {
-                                        const formattedValue = numeral(value).format("$0,0.00");
+                                        const formattedValue = formatUSDC(Number(value));
                                         return (
                                             <>
                                                 <div
