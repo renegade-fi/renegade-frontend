@@ -87,7 +87,11 @@ export class Permit2SigTask extends Task<PermitSigDescriptor, PermitSigState, Pe
                 const { chainId, mint } = this.descriptor;
                 await ensureCorrectChain(this.ctx, chainId);
 
-                const finalAmount = this.ctx.getExpectedBalance(chainId, mint);
+                const finalAmount = this.ctx.getDepositAmount(
+                    chainId,
+                    mint,
+                    this.descriptor.amount,
+                );
 
                 const sdkCfg = getSDKConfig(chainId);
                 const token = resolveAddress(mint);

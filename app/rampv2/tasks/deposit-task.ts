@@ -76,7 +76,11 @@ export class DepositTask extends Task<DepositDescriptor, DepositState, DepositEr
 
         switch (this._state) {
             case "Pending": {
-                this._finalAmount = this.ctx.getExpectedBalance(chainId, mint);
+                this._finalAmount = this.ctx.getDepositAmount(
+                    chainId,
+                    mint,
+                    this.descriptor.amount,
+                );
 
                 await ensureCorrectChain(this.ctx, chainId);
 
