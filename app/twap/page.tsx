@@ -25,7 +25,7 @@ export default async function TwapPage({ searchParams }: { searchParams: SearchP
                             <TwapSimTable error={error} table={table} />
                         </div>
 
-                        <div className="p-3 border">
+                        <div className="self-start p-3 border">
                             <TwapParameterForm searchParams={params} />
                         </div>
                     </div>
