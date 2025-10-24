@@ -45,33 +45,7 @@ export function buildColumns({
                     </div>
                 );
             },
-            header: () => <div className="text-right">Trade Value</div>,
-        },
-        {
-            columns: [
-                {
-                    accessorKey: "priceBinanceAndRenegade",
-                    cell: ({ row }) => {
-                        const price = row.getValue<string>("priceBinanceAndRenegade");
-                        return <div className="text-right">{price}</div>;
-                    },
-                    header: () => <div className="text-right">Price</div>,
-                },
-                {
-                    accessorKey: "receiveRenegade",
-                    cell: ({ row }) => {
-                        const amount = row.getValue<string>("receiveRenegade");
-                        return (
-                            <div className="text-right">
-                                {amount} {receiveTicker}
-                            </div>
-                        );
-                    },
-                    header: () => <div className="text-right">Size</div>,
-                },
-            ],
-            header: () => <div className="text-right">Binance-with-Renegade</div>,
-            id: "binanceWithRenegade",
+            header: () => <div className="text-right">Clip Size</div>,
         },
         {
             columns: [
@@ -93,11 +67,37 @@ export function buildColumns({
                             </div>
                         );
                     },
-                    header: () => <div className="text-right">Size</div>,
+                    header: () => <div className="text-right">Amount Received</div>,
                 },
             ],
-            header: () => <div className="text-right">Binance only</div>,
+            header: () => <div className="text-right">Binance</div>,
             id: "binance",
+        },
+        {
+            columns: [
+                {
+                    accessorKey: "priceBinanceAndRenegade",
+                    cell: ({ row }) => {
+                        const price = row.getValue<string>("priceBinanceAndRenegade");
+                        return <div className="text-right">{price}</div>;
+                    },
+                    header: () => <div className="text-right">Price</div>,
+                },
+                {
+                    accessorKey: "receiveRenegade",
+                    cell: ({ row }) => {
+                        const amount = row.getValue<string>("receiveRenegade");
+                        return (
+                            <div className="text-right">
+                                {amount} {receiveTicker}
+                            </div>
+                        );
+                    },
+                    header: () => <div className="text-right">Amount Received</div>,
+                },
+            ],
+            header: () => <div className="text-right">Binance-with-Renegade</div>,
+            id: "binanceWithRenegade",
         },
         {
             accessorKey: "deltaBps",

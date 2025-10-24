@@ -4,6 +4,7 @@ import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import numeral from "numeral";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,8 +79,7 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
         const token = Token.fromTicker("USDC");
         if (!token) return quoteAmount;
         const decimalValue = formatUnitsToNumber(quoteAmount, token.decimals);
-        const formatted = decimalValue.toString();
-        return formatted.includes(".") ? formatted : `${formatted}.0`;
+        return numeral(decimalValue).format("0[.]00");
     }, [defaults?.quote_amount]);
 
     const firstToken = tokens[0];

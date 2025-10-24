@@ -3,35 +3,21 @@ import type { SimulateTwapResponseSchema } from "../lib/twap-server-client/api-t
 import type { TwapParams } from "../lib/twap-server-client/api-types/twap";
 import { formatUnitsToNumber } from "../lib/utils";
 
-interface TwapSummary {
-    cumulativeDeltaBps: number;
-    binanceFeeBps: number;
-    renegadeFeeBps: number;
-    cumulativeSold: number;
-    cumulativeRenegadeReceived: number;
-    cumulativeBinanceReceived: number;
-    soldTicker: string;
-    receivedTicker: string;
+// Data for the price comparison table
+export interface TwapPriceTableData {
     averagePriceBinance: number;
     averagePriceRenegade: number;
-    totalSize: number; // Requested USDC amount
-    executedSize: number; // Cumulative USDC traded
+    cumulativeBinanceReceived: number;
+    cumulativeRenegadeReceived: number;
+    cumulativeDeltaBps: number;
+    receivedTicker: string;
 }
 
-// Unified type for summary card containing all needed data
-export interface TwapSummaryCardData {
-    summary: TwapSummary;
-    numTrades: number;
-    startTime: string;
-    endTime: string;
-}
-
-// Transform raw simulation data to summary card display data
-export function getSummaryCardData(
+// Extract price comparison data between strategies
+export function getPriceTableData(
     simData: z.output<typeof SimulateTwapResponseSchema>,
     twapParams: TwapParams,
-): TwapSummaryCardData {
-    // Resolve tokens from twapParams
+): TwapPriceTableData {
     const baseToken = twapParams.getBaseToken();
     const quoteToken = twapParams.getQuoteToken();
     if (!baseToken || !quoteToken) {
@@ -80,10 +66,6 @@ export function getSummaryCardData(
             ? ((renegadeReceived - binanceReceived) / binanceReceived) * 10000
             : 0;
 
-    // Convert fees from decimal fractions to bps
-    const renegadeFeeBps = Number(renegade.summary.fee) * 10000;
-    const binanceFeeBps = Number(binance.summary.fee) * 10000;
-
     // Calculate average prices (always USDC per base)
     const averagePriceBinance =
         direction === "Buy"
@@ -103,32 +85,12 @@ export function getSummaryCardData(
               ? renegadeReceived / cumulativeSold
               : 0;
 
-    // Calculate total size (requested USDC) and executed size (cumulative USDC traded)
-    const totalSize = formatUnitsToNumber(twapParams.data.quote_amount, quoteToken.decimals);
-    const executedSize = formatUnitsToNumber(
-        renegade.summary.total_quote_amount,
-        quoteToken.decimals,
-    );
-
-    const summary: TwapSummary = {
+    return {
         averagePriceBinance,
         averagePriceRenegade,
-        binanceFeeBps,
         cumulativeBinanceReceived: binanceReceived,
         cumulativeDeltaBps,
         cumulativeRenegadeReceived: renegadeReceived,
-        cumulativeSold,
-        executedSize,
         receivedTicker: receivedToken.ticker,
-        renegadeFeeBps,
-        soldTicker: soldToken.ticker,
-        totalSize,
-    };
-
-    return {
-        endTime: twapParams.data.end_time,
-        numTrades: twapParams.data.num_trades,
-        startTime: twapParams.data.start_time,
-        summary,
     };
 }
