@@ -30,7 +30,7 @@ export const SimulateTwapRequestSchema = z
         };
     });
 
-export const TwapStrategySimulationResultSchema = z.object({
+const TwapStrategySimulationResultSchema = z.object({
     renegade_fill_percent: z.number().optional(),
     sim_result: TwapSimulationResultSchema,
     strategy: TwapStrategySchema,
@@ -41,7 +41,7 @@ export const SimulateTwapResponseSchema = z.object({
     strategies: z.array(TwapStrategySimulationResultSchema),
 });
 
-export type SimulateTwapResponse = z.infer<typeof SimulateTwapResponseSchema>;
+type SimulateTwapResponse = z.infer<typeof SimulateTwapResponseSchema>;
 
 export class TwapSimulation {
     constructor(public data: SimulateTwapResponse) {}

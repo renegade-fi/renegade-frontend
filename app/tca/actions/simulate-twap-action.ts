@@ -1,22 +1,13 @@
 "use server";
 
-import { z } from "zod";
 import type { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
 import { TwapParams as TwapServerParams } from "../lib/twap-server-client/api-types/twap";
-import { TwapParams as UrlTwapParams } from "../lib/url-params";
+import {
+    type TwapFormData,
+    TwapFormDataSchema,
+    TwapParams as UrlTwapParams,
+} from "../lib/url-params";
 import { twapLoader } from "../server/loader";
-
-// Form data schema (matches what React Hook Form will send)
-const TwapFormDataSchema = z.object({
-    binance_fee_tier: z.string(),
-    direction: z.enum(["Buy", "Sell"]),
-    durationIndex: z.number().int().min(0).max(6),
-    input_amount: z.string(),
-    selectedBase: z.string(), // Format: "ticker:chainId"
-    start_time: z.string(), // UTC ISO datetime string from client
-});
-
-export type TwapFormData = z.infer<typeof TwapFormDataSchema>;
 
 export interface SimulateTwapResult {
     simData?: TwapSimulation["data"]["strategies"];

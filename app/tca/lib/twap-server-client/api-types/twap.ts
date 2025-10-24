@@ -203,4 +203,3 @@ export const TwapSimulationSummarySchema = z.object({
 });
 
 export type TwapParamsData = z.infer<typeof TwapParamsSchema>;
-export type TwapSimulationResult = z.infer<typeof TwapSimulationResultSchema>;

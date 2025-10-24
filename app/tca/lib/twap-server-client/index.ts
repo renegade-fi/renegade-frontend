@@ -6,7 +6,6 @@ import {
     SimulateTwapRequestSchema,
     SimulateTwapResponseSchema,
 } from "./api-types/request-response";
-import { loadChartData } from "./chart-data";
 
 /** Base URL for the TWAP server */
 const BASE_URL = env.TWAP_SERVER_URL;
@@ -39,8 +38,6 @@ const SIMULATE_TWAP_ROUTE = "/simulate-twap";
  * Unlike Rust’s Lazy, initialization is eager (on first import), and the object is mutable unless frozen.
  */
 export const TwapClient = {
-    loadChartData,
-
     simulateTwap: (
         input: z.input<typeof SimulateTwapRequestSchema>,
     ): Promise<z.output<typeof SimulateTwapResponseSchema>> =>
