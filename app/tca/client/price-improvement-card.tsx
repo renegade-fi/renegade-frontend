@@ -2,12 +2,12 @@
 import NumberFlow, { NumberFlowGroup } from "@number-flow/react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { GlyphLoadingIndicator } from "@/components/glyph-loading-indicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { TwapPriceTableData } from "../actions/get-price-table-data";
+import type { PriceImprovementData } from "../actions/get-price-improvement";
+import { ChartSkeleton } from "./chart-skeleton";
 
 interface PriceImprovementCardProps {
-    data: TwapPriceTableData;
+    data: PriceImprovementData;
 }
 
 function getTokenAmountFormat(value: number, ticker: string) {
@@ -73,7 +73,7 @@ export function PriceImprovementCardInner({ data }: PriceImprovementCardProps) {
                 <NumberFlowGroup>
                     <div className="grid grid-cols-1 place-items-center">
                         <NumberFlow
-                            className="text-4xl font-bold text-green-price"
+                            className={`text-4xl font-bold ${cumulativeDeltaBps > 0 ? "text-green-price" : ""}`}
                             format={{
                                 maximumFractionDigits: 2,
                             }}
@@ -103,21 +103,15 @@ const PriceImprovementCardLazy = dynamic(
             default: mod.PriceImprovementCardInner,
         })),
     {
-        loading: () => <PriceImprovementCardSkeleton />,
+        loading: () => (
+            <div className="border aspect-square w-full">
+                <ChartSkeleton />
+            </div>
+        ),
         ssr: false,
     },
 );
 
 export function PriceImprovementCardClient({ data }: PriceImprovementCardProps) {
     return <PriceImprovementCardLazy data={data} />;
-}
-
-export function PriceImprovementCardSkeleton() {
-    return (
-        <Card className="h-full border-none flex flex-col">
-            <CardContent className="relative flex-1">
-                <GlyphLoadingIndicator />
-            </CardContent>
-        </Card>
-    );
 }

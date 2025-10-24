@@ -73,6 +73,49 @@ export class TwapParams {
         public readonly startMinute: string,
     ) {}
 
+    // Canonicalization helpers scoped to this class
+    private static normalizeDirection(direction: string): "buy" | "sell" {
+        return direction.toLowerCase() === "sell" ? "sell" : "buy";
+    }
+
+    private static normalizeTicker(ticker: string): string {
+        return ticker.trim().toUpperCase();
+    }
+
+    private static normalizeSelectedBase(selectedBase: string): {
+        ticker: string;
+        chainId: number;
+    } {
+        const [rawTicker = "", rawChain = ""] = selectedBase.split(":");
+        const ticker = TwapParams.normalizeTicker(rawTicker);
+        const chainId = Number(rawChain) || FALLBACK_CHAIN_ID;
+        return { chainId, ticker };
+    }
+
+    private static toCanonicalNumberString(n: number): string {
+        let s = Number.isFinite(n) ? n.toString() : "";
+        if (!s || s.includes("e") || s.includes("E")) {
+            s = n.toFixed(12);
+        }
+        s = s.replace(/\.0+$/, "");
+        s = s.replace(/(\.[0-9]*?)0+$/, "$1");
+        s = s.replace(/\.$/, "");
+        return s;
+    }
+
+    private static normalizeAmountString(amount: string): string {
+        const cleaned = amount.replace(/,/g, "").trim();
+        const n = Number.parseFloat(cleaned);
+        if (!Number.isFinite(n)) return cleaned;
+        if (n === 0) return "0";
+        return TwapParams.toCanonicalNumberString(n);
+    }
+
+    private static pad2(v: string | number): string {
+        const s = typeof v === "number" ? String(v) : v;
+        return s.padStart(2, "0");
+    }
+
     static fromUrl(searchParams: Record<string, string | string[] | undefined>): TwapParams {
         const token = typeof searchParams.token === "string" ? searchParams.token : DEFAULT_TOKEN;
         const resolvedToken = findTokenByTicker(token);
@@ -124,20 +167,28 @@ export class TwapParams {
         binance_fee_tier: string;
         start_time: string;
     }): TwapParams {
-        const [ticker, chainString] = formData.selectedBase.split(":");
-        const chainId = Number(chainString) || FALLBACK_CHAIN_ID;
+        // Normalize base selection
+        const { ticker, chainId } = TwapParams.normalizeSelectedBase(formData.selectedBase);
+        // Normalize direction
+        const direction = TwapParams.normalizeDirection(formData.direction);
+        // Normalize amount string
+        const size = TwapParams.normalizeAmountString(formData.input_amount);
+        // Normalize start time parts
         const startParts = parseIsoToUtcParts(formData.start_time);
+        const startDate = startParts.date;
+        const startHour = TwapParams.pad2(startParts.hour);
+        const startMinute = TwapParams.pad2(startParts.minute);
 
         return new TwapParams(
-            ticker,
-            chainId,
-            formData.direction.toLowerCase() as "buy" | "sell",
-            formData.input_amount,
+            TwapParams.normalizeTicker(ticker),
+            chainId || FALLBACK_CHAIN_ID,
+            direction,
+            size,
             formData.durationIndex,
             formData.binance_fee_tier,
-            startParts.date,
-            startParts.hour,
-            startParts.minute,
+            startDate,
+            startHour,
+            startMinute,
         );
     }
 
@@ -190,6 +241,36 @@ export class TwapParams {
             token: this.token,
         });
         return params.toString();
+    }
+
+    toCanonicalObject(): Record<string, string | number> {
+        return {
+            binanceTier: this.binanceTier,
+            chainId: this.chainId,
+            direction: TwapParams.normalizeDirection(this.direction),
+            durationIndex: this.durationIndex,
+            size: TwapParams.normalizeAmountString(this.size),
+            startDate: this.startDate,
+            startHour: TwapParams.pad2(this.startHour),
+            startMinute: TwapParams.pad2(this.startMinute),
+            token: TwapParams.normalizeTicker(this.token),
+        };
+    }
+
+    toCanonicalKey(): string {
+        const o = this.toCanonicalObject();
+        // Stable key order
+        return [
+            `token:${o.token}`,
+            `chain:${o.chainId}`,
+            `dir:${o.direction}`,
+            `amt:${o.size}`,
+            `durIdx:${o.durationIndex}`,
+            `tier:${o.binanceTier}`,
+            `date:${o.startDate}`,
+            `h:${o.startHour}`,
+            `m:${o.startMinute}`,
+        ].join("|");
     }
 
     toFormData(): {

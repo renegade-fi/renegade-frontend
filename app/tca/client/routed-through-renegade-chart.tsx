@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import type * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
-import { GlyphLoadingIndicator } from "@/components/glyph-loading-indicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     type ChartConfig,
@@ -13,11 +12,12 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import type { TwapInfoTableData } from "../actions/get-info-table-data";
+import type { RoutedThroughRenegadeChartData } from "../actions/get-routed-through-renegade";
 import { formatUSDC } from "../lib/utils";
+import { ChartSkeleton } from "./chart-skeleton";
 
 interface RoutedRenegadeChartProps {
-    data: TwapInfoTableData;
+    data: RoutedThroughRenegadeChartData;
 }
 
 const chartConfig = {
@@ -45,7 +45,7 @@ export function RoutedRenegadeChartInner({ data }: RoutedRenegadeChartProps) {
     );
 
     // Only render if we have the fill percentage data
-    if (renegadeFillPercent === undefined) {
+    if (!renegadeFillPercent) {
         return (
             <Card>
                 {header}
@@ -75,10 +75,13 @@ export function RoutedRenegadeChartInner({ data }: RoutedRenegadeChartProps) {
     const percentageDisplay = `${formatUSDC(renegadeFillPercent * 100)}%`;
 
     return (
-        <Card>
+        <Card className="h-full flex flex-col">
             {header}
-            <CardContent>
-                <ChartContainer config={chartConfig}>
+            <CardContent className="flex-1 flex items-center justify-center min-h-0">
+                <ChartContainer
+                    className="w-full h-full max-h-[170px] aspect-square"
+                    config={chartConfig}
+                >
                     <PieChart>
                         <ChartTooltip
                             content={
@@ -107,13 +110,7 @@ export function RoutedRenegadeChartInner({ data }: RoutedRenegadeChartProps) {
                                 />
                             }
                         />
-                        <Pie
-                            data={chartData}
-                            dataKey="value"
-                            innerRadius={60}
-                            nameKey="fillType"
-                            strokeWidth={5}
-                        >
+                        <Pie data={chartData} dataKey="value" innerRadius={55} nameKey="fillType">
                             <Label
                                 content={({ viewBox }) => {
                                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
@@ -144,20 +141,15 @@ export function RoutedRenegadeChartInner({ data }: RoutedRenegadeChartProps) {
                                 }}
                             />
                         </Pie>
-                        <ChartLegend content={<ChartLegendContent nameKey="fillType" />} />
+                        <ChartLegend
+                            align="left"
+                            className="flex flex-col gap-2"
+                            content={<ChartLegendContent nameKey="fillType" />}
+                            layout="vertical"
+                            verticalAlign="bottom"
+                        />
                     </PieChart>
                 </ChartContainer>
-            </CardContent>
-        </Card>
-    );
-}
-
-// Skeleton for loading state
-export function RenegadeFillChartSkeleton() {
-    return (
-        <Card className="h-full border-none flex flex-col">
-            <CardContent className="relative min-h-[400px]">
-                <GlyphLoadingIndicator />
             </CardContent>
         </Card>
     );
@@ -170,7 +162,11 @@ const RoutedRenegadeChartLazy = dynamic(
             default: mod.RoutedRenegadeChartInner,
         })),
     {
-        loading: () => <RenegadeFillChartSkeleton />,
+        loading: () => (
+            <div className="border aspect-square w-full">
+                <ChartSkeleton />
+            </div>
+        ),
         ssr: false,
     },
 );

@@ -1,5 +1,3 @@
-"use client";
-
 import { TrendingUp } from "lucide-react";
 import {
     Empty,
@@ -18,8 +16,7 @@ export function TwapSimulationEmpty() {
                 </EmptyMedia>
                 <EmptyTitle>Try running a simulation</EmptyTitle>
                 <EmptyDescription>
-                    Enter TWAP order to compare how Binance TWAP performs against
-                    Binance-with-Renegade TWAP
+                    Enter your order details to compare a Binance TWAP against a Renegade Mid Cross.
                 </EmptyDescription>
             </EmptyHeader>
         </Empty>

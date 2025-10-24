@@ -69,3 +69,6 @@ export function encodeBasicAuthCredentials(username: string, password: string) {
 export function convertDecimalToRaw(amount: number, decimals: number): bigint {
     return BigInt(Math.floor(amount * 10 ** decimals));
 }
+
+// Canonicalization helpers for stable parameter serialization
+// (canonicalization helpers moved into TwapParams)

@@ -4,6 +4,7 @@
  */
 
 import { DURATION_PRESETS } from "./constants";
+import { combineUtcDateTimeComponents } from "./date-utils";
 import { findTokenByTicker } from "./token-utils";
 
 export interface ValidationInput {
@@ -39,9 +40,9 @@ export function validateDateComponents(date: string, hour: string, minute: strin
 }
 
 export function validateEndTimeNotInFuture(input: ValidationInput): boolean {
-    const startTime = new Date(
-        `${input.startDate}T${input.startHour.padStart(2, "0")}:${input.startMinute.padStart(2, "0")}`,
-    );
+    const startHour = input.startHour.padStart(2, "0");
+    const startMinute = input.startMinute.padStart(2, "0");
+    const startTime = combineUtcDateTimeComponents(input.startDate, startHour, startMinute);
     const duration = DURATION_PRESETS[input.durationIndex];
     const durationMs = (duration.hours * 3600 + duration.minutes * 60) * 1000;
     const endTime = new Date(startTime.getTime() + durationMs);
