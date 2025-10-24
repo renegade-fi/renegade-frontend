@@ -32,7 +32,12 @@ export async function TwapSimulationResults({ searchParams }: TwapSimulationResu
     return (
         <>
             <TwapSummaryCard data={summaryCardData} />
-            <TwapSimTable meta={tableMeta} rows={tableRows} />
+            <div className="space-y-4">
+                <h3 className="font-serif text-xl font-bold tracking-tighter lg:tracking-normal">
+                    Fills
+                </h3>
+                <TwapSimTable meta={tableMeta} rows={tableRows} />
+            </div>
         </>
     );
 }
