@@ -21,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
 import {
     calculateDuration,
@@ -36,6 +37,17 @@ import { DateTimePicker } from "./date-time-picker";
 
 // Get tokens once when module loads for stable reference
 const tokens = getTokens();
+
+// Duration presets for slider (7 discrete values)
+const DURATION_PRESETS = [
+    { hours: 0, label: "1 min", minutes: 1 },
+    { hours: 0, label: "5 min", minutes: 5 },
+    { hours: 0, label: "15 min", minutes: 15 },
+    { hours: 1, label: "1 hour", minutes: 0 },
+    { hours: 4, label: "4 hours", minutes: 0 },
+    { hours: 12, label: "12 hours", minutes: 0 },
+    { hours: 24, label: "24 hours", minutes: 0 },
+];
 
 interface TwapParameterFormProps {
     searchParams: SearchParams;
@@ -91,15 +103,32 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
         }
     }, [defaults?.base_ticker]);
 
-    // Calculate duration from start_time and end_time if they exist
-    const durationDefaults = React.useMemo(() => {
+    // Find closest preset index from URL params, default to index 3 (1h)
+    const initialDurationIndex = React.useMemo(() => {
         if (defaults?.start_time && defaults?.end_time) {
             const startDate = new Date(defaults.start_time);
             const endDate = new Date(defaults.end_time);
-            return calculateDuration(startDate, endDate);
+            const duration = calculateDuration(startDate, endDate);
+            const totalMinutes = duration.hours * 60 + duration.minutes;
+
+            // Find closest preset
+            let closestIndex = 3; // Default to 1h
+            let closestDiff = Number.POSITIVE_INFINITY;
+            DURATION_PRESETS.forEach((preset, index) => {
+                const presetMinutes = preset.hours * 60 + preset.minutes;
+                const diff = Math.abs(presetMinutes - totalMinutes);
+                if (diff < closestDiff) {
+                    closestDiff = diff;
+                    closestIndex = index;
+                }
+            });
+            return closestIndex;
         }
-        return { hours: 3, minutes: 0 };
+        return 3; // Default to 1h
     }, [defaults?.start_time, defaults?.end_time]);
+
+    const [durationIndex, setDurationIndex] = React.useState(initialDurationIndex);
+    const selectedDuration = DURATION_PRESETS[durationIndex];
 
     // Track route transition so the submit button can reflect pending state
     const [isPending, startTransition] = React.useTransition();
@@ -215,46 +244,31 @@ export function TwapParameterForm({ searchParams }: TwapParameterFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label className="text-muted-foreground" htmlFor="duration">
-                    Duration
-                </Label>
-                <div className="flex gap-2">
-                    <div className="flex-1">
-                        <Input
-                            className="text-sm rounded-none"
-                            defaultValue={durationDefaults.hours.toString()}
-                            id="duration_hours"
-                            min="0"
-                            name="duration_hours"
-                            placeholder="3"
-                            type="number"
-                        />
-                        <Label
-                            className="text-xs text-muted-foreground mt-1 block"
-                            htmlFor="duration_hours"
-                        >
-                            Hours
-                        </Label>
-                    </div>
-                    <div className="flex-1">
-                        <Input
-                            className="text-sm rounded-none"
-                            defaultValue={durationDefaults.minutes.toString()}
-                            id="duration_minutes"
-                            max="59"
-                            min="0"
-                            name="duration_minutes"
-                            placeholder="0"
-                            type="number"
-                        />
-                        <Label
-                            className="text-xs text-muted-foreground mt-1 block"
-                            htmlFor="duration_minutes"
-                        >
-                            Minutes
-                        </Label>
-                    </div>
+                <div className="flex items-center justify-between">
+                    <Label className="text-muted-foreground" htmlFor="duration">
+                        Duration
+                    </Label>
+                    <span className="text-sm ">{selectedDuration.label}</span>
                 </div>
+                <div className="p-1">
+                    <Slider
+                        max={6}
+                        min={0}
+                        onValueChange={(value) => setDurationIndex(value[0])}
+                        step={1}
+                        value={[durationIndex]}
+                    />
+                </div>
+                <input
+                    name="duration_hours"
+                    type="hidden"
+                    value={selectedDuration.hours.toString()}
+                />
+                <input
+                    name="duration_minutes"
+                    type="hidden"
+                    value={selectedDuration.minutes.toString()}
+                />
             </div>
 
             <div className="space-y-2">
