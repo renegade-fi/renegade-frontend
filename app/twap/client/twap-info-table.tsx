@@ -17,64 +17,60 @@ export function TwapInfoTable({ data }: TwapInfoTableProps) {
     const localStartDisplay = formatLocalDateTime(start);
 
     return (
-        <div className="border flex-1">
-            <Table>
-                <TableBody>
+        <Table>
+            <TableBody>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Start Time</TableCell>
+                    <TableCell className="text-right">{localStartDisplay}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Asset</TableCell>
+                    <TableCell className="text-right">{asset}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Direction</TableCell>
+                    <TableCell className="text-right">{direction}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Total Size</TableCell>
+                    <TableCell className="text-right">{formatUSDC(data.totalSize)} USDC</TableCell>
+                </TableRow>
+                {data.renegadeFillPercent !== undefined && (
                     <TableRow>
-                        <TableCell className="text-muted-foreground">Start Time</TableCell>
-                        <TableCell className="text-right">{localStartDisplay}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Asset</TableCell>
-                        <TableCell className="text-right">{asset}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Direction</TableCell>
-                        <TableCell className="text-right">{direction}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Total Size</TableCell>
-                        <TableCell className="text-right">
-                            {formatUSDC(data.totalSize)} USDC
+                        <TableCell className="text-muted-foreground">
+                            Routed through Renegade
                         </TableCell>
-                    </TableRow>
-                    {data.renegadeFillPercent !== undefined && (
-                        <TableRow>
-                            <TableCell className="text-muted-foreground">
-                                Routed through Renegade
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <span className="tabular-nums">
-                                    {formatUSDC(data.renegadeFillPercent * 100)}
-                                </span>
-                                %
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Total Runtime</TableCell>
-                        <TableCell className="text-right">
-                            <span className="tabular-nums">{hours}</span>h{" "}
-                            <span className="tabular-nums">{minutes}</span>m
-                        </TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Number of Clips</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                            {numeral(numTrades).format("0,0")} clips
-                        </TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="text-muted-foreground">Renegade Fee</TableCell>
                         <TableCell className="text-right">
                             <span className="tabular-nums">
-                                {numeral(data.renegadeFeeBps).format("0,0")}
-                            </span>{" "}
-                            bps
+                                {formatUSDC(data.renegadeFillPercent * 100)}
+                            </span>
+                            %
                         </TableCell>
                     </TableRow>
-                </TableBody>
-            </Table>
-        </div>
+                )}
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Total Runtime</TableCell>
+                    <TableCell className="text-right">
+                        <span className="tabular-nums">{hours}</span>h{" "}
+                        <span className="tabular-nums">{minutes}</span>m
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Number of Clips</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                        {numeral(numTrades).format("0,0")} clips
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell className="text-muted-foreground">Renegade Fee</TableCell>
+                    <TableCell className="text-right">
+                        <span className="tabular-nums">
+                            {numeral(data.renegadeFeeBps).format("0,0")}
+                        </span>{" "}
+                        bps
+                    </TableCell>
+                </TableRow>
+            </TableBody>
+        </Table>
     );
 }

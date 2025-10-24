@@ -3,7 +3,7 @@
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
 import { z } from "zod";
-import { DEFAULT_BINANCE_FEE } from "../lib/binance-fee-tiers";
+import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "../lib/binance-fee-tiers";
 import { DURATION_PRESETS } from "../lib/constants";
 import { calculateEndDate } from "../lib/date-utils";
 import { findTokenByTicker } from "../lib/token-utils";
@@ -19,7 +19,7 @@ const TwapFormDataSchema = z.object({
     durationIndex: z.number().int().min(0).max(6),
     input_amount: z.string(),
     selectedBase: z.string(), // Format: "ticker:chainId"
-    start_time: z.string(), // ISO datetime string
+    start_time: z.string(), // UTC ISO datetime string from client
 });
 
 export type TwapFormData = z.infer<typeof TwapFormDataSchema>;
@@ -52,6 +52,7 @@ export async function simulateTwapAction(formData: TwapFormData): Promise<Simula
     const quoteRaw = convertDecimalToRaw(inputAmount, usdc.decimals);
 
     // Calculate duration and end time
+    // start_time is already in UTC ISO format from client
     const selectedDuration = DURATION_PRESETS[validated.durationIndex];
     const startTime = new Date(validated.start_time);
     const endTime = calculateEndDate(startTime, selectedDuration.hours, selectedDuration.minutes);
@@ -72,8 +73,9 @@ export async function simulateTwapAction(formData: TwapFormData): Promise<Simula
         start_time: startTime.toISOString(),
     });
 
-    // Get binance fee (can be extended later to use binance_fee_tier)
-    const binanceFee = DEFAULT_BINANCE_FEE;
+    // Get binance fee from tier and convert to decimal value
+    const binanceFeeTier = validated.binance_fee_tier as BinanceFeeTier;
+    const binanceFee = BINANCE_TAKER_BPS_BY_TIER[binanceFeeTier];
 
     // Build TwapParams and call loader
     const twapParams = TwapParams.new(serverParams);

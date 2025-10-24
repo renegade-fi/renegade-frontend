@@ -2,7 +2,7 @@
     "dependencies": {
         "@datadog/browser-logs": "^5.23.3",
         "@datadog/browser-rum": "^5.23.3",
-        "@hookform/resolvers": "^3.9.0",
+        "@hookform/resolvers": "^5.2.2",
         "@lifi/sdk": "^3.4.1",
         "@neondatabase/serverless": "^1.0.1",
         "@number-flow/react": "^0.4.2",
@@ -59,7 +59,7 @@
         "react": "19.1.0",
         "react-day-picker": "^9.11.0",
         "react-dom": "19.1.0",
-        "react-hook-form": "^7.52.1",
+        "react-hook-form": "^7.65.0",
         "react-resizable-panels": "^2.0.19",
         "react-use-websocket": "^4.8.1",
         "recharts": "2.15.0",
