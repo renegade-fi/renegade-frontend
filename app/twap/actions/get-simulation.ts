@@ -2,8 +2,9 @@
 
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
+import dayjs from "dayjs";
 import type z from "zod";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatTimestampReadable } from "@/lib/format";
 import { DEFAULT_BINANCE_FEE } from "../lib/binance-fee-tiers";
 import type { TwapTableData } from "../lib/table-types";
 import { findTokenByTicker } from "../lib/token-utils";
@@ -104,8 +105,23 @@ function buildRows(
     quoteToken: any,
 ) {
     const rows = [];
+
+    // Capture the first timestamp as the TWAP start time
+    const startTime = tradeMap.keys().next().value || "";
+    let previousTimestamp: string | null = null;
+
     for (const [timestamp, { renegade: renegadeTrade, binance: binanceTrade }] of tradeMap) {
         if (!renegadeTrade || !binanceTrade) continue;
+
+        // Calculate time differences
+        const diffMs = dayjs(timestamp).diff(dayjs(startTime));
+        const timeSinceStart = formatTimestampReadable(diffMs);
+
+        let timeSincePrevious: string | null = null;
+        if (previousTimestamp) {
+            const timeDiffMs = dayjs(timestamp).diff(dayjs(previousTimestamp));
+            timeSincePrevious = formatTimestampReadable(timeDiffMs);
+        }
 
         // Send amount depends on direction
         // For Buy: USDC sold (quote amount)
@@ -157,7 +173,11 @@ function buildRows(
             receiveAmountRenegade: renegadeReceiveFormatted,
             sendAmount: sendAmountFormatted,
             time: timestamp,
+            timeSincePrevious,
+            timeSinceStart,
         });
+
+        previousTimestamp = timestamp;
     }
 
     return rows;
