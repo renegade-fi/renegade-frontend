@@ -122,7 +122,6 @@ export default function DepositForm({ env, onQueueStart, initialMint }: Props) {
 
         let intent: Intent | undefined;
 
-        const token = getTokenByAddress(mint, currentChain);
         if (swapToken?.address && needsSwap) {
             intent = Intent.newSwapIntent(ctx, {
                 amount,

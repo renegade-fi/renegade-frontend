@@ -163,4 +163,15 @@ export class TaskContext {
         const k = this.key(chainId, token);
         return (this.balances[k] ?? BigInt(0)) + (this.routeOutputs[k] ?? BigInt(0));
     }
+
+    /**
+     * Returns the correct amount for deposit/permit2 signing.
+     * If route outputs exist (swap/bridge), use expected balance (wallet + route outputs).
+     * Otherwise, use the descriptor amount (pure deposit).
+     */
+    getDepositAmount(chainId: number, token: string, descriptorAmount: bigint): bigint {
+        const key = this.key(chainId, token);
+        const hasRouteOutput = (this.routeOutputs[key] ?? BigInt(0)) > BigInt(0);
+        return hasRouteOutput ? this.getExpectedBalance(chainId, token) : descriptorAmount;
+    }
 }
