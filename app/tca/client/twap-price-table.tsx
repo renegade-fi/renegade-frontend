@@ -1,3 +1,5 @@
+"use client";
+import dynamic from "next/dynamic";
 import numeral from "numeral";
 import {
     Table,
@@ -11,7 +13,7 @@ import {
 import type { TwapPriceTableData } from "../actions/get-price-table-data";
 import { formatUSDC } from "../lib/utils";
 
-interface TwapPriceTableProps {
+interface ExecutionResultsTableProps {
     data: TwapPriceTableData;
 }
 
@@ -22,7 +24,7 @@ function formatReceiveAmount(amount: number, ticker: string): string {
     return `${numeral(amount).format("0,0[.]0000")} ${ticker}`;
 }
 
-export function TwapPriceTable({ data }: TwapPriceTableProps) {
+export function ExecutionResultsTableInner({ data }: ExecutionResultsTableProps) {
     return (
         <Table>
             <TableHeader>
@@ -72,4 +74,21 @@ export function TwapPriceTable({ data }: TwapPriceTableProps) {
             </TableFooter>
         </Table>
     );
+}
+
+const ExecutionResultsTableLazy = dynamic(
+    () =>
+        import("./twap-price-table").then((mod) => ({
+            default: mod.ExecutionResultsTableInner,
+        })),
+    {
+        loading: () => (
+            <div className="p-6 text-sm text-muted-foreground">Loading price comparison...</div>
+        ),
+        ssr: false,
+    },
+);
+
+export function ExecutionResultsTableClient({ data }: ExecutionResultsTableProps) {
+    return <ExecutionResultsTableLazy data={data} />;
 }

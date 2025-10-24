@@ -27,7 +27,7 @@ interface DataTableProps {
     rows: TwapTableRow[];
 }
 
-export function DataTable({ meta, rows }: DataTableProps) {
+export function FillsTable({ meta, rows }: DataTableProps) {
     const columns = buildColumns(meta);
 
     const [sorting, setSorting] = React.useState<SortingState>([

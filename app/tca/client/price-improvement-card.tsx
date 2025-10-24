@@ -1,10 +1,12 @@
 "use client";
 import NumberFlow, { NumberFlowGroup } from "@number-flow/react";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { GlyphLoadingIndicator } from "@/components/glyph-loading-indicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TwapPriceTableData } from "../actions/get-price-table-data";
 
-interface PriceImprovementChartProps {
+interface PriceImprovementCardProps {
     data: TwapPriceTableData;
 }
 
@@ -34,7 +36,7 @@ function getTokenAmountFormat(value: number, ticker: string) {
     };
 }
 
-export function PriceImprovementChart({ data }: PriceImprovementChartProps) {
+export function PriceImprovementCardInner({ data }: PriceImprovementCardProps) {
     const {
         cumulativeDeltaBps,
         cumulativeBinanceReceived,
@@ -90,6 +92,31 @@ export function PriceImprovementChart({ data }: PriceImprovementChartProps) {
                         />
                     </div>
                 </NumberFlowGroup>
+            </CardContent>
+        </Card>
+    );
+}
+
+const PriceImprovementCardLazy = dynamic(
+    () =>
+        import("./price-improvement-card").then((mod) => ({
+            default: mod.PriceImprovementCardInner,
+        })),
+    {
+        loading: () => <PriceImprovementCardSkeleton />,
+        ssr: false,
+    },
+);
+
+export function PriceImprovementCardClient({ data }: PriceImprovementCardProps) {
+    return <PriceImprovementCardLazy data={data} />;
+}
+
+export function PriceImprovementCardSkeleton() {
+    return (
+        <Card className="h-full border-none flex flex-col">
+            <CardContent className="relative flex-1">
+                <GlyphLoadingIndicator />
             </CardContent>
         </Card>
     );
