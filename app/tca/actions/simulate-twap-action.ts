@@ -19,6 +19,14 @@ export interface SimulateTwapResult {
 export const getCachedSimulation = async (formData: TwapFormData): Promise<SimulateTwapResult> => {
     const validated = TwapFormDataSchema.parse(formData);
     const params = UrlTwapParams.fromFormData(validated);
+
+    // Validate params before proceeding
+    if (!params.isValid()) {
+        return {
+            error: "Invalid parameters. Please check that all values are correct and within allowed ranges.",
+        };
+    }
+
     const { params: simulationParams, binanceFee } = params.toSimulationPayload();
     const twapParams = TwapServerParams.new(simulationParams);
 
