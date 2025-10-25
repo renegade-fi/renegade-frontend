@@ -25,7 +25,11 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
 import { DURATION_PRESETS } from "../lib/constants";
-import { validateEndTimeNotInFuture, validateTradeSizeInRange } from "../lib/form-validation";
+import {
+    validateEndTimeNotInFuture,
+    validateStartDateNotBeforeCutoff,
+    validateTradeSizeInRange,
+} from "../lib/form-validation";
 import { getTokens } from "../lib/token-utils";
 import { TwapParams } from "../lib/url-params";
 import { formatUSDC } from "../lib/utils";
@@ -45,6 +49,10 @@ const formSchema = z
     })
     .refine(validateEndTimeNotInFuture, {
         message: "End time must not be in the future",
+        path: ["start_time"],
+    })
+    .refine(validateStartDateNotBeforeCutoff, {
+        message: "Start date must be on or after October 24th, 2025",
         path: ["start_time"],
     })
     .superRefine((data, ctx) => {

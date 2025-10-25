@@ -3,7 +3,7 @@
  * Framework-agnostic functions that both TwapParams and form schema consume
  */
 
-import { DURATION_PRESETS } from "./constants";
+import { DURATION_PRESETS, START_DATE_CUTOFF } from "./constants";
 import { combineUtcDateTimeComponents } from "./date-utils";
 import { findTokenByTicker } from "./token-utils";
 
@@ -61,6 +61,14 @@ export function validateTradeSize(input: ValidationInput): boolean {
     return tradeSize >= 1 && tradeSize <= 250000;
 }
 
+export function validateStartDateNotBeforeCutoff(input: ValidationInput): boolean {
+    const startHour = input.startHour.padStart(2, "0");
+    const startMinute = input.startMinute.padStart(2, "0");
+    const startTime = combineUtcDateTimeComponents(input.startDate, startHour, startMinute);
+    const cutoffDate = new Date(`${START_DATE_CUTOFF}T00:00:00Z`);
+    return startTime >= cutoffDate;
+}
+
 /**
  * Run all validation checks
  */
@@ -71,6 +79,7 @@ export function validateTwapParams(input: ValidationInput): boolean {
         validateDurationIndex(input.durationIndex) &&
         validateDateComponents(input.startDate, input.startHour, input.startMinute) &&
         validateEndTimeNotInFuture(input) &&
+        validateStartDateNotBeforeCutoff(input) &&
         validateTradeSize(input)
     );
 }

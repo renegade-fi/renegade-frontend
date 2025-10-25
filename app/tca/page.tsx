@@ -21,7 +21,7 @@ export default async function TwapPage({ searchParams }: TwapPageProps) {
     const formData = params.toServerActionParams();
     const renderSimulation = hasQueryParams;
 
-    // Fetch simulation once at parent level
+    // Fetch simulation once at parent level (validation happens inside getCachedSimulation)
     const simulationResult = renderSimulation ? await getCachedSimulation(formData) : null;
 
     return (
