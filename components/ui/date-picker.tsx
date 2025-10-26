@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { START_DATE_CUTOFF } from "@/app/tca/lib/constants"
 
 // Parse date string (YYYY-MM-DD) in local timezone
 function parseDateStringLocal(dateString: string): Date {
@@ -57,6 +58,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           selected={date}
           captionLayout="dropdown"
           onSelect={handleDateSelect}
+          disabled={{ before: parseDateStringLocal(START_DATE_CUTOFF) }}
         />
       </PopoverContent>
     </Popover>

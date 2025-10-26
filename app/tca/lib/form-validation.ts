@@ -7,6 +7,7 @@ import { TwapParams } from "./url-params";
 import {
     type ValidationInput,
     validateEndTimeNotInFuture as validateEndTimeNotInFutureCore,
+    validateStartDateNotBeforeCutoff as validateStartDateNotBeforeCutoffCore,
     validateTradeSize as validateTradeSizeCore,
 } from "./validation";
 
@@ -63,4 +64,11 @@ export function calculateTradeSize(data: FormData): number | null {
  */
 export function validateTradeSizeInRange(data: FormData): boolean {
     return validateTradeSizeCore(formDataToValidationInput(data));
+}
+
+/**
+ * Validates that the start date is not before the cutoff date (2025-10-25)
+ */
+export function validateStartDateNotBeforeCutoff(data: FormData): boolean {
+    return validateStartDateNotBeforeCutoffCore(formDataToValidationInput(data));
 }
