@@ -14,25 +14,41 @@ function getTokenAmountFormat(value: number, ticker: string) {
     const isUSDC = ticker === "USDC";
 
     if (isUSDC) {
+        const absValue = Math.abs(value);
+        // If less than 1 cent, show < 0.01
+        if (absValue > 0 && absValue < 0.01) {
+            return {
+                format: { maximumFractionDigits: 2, minimumFractionDigits: 2 },
+                prefix: "< ",
+            };
+        }
         // Check if whole number
         if (Math.abs(value - Math.round(value)) < 0.01) {
-            return { maximumFractionDigits: 0, minimumFractionDigits: 0 };
+            return {
+                format: { maximumFractionDigits: 0, minimumFractionDigits: 0 },
+            };
         }
-        return { maximumFractionDigits: 2, minimumFractionDigits: 2 };
+        return {
+            format: { maximumFractionDigits: 2, minimumFractionDigits: 2 },
+        };
     }
 
     // For non-USDC: find decimals needed for first sig fig
     const absValue = Math.abs(value);
     if (absValue >= 1 || absValue === 0) {
         // Whole number or zero
-        return { maximumFractionDigits: 0, minimumFractionDigits: 0 };
+        return {
+            format: { maximumFractionDigits: 0, minimumFractionDigits: 0 },
+        };
     }
 
     // Calculate decimals needed
     const decimalsNeeded = Math.ceil(-Math.log10(absValue));
     return {
-        maximumFractionDigits: decimalsNeeded,
-        minimumFractionDigits: decimalsNeeded,
+        format: {
+            maximumFractionDigits: decimalsNeeded,
+            minimumFractionDigits: decimalsNeeded,
+        },
     };
 }
 
@@ -60,6 +76,10 @@ export function PriceImprovementCardInner({ data }: PriceImprovementCardProps) {
         return () => clearTimeout(timer);
     }, [cumulativeDeltaBps, improvementAmount]);
 
+    const tokenAmountFormatConfig = getTokenAmountFormat(displayAmount, receivedTicker);
+    const isLessThanOneCent =
+        receivedTicker === "USDC" && Math.abs(displayAmount) > 0 && Math.abs(displayAmount) < 0.01;
+
     return (
         <Card className="h-full flex flex-col">
             <CardHeader>
@@ -82,13 +102,14 @@ export function PriceImprovementCardInner({ data }: PriceImprovementCardProps) {
                         />
                         <NumberFlow
                             className="text-lg font-bold"
-                            format={{
-                                signDisplay: "always",
-                                ...getTokenAmountFormat(displayAmount, receivedTicker),
-                            }}
-                            prefix="("
+                            format={tokenAmountFormatConfig.format}
+                            prefix={
+                                tokenAmountFormatConfig.prefix
+                                    ? `(${tokenAmountFormatConfig.prefix}`
+                                    : "("
+                            }
                             suffix={` ${receivedTicker})`}
-                            value={displayAmount}
+                            value={isLessThanOneCent ? 0.01 : displayAmount}
                         />
                     </div>
                 </NumberFlowGroup>
