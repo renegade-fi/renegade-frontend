@@ -1,9 +1,8 @@
 import { Token } from "@renegade-fi/token-nextjs";
+import type { TokenInstance } from "@/lib/token";
 import { AVAILABLE_CHAINS } from "@/providers/wagmi-provider/config";
 
-export type TokenInstance = InstanceType<typeof Token>;
-
-export const WHITELISTED_TOKENS = ["WETH", "WBTC", "PENDLE", "VIRTUAL", "LINK", "ARB"] as const;
+const WHITELISTED_TOKENS = ["WETH", "WBTC", "PENDLE", "VIRTUAL", "LINK", "ARB"] as const;
 
 export function getTokens(): TokenInstance[] {
     const tokens: TokenInstance[] = [];

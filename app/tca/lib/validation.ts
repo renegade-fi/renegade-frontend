@@ -16,20 +16,20 @@ export interface ValidationInput {
     startMinute: string;
 }
 
-export function validateToken(token: string): boolean {
+function validateToken(token: string): boolean {
     return findTokenByTicker(token) !== undefined;
 }
 
-export function validateSize(size: string): boolean {
+function validateSize(size: string): boolean {
     const sizeNum = Number(size);
     return !Number.isNaN(sizeNum) && sizeNum > 0;
 }
 
-export function validateDurationIndex(index: number): boolean {
+function validateDurationIndex(index: number): boolean {
     return index >= 0 && index < DURATION_PRESETS.length;
 }
 
-export function validateDateComponents(date: string, hour: string, minute: string): boolean {
+function validateDateComponents(date: string, hour: string, minute: string): boolean {
     if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) return false;
     if (!hour.match(/^\d{1,2}$/)) return false;
     if (!minute.match(/^\d{1,2}$/)) return false;

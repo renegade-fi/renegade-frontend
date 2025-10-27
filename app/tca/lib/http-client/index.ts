@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-export interface HttpConfig {
+interface HttpConfig {
     baseUrl: string;
     getAuthHeaders?: () => Record<string, string>;
 }

@@ -2,13 +2,13 @@ import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
 import { z } from "zod";
 import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "./binance-fee-tiers";
-import { DURATION_PRESETS } from "./constants";
+import { DURATION_PRESETS, START_DATE_CUTOFF } from "./constants";
 import {
     calculateEndDate,
     combineUtcDateTimeComponents,
     formatUtcDateParts,
-    getTwentyFourHoursAgoUtcParts,
     parseIsoToUtcParts,
+    splitUtcDateTimeComponents,
 } from "./date-utils";
 import { findTokenByTicker } from "./token-utils";
 import { TwapParamsSchema as TwapServerParamsSchema } from "./twap-server-client/api-types/twap";
@@ -135,17 +135,17 @@ export class TwapParams {
             typeof searchParams.binanceTier === "string" ? searchParams.binanceTier : undefined,
         );
 
-        const defaultParts = getTwentyFourHoursAgoUtcParts();
+        const cutoffParts = splitUtcDateTimeComponents(new Date(START_DATE_CUTOFF));
         const startDate =
-            typeof searchParams.startDate === "string" ? searchParams.startDate : defaultParts.date;
+            typeof searchParams.startDate === "string" ? searchParams.startDate : cutoffParts.date;
         const startHour =
             typeof searchParams.startHour === "string"
                 ? searchParams.startHour.padStart(2, "0")
-                : defaultParts.hour;
+                : cutoffParts.hour;
         const startMinute =
             typeof searchParams.startMinute === "string"
                 ? searchParams.startMinute.padStart(2, "0")
-                : defaultParts.minute;
+                : cutoffParts.minute;
 
         return new TwapParams(
             token,
@@ -196,7 +196,7 @@ export class TwapParams {
     static default(): TwapParams {
         const defaultToken = findTokenByTicker(DEFAULT_TOKEN);
         const defaultChainId = defaultToken?.chain ?? FALLBACK_CHAIN_ID;
-        const defaultParts = getTwentyFourHoursAgoUtcParts();
+        const cutoffParts = splitUtcDateTimeComponents(new Date(START_DATE_CUTOFF));
 
         return new TwapParams(
             DEFAULT_TOKEN,
@@ -205,9 +205,9 @@ export class TwapParams {
             DEFAULT_SIZE,
             DEFAULT_DURATION_INDEX,
             DEFAULT_BINANCE_TIER,
-            defaultParts.date,
-            defaultParts.hour,
-            defaultParts.minute,
+            cutoffParts.date,
+            cutoffParts.hour,
+            cutoffParts.minute,
         );
     }
 
