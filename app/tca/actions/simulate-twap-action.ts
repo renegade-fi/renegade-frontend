@@ -1,5 +1,6 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
 import type { TwapSimulation } from "../lib/twap-server-client/api-types/request-response";
 import { TwapParams as TwapServerParams } from "../lib/twap-server-client/api-types/twap";
 import {
@@ -15,8 +16,7 @@ export interface SimulateTwapResult {
     error?: string;
 }
 
-// Wrap with React cache for request-level deduplication, then unstable_cache for cross-request caching
-export const getCachedSimulation = async (formData: TwapFormData): Promise<SimulateTwapResult> => {
+const simulateTwap = async (formData: TwapFormData): Promise<SimulateTwapResult> => {
     const validated = TwapFormDataSchema.parse(formData);
     const params = UrlTwapParams.fromFormData(validated);
 
@@ -42,3 +42,8 @@ export const getCachedSimulation = async (formData: TwapFormData): Promise<Simul
         };
     }
 };
+
+export const getCachedSimulation = unstable_cache(simulateTwap, ["twap-simulation"], {
+    revalidate: 3600, // Cache for 1 hour
+    tags: ["twap-simulation"],
+});
