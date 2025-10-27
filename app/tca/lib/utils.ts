@@ -1,11 +1,4 @@
-import { type ClassValue, clsx } from "clsx";
 import numeral from "numeral";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
-
 /**
  * Format USDC value with commas and conditional decimal places
  * Shows 2 decimals only if value has decimals, otherwise whole number
@@ -13,17 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 export function formatUSDC(value: number): string {
     const format = "0,0[.]00";
     return numeral(value).format(format);
-}
-
-/**
- * Format receive amount based on ticker
- * USDC uses formatUSDC, other tokens show up to 4 decimals without trailing zeros
- */
-export function formatReceiveAmount(amount: number, ticker: string): string {
-    if (ticker === "USDC") {
-        return formatUSDC(amount);
-    }
-    return numeral(amount).format("0,0.[0000]");
 }
 
 /**
@@ -69,6 +51,3 @@ export function encodeBasicAuthCredentials(username: string, password: string) {
 export function convertDecimalToRaw(amount: number, decimals: number): bigint {
     return BigInt(Math.floor(amount * 10 ** decimals));
 }
-
-// Canonicalization helpers for stable parameter serialization
-// (canonicalization helpers moved into TwapParams)

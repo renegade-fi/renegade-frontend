@@ -5,7 +5,7 @@
 const MS_PER_MINUTE = 60 * 1000;
 const MINUTES_PER_HOUR = 60;
 
-export interface DateParts {
+interface DateParts {
     date: string;
     hour: string;
     minute: string;
@@ -61,28 +61,6 @@ export function parseIsoToUtcParts(isoString: string): DateParts {
         throw new Error(`Invalid ISO date string: ${isoString}`);
     }
     return splitUtcDateTimeComponents(date);
-}
-
-/**
- * Gets UTC date parts representing now minus the provided hours
- */
-export function getUtcPartsHoursAgo(hours: number): DateParts {
-    const date = new Date(Date.now() - hours * 60 * 60 * 1000);
-    return splitUtcDateTimeComponents(date);
-}
-
-/**
- * Gets UTC date parts representing one hour ago
- */
-export function getOneHourAgoUtcParts(): DateParts {
-    return getUtcPartsHoursAgo(1);
-}
-
-/**
- * Gets UTC date parts representing twenty-four hours ago
- */
-export function getTwentyFourHoursAgoUtcParts(): DateParts {
-    return getUtcPartsHoursAgo(24);
 }
 
 /**

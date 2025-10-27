@@ -2,7 +2,6 @@
  * Validation helpers for TWAP parameter form
  */
 
-import { DURATION_PRESETS } from "./constants";
 import { TwapParams } from "./url-params";
 import {
     type ValidationInput,
@@ -40,23 +39,6 @@ function formDataToValidationInput(data: FormData): ValidationInput {
  */
 export function validateEndTimeNotInFuture(data: FormData): boolean {
     return validateEndTimeNotInFutureCore(formDataToValidationInput(data));
-}
-
-/**
- * Calculates the individual trade size (clip size)
- * Trade size = total amount / number of trades
- * Number of trades = duration in seconds / 30 seconds per trade
- */
-export function calculateTradeSize(data: FormData): number | null {
-    const inputAmount = Number.parseFloat(data.input_amount);
-    if (Number.isNaN(inputAmount)) return null;
-
-    const duration = DURATION_PRESETS[data.durationIndex];
-    const durationSeconds = duration.hours * 3600 + duration.minutes * 60;
-    const numberOfTrades = durationSeconds / 30;
-    const tradeSize = inputAmount / numberOfTrades;
-
-    return tradeSize;
 }
 
 /**
