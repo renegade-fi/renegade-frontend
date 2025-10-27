@@ -65,7 +65,7 @@ export function validateStartDateNotBeforeCutoff(input: ValidationInput): boolea
     const startHour = input.startHour.padStart(2, "0");
     const startMinute = input.startMinute.padStart(2, "0");
     const startTime = combineUtcDateTimeComponents(input.startDate, startHour, startMinute);
-    const cutoffDate = new Date(`${START_DATE_CUTOFF}T00:00:00Z`);
+    const cutoffDate = new Date(START_DATE_CUTOFF);
     return startTime >= cutoffDate;
 }
 

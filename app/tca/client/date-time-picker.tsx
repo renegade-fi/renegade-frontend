@@ -10,6 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { START_DATE_CUTOFF } from "../lib/constants";
 import { splitDateTimeComponents } from "../lib/date-utils";
 
 interface DateTimePickerProps {
@@ -29,6 +30,26 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
     const [date, setDate] = React.useState(initialParts.date);
     const [hour, setHour] = React.useState(initialParts.hour);
     const [minute, setMinute] = React.useState(initialParts.minute);
+
+    // Convert UTC cutoff to local time
+    const cutoffDateLocal = React.useMemo(() => new Date(START_DATE_CUTOFF), []);
+
+    // Check if current selected date is the cutoff date
+    const isOnCutoffDate = React.useMemo(() => {
+        if (!date) return false;
+        // Parse the YYYY-MM-DD string in local timezone
+        const [year, month, day] = date.split("-").map(Number);
+        const selectedDate = new Date(year, month - 1, day);
+        return (
+            selectedDate.getFullYear() === cutoffDateLocal.getFullYear() &&
+            selectedDate.getMonth() === cutoffDateLocal.getMonth() &&
+            selectedDate.getDate() === cutoffDateLocal.getDate()
+        );
+    }, [date, cutoffDateLocal]);
+
+    // Get minimum hour/minute if on cutoff date
+    const minHour = isOnCutoffDate ? cutoffDateLocal.getHours() : 0;
+    const minMinute = isOnCutoffDate && Number(hour) === minHour ? cutoffDateLocal.getMinutes() : 0;
 
     // Sync internal state when external value changes
     React.useEffect(() => {
@@ -86,7 +107,11 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
                         </SelectTrigger>
                         <SelectContent>
                             {hours.map((h) => (
-                                <SelectItem key={h} value={h}>
+                                <SelectItem
+                                    disabled={isOnCutoffDate && Number(h) < minHour}
+                                    key={h}
+                                    value={h}
+                                >
                                     {h}
                                 </SelectItem>
                             ))}
@@ -99,7 +124,15 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
                         </SelectTrigger>
                         <SelectContent>
                             {minutes.map((m) => (
-                                <SelectItem key={m} value={m}>
+                                <SelectItem
+                                    disabled={
+                                        isOnCutoffDate &&
+                                        Number(hour) === minHour &&
+                                        Number(m) < minMinute
+                                    }
+                                    key={m}
+                                    value={m}
+                                >
                                     {m}
                                 </SelectItem>
                             ))}
