@@ -30,6 +30,9 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
   // Parse date string in local time (avoid UTC conversion)
   const date = value ? parseDateStringLocal(value) : undefined
 
+  // Convert UTC cutoff to local time for display
+  const cutoffDateLocal = React.useMemo(() => new Date(START_DATE_CUTOFF), [])
+
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
       // Format date in local time (avoid UTC conversion)
@@ -58,7 +61,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           selected={date}
           captionLayout="dropdown"
           onSelect={handleDateSelect}
-          disabled={{ before: parseDateStringLocal(START_DATE_CUTOFF) }}
+          disabled={{ before: cutoffDateLocal }}
         />
       </PopoverContent>
     </Popover>

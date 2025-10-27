@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { BINANCE_FEE_TIERS, BINANCE_TAKER_BPS_BY_TIER } from "../lib/binance-fee-tiers";
-import { DURATION_PRESETS } from "../lib/constants";
+import { DURATION_PRESETS, START_DATE_CUTOFF } from "../lib/constants";
 import {
     validateEndTimeNotInFuture,
     validateStartDateNotBeforeCutoff,
@@ -37,6 +37,23 @@ import { DateTimePicker } from "./date-time-picker";
 
 // Get tokens once when module loads for stable reference
 const tokens = getTokens();
+
+// Generate dynamic error message based on START_DATE_CUTOFF
+function getCutoffErrorMessage(): string {
+    const cutoffDate = new Date(START_DATE_CUTOFF);
+    const localDate = cutoffDate.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+    });
+    const localTime = cutoffDate.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        hour12: true,
+        minute: "2-digit",
+    });
+
+    return `Must be on or after ${localDate} at ${localTime}`;
+}
 
 const formSchema = z
     .object({
@@ -52,7 +69,7 @@ const formSchema = z
         path: ["start_time"],
     })
     .refine(validateStartDateNotBeforeCutoff, {
-        message: "Start date must be on or after October 27th, 2025",
+        message: getCutoffErrorMessage(),
         path: ["start_time"],
     })
     .superRefine((data, ctx) => {
