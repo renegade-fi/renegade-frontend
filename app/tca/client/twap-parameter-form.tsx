@@ -52,7 +52,7 @@ const formSchema = z
         path: ["start_time"],
     })
     .refine(validateStartDateNotBeforeCutoff, {
-        message: "Start date must be on or after October 24th, 2025",
+        message: "Start date must be on or after October 27th, 2025",
         path: ["start_time"],
     })
     .superRefine((data, ctx) => {

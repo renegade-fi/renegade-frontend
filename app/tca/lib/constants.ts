@@ -14,7 +14,7 @@ export const DURATION_PRESETS = [
 
 /**
  * Cutoff date for TWAP simulations.
- * We started collecting historical Renegade depth data on 2025-10-23,
- * so we disallow selection of any dates before 2025-10-24.
+ * We started collecting historical Renegade depth data on 2025-10-27,
+ * so we disallow selection of any dates before 2025-10-27.
  */
-export const START_DATE_CUTOFF = "2025-10-24";
+export const START_DATE_CUTOFF = "2025-10-27";
