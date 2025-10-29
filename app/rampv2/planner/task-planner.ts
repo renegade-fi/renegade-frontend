@@ -10,7 +10,6 @@ import { balanceKey, isETH } from "../helpers";
 import { ApproveTask } from "../tasks/approve-task";
 import { DepositTask } from "../tasks/deposit-task";
 import { LiFiLegTask } from "../tasks/lifi-leg-task";
-import { PayFeesTask } from "../tasks/pay-fees-task";
 import { Permit2SigTask } from "../tasks/permit2-sig-task";
 import { WithdrawTask } from "../tasks/withdraw-task";
 import { Prereq } from "./prereqs";
@@ -38,9 +37,8 @@ async function requestBestRoute(req: Parameters<typeof getRoutes>[0]): Promise<R
 
 const prereqMap: Record<TaskType, Prereq[]> = {
     [TASK_TYPES.DEPOSIT]: [Prereq.APPROVAL, Prereq.PERMIT2],
-    [TASK_TYPES.WITHDRAW]: [Prereq.PAY_FEES],
+    [TASK_TYPES.WITHDRAW]: [],
     [TASK_TYPES.LIFI_LEG]: [Prereq.APPROVAL],
-    [TASK_TYPES.PAY_FEES]: [],
     [TASK_TYPES.PERMIT2_SIG]: [],
     [TASK_TYPES.APPROVE]: [],
 };
@@ -50,14 +48,12 @@ export type PlannedTask =
     | DepositTask
     | WithdrawTask
     | LiFiLegTask
-    | PayFeesTask
     | Permit2SigTask
     | ApproveTask;
 
 async function prerequisitesFor(
     task: PlannedTask,
     ctx: TaskContext,
-    intent: Intent,
 ): Promise<Task[]> {
     const flags = prereqMap[task.descriptor.type] ?? [];
     const extras: Task[] = [];
@@ -74,10 +70,6 @@ async function prerequisitesFor(
                     const { chainId, mint, amount } = task.descriptor as DepositTask["descriptor"];
                     extras.push(Permit2SigTask.create(chainId, mint, amount, ctx));
                 }
-                break;
-            }
-            case Prereq.PAY_FEES: {
-                extras.push(PayFeesTask.create(intent.fromChain, ctx));
                 break;
             }
             default:
@@ -181,7 +173,7 @@ async function planDeposit(intent: Intent, ctx: TaskContext): Promise<PlanResult
     // Inject prereqs then filter
     let ordered: Task[] = [];
     for (const t of coreTasks) {
-        ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
+        ordered.push(...(await prerequisitesFor(t, ctx)), t);
     }
     ordered = await filterNeeded(ordered, ctx);
     return { route, tasks: ordered };
@@ -232,7 +224,7 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<PlanResul
         // inject prereqs then return
         let ordered: Task[] = [];
         for (const t of coreTasks) {
-            ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
+            ordered.push(...(await prerequisitesFor(t, ctx)), t);
         }
         ordered = await filterNeeded(ordered, ctx);
         return { tasks: ordered };
@@ -247,7 +239,7 @@ async function planWithdraw(intent: Intent, ctx: TaskContext): Promise<PlanResul
 
     let ordered: Task[] = [];
     for (const t of coreTasks) {
-        ordered.push(...(await prerequisitesFor(t, ctx, intent)), t);
+        ordered.push(...(await prerequisitesFor(t, ctx)), t);
     }
     ordered = await filterNeeded(ordered, ctx);
     return { route, tasks: ordered };
