@@ -14,8 +14,6 @@ export const DURATION_PRESETS = [
 
 /**
  * Cutoff datetime for TWAP simulations in UTC.
- * We started collecting historical Renegade depth data at this time,
- * so we disallow selection of any datetimes before this cutoff.
- * Format: ISO 8601 UTC timestamp
+ * We disallow selection of any datetimes before this cutoff.
  */
-export const START_DATE_CUTOFF = "2025-10-27T17:00:00Z";
+export const START_DATE_CUTOFF = "2025-11-29T00:00:00Z";

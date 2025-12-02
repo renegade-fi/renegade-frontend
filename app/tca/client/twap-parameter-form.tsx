@@ -38,7 +38,7 @@ import { DateTimePicker } from "./date-time-picker";
 // Get tokens once when module loads for stable reference
 const tokens = getTokens();
 
-// Generate dynamic error message based on START_DATE_CUTOFF
+// Generate error message based on START_DATE_CUTOFF
 function getCutoffErrorMessage(): string {
     const cutoffDate = new Date(START_DATE_CUTOFF);
     const localDate = cutoffDate.toLocaleDateString(undefined, {

@@ -49,7 +49,7 @@ export function validateTradeSizeInRange(data: FormData): boolean {
 }
 
 /**
- * Validates that the start date is not before the cutoff date (2025-10-25)
+ * Validates that the start date is not before the cutoff date (November 28, 2025)
  */
 export function validateStartDateNotBeforeCutoff(data: FormData): boolean {
     return validateStartDateNotBeforeCutoffCore(formDataToValidationInput(data));

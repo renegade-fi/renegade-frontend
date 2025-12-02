@@ -13,6 +13,18 @@ import {
 import { START_DATE_CUTOFF } from "../lib/constants";
 import { splitDateTimeComponents } from "../lib/date-utils";
 
+/**
+ * Converts local date/time components to a UTC ISO string.
+ *
+ * Note: `month - 1` because Date constructor uses 0-indexed months (Jan=0)
+ * while date strings use 1-indexed months (Jan=1).
+ */
+function toUtcIsoString(date: string, hour: string, minute: string): string {
+    const [year, month, day] = date.split("-").map(Number);
+    const localDate = new Date(year, month - 1, day, Number(hour), Number(minute));
+    return localDate.toISOString();
+}
+
 interface DateTimePickerProps {
     id?: string;
     name?: string;
@@ -32,7 +44,7 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
     const [minute, setMinute] = React.useState(initialParts.minute);
 
     // Convert UTC cutoff to local time
-    const cutoffDateLocal = React.useMemo(() => new Date(START_DATE_CUTOFF), []);
+    const cutoffDateLocal = new Date(START_DATE_CUTOFF);
 
     // Check if current selected date is the cutoff date
     const isOnCutoffDate = React.useMemo(() => {
@@ -51,6 +63,12 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
     const minHour = isOnCutoffDate ? cutoffDateLocal.getHours() : 0;
     const minMinute = isOnCutoffDate && Number(hour) === minHour ? cutoffDateLocal.getMinutes() : 0;
 
+    /** The UTC ISO string submitted via the hidden form input. */
+    const hiddenInputValue = React.useMemo(() => {
+        if (!date || !hour || !minute) return "";
+        return toUtcIsoString(date, hour, minute);
+    }, [date, hour, minute]);
+
     // Sync internal state when external value changes
     React.useEffect(() => {
         if (value) {
@@ -64,8 +82,8 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
 
     // Update combined value when any part changes
     React.useEffect(() => {
-        const combined = new Date(`${date}T${hour}:${minute}`);
-        onChange?.(combined.toISOString());
+        if (!date || !hour || !minute) return;
+        onChange?.(toUtcIsoString(date, hour, minute));
     }, [date, hour, minute, onChange]);
 
     const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
@@ -164,12 +182,7 @@ export function DateTimePicker({ id, name, value, className, onChange }: DateTim
             </div>
 
             {/* Hidden input for form submission */}
-            <input
-                id={id}
-                name={name}
-                type="hidden"
-                value={new Date(`${date}T${hour}:${minute}`).toISOString()}
-            />
+            <input id={id} name={name} type="hidden" value={hiddenInputValue} />
         </div>
     );
 }
