@@ -44,17 +44,9 @@ const prereqMap: Record<TaskType, Prereq[]> = {
 };
 
 // Insert union of all planner-handled task types for strong narrowing
-export type PlannedTask =
-    | DepositTask
-    | WithdrawTask
-    | LiFiLegTask
-    | Permit2SigTask
-    | ApproveTask;
+export type PlannedTask = DepositTask | WithdrawTask | LiFiLegTask | Permit2SigTask | ApproveTask;
 
-async function prerequisitesFor(
-    task: PlannedTask,
-    ctx: TaskContext,
-): Promise<Task[]> {
+async function prerequisitesFor(task: PlannedTask, ctx: TaskContext): Promise<Task[]> {
     const flags = prereqMap[task.descriptor.type] ?? [];
     const extras: Task[] = [];
 

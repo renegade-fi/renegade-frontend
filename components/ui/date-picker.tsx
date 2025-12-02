@@ -31,7 +31,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
   const date = value ? parseDateStringLocal(value) : undefined
 
   // Convert UTC cutoff to local time for display
-  const cutoffDateLocal = React.useMemo(() => new Date(START_DATE_CUTOFF), [])
+  const cutoffDateLocal = new Date(START_DATE_CUTOFF)
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
