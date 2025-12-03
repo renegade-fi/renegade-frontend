@@ -38,6 +38,24 @@ const defaultConnectors = ({
         );
     }
 
+    // Create an injected connector for the Binance Wallet
+    const binanceConnectorInjected = injected({
+        target: {
+            icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjMEIwRTExIi8+CjxwYXRoIGQ9Ik01IDE1TDcuMjU4MDYgMTIuNzQxOUw5LjUxNjEzIDE1TDcuMjU4MDYgMTcuMjU4MUw1IDE1WiIgZmlsbD0iI0YwQjkwQiIvPgo8cGF0aCBkPSJNOC44NzA5NyAxMS4xMjlMMTUgNUwyMS4xMjkgMTEuMTI5TDE4Ljg3MSAxMy4zODcxTDE1IDkuNTE2MTNMMTEuMTI5IDEzLjM4NzFMOC44NzA5NyAxMS4xMjlaIiBmaWxsPSIjRjBCOTBCIi8+CjxwYXRoIGQ9Ik0xMi43NDE5IDE1TDE1IDEyLjc0MTlMMTcuMjU4MSAxNUwxNSAxNy4yNTgxTDEyLjc0MTkgMTVaIiBmaWxsPSIjRjBCOTBCIi8+CjxwYXRoIGQ9Ik0xMS4xMjkgMTYuNjEyOUw4Ljg3MDk3IDE4Ljg3MUwxNSAyNUwyMS4xMjkgMTguODcxTDE4Ljg3MSAxNi42MTI5TDE1IDIwLjQ4MzlMMTEuMTI5IDE2LjYxMjlaIiBmaWxsPSIjRjBCOTBCIi8+CjxwYXRoIGQ9Ik0yMC40ODM5IDE1TDIyLjc0MTkgMTIuNzQxOUwyNSAxNUwyMi43NDE5IDE3LjI1ODFMMjAuNDgzOSAxNVoiIGZpbGw9IiNGMEI5MEIiLz4KPC9zdmc+Cg==",
+            id: "com.binance.wallet",
+            name: "Binance Wallet",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            provider: () => (window as any)?.binancew3w?.ethereum,
+        },
+    });
+    // HACK: Prevent ConnectKit from sorting the Binance Wallet connector to the
+    // top of the selection list. Setting a type of "mock" makes ConnectKit
+    // think that Binance is not explicitly "injected" yet still "installed"
+    const binanceConnector = (config: any) => ({
+        ...binanceConnectorInjected(config),
+        type: "mock",
+    });
+
     // Add the rest of the connectors
     connectors.push(
         injected({ target: "metaMask" }),
@@ -47,6 +65,7 @@ const defaultConnectors = ({
             overrideIsMetaMask: false,
             preference: coinbaseWalletPreference,
         }),
+        binanceConnector,
     );
 
     if (walletConnectProjectId) {
