@@ -103,8 +103,9 @@ export function getDateBounds(): { min: Date; max: Date } {
 
 export function getCalendarBounds(): { min: Date; max: Date } {
     const { min, max } = getDateBounds();
-    const startOfMinDayUTC = Date.UTC(min.getUTCFullYear(), min.getUTCMonth(), min.getUTCDate());
-    const calendarMin = new Date(startOfMinDayUTC + MS_PER_DAY);
+    // LOCAL time - only runs on client for calendar display
+    const startOfMinDayLocal = new Date(min.getFullYear(), min.getMonth(), min.getDate());
+    const calendarMin = new Date(startOfMinDayLocal.getTime() + MS_PER_DAY);
     return { max, min: calendarMin };
 }
 
