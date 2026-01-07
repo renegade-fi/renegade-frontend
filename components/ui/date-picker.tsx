@@ -10,7 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { getDateBounds } from "@/app/tca/lib/date-utils"
+import { getCalendarBounds } from "@/app/tca/lib/date-utils"
 
 function parseDateStringLocal(dateString: string): Date {
   const [year, month, day] = dateString.split('-').map(Number)
@@ -27,7 +27,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   
   const date = value ? parseDateStringLocal(value) : undefined
-  const { min, max } = getDateBounds()
+  const { min, max } = getCalendarBounds()
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {

@@ -97,10 +97,15 @@ export function formatLocalDateTime(date: Date): string {
 
 export function getDateBounds(): { min: Date; max: Date } {
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    // Subtract (retention - 1) days and set to start of day so any time on min date is valid
-    const min = new Date(startOfToday.getTime() - (DATA_RETENTION_DAYS - 1) * MS_PER_DAY);
+    const min = new Date(now.getTime() - DATA_RETENTION_DAYS * MS_PER_DAY);
     return { max: now, min };
+}
+
+export function getCalendarBounds(): { min: Date; max: Date } {
+    const { min, max } = getDateBounds();
+    const startOfMinDayUTC = Date.UTC(min.getUTCFullYear(), min.getUTCMonth(), min.getUTCDate());
+    const calendarMin = new Date(startOfMinDayUTC + MS_PER_DAY);
+    return { max, min: calendarMin };
 }
 
 export function getDefaultStartTime(): Date {
