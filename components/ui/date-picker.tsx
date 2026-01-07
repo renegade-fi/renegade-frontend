@@ -10,9 +10,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { START_DATE_CUTOFF } from "@/app/tca/lib/constants"
+import { getDateBounds } from "@/app/tca/lib/date-utils"
 
-// Parse date string (YYYY-MM-DD) in local timezone
 function parseDateStringLocal(dateString: string): Date {
   const [year, month, day] = dateString.split('-').map(Number)
   return new Date(year, month - 1, day)
@@ -27,15 +26,11 @@ interface DatePickerProps {
 export function DatePicker({ value, onChange, className }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   
-  // Parse date string in local time (avoid UTC conversion)
   const date = value ? parseDateStringLocal(value) : undefined
-
-  // Convert UTC cutoff to local time for display
-  const cutoffDateLocal = new Date(START_DATE_CUTOFF)
+  const { min, max } = getDateBounds()
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
-      // Format date in local time (avoid UTC conversion)
       const year = selectedDate.getFullYear()
       const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0')
       const day = selectedDate.getDate().toString().padStart(2, '0')
@@ -61,7 +56,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           selected={date}
           captionLayout="dropdown"
           onSelect={handleDateSelect}
-          disabled={{ before: cutoffDateLocal }}
+          disabled={{ before: min, after: max }}
         />
       </PopoverContent>
     </Popover>

@@ -2,11 +2,12 @@ import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
 import { z } from "zod";
 import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "./binance-fee-tiers";
-import { DURATION_PRESETS, START_DATE_CUTOFF } from "./constants";
+import { DURATION_PRESETS } from "./constants";
 import {
     calculateEndDate,
     combineUtcDateTimeComponents,
     formatUtcDateParts,
+    getDefaultStartTime,
     parseIsoToUtcParts,
     splitUtcDateTimeComponents,
 } from "./date-utils";
@@ -135,17 +136,19 @@ export class TwapParams {
             typeof searchParams.binanceTier === "string" ? searchParams.binanceTier : undefined,
         );
 
-        const cutoffParts = splitUtcDateTimeComponents(new Date(START_DATE_CUTOFF));
+        const defaultStartParts = splitUtcDateTimeComponents(getDefaultStartTime());
         const startDate =
-            typeof searchParams.startDate === "string" ? searchParams.startDate : cutoffParts.date;
+            typeof searchParams.startDate === "string"
+                ? searchParams.startDate
+                : defaultStartParts.date;
         const startHour =
             typeof searchParams.startHour === "string"
                 ? searchParams.startHour.padStart(2, "0")
-                : cutoffParts.hour;
+                : defaultStartParts.hour;
         const startMinute =
             typeof searchParams.startMinute === "string"
                 ? searchParams.startMinute.padStart(2, "0")
-                : cutoffParts.minute;
+                : defaultStartParts.minute;
 
         return new TwapParams(
             token,
@@ -196,7 +199,7 @@ export class TwapParams {
     static default(): TwapParams {
         const defaultToken = findTokenByTicker(DEFAULT_TOKEN);
         const defaultChainId = defaultToken?.chain ?? FALLBACK_CHAIN_ID;
-        const cutoffParts = splitUtcDateTimeComponents(new Date(START_DATE_CUTOFF));
+        const defaultStartParts = splitUtcDateTimeComponents(getDefaultStartTime());
 
         return new TwapParams(
             DEFAULT_TOKEN,
@@ -205,9 +208,9 @@ export class TwapParams {
             DEFAULT_SIZE,
             DEFAULT_DURATION_INDEX,
             DEFAULT_BINANCE_TIER,
-            cutoffParts.date,
-            cutoffParts.hour,
-            cutoffParts.minute,
+            defaultStartParts.date,
+            defaultStartParts.hour,
+            defaultStartParts.minute,
         );
     }
 
