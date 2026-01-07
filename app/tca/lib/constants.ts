@@ -13,7 +13,7 @@ export const DURATION_PRESETS = [
 ] as const;
 
 /**
- * Cutoff datetime for TWAP simulations in UTC.
- * We disallow selection of any datetimes before this cutoff.
+ * Number of days of historical data available for TWAP simulations.
+ * The server only retains data for this rolling window.
  */
-export const START_DATE_CUTOFF = "2025-11-29T00:00:00Z";
+export const DATA_RETENTION_DAYS = 30;

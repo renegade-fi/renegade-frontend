@@ -1,8 +1,8 @@
-/**
- * Utility functions for date and time operations
- */
+import { DATA_RETENTION_DAYS } from "./constants";
 
 const MS_PER_MINUTE = 60 * 1000;
+const MS_PER_HOUR = 60 * MS_PER_MINUTE;
+const MS_PER_DAY = 24 * MS_PER_HOUR;
 const MINUTES_PER_HOUR = 60;
 
 interface DateParts {
@@ -91,9 +91,18 @@ export function calculateEndDate(startDate: Date, hours: number, minutes: number
     return endDate;
 }
 
-/**
- * Formats Date as MM/DD/YYYY - HH:MM:SS (local timezone)
- */
 export function formatLocalDateTime(date: Date): string {
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()} - ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+export function getDateBounds(): { min: Date; max: Date } {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // Subtract (retention - 1) days and set to start of day so any time on min date is valid
+    const min = new Date(startOfToday.getTime() - (DATA_RETENTION_DAYS - 1) * MS_PER_DAY);
+    return { max: now, min };
+}
+
+export function getDefaultStartTime(): Date {
+    return new Date(Date.now() - MS_PER_HOUR);
 }
