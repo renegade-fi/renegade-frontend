@@ -63,13 +63,6 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
                     >
                         Orders
                     </Link>
-                    <Link
-                        className="cursor-pointer hover:text-muted-foreground"
-                        href="/stats"
-                        onClick={() => handleLinkClick("/stats")}
-                    >
-                        Stats
-                    </Link>
                     <a href={HELP_CENTER_BASE_URL} rel="noreferrer" target="_blank">
                         Help
                     </a>
