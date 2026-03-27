@@ -120,14 +120,6 @@ export function Header() {
                     </Link>
                     <Link
                         className={cn("hover:underline", {
-                            "text-primary": pathname.includes("/stats"),
-                        })}
-                        href="/stats"
-                    >
-                        Stats
-                    </Link>
-                    <Link
-                        className={cn("hover:underline", {
                             "text-primary": pathname.includes("/tca"),
                         })}
                         href="/tca"
