@@ -102,15 +102,6 @@ export function Footer() {
                         </a>
                     </Button>
                     <Button asChild size="icon" variant="ghost">
-                        <a
-                            href="https://discord.com/invite/renegade-fi"
-                            rel="noreferrer"
-                            target="_blank"
-                        >
-                            <Image alt="discord" height="12" src="/discord.svg" width="12" />
-                        </a>
-                    </Button>
-                    <Button asChild size="icon" variant="ghost">
                         <a href="https://renegade.fi/docs" rel="noreferrer" target="_blank">
                             <Book className="h-3 w-3" />
                         </a>

@@ -24,6 +24,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WalletIndexCheck } from "@/components/wallet-index-check";
 
+import { env } from "@/env/client";
 import { constructMetadata } from "@/lib/utils";
 import { isTestnet } from "@/lib/viem";
 import { WasmProvider } from "@/providers/renegade-provider/wasm-provider";
@@ -87,6 +88,29 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const bodyClassName = `${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`;
+
+    if (env.NEXT_PUBLIC_TCA_ONLY_MODE) {
+        return (
+            <html lang="en" suppressHydrationWarning>
+                <body className={bodyClassName}>
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="dark"
+                        disableTransitionOnChange
+                        enableSystem
+                    >
+                        <TooltipProvider delayDuration={0} skipDelayDuration={0}>
+                            <div className="flex h-svh flex-col">{children}</div>
+                        </TooltipProvider>
+                        <LazyDatadog />
+                    </ThemeProvider>
+                    <Analytics />
+                </body>
+            </html>
+        );
+    }
+
     const headersList = await headers();
     const cookieString = headersList.get("cookie")
         ? decodeURIComponent(headersList.get("cookie") ?? "")
@@ -98,9 +122,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
-            <body
-                className={`${fontSansExtended.variable} ${fontSerif.variable} ${fontSans.variable} ${fontSansLight.variable} ${fontMono.variable} bg-background font-sans antialiased`}
-            >
+            <body className={bodyClassName}>
                 <WasmProvider>
                     <ThemeProvider
                         attribute="class"

@@ -36,6 +36,17 @@ export const env = createEnv({
         /** Primary site URL */
         NEXT_PUBLIC_SITE_URL: z.string().min(1),
 
+        /**
+         * When true, the app is built for the TCA-only subdomain (tca.renegade.fi):
+         * middleware 404s non-TCA routes, the root layout drops the standard chrome
+         * (Header, Footer, banners, toasters, wallet sidebar) and the wallet/solana/
+         * wagmi providers, since /tca does not call any wallet hooks.
+         */
+        NEXT_PUBLIC_TCA_ONLY_MODE: z
+            .enum(["true", "false"])
+            .default("false")
+            .transform((v) => v === "true"),
+
         /** Vercel deployment environment */
         NEXT_PUBLIC_VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
 
@@ -58,6 +69,7 @@ export const env = createEnv({
         NEXT_PUBLIC_DATADOG_APPLICATION_ID: process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
         NEXT_PUBLIC_DATADOG_CLIENT_TOKEN: process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
         NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+        NEXT_PUBLIC_TCA_ONLY_MODE: process.env.NEXT_PUBLIC_TCA_ONLY_MODE,
         NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
         NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
         NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,

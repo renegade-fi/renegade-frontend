@@ -80,15 +80,6 @@ export function MobileNavSheet({ children }: { children: React.ReactNode }) {
                         </a>
                     </Button>
                     <Button asChild size="icon" variant="ghost">
-                        <a
-                            href="https://discord.com/invite/renegade-fi"
-                            rel="noreferrer"
-                            target="_blank"
-                        >
-                            <Image alt="discord" height="16" src="/discord.svg" width="16" />
-                        </a>
-                    </Button>
-                    <Button asChild size="icon" variant="ghost">
                         <a href="https://renegade.fi/docs" rel="noreferrer" target="_blank">
                             <Book className="h-4 w-4" />
                         </a>
