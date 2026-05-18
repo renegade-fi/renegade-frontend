@@ -72,12 +72,13 @@ export const metadata = constructMetadata({
     title: isTestnet ? "Renegade Testnet | On-Chain Dark Pool" : "Renegade | On-Chain Dark Pool",
 });
 
-// In TCA-only mode, skip static prerendering of all routes. Middleware 404s
-// every non-/tca path at runtime, but Next.js still tries to prerender them
-// at build time — and they crash because the wallet/query providers are
-// stripped from the TCA-only layout. Forcing dynamic rendering bypasses
-// prerender entirely; the runtime middleware does the gating.
-export const dynamic = process.env.NEXT_PUBLIC_TCA_ONLY_MODE === "true" ? "force-dynamic" : "auto";
+// When NEXT_PUBLIC_TCA_ONLY_MODE=true, scripts/inject-tca-dynamic.js replaces
+// the marker line below with `export const dynamic = "force-dynamic";` before
+// `next build` runs. This skips static prerendering of non-/tca routes
+// (which crash without the wallet/query providers); middleware 404s them at
+// request time. Next.js requires `dynamic` to be a literal at the AST level,
+// hence the codegen approach instead of an inline conditional.
+// TCA_ONLY_DYNAMIC_MARKER
 
 export const viewport: Viewport = {
     colorScheme: "dark",

@@ -102,7 +102,7 @@
     },
     "private": true,
     "scripts": {
-        "build": "next build",
+        "build": "node scripts/inject-tca-dynamic.js && next build",
         "check": "biome check --write .",
         "dev": "next dev --turbopack",
         "format": "biome format --write .",
