@@ -21,7 +21,9 @@ const DEFAULT_DIRECTION: "buy" = "buy";
 const DEFAULT_SIZE = "10000";
 const DEFAULT_DURATION_INDEX = 3;
 const DEFAULT_BINANCE_TIER = "No VIP";
-const FALLBACK_CHAIN_ID = 1;
+// TCA is Base-only; the fallback only matters for URL params that fail to
+// resolve to one of the whitelisted tokens in token-utils.
+const FALLBACK_CHAIN_ID = 8453;
 
 function urlTierToFeeTier(urlTier: string | undefined): string {
     if (!urlTier) return "No VIP";

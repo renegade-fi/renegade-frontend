@@ -37,6 +37,7 @@ const simulateTwap = async (formData: TwapFormData): Promise<SimulateTwapResult>
             twapParams: twapParams.data,
         };
     } catch (error) {
+        console.error("[tca] twap simulation failed", error);
         return {
             error: "An error occurred while rendering the simulation.",
         };
