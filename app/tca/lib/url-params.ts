@@ -83,7 +83,14 @@ export class TwapParams {
     }
 
     private static normalizeTicker(ticker: string): string {
-        return ticker.trim().toUpperCase();
+        // Preserve the canonical case from token-mappings (e.g. "cbBTC"). The
+        // SDK's `Token.fromTickerOnChain` lookup is case-sensitive against the
+        // mapping's `ticker` field, so uppercasing here breaks mixed-case
+        // tickers. If the input came from the dropdown it's already canonical;
+        // if it came from a URL we resolve to canonical case at parse time via
+        // `findTokenByTicker` (case-insensitive).
+        const trimmed = ticker.trim();
+        return findTokenByTicker(trimmed)?.ticker ?? trimmed;
     }
 
     private static normalizeSelectedBase(selectedBase: string): {
@@ -121,8 +128,13 @@ export class TwapParams {
     }
 
     static fromUrl(searchParams: Record<string, string | string[] | undefined>): TwapParams {
-        const token = typeof searchParams.token === "string" ? searchParams.token : DEFAULT_TOKEN;
-        const resolvedToken = findTokenByTicker(token);
+        const rawToken =
+            typeof searchParams.token === "string" ? searchParams.token : DEFAULT_TOKEN;
+        const resolvedToken = findTokenByTicker(rawToken);
+        // Store the canonical-cased ticker (e.g. "cbBTC", not "CBBTC" or
+        // "cbbtc") so downstream SDK lookups via `Token.fromTickerOnChain`
+        // succeed — that lookup is case-sensitive against token-mappings.
+        const token = resolvedToken?.ticker ?? rawToken;
         const chainId = resolvedToken?.chain ?? FALLBACK_CHAIN_ID;
         const direction =
             typeof searchParams.direction === "string"
