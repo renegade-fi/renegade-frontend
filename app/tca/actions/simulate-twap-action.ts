@@ -27,10 +27,9 @@ const simulateTwap = async (formData: TwapFormData): Promise<SimulateTwapResult>
         };
     }
 
-    const { params: simulationParams, binanceFee } = params.toSimulationPayload();
-    const twapParams = TwapServerParams.new(simulationParams);
-
     try {
+        const { params: simulationParams, binanceFee } = params.toSimulationPayload();
+        const twapParams = TwapServerParams.new(simulationParams);
         const simData = await twapLoader(twapParams, undefined, { binance_fee: binanceFee });
         return {
             simData: simData.data.strategies,
