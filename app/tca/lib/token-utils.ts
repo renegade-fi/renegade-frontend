@@ -1,3 +1,4 @@
+import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
 import { arbitrum, arbitrumSepolia, base, baseSepolia } from "viem/chains";
 import { env } from "@/env/client";
@@ -19,11 +20,11 @@ const BASE_CHAIN_ID = IS_MAINNET ? base.id : baseSepolia.id;
 // buy-vs-sell gap.
 //
 // Order in this list controls dropdown order.
-type ChainTokenSpec = { chainId: number; tickers: readonly string[] };
+type ChainTokenSpec = { chainId: ChainId; tickers: readonly string[] };
 
 const CHAIN_TOKEN_MATRIX: readonly ChainTokenSpec[] = [
-    { chainId: ARBITRUM_CHAIN_ID, tickers: ["WETH", "PENDLE", "ARB"] as const },
-    { chainId: BASE_CHAIN_ID, tickers: ["VIRTUAL", "WETH", "cbBTC"] as const },
+    { chainId: ARBITRUM_CHAIN_ID as ChainId, tickers: ["WETH", "PENDLE", "ARB"] as const },
+    { chainId: BASE_CHAIN_ID as ChainId, tickers: ["VIRTUAL", "WETH", "cbBTC"] as const },
 ];
 
 export function getTokens(): TokenInstance[] {
