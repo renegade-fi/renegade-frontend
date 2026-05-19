@@ -13,7 +13,7 @@ import {
     parseIsoToUtcParts,
     splitUtcDateTimeComponents,
 } from "./date-utils";
-import { findTokenByTicker } from "./token-utils";
+import { findTokenByTicker, getTokens } from "./token-utils";
 import { TwapParamsSchema as TwapServerParamsSchema } from "./twap-server-client/api-types/twap";
 import { convertDecimalToRaw } from "./utils";
 import { validateTwapParams } from "./validation";
@@ -202,13 +202,16 @@ export class TwapParams {
     }
 
     static default(): TwapParams {
-        const defaultToken = findTokenByTicker(DEFAULT_TOKEN);
-        const defaultChainId = defaultToken?.chain ?? FALLBACK_CHAIN_ID;
+        // Prefer the canonical DEFAULT_TOKEN when it's in the whitelist; otherwise
+        // fall back to the first available token so the dropdown isn't blank.
+        const chosenToken = findTokenByTicker(DEFAULT_TOKEN) ?? getTokens()[0];
+        const ticker = chosenToken?.ticker ?? DEFAULT_TOKEN;
+        const chainId = chosenToken?.chain ?? FALLBACK_CHAIN_ID;
         const defaultStartParts = splitUtcDateTimeComponents(getDefaultStartTime());
 
         return new TwapParams(
-            DEFAULT_TOKEN,
-            defaultChainId,
+            ticker,
+            chainId,
             DEFAULT_DIRECTION,
             DEFAULT_SIZE,
             DEFAULT_DURATION_INDEX,
