@@ -1,6 +1,8 @@
 import type { ChainId } from "@renegade-fi/react/constants";
 import { Token } from "@renegade-fi/token-nextjs";
+import { base, baseSepolia } from "viem/chains";
 import { z } from "zod";
+import { env } from "@/env/client";
 import { BINANCE_TAKER_BPS_BY_TIER, type BinanceFeeTier } from "./binance-fee-tiers";
 import { DURATION_PRESETS } from "./constants";
 import {
@@ -23,7 +25,8 @@ const DEFAULT_DURATION_INDEX = 3;
 const DEFAULT_BINANCE_TIER = "No VIP";
 // TCA is Base-only; the fallback only matters for URL params that fail to
 // resolve to one of the whitelisted tokens in token-utils.
-const FALLBACK_CHAIN_ID = 8453;
+const FALLBACK_CHAIN_ID =
+    env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? base.id : baseSepolia.id;
 
 function urlTierToFeeTier(urlTier: string | undefined): string {
     if (!urlTier) return "No VIP";

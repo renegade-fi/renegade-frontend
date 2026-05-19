@@ -1,12 +1,13 @@
 import { Token } from "@renegade-fi/token-nextjs";
-import { base } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
+import { env } from "@/env/client";
 import type { TokenInstance } from "@/lib/token";
 
 // TCA simulations are Base-only. Tickers must match the casing used in the
-// Base mainnet token mapping (e.g. "cbBTC", not "CBBTC"); Token.fromTickerOnChain
-// returns an "UNKNOWN" sentinel for ticker/chain pairs that don't resolve.
+// token mapping (e.g. "cbBTC", not "CBBTC"); Token.fromTickerOnChain returns
+// an "UNKNOWN" sentinel for ticker/chain pairs that don't resolve.
 const WHITELISTED_TOKENS = ["WETH", "cbBTC", "VIRTUAL"] as const;
-const TCA_CHAIN_ID = base.id;
+const TCA_CHAIN_ID = env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? base.id : baseSepolia.id;
 
 export function getTokens(): TokenInstance[] {
     const tokens: TokenInstance[] = [];
