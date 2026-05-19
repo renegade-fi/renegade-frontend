@@ -1,17 +1,39 @@
 import { Token } from "@renegade-fi/token-nextjs";
-import { base, baseSepolia } from "viem/chains";
+import { arbitrum, arbitrumSepolia, base, baseSepolia } from "viem/chains";
 import { env } from "@/env/client";
 import type { TokenInstance } from "@/lib/token";
 
-const WHITELISTED_TOKENS = [/*"WETH", "cbBTC", */"VIRTUAL"] as const;
-const TCA_CHAIN_ID = env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet" ? base.id : baseSepolia.id;
+const IS_MAINNET = env.NEXT_PUBLIC_CHAIN_ENVIRONMENT === "mainnet";
+
+const ARBITRUM_CHAIN_ID = IS_MAINNET ? arbitrum.id : arbitrumSepolia.id;
+const BASE_CHAIN_ID = IS_MAINNET ? base.id : baseSepolia.id;
+
+// V2 per-chain dropdown coverage — top 3 tokens per chain, ranked by min-side
+// (i.e. min(buy_usd, sell_usd)) tradeable depth from `probe_v2_depth.py`.
+// Min-side is what actually fills in a TCA simulation; one-sided pairs would
+// give misleading results, so they're held back from the dropdown even when
+// their total depth is large.
+//
+// The twap-server still records depth for the broader matrix (WBTC, LINK on
+// Arbitrum); they can be re-added here when quoter rebalancing closes the
+// buy-vs-sell gap.
+//
+// Order in this list controls dropdown order.
+type ChainTokenSpec = { chainId: number; tickers: readonly string[] };
+
+const CHAIN_TOKEN_MATRIX: readonly ChainTokenSpec[] = [
+    { chainId: ARBITRUM_CHAIN_ID, tickers: ["WETH", "PENDLE", "ARB"] as const },
+    { chainId: BASE_CHAIN_ID, tickers: ["VIRTUAL", "WETH", "cbBTC"] as const },
+];
 
 export function getTokens(): TokenInstance[] {
     const tokens: TokenInstance[] = [];
-    for (const ticker of WHITELISTED_TOKENS) {
-        const token = Token.fromTickerOnChain(ticker, TCA_CHAIN_ID);
-        if (token.ticker !== "UNKNOWN") {
-            tokens.push(token);
+    for (const { chainId, tickers } of CHAIN_TOKEN_MATRIX) {
+        for (const ticker of tickers) {
+            const token = Token.fromTickerOnChain(ticker, chainId);
+            if (token.ticker !== "UNKNOWN") {
+                tokens.push(token);
+            }
         }
     }
     return tokens;
